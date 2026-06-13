@@ -208,6 +208,17 @@ toolbar, it is the wrong archetype.
   otherwise. Each is its own `<DetailSection>`. No nested column layouts; no
   wrapping `<div>`s without a structural reason.
 
+**Editability variant** (composition, not a prop — see `docs/CHOOSING-A-SURFACE.md`):
+a `<DetailSection>` takes arbitrary children + an `actions` slot, so the same
+archetype spans three editability flavors, all conformant — don't treat a
+detail page that edits as drift:
+- **read-only** — sections render values only (the default reference shape).
+- **inline-edit** — a section's children include edit controls (an editable field,
+  an inline form island) that mutate in place.
+- **action-dialogs** — a section's `actions` slot carries a button that opens a
+  crud-dialog (J) / confirm to mutate, while the section itself stays read-only.
+Mix per section as the domain needs; the slot order and section chrome are unchanged.
+
 **Forbidden:**
 - Passing sections as free-form children of the shell (the v2.0 API has no
   `children` prop — this no longer compiles).
