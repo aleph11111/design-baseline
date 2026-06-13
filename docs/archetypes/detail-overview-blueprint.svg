@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 1010" font-family="-apple-system, 'Segoe UI', system-ui, sans-serif">
+  <!--
+    Archetype C — detail-overview — annotated layout blueprint (v2.0, revised
+    after rendered design review 2026-06-12).
+    Canonical slot order rendered by <DetailOverviewShell>:
+      1 header -> 2 summary (master data) -> 3 stats (aggregates)
+      -> 4 content (transactional data) -> 5 references
+    Slots may be omitted, never reordered. Everything below the header is a
+    bounded <DetailSection> surface. Spec: detail-overview.md
+  -->
+  <defs>
+    <style>
+      .frame   { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+      .zone    { fill: #f8fafc; stroke: #94a3b8; stroke-width: 1.25; rx: 6; }
+      .ghost   { fill: #e2e8f0; }
+      .ghostD  { fill: #cbd5e1; }
+      .btn     { fill: #0f172a; }
+      .btnGhost{ fill: #ffffff; stroke: #cbd5e1; }
+      .bounded { fill: #ffffff; stroke: #94a3b8; stroke-width: 1.25; }
+      .num     { fill: #0f172a; }
+      .numTxt  { fill: #ffffff; font-size: 13px; font-weight: 700; text-anchor: middle; }
+      .zlabel  { fill: #334155; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; }
+      .zslot   { fill: #0369a1; font-size: 12px; font-weight: 600; font-family: ui-monospace, Menlo, monospace; }
+      .stitle  { fill: #0f172a; font-size: 12px; font-weight: 700; }
+      .note    { fill: #475569; font-size: 12.5px; }
+      .noteB   { fill: #0f172a; font-size: 12.5px; font-weight: 600; }
+      .title   { fill: #0f172a; font-size: 19px; font-weight: 700; }
+      .sub     { fill: #64748b; font-size: 13px; }
+      .lead    { stroke: #94a3b8; stroke-width: 1; stroke-dasharray: 4 3; fill: none; }
+    </style>
+  </defs>
+
+  <text x="40" y="42" class="title">Archetype C — Detail Overview · layout blueprint (v2.0)</text>
+  <text x="40" y="64" class="sub">One resolved entity, vertical stack: master data → aggregates → transactional data. Everything below the header is a bounded section. Omit slots — never reorder.</text>
+
+  <!-- ============ PAGE FRAME ============ -->
+  <rect x="40" y="90" width="640" height="880" class="frame" rx="10"/>
+
+  <!-- ============ ZONE 1: HEADER ============ -->
+  <rect x="64" y="114" width="592" height="88" class="zone" rx="6"/>
+  <circle cx="84" cy="134" r="11" class="num"/><text x="84" y="138.5" class="numTxt">1</text>
+  <text x="102" y="138" class="zlabel">HEADER</text>
+  <text x="172" y="138" class="zslot">header</text>
+  <rect x="84" y="152" width="220" height="16" class="ghostD" rx="3"/>
+  <rect x="84" y="176" width="150" height="10" class="ghost" rx="3"/>
+  <rect x="500" y="152" width="64" height="24" class="btnGhost" rx="5"/>
+  <rect x="572" y="152" width="64" height="24" class="btn" rx="5"/>
+
+  <!-- ============ ZONE 2: SUMMARY (MASTER DATA) ============ -->
+  <rect x="64" y="222" width="592" height="174" class="zone" rx="6"/>
+  <circle cx="84" cy="242" r="11" class="num"/><text x="84" y="246.5" class="numTxt">2</text>
+  <text x="102" y="246" class="zlabel">MASTER DATA</text>
+  <text x="222" y="246" class="zslot">summary</text>
+  <!-- bounded DetailSection "Details" — ruled ledger rows -->
+  <g>
+    <rect x="84" y="258" width="554" height="126" class="bounded" rx="6"/>
+    <text x="100" y="278" class="stitle" style="letter-spacing:0.08em; text-transform:uppercase; font-size:10px; fill:#64748b;">DETAILS</text>
+    <rect x="552" y="264" width="72" height="18" class="btnGhost" rx="5"/>
+    <rect x="84" y="288" width="554" height="1.25" class="ghost"/>
+    <!-- ruled rows: label left, value right -->
+    <rect x="100" y="298" width="70"  height="8" class="ghost"  rx="2"/>
+    <rect x="470" y="298" width="152" height="8" class="ghostD" rx="2"/>
+    <rect x="84"  y="314" width="554" height="1.25" class="ghost"/>
+    <rect x="100" y="324" width="86"  height="8" class="ghost"  rx="2"/>
+    <rect x="500" y="324" width="122" height="8" class="ghostD" rx="2"/>
+    <rect x="84"  y="340" width="554" height="1.25" class="ghost"/>
+    <!-- chip row: label left, chips right-justified (categorical master data) -->
+    <rect x="100" y="350" width="70" height="8"  class="ghost" rx="2"/>
+    <rect x="420" y="347" width="58" height="14" class="ghost" rx="7"/>
+    <rect x="486" y="347" width="70" height="14" class="ghost" rx="7"/>
+    <rect x="564" y="347" width="58" height="14" class="ghost" rx="7"/>
+    <rect x="84"  y="366" width="554" height="1.25" class="ghost"/>
+    <!-- block row: long free-text (notes) -->
+    <rect x="100" y="372" width="50"  height="7" class="ghost"  rx="2"/>
+    <rect x="100" y="368" width="0" height="0" class="ghost"/>
+  </g>
+
+  <!-- ============ ZONE 3: STATS (AGGREGATES) ============ -->
+  <rect x="64" y="416" width="592" height="86" class="zone" rx="6"/>
+  <circle cx="84" cy="436" r="11" class="num"/><text x="84" y="440.5" class="numTxt">3</text>
+  <text x="102" y="440" class="zlabel">AGGREGATES</text>
+  <text x="212" y="440" class="zslot">stats</text>
+  <!-- ONE unified strip, internal vertical hairlines -->
+  <g>
+    <rect x="84" y="452" width="554" height="42" class="bounded" rx="6"/>
+    <line x1="268" y1="452" x2="268" y2="494" stroke="#e2e8f0" stroke-width="1.25"/>
+    <line x1="452" y1="452" x2="452" y2="494" stroke="#e2e8f0" stroke-width="1.25"/>
+    <rect x="100" y="460" width="56" height="6"  class="ghost"  rx="2"/>
+    <rect x="100" y="472" width="44" height="13" class="ghostD" rx="2"/>
+    <rect x="284" y="460" width="56" height="6"  class="ghost"  rx="2"/>
+    <rect x="284" y="472" width="44" height="13" class="ghostD" rx="2"/>
+    <rect x="468" y="460" width="56" height="6"  class="ghost"  rx="2"/>
+    <rect x="468" y="472" width="44" height="13" class="ghostD" rx="2"/>
+  </g>
+
+  <!-- ============ ZONE 4: CONTENT (TRANSACTIONAL DATA) ============ -->
+  <rect x="64" y="522" width="592" height="270" class="zone" rx="6"/>
+  <circle cx="84" cy="542" r="11" class="num"/><text x="84" y="546.5" class="numTxt">4</text>
+  <text x="102" y="546" class="zlabel">TRANSACTIONAL DATA</text>
+  <text x="272" y="546" class="zslot">content</text>
+  <!-- bounded DetailSection: embedded read-only list/table -->
+  <g>
+    <rect x="84" y="560" width="554" height="150" class="bounded" rx="6"/>
+    <text x="100" y="582" class="stitle">Recent activity</text>
+    <rect x="100" y="596" width="522" height="1.5" class="ghost"/>
+    <rect x="100" y="610" width="170" height="9" class="ghost" rx="2"/>
+    <rect x="470" y="610" width="120" height="9" class="ghost" rx="2"/>
+    <rect x="100" y="634" width="522" height="1.5" class="ghost"/>
+    <rect x="100" y="648" width="170" height="9" class="ghost" rx="2"/>
+    <rect x="470" y="648" width="120" height="9" class="ghost" rx="2"/>
+    <rect x="100" y="672" width="522" height="1.5" class="ghost"/>
+    <rect x="100" y="686" width="170" height="9" class="ghost" rx="2"/>
+    <rect x="470" y="686" width="120" height="9" class="ghost" rx="2"/>
+  </g>
+  <!-- bounded DetailSection: read-write island -->
+  <g>
+    <rect x="84" y="722" width="554" height="58" class="bounded" rx="6"/>
+    <text x="100" y="744" class="stitle">In-context widget (island)</text>
+    <rect x="100" y="756" width="180" height="14" class="ghost" rx="3"/>
+    <rect x="540" y="752" width="84" height="20" class="btnGhost" rx="5"/>
+  </g>
+
+  <!-- ============ ZONE 5: REFERENCES ============ -->
+  <rect x="64" y="812" width="592" height="134" class="zone" rx="6"/>
+  <circle cx="84" cy="832" r="11" class="num"/><text x="84" y="836.5" class="numTxt">5</text>
+  <text x="102" y="836" class="zlabel">REFERENCE PANELS</text>
+  <text x="266" y="836" class="zslot">references</text>
+  <g>
+    <rect x="84" y="850" width="554" height="82" class="bounded" rx="6"/>
+    <text x="100" y="872" class="stitle">Resources</text>
+    <rect x="100" y="886" width="200" height="9" class="ghost" rx="2"/>
+    <rect x="100" y="904" width="180" height="9" class="ghost" rx="2"/>
+  </g>
+
+  <!-- ============ ANNOTATIONS (right column) ============ -->
+  <g>
+    <line x1="656" y1="158" x2="730" y2="158" class="lead"/>
+    <text x="738" y="142" class="noteB">1 · header — slot: header</text>
+    <text x="738" y="160" class="note">Title text-2xl font-semibold, left. Subtitle text-sm muted below.</text>
+    <text x="738" y="176" class="note">Actions ALWAYS a right-aligned row — never mixed into the title</text>
+    <text x="738" y="192" class="note">line. No breadcrumbs (app shell owns them). Omit the slot when a</text>
+    <text x="738" y="208" class="note">parent layout renders the title (Mode B).</text>
+
+    <line x1="656" y1="310" x2="730" y2="310" class="lead"/>
+    <text x="738" y="252" class="noteB">2 · master data — slot: summary</text>
+    <text x="738" y="270" class="note">What this entity IS. A DetailSection ("Details") of ruled ledger</text>
+    <text x="738" y="286" class="note">rows: label left (sm muted), value right (sm medium, tabular),</text>
+    <text x="738" y="302" class="note">hairline dividers. Chip attributes are master data — a row with</text>
+    <text x="738" y="318" class="note">right-justified badges, never a floating section. Long free-text</text>
+    <text x="738" y="334" class="note">uses a stacked block row. Section actions right-aligned in the</text>
+    <text x="738" y="350" class="note">overline title bar. Empty values render "—", never blank.</text>
+
+    <line x1="656" y1="470" x2="730" y2="470" class="lead"/>
+    <text x="738" y="430" class="noteB">3 · aggregates — slot: stats</text>
+    <text x="738" y="448" class="note">How it's doing: ONE flat strip, 2–4 cells, internal hairlines —</text>
+    <text x="738" y="464" class="note">never separate mini-cards. Overline label, value text-2xl</text>
+    <text x="738" y="480" class="note">semibold tabular, "—" when missing. Collapses to a stacked</text>
+    <text x="738" y="496" class="note">column on narrow viewports.</text>
+
+    <line x1="656" y1="640" x2="730" y2="640" class="lead"/>
+    <text x="738" y="580" class="noteB">4 · transactional data — slot: content</text>
+    <text x="738" y="598" class="note">What happened: embedded read-only lists/tables, then read-write</text>
+    <text x="738" y="614" class="note">islands — each its own DetailSection. Embedded tables use the</text>
+    <text x="738" y="630" class="note">shared table primitive, read-only config (no row actions, no</text>
+    <text x="738" y="646" class="note">row-click nav). Section actions right-aligned in the title row —</text>
+    <text x="738" y="662" class="note">same rule everywhere.</text>
+
+    <line x1="656" y1="880" x2="730" y2="880" class="lead"/>
+    <text x="738" y="862" class="noteB">5 · reference panels — slot: references</text>
+    <text x="738" y="880" class="note">Cross-entity links, related records, external resources. Always</text>
+    <text x="738" y="896" class="note">last, in a DetailSection with tone="muted" — the page's lightest</text>
+    <text x="738" y="912" class="note">surface. Graded weights: shadowed data → flat strip → muted refs.</text>
+  </g>
+
+  <!-- ============ GLOBAL RULES (bottom) ============ -->
+  <g>
+    <text x="40" y="998" class="noteB">Page-wide rules:</text>
+    <text x="160" y="998" class="note">vertical stack only (space-y-6) · everything below the header is a bounded DetailSection — naked sections are the defining anti-pattern · no toolbar, no pagination, no sidebars · omit slots, never reorder.</text>
+  </g>
+</svg>
