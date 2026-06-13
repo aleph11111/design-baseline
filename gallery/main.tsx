@@ -1,6 +1,6 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { Gallery } from "./Gallery";
 import "./styles.css";
@@ -11,9 +11,9 @@ if (!root) throw new Error("gallery: #root not found");
 createRoot(root).render(
   <React.StrictMode>
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-      <BrowserRouter>
+      <HashRouter>
         <Gallery />
-      </BrowserRouter>
+      </HashRouter>
     </ThemeProvider>
   </React.StrictMode>,
 );

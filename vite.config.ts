@@ -14,6 +14,10 @@ import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig({
   root: "gallery",
+  // Relative base + hash routing (see gallery/main.tsx) so the built gallery is
+  // position-independent: it works served at "/" standalone AND iframed under an
+  // arbitrary subpath by the hub (e.g. /api/design/gallery/) with no rewrites.
+  base: "./",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
