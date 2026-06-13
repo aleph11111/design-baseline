@@ -137,6 +137,13 @@ distinctions from a domain hub (F1) are:
   - **D2** — settings-table (an editable table body)
 
 **Allowed variation:**
+- **Tabbed detail (F2 shell over a C body):** the tab-strip shell is not limited to
+  settings — it may wrap a single *entity's* detail, where each tab body is a
+  **detail-overview (C)** segment of that entity (e.g. an entity with Overview /
+  Activity / Related tabs). This "tabbed detail" composition is conformant, not a
+  blur of F2 and C (see `docs/CHOOSING-A-SURFACE.md`): F2 owns the tab strip, C owns
+  each tab's body. Use it when a deep entity's detail page is too large for one
+  scroll and splits cleanly into tabs.
 - **Persistent below-tab section:** content that applies to all tabs may render
   below the `Tabs` component at the page level, separated by a `Separator`. This
   section is always visible (it is not a tab body); document the reason inline.

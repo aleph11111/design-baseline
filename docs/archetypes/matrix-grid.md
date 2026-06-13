@@ -146,6 +146,12 @@ This is the core layer. The matrix shell is generic over a single type parameter
 - The shell does **not** format cell content. The consumer's `renderCell` is responsible for invoking project-level formatters (currency, date) on numbers and ISO strings.
 
 **Allowed variation:**
+- **Cell variant axis** (composition via `renderCell` / `cellStyle` — not props; see `docs/CHOOSING-A-SURFACE.md`). The same shell covers several matrix flavors, all conformant; pick what the domain needs. The audit found controlling-app's ledger/entry/variance grids span all of these:
+  - **read-only vs editable-cell** — read-only renders values; editable returns an `<input>` from `renderCell` (the shell stays the same; a read-only matrix simply omits `onCellClick`).
+  - **ledger** — right-aligned `tabular-nums` numerics (route through a formatter).
+  - **tile** — a badge/tile per cell (e.g. status chip, count).
+  - **comparison / variance** — `cellStyle` returns variance colors (over/under) per cell.
+  Define the variant on the consumer's `Cell` shape; keep color maps in a shared file (see Forbidden).
 - **Sticky vertical header (row 1)** — when the column-group band is present, both header rows stick to the top during vertical scroll. (The page generally scrolls the surrounding viewport; the matrix itself stretches and uses horizontal scroll only. Vertical-sticky inside the shell is reserved for very long row sets.)
 - **Cell-count badge** — render an `assignmentCount`-style badge inside `renderCell` (`text-[10px] opacity-70`). Project-specific.
 - **Multi-state cell variants** — cells may carry a status variant (e.g. neutral / warn / accent). The variant lives in the consumer's `Cell` shape; the shell renders whatever className `cellStyle` returns.
