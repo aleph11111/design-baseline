@@ -87,10 +87,10 @@
       "key": "J",
       "slug": "crud-dialog",
       "displayName": "CRUD dialog",
-      "version": "1.1",
+      "version": "1.3",
       "promoted_from": "brickshop-manager",
-      "promoted_at": "2026-06-02",
-      "source_spec_version": "1.2",
+      "promoted_at": "2026-06-13",
+      "source_spec_version": "1.3",
       "spec": "docs/archetypes/crud-dialog.md",
       "primitives_dir": "src/components/archetypes/crud-dialog",
       "example": "src/examples/crud-dialog-demo.tsx"

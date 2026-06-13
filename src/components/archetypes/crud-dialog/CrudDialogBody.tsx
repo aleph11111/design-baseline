@@ -13,6 +13,17 @@ export type CrudDialogBodyProps = {
    * Use while the entity fetch is in-flight (enabled: open && !!entityId).
    */
   isLoading?: boolean;
+  /**
+   * Body presentation — the dialog's graded "richness" axis (see
+   * docs/CHOOSING-A-SURFACE.md). This is a variant, NOT a separate component:
+   * - `"flat"` (default): a single `space-y-4` stack — simple entities (5–8 fields).
+   * - `"two-column"`: a responsive paired-field grid (`grid-cols-1 sm:grid-cols-2`,
+   *   `gap-4`) with the mandated mobile collapse baked in.
+   * - `undefined`: no wrapper — for **mixed** bodies (full-width fields beside a
+   *   2-col section) and the **tabbed** shape (compose shadcn `<Tabs>`), where
+   *   the consumer structures the layout itself.
+   */
+  layout?: "flat" | "two-column";
   className?: string;
 };
 
@@ -75,9 +86,15 @@ function BodySkeleton(): React.ReactElement {
  * Do NOT add extra py-* padding inside the immediate children of CrudDialogBody.
  * The body already supplies px-6 py-4 — adding more creates double-inset.
  */
+const LAYOUT_CLASS: Record<"flat" | "two-column", string> = {
+  flat: "space-y-4",
+  "two-column": "grid grid-cols-1 gap-4 sm:grid-cols-2",
+};
+
 export function CrudDialogBody({
   children,
   isLoading = false,
+  layout,
   className,
 }: CrudDialogBodyProps): React.ReactElement {
   return (
@@ -85,7 +102,9 @@ export function CrudDialogBody({
       {isLoading ? (
         <BodySkeleton />
       ) : (
-        <div className="px-6 py-4">{children}</div>
+        <div className="px-6 py-4">
+          {layout ? <div className={LAYOUT_CLASS[layout]}>{children}</div> : children}
+        </div>
       )}
     </ScrollArea>
   );

@@ -2,10 +2,10 @@
 key: J
 slug: crud-dialog
 kind: dialog
-version: 1.0
+version: 1.2
 promoted_from: brickshop-manager
-promoted_at: 2026-05-22
-source_spec_version: 1.0
+promoted_at: 2026-06-13
+source_spec_version: 1.2
 status: locked
 ---
 
@@ -24,6 +24,8 @@ J is the first non-page archetype in the baseline. It extends the twelve-layer p
 - `<CrudDialogBody>` — ScrollArea body wrapper with consistent padding and loading skeleton slot.
 - `<CrudDialogFooter>` — mode-aware footer enforcing the button layout contract.
 - `useCrudDialogMode` — hook centralizing mode state and dirty-close logic.
+- `useCrudDialogController` — hook owning the shared view/edit/create action flow (dirty-guarded close, primary/secondary handlers, derived footer labels). Composes `useCrudDialogMode` with the form and mutations.
+- `crudStrings` — neutral English defaults (`CRUD_ERRORS`, `CRUD_DISCARD_PROMPT`, `confirmDiscard`). Consumers in another language inject their own via the controller's `labels` option; the baseline never bakes in a specific language.
 
 ---
 
@@ -109,17 +111,19 @@ Dialogs do not have a toolbar layer. This layer number is reserved to keep parit
 
 ## Layer 6 — Body content shape
 
-Three allowed shapes. Consumers choose exactly one.
+Three shapes — the dialog's graded "richness" axis (simple → dense → split). These
+are **variants of the one J archetype, not separate tiers** — see
+`docs/CHOOSING-A-SURFACE.md`. Pick the shape that fits the entity's depth; escalate
+to a detail page (C) when the entity outgrows a dialog (owns collections, etc.).
 
 **Required (pick one):**
-- **Flat section stack** — `<div className="space-y-4">` with labeled field groups. For simple entities (5–8 fields).
-- **Two-column grid** — `<div className="grid grid-cols-2 gap-4">` sections interspersed with flat stacks for full-width fields. For entities with paired fields.
-- **Two-tab layout** — shadcn `<Tabs>` with exactly 2 tabs. Tab 1 owns mode state (entity data + form). Tab 2 is read-only (connected entities, KPIs, history).
+- **Flat stack** — `<CrudDialogBody layout="flat">`. A single `space-y-4` stack of labeled field groups. For simple entities (5–8 fields).
+- **Two-column** — `<CrudDialogBody layout="two-column">`. A paired-field grid; the body bakes in the mandated mobile collapse (`grid-cols-1 sm:grid-cols-2 gap-4`) so consumers don't hand-roll (or forget) it. For entities with paired fields.
+- **Two-tab** — shadcn `<Tabs>` with exactly 2 tabs, composed as the body's children (`<CrudDialogBody>` with no `layout`). Tab 1 owns mode state (entity data + form). Tab 2 is read-only (connected entities, KPIs, history).
 
 **Allowed variation:**
-- Combining flat stack and 2-col grid within a single tab.
+- **Mixed bodies** (a 2-col section beside full-width flat fields) — omit `layout` and compose `space-y-4` + an inner `grid grid-cols-1 sm:grid-cols-2 gap-4` yourself. The `layout` prop is for the *pure* flat / two-column cases; mixed stays manual.
 - Sub-sections with `<Card>` chrome for grouping logically distinct blocks (e.g. Contact vs. Address within Tab 1).
-- 2-col grids that collapse to single-column on mobile via `grid-cols-1 sm:grid-cols-2`.
 
 **Forbidden:**
 - More than 2 tabs. If 3+ tabs are needed the entity belongs in a dedicated page, not a J dialog.
@@ -241,6 +245,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 
 **Required:**
 - Use `useCrudDialogMode` from `src/components/archetypes/crud-dialog/`. Returns `{ mode, setMode, isView, isEdit, isCreate }`.
+- Use `useCrudDialogController` from `src/components/archetypes/crud-dialog/` to own the action flow on top of the mode hook. It is the canonical owner of `handleClose`, `handlePrimary`, and `handleSecondary` — the dialog wires these to the Sheet's close, the footer primary, and the footer secondary respectively, and does not reimplement the transition logic inline. The controller composes `useCrudDialogMode`, the react-hook-form instance, and the create/update mutations; the dialog keeps its schema, default values, mutation bodies, and form JSX.
 - `initialMode`: pass `"create"` when `entityId` is absent; pass `"view"` or `"edit"` when `entityId` is present. Caller controls the initial mode via prop.
 - **view → edit:** Call `setMode("edit")`. Fields switch from read-only display to form inputs. No confirmation needed (no data loss on forward transition).
 - **edit → view (cancel):** Call `setMode("view")` via `onConfirmDiscard`. If `isDirty` is true and `onConfirmDiscard` is provided, the mode hook requests confirmation before transitioning. On confirmed: transition + reset form.
@@ -257,6 +262,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 - Mode driven entirely by prop null-check (e.g. `isEdit = entity !== null`) without a runtime-switchable mode state.
 - Silently discarding unsaved changes when the X button is clicked — dirty-check on close is required in edit and create modes.
 - Mode transitions outside `useCrudDialogMode`.
+- Reimplementing `handleClose` / `handlePrimary` / `handleSecondary` inline instead of deriving them from `useCrudDialogController`.
 
 ---
 
@@ -265,6 +271,8 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 **Required:**
 - Use `<CrudDialogFooter>` from `src/components/archetypes/crud-dialog/`.
 - Pass `primaryLabel`, `onPrimary`, `isSubmitting`, and optionally `secondaryLabel`, `onSecondary`, `destructiveLabel`, `onDestructive`.
+- `primaryLabel` / `secondaryLabel` and the `onPrimary` / `onSecondary` handlers are derived by `useCrudDialogController` (per mode: Edit/Save/Create for primary, Close/Cancel for secondary) — read them off the controller rather than hand-rolling per-mode label and handler switches in the dialog.
+- **i18n.** The controller's label derivation reads from a `labels` option that defaults to neutral English (`DEFAULT_CRUD_DIALOG_LABELS`: Edit / Create / Save / Close / Cancel / "Discard changes?"). A consumer in another language passes a localized `CrudDialogLabels` set to the controller's `labels` option (and a matching `onConfirmDiscard` to `useCrudDialogMode`); the baseline ships no non-English strings. Keep the localized strings in a project-local module, not inside the donor-managed archetype directory, so a `/style-archetypes` re-apply cannot overwrite them.
 - The footer enforces the mode-aware button layout described below.
 - Delete click must open a `<ConfirmDeleteDialog>` (or shadcn `<AlertDialog>`) before executing the delete mutation. Never call the delete mutation directly on button click.
 
@@ -345,3 +353,9 @@ When a target project applies this archetype, it wires the generic primitives to
 - Centralized `invalidate<Entity>()` helpers (per entity, per project).
 - Business rules governing which footer actions appear for a given entity state.
 - Cross-resource invalidation topology.
+
+---
+
+## Revision log
+
+- **2026-06-13 — v1.2.** Promoted `useCrudDialogController` (shared view/edit/create action flow + derived footer labels) and the `crudStrings` neutral-defaults module from mistra. Added the controller's `labels` i18n option (`DEFAULT_CRUD_DIALOG_LABELS`) so localized consumers inject their strings rather than forking the donor primitives. Layers 13–14 now name the controller as the canonical owner of `handleClose`/`handlePrimary`/`handleSecondary` and the footer label derivation. Additive, backward-compatible.

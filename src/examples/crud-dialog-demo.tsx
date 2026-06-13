@@ -252,6 +252,9 @@ function WorkoutDialog({
         subtitle={subtitle}
       />
 
+      {/* Mixed body (full-width field + a 2-col section), so `layout` is omitted
+          and composed manually. A pure paired-field dialog would instead pass
+          `<CrudDialogBody layout="two-column">` (or `"flat"`) — see Layer 6. */}
       <CrudDialogBody isLoading={isLoading}>
         {/* Mode badge — indicates current mode visually */}
         <div className="mb-4">
@@ -279,8 +282,8 @@ function WorkoutDialog({
             )}
           </div>
 
-          {/* Kind + Duration — 2-col grid */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Kind + Duration — 2-col grid (collapses on mobile, per Layer 6) */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-foreground" htmlFor="wd-kind">
                 Type
