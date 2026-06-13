@@ -1,5 +1,5 @@
 import { AlertTriangle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -39,18 +39,24 @@ export function ListWithDetailEmptyState({
     const errorMessage =
       error instanceof Error ? error.message : "Something went wrong loading this list.";
     return (
-      <div className={cn("p-8", className)}>
+      <div className={cn("p-4", className)}>
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>{errorMessage}</AlertDescription>
+          <AlertTitle>Something went wrong</AlertTitle>
+          <AlertDescription className="flex flex-col gap-2">
+            <span>{errorMessage}</span>
+            {onRetry && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-fit"
+                onClick={onRetry}
+              >
+                Try again
+              </Button>
+            )}
+          </AlertDescription>
         </Alert>
-        {onRetry && (
-          <div className="mt-4 flex justify-center">
-            <Button variant="outline" size="sm" onClick={onRetry}>
-              Try again
-            </Button>
-          </div>
-        )}
       </div>
     );
   }

@@ -136,7 +136,7 @@ The grouped-list page has **two empty/loading planes**: page-level (the whole pa
 - **Empty state** — handled by `<GroupedListShell isEmpty emptyMessage="…">`. Rendered when there are zero sections **and** zero ungrouped rows. Text-only, centered, query-dependent copy:
   - Search or filter active: `"No {things} match your search."`
   - No items at all: `"No {things} yet. {CTA hint if applicable}"`
-- **Error state** — handled by `<GroupedListShell error={err} onRetry={…}>`. Renders a destructive-styled panel (AlertTriangle icon, `error.message` or generic fallback) with an optional "Try again" button when `onRetry` is provided. The `isEmpty` condition must be gated with `&& !error`.
+- **Error state** — handled by `<GroupedListShell error={err} onRetry={…}>`. Renders the canonical load-error treatment (destructive `<Alert>` with `<AlertTitle>Something went wrong</AlertTitle>`, AlertTriangle icon, `error.message` or generic fallback, `p-4` wrapper — see README "Layer 7 — canonical state treatments") with an optional `w-fit` "Try again" button when `onRetry` is provided. The `isEmpty` condition must be gated with `&& !error`.
 
 **Section-level — discouraged:**
 - A section should never be rendered with zero rows. The consumer is expected to drop empty groups before building the `sections` array. If a section does render empty, its inner `<ListWithDetailShell>` will show A's empty state — visually a card with "No items yet" inside — which is correct but wasteful. Pre-filter on the data layer.

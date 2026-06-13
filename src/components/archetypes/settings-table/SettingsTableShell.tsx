@@ -282,7 +282,11 @@ export function SettingsTableShell<Row>({
 
   // Loading state
   const loadingState = (
-    <div className="flex items-center justify-center p-8 text-sm text-muted-foreground">
+    <div
+      className="flex items-center justify-center p-8 text-sm text-muted-foreground"
+      role="status"
+      aria-live="polite"
+    >
       Loading…
     </div>
   );

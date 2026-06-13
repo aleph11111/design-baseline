@@ -1,11 +1,11 @@
 import * as React from "react";
 import { AlertTriangle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export type GroupedListShellProps = {
-  /** Page-level toolbar slot. Rendered above the sections region with a separator. */
+  /** Page-level toolbar slot. Rendered as a single card bar above the sections region. */
   toolbar?: React.ReactNode;
   /** True while the initial fetch is in flight. */
   isLoading?: boolean;
@@ -54,8 +54,8 @@ export function GroupedListShell({
   return (
     <div className={cn("space-y-6", className)}>
       {toolbar && (
-        <div className="rounded-lg border bg-card shadow-sm">
-          <div className="border-b px-4 py-3">{toolbar}</div>
+        <div className="rounded-lg border bg-card px-4 py-3 shadow-sm">
+          {toolbar}
         </div>
       )}
 
@@ -70,9 +70,10 @@ export function GroupedListShell({
       )}
 
       {showError && (
-        <div className="p-2">
+        <div className="p-4">
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Something went wrong</AlertTitle>
             <AlertDescription className="flex flex-col gap-2">
               <span>{errorMessage(error)}</span>
               {onRetry && (

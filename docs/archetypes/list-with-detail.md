@@ -138,7 +138,7 @@ The page header is **purely informational** — title, optional subtitle, option
 - **Empty state** — handled by `<ListWithDetailEmptyState mode="empty">`. Text is query-dependent:
   - Search or filter active: `"No {things} match your search."`
   - No items at all: `"No {things} yet. {CTA hint if applicable}"`
-- **Error state (required)** — handled by `<ListWithDetailEmptyState mode="error">`. When the list query fails, pass `error` to the empty-state component; it renders a destructive-styled panel (AlertTriangle icon, `error.message` or a generic fallback). When `onRetry` is also provided, the panel includes a "Try again" button that calls it; when `onRetry` is omitted, the panel renders without the button (error message only). The `isEmpty` condition **must** be gated with `&& !isError` so a failed query never renders as "empty".
+- **Error state (required)** — handled by `<ListWithDetailEmptyState mode="error">`. When the list query fails, pass `error` to the empty-state component; it renders the canonical load-error treatment (destructive `<Alert>` with `<AlertTitle>Something went wrong</AlertTitle>`, AlertTriangle icon, `error.message` or a generic fallback, `p-4` wrapper — see README "Layer 7 — canonical state treatments"). When `onRetry` is also provided, the description includes a `w-fit` "Try again" button; when omitted, the panel renders without the button (error message only). The `isEmpty` condition **must** be gated with `&& !isError` so a failed query never renders as "empty".
 - **Mutation errors** — surface through the app-wide toast. Render-crash errors are caught by the page's `<ErrorBoundary>` (Layer 2).
 
 **Allowed variation:**

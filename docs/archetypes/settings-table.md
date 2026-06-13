@@ -154,7 +154,7 @@ The page header is **purely informational** — title, optional subtitle, option
 - **Empty state** — inline, query-dependent copy:
   - Filter / search active: `"No {things} match {query}."`
   - No items at all: `"No {things} yet."` + a primary CTA button ("Add {entity}") calling `onAddNew`. The CTA is the entry point to the first record.
-- **Error state (required)** — when `error` is non-null, render a destructive-styled panel with the error message and — when `onRetry` is provided — a "Try again" button. The `isEmpty` condition must be gated with `&& !error` so a failed query does not render as "empty".
+- **Error state (required)** — when `error` is non-null, render the canonical load-error treatment (destructive `<Alert>` with `<AlertTitle>Something went wrong</AlertTitle>`, AlertTriangle icon, the error message, `p-4` wrapper — see README "Layer 7 — canonical state treatments") and — when `onRetry` is provided — a `w-fit` "Try again" button inside the description. The `isEmpty` condition must be gated with `&& !error` so a failed query does not render as "empty".
 - **Mutation errors** — surface through the app-wide toast (Sonner). Render crashes are caught by the page's `<ErrorBoundary>` (Layer 2).
 
 **Allowed variation:**

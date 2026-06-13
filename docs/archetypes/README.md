@@ -40,6 +40,16 @@ Layers 1–7 are visual/structural. Layers 8–10 are the data layer. Layers 11�
 
 The structural layers (3 — page header, 5 — content wrapper padding/spacing, the section titles inside 6) draw from a small set of **canonical tokens** documented in `docs/STYLE.md`: the page-title and section-title heading signatures (owned by the `<PageHeader>` and `<SectionHeading>` layout primitives), and the page-inset / vertical-rhythm / surface-padding scale ("Spacing & rhythm"). When writing or auditing a spec, reuse those values — a new fifth rhythm or a hand-rolled heading class is accidental drift (red), not essential variation.
 
+### Layer 7 — canonical state treatments
+
+The three planes of Layer 7 have one canonical look each; vary the *copy*, never the *chrome*:
+
+- **Loading** — text-only "Loading…" centred at `p-8`, `role="status" aria-live="polite"`. **No skeleton screens** in a list/table shell. The only skeleton in the baseline is the J (crud-dialog) body, where the field shape is known ahead of the fetch. Server-rendered pages (C — detail-overview, M — matrix-grid) delegate loading to a route-level `loading.tsx` instead of an in-shell plane.
+- **Error** — two distinct classes, each with its own treatment (do not conflate them):
+  - **Load/fetch error** (the whole surface failed) → a destructive `<Alert>`: `<AlertTriangle className="h-4 w-4" />` + `<AlertTitle>Something went wrong</AlertTitle>` + an `<AlertDescription>` holding the message and, when `onRetry` is given, a `variant="outline" size="sm"` `w-fit` "Try again" button. Wrapper `p-4`. Used by A, K, D2. The `isEmpty` flag must be gated `&& !error` so a failed query never renders as "empty".
+  - **Mutation/action error** (a save failed; the surface is fine) → a compact inline `text-destructive` line near the action, **not** a full Alert. Used by J (dialog save error) and B (form root error). Lighter on purpose — the data is still there.
+- **Empty** — archetype-specific by design: the copy and any CTA (e.g. settings-table's "Add new" button in its empty state) belong to the archetype. Only the base styling is shared (`p-8 text-center text-sm text-muted-foreground`).
+
 ## The fifteen layers (dialog)
 
 Dialog archetypes extend the twelve-layer grid with three dialog-specific layers:
