@@ -5,24 +5,30 @@ import {
   type RowAction,
   type SortDirection,
 } from "../list-with-detail";
-import { SectionHeading } from "@/components/layout/SectionHeading";
-import { cn } from "@/lib/utils";
+import { SectionCard } from "@/components/layout/SectionCard";
+import { Badge } from "@/components/ui/badge";
 
 export type GroupedListSectionProps<Row> = {
-  /** Section title rendered above the inner shell card. Required unless `renderHeader` is provided. */
+  /** Section title rendered in the group's ruled title bar. Required unless `renderHeader` is provided. */
   title?: React.ReactNode;
   /** Optional description line under the title (`text-sm text-muted-foreground`). */
   description?: React.ReactNode;
   /**
-   * Override the default `<h2>` header rendering. Receives the section's
-   * `{ title, description, rowCount }` and returns the header node. Use when
-   * the page needs a row-count badge, sync indicator, or other dense header.
+   * Override the default title-bar content. Receives the section's
+   * `{ title, description, rowCount }` and returns the header node rendered
+   * inside the group's ruled title bar — replacing the default overline +
+   * count badge. Use for a sync indicator, status chip, or other dense header.
    */
   renderHeader?: (args: {
     title: React.ReactNode;
     description: React.ReactNode | undefined;
     rowCount: number;
   }) => React.ReactNode;
+  /**
+   * Hide the default row-count `<Badge>` in the title bar. Ignored when
+   * `renderHeader` is provided (the override owns the whole bar).
+   */
+  hideCount?: boolean;
 
   // Inner-shell delegation (Archetype A)
   rows: Row[];
@@ -44,6 +50,7 @@ function GroupedListSectionInner<Row>({
   title,
   description,
   renderHeader,
+  hideCount,
   rows,
   columns,
   getRowId,
@@ -57,20 +64,25 @@ function GroupedListSectionInner<Row>({
   onSortChange,
   className,
 }: GroupedListSectionProps<Row>): React.ReactElement {
-  const header = renderHeader
+  const customHeader = renderHeader
     ? renderHeader({ title, description, rowCount: rows.length })
-    : title !== undefined ? (
-      <SectionHeading
-        title={title}
-        description={description}
-        className="mb-3"
-      />
-    ) : null;
+    : undefined;
 
   return (
-    <section className={cn(className)}>
-      {header}
+    <SectionCard
+      title={customHeader ? undefined : title}
+      description={customHeader ? undefined : description}
+      actions={
+        customHeader || hideCount ? undefined : (
+          <Badge variant="secondary">{rows.length}</Badge>
+        )
+      }
+      header={customHeader}
+      flush
+      className={className}
+    >
       <ListWithDetailShell<Row>
+        unstyled
         rows={rows}
         columns={columns}
         getRowId={getRowId}
@@ -83,14 +95,17 @@ function GroupedListSectionInner<Row>({
         sortDirection={sortDirection}
         onSortChange={onSortChange}
       />
-    </section>
+    </SectionCard>
   );
 }
 
 /**
- * One group within a grouped-list page. Renders a section header outside the
- * inner card chrome and composes `<ListWithDetailShell>` for the group's rows.
- * Multiple sections share the same `Row` type per page.
+ * One group within a grouped-list page. Renders as a `<SectionCard>` bounded
+ * block: the group title sits in a ruled overline title bar (with a row-count
+ * badge) and the group's table renders flush inside the same card via an
+ * `unstyled` `<ListWithDetailShell>`. The heading is bound to its content as
+ * one block — the same titled-section shape as detail-overview's
+ * `<DetailSection>`. Multiple sections share the same `Row` type per page.
  */
 export const GroupedListSection = GroupedListSectionInner as <Row>(
   props: GroupedListSectionProps<Row>,

@@ -3,6 +3,7 @@ export { AppSidebar, type NavItem, type NavGroup, type AppSidebarProps } from ".
 export { AppHeader } from "./Header";
 export { PageHeader, type PageHeaderProps } from "./PageHeader";
 export { SectionHeading, type SectionHeadingProps } from "./SectionHeading";
+export { SectionCard, type SectionCardProps } from "./SectionCard";
 export {
   SectionNavShell,
   type SectionNavGroup,

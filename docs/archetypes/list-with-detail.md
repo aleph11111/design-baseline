@@ -156,6 +156,7 @@ The primitive does not wire data. It expects consumer-provided props. No assumpt
 - `isLoading: boolean` — true while the initial fetch is in flight.
 - `error: unknown | null` — any fetch error; `null` when healthy.
 - `onRetry?: () => void` — called by the error panel's "Try again" button.
+- `unstyled?: boolean` — drop the shell's own card chrome (border, shadow, rounding) so the table renders flush inside a surface the caller already provides. Used by grouped-list, which wraps each group's table in a `<SectionCard flush>`. Defaults to `false` (standalone list pages keep the card).
 
 **Contract for the consumer's query hook:**
 - Use a dedicated query hook; avoid manual `useState` + `useEffect` + imperative refetch combinations.

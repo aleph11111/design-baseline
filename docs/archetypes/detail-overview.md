@@ -60,8 +60,10 @@ outer container for the route. Composed alongside:
 - `<DetailSection>` — the bounded section surface: ruled overline title bar
   (small-caps `text-xs` tracked label + right-aligned actions), `flush` or
   padded content, graded `tone` (`default` card surface with shadow, `muted`
-  for the lightest sections). Every zone below the header renders inside one;
-  the shadcn `<Card>` family is not used directly at section level.
+  for the lightest sections). A thin wrapper over the shared `<SectionCard>`
+  layout primitive (the same titled-section shape grouped-list and form-page
+  use). Every zone below the header renders inside one; the shadcn `<Card>`
+  family is not used directly at section level.
 - `<StatTileRow>` + `<StatTile>` — the unified aggregate strip: ONE bounded
   surface with internal hairline dividers, overline labels, tabular values.
 - `<KeyValueList>` + `<KeyValueRow>` — ruled master-data rows: label left,

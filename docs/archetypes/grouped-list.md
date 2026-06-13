@@ -19,7 +19,7 @@ K **inherits A's table contract**. Layers 6–10 (table, empty states, data, typ
 
 ## Reference primitive
 
-`<GroupedListShell>` + `<GroupedListSection>` in `src/components/archetypes/grouped-list/`. The shell owns the outer container, the optional page-level toolbar slot, and the page-level empty state. Each `<GroupedListSection>` composes `<ListWithDetailShell>` (Archetype A) for one group's rows; section headers live outside the inner shell's card chrome so each group reads as its own visual block.
+`<GroupedListShell>` + `<GroupedListSection>` in `src/components/archetypes/grouped-list/`. The shell owns the outer container, the optional page-level toolbar slot, and the page-level empty state. Each `<GroupedListSection>` renders as a bounded `<SectionCard>` — a ruled title bar (group name + row count) over the group's table rendered flush inside the same card — so each group reads as one self-contained titled block, the same shape as a detail-overview `<DetailSection>`.
 
 ---
 
@@ -96,22 +96,24 @@ The toolbar renders as a prop of `<GroupedListShell>` (the `toolbar` slot), abov
 
 **Required:**
 - `<GroupedListShell>` from `src/components/archetypes/grouped-list/`. The shell provides:
-  - Optional toolbar slot with `border-b px-4 py-3` separator (when `toolbar` is provided).
+  - Optional toolbar slot rendered as a single card bar `rounded-lg border bg-card px-4 py-3 shadow-sm` (when `toolbar` is provided).
   - Sections region: `<div className="space-y-8">` — vertical rhythm between sections wide enough that each section reads as its own block.
   - Page-level empty state (rendered when `isEmpty` is true and not loading or erroring).
 - One `<GroupedListSection>` per group, plus an optional trailing section for ungrouped rows. Sections are passed as children of `<GroupedListShell>`.
 
 **Required per `<GroupedListSection>`:**
-- Section header — the shared `<SectionHeading>` overline (`text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground`) by default, rendered outside the inner shell's card chrome. This is the baseline-wide section-title signature — a quiet uppercase label above the strong table card, identical to the section headings on a detail-overview page. The header can be replaced with a `renderHeader` prop for projects that need a denser header (e.g. row count badge, sync indicator).
-- Inner card — composes the baseline `<ListWithDetailShell>` with that group's rows.
+- Each group renders as a **bounded `<SectionCard>`**: the group title sits in a ruled overline title bar (the canonical `<SectionHeading>` signature) with a row-count `<Badge>` on the right, and the group's table renders **flush inside the same card**. The heading is bound to its content as one block — the same titled-section shape as detail-overview's `<DetailSection>`, not a heading floating above a detached card. `<GroupedListSection>` composes this automatically; consumers pass `title` + rows.
+- Inner table — composes the baseline `<ListWithDetailShell unstyled>` (the `unstyled` flag drops the shell's own card chrome so it renders flush within the section card).
 
 **Allowed variation:**
-- **Section description** — an optional `description` line (`text-sm text-muted-foreground`) placed under the title. Use when the section header benefits from a one-line clarifier.
-- **Row-count badge in the header** — via `renderHeader`. Common enough to be worth naming; not part of the default.
+- **Section description** — an optional `description` line under the title in the bar. Use when the group title benefits from a one-line clarifier.
+- **Hide the count** — set `hideCount` to drop the default row-count badge.
+- **Custom title bar** — `renderHeader({ title, description, rowCount })` replaces the bar's default content (overline + count) with a dense header (sync indicator, status chip). It renders inside the same ruled bar.
 
 **Forbidden:**
 - Hand-rolled section markup. Always go through `<GroupedListShell>` + `<GroupedListSection>`.
-- Section headers styled per page. The shared `<SectionHeading>` overline is uniform across archetypes.
+- A section heading floating as plain text above a detached table card — the group is one bounded `<SectionCard>`.
+- Section chrome styled per page. The `<SectionCard>` titled-section shape is uniform across archetypes.
 - Page-level `max-width` on the grouped content region. Full-width.
 - Wrapping `<GroupedListShell>` in an additional card (nested chrome).
 

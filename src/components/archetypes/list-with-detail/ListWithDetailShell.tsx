@@ -71,6 +71,13 @@ export type ListWithDetailShellProps<Row> = {
   sortBy?: string;
   sortDirection?: SortDirection;
   onSortChange?: (sortBy: string, sortDirection: SortDirection) => void;
+  /**
+   * When true, drop the shell's own card chrome (border, shadow, rounding) so
+   * the table renders flush inside a surface the caller already provides — e.g.
+   * a `<SectionCard flush>` in a grouped-list group. Defaults to false (the
+   * shell draws its own card).
+   */
+  unstyled?: boolean;
   className?: string;
 };
 
@@ -125,6 +132,7 @@ function ListWithDetailShellInner<Row>(
     sortBy,
     sortDirection,
     onSortChange,
+    unstyled,
     className,
   }: ListWithDetailShellProps<Row>,
   _ref: React.Ref<HTMLDivElement>,
@@ -292,7 +300,12 @@ function ListWithDetailShellInner<Row>(
     ) : null;
 
   return (
-    <div className={cn("rounded-lg border bg-card shadow-sm overflow-hidden", className)}>
+    <div
+      className={cn(
+        !unstyled && "rounded-lg border bg-card shadow-sm overflow-hidden",
+        className,
+      )}
+    >
       {toolbar && <div className="border-b px-4 py-3">{toolbar}</div>}
       <div className="flex">
         <div className="min-w-0 flex-1 overflow-x-auto">{bodyContent}</div>

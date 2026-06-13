@@ -119,7 +119,7 @@ Form pages do not have a toolbar layer. This layer number is reserved to keep pa
 
 **Allowed variation:**
 
-- **Section grouping** — `<div>` blocks with optional subsection headers when the form has 3+ logical groups (e.g. "Contact info" / "Address" / "Preferences"). Use the shared `<SectionHeading>` primitive (`@/components/layout`) for subsection headers — the same ledger overline used by detail-overview and grouped-list, so a form's groupings read consistently with the rest of the app. Do not hand-roll the heading class string.
+- **Section grouping** — when the form has 3+ logical groups (e.g. "Contact info" / "Address" / "Preferences"), wrap each group in the shared `<SectionCard title="…">` primitive (`@/components/layout`) so the group heading is bound to its fields as one titled bounded block — the same titled-section shape used by detail-overview (`<DetailSection>`) and grouped-list groups. The fields render in the card's padded (non-`flush`) body. Do not float a bare heading above an unbounded `<div>` of fields, and do not hand-roll the card/heading chrome. Forms with fewer than 3 groups stay flat (no `<SectionCard>`) — a single bounded section adds chrome without earning it.
 - **Card-grouped sections** — `<Card>` around each section when visual separation is desired (e.g. compliance forms with optional sub-collections).
 - **Two-column field grids** — `<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">` for paired short fields (firstName + lastName, city + zip). Collapse to single-column on narrow viewports.
 

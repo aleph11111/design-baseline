@@ -1,6 +1,5 @@
 import * as React from "react";
-import { SectionHeading } from "@/components/layout/SectionHeading";
-import { cn } from "@/lib/utils";
+import { SectionCard } from "@/components/layout/SectionCard";
 
 export type DetailSectionProps = {
   /**
@@ -61,22 +60,15 @@ export function DetailSection({
   className,
 }: DetailSectionProps): React.ReactElement {
   return (
-    <section
-      className={cn(
-        "overflow-hidden rounded-lg border",
-        tone === "muted"
-          ? "bg-muted/40"
-          : "bg-card text-card-foreground shadow-sm",
-        className,
-      )}
+    <SectionCard
+      title={title}
+      actions={actions}
+      flush={flush}
+      tone={tone}
+      className={className}
     >
-      {title && (
-        <div className="border-b border-border px-5 py-3">
-          <SectionHeading title={title} actions={actions} />
-        </div>
-      )}
-      {flush ? children : <div className="px-5 py-4">{children}</div>}
-    </section>
+      {children}
+    </SectionCard>
   );
 }
 
