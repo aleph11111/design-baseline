@@ -6,6 +6,8 @@ Baseline archetypes are generalised from mature, real-project implementations. T
 
 > **Living manifest:** `MANIFEST.json` is the source of truth for which archetypes baseline currently ships and at what version.
 
+> **Which archetype for a given entity?** An entity shows up at different depths in different projects (a shallow `Company` vs one that owns contacts/deals/contracts). Don't build tiers of one layout — pick the right archetype by depth + context. See [`docs/CHOOSING-A-SURFACE.md`](../CHOOSING-A-SURFACE.md): the **surface ladder** (token → row → dialog → section → detail page), the **create spectrum** (dialog vs page), and when to escalate.
+
 ## Archetype kinds
 
 Archetypes apply to different surface kinds. Each kind has its own layer set.

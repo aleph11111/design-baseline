@@ -40,5 +40,7 @@ Plugin = Gallery surface + MANIFEST.plugin (metadata + actions)
          └── wired into the dashboard hub → browse archetypes, fire adopt tickets
 ```
 
-See also: `STYLE.md` (tokens, primitives, conventions) and
-`docs/archetypes/README.md` (the archetype methodology + the twelve layers).
+See also: `STYLE.md` (tokens, primitives, conventions),
+`docs/archetypes/README.md` (the archetype methodology + the twelve layers), and
+`docs/CHOOSING-A-SURFACE.md` (which archetype to use for an entity at a given
+depth — the surface ladder + create spectrum).
