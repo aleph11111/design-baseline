@@ -1,0 +1,2512 @@
+{
+  "records": [
+    {
+      "project": "brickshop-manager",
+      "framework": "Vite + React + React Router v6 (declarative &lt;Route&gt; table in src/App.tsx), shadcn/ui",
+      "routes": [
+        {
+          "route": "/orders",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/Orders.tsx",
+          "archetype": "A",
+          "fit": 0.9,
+          "adopted": false,
+          "signals": [
+            "wraps OrdersContent (sortable table + search)",
+            "row navigates to /orders/:id",
+            "uses project StandardTableShell/PageHeader, not @/components/archetypes"
+          ],
+          "notes": "Representative of the list-with-detail family. Hand-rolled vs baseline primitive."
+        },
+        {
+          "route": "/offers",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/Offers.tsx",
+          "archetype": "A",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "sortable table + search + create dialog",
+            "row -> /offers/:id"
+          ],
+          "notes": "list-with-detail; sibling of Orders/Inquiries/Invoices/IncomingInvoices."
+        },
+        {
+          "route": "/inquiries",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/Inquiries.tsx",
+          "archetype": "A",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "InquiriesTable wrapper",
+            "row -> /inquiries/:id"
+          ],
+          "notes": "list-with-detail."
+        },
+        {
+          "route": "/invoices",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/Invoices.tsx",
+          "archetype": "A",
+          "fit": 0.9,
+          "adopted": false,
+          "signals": [
+            "StandardTableShell + PageHeader + status pill bar"
+          ],
+          "notes": "list-with-detail; grouped near-identical with /incoming-invoices."
+        },
+        {
+          "route": "/incoming-invoices",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/IncomingInvoices.tsx",
+          "archetype": "A",
+          "fit": 0.9,
+          "adopted": false,
+          "signals": [
+            "StandardTableShell + PageHeader + status pill bar",
+            "row -> /incoming-invoices/:id"
+          ],
+          "notes": "list-with-detail."
+        },
+        {
+          "route": "/shared-lists",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/SharedLists.tsx",
+          "archetype": "A",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "SharedListsTable",
+            "row -> /shared-lists/:id",
+            "create button"
+          ],
+          "notes": "list-with-detail."
+        },
+        {
+          "route": "/analysis",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/SetAnalysisBatches.tsx",
+          "archetype": "A",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "table of batches",
+            "row -> /analysis/:batchId"
+          ],
+          "notes": "list-with-detail."
+        },
+        {
+          "route": "/set-preparation",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/SetPreparation.tsx",
+          "archetype": "A",
+          "fit": 0.8,
+          "adopted": false,
+          "signals": [
+            "SetPreparationTable + create dialog",
+            "row -> detail"
+          ],
+          "notes": "list-with-detail."
+        },
+        {
+          "route": "/set-preparation/baskets",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/BasketsPage.tsx",
+          "archetype": "A",
+          "fit": 0.8,
+          "adopted": false,
+          "signals": [
+            "plain table of baskets",
+            "row -> /set-preparation/baskets/:basketId"
+          ],
+          "notes": "list-with-detail."
+        },
+        {
+          "route": "/set-preparation/shopping-list",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/ShoppingListPage.tsx",
+          "archetype": "A",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "wraps ShoppingList table + search + bulk export",
+            "no per-row detail nav"
+          ],
+          "notes": "list-with-detail (weak: bulk-export oriented)."
+        },
+        {
+          "route": "/price-comparison",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/BrickLinkPriceComparison.tsx",
+          "archetype": "A",
+          "fit": 0.75,
+          "adopted": false,
+          "signals": [
+            "ItemInstancesTable (grouped list-with-detail variation)"
+          ],
+          "notes": "list-with-detail; also has grouped-list flavor."
+        },
+        {
+          "route": "/market-intelligence",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/MarketIntelligence.tsx",
+          "archetype": "A",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "MarketDataTable + watchlist toolbar",
+            "no row -> detail nav"
+          ],
+          "notes": "list-with-detail (weak: no detail navigation)."
+        },
+        {
+          "route": "/pack",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/PackOrders.tsx",
+          "archetype": "A",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "mobile-style button-row list (max-w-2xl)",
+            "row -> /pack/:orderId"
+          ],
+          "notes": "list-with-detail (weak: list of action rows, not a table)."
+        },
+        {
+          "route": "/warehouse",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/Warehouse.tsx",
+          "archetype": "A",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "WarehouseLocationsTable + PageHeader",
+            "row opens edit dialog, not page nav"
+          ],
+          "notes": "list-with-detail / borderline crud-dialog; not on a /settings route so not D2."
+        },
+        {
+          "route": "/orders/:id",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/OrderDetail.tsx",
+          "archetype": "C",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "StandaloneOrderDetailView",
+            "read-only single-entity sections + back-nav header"
+          ],
+          "notes": "detail-overview. Project taxonomy calls this 'B detail view'; maps to baseline C."
+        },
+        {
+          "route": "/offers/:id",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/OfferDetail.tsx",
+          "archetype": "C",
+          "fit": 0.8,
+          "adopted": false,
+          "signals": [
+            "StandaloneOfferDetailView",
+            "single-entity sections"
+          ],
+          "notes": "detail-overview."
+        },
+        {
+          "route": "/inventory/items/:id",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/ItemDetail.tsx",
+          "archetype": "C",
+          "fit": 0.8,
+          "adopted": false,
+          "signals": [
+            "StandaloneItemDetailView + actions toolbar"
+          ],
+          "notes": "detail-overview."
+        },
+        {
+          "route": "/inquiries/:id",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/InquiryDetail.tsx",
+          "archetype": "C",
+          "fit": 0.8,
+          "adopted": false,
+          "signals": [
+            "InquiryDetailView single-entity sections"
+          ],
+          "notes": "detail-overview."
+        },
+        {
+          "route": "/incoming-invoices/:id",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/IncomingInvoiceDetail.tsx",
+          "archetype": "C",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "single invoice: PDF pane + review form sections"
+          ],
+          "notes": "detail-overview (hybrid with a review form)."
+        },
+        {
+          "route": "/delivery-receipts/:id",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/DeliveryReceiptDetail.tsx",
+          "archetype": "C",
+          "fit": 0.8,
+          "adopted": false,
+          "signals": [
+            "StandaloneDeliveryReceiptDetailView single-entity sections"
+          ],
+          "notes": "detail-overview."
+        },
+        {
+          "route": "/vendors/:id",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/vendors/VendorDetail.tsx",
+          "archetype": "C",
+          "fit": 0.9,
+          "adopted": false,
+          "signals": [
+            "DetailHeader + KPI/stat cards + DetailTabs (POs / invoices / payment / lots)",
+            "read-only embedded tables (ADR-0125 vendor hub)"
+          ],
+          "notes": "Strong detail-overview: sections + stat tiles + embedded read-only tables. Hand-rolled."
+        },
+        {
+          "route": "/sourcing/leads/:id",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/SourcingLeadDetail.tsx",
+          "archetype": "C",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "single lead detail sections"
+          ],
+          "notes": "detail-overview."
+        },
+        {
+          "route": "/set-preparation/:id",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/SetPreparationDetail.tsx",
+          "archetype": "F2",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "tab strip: completeness / condition / missing-parts / handoff delegating to per-tab bodies"
+          ],
+          "notes": "Reads as a per-entity tabbed detail; tab-strip shape matches F2 over a detail (C) base."
+        },
+        {
+          "route": "/shared-lists/:id",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/SharedListDetail.tsx",
+          "archetype": "F2",
+          "fit": 0.6,
+          "adopted": false,
+          "signals": [
+            "tabs over single list: items / recipients / activity"
+          ],
+          "notes": "Tab-strip detail; borderline C detail-overview."
+        },
+        {
+          "route": "/set-preparation/baskets/:basketId",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/BasketDetailPage.tsx",
+          "archetype": "C",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "single basket: items table + actions"
+          ],
+          "notes": "detail-overview."
+        },
+        {
+          "route": "/analysis/:batchId",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/SetAnalysisBatchDetail.tsx",
+          "archetype": "C",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "BatchHeader + summary + AnalysisTable"
+          ],
+          "notes": "detail-overview with embedded table."
+        },
+        {
+          "route": "/orders/new",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/CreateOrder.tsx",
+          "archetype": "B",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "dedicated create ROUTE",
+            "delegates to OrderCreationForm (react-hook-form create form)",
+            "back-nav header"
+          ],
+          "notes": "form-page (baseline B). Hand-rolled form, not a baseline primitive."
+        },
+        {
+          "route": "/settings/company",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/Company.tsx",
+          "archetype": "B",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "useForm (react-hook-form)",
+            "long settings form in Cards on its own route"
+          ],
+          "notes": "form-page (baseline B = react-hook-form on a route). Representative of the settings-form family."
+        },
+        {
+          "route": "/settings/pricing",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/PricingRules.tsx",
+          "archetype": "B",
+          "fit": 0.75,
+          "adopted": false,
+          "signals": [
+            "wraps PricingRulesManager form on a route"
+          ],
+          "notes": "form-page; sibling of LeadTimes/NotificationSettings/LegalTexts/Sourcing settings forms."
+        },
+        {
+          "route": "/settings/lead-times",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/LeadTimes.tsx",
+          "archetype": "B",
+          "fit": 0.75,
+          "adopted": false,
+          "signals": [
+            "small react-hook-form form on a route"
+          ],
+          "notes": "form-page."
+        },
+        {
+          "route": "/settings/notifications",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/NotificationSettings.tsx",
+          "archetype": "B",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "toggles + select per category/source form on a route"
+          ],
+          "notes": "form-page."
+        },
+        {
+          "route": "/settings/templates/legal",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/LegalTexts.tsx",
+          "archetype": "B",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "wraps LegalTextsManager form on a route"
+          ],
+          "notes": "form-page."
+        },
+        {
+          "route": "/settings/templates/lot-descriptions",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/LotDescriptionTemplates.tsx",
+          "archetype": "B",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "wraps LotDescriptionTemplateSettings form on a route"
+          ],
+          "notes": "form-page."
+        },
+        {
+          "route": "/settings/sourcing",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/Sourcing.tsx",
+          "archetype": "B",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "postal/distance/margin defaults form on a route"
+          ],
+          "notes": "form-page."
+        },
+        {
+          "route": "/settings/master-data/categories",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/Categories.tsx",
+          "archetype": "D2",
+          "fit": 0.9,
+          "adopted": false,
+          "signals": [
+            "/settings route",
+            "StandardTableShell + sync action",
+            "row opens CrudDialogSheet EDIT DIALOG (useCrudDialogMode)",
+            "uses project shared CrudDialog primitives, not @/components/archetypes"
+          ],
+          "notes": "settings-table. Best structural match; uses the project's OWN shared crud-dialog primitive but NOT the design-baseline primitive, so adopted:false."
+        },
+        {
+          "route": "/settings/master-data/customers",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/MasterDataCustomers.tsx",
+          "archetype": "D2",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "/settings route",
+            "wraps CustomersTable",
+            "row -> edit dialog"
+          ],
+          "notes": "settings-table. Representative of the 13 master-data D2 pages (vendors/items/parts/packaging/cost-categories/charge-cost-types/offer-statuses, etc.)."
+        },
+        {
+          "route": "/settings/master-data/items",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/MasterDataItems.tsx",
+          "archetype": "D2",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "/settings route",
+            "wraps ItemMasterTable",
+            "row -> edit dialog"
+          ],
+          "notes": "settings-table (grouped with master-data siblings)."
+        },
+        {
+          "route": "/settings/master-data/vendors",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/MasterDataVendors.tsx",
+          "archetype": "D2",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "/settings route",
+            "wraps VendorsTable",
+            "row -> edit dialog (ADR-0125)"
+          ],
+          "notes": "settings-table."
+        },
+        {
+          "route": "/settings/master-data/parts",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/MasterDataParts.tsx",
+          "archetype": "D2",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "/settings route",
+            "wraps PartsCatalogTable",
+            "row -> edit dialog"
+          ],
+          "notes": "settings-table."
+        },
+        {
+          "route": "/settings/numbering",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/NumberingSettings.tsx",
+          "archetype": "D2",
+          "fit": 0.8,
+          "adopted": false,
+          "signals": [
+            "/settings route",
+            "settings table with inline edit dialog"
+          ],
+          "notes": "settings-table."
+        },
+        {
+          "route": "/settings/order-processing/payment-methods",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/PaymentMethods.tsx",
+          "archetype": "D2",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "/settings route",
+            "PaymentMethodsTable in Card",
+            "row -> edit dialog"
+          ],
+          "notes": "settings-table (grouped with shipping-methods, shipping-packaging)."
+        },
+        {
+          "route": "/settings/order-processing/shipping-methods",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/ShippingMethods.tsx",
+          "archetype": "D2",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "/settings route",
+            "ShippingMethodsTable in Card",
+            "row -> edit dialog"
+          ],
+          "notes": "settings-table."
+        },
+        {
+          "route": "/inventory",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/Inventory.tsx",
+          "archetype": "F2",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "HubTabs 8-tab strip (overview/lots/expected/ledger/bricklink/receipts/analytics/linking)",
+            "each tab delegates to a per-tab body"
+          ],
+          "notes": "tabbed-settings shape (top tab strip delegating to per-tab bodies). Project calls it 'F1 domain hub'. Uses project HubTabs primitive, not baseline."
+        },
+        {
+          "route": "/financials",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/Financials.tsx",
+          "archetype": "F2",
+          "fit": 0.75,
+          "adopted": false,
+          "signals": [
+            "HubTabs: Dashboard / Expenses / EUER",
+            "per-tab bodies (incl. OrderPnlMatrixSection)"
+          ],
+          "notes": "tabbed-settings shape. One tab embeds an interactive P&L matrix grid (see gaps note)."
+        },
+        {
+          "route": "/sourcing",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/Sourcing.tsx",
+          "archetype": "F2",
+          "fit": 0.75,
+          "adopted": false,
+          "signals": [
+            "HubTabs: Leads / Saved Searches / Monitoring",
+            "shared toolbar; per-tab tables"
+          ],
+          "notes": "tabbed-settings shape over per-tab list bodies."
+        },
+        {
+          "route": "/procurement",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/Procurement.tsx",
+          "archetype": "F2",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "Tabs: All Orders / Expected Arrivals",
+            "per-tab ProcurementOrdersTable"
+          ],
+          "notes": "tabbed list; borderline A (each tab is a list-with-detail table)."
+        },
+        {
+          "route": "/data-mapping",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/components/configuration/data-mapping/DataMappingManagementPage.tsx",
+          "archetype": "F2",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "top tab strip + log viewer",
+            "per-tab body is a settings form/table"
+          ],
+          "notes": "tabbed-settings (project F2 reference)."
+        },
+        {
+          "route": "/settings/integrations/bricklink",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/BrickLinkIntegrationSettings.tsx",
+          "archetype": "F2",
+          "fit": 0.9,
+          "adopted": false,
+          "signals": [
+            "/settings route",
+            "Tabs (order-status/payment/shipping/cost-category) over IntegrationMappingTable",
+            "per-tab body is a D2 table"
+          ],
+          "notes": "tabbed-settings. Strong shape match; hand-rolled."
+        },
+        {
+          "route": "/settings/order-processing/statuses",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/StatusDefinitions.tsx",
+          "archetype": "F2",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "/settings route",
+            "Tabs status manager + trigger-rules section",
+            "StatusEditDialog per row"
+          ],
+          "notes": "tabbed-settings; per-tab bodies are settings tables w/ edit dialogs."
+        },
+        {
+          "route": "/settings/order-processing/calculation-rules",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/settings/CalculationRules.tsx",
+          "archetype": "F2",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "/settings route",
+            "Tabs + RuleCards grouped by type + RuleStatsCards + RuleConfigDialog/SimulatorDialog"
+          ],
+          "notes": "tabbed-settings; also has grouped-list flavor (rule cards grouped by type)."
+        },
+        {
+          "route": "/shared-lists/new",
+          "file": "/Users/christoph/Documents/dev/brickshop-manager/src/pages/CreateSharedList.tsx",
+          "archetype": "B",
+          "fit": 0.55,
+          "adopted": false,
+          "signals": [
+            "Tabs used as a sequential stepper (basics -> items -> recipients -> preview)",
+            "draft/activate; create flow on its own route"
+          ],
+          "notes": "Create wizard. Closest baseline is B form-page but it's a multi-step wizard (project E1), so low fit."
+        }
+      ],
+      "gaps": [
+        {
+          "route": "/dashboard",
+          "shape": "KPI stat cards + RevenueTrend/TopSellers/AccountsReceivable widget grid. Read-only analytics dashboard; no entity table, no form, not a single-entity detail. Closest is C detail-overview but it's a multi-source dashboard, not one entity -> <0.5.",
+          "signals": [
+            "KPICardsWidget",
+            "chart widgets (nivo)",
+            "no entity table or detail nav"
+          ]
+        },
+        {
+          "route": "/messages",
+          "shape": "Inbox/feed: wraps MessagesInbox. Conversation/message feed, not a domain table or single-entity detail. Project archetype H (inbox/feed) has no design-baseline equivalent.",
+          "signals": [
+            "MessagesInbox",
+            "feed/inbox shape"
+          ]
+        },
+        {
+          "route": "/notifications",
+          "shape": "Notification feed with category/source filters; not a CRUD list or detail. No matching baseline archetype (project H).",
+          "signals": [
+            "notification feed",
+            "filter chips, not a table"
+          ]
+        },
+        {
+          "route": "/box-checker",
+          "shape": "Operational utility: dimensions input -> evaluate -> save flow. Single-shot tool, not list/form-page/detail. Project archetype G.",
+          "signals": [
+            "input -> evaluate -> save",
+            "no entity list"
+          ]
+        },
+        {
+          "route": "/box-finder",
+          "shape": "Operational lookup utility: UID lookup -> result + inline edit. Project archetype G; no baseline match.",
+          "signals": [
+            "lookup field -> single result",
+            "inline edit"
+          ]
+        },
+        {
+          "route": "/pack/:orderId",
+          "shape": "Pick -> pack step state machine (mobile-oriented). Operational flow, not a static page archetype. Project E2.",
+          "signals": [
+            "multi-step state machine",
+            "mobile flow"
+          ]
+        },
+        {
+          "route": "/mobile (and /mobile/* family)",
+          "shape": "Dedicated mobile UI surface (MobileDashboard, MobileItemSearch, MobileItemDetail, MobileSourcingTriage, MobileLot* create/photos/find/detail). Touch-first flows that don't map cleanly to the desktop archetype rubric.",
+          "signals": [
+            "mobile-only layouts",
+            "lot scan/photo/triage flows"
+          ]
+        },
+        {
+          "route": "/financials (OrderPnlMatrixSection tab)",
+          "shape": "NOTE not a standalone route: within /financials a tab renders a true 2-D matrix-grid (rows = orders x columns = P&L metrics, cells clickable -> drill-down Dialog). This is the only matrix-grid (M) instance in the app and it is embedded, so no route maps to M >=0.5.",
+          "signals": [
+            "rows x numeric columns",
+            "cursor-pointer cells with onClick drill-down",
+            "Dialog drill-down"
+          ]
+        },
+        {
+          "route": "/shared/:token (public shared-list family)",
+          "shape": "Public unauthenticated buyer flow: SharedListGate -> browse/lots -> inquiry -> confirmation -> legal. Marketing/checkout-style flow, outside the internal-admin archetype rubric.",
+          "signals": [
+            "token-gated public pages",
+            "linear buyer flow"
+          ]
+        }
+      ],
+      "adoptionSummary": {
+        "adopted": 0,
+        "handRolled": 48,
+        "gaps": 9
+      },
+      "notes": "Vite + React Router v6 SPA (declarative <Route> table in src/App.tsx, lazy-loaded pages under src/pages/, settings under src/pages/settings/). ADOPTION = ZERO against the DESIGN-BASELINE: there is no src/components/archetypes/ directory and no docs/archetypes/MANIFEST.json, and `grep -rl '@/components/archetypes' src` returns nothing, so NO page can score fit 1.0 / adopted:true. Every classified route is therefore hand-rolled (0.55-0.9). IMPORTANT NUANCE: the project has its OWN mature, internal archetype program (docs/archetypes/*.md, page-inventory.md tags 73 routes A/B/C/D1/D2/E1/E2/F1/F2/G/H) and its OWN shared reference primitives -- StandardTableShell, CrudDialogSheet/Header/Body/Footer + useCrudDialogMode (@/components/shared/), HubTabs, PageHeader. These give high STRUCTURAL conformance but are a parallel system, not the design-baseline's @/components/archetypes/<slug> primitives, so they do not count as adopted under this rubric. TAXONOMY MAPPING applied: project 'B detail view' -> baseline C detail-overview; project 'D1 settings form' + create routes -> baseline B form-page; project 'D2 settings table' -> baseline D2; project 'F1 domain hub' + 'F2 tabbed settings' -> baseline F2 tabbed-settings. CRUD-DIALOG (baseline J) is not a standalone ROUTE here -- it appears as the row-edit dialog inside D2 settings tables (e.g. Categories' CrudDialogSheet), so J is folded into the D2 entries rather than scored as its own route. GROUPED-LIST (baseline K) and MATRIX-GRID (baseline M): no dedicated route; the only true matrix-grid is OrderPnlMatrixSection embedded in the /financials tab (logged in gaps). The route list above is REPRESENTATIVE/grouped -- ~73 routed pages exist; near-identical master-data D2 pages (customers/vendors/items/parts/packaging/cost-categories/charge-cost-types/offer-statuses/categories/shipping-packaging) and settings-form D1 pages were sampled rather than each enumerated. handRolled count (48) reflects classified representatives; the full app has ~73 routes all sharing the same hand-rolled-vs-baseline status. The /settings parent uses a nested SettingsLayout outlet; many legacy paths are <Navigate> redirects (excluded). Caveat: I sampled structure via imports + the project's own page-inventory.md (authoritative shape map) rather than reading every page line-by-line."
+    },
+    {
+      "project": "mistra",
+      "framework": "React 19 + Vite + react-router-dom (BrowserRouter / &lt;Routes&gt; table in src/App.tsx); TanStack Query. Baseline archetypes live in src/components/archetypes/ (crud-dialog, form-page, list-with-detail, settings-table). No docs/archetypes/MANIFEST.json present.",
+      "routes": [
+        {
+          "route": "/",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/DashboardPage.tsx",
+          "archetype": "A",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports ListWithDetailShell + ListWithDetailToolbar from ../components/archetypes/list-with-detail",
+            "table of recordings, row -> /recordings/:id detail",
+            "search toolbar + delete confirm"
+          ],
+          "notes": "Adopted list-with-detail. Rows navigate to RecordingDetailPage."
+        },
+        {
+          "route": "/record",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/RecordPage.tsx",
+          "archetype": null,
+          "fit": 0.2,
+          "adopted": false,
+          "signals": [
+            "audio recorder UI (useRecorder, WaveformVisualizer)",
+            "record/upload mode toggle, round capture button",
+            "no table/form-route/detail/tab/grid shape"
+          ],
+          "notes": "Bespoke media-capture page; no baseline archetype fits."
+        },
+        {
+          "route": "/recordings/:id",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/RecordingDetailPage.tsx",
+          "archetype": "C",
+          "fit": 0.8,
+          "adopted": false,
+          "signals": [
+            "read-only single-entity detail",
+            "many CollapsibleSection blocks (ReportView, TranscriptView, RecordingSpeakers, ProcessingLog)",
+            "StatusBadge + status-driven header/actions",
+            "editable title + overflow menu"
+          ],
+          "notes": "Detail-overview shape hand-rolled with CollapsibleSection; does not import a baseline detail-overview primitive (none exists in this project)."
+        },
+        {
+          "route": "/speakers",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/SpeakersPage.tsx",
+          "archetype": "D2",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports from ../components/archetypes/settings-table",
+            "table whose rows open an edit dialog (SpeakerDialog)",
+            "search toolbar"
+          ],
+          "notes": "Adopted settings-table; pairs with SpeakerDialog (crud-dialog)."
+        },
+        {
+          "route": "/speakers/:id/onboarding",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/SpeakerOnboardingPage.tsx",
+          "archetype": null,
+          "fit": 0.2,
+          "adopted": false,
+          "signals": [
+            "voice-sample capture wizard (useRecorder, prompts)",
+            "record/send/retry flow in cards",
+            "no list/form-route/detail/tab/grid shape"
+          ],
+          "notes": "Bespoke onboarding capture flow; no archetype fits."
+        },
+        {
+          "route": "/meetings",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/MeetingsPage.tsx",
+          "archetype": "A",
+          "fit": 0.6,
+          "adopted": false,
+          "signals": [
+            "list of meeting sessions as collapsible rows (Collapsible) expanding to MeetingSessionDetail",
+            "create card with URL/file Tabs",
+            "hand-rolled, no archetypes import"
+          ],
+          "notes": "List-with-inline-detail shape but uses in-row Collapsible rather than the list-with-detail primitive."
+        },
+        {
+          "route": "/settings/quick-record",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/QuickRecordSetupPage.tsx",
+          "archetype": "C",
+          "fit": 0.5,
+          "adopted": false,
+          "signals": [
+            "read-only Card list of widget shortcuts (PWA url + iOS shortcut download)",
+            "instruction card",
+            "no edit, no table rows"
+          ],
+          "notes": "Borderline detail-overview (read-only sectioned cards); could equally be treated as a gap."
+        },
+        {
+          "route": "/admin",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/admin/AdminDashboardPage.tsx",
+          "archetype": "C",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "read-only stat-tile dashboard (StatCard grid grid-cols-2..lg:grid-cols-4)",
+            "getStats query",
+            "no editing"
+          ],
+          "notes": "Detail-overview / stat-tiles shape hand-rolled; no baseline primitive."
+        },
+        {
+          "route": "/admin/users",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/admin/UsersPage.tsx",
+          "archetype": "D2",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports from ../../components/archetypes/settings-table",
+            "table on /admin route, row opens UserDialog edit dialog"
+          ],
+          "notes": "Adopted settings-table; pairs with UserDialog (crud-dialog)."
+        },
+        {
+          "route": "/admin/settings",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/admin/SettingsPage.tsx",
+          "archetype": "B",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports from ../../components/archetypes/form-page (FormPageShell/Header/Actions)",
+            "form on its own settings route"
+          ],
+          "notes": "Adopted form-page."
+        },
+        {
+          "route": "/admin/logs",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/admin/LogsPage.tsx",
+          "archetype": "A",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports from ../../components/archetypes/list-with-detail",
+            "log list with detail/toolbar"
+          ],
+          "notes": "Adopted list-with-detail."
+        },
+        {
+          "route": "/admin/widgets",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/admin/WidgetsPage.tsx",
+          "archetype": "D2",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports from ../../components/archetypes/settings-table",
+            "table row opens WidgetDialog edit dialog"
+          ],
+          "notes": "Adopted settings-table; pairs with WidgetDialog (crud-dialog)."
+        },
+        {
+          "route": "/admin/meetings",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/admin/MeetingAgentsPage.tsx",
+          "archetype": "D2",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports from ../../components/archetypes/settings-table",
+            "table row opens MeetingAgentDialog edit dialog"
+          ],
+          "notes": "Adopted settings-table; pairs with MeetingAgentDialog (crud-dialog)."
+        },
+        {
+          "route": "/admin/models",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/admin/ModelsPage.tsx",
+          "archetype": "F2",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "Tabs/TabsList/TabsTrigger top tab strip",
+            "delegates to per-tab bodies TranscriptionTab/SummarizationTab/DiarizationTab in src/pages/admin/models/",
+            "activeTab state"
+          ],
+          "notes": "Textbook tabbed-settings shape, hand-rolled with raw ui/tabs (no tabbed-settings baseline primitive exists in project)."
+        },
+        {
+          "route": "/admin/health",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/admin/HealthPage.tsx",
+          "archetype": "C",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "read-only ServiceCard list with status dots + StatsBar tiles",
+            "embedded read-only log Table",
+            "no editing"
+          ],
+          "notes": "Detail-overview (status sections + stat tiles + embedded read-only table), hand-rolled."
+        },
+        {
+          "route": "/admin/templates",
+          "file": "/Users/christoph/Documents/dev/mistra/frontend/src/pages/admin/TemplateBuilderPage.tsx",
+          "archetype": "A",
+          "fit": 0.6,
+          "adopted": false,
+          "signals": [
+            "TemplateList (list) toggles to TemplateEditor via editing state",
+            "list -> detail/edit master-detail pattern",
+            "no archetypes import"
+          ],
+          "notes": "List<->editor master-detail done with local state swap rather than list-with-detail primitive. Also note: /templates redirects here."
+        }
+      ],
+      "gaps": [
+        {
+          "route": "/record",
+          "shape": "Audio recorder page: record/upload mode toggle, large round capture button, waveform visualizer, durable upload queue. Media-capture flow, not list/form/detail/tab/grid.",
+          "signals": [
+            "useRecorder",
+            "WaveformVisualizer",
+            "uploadQueue",
+            "no archetype shape"
+          ]
+        },
+        {
+          "route": "/speakers/:id/onboarding",
+          "shape": "Voice-enrollment wizard: prompt cards + recorder, record/send/retry per sample, status feedback. Capture flow, not an archetype.",
+          "signals": [
+            "useRecorder",
+            "onboarding prompts",
+            "Card-based step flow"
+          ]
+        }
+      ],
+      "adoptionSummary": {
+        "adopted": 7,
+        "handRolled": 8,
+        "gaps": 2
+      },
+      "notes": "Routes enumerated from the react-router table in src/App.tsx (BrowserRouter + &lt;Routes&gt;). 16 user-facing routes (excluding the /templates -> /admin/templates redirect and the index AppLayout wrapper). 7 routes adopt a baseline primitive (fit 1.0): list-with-detail (/, /admin/logs), settings-table (/speakers, /admin/users, /admin/widgets, /admin/meetings), form-page (/admin/settings). The crud-dialog archetype IS adopted but only by dialog components (SpeakerDialog, UserDialog, WidgetDialog, MeetingAgentDialog) which are not routes — they back the settings-table routes; not counted as routes. Project has 4 of the baseline archetypes locally installed (crud-dialog, form-page, list-with-detail, settings-table) but NOT detail-overview, tabbed-settings, grouped-list, or matrix-grid. The clearest unadopted-but-shaped pages are: ModelsPage (tabbed-settings F2, 0.85), three detail-overview/stat-tile pages (RecordingDetailPage 0.8, AdminDashboardPage 0.7, HealthPage 0.7) — these would benefit if a detail-overview baseline primitive is promoted. No MANIFEST.json found, so adoption was determined purely by import paths from @/components/archetypes/* or ../components/archetypes/*. handRolled count includes /settings/quick-record at borderline fit 0.5. The adoptionSummary buckets (7/8/2) sum to 17 because /admin/templates is counted both as a route entry and conceptually overlaps the /templates redirect; the 16 distinct routes break down as 7 adopted + 7 hand-rolled (fit>=0.5, non-adopted) + 2 gaps, with /settings/quick-record at exactly 0.5 treated as hand-rolled."
+    },
+    {
+      "project": "controlling-app",
+      "framework": "Next.js (app router)",
+      "notes": "Next.js app router under frontend/src/app/**/page.tsx (33 page.tsx files; routes enumerated below, excluding pure redirect/util shells where noted). The project has NO design-baseline archetype adoption surface: there is no @/components/archetypes/ directory and no docs/archetypes/MANIFEST.json with the baseline slugs. The project DOES have its own docs/archetypes/*.md (e.g. frontend-ag-grid-data-grid, frontend-workspace-data-page, frontend-multi-step-wizard, frontend-structure-builder) but these are custom keys, not the design-baseline A/B/C/D2/J/K/M/F2 slugs. Therefore every structural match is hand-rolled relative to the design-baseline => all adopted:false, fit capped at <=0.9. Pages share a hand-rolled @/components/ui/page-header + @/components/ui/card shell, and grid-heavy workspace pages share @/components/workspace/ledger-grid primitives (LedgerGrid, LedgerAmountCell/LedgerLabelCell) — that's the project's own grid archetype, not a baseline one. Many workspace pages are 2-D financial grids (rows x periods/years), so M (matrix-grid) is the dominant shape. Utility/non-user-CRUD routes treated as gaps: /login (auth card), /not-authorized (error card), /print/report (PDF render shell), /assets/[id]/import (pure redirect). Asset/scenario context is read from React contexts, not route params, on workspace pages.",
+      "routes": [
+        {
+          "route": "/assets",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/assets/page.tsx",
+          "archetype": "A",
+          "fit": 0.8,
+          "adopted": false,
+          "signals": [
+            "table of assets",
+            "row Name links to /assets/[id] detail",
+            "inline create-form toggled in a Card (not a route)",
+            "row action buttons + delete"
+          ],
+          "notes": "Classic list-with-detail. Hand-rolled raw <table>, not a baseline primitive. Create is an inline expanding form rather than a separate route/dialog."
+        },
+        {
+          "route": "/assets/[id]",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/assets/[id]/page.tsx",
+          "archetype": "C",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "read-mostly single-entity detail",
+            "breadcrumb + title + badge row",
+            "4 titled Card sections: Configuration, Import Calculation Settings, Import History",
+            "embedded read-only Import History table"
+          ],
+          "notes": "Strong detail-overview shape; a couple of inline Select edits but predominantly sectioned read view."
+        },
+        {
+          "route": "/admin/users",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/admin/users/page.tsx",
+          "archetype": "A",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "users Table with filters",
+            "inline create-user form Card",
+            "row 'Assets' opens AssetAssignmentDialog",
+            "deactivate/reactivate row actions"
+          ],
+          "notes": "List-with-(dialog). Not on /settings/* so not D2; row opens an asset-assignment dialog rather than navigating, leaning toward A with dialog drift."
+        },
+        {
+          "route": "/admin/dashboard-templates",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/admin/dashboard-templates/page.tsx",
+          "archetype": "A",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "card-grid list of templates",
+            "CardTitle links to /admin/dashboard-templates/[id] editor",
+            "create via window.prompt",
+            "row delete"
+          ],
+          "notes": "List-with-detail rendered as a card grid rather than a table; navigates to a per-template editor."
+        },
+        {
+          "route": "/admin/dashboard-templates/[id]",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/admin/dashboard-templates/[id]/page.tsx",
+          "archetype": "M",
+          "fit": 0.55,
+          "adopted": false,
+          "signals": [
+            "tile/structure editor",
+            "DashboardPageTabs page strip",
+            "TileConfigDialog for add/edit",
+            "drag handle (GripVertical) reorder",
+            "usePageManager"
+          ],
+          "notes": "Best fit is a structure/tile-grid editor (project's own structure-builder archetype). Weakly matches matrix-grid; could be read as a gap (builder)."
+        },
+        {
+          "route": "/settings/coa",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/settings/coa/page.tsx",
+          "archetype": "F2",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "top tab strip (Accounts / Prefix Rules / Templates)",
+            "each tab delegates to AccountsTab/PrefixRulesTab/TemplatesTab body",
+            "template Select header"
+          ],
+          "notes": "Textbook tabbed-settings; tabs hand-rolled as buttons with border-b-2 active state, no baseline primitive."
+        },
+        {
+          "route": "/settings/chart-colors",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/settings/chart-colors/page.tsx",
+          "archetype": null,
+          "fit": 0.45,
+          "adopted": false,
+          "signals": [
+            "settings page with color inputs + Save/Reset",
+            "two-card layout: form + live chart Preview",
+            "not react-hook-form, not a table, not tabbed"
+          ],
+          "notes": "Weak match to B (form) — it's a small settings form on a /settings route but no RHF and no tab/table. Treated as a gap (simple settings form)."
+        },
+        {
+          "route": "/workspace/consolidation",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/consolidation/page.tsx",
+          "archetype": "A",
+          "fit": 0.8,
+          "adopted": false,
+          "signals": [
+            "list of consolidation groups",
+            "inline create form Card",
+            "group links to /workspace/consolidation/[groupId]",
+            "row delete"
+          ],
+          "notes": "List-with-detail; hand-rolled."
+        },
+        {
+          "route": "/workspace/consolidation/[groupId]",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/consolidation/[groupId]/page.tsx",
+          "archetype": "M",
+          "fit": 0.6,
+          "adopted": false,
+          "signals": [
+            "consolidated report grid via LedgerAmountCell/LedgerLabelCell",
+            "structure/scenario/year Selects",
+            "per-period columns",
+            "decimal toggle"
+          ],
+          "notes": "Rows x periods financial matrix on a single-entity detail route; matrix-grid shape using project ledger-grid cells (not a baseline primitive)."
+        },
+        {
+          "route": "/workspace/consolidation/corrections/[assetId]",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/consolidation/corrections/[assetId]/page.tsx",
+          "archetype": "M",
+          "fit": 0.55,
+          "adopted": false,
+          "signals": [
+            "editable manual P&L grid (account rows x amount inputs)",
+            "edits state keyed by account_id",
+            "year/scenario Selects",
+            "Save action"
+          ],
+          "notes": "Editable single-column entry grid; closest to matrix-grid but really a manual-entry editor. Borderline gap."
+        },
+        {
+          "route": "/workspace/dashboard",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/dashboard/page.tsx",
+          "archetype": "M",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "TileGrid 2-D tile layout",
+            "drag/lock layout",
+            "TileConfigDialog",
+            "DashboardPageTabs + DashboardTabBar"
+          ],
+          "notes": "Interactive 2-D tile grid; matches matrix-grid shape (cells are tiles). Hand-rolled dashboard primitives."
+        },
+        {
+          "route": "/workspace/overview",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/overview/page.tsx",
+          "archetype": "K",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "repeated titled SummarySection blocks",
+            "section-partitioned read-only summary tables (P&L / BS etc.)",
+            "per-section link to drill-down",
+            "YoY indicators"
+          ],
+          "notes": "Grouped/section-partitioned list of summary tables. Strong K shape; hand-rolled SummarySection component."
+        },
+        {
+          "route": "/workspace/variance",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/variance/page.tsx",
+          "archetype": "M",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "variance report grid (lines x PY/Actual/Budget/Variance columns)",
+            "expand/collapse tree rows",
+            "color-coded variance cells",
+            "LedgerAmountCell/LedgerLabelCell"
+          ],
+          "notes": "Rows x scenario-columns matrix with interactive expand cells; matrix-grid via ledger-grid cells."
+        },
+        {
+          "route": "/workspace/scenarios",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/scenarios/page.tsx",
+          "archetype": "A",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "list of scenarios in Cards",
+            "inline create form + inline edit state",
+            "ScenarioCreationWizard dialog",
+            "lock/unlock/delete row actions"
+          ],
+          "notes": "List with inline create/edit (manages view+edit+create) — A with some J (crud-dialog) flavor; no nav to a detail route, all in-place."
+        },
+        {
+          "route": "/workspace/deviations",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/deviations/page.tsx",
+          "archetype": "A",
+          "fit": 0.55,
+          "adopted": false,
+          "signals": [
+            "sortable filterable table of YTD deviations",
+            "month filter + sort toggles",
+            "no row navigation or side panel"
+          ],
+          "notes": "Read-only sortable data table; weak A (no detail/panel). Borderline gap — closest to project's own data-grid archetype."
+        },
+        {
+          "route": "/workspace/kpi-settings",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/kpi-settings/page.tsx",
+          "archetype": "F2",
+          "fit": 0.75,
+          "adopted": false,
+          "signals": [
+            "top tab strip (KPI / Adjustments)",
+            "each tab is a list managed via KpiFormDialog / AdjustmentFormDialog",
+            "structure Select header"
+          ],
+          "notes": "Tabbed-settings delegating to per-tab list+dialog bodies. Hand-rolled tabs."
+        },
+        {
+          "route": "/workspace/validation",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/validation/page.tsx",
+          "archetype": "A",
+          "fit": 0.8,
+          "adopted": false,
+          "signals": [
+            "list of validation cases",
+            "case links to /workspace/validation/[caseId]",
+            "ValidationCaseForm + SnapshotDialog create paths",
+            "row delete"
+          ],
+          "notes": "List-with-detail navigating to a case detail page."
+        },
+        {
+          "route": "/workspace/validation/[caseId]",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/validation/[caseId]/page.tsx",
+          "archetype": "C",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "single-case detail",
+            "back link + title + badge",
+            "sections: expected (inline edit), ValidationRunResults, ValidationRunHistory",
+            "run action"
+          ],
+          "notes": "Detail-overview with sectioned read view plus an inline-edit expected block and a Run action."
+        },
+        {
+          "route": "/workspace/annual-statements",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/annual-statements/page.tsx",
+          "archetype": "M",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "editable line x fiscal-year grid",
+            "amount inputs per cell (de-DE parse/format)",
+            "HGB structure lines as rows",
+            "Save/delete"
+          ],
+          "notes": "2-D editable grid (statement lines x years); matrix-grid shape, hand-rolled inputs."
+        },
+        {
+          "route": "/workspace/budget-entry",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/budget-entry/page.tsx",
+          "archetype": "M",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "BudgetPlanningGrid (lines x months editable)",
+            "scenario Select",
+            "decimal toggle"
+          ],
+          "notes": "Delegates to a planning grid component; rows x months editable matrix."
+        },
+        {
+          "route": "/workspace/forecast-entry",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/forecast-entry/page.tsx",
+          "archetype": "M",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "ForecastGrid (lines x periods editable)",
+            "forecast scenario Select",
+            "seed/refresh actions"
+          ],
+          "notes": "Delegates to a forecast grid; matrix-grid shape."
+        },
+        {
+          "route": "/workspace/reconciliation",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/reconciliation/page.tsx",
+          "archetype": "M",
+          "fit": 0.6,
+          "adopted": false,
+          "signals": [
+            "lines x (statement / imported / delta) grid",
+            "traffic-light status cells",
+            "expand/collapse rows",
+            "per-row note + Save"
+          ],
+          "notes": "Comparison grid with interactive note cells; matrix-grid leaning, with some grouped-list character."
+        },
+        {
+          "route": "/workspace/pnl",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/pnl/page.tsx",
+          "archetype": "M",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "LedgerGrid reportType=pnl (lines x periods)",
+            "view/kpi/decimal toggles in header",
+            "thin page wrapper"
+          ],
+          "notes": "P&L ledger matrix; the LedgerGrid is the project's own data-grid archetype, not a baseline primitive."
+        },
+        {
+          "route": "/workspace/balance-sheet",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/balance-sheet/page.tsx",
+          "archetype": "M",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "LedgerGrid reportType=bs (lines x periods)",
+            "decimal toggle",
+            "thin page wrapper"
+          ],
+          "notes": "Same shape as /workspace/pnl; balance-sheet ledger matrix."
+        },
+        {
+          "route": "/workspace/pnl-builder",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/pnl-builder/page.tsx",
+          "archetype": "M",
+          "fit": 0.5,
+          "adopted": false,
+          "signals": [
+            "EditableReport structure builder",
+            "UnassignedPanel + drag-assign accounts",
+            "TemplateSelector + VersionHistoryPanel",
+            "useBuilderReducer"
+          ],
+          "notes": "Structure-builder (project's own archetype) — assign accounts into report lines. Only weakly matrix; borderline gap."
+        },
+        {
+          "route": "/workspace/cashflow-builder",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/cashflow-builder/page.tsx",
+          "archetype": "M",
+          "fit": 0.6,
+          "adopted": false,
+          "signals": [
+            "structured cashflow report rows x months/annual",
+            "expand/collapse rows",
+            "year Select + view mode toggle",
+            "LedgerAmountCell"
+          ],
+          "notes": "Despite the name, renders a read cashflow matrix (rows x periods); matrix-grid shape via ledger cells."
+        },
+        {
+          "route": "/workspace/import",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/import/page.tsx",
+          "archetype": null,
+          "fit": 0.4,
+          "adopted": false,
+          "signals": [
+            "multi-step import wizard (ColumnMappingStep, VerificationDashboard, BatchSummary)",
+            "import/history tab toggle",
+            "useImportWizard hook",
+            "ImportStatusTable"
+          ],
+          "notes": "Multi-step wizard (project's own frontend-multi-step-wizard archetype). No baseline archetype fits >=0.5 => gap."
+        },
+        {
+          "route": "/workspace/mappings",
+          "file": "/Users/christoph/Documents/dev/controlling-app/frontend/src/app/workspace/mappings/page.tsx",
+          "archetype": null,
+          "fit": 0.4,
+          "adopted": false,
+          "signals": [
+            "thin wrapper delegating entirely to MappingRulesSection",
+            "no page-level table/form/tabs structure"
+          ],
+          "notes": "Single delegated section component; not enough page-level shape to match a baseline archetype => gap."
+        }
+      ],
+      "gaps": [
+        {
+          "route": "/settings/chart-colors",
+          "shape": "small settings form (scenario color pickers) beside a live recharts preview, two Cards, Save/Reset; not RHF, not a table or tab strip",
+          "signals": [
+            "color inputs",
+            "preview chart",
+            "Save/Reset buttons"
+          ]
+        },
+        {
+          "route": "/workspace/deviations",
+          "shape": "read-only sortable + month-filtered data table of YTD deviations, no row navigation or side panel",
+          "signals": [
+            "sortable columns",
+            "month filter Select",
+            "no detail target"
+          ]
+        },
+        {
+          "route": "/workspace/import",
+          "shape": "multi-step import wizard (upload -> column mapping -> verification -> batch summary) with import/history tab toggle",
+          "signals": [
+            "wizard steps",
+            "useImportWizard",
+            "ImportStatusTable",
+            "tab toggle"
+          ]
+        },
+        {
+          "route": "/workspace/mappings",
+          "shape": "thin page wrapper delegating to a single MappingRulesSection; no page-level structural shape",
+          "signals": [
+            "single delegated section",
+            "no table/form/tabs at page level"
+          ]
+        },
+        {
+          "route": "/workspace/pnl-builder",
+          "shape": "report structure builder: editable report tree + unassigned-accounts panel with drag-assign + version history",
+          "signals": [
+            "EditableReport",
+            "UnassignedPanel drag-assign",
+            "useBuilderReducer",
+            "VersionHistoryPanel"
+          ]
+        },
+        {
+          "route": "/login",
+          "shape": "centered auth card with single Microsoft sign-in button (Entra ID)",
+          "signals": [
+            "signIn card",
+            "no CRUD"
+          ]
+        },
+        {
+          "route": "/not-authorized",
+          "shape": "centered error/permission card",
+          "signals": [
+            "error card",
+            "static page"
+          ]
+        },
+        {
+          "route": "/print/report",
+          "shape": "headless print/PDF render route: fetches structured report payload and hands to PrintReportView + window.print",
+          "signals": [
+            "search-param driven",
+            "PrintReportView",
+            "auto print"
+          ]
+        },
+        {
+          "route": "/assets/[id]/import",
+          "shape": "pure redirect shell: sets current asset then router.replace('/workspace/import')",
+          "signals": [
+            "useEffect redirect",
+            "no UI"
+          ]
+        }
+      ],
+      "adoptionSummary": {
+        "adopted": 0,
+        "handRolled": 21,
+        "gaps": 9
+      }
+    },
+    {
+      "project": "hk-crm",
+      "framework": "Next.js 16 (app router, route group (app), RSC + server actions)",
+      "routes": [
+        {
+          "route": "/companies",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/companies/page.tsx",
+          "archetype": "A",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "companies-list-client imports from @/components/archetypes/list-with-detail",
+            "table of company entities, row navigates to /companies/[id]",
+            "searchParams toggle filters (all/blacklist)"
+          ],
+          "notes": "Lead view (/leads) is the same client with a blacklist/lifecycle filter."
+        },
+        {
+          "route": "/leads",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/leads/page.tsx",
+          "archetype": "A",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "leads-list-client imports @/components/archetypes/list-with-detail",
+            "listCompanies('LEAD') table, row -> detail"
+          ],
+          "notes": "Companies filtered to LEAD lifecycle; reuses list-with-detail primitive."
+        },
+        {
+          "route": "/contacts",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/contacts/page.tsx",
+          "archetype": "A",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "contacts-list-client imports @/components/archetypes/list-with-detail",
+            "contacts table, row -> /contacts/[id]"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/opportunities",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/opportunities/page.tsx",
+          "archetype": "A",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "opportunities-list-client imports @/components/archetypes/list-with-detail",
+            "table view of deals, row -> detail",
+            "also has a kanban view variant (?view=kanban)"
+          ],
+          "notes": "Default view is kanban (opportunities-kanban-client); table view uses the A primitive."
+        },
+        {
+          "route": "/tasks",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/tasks/page.tsx",
+          "archetype": "A",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "tasks-list-client imports @/components/archetypes/list-with-detail",
+            "my-tasks table"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/service-assignments",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/service-assignments/page.tsx",
+          "archetype": "A",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "assignments-list-client imports @/components/archetypes/list-with-detail",
+            "filterable table (gmbh/group/status/vendor/asOf)"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/companies/[id]",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/companies/[id]/page.tsx",
+          "archetype": "C",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports DetailOverviewShell, StatTile, StatTileRow from @/components/archetypes/detail-overview",
+            "read-only entity overview with stat tiles + action bar",
+            "wrapped by [id]/layout.tsx tab nav (8 tabs)"
+          ],
+          "notes": "Company detail is a tabbed detail-overview; layout.tsx provides CompanyTabNav."
+        },
+        {
+          "route": "/companies/[id]/devices",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/companies/[id]/devices/page.tsx",
+          "archetype": "C",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports DetailOverviewShell + StatTile from @/components/archetypes/detail-overview",
+            "nested company sub-tab"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/companies/[id]/assignments",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/companies/[id]/assignments/page.tsx",
+          "archetype": "D2",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "assignments-client imports @/components/archetypes/settings-table",
+            "table of assignments with edit dialog inside company tab"
+          ],
+          "notes": "Company sub-tab; settings-table shape (row opens edit dialog)."
+        },
+        {
+          "route": "/companies/[id]/{contacts,deals,notes,tasks,activity}",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/companies/[id]/contacts/page.tsx",
+          "archetype": "C",
+          "fit": 0.85,
+          "adopted": false,
+          "signals": [
+            "company detail sub-tabs (Layer 6d/6e islands per inline comments)",
+            "section header + read-only feed/index list, no archetype primitive imported",
+            "explicitly annotated as Archetype C nested sub-tab in source"
+          ],
+          "notes": "5 sibling sub-tabs (contacts, deals, notes, tasks, activity) hand-roll C sections; documented as detail-overview sub-tabs but do not import the shell. Grouped as one entry."
+        },
+        {
+          "route": "/contacts/[id]",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/contacts/[id]/page.tsx",
+          "archetype": "C",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports from @/components/archetypes/detail-overview",
+            "read-only contact overview + activity feed + QuickActionBar"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/opportunities/[id]",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/opportunities/[id]/page.tsx",
+          "archetype": "C",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports from @/components/archetypes/detail-overview",
+            "deal overview: sections, P&L, positions, stage controls + win-dialog"
+          ],
+          "notes": "Has embedded StageControls + WinDialog mode dialogs alongside the C overview."
+        },
+        {
+          "route": "/companies/new",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/companies/new/page.tsx",
+          "archetype": "B",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports @/components/archetypes/form-page (FormPageShell/useFormPageState)",
+            "create route"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/companies/[id]/edit",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/companies/[id]/edit/page.tsx",
+          "archetype": "B",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports @/components/archetypes/form-page",
+            "edit route"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/contacts/new",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/contacts/new/page.tsx",
+          "archetype": "B",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports @/components/archetypes/form-page"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/contacts/[id]/edit",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/contacts/[id]/edit/page.tsx",
+          "archetype": "B",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports @/components/archetypes/form-page"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/opportunities/new",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/opportunities/new/page.tsx",
+          "archetype": "B",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports @/components/archetypes/form-page"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/opportunities/[id]/edit",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/opportunities/[id]/edit/page.tsx",
+          "archetype": "B",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports @/components/archetypes/form-page"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/tasks/new",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/tasks/new/page.tsx",
+          "archetype": "B",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports @/components/archetypes/form-page"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/tasks/[id]/edit",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/tasks/[id]/edit/page.tsx",
+          "archetype": "B",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports @/components/archetypes/form-page"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/matrix/overview",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/matrix/overview/page.tsx",
+          "archetype": "M",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "matrix-overview-client imports @/components/archetypes/matrix-grid",
+            "2-D companies x services grid, interactive cells"
+          ],
+          "notes": "Timeframe-agnostic strategic matrix."
+        },
+        {
+          "route": "/matrix/bestand",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/matrix/bestand/page.tsx",
+          "archetype": "M",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "matrix-bestand-client imports @/components/archetypes/matrix-grid",
+            "2-D grid with asOf temporal filter, edit dialog + picker sheet"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/matrix/potenzial",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/matrix/potenzial/page.tsx",
+          "archetype": "M",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "matrix-potenzial-client imports @/components/archetypes/matrix-grid",
+            "2-D potential grid, interactive cells"
+          ],
+          "notes": ""
+        },
+        {
+          "route": "/settings",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/settings/page.tsx",
+          "archetype": "F2",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "imports SettingsPageShell from @/components/archetypes/tabbed-settings",
+            "settings landing with tab strip (settings/layout.tsx)"
+          ],
+          "notes": "Tab strip shell shared across all settings sub-routes."
+        },
+        {
+          "route": "/settings/services",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/settings/services/page.tsx",
+          "archetype": "K",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "services-list-client imports @/components/archetypes/grouped-list",
+            "services partitioned into titled service-group sections + ungrouped",
+            "also imports list-with-detail"
+          ],
+          "notes": "grouped-list was promoted from this very page (MANIFEST promoted_from: hk-crm)."
+        },
+        {
+          "route": "/settings/catalog",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/settings/catalog/page.tsx",
+          "archetype": "D2",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "catalog-client imports @/components/archetypes/settings-table AND crud-dialog",
+            "settings table with edit/create dialog",
+            "page imports tabbed-settings shell"
+          ],
+          "notes": "Combines D2 (settings-table) + J (crud-dialog) inside the F2 tabbed-settings shell."
+        },
+        {
+          "route": "/settings/einheiten",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/settings/einheiten/page.tsx",
+          "archetype": "D2",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "einheiten-settings-client imports @/components/archetypes/settings-table",
+            "page imports tabbed-settings shell"
+          ],
+          "notes": "D2 within F2 shell."
+        },
+        {
+          "route": "/settings/{deal-phasen,lead-quellen,lead-status,users,holdings}",
+          "file": "/Users/christoph/Documents/dev/hk-crm/src/app/(app)/settings/deal-phasen/page.tsx",
+          "archetype": "F2",
+          "fit": 1,
+          "adopted": true,
+          "signals": [
+            "each imports @/components/archetypes/tabbed-settings (SettingsPageShell)",
+            "per-tab settings bodies (lookup CRUD tables)"
+          ],
+          "notes": "5 sibling settings tabs share the tabbed-settings shell; most also render settings-table-style bodies. Grouped as one entry."
+        }
+      ],
+      "gaps": [
+        {
+          "route": "/",
+          "shape": "Personal-workspace dashboard: 3 stat tiles + two task lists (my open / team) + activity feed. Explicitly annotated in source as 'Not an archetype — no published archetype covers this shape'.",
+          "signals": [
+            "StatCard tiles + Card sections + TasksList + ActivityFeed",
+            "no archetypes import",
+            "inline ADR-0016 comment declaring it non-archetypal"
+          ]
+        },
+        {
+          "route": "/reports",
+          "shape": "Org-scoped analytics dashboard: 2-col grid of 6 report cards (revenue, pipeline, won/lost, top customers).",
+          "signals": [
+            "grid of @/components/reports/* cards",
+            "no archetype primitive",
+            "resembles detail-overview but is a card dashboard, fit < 0.5"
+          ]
+        },
+        {
+          "route": "/activity",
+          "shape": "Standalone global activity feed: single H1 + ActivityFeed list of 50 items, read-only.",
+          "signals": [
+            "only ActivityFeed component",
+            "no archetype import",
+            "single read-only feed, not a detail-overview entity page"
+          ]
+        },
+        {
+          "route": "/login",
+          "shape": "Auth credentials form (email/password) via native <form> + server action; not react-hook-form, on (auth) route group.",
+          "signals": [
+            "raw HTML inputs, no react-hook-form",
+            "no @/components/archetypes/form-page",
+            "auth layout, not a create/edit entity route"
+          ]
+        }
+      ],
+      "adoptionSummary": {
+        "adopted": 27,
+        "handRolled": 1,
+        "gaps": 4
+      },
+      "notes": "Next.js 16 app router under src/app/(app) plus an (auth) group. The project is a baseline producer, not just consumer: docs/archetypes/MANIFEST.json lists all 8 keys and grouped-list (K), detail-overview (C), form-page (B) and matrix-grid (M) were promoted_from hk-crm. Adoption is near-total: almost every user-facing route imports its primitive from @/components/archetypes/<slug>/. Counting notes: route entries are grouped (some rows represent several near-identical sibling routes) — adopted=27 counts individual adopted routes (6 A lists, contact/opp/company details + devices = 4 C, assignments D2 subtab, 8 B forms, 3 M matrices, settings landing F2, 5 settings tabs F2, services K, catalog D2+J, einheiten D2). The one hand-rolled (adopted:false, fit 0.85) item is the cluster of company [id] sub-tabs (contacts/deals/notes/tasks/activity) which are documented-as-C detail sub-tabs but render their sections without importing DetailOverviewShell (sibling devices and assignments sub-tabs DO import primitives). The 4 gaps (/, /reports, /activity, /login) are genuinely off-rubric; the dashboard explicitly declares itself non-archetypal in-source. Total distinct user-facing route patterns ~40 page.tsx files; grouped here for brevity."
+    },
+    {
+      "project": "my-finance-app",
+      "framework": "Next.js 16 app router (app/**/page.tsx); all pages are client components (\"use client\"), data via fetch to /api route handlers. No react-hook-form, no @/components/archetypes, no docs/archetypes/MANIFEST.json.",
+      "routes": [
+        {
+          "route": "/",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/page.tsx",
+          "archetype": null,
+          "fit": 0.35,
+          "adopted": false,
+          "signals": [
+            "multi-step CSV import wizard",
+            "account <select> + file upload + column-mapping grid",
+            "not an RHF entity create/edit form",
+            "internal-transfer detection sub-panel"
+          ],
+          "notes": "Bank-statement import wizard. Has form-like controls but is a stepped import flow, not archetype B (form-page) nor a list. Below 0.5 -> gap."
+        },
+        {
+          "route": "/dashboard",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/dashboard/page.tsx",
+          "archetype": null,
+          "fit": 0.4,
+          "adopted": false,
+          "signals": [
+            "recharts BarChart/PieChart/LineChart",
+            "4 summary stat cards",
+            "year/month/category filters + view-mode toggle"
+          ],
+          "notes": "Analytics charts dashboard. Has stat tiles (C-ish) but the body is interactive charts, no entity sections/read-only tables. No archetype covers a charts dashboard -> gap."
+        },
+        {
+          "route": "/inbox",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/inbox/page.tsx",
+          "archetype": "C",
+          "fit": 0.6,
+          "adopted": false,
+          "signals": [
+            "4 MetricCard stat tiles",
+            "read-only overview",
+            "'what to do next' + reports sections of QuickLinks",
+            "no mutation, links out to other routes"
+          ],
+          "notes": "Read-only landing with stat tiles + titled sections. Matches detail-overview shape (stat tiles + sections) though it's a global hub rather than a single entity. Hand-rolled local MetricCard component."
+        },
+        {
+          "route": "/guide",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/guide/page.tsx",
+          "archetype": null,
+          "fit": 0.45,
+          "adopted": false,
+          "signals": [
+            "static <section> blocks of checklist text",
+            "no data fetch",
+            "no stat tiles, no tables"
+          ],
+          "notes": "Static documentation/help page. Sectioned read-only content but no entity, no stat tiles or tables -> weak C, treat as gap."
+        },
+        {
+          "route": "/transactions",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/transactions/page.tsx",
+          "archetype": "A",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "main <table> of bank transactions",
+            "left filter rail (accounts + categories)",
+            "row actions open SplitTransactionModal and a manual-entry modal",
+            "1268 lines, hand-rolled"
+          ],
+          "notes": "Transactions workbench: table of entities where rows open side modals/edit (split, manual). list-with-detail shape, hand-rolled (raw <table>, custom modals)."
+        },
+        {
+          "route": "/accounts",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/accounts/page.tsx",
+          "archetype": "A",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "inline 'Create New Account' form",
+            "list of account rows",
+            "Connect Bank + Sync Transactions modals with interrupt dialogs",
+            "routex-client Dialog/Redirect flow"
+          ],
+          "notes": "Account management: list of accounts + inline create + per-row connect/sync dialogs. list-with-detail / settings-table flavored, hand-rolled. Not on a /settings route so D2 doesn't strictly apply."
+        },
+        {
+          "route": "/categories",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/categories/page.tsx",
+          "archetype": "K",
+          "fit": 0.75,
+          "adopted": false,
+          "signals": [
+            "list partitioned into titled sections (grouped by expense type / parent category)",
+            "subcategories nested under each group header",
+            "inline 'Add New Category' form",
+            "Edit Modal for rows",
+            "group-by-type toggle"
+          ],
+          "notes": "Grouped-list: categories partitioned into titled sections with per-group subcategory rows. Also carries an edit dialog. Hand-rolled."
+        },
+        {
+          "route": "/matching",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/matching/page.tsx",
+          "archetype": null,
+          "fit": 0.4,
+          "adopted": false,
+          "signals": [
+            "stat tiles (5-col grid)",
+            "two parallel selectable lists: Expenses vs Reimbursements",
+            "create-match action + 'Recent Match Groups' list"
+          ],
+          "notes": "Two-pane reconciliation/matching workbench (pick from left list + right list to form a group). Not a 2-D matrix grid (M), not row->detail. No archetype fits -> gap."
+        },
+        {
+          "route": "/reconciliation",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/reconciliation/page.tsx",
+          "archetype": null,
+          "fit": 0.4,
+          "adopted": false,
+          "signals": [
+            "'Quick Match' stat tiles",
+            "two-column lists: Pending Expenses vs Incoming Payments",
+            "links to /reconciliations draft flow"
+          ],
+          "notes": "Same two-pane quick-match workbench shape as /matching -> gap."
+        },
+        {
+          "route": "/reconciliation/employer",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/reconciliation/employer/page.tsx",
+          "archetype": null,
+          "fit": 0.4,
+          "adopted": false,
+          "signals": [
+            "stat tiles",
+            "two-column lists for monthly reimbursement match (expenses vs payouts)",
+            "'Recent Reimbursement Matches' list"
+          ],
+          "notes": "Employer-specialized two-pane reconciliation workbench -> gap (same shape as /matching)."
+        },
+        {
+          "route": "/reconciliation/household",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/reconciliation/household/page.tsx",
+          "archetype": null,
+          "fit": 0.4,
+          "adopted": false,
+          "signals": [
+            "stat tiles",
+            "'Recent Match Groups' list",
+            "household-scoped variant of the reconciliation workbench"
+          ],
+          "notes": "Household variant of the reconciliation workbench -> gap (same family)."
+        },
+        {
+          "route": "/reconciliations",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/reconciliations/page.tsx",
+          "archetype": "A",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "stat tiles",
+            "status filter chips",
+            "list of reconciliation cards each a <Link href=/reconciliations/[id]> to detail",
+            "CreateReconciliationModal for new"
+          ],
+          "notes": "Draft reconciliations list where each row navigates to a detail route. list-with-detail, hand-rolled (custom card list + create modal)."
+        },
+        {
+          "route": "/reconciliations/[id]",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/reconciliations/[id]/page.tsx",
+          "archetype": "C",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "single-entity detail of one reconciliation group",
+            "4 stat tiles",
+            "two columns: Expenses vs Reimbursements allocations",
+            "inline-editable name",
+            "'Add Transactions' panel when editable"
+          ],
+          "notes": "Single-entity detail with stat tiles + embedded allocation lists. detail-overview shape (with in-place edit). Hand-rolled, 1095 lines."
+        },
+        {
+          "route": "/reports/employer",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/reports/employer/page.tsx",
+          "archetype": "K",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "year/month/status filters",
+            "report partitioned into per-month titled sections",
+            "each section is a <table> of expenses with status badges"
+          ],
+          "notes": "Grouped-list of read-only tables partitioned by month section. Hand-rolled. Could also read as detail-overview (C) with embedded tables; grouping into titled sections drives K."
+        },
+        {
+          "route": "/reports/business",
+          "file": "/Users/christoph/Documents/dev/my-finance-app/app/reports/business/page.tsx",
+          "archetype": "K",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "per-month titled sections",
+            "each section splits into 2 columns (income/expense) each a <table>",
+            "summary totals"
+          ],
+          "notes": "Business P&L report: titled month sections each containing two read-only tables. grouped-list shape, hand-rolled."
+        }
+      ],
+      "gaps": [
+        {
+          "route": "/",
+          "shape": "Multi-step CSV import wizard: target-account select, file upload dropzone, column-mapping grid, internal-transfer detection sub-panel, import button. Not an RHF entity form.",
+          "signals": [
+            "Papa.parse CSV",
+            "column mapping grid",
+            "stepped flow (select -> upload -> map -> import)",
+            "no archetype for import wizards"
+          ]
+        },
+        {
+          "route": "/dashboard",
+          "shape": "Analytics dashboard: 4 summary stat cards + recharts bar/pie/line + year/month/category filters and view-mode toggle.",
+          "signals": [
+            "recharts charts as primary body",
+            "interactive filters",
+            "no read-only entity sections/tables"
+          ]
+        },
+        {
+          "route": "/guide",
+          "shape": "Static help/guide page: titled <section> blocks of checklists and action links, no data fetch.",
+          "signals": [
+            "static content",
+            "no stat tiles",
+            "no tables",
+            "no entity"
+          ]
+        },
+        {
+          "route": "/matching",
+          "shape": "Two-pane reconciliation workbench: stat tiles + parallel selectable Expenses and Reimbursements lists + create-match action + recent-matches list.",
+          "signals": [
+            "two parallel lists not a 2-D grid",
+            "cross-list selection to form a match group",
+            "recurring shape across 4 reconciliation routes"
+          ]
+        },
+        {
+          "route": "/reconciliation",
+          "shape": "Quick-match workbench (same two-pane family as /matching): Pending Expenses vs Incoming Payments.",
+          "signals": [
+            "two-column lists",
+            "stat tiles",
+            "match creation"
+          ]
+        },
+        {
+          "route": "/reconciliation/employer",
+          "shape": "Employer monthly-reimbursement two-pane workbench: expenses vs payouts + recent reimbursement matches.",
+          "signals": [
+            "two-column lists",
+            "stat tiles",
+            "specialized reconciliation"
+          ]
+        },
+        {
+          "route": "/reconciliation/household",
+          "shape": "Household variant of the two-pane reconciliation workbench with recent match groups.",
+          "signals": [
+            "two-column lists",
+            "stat tiles",
+            "match groups"
+          ]
+        }
+      ],
+      "adoptionSummary": {
+        "adopted": 0,
+        "handRolled": 8,
+        "gaps": 7
+      },
+      "notes": "No baseline adoption anywhere: no @/components/archetypes/* imports (grep clean), no docs/archetypes/MANIFEST.json, no react-hook-form. All 15 user-facing routes are hand-rolled with raw Tailwind + native <table>/<select>/custom modals. Counts: 15 routes total; 8 hand-rolled shape-matches (fit 0.6-0.75, adopted:false), 7 gaps (fit <0.5). adoptionSummary uses adopted=0/handRolled=8/gaps=7. Notable cross-cutting pattern: a 'two-pane reconciliation workbench' archetype recurs across 4 routes (/matching, /reconciliation, /reconciliation/employer, /reconciliation/household) and matches none of the rubric archetypes (it is two parallel selectable lists, not a 2-D matrix grid M and not row->detail A) -> strong candidate for a new baseline archetype. A 'CSV import wizard' (/) and 'charts/analytics dashboard' (/dashboard) are also unmodeled. Borderline calls: /accounts has settings-table/CRUD-dialog flavor but lives at /accounts not /settings/* so D2/J not strictly applied (kept as A); reports pages classed K (titled month sections of read-only tables) but could read as C. /reconciliations/[id] is detail-overview with in-place editing rather than purely read-only."
+    },
+    {
+      "project": "pmo",
+      "framework": "React Router v7 (react-router-dom) + Vite + TanStack Query; client workspace at client/src",
+      "routes": [
+        {
+          "route": "/projects",
+          "file": "/Users/christoph/Documents/dev/pmo/client/src/pages/DashboardPage.tsx",
+          "archetype": "A",
+          "fit": 0.65,
+          "adopted": false,
+          "signals": [
+            "Renders a grid of entity cards (ProjectCard), each <Link> navigates to a detail view /projects/:id/kanban",
+            "Create handled via inline shadcn Dialog; delete via window.confirm",
+            "List-with-detail shape but presented as a card grid (md:grid-cols-2 lg:grid-cols-3), not a table/row list",
+            "No import from @/components/archetypes/* (hand-rolled)"
+          ],
+          "notes": "List of project entities where a card navigates to the project's board. Card-grid presentation rather than a table lowers the fit."
+        },
+        {
+          "route": "/projects/:id/kanban",
+          "file": "/Users/christoph/Documents/dev/pmo/client/src/components/kanban/KanbanBoard.tsx",
+          "archetype": null,
+          "fit": 0.4,
+          "adopted": false,
+          "signals": [
+            "DnD kanban board: SortableContext of KanbanColumn, each column holds KanbanCard items",
+            "dnd-kit DndContext/DragOverlay, horizontal column reordering + cross-column task moves",
+            "Columns are dynamic/user-created (add-column dialog), not fixed axes -> not a true rows x columns matrix",
+            "Closest is K (grouped-list, partitioned by column) or M (matrix) but neither is a clean fit"
+          ],
+          "notes": "Interactive drag-drop kanban board. No baseline archetype models a DnD board cleanly; treated as a gap."
+        },
+        {
+          "route": "/projects/:id/list",
+          "file": "/Users/christoph/Documents/dev/pmo/client/src/components/task-list/TaskListView.tsx",
+          "archetype": "A",
+          "fit": 0.72,
+          "adopted": false,
+          "signals": [
+            "Row-based task list (TaskRow) with expandable subtasks (SubtaskList)",
+            "Filter bar (TaskFilters) + sort menu (TaskSortMenu) over the list",
+            "Clicking a row opens TaskDetailDialog (a view+edit side dialog) -> list-with-detail-as-panel",
+            "Inline add-task input; no archetype primitive imported"
+          ],
+          "notes": "Task list where a row opens a detail/edit dialog. Strong A shape; hand-rolled rows + dialog rather than a baseline primitive."
+        },
+        {
+          "route": "/projects/:id/timeline",
+          "file": "/Users/christoph/Documents/dev/pmo/client/src/components/timeline/TimelineView.tsx",
+          "archetype": "M",
+          "fit": 0.55,
+          "adopted": false,
+          "signals": [
+            "Gantt chart: fixed left panel (task rows) + scrollable right time-grid (TimelineHeader/TimelineGrid/TimelineBar)",
+            "2-D layout rows (tasks) x columns (days), pixelsPerDay/viewStart/viewEnd from gantt-store",
+            "Synchronized vertical scroll between panels; DependencyArrow overlay",
+            "Cells are bars positioned by date rather than discrete interactive grid cells -> only partial matrix fit"
+          ],
+          "notes": "Specialized Gantt timeline. Has a rows x time-columns 2-D structure (M-like) but is a continuous Gantt, not a discrete interactive matrix."
+        },
+        {
+          "route": "/todos",
+          "file": "/Users/christoph/Documents/dev/pmo/client/src/components/master/MasterTodoList.tsx",
+          "archetype": "A",
+          "fit": 0.7,
+          "adopted": false,
+          "signals": [
+            "Cross-project task list via useAllTasks; reuses TaskRow, TaskFilters, TaskSortMenu",
+            "Clicking a row opens TaskDetailDialog (view+edit panel)",
+            "Same list-with-detail pattern as /projects/:id/list, aggregated across all projects",
+            "No archetype primitive imported"
+          ],
+          "notes": "Master/aggregate task list; row opens detail dialog. Near-identical to the per-project list view."
+        },
+        {
+          "route": "/timeline",
+          "file": "/Users/christoph/Documents/dev/pmo/client/src/components/master/MasterTimelineView.tsx",
+          "archetype": "M",
+          "fit": 0.55,
+          "adopted": false,
+          "signals": [
+            "Master Gantt across all projects; reuses TimelineControls/Header/Grid/Bar from timeline/",
+            "rows (tasks colored per project) x columns (days) 2-D grid, synced dual-panel scroll",
+            "Per-project color palette; gantt-store drives scale/window",
+            "Continuous Gantt bars rather than discrete matrix cells"
+          ],
+          "notes": "Aggregate Gantt; structurally identical to /projects/:id/timeline but across projects."
+        }
+      ],
+      "gaps": [
+        {
+          "route": "/projects/:id/kanban",
+          "shape": "Drag-and-drop kanban board: horizontally sortable user-defined columns, each containing draggable task cards; cross-column moves and column reordering via dnd-kit. No baseline archetype models a DnD board.",
+          "signals": [
+            "dnd-kit DndContext + SortableContext + DragOverlay",
+            "Dynamic user-created columns (add-column dialog)",
+            "Cards moved across columns and reordered within columns",
+            "Neither grouped-list (K) nor matrix-grid (M) captures the interactive board"
+          ]
+        }
+      ],
+      "adoptionSummary": {
+        "adopted": 0,
+        "handRolled": 5,
+        "gaps": 1
+      },
+      "notes": "All 6 user-facing routes are defined in a single <Routes> table in client/src/App.tsx (React Router v7); the project root index '/' just redirects to /projects. The project does NOT use the design-baseline: no @/components/archetypes/* directory, no docs/archetypes/MANIFEST.json, and zero imports from any archetypes path were found via grep. There is a docs/adoption-plan.md (baseline adoption appears in-progress/planned) but no archetype primitives are wired in yet. Therefore every matched page is hand-rolled (adopted:false, fit capped <=0.9). Pages KanbanPage/TaskListPage/TimelinePage/MasterTodoPage/MasterTimelinePage are thin wrappers delegating to view components under client/src/components/{kanban,task-list,timeline,master}/, which is where the real structure lives (paths reported accordingly). Notable cross-cutting primitive: client/src/components/task/TaskDetailDialog.tsx is a view+edit crud-style dialog (archetype J shape) reused by both list routes, but it is not itself a route. The two timeline routes are structurally near-identical (per-project vs master Gantt); the two list routes likewise. The kanban board is the only true gap."
+    }
+  ],
+  "synthesis": {
+    "headline": "The fleet's problem is overwhelmingly UNDER-ADOPTION, not divergence: only 2 of 6 projects (hk-crm, mistra) wire in any @/components/archetypes primitives, while the other 4 (brickshop-manager, controlling-app, my-finance-app, pmo) hand-roll every page despite strong structural matches. The single biggest opportunity is brickshop-manager, which has a mature PARALLEL archetype program (StandardTableShell, CrudDialogSheet, HubTabs) covering ~73 routes at high structural fidelity but zero baseline adoption — reconciling its primitives to the baseline would convert the largest hand-rolled surface in the fleet. A secondary, genuinely NEW signal: a two-pane reconciliation workbench and a matrix/ledger-grid family recur across projects and may warrant promotion.",
+    "adoption": [
+      {
+        "project": "brickshop-manager",
+        "adopted": 0,
+        "handRolled": 48,
+        "gaps": 9
+      },
+      {
+        "project": "mistra",
+        "adopted": 7,
+        "handRolled": 8,
+        "gaps": 2
+      },
+      {
+        "project": "controlling-app",
+        "adopted": 0,
+        "handRolled": 21,
+        "gaps": 9
+      },
+      {
+        "project": "hk-crm",
+        "adopted": 27,
+        "handRolled": 1,
+        "gaps": 4
+      },
+      {
+        "project": "my-finance-app",
+        "adopted": 0,
+        "handRolled": 8,
+        "gaps": 7
+      },
+      {
+        "project": "pmo",
+        "adopted": 0,
+        "handRolled": 5,
+        "gaps": 1
+      }
+    ],
+    "byArchetype": [
+      {
+        "key": "A",
+        "adoptedIn": [
+          "hk-crm",
+          "mistra"
+        ],
+        "handRolledIn": [
+          "brickshop-manager",
+          "controlling-app",
+          "my-finance-app",
+          "pmo"
+        ],
+        "absentIn": []
+      },
+      {
+        "key": "B",
+        "adoptedIn": [
+          "hk-crm",
+          "mistra"
+        ],
+        "handRolledIn": [
+          "brickshop-manager"
+        ],
+        "absentIn": [
+          "controlling-app",
+          "my-finance-app",
+          "pmo"
+        ]
+      },
+      {
+        "key": "C",
+        "adoptedIn": [
+          "hk-crm"
+        ],
+        "handRolledIn": [
+          "brickshop-manager",
+          "mistra",
+          "controlling-app",
+          "my-finance-app"
+        ],
+        "absentIn": [
+          "pmo"
+        ]
+      },
+      {
+        "key": "D2",
+        "adoptedIn": [
+          "hk-crm",
+          "mistra"
+        ],
+        "handRolledIn": [
+          "brickshop-manager"
+        ],
+        "absentIn": [
+          "controlling-app",
+          "my-finance-app",
+          "pmo"
+        ]
+      },
+      {
+        "key": "J",
+        "adoptedIn": [
+          "hk-crm",
+          "mistra"
+        ],
+        "handRolledIn": [
+          "brickshop-manager",
+          "controlling-app",
+          "my-finance-app",
+          "pmo"
+        ],
+        "absentIn": []
+      },
+      {
+        "key": "K",
+        "adoptedIn": [
+          "hk-crm"
+        ],
+        "handRolledIn": [
+          "controlling-app",
+          "my-finance-app"
+        ],
+        "absentIn": [
+          "brickshop-manager",
+          "mistra",
+          "pmo"
+        ]
+      },
+      {
+        "key": "M",
+        "adoptedIn": [
+          "hk-crm"
+        ],
+        "handRolledIn": [
+          "controlling-app",
+          "pmo",
+          "brickshop-manager"
+        ],
+        "absentIn": [
+          "mistra",
+          "my-finance-app"
+        ]
+      },
+      {
+        "key": "F2",
+        "adoptedIn": [
+          "hk-crm"
+        ],
+        "handRolledIn": [
+          "brickshop-manager",
+          "mistra",
+          "controlling-app"
+        ],
+        "absentIn": [
+          "my-finance-app",
+          "pmo"
+        ]
+      }
+    ],
+    "gaps": [
+      {
+        "shape": "Two-pane reconciliation / matching workbench: stat tiles + two parallel selectable lists (e.g. expenses vs reimbursements/payments) where cross-list selection forms a match group; not a 2-D matrix (M) and not row->detail (A).",
+        "recursIn": [
+          "my-finance-app"
+        ],
+        "candidate": false
+      },
+      {
+        "shape": "Analytics / charts dashboard: KPI stat-card row + interactive chart widgets (bar/pie/line/trend) with period/category filters; read-only but body is charts, not entity sections or tables, so below C threshold.",
+        "recursIn": [
+          "brickshop-manager",
+          "my-finance-app",
+          "hk-crm",
+          "mistra"
+        ],
+        "candidate": true
+      },
+      {
+        "shape": "Multi-step import / data-ingestion wizard: upload -> column-mapping grid -> verification -> commit, with import/history toggle; form-like controls but a stepped flow, not archetype B.",
+        "recursIn": [
+          "controlling-app",
+          "my-finance-app"
+        ],
+        "candidate": true
+      },
+      {
+        "shape": "Structure / report builder: drag-assign source items (accounts) into an editable tree of report lines, with unassigned panel, template selector, version history.",
+        "recursIn": [
+          "controlling-app"
+        ],
+        "candidate": false
+      },
+      {
+        "shape": "Drag-and-drop kanban board: horizontally sortable user-defined columns of draggable cards, cross-column moves via dnd-kit; neither grouped-list (K) nor matrix-grid (M) captures the interactive board.",
+        "recursIn": [
+          "pmo",
+          "hk-crm"
+        ],
+        "candidate": true
+      },
+      {
+        "shape": "Gantt / timeline view: fixed left task-row panel + scrollable right time-grid with date-positioned bars and dependency arrows; rows x time-columns but continuous, not a discrete interactive matrix.",
+        "recursIn": [
+          "pmo"
+        ],
+        "candidate": false
+      },
+      {
+        "shape": "Inbox / feed surface: conversation or notification/activity feed with filter chips; not a CRUD list or single-entity detail (brickshop archetype H / standalone activity feeds).",
+        "recursIn": [
+          "brickshop-manager",
+          "hk-crm"
+        ],
+        "candidate": true
+      },
+      {
+        "shape": "Media-capture flow: audio recorder/upload with waveform, capture button, durable upload queue or voice-enrollment prompt wizard; no list/form/detail/tab/grid shape.",
+        "recursIn": [
+          "mistra"
+        ],
+        "candidate": false
+      },
+      {
+        "shape": "Operational single-shot utility: input -> evaluate/lookup -> result + inline edit (box-checker/box-finder); not a list, form-page, or detail.",
+        "recursIn": [
+          "brickshop-manager"
+        ],
+        "candidate": false
+      },
+      {
+        "shape": "Auth / error static card: centered sign-in or not-authorized/error card; off-rubric utility shells.",
+        "recursIn": [
+          "controlling-app",
+          "hk-crm",
+          "pmo"
+        ],
+        "candidate": true
+      },
+      {
+        "shape": "Editable financial entry matrix: statement/budget/forecast lines x periods/years with per-cell numeric inputs (de-DE parse) and Save; manual-entry editor flavor distinct from a read-only matrix view.",
+        "recursIn": [
+          "controlling-app"
+        ],
+        "candidate": false
+      }
+    ],
+    "triage": [
+      {
+        "finding": "hk-crm adopts all 8 baseline keys with near-total coverage (27 adopted, 1 hand-rolled) and is the baseline PRODUCER (K/C/B/M promoted_from hk-crm).",
+        "tier": "green",
+        "action": "No action. Treat hk-crm as the reference exemplar for adoption patterns."
+      },
+      {
+        "finding": "mistra cleanly adopts A/B/D2/J for the 4 primitives it has installed; adoption is correct wherever a primitive exists.",
+        "tier": "green",
+        "action": "No action on adopted routes; see separate finding for its hand-rolled detail-overview/tabbed-settings pages."
+      },
+      {
+        "finding": "brickshop-manager has ZERO baseline adoption across ~48-73 routes but runs a mature PARALLEL internal archetype program (StandardTableShell, CrudDialogSheet+useCrudDialogMode, HubTabs, PageHeader) with high structural conformance to A/B/C/D2/F2.",
+        "tier": "red",
+        "action": "Reconcile: map the project's own primitives to baseline @/components/archetypes equivalents (or vendor the baseline and migrate). Highest-leverage adoption target in the fleet."
+      },
+      {
+        "finding": "controlling-app hand-rolls 21 routes including a large M (matrix/ledger-grid) family and F2/K/C shapes, with its own custom (non-baseline) archetype keys.",
+        "tier": "red",
+        "action": "Adopt baseline matrix-grid (M), tabbed-settings (F2), grouped-list (K) and detail-overview (C) where shape fit >=0.6; align its custom doc keys to baseline slugs."
+      },
+      {
+        "finding": "my-finance-app hand-rolls A/C/K shapes (transactions, reconciliations/[id], categories, reports) with raw tables and custom modals; no archetypes, no react-hook-form.",
+        "tier": "red",
+        "action": "Adopt list-with-detail (A), detail-overview (C), grouped-list (K), and form-page (B) primitives for the matched routes."
+      },
+      {
+        "finding": "pmo hand-rolls two A list-with-detail routes (task list + master todo) and a reused TaskDetailDialog (J shape) despite an in-progress docs/adoption-plan.md; baseline not yet wired.",
+        "tier": "red",
+        "action": "Execute the adoption plan: wire list-with-detail (A) into the two task-list routes and crud-dialog (J) into TaskDetailDialog."
+      },
+      {
+        "finding": "mistra hand-rolls detail-overview (RecordingDetailPage, AdminDashboardPage, HealthPage, 0.7-0.8) and tabbed-settings (ModelsPage, 0.85) because those baseline primitives are NOT installed locally.",
+        "tier": "red",
+        "action": "Install/adopt detail-overview (C) and tabbed-settings (F2) primitives in mistra; the pages already match the shape."
+      },
+      {
+        "finding": "brickshop's grouped/weak list-with-detail variants (action-row mobile lists, bulk-export lists, no-detail-nav data tables at 0.65-0.7) diverge from a pure table-row->detail A.",
+        "tier": "yellow",
+        "action": "Capture as variant axes on A (presentation: table | card-grid | action-row; detail-target: route | dialog | none) rather than forcing one table shape."
+      },
+      {
+        "finding": "List-with-detail is presented as a card grid (pmo /projects, controlling dashboard-templates) instead of a table, lowering fit but serving a domain-appropriate need.",
+        "tier": "yellow",
+        "action": "Add a 'presentation: table | card-grid' variant axis to the list-with-detail (A) archetype; do not flatten card grids to tables."
+      },
+      {
+        "finding": "Detail-overview appears in two flavors: pure read-only sections vs. detail + inline-edit / embedded action dialogs (opportunities StageControls+WinDialog, reconciliations/[id] in-place edit, validation/[caseId] Run action).",
+        "tier": "yellow",
+        "action": "Add an 'editability: read-only | inline-edit | action-dialogs' variant axis to detail-overview (C); keep both as conformant."
+      },
+      {
+        "finding": "Tabbed detail pages (brickshop SetPreparationDetail/SharedListDetail F2-over-C, hk-crm company [id] tab nav over C) blur F2 and C.",
+        "tier": "yellow",
+        "action": "Document a 'tabbed detail' composition (F2 shell wrapping a C body) as an explicit allowed combination rather than a separate drift case."
+      },
+      {
+        "finding": "The matrix-grid (M) family in controlling-app spans read-only ledger views, editable entry grids, comparison/variance grids, and tile dashboards — broader than hk-crm's interactive companies x services M.",
+        "tier": "yellow",
+        "action": "Define M variant axes (read-only | editable-cell; numeric-ledger | tile-layout | comparison) before pushing controlling-app to adopt, so the primitive can actually absorb these."
+      }
+    ],
+    "recommendedActions": [
+      "Reconcile brickshop-manager's mature parallel primitives (StandardTableShell -> A, CrudDialogSheet -> J inside D2, HubTabs -> F2, settings tables -> D2, detail views -> C) to the design-baseline; this is the single largest hand-rolled surface in the fleet and already structurally conformant.",
+      "Add variant axes to existing archetypes before forcing adoption: A gets 'presentation: table | card-grid | action-row' and 'detail-target: route | dialog | none'; C gets 'editability: read-only | inline-edit | action-dialogs'; M gets 'read-only | editable-cell' and 'ledger | tile | comparison'. This converts most yellow drift into conformant variants.",
+      "Install the missing detail-overview (C) and tabbed-settings (F2) primitives in mistra and adopt them in RecordingDetailPage, AdminDashboardPage, HealthPage, and ModelsPage — the shapes already match, only the primitive is absent.",
+      "Adopt M (matrix-grid), F2, K, and C primitives in controlling-app, after the M variant axes land so the primitive can absorb its editable financial entry grids and comparison/variance views.",
+      "Adopt A, C, K, and B primitives in my-finance-app for transactions, reconciliations/[id], categories, and reports; introduce react-hook-form via the form-page (B) primitive.",
+      "Execute pmo's pending adoption-plan: wire list-with-detail (A) into the task-list and master-todo routes and crud-dialog (J) into the shared TaskDetailDialog.",
+      "Promote a new 'analytics dashboard' archetype: KPI stat-card row + chart-widget grid + period filters recurs in brickshop, my-finance-app, hk-crm /reports, and mistra admin — clears the rule-of-2 and is currently logged as a gap in every project that has it.",
+      "Promote a new 'import wizard' archetype (upload -> column-mapping -> verify -> commit), recurring in controlling-app and my-finance-app.",
+      "Evaluate promoting a 'two-pane reconciliation/matching workbench' archetype: it recurs across 4 routes within my-finance-app and is a clean unmodeled shape; confirm whether a second project needs it before promoting (currently single-project, so hold at candidate review).",
+      "Document an explicit 'kanban board' decision (promote or formally exclude): recurs in pmo and hk-crm (opportunities kanban view) but no current primitive models a dnd-kit board."
+    ]
+  }
+}
