@@ -116,4 +116,6 @@ Displaying?
 ```
 
 See also: `docs/archetypes/README.md` (the archetypes + the twelve layers),
-`docs/TAXONOMY.md` (vocabulary), `docs/STYLE.md` (tokens, primitives).
+`docs/TAXONOMY.md` (vocabulary), `docs/STYLE.md` (tokens, primitives), and
+`docs/FLEET-AUDIT.md` (the automated sweep that measures which surface each real
+project page actually uses — the evidence layer for this rubric).
