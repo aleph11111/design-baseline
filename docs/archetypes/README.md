@@ -45,9 +45,9 @@ The structural layers (3 — page header, 5 — content wrapper padding/spacing,
 The three planes of Layer 7 have one canonical look each; vary the *copy*, never the *chrome*:
 
 - **Loading** — text-only "Loading…" centred at `p-8`, `role="status" aria-live="polite"`. **No skeleton screens** in a list/table shell. The only skeleton in the baseline is the J (crud-dialog) body, where the field shape is known ahead of the fetch. Server-rendered pages (C — detail-overview, M — matrix-grid) delegate loading to a route-level `loading.tsx` instead of an in-shell plane.
-- **Error** — two distinct classes, each with its own treatment (do not conflate them):
-  - **Load/fetch error** (the whole surface failed) → a destructive `<Alert>`: `<AlertTriangle className="h-4 w-4" />` + `<AlertTitle>Something went wrong</AlertTitle>` + an `<AlertDescription>` holding the message and, when `onRetry` is given, a `variant="outline" size="sm"` `w-fit` "Try again" button. Wrapper `p-4`. Used by A, K, D2. The `isEmpty` flag must be gated `&& !error` so a failed query never renders as "empty".
-  - **Mutation/action error** (a save failed; the surface is fine) → a compact inline `text-destructive` line near the action, **not** a full Alert. Used by J (dialog save error) and B (form root error). Lighter on purpose — the data is still there.
+- **Error** — two treatments, chosen by **surface**, not by cause (do not conflate them):
+  - **Shell / page load error** (a full-width data shell — list, table, grouped list — failed to load) → a destructive `<Alert>`: `<AlertTriangle className="h-4 w-4" />` + `<AlertTitle>Something went wrong</AlertTitle>` + an `<AlertDescription>` holding the message and, when `onRetry` is given, a `variant="outline" size="sm"` `w-fit` "Try again" button. Wrapper `p-4`. Used by A, K, D2. The `isEmpty` flag must be gated `&& !error` so a failed query never renders as "empty".
+  - **Form / dialog inline error** (an error inside a form body or a narrow dialog — a failed save, or a dialog's own entity fetch — where a full Alert is too heavy) → a compact tinted box: `bg-destructive/10 p-4 rounded text-sm text-destructive`. Used by J (crud-dialog) and B (form root error). One treatment for both; never `bg-red-50`.
 - **Empty** — archetype-specific by design: the copy and any CTA (e.g. settings-table's "Add new" button in its empty state) belong to the archetype. Only the base styling is shared (`p-8 text-center text-sm text-muted-foreground`).
 
 ## The fifteen layers (dialog)

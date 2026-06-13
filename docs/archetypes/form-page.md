@@ -160,7 +160,7 @@ Form pages do not have a toolbar layer. This layer number is reserved to keep pa
 - **Submitting** — the primary button in `<FormPageActions>` disables and shows a spinner / "Saving…" / "Creating…" text. Other interactive elements (secondary buttons, fields) remain enabled so the user can read the form during the async window.
 - **Loading (initial data)** — handled by the server-component data fetch (Layer 8). The client form never sees a loading state for its `initial` values.
 - **Field validation errors** — shadcn's `<FormMessage />` renders the RHF error message below each field. Required for every `<FormField>`.
-- **Form-level errors** — submission errors that don't map to a specific field surface via `form.setError('root', { message })` and render in a fixed slot above `<FormPageActions>`. Class string: `text-sm font-medium text-destructive`.
+- **Form-level errors** — submission errors that don't map to a specific field surface via `form.setError('root', { message })` and render in a fixed slot above `<FormPageActions>`. Use the canonical compact form/dialog inline-error treatment — a tinted box `bg-destructive/10 p-4 rounded text-sm text-destructive` (shared with the J crud-dialog inline error; see README "Layer 7 — canonical state treatments"). Not a full `<Alert>` (that is the shell load-error treatment) and not `bg-red-50`.
 - **Success** — toast on save / create via the project's toast library (Sonner `toast()` recommended). The page does not render an inline success banner; success is signaled by toast + navigation.
 
 **Allowed variation:**

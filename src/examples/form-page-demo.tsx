@@ -308,9 +308,9 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
           />
 
           {form.formState.errors.root && (
-            <p className="text-sm font-medium text-destructive">
+            <div className="rounded bg-destructive/10 p-4 text-sm text-destructive">
               {form.formState.errors.root.message}
-            </p>
+            </div>
           )}
 
           <FormPageActions
