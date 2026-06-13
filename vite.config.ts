@@ -25,6 +25,26 @@ export default defineConfig({
     // (../docs) — both live above the gallery root, so allow the repo root.
     fs: { allow: [".."] },
   },
+  optimizeDeps: {
+    // Pre-bundle the heavy deps the lazy demos pull, so the dev server doesn't
+    // discover them mid-session and force a full reload each time you open a
+    // new archetype route. (For just viewing the gallery, prefer the static
+    // preview build — `npm run gallery:view` — which avoids dev mode entirely.)
+    include: [
+      "react",
+      "react-dom",
+      "react-dom/client",
+      "react-router-dom",
+      "next-themes",
+      "lucide-react",
+      "react-hook-form",
+      "@hookform/resolvers/zod",
+      "zod",
+      "date-fns",
+      "cmdk",
+      "sonner",
+    ],
+  },
   build: {
     outDir: "../gallery-dist",
     emptyOutDir: true,
