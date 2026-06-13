@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ArrowUp, ArrowDown, ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowUpDown, ChevronRight, MoreHorizontal } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -72,6 +72,18 @@ export type ListWithDetailShellProps<Row> = {
   sortDirection?: SortDirection;
   onSortChange?: (sortBy: string, sortDirection: SortDirection) => void;
   /**
+   * Body presentation — the A archetype's variant axis (see
+   * docs/CHOOSING-A-SURFACE.md). Same data + columns + row interaction; only the
+   * rendering differs:
+   * - `"table"` (default): the sortable data table.
+   * - `"card-grid"`: rows as cards in a responsive grid (identifier as title,
+   *   remaining columns as label/value pairs). For browse-y, image/summary-led
+   *   lists. Sorting headers are table-only; drive sort from the toolbar here.
+   * - `"action-row"`: full-width stacked rows (identifier + a couple of fields +
+   *   chevron) — the mobile / pick-an-item shape.
+   */
+  presentation?: "table" | "card-grid" | "action-row";
+  /**
    * When true, drop the shell's own card chrome (border, shadow, rounding) so
    * the table renders flush inside a surface the caller already provides — e.g.
    * a `<SectionCard flush>` in a grouped-list group. Defaults to false (the
@@ -132,6 +144,7 @@ function ListWithDetailShellInner<Row>(
     sortBy,
     sortDirection,
     onSortChange,
+    presentation = "table",
     unstyled,
     className,
   }: ListWithDetailShellProps<Row>,
@@ -176,8 +189,9 @@ function ListWithDetailShellInner<Row>(
   const showTable = !showLoading && !showError && rows.length > 0;
 
   const hasActions = rowActions !== undefined && rowActions.length > 0;
+  const clickable = onRowSelect !== undefined;
 
-  const tableBody = showTable ? (
+  const tableBody = showTable && presentation === "table" ? (
     <Table>
       <TableHeader>
         <TableRow>
@@ -267,6 +281,102 @@ function ListWithDetailShellInner<Row>(
     </Table>
   ) : null;
 
+  // Identifier column drives the title/primary field in the non-table presentations.
+  const idCol = columns.find((c) => c.isIdentifier === true) ?? columns[0];
+
+  const cardGridBody =
+    showTable && presentation === "card-grid" ? (
+      <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
+        {rows.map((row) => {
+          const rowId = getRowId(row);
+          const isSelected = selectedRowId === rowId;
+          return (
+            <div
+              key={rowId}
+              data-state={isSelected ? "selected" : undefined}
+              onClick={clickable ? () => handleRowSelect(row) : undefined}
+              className={cn(
+                "rounded-lg border bg-card p-4 shadow-sm transition-colors",
+                clickable && "cursor-pointer hover:bg-accent",
+                isSelected && "ring-2 ring-ring",
+              )}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className={cn("min-w-0 font-medium", clickable && "text-primary")}>
+                  {idCol ? idCol.cell(row) : null}
+                </div>
+                {hasActions && (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <RowActionsMenu row={row} actions={rowActions} />
+                  </div>
+                )}
+              </div>
+              <dl className="mt-2 space-y-1">
+                {columns
+                  .filter((c) => c !== idCol)
+                  .map((col) => (
+                    <div
+                      key={col.key}
+                      className="flex items-baseline justify-between gap-3 text-sm"
+                    >
+                      <dt className="shrink-0 text-muted-foreground">{col.header}</dt>
+                      <dd className="min-w-0 text-right text-foreground tabular-nums">
+                        {col.cell(row)}
+                      </dd>
+                    </div>
+                  ))}
+              </dl>
+            </div>
+          );
+        })}
+      </div>
+    ) : null;
+
+  const actionRowBody =
+    showTable && presentation === "action-row" ? (
+      <div className="divide-y">
+        {rows.map((row) => {
+          const rowId = getRowId(row);
+          const isSelected = selectedRowId === rowId;
+          const secondary = columns.filter((c) => c !== idCol).slice(0, 2);
+          return (
+            <div
+              key={rowId}
+              data-state={isSelected ? "selected" : undefined}
+              onClick={clickable ? () => handleRowSelect(row) : undefined}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3",
+                clickable && "cursor-pointer hover:bg-muted/50",
+                isSelected && "bg-muted",
+              )}
+            >
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-medium text-foreground">
+                  {idCol ? idCol.cell(row) : null}
+                </div>
+                {secondary.length > 0 && (
+                  <div className="mt-0.5 flex flex-wrap gap-x-3 text-sm text-muted-foreground">
+                    {secondary.map((col) => (
+                      <span key={col.key} className="truncate">
+                        {col.cell(row)}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {hasActions ? (
+                <div onClick={(e) => e.stopPropagation()}>
+                  <RowActionsMenu row={row} actions={rowActions} />
+                </div>
+              ) : clickable ? (
+                <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    ) : null;
+
   const emptyStateMode = showLoading
     ? "loading"
     : showError
@@ -277,7 +387,7 @@ function ListWithDetailShellInner<Row>(
 
   const bodyContent =
     showTable ? (
-      tableBody
+      tableBody ?? cardGridBody ?? actionRowBody
     ) : (
       <ListWithDetailEmptyState
         mode={emptyStateMode}

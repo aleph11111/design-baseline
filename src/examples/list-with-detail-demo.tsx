@@ -60,9 +60,13 @@ const columns: ListColumn<Podcast>[] = [
   { key: "category", header: "Category", cell: (p) => p.category },
 ];
 
+const PRESENTATIONS = ["table", "card-grid", "action-row"] as const;
+
 export function ListWithDetailDemo() {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [presentation, setPresentation] =
+    useState<(typeof PRESENTATIONS)[number]>("table");
 
   const filtered = PODCASTS.filter((p) =>
     p.title.toLowerCase().includes(search.toLowerCase()),
@@ -77,11 +81,30 @@ export function ListWithDetailDemo() {
       getRowId={(p) => p.id}
       onRowSelect={(p) => setSelectedId(p.id)}
       selectedRowId={selectedId}
+      presentation={presentation}
       toolbar={
         <ListWithDetailToolbar
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder="Search shows…"
+          pageActions={
+            <div className="flex gap-1 rounded-md border p-0.5">
+              {PRESENTATIONS.map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPresentation(p)}
+                  className={
+                    "rounded px-2 py-1 text-xs " +
+                    (presentation === p
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground")
+                  }
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          }
         />
       }
       detail={
