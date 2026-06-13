@@ -1,0 +1,16 @@
+/*
+ * Gallery stylesheet — donor-dev only.
+ * Pulls in the baseline's real token layer (which owns the Tailwind 4 entry,
+ * @theme config, and the :root / .dark HSL variables) so the gallery renders
+ * with exactly the tokens a target project would get.
+ */
+@import "../src/styles/tokens.css";
+
+/*
+ * Tailwind 4 roots automatic source detection at the Vite root (`gallery/`),
+ * so it would only scan the gallery's own files and miss every utility class
+ * used by the real primitives under `../src` (the shell, sidebar, archetypes).
+ * Register the baseline source explicitly so their classes get generated.
+ * Path is relative to this CSS file.
+ */
+@source "../src";

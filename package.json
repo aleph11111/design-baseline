@@ -2,7 +2,12 @@
   "name": "design-baseline",
   "version": "0.1.0",
   "private": true,
-  "description": "Reference list of runtime + dev dependencies for design-baseline. Donor is typecheck-only (run npx tsc --noEmit); not a buildable app.",
+  "description": "Design-baseline donor. Typecheck-only as a library (npx tsc --noEmit); ships an optional donor-dev gallery (npm run gallery) that renders the archetype demos. The gallery harness is NOT part of the baseline broadcast — see STYLE.md.",
+  "scripts": {
+    "gallery": "vite",
+    "gallery:build": "vite build",
+    "gallery:preview": "vite preview"
+  },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.0",
@@ -39,12 +44,16 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.15",
+    "@tailwindcss/vite": "^4.3.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.0",
     "tailwindcss": "^4.3.0",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "vite": "^6.0.0"
   },
   "designBaseline": {
     "framework-extras": {
@@ -53,7 +62,8 @@
     },
     "notes": [
       "react / react-dom are in devDependencies for donor typechecking only (npx tsc --noEmit) — target projects pin their own; do not copy the devDependencies block into a target.",
-      "Charts (recharts, nivo), auth (next-auth, @supabase/supabase-js), data fetching (@tanstack/react-query) are NOT in the baseline. Add per project."
+      "Charts (recharts, nivo), auth (next-auth, @supabase/supabase-js), data fetching (@tanstack/react-query) are NOT in the baseline. Add per project.",
+      "vite, @vitejs/plugin-react, @tailwindcss/vite, react-router-dom are donor-dev-only — they power the gallery harness (gallery/, vite.config.ts) and are NOT part of the baseline. Never copy them or the gallery into a target."
     ]
   }
 }
