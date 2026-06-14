@@ -4,6 +4,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -13,21 +15,52 @@ export type RowAction<Row> = {
   onSelect: (row: Row) => void;
   icon?: React.ComponentType<{ className?: string }>;
   destructive?: boolean;
+  /** Disable the item (e.g. no permission, not applicable to this row). */
+  disabled?: boolean;
 };
+
+/** A horizontal rule grouping the items around it. */
+export type RowActionSeparator = { separator: true };
+
+/** A non-interactive section heading inside the menu. */
+export type RowActionLabel = { label: string; heading: true };
+
+/**
+ * One entry in a RowActionsMenu: an action, a separator, or a section label.
+ * A plain `RowAction<Row>[]` is still a valid `RowActionItem<Row>[]`, so existing
+ * flat-list callers need no change.
+ */
+export type RowActionItem<Row> =
+  | RowAction<Row>
+  | RowActionSeparator
+  | RowActionLabel;
 
 export type RowActionsMenuProps<Row> = {
   row: Row;
-  actions: RowAction<Row>[];
+  actions: RowActionItem<Row>[];
   /** Accessible label for the trigger. */
   triggerLabel?: string;
 };
 
+function isSeparator<Row>(item: RowActionItem<Row>): item is RowActionSeparator {
+  return "separator" in item;
+}
+
+function isHeading<Row>(item: RowActionItem<Row>): item is RowActionLabel {
+  return "heading" in item;
+}
+
 /**
  * RowActionsMenu — the single owner of the per-row overflow menu (the trailing
  * `⋯` dropdown in every table row). Previously duplicated byte-for-byte as
- * private `RowActionsMenu`/`RowActionsDropdown` components inside both the
- * list-with-detail and settings-table shells; promoted here so the trigger,
- * alignment, and destructive-item treatment can only be changed in one place.
+ * private components inside the list-with-detail and settings-table shells;
+ * promoted here so the trigger, alignment, and destructive-item treatment can
+ * only be changed in one place.
+ *
+ * Entries may be actions, `{ separator: true }` rules, or `{ label, heading: true }`
+ * section labels — so a grouped menu (the common "edit actions … / destructive")
+ * shape is representable without hand-rolling the `DropdownMenu`. A flat
+ * `RowAction<Row>[]` still works unchanged.
  */
 export function RowActionsMenu<Row>({
   row,
@@ -43,20 +76,27 @@ export function RowActionsMenu<Row>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {actions.map((action) => {
-          const Icon = action.icon;
+        {actions.map((item, i) => {
+          if (isSeparator(item)) {
+            return <DropdownMenuSeparator key={`sep-${i}`} />;
+          }
+          if (isHeading(item)) {
+            return <DropdownMenuLabel key={`head-${i}`}>{item.label}</DropdownMenuLabel>;
+          }
+          const Icon = item.icon;
           return (
             <DropdownMenuItem
-              key={action.label}
-              onSelect={() => action.onSelect(row)}
+              key={`act-${i}`}
+              disabled={item.disabled}
+              onSelect={() => item.onSelect(row)}
               className={
-                action.destructive
+                item.destructive
                   ? "text-destructive focus:text-destructive"
                   : undefined
               }
             >
               {Icon && <Icon className="mr-2 h-4 w-4" />}
-              {action.label}
+              {item.label}
             </DropdownMenuItem>
           );
         })}

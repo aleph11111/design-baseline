@@ -20,6 +20,7 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SearchInput } from "@/components/ui/search-input";
 import { StateView } from "@/components/ui/state-view";
 import { IconAvatar } from "@/components/ui/icon-avatar";
+import { RowActionsMenu } from "@/components/archetypes/shared";
 
 export type LayoutPrim = {
   slug: string;
@@ -274,6 +275,44 @@ function IconAvatarDemo() {
   );
 }
 
+function RowActionsMenuDemo() {
+  const row = { id: "r1", name: "Ada Reyes" };
+  return (
+    <div className="space-y-8">
+      <Variant label="Flat (Edit · Delete)">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Row actions →</span>
+          <RowActionsMenu
+            row={row}
+            actions={[
+              { label: "Edit", onSelect: () => {} },
+              { label: "Delete", onSelect: () => {}, destructive: true },
+            ]}
+          />
+        </div>
+      </Variant>
+      <Variant label="Grouped (heading + separators + disabled + destructive)">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Row actions →</span>
+          <RowActionsMenu
+            row={row}
+            actions={[
+              { label: "Manage", heading: true },
+              { label: "Open detail", onSelect: () => {} },
+              { label: "Merge into…", onSelect: () => {} },
+              { separator: true },
+              { label: "Duplicate", onSelect: () => {} },
+              { label: "Archive", onSelect: () => {}, disabled: true },
+              { separator: true },
+              { label: "Delete", onSelect: () => {}, destructive: true },
+            ]}
+          />
+        </div>
+      </Variant>
+    </div>
+  );
+}
+
 export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "page-header", displayName: "PageHeader", Demo: PageHeaderDemo },
   { slug: "section-heading", displayName: "SectionHeading", Demo: SectionHeadingDemo },
@@ -284,6 +323,7 @@ export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "search-input", displayName: "SearchInput", Demo: SearchInputDemo },
   { slug: "state-view", displayName: "StateView", Demo: StateViewDemo },
   { slug: "icon-avatar", displayName: "IconAvatar", Demo: IconAvatarDemo },
+  { slug: "row-actions-menu", displayName: "RowActionsMenu", Demo: RowActionsMenuDemo },
 ];
 
 export function findLayoutPrim(slug: string | undefined): LayoutPrim | undefined {
