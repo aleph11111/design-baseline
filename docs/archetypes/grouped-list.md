@@ -39,7 +39,7 @@ K **inherits A's table contract**. Layers 6–10 (table, empty states, data, typ
 
 **Required:**
 - The page renders inside `<AppShell>` (baseline). The shell mounts providers; consumers do not re-mount them at the page level.
-- Outer container: `<div className="px-6 py-6 space-y-6">` — same outer rhythm as A. The `space-y-6` separates the page header band from the grouped content region; `<GroupedListShell>` supplies its own inner `space-y-8` between sections.
+- Outer container: `<div className="space-y-6">` — **no page inset** (`AppShell`'s `<main>` supplies it), same as A. The `space-y-6` separates the page header band from the grouped content region; `<GroupedListShell>` supplies its own inner `space-y-8` between sections.
 - `<ErrorBoundary>` wrapping page content at the page component level.
 - The baseline `<PageHeader>` layout primitive (`@/components/layout`) for the title bar.
 

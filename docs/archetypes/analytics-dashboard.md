@@ -33,7 +33,7 @@ A top-level route (e.g. `/dashboard`, `/reports`, `/analytics`). Lazy + suspense
 like any page. Read-only — no create/edit routes hang off it.
 
 ## Layer 2 — Page shell
-Renders inside `<AppShell>`. Outer container `px-6 py-6 space-y-6`. An
+Renders inside `<AppShell>` (its `<main>` supplies the page inset; the page adds none). Outer container `space-y-6`. An
 `<ErrorBoundary>` wraps content; per-widget fetch errors degrade to a per-widget
 message, never a blank page.
 

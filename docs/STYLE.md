@@ -45,7 +45,7 @@ All tokens are HSL triplets in `src/styles/tokens.css`. Every shadcn component r
 
 The baseline uses Tailwind's 4 px scale. A handful of values carry consistent *meaning* across archetypes — pick by intent, not by eye. New archetypes should reuse these rather than introduce a fifth rhythm.
 
-**Page inset.** Top-level pages own their padding with `px-6 py-6` (list-with-detail, grouped-list, matrix-grid). Pages rendered inside a section layout (settings: settings-table, tabbed-settings) or a detail shell **omit** outer padding — the surrounding `<main>` / section inset supplies it. Doubling the inset is the bug this split prevents.
+**Page inset — one owner: `AppShell`'s `<main>`.** The page inset (`p-4 md:p-6`) is applied **once**, by `AppShell`'s `<main>` (`AppShell.tsx`). **No page, archetype shell, or section layout adds its own outer `px-6`/`py-6`** — doing so double-insets, and "who adds the padding" being a per-page decision is the #1 source of cross-app drift. A page's outer container carries only its vertical rhythm (`space-y-*`) and, for reading/entry archetypes, a `max-w-*` (left-aligned). This is consistency *by construction*: every page inside the shell inherits the same inset; there is nothing for a page author to get wrong or forget.
 
 **Vertical rhythm** — `space-y-*` between stacked blocks:
 

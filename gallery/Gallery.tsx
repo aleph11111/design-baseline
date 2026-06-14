@@ -27,7 +27,7 @@ import {
 } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
 import { ARCHETYPES, findArchetype, type ArchetypeEntry } from "./registry";
-import { LAYOUT_PRIMS, findLayoutPrim } from "./layout-demos";
+import { LAYOUT_PRIMS, findLayoutPrim, type LayoutPrim } from "./layout-demos";
 
 const REPO = "https://_/"; // spec links are repo-relative; shown as text, not navigated
 
@@ -96,20 +96,28 @@ function ArchetypePage() {
   if (!a) return <Navigate to="/" replace />;
   const Demo = a.Demo;
   return (
-    <div>
-      <ArchetypeInfoBar a={a} />
-      {/* The gallery owns the page inset uniformly (acting as the app shell's
-          <main>), so every demo is framed identically. Demos render archetype
-          content without their own px-6/py-6. */}
-      <div className="px-6 py-6">
-        <React.Suspense
-          fallback={
-            <div className="text-sm text-muted-foreground">Loading demo…</div>
-          }
-        >
-          <Demo />
-        </React.Suspense>
+    // The info bar lives in the header slot (full-bleed); AppShell's <main>
+    // owns the inset, so the demo renders directly — exactly like a real page.
+    <React.Suspense
+      fallback={
+        <div className="text-sm text-muted-foreground">Loading demo…</div>
+      }
+    >
+      <Demo />
+    </React.Suspense>
+  );
+}
+
+function LayoutPrimInfoBar({ p }: { p: LayoutPrim }) {
+  return (
+    <div className="flex items-center justify-between gap-3 border-b border-border bg-card px-6 py-3">
+      <div className="flex items-center gap-3">
+        <h1 className="text-base font-semibold tracking-tight text-foreground">
+          {p.displayName}
+        </h1>
+        <Badge variant="outline">Layout primitive</Badge>
       </div>
+      <code className="text-xs text-muted-foreground">@/components/layout</code>
     </div>
   );
 }
@@ -119,22 +127,7 @@ function LayoutPrimPage() {
   const p = findLayoutPrim(slug);
   if (!p) return <Navigate to="/" replace />;
   const Demo = p.Demo;
-  return (
-    <div>
-      <div className="flex items-center justify-between gap-3 border-b border-border bg-card px-6 py-3">
-        <div className="flex items-center gap-3">
-          <h1 className="text-base font-semibold tracking-tight text-foreground">
-            {p.displayName}
-          </h1>
-          <Badge variant="outline">Layout primitive</Badge>
-        </div>
-        <code className="text-xs text-muted-foreground">@/components/layout</code>
-      </div>
-      <div className="px-6 py-6">
-        <Demo />
-      </div>
-    </div>
-  );
+  return <Demo />;
 }
 
 function Overview() {
@@ -199,7 +192,13 @@ export function Gallery(): React.ReactElement {
           renderLink={(item, children) => <Link to={item.path}>{children}</Link>}
         />
       }
-      header={<AppHeader title={title} right={<ThemeToggle />} />}
+      header={
+        <>
+          <AppHeader title={title} right={<ThemeToggle />} />
+          {active && <ArchetypeInfoBar a={active} />}
+          {activePrim && <LayoutPrimInfoBar p={activePrim} />}
+        </>
+      }
     >
       <Routes>
         <Route path="/" element={<Overview />} />

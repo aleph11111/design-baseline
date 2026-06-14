@@ -27,7 +27,7 @@ A dedicated route (e.g. `/imports/new`, `/transactions/import`). Lazy + suspense
 Often paired with an **import history** list (see Layer 4).
 
 ## Layer 2 — Page shell
-`<AppShell>` + outer `px-6 py-6`. An `<ErrorBoundary>` wraps content; a failed
+`<AppShell>` (its `<main>` supplies the page inset; the page adds none). An `<ErrorBoundary>` wraps content; a failed
 step surfaces inline, never loses earlier steps' state.
 
 ## Layer 3 — Page header

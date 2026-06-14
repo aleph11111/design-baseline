@@ -19,6 +19,10 @@ export function AppShell({ sidebar, header, children, defaultSidebarOpen = true 
           {sidebar}
           <div className="flex-1 flex flex-col">
             {header}
+            {/* `<main>` is the CANONICAL owner of the page inset (p-4 md:p-6).
+                Pages and archetype shells render content WITHOUT their own outer
+                px-6/py-6 — adding it double-insets. One owner = no per-page drift.
+                See docs/STYLE.md "Spacing & rhythm". */}
             <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
           </div>
         </div>

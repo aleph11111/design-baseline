@@ -62,9 +62,9 @@ B is **not** the right choice for:
 
 - The page renders inside `<AppShell>` (or the project's top-level layout primitive). The shell does not re-mount providers.
 - Outer container: `<FormPageShell>` from `src/components/archetypes/form-page/`. The shell provides:
-  - Padding: `px-6 py-6`
-  - Single-column max-width: default `max-w-xl` (~36rem). Overridable via the `width` prop — `"sm"` (max-w-md), `"md"` (max-w-xl, default), `"lg"` (max-w-2xl), `"xl"` (max-w-4xl for wide multi-column layouts).
+  - Single-column max-width: default `max-w-xl` (~36rem), left-aligned. Overridable via the `width` prop — `"sm"` (max-w-md), `"md"` (max-w-xl, default), `"lg"` (max-w-2xl), `"xl"` (max-w-4xl for wide multi-column layouts).
   - Vertical spacing: `space-y-6` between header and form body.
+  - **No page inset** — `AppShell`'s `<main>` supplies it; the shell adds none (adding `px-6 py-6` here would double-inset).
 - `<ErrorBoundary>` (or framework equivalent) wraps the page content at the page-component level.
 
 **Allowed variation:**

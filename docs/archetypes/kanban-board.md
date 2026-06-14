@@ -30,7 +30,7 @@ A top-level route (`/board`, `/pipeline`) or a tab within a larger surface. Lazy
 suspense.
 
 ## Layer 2 — Page shell
-`<AppShell>` + outer `px-6 py-6`. The board scrolls horizontally inside its own
+`<AppShell>` (its `<main>` supplies the page inset; the page adds none). The board scrolls horizontally inside its own
 container; the page does not.
 
 ## Layer 3 — Page header

@@ -36,8 +36,10 @@ export type FormPageShellProps = {
  *
  * Provides:
  *   - Single-column max-width (configurable via `width` prop)
- *   - Page padding: px-6 py-6
  *   - Vertical spacing between header / form body / actions: space-y-6
+ *
+ * Does NOT add page inset (px-6/py-6) — `<AppShell>`'s `<main>` owns that. Adding
+ * it here would double-inset. See docs/STYLE.md "Spacing & rhythm".
  *
  * Children should be arranged as:
  *   <FormPageHeader … />
@@ -59,7 +61,7 @@ export function FormPageShell({
   return (
     <div
       className={cn(
-        "px-6 py-6 space-y-6",
+        "space-y-6",
         WIDTH_MAP[width],
         className,
       )}

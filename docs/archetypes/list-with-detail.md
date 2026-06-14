@@ -38,7 +38,7 @@ A **list-with-detail** page shows a table of domain entities (items, users, orde
 
 **Required:**
 - The page renders inside `<AppShell>` from `src/components/layout/` — the baseline's top-level layout primitive. As of baseline v1.0, `<AppShell>` mounts `TooltipProvider`, `SidebarProvider`, `<Toaster>`, and `<Sonner>`, so those providers are always in the tree by the time a list-with-detail page renders. Consumers do not re-mount them at the page level.
-- Outer container: `<div className="px-6 py-6 space-y-6">`.
+- Outer container: `<div className="space-y-6">` — **no page inset**; `AppShell`'s `<main>` supplies it (adding `px-6 py-6` here double-insets). The `space-y-6` is internal rhythm only.
 - `<ErrorBoundary>` wrapping page content at the page component level.
 - The baseline `<PageHeader>` layout primitive (`@/components/layout`) for the title bar.
 
