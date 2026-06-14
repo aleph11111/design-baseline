@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import {
   BarChart3,
+  Bell,
   Box,
   FileText,
   LayoutDashboard,
@@ -41,6 +42,7 @@ const ICON_BY_SLUG: Record<string, LucideIcon> = {
   "tabbed-settings": Settings,
   "analytics-dashboard": BarChart3,
   "import-wizard": UploadCloud,
+  "feed-inbox": Bell,
 };
 
 function toNavItem(a: ArchetypeEntry): NavItem {

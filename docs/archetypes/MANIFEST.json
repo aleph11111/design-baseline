@@ -154,6 +154,18 @@
       "spec": "docs/archetypes/import-wizard.md",
       "primitives_dir": "src/components/archetypes/import-wizard",
       "example": "src/examples/import-wizard-demo.tsx"
+    },
+    {
+      "key": "H",
+      "slug": "feed-inbox",
+      "displayName": "Feed / inbox",
+      "version": "1.0",
+      "promoted_from": "fleet-audit-2026-06-13 (brickshop-manager, hk-crm)",
+      "promoted_at": "2026-06-14",
+      "source_spec_version": "1.0",
+      "spec": "docs/archetypes/feed-inbox.md",
+      "primitives_dir": "src/components/archetypes/feed-inbox",
+      "example": "src/examples/feed-inbox-demo.tsx"
     }
   ]
 }

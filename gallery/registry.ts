@@ -74,6 +74,10 @@ const DEMOS: Record<
     kind: "page",
     Demo: lazyDemo(() => import("@/examples/import-wizard-demo"), "ImportWizardDemo"),
   },
+  "feed-inbox": {
+    kind: "page",
+    Demo: lazyDemo(() => import("@/examples/feed-inbox-demo"), "FeedInboxDemo"),
+  },
 };
 
 type ManifestArchetype = {
