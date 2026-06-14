@@ -104,11 +104,28 @@ type SheetState =
   | { kind: "edit"; studentId: string; subjectKey: string }
   | { kind: "create"; studentId: string; subjectKey: string };
 
+const ALL_GRADES: Grade[] = ["A", "B", "C", "D", "F", "INCOMPLETE"];
+
 export function MatrixGridDemo() {
   const [gradesByStudent, setGradesByStudent] = useState(SEED_GRADES);
   const [sheet, setSheet] = useState<SheetState>({ kind: "closed" });
   const [draftGrade, setDraftGrade] = useState<Grade>("A");
   const [draftNote, setDraftNote] = useState("");
+  // Cell variant axis: "click" = read-only cells that open a side-sheet to edit;
+  // "inline" = editable-cell (a <select> rendered directly in each filled cell).
+  const [mode, setMode] = useState<"click" | "inline">("click");
+
+  function setCellGrade(studentId: string, subjectKey: string, grade: Grade) {
+    const today = new Date().toISOString().slice(0, 10);
+    setGradesByStudent((prev) => {
+      const studentGrades = { ...(prev[studentId] ?? {}) };
+      const existing = studentGrades[subjectKey];
+      if (existing) {
+        studentGrades[subjectKey] = { ...existing, grade, recordedAt: today };
+      }
+      return { ...prev, [studentId]: studentGrades };
+    });
+  }
 
   const columns: MatrixColumn[] = SUBJECTS.map((s) => ({
     key: s.key,
@@ -171,22 +188,55 @@ export function MatrixGridDemo() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-end gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground">
-          {STUDENTS.length} students · {SUBJECTS.length} subjects · click any
-          cell to grade or update.
+          {STUDENTS.length} students · {SUBJECTS.length} subjects ·{" "}
+          {mode === "click" ? "click any cell to grade or update." : "edit grades inline."}
         </p>
+        <div className="flex gap-1 rounded-md border p-0.5">
+          {(["click", "inline"] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => setMode(m)}
+              className={
+                "rounded px-2 py-1 text-xs " +
+                (mode === m
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground")
+              }
+            >
+              {m === "click" ? "click to edit" : "inline edit"}
+            </button>
+          ))}
+        </div>
       </div>
 
       <MatrixGridShell<GradeEntry>
         columns={columns}
         rows={rows}
         rowHeaderLabel="Student"
-        renderCell={(ctx) => (
-          <span className="font-medium">
-            {ctx.cell?.grade === "INCOMPLETE" ? "INC" : ctx.cell?.grade}
-          </span>
-        )}
+        renderCell={(ctx) =>
+          mode === "inline" && ctx.isFilled ? (
+            <select
+              value={ctx.cell!.grade}
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) =>
+                setCellGrade(ctx.row.id, ctx.column.key, e.target.value as Grade)
+              }
+              className="w-full cursor-pointer bg-transparent text-center text-sm font-medium focus:outline-none"
+            >
+              {ALL_GRADES.map((g) => (
+                <option key={g} value={g}>
+                  {g === "INCOMPLETE" ? "INC" : g}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="font-medium">
+              {ctx.cell?.grade === "INCOMPLETE" ? "INC" : ctx.cell?.grade}
+            </span>
+          )
+        }
         cellStyle={(ctx) => {
           if (!ctx.isFilled) {
             return {
@@ -204,8 +254,10 @@ export function MatrixGridDemo() {
                   : `Recorded ${ctx.cell?.recordedAt}`,
           };
         }}
-        onCellClick={(ctx) =>
-          openCell(ctx.row.id, ctx.column.key, ctx.cell)
+        onCellClick={
+          mode === "inline"
+            ? undefined
+            : (ctx) => openCell(ctx.row.id, ctx.column.key, ctx.cell)
         }
       />
 

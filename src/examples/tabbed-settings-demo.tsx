@@ -20,6 +20,11 @@
 import * as React from "react";
 import { SlidersHorizontal } from "lucide-react";
 import { SettingsPageShell } from "@/components/archetypes/tabbed-settings";
+import {
+  DetailSection,
+  KeyValueList,
+  KeyValueRow,
+} from "@/components/archetypes/detail-overview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -124,12 +129,33 @@ export function TabbedSettingsDemo() {
         breadcrumbs={breadcrumbs}
         /* No `actions` — F2 has no page-level actions; per-tab actions live in each body. */
       >
-        <Tabs defaultValue="general">
+        <Tabs defaultValue="overview">
           <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="distribution">Distribution</TabsTrigger>
             <TabsTrigger value="team">Team</TabsTrigger>
           </TabsList>
+
+          {/* Tabbed-detail composition (F2 shell over a C body): this tab body is a
+              detail-overview <DetailSection> rather than a settings body. */}
+          <TabsContent value="overview" className="pt-4">
+            <DetailSection title="Workspace" flush>
+              <KeyValueList>
+                <KeyValueRow label="Show name" value={general.showName} />
+                <KeyValueRow label="Contact" value={general.contactEmail} />
+                <KeyValueRow
+                  label="Channels live"
+                  value={channels.filter((c) => c.status === "live").length}
+                />
+                <KeyValueRow label="Team size" value={team.length} />
+                <KeyValueRow
+                  label="Explicit by default"
+                  value={general.explicitByDefault ? "Yes" : "No"}
+                />
+              </KeyValueList>
+            </DetailSection>
+          </TabsContent>
 
           {/* Tab body 1 — delegates to a settings-form (D1) shape */}
           <TabsContent value="general" className="pt-4">

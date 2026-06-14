@@ -172,6 +172,10 @@ const SAMPLE_ENTRY: BoardGameEntry = {
 
 export function DetailOverviewDemo(): React.ReactElement {
   const entry = SAMPLE_ENTRY;
+  // Editability variant (inline-edit): a section whose body swaps a read-only
+  // value for an editable control in place — the same DetailSection, no new prop.
+  const [editingNotes, setEditingNotes] = React.useState(false);
+  const [notes, setNotes] = React.useState(SAMPLE_ENTRY.notes ?? "");
   const totalPlays = entry.sessions.length;
   const lastPlayed = entry.sessions[0]?.playedOn ?? null;
   const avgDuration =
@@ -246,9 +250,8 @@ export function DetailOverviewDemo(): React.ReactElement {
                 </span>
               }
             />
-            {entry.notes && (
-              <KeyValueRow label="Notes" value={entry.notes} block />
-            )}
+            {/* Notes moved to an inline-edit section in the content slot below to
+                demonstrate the editability variant — see "Notes" there. */}
           </KeyValueList>
         </DetailSection>
       }
@@ -277,40 +280,78 @@ export function DetailOverviewDemo(): React.ReactElement {
         </StatTileRow>
       }
       content={
-        entry.sessions.length === 0 ? (
-          <DetailSection title="Recent plays">
-            <p className="text-sm text-muted-foreground">
-              No plays logged yet.
-            </p>
-          </DetailSection>
-        ) : (
-          <DetailSection title="Recent plays" flush>
-            <ul className="divide-y divide-border">
-              {entry.sessions.map((s) => (
-                <li
-                  key={s.id}
-                  className="flex items-center justify-between gap-6 px-5 py-3"
+        <>
+          {entry.sessions.length === 0 ? (
+            <DetailSection title="Recent plays">
+              <p className="text-sm text-muted-foreground">
+                No plays logged yet.
+              </p>
+            </DetailSection>
+          ) : (
+            <DetailSection title="Recent plays" flush>
+              <ul className="divide-y divide-border">
+                {entry.sessions.map((s) => (
+                  <li
+                    key={s.id}
+                    className="flex items-center justify-between gap-6 px-5 py-3"
+                  >
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-foreground">
+                        {fmtDate(s.playedOn)}
+                      </div>
+                      <div className="mt-0.5 text-xs text-muted-foreground">
+                        {s.playerCount} players ·{" "}
+                        {fmtDuration(s.durationMinutes)}
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-sm text-muted-foreground">
+                      Winner:{" "}
+                      <span className="font-medium text-foreground">
+                        {s.winner}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </DetailSection>
+          )}
+
+          {/* Editability variant — inline-edit (read-only value ↔ in-place editor). */}
+          <DetailSection
+            title="Notes"
+            actions={
+              editingNotes ? (
+                <Button
+                  size="sm"
+                  className="-my-1.5 h-7 text-xs"
+                  onClick={() => setEditingNotes(false)}
                 >
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium text-foreground">
-                      {fmtDate(s.playedOn)}
-                    </div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">
-                      {s.playerCount} players ·{" "}
-                      {fmtDuration(s.durationMinutes)}
-                    </div>
-                  </div>
-                  <div className="shrink-0 text-sm text-muted-foreground">
-                    Winner:{" "}
-                    <span className="font-medium text-foreground">
-                      {s.winner}
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  Save
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="-my-1.5 h-7 text-xs"
+                  onClick={() => setEditingNotes(true)}
+                >
+                  Edit
+                </Button>
+              )
+            }
+          >
+            {editingNotes ? (
+              <textarea
+                className="w-full rounded-md border border-input bg-background p-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                rows={3}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+            ) : (
+              <p className="text-sm leading-relaxed text-foreground">{notes}</p>
+            )}
           </DetailSection>
-        )
+        </>
       }
       references={
         <DetailSection title="Resources" tone="muted" flush>

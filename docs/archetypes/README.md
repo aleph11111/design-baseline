@@ -42,6 +42,20 @@ Layers 1–7 are visual/structural. Layers 8–10 are the data layer. Layers 11�
 
 The structural layers (3 — page header, 5 — content wrapper padding/spacing, the section titles inside 6) draw from a small set of **canonical tokens** documented in `docs/STYLE.md`: the page-title and section-title heading signatures (owned by the `<PageHeader>` and `<SectionHeading>` layout primitives), and the page-inset / vertical-rhythm / surface-padding scale ("Spacing & rhythm"). When writing or auditing a spec, reuse those values — a new fifth rhythm or a hand-rolled heading class is accidental drift (red), not essential variation.
 
+### Every documented variant gets a living demo
+
+When you add or document a **variant axis** on an archetype — whether it's a real
+prop (e.g. `list-with-detail presentation`, `crud-dialog layout`) or a documented
+composition the primitive already allows (e.g. `detail-overview editability`,
+`matrix-grid` editable/ledger cells, F2 tabbed-detail) — **extend that archetype's
+demo (`src/examples/<slug>-demo.tsx`) so the variant is visible and clickable in
+the gallery.** A spec note nobody can *see* is half-documented: the gallery is the
+review surface, so a variant that doesn't render there can't be visually inspected
+or caught when it regresses. Composition-only variants (no new prop) still get a
+demo — that's how a reviewer confirms the existing API actually produces the
+claimed shape. Bump the archetype's `version` in `MANIFEST.json` when the demo
+changes (the demo is part of the shipped deliverable).
+
 ### Layer 7 — canonical state treatments
 
 The three planes of Layer 7 have one canonical look each; vary the *copy*, never the *chrome*:
