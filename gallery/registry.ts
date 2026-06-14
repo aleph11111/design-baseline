@@ -66,6 +66,10 @@ const DEMOS: Record<
     kind: "page",
     Demo: lazyDemo(() => import("@/examples/tabbed-settings-demo"), "TabbedSettingsDemo"),
   },
+  "analytics-dashboard": {
+    kind: "page",
+    Demo: lazyDemo(() => import("@/examples/analytics-dashboard-demo"), "AnalyticsDashboardDemo"),
+  },
 };
 
 type ManifestArchetype = {
