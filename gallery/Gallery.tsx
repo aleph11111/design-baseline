@@ -13,6 +13,7 @@ import {
   FileText,
   LayoutDashboard,
   Settings,
+  UploadCloud,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -39,6 +40,7 @@ const ICON_BY_SLUG: Record<string, LucideIcon> = {
   "matrix-grid": BarChart3,
   "tabbed-settings": Settings,
   "analytics-dashboard": BarChart3,
+  "import-wizard": UploadCloud,
 };
 
 function toNavItem(a: ArchetypeEntry): NavItem {

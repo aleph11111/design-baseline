@@ -142,6 +142,18 @@
       "spec": "docs/archetypes/analytics-dashboard.md",
       "primitives_dir": "src/components/archetypes/analytics-dashboard",
       "example": "src/examples/analytics-dashboard-demo.tsx"
+    },
+    {
+      "key": "W",
+      "slug": "import-wizard",
+      "displayName": "Import wizard",
+      "version": "1.0",
+      "promoted_from": "fleet-audit-2026-06-13 (controlling-app, my-finance-app)",
+      "promoted_at": "2026-06-14",
+      "source_spec_version": "1.0",
+      "spec": "docs/archetypes/import-wizard.md",
+      "primitives_dir": "src/components/archetypes/import-wizard",
+      "example": "src/examples/import-wizard-demo.tsx"
     }
   ]
 }

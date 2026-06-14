@@ -70,6 +70,10 @@ const DEMOS: Record<
     kind: "page",
     Demo: lazyDemo(() => import("@/examples/analytics-dashboard-demo"), "AnalyticsDashboardDemo"),
   },
+  "import-wizard": {
+    kind: "page",
+    Demo: lazyDemo(() => import("@/examples/import-wizard-demo"), "ImportWizardDemo"),
+  },
 };
 
 type ManifestArchetype = {
