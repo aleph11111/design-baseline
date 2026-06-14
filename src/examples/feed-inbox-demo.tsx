@@ -70,7 +70,7 @@ export function FeedInboxDemo(): React.ReactElement {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-6 space-y-6">
+    <div className="max-w-3xl space-y-6">
       <PageHeader
         title="Notifications"
         subtitle={unreadCount > 0 ? `${unreadCount} unread` : "You're all caught up."}

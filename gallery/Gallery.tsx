@@ -98,13 +98,18 @@ function ArchetypePage() {
   return (
     <div>
       <ArchetypeInfoBar a={a} />
-      <React.Suspense
-        fallback={
-          <div className="p-8 text-sm text-muted-foreground">Loading demo…</div>
-        }
-      >
-        <Demo />
-      </React.Suspense>
+      {/* The gallery owns the page inset uniformly (acting as the app shell's
+          <main>), so every demo is framed identically. Demos render archetype
+          content without their own px-6/py-6. */}
+      <div className="px-6 py-6">
+        <React.Suspense
+          fallback={
+            <div className="text-sm text-muted-foreground">Loading demo…</div>
+          }
+        >
+          <Demo />
+        </React.Suspense>
+      </div>
     </div>
   );
 }
@@ -125,7 +130,9 @@ function LayoutPrimPage() {
         </div>
         <code className="text-xs text-muted-foreground">@/components/layout</code>
       </div>
-      <Demo />
+      <div className="px-6 py-6">
+        <Demo />
+      </div>
     </div>
   );
 }

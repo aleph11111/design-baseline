@@ -51,7 +51,7 @@ export function KanbanBoardDemo(): React.ReactElement {
   }
 
   return (
-    <div className="px-6 py-6 space-y-6">
+    <div className="space-y-6">
       <PageHeader title="Delivery board" subtitle="Drag cards between columns." />
 
       <BoardShell>

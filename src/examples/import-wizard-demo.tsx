@@ -63,7 +63,7 @@ export function ImportWizardDemo(): React.ReactElement {
 
   if (committed) {
     return (
-      <div className="px-6 py-6">
+      <div>
         <PageHeader title="Import transactions" />
         <div className="mt-6 flex flex-col items-center gap-3 rounded-lg border bg-card p-10 text-center shadow-sm">
           <CheckCircle2 className="h-10 w-10 text-emerald-600" />
@@ -87,7 +87,7 @@ export function ImportWizardDemo(): React.ReactElement {
   }
 
   return (
-    <div className="px-6 py-6 space-y-6">
+    <div className="space-y-6">
       <PageHeader
         title="Import transactions"
         subtitle="Bring in a CSV export from your bank."

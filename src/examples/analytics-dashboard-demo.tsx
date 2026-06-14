@@ -101,7 +101,7 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
   const k = KPIS[period];
 
   return (
-    <div className="px-6 py-6 space-y-6">
+    <div className="space-y-6">
       <PageHeader
         title="Revenue analytics"
         subtitle="Sales performance across channels and categories."

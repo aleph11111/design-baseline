@@ -109,7 +109,7 @@ export function GroupedListDemo() {
   }, [search]);
 
   return (
-    <div className="px-6 py-6 space-y-6">
+    <div className="space-y-6">
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Recipe book</h1>

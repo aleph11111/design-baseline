@@ -37,7 +37,7 @@ function Variant({ label, children }: { label: string; children: React.ReactNode
 
 function PageHeaderDemo() {
   return (
-    <div className="space-y-8 px-6 py-6">
+    <div className="space-y-8">
       <Variant label="Title + subtitle">
         <PageHeader title="Customers" subtitle="Everyone who's bought at least once." />
       </Variant>
@@ -63,7 +63,7 @@ function PageHeaderDemo() {
 
 function SectionHeadingDemo() {
   return (
-    <div className="space-y-8 px-6 py-6">
+    <div className="space-y-8">
       <Variant label="Title only">
         <SectionHeading title="Details" />
       </Variant>
@@ -82,7 +82,7 @@ function SectionHeadingDemo() {
 
 function SectionCardDemo() {
   return (
-    <div className="max-w-2xl space-y-8 px-6 py-6">
+    <div className="max-w-2xl space-y-8">
       <Variant label="Default tone · padded body">
         <SectionCard title="Summary">
           <p className="text-sm text-muted-foreground">
@@ -113,7 +113,7 @@ function SectionCardDemo() {
 
 function StatTilesDemo() {
   return (
-    <div className="max-w-3xl space-y-8 px-6 py-6">
+    <div className="max-w-3xl space-y-8">
       <Variant label="3 columns">
         <StatTileRow columns={3}>
           <StatTile label="Revenue" value="€58.9k" hint="vs last month" />

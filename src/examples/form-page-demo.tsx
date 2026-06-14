@@ -41,6 +41,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { SectionCard } from "@/components/layout";
 import {
   FormPageShell,
   FormPageHeader,
@@ -63,12 +64,33 @@ const CUISINE_LABELS: Record<Cuisine, string> = {
   french: "French",
 };
 
+const DIFFICULTIES = ["easy", "medium", "hard"] as const;
+type Difficulty = (typeof DIFFICULTIES)[number];
+const DIFFICULTY_LABELS: Record<Difficulty, string> = {
+  easy: "Easy",
+  medium: "Medium",
+  hard: "Hard",
+};
+
+const VISIBILITIES = ["private", "unlisted", "public"] as const;
+type Visibility = (typeof VISIBILITIES)[number];
+const VISIBILITY_LABELS: Record<Visibility, string> = {
+  private: "Private",
+  unlisted: "Unlisted",
+  public: "Public",
+};
+
 type Recipe = {
   id: string;
   title: string;
   cuisine: Cuisine;
   serves: number;
+  difficulty: Difficulty;
+  prepMinutes: number;
+  cookMinutes: number;
+  ingredients: string;
   tag: string;
+  visibility: Visibility;
   notes: string;
 };
 
@@ -77,7 +99,12 @@ const SEED_RECIPE: Recipe = {
   title: "Sunday Carbonara",
   cuisine: "italian",
   serves: 4,
+  difficulty: "medium",
+  prepMinutes: 15,
+  cookMinutes: 20,
+  ingredients: "Guanciale, eggs, pecorino romano, spaghetti, black pepper.",
   tag: "weeknight-classic",
+  visibility: "unlisted",
   notes:
     "Render the guanciale slowly. Temper the eggs off-heat. Black pepper, not red.",
 };
@@ -86,17 +113,25 @@ const SEED_RECIPE: Recipe = {
 // Form schema
 // ---------------------------------------------------------------------------
 
+// Numbers are strings at the UI boundary; transformed in buildPayload.
+const posInt = (msg: string) =>
+  z
+    .string()
+    .min(1, "Required")
+    .refine((v) => Number.isInteger(Number(v)) && Number(v) > 0, msg);
+
 const schema = z.object({
   title: z.string().trim().min(1, "Title is required"),
   cuisine: z.enum(CUISINES),
-  // Stored as string at the UI boundary; transform handled in buildPayload.
-  serves: z
-    .string()
-    .min(1, "Required")
-    .refine((v) => Number.isInteger(Number(v)) && Number(v) > 0, "Must be a positive integer"),
+  serves: posInt("Must be a positive integer"),
+  difficulty: z.enum(DIFFICULTIES),
+  prepMinutes: posInt("Must be a positive integer"),
+  cookMinutes: posInt("Must be a positive integer"),
+  ingredients: z.string().trim().min(1, "List at least one ingredient"),
   tag: z
     .string()
     .regex(/^[a-z0-9-]*$/, "Lowercase letters, numbers, and dashes only"),
+  visibility: z.enum(VISIBILITIES),
   notes: z.string(),
 });
 
@@ -107,7 +142,12 @@ function toFormValues(recipe: Recipe): FormValues {
     title: recipe.title,
     cuisine: recipe.cuisine,
     serves: String(recipe.serves),
+    difficulty: recipe.difficulty,
+    prepMinutes: String(recipe.prepMinutes),
+    cookMinutes: String(recipe.cookMinutes),
+    ingredients: recipe.ingredients,
     tag: recipe.tag,
+    visibility: recipe.visibility,
     notes: recipe.notes,
   };
 }
@@ -117,7 +157,12 @@ function buildPayload(values: FormValues) {
     title: values.title,
     cuisine: values.cuisine,
     serves: Number(values.serves),
+    difficulty: values.difficulty,
+    prepMinutes: Number(values.prepMinutes),
+    cookMinutes: Number(values.cookMinutes),
+    ingredients: values.ingredients,
     tag: values.tag,
+    visibility: values.visibility,
     notes: values.notes,
   };
 }
@@ -153,7 +198,12 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
             title: "",
             cuisine: "italian",
             serves: "2",
+            difficulty: "easy",
+            prepMinutes: "10",
+            cookMinutes: "20",
+            ingredients: "",
             tag: "",
+            visibility: "private",
             notes: "",
           },
   });
@@ -220,92 +270,195 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
       <FormPageHeader title={title} subtitle={subtitle} icon={ChefHat} />
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input placeholder="Sunday Carbonara" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="cuisine"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Cuisine</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {/* 3+ logical groups → each wrapped in a SectionCard (form-page spec
+              Layer 5). The field weight is what makes this a page, not a dialog. */}
+          <SectionCard title="Basics">
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
+                      <Input placeholder="Sunday Carbonara" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      {CUISINES.map((c) => (
-                        <SelectItem key={c} value={c}>
-                          {CUISINE_LABELS[c]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <FormField
+                  control={form.control}
+                  name="cuisine"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cuisine</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {CUISINES.map((c) => (
+                            <SelectItem key={c} value={c}>
+                              {CUISINE_LABELS[c]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="serves"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Serves</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={1} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="difficulty"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Difficulty</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {DIFFICULTIES.map((d) => (
+                            <SelectItem key={d} value={d}>
+                              {DIFFICULTY_LABELS[d]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </SectionCard>
 
-            <FormField
-              control={form.control}
-              name="serves"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Serves</FormLabel>
-                  <FormControl>
-                    <Input type="number" min={1} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <SectionCard title="Details">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="prepMinutes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Prep (min)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={1} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="cookMinutes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cook (min)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={1} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={form.control}
+                name="ingredients"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ingredients</FormLabel>
+                    <FormControl>
+                      <Textarea rows={4} placeholder="One per line…" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </SectionCard>
 
-          <FormField
-            control={form.control}
-            name="tag"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tag</FormLabel>
-                <FormControl>
-                  <Input placeholder="weeknight-classic" {...field} />
-                </FormControl>
-                <FormDescription>
-                  A single kebab-case label for filtering. Optional.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="notes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Notes</FormLabel>
-                <FormControl>
-                  <Textarea rows={4} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <SectionCard title="Publishing">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="tag"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tag</FormLabel>
+                      <FormControl>
+                        <Input placeholder="weeknight-classic" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        A single kebab-case label. Optional.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="visibility"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Visibility</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {VISIBILITIES.map((v) => (
+                            <SelectItem key={v} value={v}>
+                              {VISIBILITY_LABELS[v]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Notes</FormLabel>
+                    <FormControl>
+                      <Textarea rows={3} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </SectionCard>
 
           {form.formState.errors.root && (
             <div className="rounded bg-destructive/10 p-4 text-sm text-destructive">
@@ -341,7 +494,9 @@ type DemoMode =
 
 export function FormPageDemo(): React.ReactElement {
   const [recipes, setRecipes] = React.useState<Recipe[]>([SEED_RECIPE]);
-  const [mode, setMode] = React.useState<DemoMode>({ kind: "list" });
+  // Default to the create form so the gallery shows the archetype (the
+  // multi-section form) rather than the list scaffold used to reach it.
+  const [mode, setMode] = React.useState<DemoMode>({ kind: "create" });
   const [lastAction, setLastAction] = React.useState<string | null>(null);
 
   function handleCreated(recipe: Recipe) {
@@ -396,7 +551,7 @@ export function FormPageDemo(): React.ReactElement {
   }
 
   return (
-    <div className="p-6 space-y-6 max-w-2xl">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Recipe Library</h1>
         <p className="text-sm text-muted-foreground mt-1">

@@ -121,7 +121,7 @@ export function TabbedSettingsDemo() {
   );
 
   return (
-    <div className="container mx-auto px-6 py-6">
+    <div>
       <SettingsPageShell
         title="Workspace"
         subtitle="Configure your podcast studio's general, distribution, and team settings."
