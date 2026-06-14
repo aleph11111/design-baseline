@@ -1,6 +1,7 @@
 import * as React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { OVERLINE_CLASS } from "./overline";
 import type { NavItem } from "./Sidebar";
 
 /**
@@ -75,7 +76,7 @@ export function SectionNavShell({
             {groups.map((group, groupIndex) => (
               <div key={group.label ?? `group-${groupIndex}`} className={cn(groupIndex > 0 && "mt-4")}>
                 {group.label && (
-                  <h4 className="mb-1 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <h4 className={cn(OVERLINE_CLASS, "mb-1 px-3")}>
                     {group.label}
                   </h4>
                 )}

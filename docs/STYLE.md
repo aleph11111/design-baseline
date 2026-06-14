@@ -91,6 +91,7 @@ Plus:
 - `confirmation-dialog` — opinionated wrapper around `AlertDialog` for "Are you sure?" prompts.
 - `error-boundary` — React `ErrorBoundary` class component (depends on `@/utils/logger`).
 - `use-toast` — re-export shim that points at `@/hooks/use-toast` so legacy callers keep working.
+- `segmented-control`, `search-input`, `state-view`, `icon-avatar` — shared content molecules (see "Shared content molecules" below). These are the single owners of the pill-toggle, toolbar search, async-plane, and entity-circle patterns; compose them rather than hand-rolling.
 
 Don't modify these files directly. To extend or recolor a component, wrap it. To upgrade, regenerate with `npx shadcn add <name>` after copying.
 
@@ -224,14 +225,36 @@ them. Each has exactly **one owner**; using it is mandatory, hand-rolling is dri
 - **A form field → the shared field stack**: a label *above* the control, using
   shadcn `<Label>` + `<Input>`/`<Select>`/`<Textarea>` with `space-y-1.5`. In an
   RHF form (form-page) use the bound `<FormField>`/`<FormLabel>`/`<FormControl>`/
-  `<FormMessage>` variant — *same visual*. A field looks identical whether it's in
-  the form-page, the extensive create form, or the slide-in crud-dialog. **Never**
-  hand-roll `<label>`/`<input>`/`<select>` — the label weight, input height, focus
-  ring, and spacing will drift.
+  `<FormMessage>` variant — *same visual* (`<FormItem>` is pinned to the same
+  `space-y-1.5` gap precisely so an RHF field and a manual field match). A field
+  looks identical whether it's in the form-page, the extensive create form, or the
+  slide-in crud-dialog. **Never** hand-roll `<label>`/`<input>`/`<select>` — the
+  label weight, input height, focus ring, and spacing will drift.
+
+Smaller molecules with the same single-owner rule (promoted from the 2026-06-14
+consolidation pass, after an audit found each hand-rolled in 3–4 places):
+
+| Molecule | Single owner | Never hand-roll |
+|----------|--------------|-----------------|
+| One-of-N mode/filter pill row | `SegmentedControl` (`ui/segmented-control`) | a `<div className="rounded-md border p-0.5">` of `<button>`s |
+| Toolbar search box | `SearchInput` (`ui/search-input`) | a `relative max-w-sm` wrapper + `Search` icon + `<Input className="pl-9">` |
+| Per-row overflow menu | `RowActionsMenu` (`archetypes/shared`) | a private `⋯` `DropdownMenu` per shell |
+| Loading / empty / error plane | `StateView` (`ui/state-view`) | inline "Loading…" / centered `<div>` / ad-hoc `<Alert>` |
+| Entity circle (icon / initials) | `IconAvatar` (`ui/icon-avatar`) | a `<span className="rounded-full bg-muted">` |
+| Status / category chip | `<Badge>` (`ui/badge`) | a `<span className="rounded-full border px-2.5 py-0.5">` |
+| Uppercase overline label | `OVERLINE_CLASS` (`layout/overline`), via `SectionHeading`/`StatTile` | a re-typed `text-xs uppercase tracking-*` string |
+
+Two **deliberate** non-molecules (don't force them onto the owners above): the
+matrix-grid pivot `<table>` (sticky columns + group spans — not a record list) and
+the matrix inline-cell `<select>` (must sit flush in a `<td>`; kept native but
+on-token with a `focus-visible` ring). Standalone page toolbars (grouped-list,
+feed) are a bare `flex gap-3` row; toolbars *inside* a table card (list, settings)
+use `border-b px-4 py-3` — same gap, different chrome by context.
 
 This is the same discipline as the page frame (one inset owner) and headings (one
 `PageHeader`): consistency by construction. A reviewer's test in the gallery: two
-tables, or two fields, in *different* archetypes must be visually indistinguishable.
+tables, two fields, or two of any molecule above, in *different* archetypes must be
+visually indistinguishable.
 
 ## Conventions
 

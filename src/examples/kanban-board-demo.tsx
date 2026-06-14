@@ -11,6 +11,8 @@ import * as React from "react";
 import { Plus } from "lucide-react";
 import { PageHeader } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { IconAvatar } from "@/components/ui/icon-avatar";
 import {
   BoardShell,
   BoardColumn,
@@ -63,12 +65,13 @@ export function KanbanBoardDemo(): React.ReactElement {
               title={col.title}
               count={colCards.length}
               actions={
-                <button
-                  className="text-muted-foreground hover:text-foreground"
+                <Button
+                  variant="ghost"
+                  size="icon"
                   aria-label={`Add to ${col.title}`}
                 >
                   <Plus className="h-4 w-4" />
-                </button>
+                </Button>
               }
               onDragOver={(e) => {
                 e.preventDefault();
@@ -92,9 +95,7 @@ export function KanbanBoardDemo(): React.ReactElement {
                   <div className="font-medium text-foreground">{c.title}</div>
                   <div className="mt-2 flex items-center justify-between">
                     <Badge variant="secondary">{c.tag}</Badge>
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
-                      {c.who}
-                    </span>
+                    <IconAvatar size="xs">{c.who}</IconAvatar>
                   </div>
                 </BoardCard>
               ))}

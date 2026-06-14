@@ -14,12 +14,13 @@
  */
 
 import * as React from "react";
-import { Search } from "lucide-react";
 import { SettingsTableShell } from "@/components/archetypes/settings-table";
 import { PageHeader } from "@/components/layout";
 import type { SettingsColumn, SettingsRowAction } from "@/components/archetypes/settings-table";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
+import { OVERLINE_CLASS } from "@/components/layout/overline";
+import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
 // Domain type
@@ -145,15 +146,11 @@ export function SettingsTableDemo() {
   ];
 
   const toolbarContent = (
-    <div className="relative flex-1 max-w-sm">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-      <Input
-        placeholder="Search recipes…"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="pl-9"
-      />
-    </div>
+    <SearchInput
+      value={query}
+      onChange={setQuery}
+      placeholder="Search recipes…"
+    />
   );
 
   const bulkActions = (
@@ -212,7 +209,7 @@ export function SettingsTableDemo() {
           },
         ].map(({ label, props }) => (
           <div key={label}>
-            <p className="text-xs text-muted-foreground mb-2 font-medium uppercase tracking-wide">
+            <p className={cn(OVERLINE_CLASS, "mb-2")}>
               {label}
             </p>
             <SettingsTableShell rows={[]} columns={COLUMNS} getRowId={(r) => r.id} {...props} />

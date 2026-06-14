@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ArrowUp, ArrowDown, ArrowUpDown, ChevronRight, MoreHorizontal } from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowUpDown, ChevronRight } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -8,17 +8,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { ListWithDetailEmptyState } from "./ListWithDetailEmptyState";
+import { RowActionsMenu } from "../shared";
+import type { RowAction } from "../shared";
+
+// The per-row overflow menu and its action shape are owned by the shared
+// primitive (../shared/RowActionsMenu) so list-with-detail and settings-table
+// render an identical menu. Re-exported here for back-compat with consumers that
+// import `RowAction` from this archetype.
+export type { RowAction };
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -43,13 +44,6 @@ export type ListColumn<Row> = {
   sortable?: boolean;
   /** Primitive does NOT call this; pass through to consumer. */
   sortFn?: (a: Row, b: Row) => number;
-};
-
-export type RowAction<Row> = {
-  label: string;
-  onSelect: (row: Row) => void;
-  icon?: React.ComponentType<{ className?: string }>;
-  destructive?: boolean;
 };
 
 export type SortDirection = "asc" | "desc";
@@ -422,44 +416,6 @@ function ListWithDetailShellInner<Row>(
         {detailPanel}
       </div>
     </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Row actions dropdown
-// ---------------------------------------------------------------------------
-
-function RowActionsMenu<Row>({
-  row,
-  actions,
-}: {
-  row: Row;
-  actions: RowAction<Row>[];
-}) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <MoreHorizontal className="h-4 w-4" />
-          <span className="sr-only">Row actions</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {actions.map((action) => {
-          const Icon = action.icon;
-          return (
-            <DropdownMenuItem
-              key={action.label}
-              onSelect={() => action.onSelect(row)}
-              className={action.destructive ? "text-destructive focus:text-destructive" : undefined}
-            >
-              {Icon && <Icon className="mr-2 h-4 w-4" />}
-              {action.label}
-            </DropdownMenuItem>
-          );
-        })}
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }
 

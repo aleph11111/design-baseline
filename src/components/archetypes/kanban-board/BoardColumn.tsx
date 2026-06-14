@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { OVERLINE_CLASS } from "@/components/layout/overline";
 
 export type BoardColumnProps = React.HTMLAttributes<HTMLDivElement> & {
   /** Column heading (e.g. "To do"). Rendered as the overline signature. */
@@ -27,9 +28,7 @@ export const BoardColumn = React.forwardRef<HTMLDivElement, BoardColumnProps>(
       {...rest}
     >
       <div className="flex items-center gap-2 border-b border-border px-3 py-2">
-        <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-          {title}
-        </h3>
+        <h3 className={OVERLINE_CLASS}>{title}</h3>
         {count !== undefined && (
           <span className="text-xs tabular-nums text-muted-foreground">{count}</span>
         )}

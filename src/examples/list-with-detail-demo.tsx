@@ -4,6 +4,7 @@ import {
   ListWithDetailToolbar,
   type ListColumn,
 } from "@/components/archetypes/list-with-detail";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 
 type Podcast = {
   id: string;
@@ -88,22 +89,14 @@ export function ListWithDetailDemo() {
           onSearchChange={setSearch}
           searchPlaceholder="Search shows…"
           pageActions={
-            <div className="flex gap-1 rounded-md border p-0.5">
-              {PRESENTATIONS.map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPresentation(p)}
-                  className={
-                    "rounded px-2 py-1 text-xs " +
-                    (presentation === p
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground")
-                  }
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
+            <SegmentedControl
+              value={presentation}
+              onValueChange={(v) =>
+                setPresentation(v as (typeof PRESENTATIONS)[number])
+              }
+              options={PRESENTATIONS.map((p) => ({ value: p, label: p }))}
+              aria-label="Presentation"
+            />
           }
         />
       }

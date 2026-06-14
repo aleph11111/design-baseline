@@ -5,7 +5,7 @@
  */
 
 import * as React from "react";
-import { Box, Plus, Settings } from "lucide-react";
+import { Bell, Box, Inbox, Plus, Settings, User } from "lucide-react";
 import {
   AuthCard,
   PageHeader,
@@ -16,6 +16,10 @@ import {
 } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { SearchInput } from "@/components/ui/search-input";
+import { StateView } from "@/components/ui/state-view";
+import { IconAvatar } from "@/components/ui/icon-avatar";
 
 export type LayoutPrim = {
   slug: string;
@@ -150,12 +154,136 @@ function AuthCardDemo() {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Shared content molecules — the single owners of recurring sub-page patterns.
+// Shown here side-by-side precisely so a reviewer can confirm they render
+// identically wherever they're used (see STYLE.md "Shared content molecules").
+// ---------------------------------------------------------------------------
+
+function SegmentedControlDemo() {
+  const [filter, setFilter] = React.useState("all");
+  const [view, setView] = React.useState("table");
+  return (
+    <div className="space-y-8">
+      <Variant label="Filter (All · Unread · Mentions)">
+        <SegmentedControl
+          aria-label="Filter"
+          value={filter}
+          onValueChange={setFilter}
+          options={[
+            { value: "all", label: "All" },
+            { value: "unread", label: "Unread" },
+            { value: "mentions", label: "Mentions" },
+          ]}
+        />
+      </Variant>
+      <Variant label="View mode (same molecule, different content)">
+        <SegmentedControl
+          aria-label="View"
+          value={view}
+          onValueChange={setView}
+          options={[
+            { value: "table", label: "Table" },
+            { value: "cards", label: "Cards" },
+            { value: "rows", label: "Rows" },
+          ]}
+        />
+      </Variant>
+    </div>
+  );
+}
+
+function SearchInputDemo() {
+  const [q, setQ] = React.useState("");
+  return (
+    <div className="max-w-xl space-y-8">
+      <Variant label="Default (max-w-sm, flex-1)">
+        <SearchInput value={q} onChange={setQ} placeholder="Search records…" />
+      </Variant>
+      <Variant label="In a toolbar row (with a trailing action)">
+        <div className="flex items-center gap-3">
+          <SearchInput value={q} onChange={setQ} placeholder="Search…" />
+          <Button size="sm" className="shrink-0">
+            <Plus className="mr-1 h-4 w-4" />
+            New
+          </Button>
+        </div>
+      </Variant>
+    </div>
+  );
+}
+
+function StateViewDemo() {
+  return (
+    <div className="max-w-xl space-y-8">
+      <Variant label="Loading">
+        <div className="rounded-lg border bg-card">
+          <StateView variant="loading" />
+        </div>
+      </Variant>
+      <Variant label="Empty (with icon + CTA)">
+        <div className="rounded-lg border bg-card">
+          <StateView
+            variant="empty"
+            icon={Inbox}
+            message="No records yet."
+            action={
+              <Button size="sm">
+                <Plus className="mr-1 h-4 w-4" />
+                Add one
+              </Button>
+            }
+          />
+        </div>
+      </Variant>
+      <Variant label="Error (with retry)">
+        <StateView
+          variant="error"
+          error={new Error("Could not reach the server.")}
+          onRetry={() => {}}
+        />
+      </Variant>
+    </div>
+  );
+}
+
+function IconAvatarDemo() {
+  return (
+    <div className="space-y-8">
+      <Variant label="Sizes (xs · sm · md)">
+        <div className="flex items-center gap-4">
+          <IconAvatar size="xs">AR</IconAvatar>
+          <IconAvatar size="sm">
+            <Bell className="h-4 w-4" />
+          </IconAvatar>
+          <IconAvatar size="md">
+            <User className="h-5 w-5" />
+          </IconAvatar>
+        </div>
+      </Variant>
+      <Variant label="Initials vs icon (same shape)">
+        <div className="flex items-center gap-4">
+          <IconAvatar size="sm">TM</IconAvatar>
+          <IconAvatar size="sm">PA</IconAvatar>
+          <IconAvatar size="sm">
+            <Settings className="h-4 w-4" />
+          </IconAvatar>
+        </div>
+      </Variant>
+    </div>
+  );
+}
+
 export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "page-header", displayName: "PageHeader", Demo: PageHeaderDemo },
   { slug: "section-heading", displayName: "SectionHeading", Demo: SectionHeadingDemo },
   { slug: "section-card", displayName: "SectionCard", Demo: SectionCardDemo },
   { slug: "stat-tiles", displayName: "StatTileRow / StatTile", Demo: StatTilesDemo },
   { slug: "auth-card", displayName: "AuthCard", Demo: AuthCardDemo },
+  { slug: "segmented-control", displayName: "SegmentedControl", Demo: SegmentedControlDemo },
+  { slug: "search-input", displayName: "SearchInput", Demo: SearchInputDemo },
+  { slug: "state-view", displayName: "StateView", Demo: StateViewDemo },
+  { slug: "icon-avatar", displayName: "IconAvatar", Demo: IconAvatarDemo },
 ];
 
 export function findLayoutPrim(slug: string | undefined): LayoutPrim | undefined {

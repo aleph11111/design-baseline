@@ -1,7 +1,5 @@
 import * as React from "react";
-import { AlertTriangle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { StateView } from "@/components/ui/state-view";
 import { cn } from "@/lib/utils";
 
 export type GroupedListShellProps = {
@@ -21,12 +19,6 @@ export type GroupedListShellProps = {
   children?: React.ReactNode;
   className?: string;
 };
-
-function errorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  if (typeof error === "string") return error;
-  return "Something went wrong loading this page.";
-}
 
 /**
  * Page-level wrapper for an Archetype K (grouped-list) page. Renders an
@@ -53,48 +45,17 @@ export function GroupedListShell({
 
   return (
     <div className={cn("space-y-6", className)}>
+      {/* Page-level toolbar: a bare flex row (no card chrome) — the same
+          standalone-toolbar treatment as feed-inbox. The grouped sections below
+          supply their own card boundaries. */}
       {toolbar && (
-        <div className="rounded-lg border bg-card px-4 py-3 shadow-sm">
-          {toolbar}
-        </div>
+        <div className="flex flex-wrap items-center gap-3">{toolbar}</div>
       )}
 
-      {showLoading && (
-        <div
-          className="flex items-center justify-center p-8 text-sm text-muted-foreground"
-          role="status"
-          aria-live="polite"
-        >
-          Loading…
-        </div>
-      )}
-
-      {showError && (
-        <div className="p-4">
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Something went wrong</AlertTitle>
-            <AlertDescription className="flex flex-col gap-2">
-              <span>{errorMessage(error)}</span>
-              {onRetry && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-fit"
-                  onClick={onRetry}
-                >
-                  Try again
-                </Button>
-              )}
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
-
+      {showLoading && <StateView variant="loading" />}
+      {showError && <StateView variant="error" error={error} onRetry={onRetry} />}
       {showEmpty && (
-        <div className="p-8 text-center text-sm text-muted-foreground">
-          {emptyMessage ?? "No items yet"}
-        </div>
+        <StateView variant="empty" message={emptyMessage ?? "No items yet"} />
       )}
 
       {showSections && <div className="space-y-8">{children}</div>}

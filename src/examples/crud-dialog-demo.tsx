@@ -21,9 +21,18 @@
 import * as React from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
@@ -269,9 +278,7 @@ function WorkoutDialog({
       <CrudDialogBody isLoading={isLoading}>
         {/* Mode badge — indicates current mode visually */}
         <div className="mb-4">
-          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize">
-            {mode}
-          </span>
+          <Badge variant="outline" className="capitalize">{mode}</Badge>
         </div>
 
         {/* Form fields use the shared shadcn molecules (Label above Input/Select/
@@ -434,33 +441,33 @@ export function CrudDialogDemo(): React.ReactElement {
             No workouts yet.
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/30">
-                <th className="px-4 py-2 text-left font-medium text-muted-foreground">Date</th>
-                <th className="px-4 py-2 text-left font-medium text-muted-foreground">Type</th>
-                <th className="px-4 py-2 text-right font-medium text-muted-foreground">Duration</th>
-                <th className="px-4 py-2 text-left font-medium text-muted-foreground">Notes</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead className="text-right">Duration</TableHead>
+                <TableHead>Notes</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {workouts.map((w) => (
-                <tr key={w.id} className="border-b last:border-0 hover:bg-muted/50">
-                  <td
-                    className="px-4 py-3 font-mono text-sm font-medium text-primary hover:underline cursor-pointer"
+                <TableRow key={w.id}>
+                  <TableCell
+                    className="font-medium font-mono text-primary hover:underline cursor-pointer"
                     onClick={() => openView(w.id)}
                   >
                     {w.date}
-                  </td>
-                  <td className="px-4 py-3">{KIND_LABELS[w.kind]}</td>
-                  <td className="px-4 py-3 text-right">{w.durationMinutes} min</td>
-                  <td className="px-4 py-3 text-muted-foreground truncate max-w-[16rem]">
+                  </TableCell>
+                  <TableCell>{KIND_LABELS[w.kind]}</TableCell>
+                  <TableCell className="text-right">{w.durationMinutes} min</TableCell>
+                  <TableCell className="text-muted-foreground truncate max-w-[16rem]">
                     {w.notes || "—"}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         )}
       </div>
 

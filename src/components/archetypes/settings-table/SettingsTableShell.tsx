@@ -1,5 +1,5 @@
 import * as React from "react";
-import { MoreHorizontal, Plus, AlertTriangle } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -8,16 +8,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { StateView } from "@/components/ui/state-view";
+import { RowActionsMenu, type RowAction } from "@/components/archetypes/shared";
 import { cn } from "@/lib/utils";
+
+// The row overflow menu + its action shape are shared with list-with-detail.
+// `SettingsRowAction` stays exported as an alias for back-compat.
+export type SettingsRowAction<Row> = RowAction<Row>;
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -39,13 +38,6 @@ export type SettingsColumn<Row> = {
    * Set to true for code-based identifiers (slugs, IDs, keys).
    */
   identifierMono?: boolean;
-};
-
-export type SettingsRowAction<Row> = {
-  label: string;
-  onSelect: (row: Row) => void;
-  icon?: React.ComponentType<{ className?: string }>;
-  destructive?: boolean;
 };
 
 export type SettingsTableShellProps<Row> = {
@@ -109,54 +101,6 @@ function alignClass(align: SettingsColumn<unknown>["align"]): string {
   if (align === "right") return "text-right";
   if (align === "center") return "text-center";
   return "text-left";
-}
-
-function errorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  if (typeof error === "string") return error;
-  return "An unexpected error occurred.";
-}
-
-// ---------------------------------------------------------------------------
-// Row actions dropdown
-// ---------------------------------------------------------------------------
-
-function RowActionsDropdown<Row>({
-  row,
-  actions,
-}: {
-  row: Row;
-  actions: SettingsRowAction<Row>[];
-}) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <MoreHorizontal className="h-4 w-4" />
-          <span className="sr-only">Row actions</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {actions.map((action) => {
-          const Icon = action.icon;
-          return (
-            <DropdownMenuItem
-              key={action.label}
-              onSelect={() => action.onSelect(row)}
-              className={
-                action.destructive
-                  ? "text-destructive focus:text-destructive"
-                  : undefined
-              }
-            >
-              {Icon && <Icon className="mr-2 h-4 w-4" />}
-              {action.label}
-            </DropdownMenuItem>
-          );
-        })}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -229,8 +173,9 @@ export function SettingsTableShell<Row>({
   // Toolbar bar — rendered above the table (below the separator)
   const toolbarRow = (
     <div className="border-b px-4 py-3">
-      {/* Top row: custom slot + bulk actions (when active) + Add new */}
-      <div className="flex items-center gap-2">
+      {/* Top row: custom slot + bulk actions (when active) + Add new.
+          gap-3 matches the toolbar gap used by list-with-detail / feed. */}
+      <div className="flex items-center gap-3">
         {hasBulkSelection && (bulkActions || onBulkDelete) ? (
           // Bulk mode: show bulk actions, suppress regular toolbar
           <div className="flex flex-1 items-center gap-2">
@@ -267,52 +212,23 @@ export function SettingsTableShell<Row>({
     </div>
   );
 
-  // Empty state
+  // Loading / empty / error planes are owned by the shared <StateView>.
   const emptyState = (
-    <div className="flex flex-col items-center justify-center gap-4 p-8 text-center text-sm text-muted-foreground">
-      <span>{emptyMessage ?? "No items yet."}</span>
-      {onAddNew && (
-        <Button variant="default" size="sm" onClick={onAddNew}>
-          <Plus className="mr-1 h-4 w-4" />
-          {addNewLabel}
-        </Button>
-      )}
-    </div>
+    <StateView
+      variant="empty"
+      message={emptyMessage ?? "No items yet."}
+      action={
+        onAddNew && (
+          <Button variant="default" size="sm" onClick={onAddNew}>
+            <Plus className="mr-1 h-4 w-4" />
+            {addNewLabel}
+          </Button>
+        )
+      }
+    />
   );
-
-  // Loading state
-  const loadingState = (
-    <div
-      className="flex items-center justify-center p-8 text-sm text-muted-foreground"
-      role="status"
-      aria-live="polite"
-    >
-      Loading…
-    </div>
-  );
-
-  // Error state
-  const errorState = (
-    <div className="p-4">
-      <Alert variant="destructive">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>Something went wrong</AlertTitle>
-        <AlertDescription className="flex flex-col gap-2">
-          <span>{errorMessage(error)}</span>
-          {onRetry && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-fit"
-              onClick={onRetry}
-            >
-              Try again
-            </Button>
-          )}
-        </AlertDescription>
-      </Alert>
-    </div>
-  );
+  const loadingState = <StateView variant="loading" />;
+  const errorState = <StateView variant="error" error={error} onRetry={onRetry} />;
 
   // Table
   const tableContent = showTable ? (
@@ -379,7 +295,7 @@ export function SettingsTableShell<Row>({
               })}
               {hasActions && (
                 <TableCell className="w-10">
-                  <RowActionsDropdown row={row} actions={rowActions!} />
+                  <RowActionsMenu row={row} actions={rowActions!} />
                 </TableCell>
               )}
             </TableRow>

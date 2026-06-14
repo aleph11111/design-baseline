@@ -1,4 +1,5 @@
 import * as React from "react";
+import { IconAvatar } from "@/components/ui/icon-avatar";
 import { cn } from "@/lib/utils";
 
 export type FeedItemProps = {
@@ -47,9 +48,9 @@ export function FeedItem({
       )}
     >
       {icon !== undefined && (
-        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+        <IconAvatar size="sm" className="mt-0.5">
           {icon}
-        </span>
+        </IconAvatar>
       )}
       <div className="min-w-0 flex-1">
         <div

@@ -78,7 +78,10 @@ const FormItem = React.forwardRef<
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div ref={ref} className={cn("space-y-2", className)} {...props} />
+      {/* space-y-1.5 — the baseline's canonical field gap (label→control),
+          identical to the manual <Label>+<Input> stack used in dialogs so an RHF
+          form-page field and a crud-dialog field render the same. */}
+      <div ref={ref} className={cn("space-y-1.5", className)} {...props} />
     </FormItemContext.Provider>
   )
 })

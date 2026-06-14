@@ -38,6 +38,13 @@ Steps:
 4. **Flag** per page: `adopted` (imports the archetype's baseline primitive) vs
    `hand-rolled` (matches the shape, doesn't use the primitive → divergence); and
    `gap` (no archetype scores ≥ 0.5).
+5. **Scan for hand-rolled molecules** — *within* each page, independent of which
+   archetype it is. This catches the sub-page drift that the page-level pass misses
+   (the kind that "drives me crazy inside the applications"): a record list built as
+   `<ul>`/`<div>` rows instead of `<Table>`, a raw `<label>`/`<input>`/`<select>`
+   instead of the shared field stack, a re-rolled pill toggle / search box / status
+   chip / entity circle / loading-empty-error plane. See the molecule rubric below.
+   Even a correctly-classified, adopted page can carry molecule drift.
 
 ### Classification rubric (signals → archetype)
 
@@ -58,6 +65,28 @@ matches the shape structurally but hand-rolled (drift/divergence candidate).
 `< 0.5` = weak/no match (gap candidate). Always record the signals so a human can
 override the score.
 
+### Molecule rubric (hand-rolled content molecules → owner)
+
+Grep-able heuristics for the within-page scan (step 5). Each match is a 🔴 drift
+hit pointing at the shared owner it should use (see STYLE.md "Shared content
+molecules"). These are *signals*, not proof — a human confirms (e.g. the
+matrix-grid pivot `<table>` and inline-cell `<select>` are sanctioned exceptions).
+
+| Hand-rolled signal (regex-ish) | Should use |
+|--------------------------------|------------|
+| `<ul`/`<div>` rows rendering a record list (cells, columns) | `<Table>` |
+| `<label` / `<input` / `<select` / `<textarea` (raw, not shadcn) | shared field stack (`<Label>`+`<Input>`/`<Select>`/`<Textarea>` or RHF `<FormField>`) |
+| `rounded-md border p-0.5` wrapping `<button>`s | `SegmentedControl` |
+| `relative … max-w-sm` + `Search` icon + `<Input className="pl-9">` | `SearchInput` |
+| `rounded-full border px-2.5 py-0.5` text pill | `<Badge>` |
+| `rounded-full bg-muted` icon/initials circle | `IconAvatar` |
+| inline `"Loading…"` / centered muted `<div>` / ad-hoc `<Alert>` for empty/error | `StateView` |
+| re-typed `text-xs … uppercase tracking-*` overline | `OVERLINE_CLASS` / `SectionHeading` |
+| private `⋯` `DropdownMenu` per table | `RowActionsMenu` (`archetypes/shared`) |
+
+Record molecule hits per route in `moleculeDrift` (schema below) so they aggregate
+fleet-wide alongside archetype + version drift.
+
 ### Per-project output (schema)
 
 ```jsonc
@@ -74,7 +103,13 @@ override the score.
       "notes": "matches detail-overview but doesn't use DetailSection" }
   ],
   "gaps": [ { "route": "/pipeline", "shape": "kanban board", "signals": [...] } ],
-  "versionDrift": [ { "key": "J", "local": "1.2", "baseline": "1.3", "severity": "minor" } ]
+  "versionDrift": [ { "key": "J", "local": "1.2", "baseline": "1.3", "severity": "minor" } ],
+  "moleculeDrift": [
+    { "route": "/companies", "file": "...", "molecule": "record-list",
+      "signal": "<ul> rows", "shouldUse": "Table" },
+    { "route": "/settings", "file": "...", "molecule": "field",
+      "signal": "raw <select>", "shouldUse": "shadcn Select" }
+  ]
 }
 ```
 
@@ -111,6 +146,11 @@ A synthesis pass merges the per-project records into:
   re-broadcast / reconcile.
 - ➕ **gap** — a shape recurring in ≥ 2 projects with no archetype. Action: promote
   a new archetype (rule-of-2, now evidence-backed).
+- 🔴 **molecule drift** (from the within-page scan) — a hand-rolled molecule where a
+  shared owner exists. Always red, but usually *low-effort*: swap to the primitive,
+  no archetype decision needed. Cluster fleet-wide by molecule (e.g. "7 raw
+  `<select>`s across 4 projects") so a single sweep can fix a whole class — the same
+  move this donor made in the 2026-06-14 consolidation pass.
 
 The hardest, most valuable call is **yellow vs red** — distinguishing essential
 variation from accidental drift. The audit proposes a tier per finding; a human

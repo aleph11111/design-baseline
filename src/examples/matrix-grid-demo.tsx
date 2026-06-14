@@ -4,6 +4,7 @@ import {
   type MatrixColumn,
   type MatrixRow,
 } from "@/components/archetypes/matrix-grid";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   Sheet,
   SheetContent,
@@ -201,22 +202,15 @@ export function MatrixGridDemo() {
           {STUDENTS.length} students · {SUBJECTS.length} subjects ·{" "}
           {mode === "click" ? "click any cell to grade or update." : "edit grades inline."}
         </p>
-        <div className="flex gap-1 rounded-md border p-0.5">
-          {(["click", "inline"] as const).map((m) => (
-            <button
-              key={m}
-              onClick={() => setMode(m)}
-              className={
-                "rounded px-2 py-1 text-xs " +
-                (mode === m
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground")
-              }
-            >
-              {m === "click" ? "click to edit" : "inline edit"}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl
+          value={mode}
+          onValueChange={(v) => setMode(v as "click" | "inline")}
+          options={[
+            { value: "click", label: "click to edit" },
+            { value: "inline", label: "inline edit" },
+          ]}
+          aria-label="Edit mode"
+        />
       </div>
 
       <MatrixGridShell<GradeEntry>
@@ -231,7 +225,7 @@ export function MatrixGridDemo() {
               onChange={(e) =>
                 setCellGrade(ctx.row.id, ctx.column.key, e.target.value as Grade)
               }
-              className="w-full cursor-pointer bg-transparent text-center text-sm font-medium focus:outline-none"
+              className="w-full cursor-pointer bg-transparent text-center text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
             >
               {ALL_GRADES.map((g) => (
                 <option key={g} value={g}>

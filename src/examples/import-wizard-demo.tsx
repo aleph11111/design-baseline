@@ -12,6 +12,13 @@ import { UploadCloud, CheckCircle2 } from "lucide-react";
 import { PageHeader } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -131,19 +138,23 @@ export function ImportWizardDemo(): React.ReactElement {
               <div key={col} className="flex items-center gap-3 text-sm">
                 <span className="w-32 shrink-0 font-mono text-xs">{col}</span>
                 <span className="text-muted-foreground">→</span>
-                <select
+                <Select
                   value={mapping[col] ?? "— ignore —"}
-                  onChange={(e) =>
-                    setMapping((m) => ({ ...m, [col]: e.target.value }))
+                  onValueChange={(v) =>
+                    setMapping((m) => ({ ...m, [col]: v }))
                   }
-                  className="rounded-md border border-input bg-background px-2 py-1 text-sm"
                 >
-                  {TARGET_FIELDS.map((f) => (
-                    <option key={f} value={f}>
-                      {f}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TARGET_FIELDS.map((f) => (
+                      <SelectItem key={f} value={f}>
+                        {f}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             ))}
           </div>

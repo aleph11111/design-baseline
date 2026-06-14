@@ -21,7 +21,16 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ChefHat } from "lucide-react";
+import { AlertTriangle, ChefHat } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Form,
   FormControl,
@@ -461,9 +470,11 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
           </SectionCard>
 
           {form.formState.errors.root && (
-            <div className="rounded bg-destructive/10 p-4 text-sm text-destructive">
-              {form.formState.errors.root.message}
-            </div>
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Something went wrong</AlertTitle>
+              <AlertDescription>{form.formState.errors.root.message}</AlertDescription>
+            </Alert>
           )}
 
           <FormPageActions
@@ -579,44 +590,33 @@ export function FormPageDemo(): React.ReactElement {
             No recipes yet.
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/30">
-                <th className="px-4 py-2 text-left font-medium text-muted-foreground">
-                  Title
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-muted-foreground">
-                  Cuisine
-                </th>
-                <th className="px-4 py-2 text-right font-medium text-muted-foreground">
-                  Serves
-                </th>
-                <th className="px-4 py-2 text-left font-medium text-muted-foreground">
-                  Tag
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Cuisine</TableHead>
+                <TableHead className="text-right">Serves</TableHead>
+                <TableHead>Tag</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {recipes.map((r) => (
-                <tr
-                  key={r.id}
-                  className="border-b last:border-0 hover:bg-muted/50"
-                >
-                  <td
-                    className="px-4 py-3 font-medium text-primary hover:underline cursor-pointer"
+                <TableRow key={r.id}>
+                  <TableCell
+                    className="font-medium text-primary hover:underline cursor-pointer"
                     onClick={() => setMode({ kind: "edit", id: r.id })}
                   >
                     {r.title}
-                  </td>
-                  <td className="px-4 py-3">{CUISINE_LABELS[r.cuisine]}</td>
-                  <td className="px-4 py-3 text-right">{r.serves}</td>
-                  <td className="px-4 py-3 text-muted-foreground">
+                  </TableCell>
+                  <TableCell>{CUISINE_LABELS[r.cuisine]}</TableCell>
+                  <TableCell className="text-right">{r.serves}</TableCell>
+                  <TableCell className="text-muted-foreground">
                     {r.tag || "—"}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         )}
       </div>
 

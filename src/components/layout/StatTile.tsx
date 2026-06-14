@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { OVERLINE_CLASS } from "./overline";
 
 export type StatTileProps = {
   /**
@@ -47,9 +48,7 @@ export function StatTile({
 }: StatTileProps): React.ReactElement {
   return (
     <div className={cn("px-5 py-4", className)}>
-      <div className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-        {label}
-      </div>
+      <div className={OVERLINE_CLASS}>{label}</div>
       <div className="mt-1.5 text-2xl font-semibold leading-none text-foreground tabular-nums">
         {value}
       </div>

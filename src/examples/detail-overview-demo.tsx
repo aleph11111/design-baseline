@@ -30,6 +30,7 @@ import * as React from "react";
 import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   DetailOverviewShell,
   DetailOverviewHeader,
@@ -341,8 +342,7 @@ export function DetailOverviewDemo(): React.ReactElement {
             }
           >
             {editingNotes ? (
-              <textarea
-                className="w-full rounded-md border border-input bg-background p-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              <Textarea
                 rows={3}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}

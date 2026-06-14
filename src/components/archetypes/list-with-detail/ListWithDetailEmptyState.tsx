@@ -1,7 +1,4 @@
-import { AlertTriangle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { StateView } from "@/components/ui/state-view";
 
 export type ListEmptyMode = "empty" | "loading" | "error" | "filtered-empty";
 
@@ -13,6 +10,12 @@ export type ListWithDetailEmptyStateProps = {
   className?: string;
 };
 
+/**
+ * Thin adapter over the shared `<StateView>` — keeps the list archetype's
+ * `mode` API (incl. "filtered-empty") while the actual loading/empty/error
+ * planes are owned by one primitive, so they match settings-table and
+ * grouped-list exactly.
+ */
 export function ListWithDetailEmptyState({
   mode,
   message,
@@ -21,59 +24,29 @@ export function ListWithDetailEmptyState({
   className,
 }: ListWithDetailEmptyStateProps) {
   if (mode === "loading") {
-    return (
-      <div
-        className={cn(
-          "flex items-center justify-center p-8 text-sm text-muted-foreground",
-          className,
-        )}
-        role="status"
-        aria-live="polite"
-      >
-        Loading…
-      </div>
-    );
+    return <StateView variant="loading" className={className} />;
   }
-
   if (mode === "error") {
-    const errorMessage =
-      error instanceof Error ? error.message : "Something went wrong loading this list.";
     return (
-      <div className={cn("p-4", className)}>
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Something went wrong</AlertTitle>
-          <AlertDescription className="flex flex-col gap-2">
-            <span>{errorMessage}</span>
-            {onRetry && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-fit"
-                onClick={onRetry}
-              >
-                Try again
-              </Button>
-            )}
-          </AlertDescription>
-        </Alert>
-      </div>
+      <StateView
+        variant="error"
+        error={error}
+        onRetry={onRetry}
+        className={className}
+      />
     );
   }
-
-  if (mode === "filtered-empty") {
-    return (
-      <div className={cn("p-8 text-center text-sm text-muted-foreground", className)}>
-        {message ?? "No matches. Try clearing filters."}
-      </div>
-    );
-  }
-
-  // mode === "empty"
   return (
-    <div className={cn("p-8 text-center text-sm text-muted-foreground", className)}>
-      {message ?? "No items yet"}
-    </div>
+    <StateView
+      variant="empty"
+      message={
+        message ??
+        (mode === "filtered-empty"
+          ? "No matches. Try clearing filters."
+          : "No items yet")
+      }
+      className={className}
+    />
   );
 }
 

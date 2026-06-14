@@ -17,6 +17,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
+import { OVERLINE_CLASS } from "./overline";
 
 export interface NavItem {
   title: string;
@@ -161,7 +162,7 @@ export function AppSidebar({
               onOpenChange={() => toggleGroup(group.label)}
             >
               <SidebarGroup>
-                <CollapsibleTrigger className="flex w-full select-none items-center justify-between px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors">
+                <CollapsibleTrigger className={cn(OVERLINE_CLASS, "flex w-full select-none items-center justify-between px-3 py-1.5 transition-colors hover:text-foreground")}>
                   <span className={cn(hasActiveChild && !isOpen && "text-primary")}>
                     {group.label}
                   </span>

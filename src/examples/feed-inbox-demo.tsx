@@ -12,6 +12,8 @@ import { PageHeader } from "@/components/layout";
 import { SectionCard } from "@/components/layout/SectionCard";
 import { Button } from "@/components/ui/button";
 import { FeedShell, FeedItem } from "@/components/archetypes/feed-inbox";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { StateView } from "@/components/ui/state-view";
 
 type FeedType = "mention" | "comment" | "system";
 type Group = "Today" | "Yesterday" | "Earlier";
@@ -78,22 +80,12 @@ export function FeedInboxDemo(): React.ReactElement {
 
       <FeedShell
         filters={
-          <div className="flex gap-1 rounded-md border p-0.5">
-            {FILTERS.map((f) => (
-              <button
-                key={f.key}
-                onClick={() => setFilter(f.key)}
-                className={
-                  "rounded px-2.5 py-1 text-xs " +
-                  (filter === f.key
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground")
-                }
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl
+            value={filter}
+            onValueChange={(v) => setFilter(v as FilterKey)}
+            options={FILTERS.map((f) => ({ value: f.key, label: f.label }))}
+            aria-label="Filter notifications"
+          />
         }
         actions={
           <Button
@@ -107,10 +99,7 @@ export function FeedInboxDemo(): React.ReactElement {
         }
         empty={
           visible.length === 0 ? (
-            <div className="rounded-lg border bg-card p-10 text-center text-sm text-muted-foreground shadow-sm">
-              <Bell className="mx-auto mb-2 h-6 w-6" />
-              Nothing here.
-            </div>
+            <StateView variant="empty" icon={Bell} message="Nothing here." />
           ) : undefined
         }
       >

@@ -19,6 +19,14 @@ import {
   DashboardGrid,
   DashboardWidget,
 } from "@/components/archetypes/analytics-dashboard";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const PERIODS = ["Week", "Month", "Quarter", "Year"] as const;
 type Period = (typeof PERIODS)[number];
@@ -109,32 +117,23 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
 
       {/* Filter bar — period segmented control + a category/channel select. */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex gap-1 rounded-md border p-0.5">
-          {PERIODS.map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={
-                "rounded px-3 py-1 text-xs " +
-                (period === p
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground")
-              }
-            >
-              {p}
-            </button>
-          ))}
-        </div>
-        <select
-          value={channel}
-          onChange={(e) => setChannel(e.target.value)}
-          className="rounded-md border border-input bg-background px-3 py-1.5 text-sm"
-        >
-          <option value="all">All channels</option>
-          <option value="web">Web</option>
-          <option value="retail">Retail</option>
-          <option value="wholesale">Wholesale</option>
-        </select>
+        <SegmentedControl
+          value={period}
+          onValueChange={(v) => setPeriod(v as Period)}
+          options={PERIODS.map((p) => ({ value: p, label: p }))}
+          aria-label="Period"
+        />
+        <Select value={channel} onValueChange={(v) => setChannel(v)}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All channels</SelectItem>
+            <SelectItem value="web">Web</SelectItem>
+            <SelectItem value="retail">Retail</SelectItem>
+            <SelectItem value="wholesale">Wholesale</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* KPI row — reuses StatTileRow / StatTile. */}

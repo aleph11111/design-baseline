@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { OVERLINE_CLASS } from "./overline";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -61,9 +62,7 @@ export function SectionHeading({
       className={cn("flex items-start justify-between gap-3", className)}
     >
       <div className="min-w-0">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-          {title}
-        </h2>
+        <h2 className={OVERLINE_CLASS}>{title}</h2>
         {description && (
           <p className="mt-0.5 text-sm font-normal normal-case tracking-normal text-muted-foreground">
             {description}

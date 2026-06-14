@@ -60,7 +60,7 @@ const NAV_GROUPS: NavGroup[] = [
     ? [{ label: "Dialog archetypes", items: DIALOGS.map(toNavItem) }]
     : []),
   {
-    label: "Layout primitives",
+    label: "Layout & molecules",
     items: LAYOUT_PRIMS.map((p) => ({
       title: p.displayName,
       path: `/l/${p.slug}`,

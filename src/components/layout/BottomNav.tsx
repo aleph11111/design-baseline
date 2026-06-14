@@ -9,6 +9,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { OVERLINE_CLASS } from "./overline";
 
 export interface BottomNavItem {
   path: string;
@@ -72,7 +73,7 @@ export function BottomNav({ items, moreItems, moreLabel = "Mehr" }: BottomNavPro
             </button>
             <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto p-0">
               <SheetHeader className="px-4 py-3 border-b border-border text-left">
-                <SheetTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <SheetTitle className={OVERLINE_CLASS}>
                   {moreLabel}
                 </SheetTitle>
               </SheetHeader>
