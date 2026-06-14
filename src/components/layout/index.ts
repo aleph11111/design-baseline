@@ -6,6 +6,7 @@ export { SectionHeading, type SectionHeadingProps } from "./SectionHeading";
 export { SectionCard, type SectionCardProps } from "./SectionCard";
 export { StatTile, type StatTileProps } from "./StatTile";
 export { StatTileRow, type StatTileRowProps } from "./StatTileRow";
+export { AuthCard, type AuthCardProps } from "./AuthCard";
 export {
   SectionNavShell,
   type SectionNavGroup,
