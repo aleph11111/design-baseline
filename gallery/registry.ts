@@ -78,6 +78,10 @@ const DEMOS: Record<
     kind: "page",
     Demo: lazyDemo(() => import("@/examples/feed-inbox-demo"), "FeedInboxDemo"),
   },
+  "kanban-board": {
+    kind: "page",
+    Demo: lazyDemo(() => import("@/examples/kanban-board-demo"), "KanbanBoardDemo"),
+  },
 };
 
 type ManifestArchetype = {

@@ -43,6 +43,7 @@ const ICON_BY_SLUG: Record<string, LucideIcon> = {
   "analytics-dashboard": BarChart3,
   "import-wizard": UploadCloud,
   "feed-inbox": Bell,
+  "kanban-board": LayoutDashboard,
 };
 
 function toNavItem(a: ArchetypeEntry): NavItem {

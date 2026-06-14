@@ -166,6 +166,18 @@
       "spec": "docs/archetypes/feed-inbox.md",
       "primitives_dir": "src/components/archetypes/feed-inbox",
       "example": "src/examples/feed-inbox-demo.tsx"
+    },
+    {
+      "key": "P",
+      "slug": "kanban-board",
+      "displayName": "Kanban board",
+      "version": "1.0",
+      "promoted_from": "fleet-audit-2026-06-13 (pmo, hk-crm)",
+      "promoted_at": "2026-06-14",
+      "source_spec_version": "1.0",
+      "spec": "docs/archetypes/kanban-board.md",
+      "primitives_dir": "src/components/archetypes/kanban-board",
+      "example": "src/examples/kanban-board-demo.tsx"
     }
   ]
 }
