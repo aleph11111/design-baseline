@@ -5,7 +5,7 @@ export type StatTileProps = {
   /**
    * Short label. Rendered as an overline above the value:
    * `text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground`
-   * — matching the section title signature.
+   * — matching the section-title signature.
    */
   label: React.ReactNode;
   /**
@@ -28,9 +28,10 @@ export type StatTileProps = {
 };
 
 /**
- * StatTile — one cell inside the unified `<StatTileRow>` strip.
+ * StatTile — one cell inside a `<StatTileRow>` KPI strip.
  *
- * Visual contract:
+ * Shared layout primitive (used by detail-overview's `stats` slot and the
+ * analytics-dashboard KPI row). Visual contract:
  *   [LABEL (overline xs)]
  *   [value (2xl semibold tabular)]
  *   [hint (xs muted, optional)]

@@ -23,9 +23,10 @@ no archetype to adopt — a clear rule-of-2 gap.
 - `<DashboardWidget title span={1|2|3}>` — one widget card; a thin wrapper over the
   shared `<SectionCard>` (same ruled title bar) plus a grid column span. Body is
   chart-agnostic.
-- **Reused:** `<StatTileRow>` / `<StatTile>` (the KPI row — same strip as
-  detail-overview's `stats` slot) and `<SectionCard>` (the widget surface). The
-  page title uses `<PageHeader>`.
+- **Reused (all shared `layout/` primitives — G has no dependency on other
+  archetypes):** `<StatTileRow>` / `<StatTile>` (the KPI row — same strip as
+  detail-overview's `stats` slot), `<SectionCard>` (the widget surface), and
+  `<PageHeader>` (the title).
 
 ## Layer 1 — Route config
 A top-level route (e.g. `/dashboard`, `/reports`, `/analytics`). Lazy + suspense

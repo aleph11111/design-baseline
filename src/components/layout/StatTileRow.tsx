@@ -22,11 +22,12 @@ export type StatTileRowProps = {
 };
 
 /**
- * StatTileRow — the unified aggregate strip for the `stats` slot.
+ * StatTileRow — the unified KPI / aggregate strip.
  *
- * v2.0 (ledger design): ONE bounded surface with internal hairline dividers —
- * not a row of separate mini-cards (separate tiles read as stray buttons).
- * Flat surface (no shadow): the strip sits visually between the shadowed data
+ * Shared layout primitive: detail-overview's `stats` slot and the
+ * analytics-dashboard KPI row both use it. ONE bounded surface with internal
+ * hairline dividers — not a row of separate mini-cards (separate tiles read as
+ * stray buttons). Flat surface (no shadow): the strip sits between shadowed
  * sections, part of the page's graded hierarchy.
  *
  * Hand-rolled tile cells are forbidden — use `<StatTile>`. Fixed column

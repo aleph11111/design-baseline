@@ -14,11 +14,7 @@
  */
 
 import * as React from "react";
-import { PageHeader } from "@/components/layout";
-import {
-  StatTile,
-  StatTileRow,
-} from "@/components/archetypes/detail-overview";
+import { PageHeader, StatTile, StatTileRow } from "@/components/layout";
 import {
   DashboardGrid,
   DashboardWidget,

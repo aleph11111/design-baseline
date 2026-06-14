@@ -66,6 +66,8 @@ outer container for the route. Composed alongside:
   family is not used directly at section level.
 - `<StatTileRow>` + `<StatTile>` — the unified aggregate strip: ONE bounded
   surface with internal hairline dividers, overline labels, tabular values.
+  (Now shared `layout/` primitives — also used by the analytics-dashboard KPI
+  row — and re-exported from this archetype's barrel for back-compat.)
 - `<KeyValueList>` + `<KeyValueRow>` — ruled master-data rows: label left,
   value right, hairline dividers; `block` rows for long free-text.
 
