@@ -41,7 +41,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { SectionCard } from "@/components/layout";
+import { PageHeader, SectionCard } from "@/components/layout";
 import {
   FormPageShell,
   FormPageHeader,
@@ -552,12 +552,10 @@ export function FormPageDemo(): React.ReactElement {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Recipe Library</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          B (form-page) archetype demo — recipe domain
-        </p>
-      </div>
+      <PageHeader
+        title="Recipe Library"
+        subtitle="B (form-page) archetype demo — recipe domain"
+      />
 
       {lastAction && (
         <div className="rounded-md border bg-muted/50 px-4 py-2 text-sm text-muted-foreground">

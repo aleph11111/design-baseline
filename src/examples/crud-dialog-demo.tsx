@@ -28,6 +28,7 @@ import {
   CrudDialogFooter,
   useCrudDialogMode,
 } from "@/components/archetypes/crud-dialog";
+import { PageHeader } from "@/components/layout";
 
 // ---------------------------------------------------------------------------
 // Domain type
@@ -404,12 +405,10 @@ export function CrudDialogDemo(): React.ReactElement {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Fitness Log</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          J (crud-dialog) archetype demo — workout domain
-        </p>
-      </div>
+      <PageHeader
+        title="Fitness Log"
+        subtitle="J (crud-dialog) archetype demo — workout domain"
+      />
 
       {lastAction && (
         <div className="rounded-md border bg-muted/50 px-4 py-2 text-sm text-muted-foreground">

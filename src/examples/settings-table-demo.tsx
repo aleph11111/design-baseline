@@ -16,6 +16,7 @@
 import * as React from "react";
 import { Search } from "lucide-react";
 import { SettingsTableShell } from "@/components/archetypes/settings-table";
+import { PageHeader } from "@/components/layout";
 import type { SettingsColumn, SettingsRowAction } from "@/components/archetypes/settings-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -163,12 +164,10 @@ export function SettingsTableDemo() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Recipe Collection</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          D2 (settings-table) archetype demo
-        </p>
-      </div>
+      <PageHeader
+        title="Recipe Collection"
+        subtitle="D2 (settings-table) archetype demo"
+      />
 
       {lastAction && (
         <div className="rounded-md border bg-muted/50 px-4 py-2 text-sm text-muted-foreground">

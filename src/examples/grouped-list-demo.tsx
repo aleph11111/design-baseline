@@ -4,6 +4,7 @@ import {
   GroupedListShell,
   GroupedListSection,
 } from "@/components/archetypes/grouped-list";
+import { PageHeader } from "@/components/layout";
 import {
   ListWithDetailToolbar,
   type ListColumn,
@@ -110,14 +111,7 @@ export function GroupedListDemo() {
 
   return (
     <div className="space-y-6">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Recipe book</h1>
-          <p className="text-sm text-muted-foreground">
-            Browse recipes grouped by cuisine.
-          </p>
-        </div>
-      </header>
+      <PageHeader title="Recipe book" subtitle="Browse recipes grouped by cuisine." />
 
       <GroupedListShell
         isEmpty={isEmpty}
