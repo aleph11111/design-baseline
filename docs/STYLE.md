@@ -206,6 +206,33 @@ Not every file the donor ships is meant to stay byte-identical in targets. There
 
 **Operating rule for `/style-baseline --force`**: review `git diff --stat` after the cp pass and revert any change to a Starter file unless you explicitly want to reset to donor defaults. Project-only `.tsx`/`.ts` files survive automatically (cp -R never deletes; it overlays), and their barrel export lines are re-merged by step 4b (so a clobbered `index.ts` no longer forgets local-only primitives). The two real re-broadcasts of this kind to date (mistra PR #126, hk-crm PR #44) each needed a manual revert pass — that's the expected workflow, not a defect.
 
+## Shared content molecules — same mental model, identical render
+
+Two content patterns recur *inside* many different archetypes. To the user they're
+the same thing, so they MUST look the same everywhere — same padding, fonts,
+alignment, backgrounds, label positions — regardless of which archetype hosts
+them. Each has exactly **one owner**; using it is mandatory, hand-rolling is drift.
+
+- **A list/table of records → the shared `<Table>`** (`components/ui/table`), via
+  the archetype's table shell (`ListWithDetailShell`, `SettingsTableShell`) or
+  `<Table>` directly. A "team" tab, a settings table, a list-with-detail, an
+  embedded detail table are the same molecule — all render through `<Table>`.
+  **Never** hand-roll a record list as `<ul>`/`<div>` rows (it won't match the
+  table's padding/borders/header treatment). (A chronological *feed* is a
+  different molecule — see archetype H / `FeedItem`.)
+
+- **A form field → the shared field stack**: a label *above* the control, using
+  shadcn `<Label>` + `<Input>`/`<Select>`/`<Textarea>` with `space-y-1.5`. In an
+  RHF form (form-page) use the bound `<FormField>`/`<FormLabel>`/`<FormControl>`/
+  `<FormMessage>` variant — *same visual*. A field looks identical whether it's in
+  the form-page, the extensive create form, or the slide-in crud-dialog. **Never**
+  hand-roll `<label>`/`<input>`/`<select>` — the label weight, input height, focus
+  ring, and spacing will drift.
+
+This is the same discipline as the page frame (one inset owner) and headings (one
+`PageHeader`): consistency by construction. A reviewer's test in the gallery: two
+tables, or two fields, in *different* archetypes must be visually indistinguishable.
+
 ## Conventions
 
 - **Path alias**: `@/` → `src/`. Configure in `tsconfig.json` and your bundler (vite or next).

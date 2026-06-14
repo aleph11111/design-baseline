@@ -239,19 +239,28 @@ export function TabbedSettingsDemo() {
             </Table>
           </TabsContent>
 
-          {/* Tab body 3 — delegates to a list-with-detail (A) shape */}
+          {/* Tab body 3 — a list of records → the shared <Table> (same molecule
+              as list-with-detail / settings-table), NOT a hand-rolled <ul>, so it
+              reads visually identical to every other record list. */}
           <TabsContent value="team" className="pt-4">
-            <ul className="divide-y rounded-md border">
-              {team.map((member) => (
-                <li
-                  key={member.id}
-                  className="flex items-center justify-between px-4 py-3"
-                >
-                  <span className="text-sm font-medium">{member.name}</span>
-                  <Badge variant="secondary">{ROLE_LABELS[member.role]}</Badge>
-                </li>
-              ))}
-            </ul>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Member</TableHead>
+                  <TableHead>Role</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {team.map((member) => (
+                  <TableRow key={member.id}>
+                    <TableCell className="font-medium">{member.name}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{ROLE_LABELS[member.role]}</Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </TabsContent>
         </Tabs>
 

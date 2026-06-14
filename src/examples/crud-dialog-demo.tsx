@@ -21,6 +21,16 @@
 import * as React from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   CrudDialogSheet,
   CrudDialogHeader,
@@ -264,19 +274,19 @@ function WorkoutDialog({
           </span>
         </div>
 
+        {/* Form fields use the shared shadcn molecules (Label above Input/Select/
+            Textarea, space-y-1.5) — visually identical to the form-page archetype,
+            never hand-rolled <label>/<input>. */}
         <div className="space-y-4">
           {/* Date field */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground" htmlFor="wd-date">
-              Date
-            </label>
+            <Label htmlFor="wd-date">Date</Label>
             {isView ? (
               <p className="text-sm text-foreground">{form.date || "—"}</p>
             ) : (
-              <input
+              <Input
                 id="wd-date"
                 type="date"
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
                 value={form.date}
                 onChange={(e) => updateField("date", e.target.value)}
               />
@@ -286,44 +296,37 @@ function WorkoutDialog({
           {/* Kind + Duration — 2-col grid (collapses on mobile, per Layer 6) */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground" htmlFor="wd-kind">
-                Type
-              </label>
+              <Label htmlFor="wd-kind">Type</Label>
               {isView ? (
                 <p className="text-sm text-foreground">{KIND_LABELS[form.kind]}</p>
               ) : (
-                <select
-                  id="wd-kind"
-                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                <Select
                   value={form.kind}
-                  onChange={(e) =>
-                    updateField("kind", e.target.value as WorkoutKind)
-                  }
+                  onValueChange={(v) => updateField("kind", v as WorkoutKind)}
                 >
-                  {(Object.keys(KIND_LABELS) as WorkoutKind[]).map((k) => (
-                    <option key={k} value={k}>
-                      {KIND_LABELS[k]}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger id="wd-kind">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(Object.keys(KIND_LABELS) as WorkoutKind[]).map((k) => (
+                      <SelectItem key={k} value={k}>
+                        {KIND_LABELS[k]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <label
-                className="text-sm font-medium text-foreground"
-                htmlFor="wd-duration"
-              >
-                Duration (min)
-              </label>
+              <Label htmlFor="wd-duration">Duration (min)</Label>
               {isView ? (
                 <p className="text-sm text-foreground">{form.durationMinutes}</p>
               ) : (
-                <input
+                <Input
                   id="wd-duration"
                   type="number"
                   min={1}
-                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
                   value={form.durationMinutes}
                   onChange={(e) =>
                     updateField("durationMinutes", Number(e.target.value))
@@ -335,18 +338,15 @@ function WorkoutDialog({
 
           {/* Notes */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground" htmlFor="wd-notes">
-              Notes
-            </label>
+            <Label htmlFor="wd-notes">Notes</Label>
             {isView ? (
               <p className="text-sm text-foreground whitespace-pre-line">
                 {form.notes || "—"}
               </p>
             ) : (
-              <textarea
+              <Textarea
                 id="wd-notes"
                 rows={4}
-                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring resize-none"
                 value={form.notes}
                 onChange={(e) => updateField("notes", e.target.value)}
               />

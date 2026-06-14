@@ -12,6 +12,14 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
 // ---------------------------------------------------------------------------
@@ -276,31 +284,33 @@ export function MatrixGridDemo() {
               {editingStudentName} · {editingSubjectLabel}
             </SheetDescription>
           </SheetHeader>
+          {/* Shared field molecule: Label above the shadcn control (space-y-1.5),
+              same as form-page / crud-dialog — never hand-rolled label/select. */}
           <div className="pt-4 space-y-3">
-            <label className="block">
-              <span className="text-xs text-muted-foreground">Grade</span>
-              <select
-                value={draftGrade}
-                onChange={(e) => setDraftGrade(e.target.value as Grade)}
-                className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-                <option value="D">D</option>
-                <option value="F">F</option>
-                <option value="INCOMPLETE">Incomplete</option>
-              </select>
-            </label>
-            <label className="block">
-              <span className="text-xs text-muted-foreground">Note (optional)</span>
+            <div className="space-y-1.5">
+              <Label htmlFor="grade">Grade</Label>
+              <Select value={draftGrade} onValueChange={(v) => setDraftGrade(v as Grade)}>
+                <SelectTrigger id="grade">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ALL_GRADES.map((g) => (
+                    <SelectItem key={g} value={g}>
+                      {g === "INCOMPLETE" ? "Incomplete" : g}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="note">Note (optional)</Label>
               <Input
+                id="note"
                 value={draftNote}
                 onChange={(e) => setDraftNote(e.target.value)}
                 placeholder="Retake pending, makeup exam, …"
-                className="mt-1"
               />
-            </label>
+            </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button type="button" variant="outline" onClick={closeSheet}>
                 Cancel
