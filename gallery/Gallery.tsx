@@ -27,6 +27,7 @@ import {
 } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
 import { ARCHETYPES, findArchetype, type ArchetypeEntry } from "./registry";
+import { LAYOUT_PRIMS, findLayoutPrim } from "./layout-demos";
 
 const REPO = "https://_/"; // spec links are repo-relative; shown as text, not navigated
 
@@ -58,6 +59,14 @@ const NAV_GROUPS: NavGroup[] = [
   ...(DIALOGS.length
     ? [{ label: "Dialog archetypes", items: DIALOGS.map(toNavItem) }]
     : []),
+  {
+    label: "Layout primitives",
+    items: LAYOUT_PRIMS.map((p) => ({
+      title: p.displayName,
+      path: `/l/${p.slug}`,
+      icon: Box,
+    })),
+  },
 ];
 
 const TOP_ITEMS: NavItem[] = [
@@ -96,6 +105,27 @@ function ArchetypePage() {
       >
         <Demo />
       </React.Suspense>
+    </div>
+  );
+}
+
+function LayoutPrimPage() {
+  const { slug } = useParams();
+  const p = findLayoutPrim(slug);
+  if (!p) return <Navigate to="/" replace />;
+  const Demo = p.Demo;
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-3 border-b border-border bg-card px-6 py-3">
+        <div className="flex items-center gap-3">
+          <h1 className="text-base font-semibold tracking-tight text-foreground">
+            {p.displayName}
+          </h1>
+          <Badge variant="outline">Layout primitive</Badge>
+        </div>
+        <code className="text-xs text-muted-foreground">@/components/layout</code>
+      </div>
+      <Demo />
     </div>
   );
 }
@@ -143,7 +173,8 @@ function Overview() {
 export function Gallery(): React.ReactElement {
   const { pathname } = useLocation();
   const active = ARCHETYPES.find((a) => pathname === `/a/${a.slug}`);
-  const title = active ? active.displayName : "design-baseline";
+  const activePrim = LAYOUT_PRIMS.find((p) => pathname === `/l/${p.slug}`);
+  const title = active?.displayName ?? activePrim?.displayName ?? "design-baseline";
 
   return (
     <AppShell
@@ -166,6 +197,7 @@ export function Gallery(): React.ReactElement {
       <Routes>
         <Route path="/" element={<Overview />} />
         <Route path="/a/:slug" element={<ArchetypePage />} />
+        <Route path="/l/:slug" element={<LayoutPrimPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppShell>
