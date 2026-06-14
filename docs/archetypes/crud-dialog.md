@@ -2,10 +2,10 @@
 key: J
 slug: crud-dialog
 kind: dialog
-version: 1.2
+version: 1.5
 promoted_from: brickshop-manager
 promoted_at: 2026-06-13
-source_spec_version: 1.2
+source_spec_version: 1.3
 status: locked
 ---
 
@@ -359,3 +359,4 @@ When a target project applies this archetype, it wires the generic primitives to
 ## Revision log
 
 - **2026-06-13 — v1.2.** Promoted `useCrudDialogController` (shared view/edit/create action flow + derived footer labels) and the `crudStrings` neutral-defaults module from mistra. Added the controller's `labels` i18n option (`DEFAULT_CRUD_DIALOG_LABELS`) so localized consumers inject their strings rather than forking the donor primitives. Layers 13–14 now name the controller as the canonical owner of `handleClose`/`handlePrimary`/`handleSecondary` and the footer label derivation. Additive, backward-compatible.
+- **2026-06-14 — v1.5.** Closed a spec-ahead-of-code gap: the v1.2 controller (`useCrudDialogController`, `crudStrings`) was documented but its files had never been committed. Committed them, and migrated the reference demo to actually consume the controller with react-hook-form + zod and the shared `<Table>` / `<Badge>` / `<FormField>` molecules — it no longer reimplements `handleClose`/`handlePrimary`/`handleSecondary` inline (the spec's own anti-pattern). The demo now remounts per open, fixing stale mode/dirty state across reopens. Reconciled the frontmatter `version` (was stuck at 1.2) and `source_spec_version` (1.3) with the MANIFEST. Spec contract unchanged.

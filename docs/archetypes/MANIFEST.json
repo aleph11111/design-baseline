@@ -87,7 +87,7 @@
       "key": "J",
       "slug": "crud-dialog",
       "displayName": "CRUD dialog",
-      "version": "1.4",
+      "version": "1.5",
       "promoted_from": "brickshop-manager",
       "promoted_at": "2026-06-13",
       "source_spec_version": "1.3",

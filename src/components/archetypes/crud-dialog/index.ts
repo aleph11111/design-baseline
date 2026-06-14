@@ -16,3 +16,16 @@ export type {
   UseCrudDialogModeOptions,
   UseCrudDialogModeResult,
 } from "./useCrudDialogMode";
+
+export {
+  useCrudDialogController,
+  DEFAULT_CRUD_DIALOG_LABELS,
+} from "./useCrudDialogController";
+export type {
+  CrudDialogLabels,
+  CrudDialogMutation,
+  UseCrudDialogControllerOptions,
+  UseCrudDialogControllerResult,
+} from "./useCrudDialogController";
+
+export { CRUD_ERRORS, CRUD_DISCARD_PROMPT, confirmDiscard } from "./crudStrings";

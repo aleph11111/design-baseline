@@ -4,27 +4,43 @@
  * Sandbox demo for the J (crud-dialog) archetype.
  * Domain: fitness log — far from brickshop nouns (no inventory, lots, customers).
  *
- * Exercises:
- *   - Opening the dialog in VIEW mode for an existing workout.
- *   - Mode transition: view → edit.
- *   - Edit with dirty state → close attempt → confirm-discard (via window.confirm).
- *   - Opening the dialog in CREATE mode for a new workout.
- *   - Footer primary / secondary / destructive layout in each mode.
- *   - Loading skeleton (simulated 1-second delay on open).
+ * Canonical consumer of the J archetype: react-hook-form + zod for the form,
+ * `useCrudDialogMode` for the mode state, and `useCrudDialogController` for the
+ * shared action flow. The dialog does NOT reimplement handleClose / handlePrimary
+ * / handleSecondary or the per-mode footer labels — it reads them off the
+ * controller (see the spec's anti-patterns). It keeps only what's its own: the
+ * schema, default values, mutation bodies, field JSX, and delete.
  *
- * NOTE: This demo uses window.confirm for the discard-confirmation dialog.
- * Real consumers must use shadcn <AlertDialog> — window.confirm blocks the
- * JS thread and provides no accessible UX. See the spec (Layer 13) for the
- * required pattern.
+ * Exercises:
+ *   - Opening the dialog in VIEW mode for an existing workout (read-only fields).
+ *   - Mode transition: view → edit (controller.handlePrimary).
+ *   - Edit with dirty state → close / cancel → confirm-discard.
+ *   - Opening the dialog in CREATE mode for a new workout.
+ *   - Footer primary / secondary / destructive layout per mode, all derived.
+ *   - Loading skeleton (simulated delay on open).
+ *
+ * NOTE: discard confirmation uses the baseline's `confirmDiscard` (window.confirm).
+ * Real consumers must swap it for a shadcn <AlertDialog> — window.confirm blocks
+ * the JS thread and is inaccessible. See the spec (Layer 13).
  */
 
 import * as React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Table,
   TableBody,
@@ -46,6 +62,8 @@ import {
   CrudDialogBody,
   CrudDialogFooter,
   useCrudDialogMode,
+  useCrudDialogController,
+  confirmDiscard,
 } from "@/components/archetypes/crud-dialog";
 import { PageHeader } from "@/components/layout";
 
@@ -80,7 +98,16 @@ const SEED_WORKOUTS: Workout[] = [
   { id: "w3", date: "2026-05-21", kind: "bike", durationMinutes: 70, notes: "Hill repeats on riverside trail." },
 ];
 
-const EMPTY_FORM: Omit<Workout, "id"> = {
+const workoutSchema = z.object({
+  date: z.string().min(1, "Date is required."),
+  kind: z.enum(["run", "lift", "bike", "swim"]),
+  durationMinutes: z.number().int().min(1, "Must be at least 1 minute."),
+  notes: z.string(),
+});
+
+type WorkoutFormValues = z.infer<typeof workoutSchema>;
+
+const EMPTY_FORM: WorkoutFormValues = {
   date: "",
   kind: "run",
   notes: "",
@@ -111,166 +138,125 @@ function WorkoutDialog({
   onCreate,
   onDelete,
 }: WorkoutDialogProps): React.ReactElement {
-  // Simulate a 1-second fetch delay when opening in view/edit mode.
+  // Simulate a fetch delay when opening an existing workout in view mode.
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  // Form state — in a real consumer use react-hook-form + zod.
-  const [form, setForm] = React.useState<Omit<Workout, "id">>(EMPTY_FORM);
-  const [isDirty, setIsDirty] = React.useState(false);
+  // The values handleSecondary resets to when cancelling an edit — the last
+  // loaded entity (EMPTY_FORM in create mode).
+  const [loadedValues, setLoadedValues] = React.useState<WorkoutFormValues>(EMPTY_FORM);
 
   const isCreateMode = entityId === null;
 
-  // Confirm-discard via window.confirm.
-  // Real consumers: replace with an <AlertDialog> controlled by a boolean flag.
-  const confirmDiscard = React.useCallback(async (): Promise<boolean> => {
-    return window.confirm(
-      "You have unsaved changes. Discard them and leave?",
-    );
-  }, []);
-
-  const { mode, setMode, isView, isEdit, isCreate } = useCrudDialogMode({
-    initialMode: isCreateMode ? "create" : "view",
-    isDirty,
-    onConfirmDiscard: confirmDiscard,
+  // The form is the consumer's (schema + defaults + JSX). The controller reads
+  // formState.isDirty, trigger(), getValues(), reset() off it.
+  const form = useForm<WorkoutFormValues>({
+    resolver: zodResolver(workoutSchema),
+    defaultValues: EMPTY_FORM,
   });
 
-  // Re-initialize when the dialog opens.
+  const mode = useCrudDialogMode({
+    initialMode: isCreateMode ? "create" : "view",
+    isDirty: form.formState.isDirty,
+    onConfirmDiscard: () => confirmDiscard(),
+  });
+  const { isView } = mode;
+
+  // Simulated mutations shaped like @tanstack/react-query useMutation results
+  // ({ mutate, isPending }) — exactly the structural subset the controller
+  // consumes. On success the dialog closes (a valid CRUD pattern that also keeps
+  // the demo free of post-save edit→view dirty races).
+  const createMutation = React.useMemo(
+    () => ({
+      isPending: isSubmitting,
+      mutate: (values: WorkoutFormValues) => {
+        setIsSubmitting(true);
+        setTimeout(() => {
+          onCreate(values);
+          setIsSubmitting(false);
+          onClose();
+        }, 600);
+      },
+    }),
+    [isSubmitting, onCreate, onClose],
+  );
+
+  const updateMutation = React.useMemo(
+    () => ({
+      isPending: isSubmitting,
+      mutate: (values: WorkoutFormValues) => {
+        if (!entityId) return;
+        setIsSubmitting(true);
+        setTimeout(() => {
+          onSave({ id: entityId, ...values });
+          setIsSubmitting(false);
+          onClose();
+        }, 600);
+      },
+    }),
+    [isSubmitting, entityId, onSave, onClose],
+  );
+
+  // The shared controller owns the whole action flow + derived footer labels.
+  const controller = useCrudDialogController<WorkoutFormValues>({
+    form,
+    mode,
+    defaultValues: loadedValues,
+    createMutation,
+    updateMutation,
+    onClose,
+  });
+
+  // Load the entity when opening in view mode (create needs no fetch). The dialog
+  // is remounted per open (keyed in the parent), so this runs once per open.
   React.useEffect(() => {
-    if (!open) return;
-
-    if (isCreateMode) {
-      setForm(EMPTY_FORM);
-      setIsDirty(false);
-      return;
-    }
-
-    // Simulate fetch delay for existing entity.
+    if (!open || isCreateMode) return;
     setIsLoading(true);
     const timer = setTimeout(() => {
       const found = workouts.find((w) => w.id === entityId);
       if (found) {
         const { id: _id, ...rest } = found;
-        setForm(rest);
+        form.reset(rest);
+        setLoadedValues(rest);
       }
-      setIsDirty(false);
       setIsLoading(false);
     }, 800);
-
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, entityId]);
 
-  // Dirty-guarded close.
-  async function handleClose() {
-    // If user is in edit or create mode with dirty state, guard the close.
-    if ((isEdit || isCreate) && isDirty) {
-      const ok = await confirmDiscard();
-      if (!ok) return;
-    }
-    onClose();
-  }
-
-  function handleOpenChange(next: boolean) {
-    if (!next) {
-      // Async guard — but onOpenChange must be synchronous for shadcn Sheet.
-      // We call handleClose which is async; if the user cancels, the Sheet
-      // has already started closing. In a real consumer, prevent Sheet from
-      // closing while the AlertDialog is open via event.preventDefault().
-      // For this demo, window.confirm is synchronous so this is fine.
-      handleClose();
-    }
-  }
-
-  function updateField<K extends keyof typeof form>(
-    key: K,
-    value: (typeof form)[K],
-  ) {
-    setForm((prev) => ({ ...prev, [key]: value }));
-    setIsDirty(true);
-  }
-
-  async function handleSave() {
+  // Delete is the consumer's concern — the controller owns create/update/edit +
+  // close, never deletion. Shown in view/edit, never in create.
+  function handleDelete() {
     if (!entityId) return;
-    setIsSubmitting(true);
-    // Simulate async save.
-    await new Promise((r) => setTimeout(r, 600));
-    onSave({ id: entityId, ...form });
-    setIsDirty(false);
-    setIsSubmitting(false);
-    await setMode("view");
-  }
-
-  async function handleCreate() {
-    setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 600));
-    onCreate(form);
-    setIsSubmitting(false);
-    onClose();
-  }
-
-  async function handleDelete() {
-    if (!entityId) return;
-    // In a real consumer replace this with <AlertDialog> — see Layer 14.
+    // Real consumers: swap window.confirm for a shadcn <AlertDialog> — see Layer 14.
     const ok = window.confirm("Delete this workout? This action cannot be undone.");
     if (!ok) return;
     onDelete(entityId);
     onClose();
   }
 
-  // Resolve title.
+  // Resolve title from the entity (not the live form).
   const workout = entityId ? workouts.find((w) => w.id === entityId) : null;
-  const title = isCreate
+  const title = mode.isCreate
     ? "New Workout"
     : workout
     ? `Workout · ${KIND_LABELS[workout.kind]}`
     : "Workout";
+  const subtitle = mode.isCreate ? undefined : workout?.date;
 
-  const subtitle = isCreate
-    ? undefined
-    : workout
-    ? workout.date
-    : undefined;
-
-  // Footer props per mode.
-  const footerProps = (() => {
-    if (isView) {
-      return {
-        primaryLabel: "Edit",
-        onPrimary: () => setMode("edit"),
-        secondaryLabel: "Close",
-        onSecondary: onClose,
-        destructiveLabel: "Delete",
-        onDestructive: handleDelete,
-      };
-    }
-    if (isEdit) {
-      return {
-        primaryLabel: "Save",
-        onPrimary: handleSave,
-        secondaryLabel: "Cancel",
-        onSecondary: () => setMode("view"),
-        destructiveLabel: "Delete",
-        onDestructive: handleDelete,
-        isSubmitting,
-      };
-    }
-    // create
-    return {
-      primaryLabel: "Create",
-      onPrimary: handleCreate,
-      secondaryLabel: "Cancel",
-      onSecondary: onClose,
-      isSubmitting,
-    };
-  })();
+  const destructiveProps = mode.isCreate
+    ? {}
+    : { destructiveLabel: "Delete", onDestructive: handleDelete };
 
   return (
-    <CrudDialogSheet open={open} onOpenChange={handleOpenChange} width="md">
-      <CrudDialogHeader
-        title={title}
-        subtitle={subtitle}
-      />
+    <CrudDialogSheet
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) void controller.handleClose();
+      }}
+      width="md"
+    >
+      <CrudDialogHeader title={title} subtitle={subtitle} />
 
       {/* Mixed body (full-width field + a 2-col section), so `layout` is omitted
           and composed manually. A pure paired-field dialog would instead pass
@@ -278,91 +264,121 @@ function WorkoutDialog({
       <CrudDialogBody isLoading={isLoading}>
         {/* Mode badge — indicates current mode visually */}
         <div className="mb-4">
-          <Badge variant="outline" className="capitalize">{mode}</Badge>
+          <Badge variant="outline" className="capitalize">{mode.mode}</Badge>
         </div>
 
-        {/* Form fields use the shared shadcn molecules (Label above Input/Select/
-            Textarea, space-y-1.5) — visually identical to the form-page archetype,
-            never hand-rolled <label>/<input>. */}
-        <div className="space-y-4">
-          {/* Date field */}
-          <div className="space-y-1.5">
-            <Label htmlFor="wd-date">Date</Label>
-            {isView ? (
-              <p className="text-sm text-foreground">{form.date || "—"}</p>
-            ) : (
-              <Input
-                id="wd-date"
-                type="date"
-                value={form.date}
-                onChange={(e) => updateField("date", e.target.value)}
-              />
-            )}
-          </div>
-
-          {/* Kind + Duration — 2-col grid (collapses on mobile, per Layer 6) */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="wd-kind">Type</Label>
-              {isView ? (
-                <p className="text-sm text-foreground">{KIND_LABELS[form.kind]}</p>
-              ) : (
-                <Select
-                  value={form.kind}
-                  onValueChange={(v) => updateField("kind", v as WorkoutKind)}
-                >
-                  <SelectTrigger id="wd-kind">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(Object.keys(KIND_LABELS) as WorkoutKind[]).map((k) => (
-                      <SelectItem key={k} value={k}>
-                        {KIND_LABELS[k]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+        {/* Canonical RHF field stack: shadcn <FormField>/<FormLabel>/<FormControl>
+            — the bound variant of the shared field molecule, visually identical to
+            the manual <Label>+<Input> stack. View mode renders the value as text. */}
+        <Form {...form}>
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date</FormLabel>
+                  {isView ? (
+                    <p className="text-sm text-foreground">{field.value || "—"}</p>
+                  ) : (
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                  )}
+                  <FormMessage />
+                </FormItem>
               )}
+            />
+
+            {/* Kind + Duration — 2-col grid (collapses on mobile, per Layer 6) */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="kind"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Type</FormLabel>
+                    {isView ? (
+                      <p className="text-sm text-foreground">
+                        {KIND_LABELS[field.value]}
+                      </p>
+                    ) : (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {(Object.keys(KIND_LABELS) as WorkoutKind[]).map((k) => (
+                            <SelectItem key={k} value={k}>
+                              {KIND_LABELS[k]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="durationMinutes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Duration (min)</FormLabel>
+                    {isView ? (
+                      <p className="text-sm text-foreground">{field.value}</p>
+                    ) : (
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={1}
+                          {...field}
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        />
+                      </FormControl>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="wd-duration">Duration (min)</Label>
-              {isView ? (
-                <p className="text-sm text-foreground">{form.durationMinutes}</p>
-              ) : (
-                <Input
-                  id="wd-duration"
-                  type="number"
-                  min={1}
-                  value={form.durationMinutes}
-                  onChange={(e) =>
-                    updateField("durationMinutes", Number(e.target.value))
-                  }
-                />
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes</FormLabel>
+                  {isView ? (
+                    <p className="text-sm text-foreground whitespace-pre-line">
+                      {field.value || "—"}
+                    </p>
+                  ) : (
+                    <FormControl>
+                      <Textarea rows={4} {...field} />
+                    </FormControl>
+                  )}
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
+            />
           </div>
-
-          {/* Notes */}
-          <div className="space-y-1.5">
-            <Label htmlFor="wd-notes">Notes</Label>
-            {isView ? (
-              <p className="text-sm text-foreground whitespace-pre-line">
-                {form.notes || "—"}
-              </p>
-            ) : (
-              <Textarea
-                id="wd-notes"
-                rows={4}
-                value={form.notes}
-                onChange={(e) => updateField("notes", e.target.value)}
-              />
-            )}
-          </div>
-        </div>
+        </Form>
       </CrudDialogBody>
 
-      <CrudDialogFooter {...footerProps} />
+      {/* Every footer prop except delete is derived by the controller. */}
+      <CrudDialogFooter
+        primaryLabel={controller.showPrimary ? controller.primaryLabel : undefined}
+        onPrimary={controller.handlePrimary}
+        secondaryLabel={controller.secondaryLabel}
+        onSecondary={controller.handleSecondary}
+        isSubmitting={controller.isSubmitting}
+        {...destructiveProps}
+      />
     </CrudDialogSheet>
   );
 }
@@ -376,15 +392,20 @@ export function CrudDialogDemo(): React.ReactElement {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [lastAction, setLastAction] = React.useState<string | null>(null);
+  // Bumped on every open so the dialog (and its form/mode hooks) remounts fresh
+  // each time — no stale mode/dirty state leaking across opens.
+  const [openSeq, setOpenSeq] = React.useState(0);
 
   function openView(id: string) {
     setSelectedId(id);
     setDialogOpen(true);
+    setOpenSeq((s) => s + 1);
   }
 
   function openCreate() {
     setSelectedId(null);
     setDialogOpen(true);
+    setOpenSeq((s) => s + 1);
   }
 
   function handleClose() {
@@ -478,15 +499,16 @@ export function CrudDialogDemo(): React.ReactElement {
           <li>Click a date → dialog opens in VIEW mode (simulates 0.8s fetch).</li>
           <li>Click <strong>Edit</strong> in the footer → transitions to EDIT mode.</li>
           <li>Change a field (dirty), then click ✕ or Cancel → confirm-discard prompt.</li>
-          <li>Click <strong>Save</strong> → simulates 0.6s save, returns to VIEW mode.</li>
+          <li>Click <strong>Save</strong> → simulates 0.6s save, then closes the dialog.</li>
           <li>Click <strong>Log workout</strong> → dialog opens in CREATE mode (no fetch).</li>
           <li>Fill fields → click <strong>Create</strong> → new workout appears in list.</li>
           <li>Open a workout → click <strong>Delete</strong> → confirm → removed from list.</li>
         </ol>
       </div>
 
-      {/* Dialog */}
+      {/* Dialog — keyed by openSeq so each open mounts a fresh form + mode. */}
       <WorkoutDialog
+        key={openSeq}
         open={dialogOpen}
         onClose={handleClose}
         entityId={selectedId}
