@@ -19,7 +19,7 @@ deferring it. Status flow: `watch → candidate → promoting → promoted` (or
 | Rich empty/error plane (title+description, action-less error) | promote | extend `StateView` | brickshop, controlling-app | candidate |
 | Skeleton list loader | promote | `ListSkeleton` (from hk-crm) + Skeleton loading variant | hk-crm, brickshop, controlling-app | candidate |
 | Inline-cell editor | promote | `CellInput` / `CellSelect` (`ui/cell-input`) | brickshop, controlling-app, hk-crm | **promoted 2026-06-15** |
-| Compact/clearable/mobile search | promote | extend `SearchInput` (size, clearable) | controlling-app, brickshop | candidate |
+| Compact/clearable/mobile search | promote | extend `SearchInput` (`inputSize`, `clearable`, `count`, native passthrough) | controlling-app, brickshop | **promoted 2026-06-15** |
 | Native color/file input | wrap | `ColorField` / `FileField` | controlling-app, brickshop | candidate |
 | Chronological media feed | adopt-existing | `FeedItem` (archetype H, already shipped) | mistra, brickshop | candidate |
 

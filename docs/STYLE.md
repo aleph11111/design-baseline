@@ -237,7 +237,7 @@ consolidation pass, after an audit found each hand-rolled in 3–4 places):
 | Molecule | Single owner | Never hand-roll |
 |----------|--------------|-----------------|
 | One-of-N mode/filter pill row | `SegmentedControl` (`ui/segmented-control`) | a `<div className="rounded-md border p-0.5">` of `<button>`s |
-| Toolbar search box | `SearchInput` (`ui/search-input`) | a `relative max-w-sm` wrapper + `Search` icon + `<Input className="pl-9">` |
+| Toolbar search box (incl. compact/mobile/clearable/match-counter) | `SearchInput` (`ui/search-input`) — `inputSize` (sm/default/lg), `clearable`, `count`, native passthrough (`inputMode`…) | a `relative max-w-sm` wrapper + `Search` icon + `<Input className="pl-9">`, or any hand-rolled clear-X / count caption |
 | Per-row overflow menu | `RowActionsMenu` (`archetypes/shared`) | a private `⋯` `DropdownMenu` per shell |
 | Loading / empty / error plane | `StateView` (`ui/state-view`) | inline "Loading…" / centered `<div>` / ad-hoc `<Alert>` |
 | Entity circle (icon / initials) | `IconAvatar` (`ui/icon-avatar`) | a `<span className="rounded-full bg-muted">` |

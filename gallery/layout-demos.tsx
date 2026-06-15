@@ -205,6 +205,9 @@ function SegmentedControlDemo() {
 
 function SearchInputDemo() {
   const [q, setQ] = React.useState("");
+  const [clearable, setClearable] = React.useState("acme");
+  const [counted, setCounted] = React.useState("inv");
+  const matches = counted ? (counted.length * 3) % 41 : 0;
   return (
     <div className="max-w-xl space-y-8">
       <Variant label="Default (max-w-sm, flex-1)">
@@ -218,6 +221,31 @@ function SearchInputDemo() {
             New
           </Button>
         </div>
+      </Variant>
+      <Variant label="Sizes (sm · default · lg — same widget, different density)">
+        <div className="space-y-2">
+          <SearchInput inputSize="sm" value={q} onChange={setQ} placeholder="Compact search…" />
+          <SearchInput inputSize="default" value={q} onChange={setQ} placeholder="Default search…" />
+          <SearchInput inputSize="lg" value={q} onChange={setQ} placeholder="Mobile search…" />
+        </div>
+      </Variant>
+      <Variant label="Clearable (trailing X appears once there's a value)">
+        <SearchInput
+          clearable
+          value={clearable}
+          onChange={setClearable}
+          placeholder="Type, then clear…"
+        />
+      </Variant>
+      <Variant label="Match counter + clearable (counter slot, molecule-owned styling)">
+        <SearchInput
+          clearable
+          count={`${matches}/40`}
+          value={counted}
+          onChange={setCounted}
+          placeholder="Filter…"
+          inputMode="search"
+        />
       </Variant>
     </div>
   );

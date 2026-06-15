@@ -46,9 +46,10 @@
       "donorTarget": "extend SearchInput (size, clearable, input passthrough props)",
       "projects": ["controlling-app", "brickshop-manager"],
       "count": 2,
-      "status": "candidate",
+      "status": "promoted",
+      "promotedAt": "2026-06-15",
       "axisB": "on-token",
-      "notes": "Current SearchInput is fixed h-10, no clear button — forces hand-rolls."
+      "notes": "Promoted 2026-06-15. SearchInput now takes inputSize (sm/default/lg), clearable (trailing X), count (counter slot), and full native-input passthrough (inputMode…). Default render unchanged. Projects adopt it instead of hand-rolling compact/mobile/clearable boxes."
     },
     {
       "id": "native-field-wrappers",
