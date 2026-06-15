@@ -256,6 +256,43 @@ This is the same discipline as the page frame (one inset owner) and headings (on
 tables, two fields, or two of any molecule above, in *different* archetypes must be
 visually indistinguishable.
 
+## The baseline is a design language — and how project add-ons stay native
+
+The components in this repo are the convenience layer. The thing that actually
+unifies the fleet is the **design language underneath them: tokens + atoms +
+recipes.** Every project will, legitimately, need components the baseline doesn't
+ship (domain-specific surfaces, one-off interactions). The goal is not to forbid
+those — it's that **nobody can tell which components are baseline and which are the
+project's own.** That holds only if the add-ons are built from the same substrate.
+
+Two independent questions for any element (don't conflate them):
+
+- **Own it?** (Axis A) — promote to a shared component only if its structure +
+  behaviour recurs (rule-of-2) and is stable. Most things eventually should; some
+  never will. "Special functionality" is no excuse to skip the *look* — an
+  inline-cell editor is functionally special but visually just an `<Input>`.
+- **Conform to the look?** (Axis B) — **mandatory for everything**, baseline and
+  add-on alike.
+
+### Conformance contract for project-specific components (the add-on rule)
+
+A component the baseline will never own must still:
+
+1. **Use tokens, never literals.** `bg-muted` / `text-muted-foreground` /
+   `border-input` / `text-destructive` / `<Badge variant>` — never `bg-green-100`,
+   `text-slate-500`, hard-coded hex, or arbitrary `rounded-[..]`/`shadow-[..]`.
+2. **Compose from the shipped atoms** — `Button`, `Input`, `Select`, `Card`,
+   `Badge`, `Table` — never raw `<button>`/`<input>` where an atom exists.
+3. **Follow the recipes** — the spacing rhythm, density, focus ring, and heading /
+   overline signatures documented above.
+
+An add-on that does these three reads as native with zero baseline code behind it.
+The fleet audit's **Axis-B conformance scan** (see `docs/FLEET-AUDIT.md`) enforces
+this against *all* components, not just adopted ones — a rising conformance count is
+the early signal that the base/add-on seam is starting to show. When a hand-rolled
+pattern crosses the rule-of-2 (appears in a 2nd project), the audit's **promotion
+radar** surfaces it as an Axis-A candidate to absorb into the baseline.
+
 ## Conventions
 
 - **Path alias**: `@/` → `src/`. Configure in `tsconfig.json` and your bundler (vite or next).

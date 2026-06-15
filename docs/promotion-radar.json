@@ -1,0 +1,124 @@
+{
+  "artifact": "promotion-radar",
+  "generated": "2026-06-15",
+  "model": "Axis A = own as component (promote/wrap/adopt-existing); Axis B = conform to look (mandatory for all). rule-of-2 trips a pattern onto the radar.",
+  "status_legend": ["candidate", "watch", "promoting", "promoted", "sanctioned"],
+  "candidates": [
+    {
+      "id": "stateview-rich-empty-error",
+      "pattern": "Empty/error plane richer than a single line (title+description, optional icon/CTA; action-less error)",
+      "axisA": "promote",
+      "donorTarget": "extend StateView (empty: title+description+icon+action; error: optional retry)",
+      "projects": ["brickshop-manager", "controlling-app"],
+      "count": 2,
+      "status": "candidate",
+      "axisB": "tokenized already in most cases",
+      "notes": "Biggest single cluster — brickshop alone deferred ~8 two-line/colored empties. Back-compat: keep single-message signature."
+    },
+    {
+      "id": "skeleton-list-loader",
+      "pattern": "Route/list-shaped skeleton loader (animate-pulse rows) instead of a spinner",
+      "axisA": "promote",
+      "donorTarget": "ListSkeleton (hk-crm's is the ready donor candidate) + Skeleton-based StateView loading variant",
+      "projects": ["hk-crm", "brickshop-manager", "controlling-app"],
+      "count": 3,
+      "status": "candidate",
+      "axisB": "on-token",
+      "notes": "Skeletons are richer than StateView's text loader; donor should bless the pattern, not treat it as an exception."
+    },
+    {
+      "id": "inline-cell-field",
+      "pattern": "Editable control sitting flush inside a table/grid cell (number/text/select)",
+      "axisA": "promote",
+      "donorTarget": "CellInput / CellSelect (thin wrappers over Input/Select, flush-cell styling + focus-visible ring)",
+      "projects": ["brickshop-manager", "controlling-app", "hk-crm"],
+      "count": 3,
+      "status": "candidate",
+      "axisB": "must carry the standard focus ring",
+      "notes": "Functionally special, visually ordinary — exactly the case that should NOT be exempted."
+    },
+    {
+      "id": "searchinput-variants",
+      "pattern": "Compact/clearable/mobile search box (h-6/h-12, clear-X, match counter, inputMode)",
+      "axisA": "promote",
+      "donorTarget": "extend SearchInput (size, clearable, input passthrough props)",
+      "projects": ["controlling-app", "brickshop-manager"],
+      "count": 2,
+      "status": "candidate",
+      "axisB": "on-token",
+      "notes": "Current SearchInput is fixed h-10, no clear button — forces hand-rolls."
+    },
+    {
+      "id": "native-field-wrappers",
+      "pattern": "Native color/file inputs (no shadcn equivalent)",
+      "axisA": "wrap",
+      "donorTarget": "ColorField / FileField (wrap the native control so it is shared AND on-token)",
+      "projects": ["controlling-app", "brickshop-manager"],
+      "count": 2,
+      "status": "candidate",
+      "axisB": "wrapper supplies tokenized chrome",
+      "notes": "The only true shadcn gap — closed by wrapping, not exempting."
+    },
+    {
+      "id": "media-feed-adopt-feeditem",
+      "pattern": "Chronological media/event <ul> feed (NOT a record list)",
+      "axisA": "adopt-existing",
+      "donorTarget": "FeedItem / archetype H (already in the donor)",
+      "projects": ["mistra", "brickshop-manager"],
+      "count": 2,
+      "status": "candidate",
+      "axisB": "on-token",
+      "notes": "Correctly not a <Table>; but the donor already owns the feed molecule — adopt it rather than leave raw."
+    },
+    {
+      "id": "filter-bar",
+      "pattern": "Filter toolbar: pill row with synthetic 'all' + labeled filter caption above a control",
+      "axisA": "promote",
+      "donorTarget": "PillBar + LabeledFilter (hk-crm's are donor candidates)",
+      "projects": ["hk-crm"],
+      "count": 1,
+      "status": "watch",
+      "axisB": "on-token",
+      "notes": "Distinct from SegmentedControl (mode toggle). Confirm a 2nd consumer (controlling-app/brickshop filter toolbars) before promoting."
+    },
+    {
+      "id": "iconavatar-tone",
+      "pattern": "Colored/semantic icon circle (accent/status), not the muted entity avatar",
+      "axisA": "promote",
+      "donorTarget": "IconAvatar `tone` prop (or a separate accent-circle molecule)",
+      "projects": ["brickshop-manager"],
+      "count": 1,
+      "status": "watch",
+      "axisB": "tokenized accent colors",
+      "notes": "brickshop terminated the IconAvatar sweep because all its circles are colored-accent. Confirm rule-of-2."
+    },
+    {
+      "id": "contextual-menu",
+      "pattern": "Non-row contextual/overflow menu (tab-strip menu, custom-trigger status menu needing event access)",
+      "axisA": "watch",
+      "donorTarget": "possible RowActionsMenu sibling, or a generic ActionMenu with custom trigger + onSelect event access",
+      "projects": ["controlling-app", "brickshop-manager"],
+      "count": 2,
+      "status": "watch",
+      "axisB": "on-token",
+      "notes": "RowActionsMenu is row-specific; these need a custom trigger / event access. Evaluate a sibling primitive."
+    }
+  ],
+  "sanctioned": [
+    { "pattern": "matrix/pivot <table> (sticky cols + group spans)", "reason": "not a record list; structurally unique. Inline cell control still routes to CellSelect (Axis A)." },
+    { "pattern": "combobox / CommandInput search", "reason": "different widget (command palette), not a toolbar search box." },
+    { "pattern": "test-fixture raw <label>/<input>", "reason": "test fixtures, not product UI." }
+  ],
+  "sync": [
+    {
+      "item": "FormItem gap space-y-2 -> space-y-1.5",
+      "projects": ["mistra", "controlling-app", "hk-crm"],
+      "action": "re-broadcast the donor's changed form.tsx via /style-baseline; the molecule campaign added new primitives but never synced changed-existing ones."
+    },
+    {
+      "item": "dead bricklink* Badge variants",
+      "projects": ["hk-crm"],
+      "action": "remove (donor already dropped them; hk-crm's are dead). brickshop legitimately keeps its own."
+    }
+  ]
+}

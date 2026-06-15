@@ -65,12 +65,41 @@ matches the shape structurally but hand-rolled (drift/divergence candidate).
 `< 0.5` = weak/no match (gap candidate). Always record the signals so a human can
 override the score.
 
+### Two axes for every hand-rolled element
+
+A hand-rolled element raises **two independent questions** — don't conflate them
+(an earlier version of this doc did, and it created a false "sanctioned exception"
+bucket that let things drift visually):
+
+- **Axis A — should it be a shared *component* the donor owns?** Yes if its
+  *structure + behaviour* recurs (rule-of-2) and is stable. Output: **promote** (a
+  new primitive, a variant on an existing one, or a thin **wrapper** around a native
+  control). "Special functionality" is **not** an escape — an inline-cell editor is
+  functionally special but visually just an `<Input>`/`<Select>`; it gets a thin
+  `<CellInput>`/`<CellSelect>` primitive, not an exemption. A chronological feed is
+  not a `<Table>`, but the donor already owns the feed molecule (`FeedItem`) — adopt
+  it. Even native-only gaps (`<input type=color|file>`) get **wrapped**
+  (`<ColorField>`/`<FileField>`) so they're shared *and* on-token.
+- **Axis B — must it obey the shared *visual language* (tokens, spacing scale,
+  radius, focus ring, typography, composed atoms)?** **Always yes — no exceptions.**
+  This applies to *every* element, including the legitimately project-specific ones
+  the donor will never own. An add-on doesn't have to *be* a baseline component, but
+  it must *pass conformance* (see the Conformance rubric below) so the seam between
+  "base system" and "per-project add-on" is invisible.
+
+The only genuine "leave it raw" cases are elements that are **both** singular (fails
+rule-of-2) **and** already fully token-conformant. Everything else is **promote**
+(Axis A) and/or **conform** (Axis B). Record the routing per finding: `promote` |
+`wrap` | `adopt-existing` | `conform-only` | `sanctioned` (rare).
+
 ### Molecule rubric (hand-rolled content molecules → owner)
 
-Grep-able heuristics for the within-page scan (step 5). Each match is a 🔴 drift
-hit pointing at the shared owner it should use (see STYLE.md "Shared content
-molecules"). These are *signals*, not proof — a human confirms (e.g. the
-matrix-grid pivot `<table>` and inline-cell `<select>` are sanctioned exceptions).
+This is the **Axis-A** scan: grep-able heuristics for hand-rolled content molecules
+that a baseline component already owns. Each match is a 🔴 drift hit pointing at the
+owner (see STYLE.md "Shared content molecules"). Signals, not proof — a human
+confirms. Where the donor lacks the owner but the pattern recurs, the routing is
+**promote/wrap**, not "exception" (the matrix-grid pivot `<table>` stays native, but
+its inline-cell control is a `<CellSelect>` candidate, not a permanent carve-out).
 
 | Hand-rolled signal (regex-ish) | Should use |
 |--------------------------------|------------|
@@ -86,6 +115,30 @@ matrix-grid pivot `<table>` and inline-cell `<select>` are sanctioned exceptions
 
 Record molecule hits per route in `moleculeDrift` (schema below) so they aggregate
 fleet-wide alongside archetype + version drift.
+
+### Conformance rubric (Axis B — applies to EVERY component, incl. project add-ons)
+
+The molecule rubric only catches "you hand-rolled a thing we own." This rubric
+catches the deeper problem: **a hand-rolled thing that doesn't look like ours.** It
+runs against *all* components — baseline, adopted, and the legit project-specific
+add-ons the donor will never own — because that's what keeps the add-ons visually
+native (the "no one can tell base from add-on" goal). A component passes Axis B when
+it uses **tokens + atoms + recipes**, not literal values or raw HTML.
+
+| Conformance violation (signal) | Should use |
+|--------------------------------|------------|
+| Literal palette color: `bg-/text-/border-(slate|gray|zinc|green|red|blue|amber|yellow|emerald|teal)-\d00` | semantic tokens (`bg-muted`, `text-muted-foreground`, `border-input`, `text-destructive`, `bg-primary`, `<Badge variant>`) |
+| Hard-coded hex/rgb in `className` or `style` | tokens |
+| `focus:ring-1` / `focus:outline-none` without `focus-visible:ring-2 ring-ring` | the standard focus ring |
+| Hard-coded radius/shadow (`rounded-[..]`, arbitrary `shadow-[..]`) | `rounded-md`/`rounded-lg`, token shadows |
+| Ad-hoc spacing off the scale (`p-[7px]`, `gap-[5px]`) | the 4px spacing scale + the rhythm in STYLE.md |
+| Raw `<button>`/`<input>`/`<select>`/`<textarea>` where a shadcn atom exists | the shadcn atom (`Button`/`Input`/…) |
+| Re-declared typography (`text-[13px]`, custom uppercase tracking) | the heading/overline signatures (`OVERLINE_CLASS`, etc.) |
+
+A conformance hit is **not** "you must adopt a baseline component" — it's "however
+you build this, build it from our substrate." It is the cheapest, highest-coverage
+check in the audit and the one that makes add-ons indistinguishable from baseline.
+Record hits in `conformanceViolations` (schema below).
 
 ### Per-project output (schema)
 
@@ -106,12 +159,22 @@ fleet-wide alongside archetype + version drift.
   "versionDrift": [ { "key": "J", "local": "1.2", "baseline": "1.3", "severity": "minor" } ],
   "moleculeDrift": [
     { "route": "/companies", "file": "...", "molecule": "record-list",
-      "signal": "<ul> rows", "shouldUse": "Table" },
-    { "route": "/settings", "file": "...", "molecule": "field",
-      "signal": "raw <select>", "shouldUse": "shadcn Select" }
+      "signal": "<ul> rows", "shouldUse": "Table", "route_axis": "promote-or-adopt" }
+  ],
+  "conformanceViolations": [
+    { "file": "...", "rule": "literal-color", "signal": "bg-green-100",
+      "shouldUse": "bg-muted / Badge variant" }
+  ],
+  "handRolledMolecules": [
+    { "pattern": "inline-cell editor", "file": "...", "axisA": "promote",
+      "donorTarget": "CellInput", "tokenConformant": true }
   ]
 }
 ```
+
+`handRolledMolecules` records *every* recurring-looking element a page builds itself
+(even ones the donor doesn't own yet) so the fleet pass can cluster them — that
+cluster is what powers the promotion radar.
 
 ## Fleet aggregation + triage
 
@@ -129,11 +192,30 @@ A synthesis pass merges the per-project records into:
     { "key": "C", "variants": [ {project, file, howItDiffers} ], "verdict": "?" }
   ],
   "adoption": [ { "project": "brickshop-manager", "adopted": 0, "handRolled": 4 } ],
+  "conformance": [ { "project": "...", "violations": 12, "topRules": ["literal-color","raw-html"] } ],
+  "promotionRadar": [
+    { "pattern": "inline-cell editor", "projects": ["brickshop-manager","controlling-app","hk-crm"],
+      "count": 3, "axisA": "promote", "donorTarget": "CellInput/CellSelect", "status": "candidate" },
+    { "pattern": "skeleton list loader", "projects": ["hk-crm","brickshop-manager","controlling-app"],
+      "count": 3, "axisA": "promote", "donorTarget": "ListSkeleton", "status": "candidate" }
+  ],
   "triage": [
     { "finding": "...", "tier": "red|yellow|green", "action": "..." }
   ]
 }
 ```
+
+### Promotion radar (the rule-of-2 trip-wire)
+
+The fleet pass clusters every project's `handRolledMolecules` by pattern. **The
+moment a pattern appears in a 2nd project, it trips onto the radar as a promotion
+candidate** — this is how a growing add-on layer becomes *visible* instead of
+silently accumulating. Each radar entry carries `projects[]`, `count`, the Axis-A
+verdict (`promote` / `wrap` / `adopt-existing`), a `donorTarget`, and a `status`
+(`candidate` → `promoting` → `promoted` | `sanctioned`). Promotions flow back into
+the donor; the next adoption cycle then *absorbs* the pattern instead of deferring
+it. The radar is the durable artifact the dashboard hub renders (see
+`docs/PROMOTION-RADAR.{md,json}`).
 
 ### Triage rubric (the README's green/yellow/red, applied fleet-wide)
 
@@ -146,11 +228,19 @@ A synthesis pass merges the per-project records into:
   re-broadcast / reconcile.
 - ➕ **gap** — a shape recurring in ≥ 2 projects with no archetype. Action: promote
   a new archetype (rule-of-2, now evidence-backed).
-- 🔴 **molecule drift** (from the within-page scan) — a hand-rolled molecule where a
-  shared owner exists. Always red, but usually *low-effort*: swap to the primitive,
-  no archetype decision needed. Cluster fleet-wide by molecule (e.g. "7 raw
-  `<select>`s across 4 projects") so a single sweep can fix a whole class — the same
-  move this donor made in the 2026-06-14 consolidation pass.
+- 🔴 **molecule drift** (Axis A, within-page scan) — a hand-rolled molecule where a
+  shared owner exists. Always red, but usually *low-effort*: swap to the primitive.
+  Cluster fleet-wide (e.g. "7 raw `<select>`s across 4 projects") so one sweep fixes
+  a whole class — the move this donor made in the 2026-06-14 consolidation pass.
+- 🟠 **conformance violation** (Axis B) — an element off the visual substrate
+  (literal colors, raw HTML, off-token focus/spacing). Applies to *every* component
+  incl. legit add-ons. Action: re-base on tokens/atoms — does **not** require a
+  baseline component. This is what keeps add-ons looking native; treat a rising
+  conformance count as the early warning that the seam is becoming visible.
+- ➕ **promotion candidate** (rule-of-2 on `handRolledMolecules`) — a pattern the
+  donor doesn't own yet, now hand-rolled in ≥ 2 projects. Action: promote/wrap into
+  the donor (component **or** archetype). This is the root-cause heal — it removes
+  the reason the pattern keeps being hand-rolled.
 
 The hardest, most valuable call is **yellow vs red** — distinguishing essential
 variation from accidental drift. The audit proposes a tier per finding; a human
