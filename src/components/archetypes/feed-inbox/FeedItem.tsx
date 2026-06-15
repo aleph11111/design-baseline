@@ -12,6 +12,19 @@ export type FeedItemProps = {
   title: React.ReactNode;
   /** Secondary line — actor, source, relative time ("Ada · 2h ago"). */
   meta?: React.ReactNode;
+  /**
+   * Optional multi-line excerpt below title + meta — an event/media body. Inbox
+   * notifications leave this unset (one-line title only); the media/event
+   * timeline variant uses it for a short description.
+   */
+  body?: React.ReactNode;
+  /**
+   * Optional trailing thumbnail / preview — an `<img>`, video poster, or any
+   * media node. Rendered in a fixed-size rounded holder at the row's trailing
+   * edge (the icon column stays aligned with the inbox variant). The defining
+   * slot of the media/event timeline variant of this archetype.
+   */
+  media?: React.ReactNode;
   /** Unread items get a dot and a slightly stronger surface. */
   unread?: boolean;
   /** Optional trailing controls (a small action button, a dismiss). */
@@ -31,6 +44,8 @@ export function FeedItem({
   icon,
   title,
   meta,
+  body,
+  media,
   unread,
   actions,
   onClick,
@@ -64,12 +79,22 @@ export function FeedItem({
         {meta && (
           <div className="mt-0.5 text-xs text-muted-foreground">{meta}</div>
         )}
+        {body && (
+          <div className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+            {body}
+          </div>
+        )}
       </div>
       {unread && (
         <span
-          className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary"
+          className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary"
           aria-label="Unread"
         />
+      )}
+      {media !== undefined && (
+        <div className="mt-0.5 h-14 w-14 shrink-0 overflow-hidden rounded-md bg-muted [&>img]:h-full [&>img]:w-full [&>img]:object-cover">
+          {media}
+        </div>
       )}
       {actions && (
         <div
