@@ -20,6 +20,15 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SearchInput } from "@/components/ui/search-input";
 import { StateView } from "@/components/ui/state-view";
 import { IconAvatar } from "@/components/ui/icon-avatar";
+import { CellInput, CellSelect } from "@/components/ui/cell-input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { RowActionsMenu } from "@/components/archetypes/shared";
 
 export type LayoutPrim = {
@@ -313,6 +322,55 @@ function RowActionsMenuDemo() {
   );
 }
 
+function CellFieldDemo() {
+  const [rows, setRows] = React.useState([
+    { id: 1, name: "Mapo Tofu", qty: 35, grade: "A" },
+    { id: 2, name: "Dan Dan Noodles", qty: 30, grade: "B" },
+  ]);
+  const set = (i: number, patch: Partial<(typeof rows)[number]>) =>
+    setRows((rs) => rs.map((r, j) => (j === i ? { ...r, ...patch } : r)));
+  return (
+    <div className="max-w-xl space-y-8">
+      <Variant label="Editable grid — controls sit flush inside each cell">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead className="text-right">Qty</TableHead>
+              <TableHead>Grade</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((r, i) => (
+              <TableRow key={r.id}>
+                <TableCell className="font-medium">{r.name}</TableCell>
+                <TableCell className="text-right">
+                  <CellInput
+                    type="number"
+                    value={r.qty}
+                    onChange={(e) => set(i, { qty: Number(e.target.value) })}
+                    className="text-right"
+                  />
+                </TableCell>
+                <TableCell>
+                  <CellSelect
+                    value={r.grade}
+                    onChange={(e) => set(i, { grade: e.target.value })}
+                  >
+                    <option>A</option>
+                    <option>B</option>
+                    <option>C</option>
+                  </CellSelect>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Variant>
+    </div>
+  );
+}
+
 export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "page-header", displayName: "PageHeader", Demo: PageHeaderDemo },
   { slug: "section-heading", displayName: "SectionHeading", Demo: SectionHeadingDemo },
@@ -324,6 +382,7 @@ export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "state-view", displayName: "StateView", Demo: StateViewDemo },
   { slug: "icon-avatar", displayName: "IconAvatar", Demo: IconAvatarDemo },
   { slug: "row-actions-menu", displayName: "RowActionsMenu", Demo: RowActionsMenuDemo },
+  { slug: "cell-field", displayName: "CellInput / CellSelect", Demo: CellFieldDemo },
 ];
 
 export function findLayoutPrim(slug: string | undefined): LayoutPrim | undefined {

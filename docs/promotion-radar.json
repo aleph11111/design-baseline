@@ -34,9 +34,10 @@
       "donorTarget": "CellInput / CellSelect (thin wrappers over Input/Select, flush-cell styling + focus-visible ring)",
       "projects": ["brickshop-manager", "controlling-app", "hk-crm"],
       "count": 3,
-      "status": "candidate",
+      "status": "promoted",
+      "promotedAt": "2026-06-15",
       "axisB": "must carry the standard focus ring",
-      "notes": "Functionally special, visually ordinary — exactly the case that should NOT be exempted."
+      "notes": "Promoted 2026-06-15 as ui/cell-input (CellInput + CellSelect). Projects now adopt it (brickshop record-list inline-cell rows unblocked)."
     },
     {
       "id": "searchinput-variants",
