@@ -17,6 +17,7 @@
     },
     {
       "id": "skeleton-list-loader",
+      "scanSignal": "skeleton-loader",
       "pattern": "Route/list-shaped skeleton loader (animate-pulse rows) instead of a spinner",
       "axisA": "promote",
       "donorTarget": "ListSkeleton (hk-crm's is the ready donor candidate) + Skeleton-based StateView loading variant",
@@ -50,6 +51,7 @@
     },
     {
       "id": "native-field-wrappers",
+      "scanSignal": "native-color-file",
       "pattern": "Native color/file inputs (no shadcn equivalent)",
       "axisA": "wrap",
       "donorTarget": "ColorField / FileField (wrap the native control so it is shared AND on-token)",

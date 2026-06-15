@@ -1,0 +1,22 @@
+{
+  "artifact": "audit-signals",
+  "note": "Donor-owned executable rubric for the deterministic fleet scan. ripgrep (PCRE) regexes, run over *.ts/*.tsx (excluding tests/node_modules). The dashboard moleculeAudit scanner reads this from the connected baseline; promotion-radar.json candidates reference a molecule signal id via `scanSignal`. Novel-pattern discovery is NOT here — that stays the periodic LLM audit.",
+  "globs": ["*.tsx", "*.ts"],
+  "exclude": ["node_modules", "__tests__", ".test.", ".spec.", "dist", ".next", "gallery-dist"],
+  "molecule": [
+    { "id": "raw-select", "regex": "<select[\\s>]", "shouldUse": "shadcn Select" },
+    { "id": "raw-textarea", "regex": "<textarea[\\s>]", "shouldUse": "shadcn Textarea" },
+    { "id": "raw-label", "regex": "<label[\\s>]", "shouldUse": "Label / FormLabel" },
+    { "id": "raw-input", "regex": "<input[\\s>]", "shouldUse": "shadcn Input / Checkbox" },
+    { "id": "skeleton-loader", "regex": "animate-pulse", "shouldUse": "ListSkeleton / Skeleton" },
+    { "id": "native-color-file", "regex": "type=[\"'](color|file)[\"']", "shouldUse": "ColorField / FileField (wrap)" },
+    { "id": "segmented-toggle", "regex": "rounded-md border[^\"']*p-0\\.5", "shouldUse": "SegmentedControl" },
+    { "id": "entity-circle", "regex": "rounded-full[^\"']*bg-muted", "shouldUse": "IconAvatar" },
+    { "id": "overline-typed", "regex": "uppercase[^\"']*tracking-wider|tracking-wider[^\"']*uppercase", "shouldUse": "OVERLINE_CLASS" }
+  ],
+  "conformance": [
+    { "id": "literal-color", "regex": "(bg|text|border|ring|fill|stroke)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-[0-9]{2,3}", "shouldUse": "semantic tokens (bg-muted, text-muted-foreground, Badge variant)" },
+    { "id": "weak-focus-ring", "regex": "focus:ring-1\\b", "shouldUse": "focus-visible:ring-2 ring-ring" },
+    { "id": "raw-html-control", "regex": "<(button|input|select|textarea)[\\s>]", "shouldUse": "the shadcn atom" }
+  ]
+}
