@@ -6,6 +6,16 @@ Baseline archetypes are generalised from mature, real-project implementations. T
 
 > **Living manifest:** `MANIFEST.json` is the source of truth for which archetypes baseline currently ships and at what version.
 
+## Identifying archetypes: slug, key, and namespace
+
+**`slug` is the canonical cross-doc identifier.** Slugs (`list-with-detail`, `settings-table`, `crud-dialog`, …) are globally unique by construction, so drift audits, page→archetype registries, ADRs, and tickets must reference archetypes **by slug**. `MANIFEST.json` records `"canonical_id": "slug"` to make this explicit.
+
+**The letter `key` is namespace-scoped display/ordering metadata only — never a cross-doc identifier.** A bare letter can be ambiguous: a project that ran its own archetype audit may assign `B` to a different archetype than the donor's `B` (`form-page`). When a letter must appear in prose and could be ambiguous, qualify it with its namespace (`baseline:B`).
+
+**`namespace` separates donor archetypes from project-local ones.** Every entry the donor ships carries `"namespace": "baseline"`. A target project that adds its own archetypes (anything not in this donor manifest) stamps them with its own namespace (e.g. `"namespace": "acme"`) and a unique slug. The field is interpreted as **"baseline when absent"**, so the disambiguator within a manifest is `(namespace, key)` — or, preferably, the always-unique `slug`.
+
+This is why `/style-archetypes` is safe to re-run: it merges `MANIFEST.json` **by slug** and only adds or updates entries for slugs it copied from the donor. Project-local entries (different slugs, non-`baseline` namespace) are never touched, and a refreshed baseline entry preserves any target-only keys (including a `namespace` the target stamped). The framework README itself is treated as **project-maintainable** — `/style-archetypes` copies it only when the target has none or it is byte-identical to the donor's; a diverged target README is left in place (the donor's copy is dropped alongside as `README.donor.md` for manual reconciliation).
+
 > **Which archetype for a given entity?** An entity shows up at different depths in different projects (a shallow `Company` vs one that owns contacts/deals/contracts). Don't build tiers of one layout — pick the right archetype by depth + context. See [`docs/CHOOSING-A-SURFACE.md`](../CHOOSING-A-SURFACE.md): the **surface ladder** (token → row → dialog → section → detail page), the **create spectrum** (dialog vs page), and when to escalate.
 
 ## Archetype kinds
@@ -128,7 +138,7 @@ Apply via the `/style-archetypes` skill (requires `/style-baseline` to have run 
 /style-archetypes --force           # overwrite existing archetype files
 ```
 
-What gets copied per archetype: `docs/archetypes/<slug>.md` and `src/components/archetypes/<slug>/`. The framework `README.md` and `MANIFEST.json` are always copied so the target has the methodology and can run `--update` later. Sandbox demo files (`src/examples/`) are never copied to targets — they are a generic-ness contract for the donor only.
+What gets copied per archetype: `docs/archetypes/<slug>.md` and `src/components/archetypes/<slug>/`. `MANIFEST.json` is always merged (by slug, preserving target-only entries and keys) so the target stays current and can run `--update` later. The framework `README.md` is copied **only when the target has none or it is byte-identical to the donor's** — a project-maintained README that diverges is never overwritten (see *Identifying archetypes* above). Sandbox demo files (`src/examples/`) are never copied to targets — they are a generic-ness contract for the donor only.
 
 Project-added archetypes (not in the baseline MANIFEST) are never touched by `/style-archetypes`. The target's `docs/archetypes/` may freely contain project-local spec files.
 

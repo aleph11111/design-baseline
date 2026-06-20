@@ -1,5 +1,10 @@
 {
   "version": 1,
+  "canonical_id": "slug",
+  "_note": "slug is the canonical cross-doc identifier; slugs are globally unique. The letter `key` is namespace-scoped display/ordering metadata only and may collide across namespaces. `namespace` defaults to \"baseline\" when absent. See docs/archetypes/README.md for the full convention.",
+  "namespaces": {
+    "baseline": "Promoted design-baseline donor archetypes (synced via /style-archetypes). Letter keys are the donor's. Target projects add their own namespace(s) for project-local archetypes (anything not in this donor manifest)."
+  },
   "plugin": {
     "kind": "design",
     "name": "design-baseline",
@@ -36,6 +41,7 @@
   "archetypes": [
     {
       "key": "A",
+      "namespace": "baseline",
       "slug": "list-with-detail",
       "displayName": "List with detail",
       "version": "1.6",
@@ -48,6 +54,7 @@
     },
     {
       "key": "B",
+      "namespace": "baseline",
       "slug": "form-page",
       "displayName": "Form page",
       "version": "1.7",
@@ -60,6 +67,7 @@
     },
     {
       "key": "C",
+      "namespace": "baseline",
       "slug": "detail-overview",
       "displayName": "Detail overview",
       "version": "2.6",
@@ -73,6 +81,7 @@
     },
     {
       "key": "D2",
+      "namespace": "baseline",
       "slug": "settings-table",
       "displayName": "Settings table",
       "version": "1.3",
@@ -85,6 +94,7 @@
     },
     {
       "key": "J",
+      "namespace": "baseline",
       "slug": "crud-dialog",
       "displayName": "CRUD dialog",
       "version": "1.5",
@@ -97,6 +107,7 @@
     },
     {
       "key": "K",
+      "namespace": "baseline",
       "slug": "grouped-list",
       "displayName": "Grouped list",
       "version": "1.6",
@@ -109,6 +120,7 @@
     },
     {
       "key": "M",
+      "namespace": "baseline",
       "slug": "matrix-grid",
       "displayName": "Matrix grid",
       "version": "1.5",
@@ -121,6 +133,7 @@
     },
     {
       "key": "F2",
+      "namespace": "baseline",
       "slug": "tabbed-settings",
       "displayName": "Tabbed settings",
       "version": "1.4",
@@ -133,6 +146,7 @@
     },
     {
       "key": "G",
+      "namespace": "baseline",
       "slug": "analytics-dashboard",
       "displayName": "Analytics dashboard",
       "version": "1.2",
@@ -145,6 +159,7 @@
     },
     {
       "key": "W",
+      "namespace": "baseline",
       "slug": "import-wizard",
       "displayName": "Import wizard",
       "version": "1.1",
@@ -157,6 +172,7 @@
     },
     {
       "key": "H",
+      "namespace": "baseline",
       "slug": "feed-inbox",
       "displayName": "Feed / inbox",
       "version": "1.2",
@@ -169,6 +185,7 @@
     },
     {
       "key": "P",
+      "namespace": "baseline",
       "slug": "kanban-board",
       "displayName": "Kanban board",
       "version": "1.2",
