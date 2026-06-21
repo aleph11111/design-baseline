@@ -81,15 +81,16 @@ export type DetailOverviewShellProps = {
    */
   layout?: "vertical" | "rail";
   /**
-   * Container model (Amendment v2.3 — the unified-surface variant).
+   * Container model (Amendment v2.3 — the unified-surface variant; hybrid).
    * - "separated" (default): each slot's `<DetailSection>`s are individually
    *   bordered `SectionCard`s with gaps between — the v2.0/v2.1 look. Zero churn.
-   * - "unified": ONE bounded surface — rail | main split by a single border,
-   *   sections rendered chromeless (flush) and divided by hairline rules. The
-   *   cohesive "one record = one surface" treatment that reads as less of a card
-   *   scatter. Inner `<DetailSection>`s drop their own chrome automatically via
-   *   `UnifiedSurfaceContext`. Recommended canonical pairing for dense record
-   *   pages: `layout="rail" surface="unified"`.
+   * - "unified": ONE bounded outer frame holds header + rail + main. The **rail**
+   *   renders chromeless and hairline-divided (its `<DetailSection>`s drop card
+   *   chrome via a `UnifiedSurfaceContext` scoped to the rail); the **main** keeps
+   *   its normal carded `<DetailSection>`/`<StatTileRow>` with gaps. The cohesion
+   *   comes from the frame, not from stripping every card — so a framed page reads
+   *   as one record without the "card scatter". Recommended canonical pairing for
+   *   dense record pages: `layout="rail" surface="unified"`.
    */
   surface?: "separated" | "unified";
   className?: string;
@@ -121,13 +122,15 @@ export type DetailOverviewShellProps = {
  *   the rail is `position: sticky`, which is what keeps it the *same* archetype
  *   and preserves mobile parity.
  *
- * Two container models (Amendment v2.3):
+ * Two container models (Amendment v2.3 — hybrid):
  * - `surface="separated"` (default): each section is its own bordered card.
- * - `surface="unified"`: one bounded surface with chromeless, hairline-divided
- *   sections (rail | main split by a single border). Inner `<DetailSection>`s
- *   read `UnifiedSurfaceContext` and drop their card chrome. Same canonical slot
- *   order, single instances — no double-mount. The cohesive pairing for dense
- *   record pages is `layout="rail" surface="unified"`.
+ * - `surface="unified"`: one bounded outer frame holds header + rail + main. The
+ *   rail is chromeless + hairline-divided (chrome dropped via a
+ *   `UnifiedSurfaceContext` scoped to the rail subtree only); the main keeps its
+ *   carded sections. The frame unifies — stripping chrome from the main column
+ *   too is the over-application the measured reference corrects. Same canonical
+ *   slot order, single instances — no double-mount. Cohesive dense pairing:
+ *   `layout="rail" surface="unified"`.
  */
 export function DetailOverviewShell({
   header,
@@ -142,50 +145,71 @@ export function DetailOverviewShell({
   className,
 }: DetailOverviewShellProps): React.ReactElement {
   // -------------------------------------------------------------------------
-  // UNIFIED — one bounded surface, internal hairline dividers, chromeless
-  // sections. The cohesive "one record = one surface" treatment. Provided for
-  // both layouts; rail is the primary use case. Canonical slot order and single
-  // instances are preserved exactly as in the separated paths below.
+  // UNIFIED — the HYBRID model (Amendment v2.3, corrected against the measured
+  // reference). The cohesion comes from the OUTER FRAME, not from making every
+  // section chromeless:
+  //   - outer frame: one bounded card wrapping header + rail + main.
+  //   - RAIL (aside): chromeless, flush, hairline-divided, lightly tinted. The
+  //     `UnifiedSurfaceContext` provider is scoped to THIS subtree only, so the
+  //     rail's `<DetailSection>`s drop their card chrome (keeping padding) while
+  //     the shell's `divide-y` + `border-r` supply all separation.
+  //   - MAIN: keeps its `<DetailSection>` / `<StatTileRow>` CARDS with gaps —
+  //     the context stays false here, so they render normal chrome. The frame is
+  //     what makes those cards read as units rather than a scatter.
+  // Stripping chrome from the main column too was the over-application the
+  // measured reference corrects, so there is NO outer provider.
   // -------------------------------------------------------------------------
   if (surface === "unified") {
     const body =
       layout === "rail" ? (
-        // lg+: two columns inside the one card; the aside carries the single
-        // rail|main divider (`lg:border-r`). Below lg: a vertical stack — the
-        // aside's right border is dropped and regions divide horizontally.
+        // lg+: two columns inside the one frame; the aside carries the single
+        // rail|main divider (`lg:border-r`). Below lg the aside's right border
+        // is dropped and the main is separated by its `border-t`.
         <div className="lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
-          <div className="divide-y divide-border lg:border-r lg:border-border lg:sticky lg:top-0 lg:self-start">
-            {summary && <div>{summary}</div>}
-            {references && <div>{references}</div>}
-          </div>
-          <div className="divide-y divide-border border-t border-border lg:border-t-0">
+          <UnifiedSurfaceContext.Provider value={true}>
+            <div className="divide-y divide-border bg-muted/40 lg:border-r lg:border-border lg:sticky lg:top-0 lg:self-start">
+              {summary && <div>{summary}</div>}
+              {references && <div>{references}</div>}
+            </div>
+          </UnifiedSurfaceContext.Provider>
+          <div
+            className={cn(
+              "border-t border-border p-5 lg:border-t-0",
+              RHYTHM_MAP[rhythm],
+            )}
+          >
             {stats && <div>{stats}</div>}
             {content}
           </div>
         </div>
       ) : (
-        // vertical + unified: a single hairline-divided stack.
-        <div className="divide-y divide-border">
-          {summary && <div>{summary}</div>}
-          {stats && <div>{stats}</div>}
-          {content}
-          {references && <div>{references}</div>}
+        // vertical + unified: a chromeless summary strip on top, carded content
+        // below — separated by a `border-t`, all inside the one frame.
+        <div>
+          <UnifiedSurfaceContext.Provider value={true}>
+            <div className="divide-y divide-border bg-muted/40">
+              {summary && <div>{summary}</div>}
+            </div>
+          </UnifiedSurfaceContext.Provider>
+          <div className={cn("border-t border-border p-5", RHYTHM_MAP[rhythm])}>
+            {stats && <div>{stats}</div>}
+            {content}
+            {references && <div>{references}</div>}
+          </div>
         </div>
       );
 
     return (
-      <UnifiedSurfaceContext.Provider value={true}>
-        <div
-          className={cn(
-            "overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm",
-            layout !== "rail" && WIDTH_MAP[width],
-            className,
-          )}
-        >
-          {header && <div className="border-b border-border">{header}</div>}
-          {body}
-        </div>
-      </UnifiedSurfaceContext.Provider>
+      <div
+        className={cn(
+          "overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm",
+          layout !== "rail" && WIDTH_MAP[width],
+          className,
+        )}
+      >
+        {header && <div className="border-b border-border">{header}</div>}
+        {body}
+      </div>
     );
   }
 

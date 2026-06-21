@@ -12,14 +12,16 @@ blueprint: docs/archetypes/detail-overview-blueprint.svg
 
 # Archetype C — Detail Overview
 
-> **v2.3 (2026-06-21) — the unified-surface variant.** The shell gains a `surface`
-> prop (`"separated"` default | `"unified"`), orthogonal to `layout`. `"unified"`
-> renders the whole record as **one bounded surface** — rail and main split by a
-> single border, sections chromeless and hairline-divided — instead of a scatter of
-> floating `SectionCard`s. Inner `<DetailSection>`s drop their card chrome
-> automatically via `UnifiedSurfaceContext` (and `SectionCard` gains a `chrome`
-> prop). The cohesive pairing for dense record pages is `layout="rail"
-> surface="unified"`. Additive, backward-compatible (default unchanged). Two new
+> **v2.3 (2026-06-21) — the unified-surface variant (hybrid).** The shell gains a
+> `surface` prop (`"separated"` default | `"unified"`), orthogonal to `layout`.
+> `"unified"` wraps the record in **one bounded outer frame**: the **rail** renders
+> chromeless + hairline-divided + tinted (its `<DetailSection>`s drop card chrome
+> via a rail-scoped `UnifiedSurfaceContext`; `SectionCard` gains a `chrome` prop),
+> while the **main** keeps its carded sections inside the frame. The cohesion comes
+> from the frame, not from stripping every card — making everything chromeless was
+> an over-application a measured reference corrected. The cohesive pairing for dense
+> record pages is `layout="rail" surface="unified"`. Additive, backward-compatible
+> (default unchanged). Two new
 > shared layout primitives ship alongside for the rail's vocabulary:
 > `ProgressTracker` (lifecycle/pipeline stepper) and `MetricList`/`MetricRow` (the
 > compact "figures at a glance" readout). The acceptance gate gains a "One bounded
@@ -210,19 +212,24 @@ Orthogonal to `layout`, the `surface` prop chooses the **container model**:
 - **`surface="separated"`** (default): each slot's `<DetailSection>`s are
   individually bordered cards with gaps between them — the v2.0/v2.1 look. Zero
   churn for existing pages.
-- **`surface="unified"`**: the page renders as **one bounded surface** — rail and
-  main split by a single border, sections rendered *chromeless* (flush) and
-  divided by hairline rules instead of floating as separate cards. This is the
-  cohesive "one record = one surface" treatment; it reads as far less of a *card
-  scatter* on dense pages. Inner `<DetailSection>`s drop their own
-  border/shadow/rounding automatically by reading `UnifiedSurfaceContext` (the
-  shell provides it; gutters `px-5 py-*` are preserved so padding stays
-  consistent). Works with either layout; the canonical pairing for dense record
-  pages is **`layout="rail" surface="unified"`**.
+- **`surface="unified"`** (the **hybrid** model, corrected against a measured
+  reference): the page is wrapped in **one bounded outer frame** holding header +
+  rail + main. The cohesion comes from the *frame*, not from stripping every card:
+  - the **rail** (aside) renders *chromeless* — flush, hairline-divided, lightly
+    tinted (`bg-muted/40`). Its `<DetailSection>`s drop their card chrome (keeping
+    padding so the hairline floats in whitespace) via a `UnifiedSurfaceContext`
+    scoped to the rail subtree only.
+  - the **main** column keeps its **carded** `<DetailSection>`s / `<StatTileRow>`
+    with gaps — the context is false there. Framed, those cards read as units, not
+    a scatter.
 
-The acceptance gate's **"One bounded surface, not a card scatter"** REQUIRED box
-scores this: an adopted rail page that renders a stack of floating cards inside
-the rail is a wrapper adoption.
+  Stripping chrome from the main column too is the over-application the measured
+  reference corrects. Works with either layout; the canonical pairing for dense
+  record pages is **`layout="rail" surface="unified"`**.
+
+The acceptance gate's **"One outer frame, not a card scatter"** REQUIRED box
+scores this: a rail page is a wrapper adoption if it is loose cards on the bare
+page background with no frame, *or* if the rail is carded instead of flush.
 
 ### API
 
@@ -689,11 +696,12 @@ domain:
 - [ ] **Shell owns the inset.** The page adds no outer `p-*`/`px-*`/`py-*`; only
       `space-y-*` (+ optional `max-w-*` in vertical). `AppShell`'s `<main>` is the
       sole inset owner.
-- [ ] **One bounded surface, not a card scatter.** A `layout="rail"` page renders
-      as a single unified surface (`surface="unified"`) — rail and main split by one
-      border, sections chromeless and divided by hairline rules — **not** a stack of
-      separate floating `SectionCard`s with gaps. *Fails when:* each DetailSection
-      carries its own border/shadow inside the rail (the "card scatter" drift).
+- [ ] **One outer frame, not a card scatter.** A `layout="rail"` page is wrapped in
+      a single bounded surface (frame) holding header + rail + main. The **rail** is
+      a flush, hairline-divided strip (chromeless sections, padding kept); the
+      **main** keeps its carded DetailSections **inside** the frame. *Fails when:*
+      the page is loose `SectionCard`s floating on the bare page background with no
+      outer frame (the "scatter" drift), OR the rail is carded instead of flush.
 
 ### REQUIRED — slot order & roles
 
