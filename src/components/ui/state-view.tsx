@@ -8,9 +8,20 @@ export type StateViewVariant = "loading" | "empty" | "error";
 
 export type StateViewProps = {
   variant: StateViewVariant;
-  /** Empty-state body copy (also used as the loading label override). */
+  /**
+   * Headline for the empty/error plane — foreground, medium weight. When set,
+   * the `message`/`description` line reads as a muted sub-line beneath it. For
+   * the error variant this overrides the default "Something went wrong" title.
+   */
+  title?: React.ReactNode;
+  /**
+   * Secondary muted line. Preferred over `message` for new callers; `message`
+   * is kept as a back-compat alias (a single muted line, no title).
+   */
+  description?: React.ReactNode;
+  /** Back-compat single-line copy (also the loading label override). Aliased to `description`. */
   message?: React.ReactNode;
-  /** Optional leading icon for the empty state (centered above the message). */
+  /** Optional leading icon for the empty state (centered above the text). */
   icon?: LucideIcon;
   /** Error object for the error variant; message is derived from it. */
   error?: unknown;
@@ -35,11 +46,17 @@ function errorMessage(error: unknown): string {
  * shells now delegate here so the planes look identical everywhere.
  *
  *  - loading: centered "Loading…", `role="status"`, `p-8`.
- *  - empty:   centered `p-8`, optional icon + message + CTA.
+ *  - empty:   centered `p-8`, optional icon + optional title + description + CTA.
  *  - error:   a destructive `<Alert>` with an optional retry button.
+ *
+ * Both empty and error accept a `title` (foreground headline) + `description`
+ * (muted sub-line). `message` is the back-compat alias for `description` — a
+ * single muted line with no title renders exactly as before.
  */
 export function StateView({
   variant,
+  title,
+  description,
   message,
   icon: Icon,
   error,
@@ -67,9 +84,9 @@ export function StateView({
       <div className={cn("p-4", className)}>
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Something went wrong</AlertTitle>
+          <AlertTitle>{title ?? "Something went wrong"}</AlertTitle>
           <AlertDescription className="flex flex-col gap-2">
-            <span>{message ?? errorMessage(error)}</span>
+            <span>{description ?? message ?? errorMessage(error)}</span>
             {onRetry && (
               <Button
                 variant="outline"
@@ -87,15 +104,21 @@ export function StateView({
   }
 
   // variant === "empty"
+  const body = description ?? message ?? (title ? undefined : "No items yet");
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-3 p-8 text-center text-sm text-muted-foreground",
+        "flex flex-col items-center justify-center gap-3 p-8 text-center",
         className,
       )}
     >
       {Icon && <Icon className="h-8 w-8 text-muted-foreground/70" />}
-      <span>{message ?? "No items yet"}</span>
+      {(title || body) && (
+        <div className="space-y-1">
+          {title && <p className="text-sm font-medium text-foreground">{title}</p>}
+          {body && <p className="text-sm text-muted-foreground">{body}</p>}
+        </div>
+      )}
       {action}
     </div>
   );

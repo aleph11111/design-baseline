@@ -11,9 +11,10 @@
       "donorTarget": "extend StateView (empty: title+description+icon+action; error: optional retry)",
       "projects": ["brickshop-manager", "controlling-app"],
       "count": 2,
-      "status": "candidate",
+      "status": "promoted",
+      "promotedAt": "2026-06-15",
       "axisB": "tokenized already in most cases",
-      "notes": "Biggest single cluster — brickshop alone deferred ~8 two-line/colored empties. Back-compat: keep single-message signature."
+      "notes": "Promoted 2026-06-15: StateView gained `title` (foreground headline) + `description` props, shared across empty + error variants. `message` retained as the back-compat alias for the single muted line. Biggest single cluster — brickshop alone deferred ~8 two-line empties. Colored-empty `tone` deliberately left out (no semantic-color evidence yet)."
     },
     {
       "id": "skeleton-list-loader",

@@ -259,26 +259,39 @@ function StateViewDemo() {
           <StateView variant="loading" />
         </div>
       </Variant>
-      <Variant label="Empty (with icon + CTA)">
+      <Variant label="Empty — single line (back-compat)">
+        <div className="rounded-lg border bg-card">
+          <StateView variant="empty" message="No records yet." />
+        </div>
+      </Variant>
+      <Variant label="Empty — rich (icon + title + description + CTA)">
         <div className="rounded-lg border bg-card">
           <StateView
             variant="empty"
             icon={Inbox}
-            message="No records yet."
+            title="No invoices yet"
+            description="Invoices you create will appear here."
             action={
               <Button size="sm">
                 <Plus className="mr-1 h-4 w-4" />
-                Add one
+                New invoice
               </Button>
             }
           />
         </div>
       </Variant>
-      <Variant label="Error (with retry)">
+      <Variant label="Error — default title (with retry)">
         <StateView
           variant="error"
           error={new Error("Could not reach the server.")}
           onRetry={() => {}}
+        />
+      </Variant>
+      <Variant label="Error — custom title + description (action-less)">
+        <StateView
+          variant="error"
+          title="Couldn't load invoices"
+          description="We hit a network error. Check your connection and try again."
         />
       </Variant>
     </div>
