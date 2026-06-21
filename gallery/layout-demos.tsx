@@ -8,7 +8,10 @@ import * as React from "react";
 import { Bell, Box, Inbox, Plus, Settings, User } from "lucide-react";
 import {
   AuthCard,
+  MetricList,
+  MetricRow,
   PageHeader,
+  ProgressTracker,
   SectionCard,
   SectionHeading,
   StatTile,
@@ -412,11 +415,78 @@ function CellFieldDemo() {
   );
 }
 
+function ProgressTrackerDemo() {
+  return (
+    <div className="max-w-3xl space-y-8">
+      <Variant label="Order lifecycle (one current marker)">
+        <div className="rounded-lg border bg-card p-5">
+          <ProgressTracker
+            steps={[
+              { label: "Placed", meta: "2 Jun", state: "done" },
+              { label: "Paid", meta: "2 Jun", state: "done" },
+              { label: "Packed", meta: "In progress", state: "current" },
+              { label: "Shipped", meta: "Pending", state: "pending" },
+            ]}
+          />
+        </div>
+      </Variant>
+      <Variant label="Deal pipeline (token-pure — reads --primary)">
+        <div className="rounded-lg border bg-card p-5">
+          <ProgressTracker
+            steps={[
+              { label: "Qualified", state: "done" },
+              { label: "Proposal", state: "done" },
+              { label: "Negotiation", state: "current" },
+              { label: "Closed", state: "pending" },
+            ]}
+          />
+        </div>
+      </Variant>
+    </div>
+  );
+}
+
+function MetricListDemo() {
+  return (
+    <div className="max-w-sm space-y-8">
+      <Variant label="Headline figures + disclosure (rail summary readout)">
+        <SectionCard title="Financials" flush>
+          <div className="px-5 py-3">
+            <MetricList
+              more={
+                <>
+                  <MetricRow label="COGS" value="€3,480" />
+                  <MetricRow label="Fees" value="€212" />
+                </>
+              }
+            >
+              <MetricRow label="Revenue" value="€5,920" hint="incl. shipping" emphasis />
+              <MetricRow label="Gross profit" value="€2,228" hint="margin 37.6%" emphasis accent />
+            </MetricList>
+          </div>
+        </SectionCard>
+      </Variant>
+      <Variant label="No disclosure (headline rows only)">
+        <SectionCard title="At a glance" flush>
+          <div className="px-5 py-3">
+            <MetricList>
+              <MetricRow label="Gesamtwert" value="€12.500,00" emphasis />
+              <MetricRow label="ARR" value="€4.200,00" hint="annualisiert" emphasis accent />
+            </MetricList>
+          </div>
+        </SectionCard>
+      </Variant>
+    </div>
+  );
+}
+
 export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "page-header", displayName: "PageHeader", Demo: PageHeaderDemo },
   { slug: "section-heading", displayName: "SectionHeading", Demo: SectionHeadingDemo },
   { slug: "section-card", displayName: "SectionCard", Demo: SectionCardDemo },
   { slug: "stat-tiles", displayName: "StatTileRow / StatTile", Demo: StatTilesDemo },
+  { slug: "progress-tracker", displayName: "ProgressTracker", Demo: ProgressTrackerDemo },
+  { slug: "metric-list", displayName: "MetricList / MetricRow", Demo: MetricListDemo },
   { slug: "auth-card", displayName: "AuthCard", Demo: AuthCardDemo },
   { slug: "segmented-control", displayName: "SegmentedControl", Demo: SegmentedControlDemo },
   { slug: "search-input", displayName: "SearchInput", Demo: SearchInputDemo },

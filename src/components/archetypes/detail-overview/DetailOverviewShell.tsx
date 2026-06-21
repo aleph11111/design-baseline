@@ -13,6 +13,14 @@ const RHYTHM_MAP: Record<"compact" | "default", string> = {
   default: "space-y-5",
 };
 
+/**
+ * Read by `<DetailSection>` (and any titled section primitive) to render
+ * chromeless inside a `surface="unified"` shell — dropping its own
+ * border/shadow/rounding so the one bounded surface owns all separation via
+ * hairline dividers. Default `false` = today's separated behaviour.
+ */
+export const UnifiedSurfaceContext = React.createContext(false);
+
 export type DetailOverviewShellProps = {
   /**
    * Slot 1 — page header (Mode A — standalone). Pass a
@@ -72,6 +80,18 @@ export type DetailOverviewShellProps = {
    *   (orders, deals/opportunities, invoices); stay "vertical" for light ones.
    */
   layout?: "vertical" | "rail";
+  /**
+   * Container model (Amendment v2.3 — the unified-surface variant).
+   * - "separated" (default): each slot's `<DetailSection>`s are individually
+   *   bordered `SectionCard`s with gaps between — the v2.0/v2.1 look. Zero churn.
+   * - "unified": ONE bounded surface — rail | main split by a single border,
+   *   sections rendered chromeless (flush) and divided by hairline rules. The
+   *   cohesive "one record = one surface" treatment that reads as less of a card
+   *   scatter. Inner `<DetailSection>`s drop their own chrome automatically via
+   *   `UnifiedSurfaceContext`. Recommended canonical pairing for dense record
+   *   pages: `layout="rail" surface="unified"`.
+   */
+  surface?: "separated" | "unified";
   className?: string;
 };
 
@@ -100,6 +120,14 @@ export type DetailOverviewShellProps = {
  *   sidebar. There is never a second scroll container — the page scrolls and
  *   the rail is `position: sticky`, which is what keeps it the *same* archetype
  *   and preserves mobile parity.
+ *
+ * Two container models (Amendment v2.3):
+ * - `surface="separated"` (default): each section is its own bordered card.
+ * - `surface="unified"`: one bounded surface with chromeless, hairline-divided
+ *   sections (rail | main split by a single border). Inner `<DetailSection>`s
+ *   read `UnifiedSurfaceContext` and drop their card chrome. Same canonical slot
+ *   order, single instances — no double-mount. The cohesive pairing for dense
+ *   record pages is `layout="rail" surface="unified"`.
  */
 export function DetailOverviewShell({
   header,
@@ -110,8 +138,57 @@ export function DetailOverviewShell({
   rhythm = "default",
   width = "none",
   layout = "vertical",
+  surface = "separated",
   className,
 }: DetailOverviewShellProps): React.ReactElement {
+  // -------------------------------------------------------------------------
+  // UNIFIED — one bounded surface, internal hairline dividers, chromeless
+  // sections. The cohesive "one record = one surface" treatment. Provided for
+  // both layouts; rail is the primary use case. Canonical slot order and single
+  // instances are preserved exactly as in the separated paths below.
+  // -------------------------------------------------------------------------
+  if (surface === "unified") {
+    const body =
+      layout === "rail" ? (
+        // lg+: two columns inside the one card; the aside carries the single
+        // rail|main divider (`lg:border-r`). Below lg: a vertical stack — the
+        // aside's right border is dropped and regions divide horizontally.
+        <div className="lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
+          <div className="divide-y divide-border lg:border-r lg:border-border lg:sticky lg:top-0 lg:self-start">
+            {summary && <div>{summary}</div>}
+            {references && <div>{references}</div>}
+          </div>
+          <div className="divide-y divide-border border-t border-border lg:border-t-0">
+            {stats && <div>{stats}</div>}
+            {content}
+          </div>
+        </div>
+      ) : (
+        // vertical + unified: a single hairline-divided stack.
+        <div className="divide-y divide-border">
+          {summary && <div>{summary}</div>}
+          {stats && <div>{stats}</div>}
+          {content}
+          {references && <div>{references}</div>}
+        </div>
+      );
+
+    return (
+      <UnifiedSurfaceContext.Provider value={true}>
+        <div
+          className={cn(
+            "overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm",
+            layout !== "rail" && WIDTH_MAP[width],
+            className,
+          )}
+        >
+          {header && <div className="border-b border-border">{header}</div>}
+          {body}
+        </div>
+      </UnifiedSurfaceContext.Provider>
+    );
+  }
+
   if (layout === "rail") {
     // Command Rail. The slots are rendered ONCE, in canonical source order
     // (header → summary → stats → content → references), so below `lg` — where

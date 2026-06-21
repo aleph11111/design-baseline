@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 2.2
+version: 2.3
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.0
@@ -12,6 +12,20 @@ blueprint: docs/archetypes/detail-overview-blueprint.svg
 
 # Archetype C — Detail Overview
 
+> **v2.3 (2026-06-21) — the unified-surface variant.** The shell gains a `surface`
+> prop (`"separated"` default | `"unified"`), orthogonal to `layout`. `"unified"`
+> renders the whole record as **one bounded surface** — rail and main split by a
+> single border, sections chromeless and hairline-divided — instead of a scatter of
+> floating `SectionCard`s. Inner `<DetailSection>`s drop their card chrome
+> automatically via `UnifiedSurfaceContext` (and `SectionCard` gains a `chrome`
+> prop). The cohesive pairing for dense record pages is `layout="rail"
+> surface="unified"`. Additive, backward-compatible (default unchanged). Two new
+> shared layout primitives ship alongside for the rail's vocabulary:
+> `ProgressTracker` (lifecycle/pipeline stepper) and `MetricList`/`MetricRow` (the
+> compact "figures at a glance" readout). The acceptance gate gains a "One bounded
+> surface, not a card scatter" REQUIRED box, and S5 is restated as *aligned*
+> (`tabular-nums`) rather than *mono* figures. See "Surface variant" below.
+>
 > **v2.1 (2026-06-21) — the Command Rail variant.** The shell gains a second
 > sanctioned layout, `layout="rail"` (default still `"vertical"`): a sticky left
 > identity rail (`summary` + `references`) beside a scrolling main column
@@ -189,11 +203,33 @@ rail variant *the same archetype* rather than a fork.
   mobile parity.
 - Stat strip / metric readout keep their `grid-cols-1 → sm:grid-cols-N` ramp.
 
+### Surface variant — separated vs unified (Amendment v2.3)
+
+Orthogonal to `layout`, the `surface` prop chooses the **container model**:
+
+- **`surface="separated"`** (default): each slot's `<DetailSection>`s are
+  individually bordered cards with gaps between them — the v2.0/v2.1 look. Zero
+  churn for existing pages.
+- **`surface="unified"`**: the page renders as **one bounded surface** — rail and
+  main split by a single border, sections rendered *chromeless* (flush) and
+  divided by hairline rules instead of floating as separate cards. This is the
+  cohesive "one record = one surface" treatment; it reads as far less of a *card
+  scatter* on dense pages. Inner `<DetailSection>`s drop their own
+  border/shadow/rounding automatically by reading `UnifiedSurfaceContext` (the
+  shell provides it; gutters `px-5 py-*` are preserved so padding stays
+  consistent). Works with either layout; the canonical pairing for dense record
+  pages is **`layout="rail" surface="unified"`**.
+
+The acceptance gate's **"One bounded surface, not a card scatter"** REQUIRED box
+scores this: an adopted rail page that renders a stack of floating cards inside
+the rail is a wrapper adoption.
+
 ### API
 
 ```tsx
 <DetailOverviewShell
   layout="rail"            // "vertical" (default) | "rail"
+  surface="unified"        // "separated" (default) | "unified"
   header={<DetailOverviewHeader … />}
   summary={…}              // → aside (master data + optional compact metrics)
   stats={…}                // → main top (omit if surfaced in summary)
@@ -202,9 +238,9 @@ rail variant *the same archetype* rather than a fork.
 />
 ```
 
-`layout` defaults to `"vertical"` → zero churn for existing pages. Future rail
-tweaks propagate baseline-wide via `/style-archetypes --update`, same as any
-other shell-owned layout iteration.
+`layout` and `surface` both default to the v2.0/v2.1 behaviour → zero churn for
+existing pages. Future rail/surface tweaks propagate baseline-wide via
+`/style-archetypes --update`, same as any other shell-owned layout iteration.
 
 ---
 
@@ -627,7 +663,7 @@ domain:
 > the teardown ritual ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](../DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)).
 > `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`; `wrapper = true`
 > when score < 1.0. **[spine]** = the shared conformance spine **S1–S6** (single inset ·
-> shell-not-hand-rolled · canonical states · atoms+tokens · mono figures · brand
+> shell-not-hand-rolled · canonical states · atoms+tokens · aligned figures · brand
 > primary), defined in [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md).
 
 ### REQUIRED — single-home & subtraction (the wrapper detectors)
@@ -653,6 +689,11 @@ domain:
 - [ ] **Shell owns the inset.** The page adds no outer `p-*`/`px-*`/`py-*`; only
       `space-y-*` (+ optional `max-w-*` in vertical). `AppShell`'s `<main>` is the
       sole inset owner.
+- [ ] **One bounded surface, not a card scatter.** A `layout="rail"` page renders
+      as a single unified surface (`surface="unified"`) — rail and main split by one
+      border, sections chromeless and divided by hairline rules — **not** a stack of
+      separate floating `SectionCard`s with gaps. *Fails when:* each DetailSection
+      carries its own border/shadow inside the rail (the "card scatter" drift).
 
 ### REQUIRED — slot order & roles
 
@@ -667,8 +708,9 @@ domain:
 
 ### REQUIRED — visual substrate ([spine], restated at the gate)
 
-- [ ] **Figures are mono/tabular.** All money, IDs, quantities, dates render in
-      `font-mono tabular-nums`. *(S5)*
+- [ ] **Figures are aligned.** All money, IDs, quantities, dates use `tabular-nums`
+      for column alignment, in the **baseline's own font** (mono is not required
+      unless the baseline adopts mono figures at the house-style level). *(S5)*
 - [ ] **Brand primary, not default.** Primary actions/active states read the brand
       `--primary` (the target's token override is applied), not donor slate. *(S6)*
 - [ ] **Semantic state.** Negative / at-risk values (a loss, an overdue date) read

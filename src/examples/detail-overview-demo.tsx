@@ -181,6 +181,12 @@ export function DetailOverviewDemo(): React.ReactElement {
   // Layout variant (Amendment v2.1): the same slots, two sanctioned placements.
   // Default to "rail" so the new Command Rail variant is what the gallery shows.
   const [layout, setLayout] = React.useState<"vertical" | "rail">("rail");
+  // Surface variant (Amendment v2.3): "unified" = one bounded surface with
+  // chromeless, hairline-divided sections; "separated" = individual cards.
+  // Default to "unified" — the cohesive "one record = one surface" treatment.
+  const [surface, setSurface] = React.useState<"separated" | "unified">(
+    "unified",
+  );
   // Editability variant (inline-edit): a section whose body swaps a read-only
   // value for an editable control in place — the same DetailSection, no new prop.
   const [editingNotes, setEditingNotes] = React.useState(false);
@@ -199,23 +205,36 @@ export function DetailOverviewDemo(): React.ReactElement {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="max-w-prose text-sm text-muted-foreground">
-          Layout variant (Amendment v2.1) — the <strong>Command Rail</strong>{" "}
-          pins identity and figures in a sticky left rail while the
-          transactional body scrolls; it collapses to the canonical vertical
-          stack below <code className="text-xs">lg</code>.
+          <strong>Layout</strong> (v2.1) — the Command Rail pins identity in a
+          sticky left rail, collapsing to vertical below{" "}
+          <code className="text-xs">lg</code>. <strong>Surface</strong> (v2.3) —
+          “unified” renders one bounded surface with chromeless,
+          hairline-divided sections instead of a card scatter.
         </p>
-        <SegmentedControl
-          aria-label="Detail-overview layout"
-          value={layout}
-          onValueChange={setLayout}
-          options={[
-            { value: "rail", label: "Command rail", icon: PanelLeft },
-            { value: "vertical", label: "Vertical", icon: Rows3 },
-          ]}
-        />
+        <div className="flex flex-wrap items-center gap-3">
+          <SegmentedControl
+            aria-label="Detail-overview layout"
+            value={layout}
+            onValueChange={setLayout}
+            options={[
+              { value: "rail", label: "Command rail", icon: PanelLeft },
+              { value: "vertical", label: "Vertical", icon: Rows3 },
+            ]}
+          />
+          <SegmentedControl
+            aria-label="Detail-overview surface"
+            value={surface}
+            onValueChange={setSurface}
+            options={[
+              { value: "unified", label: "Unified" },
+              { value: "separated", label: "Separated" },
+            ]}
+          />
+        </div>
       </div>
       <DetailOverviewShell
         layout={layout}
+        surface={surface}
         width="md"
         header={
         <DetailOverviewHeader

@@ -1,4 +1,4 @@
-export { DetailOverviewShell } from "./DetailOverviewShell";
+export { DetailOverviewShell, UnifiedSurfaceContext } from "./DetailOverviewShell";
 export type { DetailOverviewShellProps } from "./DetailOverviewShell";
 
 export { DetailOverviewHeader } from "./DetailOverviewHeader";
@@ -13,6 +13,21 @@ export type { DetailSectionProps } from "./DetailSection";
 // `@/components/archetypes/detail-overview` imports keep working.
 export { StatTileRow, type StatTileRowProps } from "@/components/layout";
 export { StatTile, type StatTileProps } from "@/components/layout";
+
+// ProgressTracker (lifecycle stepper) + MetricList/MetricRow (the rail's compact
+// "figures at a glance" readout) are shared layout primitives, re-exported here
+// as part of the Command Rail vocabulary (Amendment v2.3).
+export {
+  ProgressTracker,
+  type ProgressStep,
+  type ProgressTrackerProps,
+} from "@/components/layout";
+export {
+  MetricList,
+  MetricRow,
+  type MetricListProps,
+  type MetricRowProps,
+} from "@/components/layout";
 
 export { KeyValueList } from "./KeyValueList";
 export type { KeyValueListProps } from "./KeyValueList";

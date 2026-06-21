@@ -292,7 +292,7 @@ When a target project applies this archetype, it wires the generic primitives to
 > routed to the teardown ritual ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](../DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)).
 > `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`; `wrapper = true`
 > when score < 1.0. **[spine]** = the shared conformance spine **S1–S6** (single inset ·
-> shell-not-hand-rolled · canonical states · atoms+tokens · mono figures · brand
+> shell-not-hand-rolled · canonical states · atoms+tokens · aligned figures · brand
 > primary), defined in [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md).
 
 **REQUIRED**

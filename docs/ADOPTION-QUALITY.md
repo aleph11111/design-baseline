@@ -79,7 +79,9 @@ here:
 - **S4 Atoms + tokens** — no literal palette colors, no raw `<button>/<input>/<select>`
   where an atom exists, standard focus ring, semantic state via `destructive`/brand not
   literal red/green.
-- **S5 Mono figures** — money, IDs, quantities, dates in `font-mono tabular-nums`.
+- **S5 Aligned figures** — money, IDs, quantities, dates use `tabular-nums` for
+  column alignment, in the **baseline's own font** (do not impose a mono face unless
+  the baseline adopts mono figures at the house-style level).
 - **S6 Brand primary** — primary actions/active states read the brand `--primary` (the
   target's token override is applied), not donor slate.
 

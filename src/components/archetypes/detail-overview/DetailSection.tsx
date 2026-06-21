@@ -1,5 +1,6 @@
 import * as React from "react";
 import { SectionCard } from "@/components/layout/SectionCard";
+import { UnifiedSurfaceContext } from "./DetailOverviewShell";
 
 export type DetailSectionProps = {
   /**
@@ -59,12 +60,17 @@ export function DetailSection({
   children,
   className,
 }: DetailSectionProps): React.ReactElement {
+  // Inside a `<DetailOverviewShell surface="unified">`, sections render
+  // chromeless — the shell's one bounded surface + hairline dividers own all
+  // separation. Outside it (the default), this is the bordered card as before.
+  const unified = React.useContext(UnifiedSurfaceContext);
   return (
     <SectionCard
       title={title}
       actions={actions}
       flush={flush}
       tone={tone}
+      chrome={!unified}
       className={className}
     >
       {children}

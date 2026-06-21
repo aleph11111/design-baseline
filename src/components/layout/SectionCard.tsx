@@ -44,6 +44,17 @@ export type SectionCardProps = {
    *   (reference panels).
    */
   tone?: "default" | "muted";
+  /**
+   * Card chrome.
+   * - `true` (default): the bounded card — `rounded-lg border` + tone surface.
+   * - `false`: chromeless — drop the border/rounding/background/shadow and keep
+   *   only the ruled title bar + body padding. Used when the section renders
+   *   inside an already-bounded surface that owns separation via hairline
+   *   dividers (e.g. `<DetailOverviewShell surface="unified">`). Gutters
+   *   (`px-5 py-*`) are preserved so the unified surface keeps consistent
+   *   padding; only the outer card is dropped.
+   */
+  chrome?: boolean;
   children: React.ReactNode;
   className?: string;
 };
@@ -76,6 +87,7 @@ export function SectionCard({
   header,
   flush = false,
   tone = "default",
+  chrome = true,
   children,
   className,
 }: SectionCardProps): React.ReactElement {
@@ -83,10 +95,13 @@ export function SectionCard({
   return (
     <section
       className={cn(
-        "overflow-hidden rounded-lg border",
-        tone === "muted"
-          ? "bg-muted/40"
-          : "bg-card text-card-foreground shadow-sm",
+        chrome &&
+          cn(
+            "overflow-hidden rounded-lg border",
+            tone === "muted"
+              ? "bg-muted/40"
+              : "bg-card text-card-foreground shadow-sm",
+          ),
         className,
       )}
     >
