@@ -2,7 +2,7 @@
 key: K
 slug: grouped-list
 kind: page
-version: 1.0
+version: 1.1
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.0
@@ -259,3 +259,29 @@ When a target project applies this archetype, it wires the generic primitives to
 - Section ordering policy (alphabetical vs. taxonomy-defined vs. user-pinned).
 - Business rules governing which row actions appear for a given entity state.
 - Cross-resource invalidation topology.
+
+---
+
+## Acceptance gate
+
+> **Axis-C (adoption-quality) checklist** — the canonical list a page adopting this
+> archetype is scored against (see [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md)).
+> A page that composes this archetype's shell is **conformant** only when every
+> REQUIRED box passes; one that fails any REQUIRED box is a 🔴 **wrapper adoption**,
+> routed to the teardown ritual ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](../DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)).
+> `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`; `wrapper = true`
+> when score < 1.0. **[spine]** = the shared conformance spine **S1–S6** (single inset ·
+> shell-not-hand-rolled · canonical states · atoms+tokens · mono figures · brand
+> primary), defined in [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md).
+
+**REQUIRED**
+
+- [ ] **One `<GroupedListSection>` per group**, each a `<SectionCard>` (ruled title +
+      count) with the inner table `<ListWithDetailShell unstyled>` flush — **no**
+      nested card chrome, no hand-rolled section markup.
+- [ ] **Page-level toolbar only** (`<GroupedListShell>` `toolbar` slot), not per-section
+      toolbars. If no toolbar, the single Add action may sit in `<PageHeader>` actions
+      (the one sanctioned exception) — document it inline.
+- [ ] **No empty sections rendered** — groups pre-filtered on the data layer.
+- [ ] **No detail panel inside a section** — detail goes to a route.
+- [ ] **[spine] S1–S6** (inherits A's table contract unchanged).

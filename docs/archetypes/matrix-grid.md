@@ -2,7 +2,7 @@
 key: M
 slug: matrix-grid
 kind: page
-version: 1.0
+version: 1.1
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.0
@@ -328,3 +328,31 @@ For reference, the donor implementation that motivated this archetype (an MSP CR
 | `cellStyle: (key, cell) => { className, tooltip }` | `cellStyle: (ctx) => { className?, tooltip? }` |
 
 The donor uses one shell for two pages (a single-state "Bestand" view and a multi-state "Potenzial" view). Both are valid consumers under this archetype; the variant comes from the consumer's `cellStyle` and `renderCell`, not from the shell.
+
+---
+
+## Acceptance gate
+
+> **Axis-C (adoption-quality) checklist** — the canonical list a page adopting this
+> archetype is scored against (see [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md)).
+> A page that composes this archetype's shell is **conformant** only when every
+> REQUIRED box passes; one that fails any REQUIRED box is a 🔴 **wrapper adoption**,
+> routed to the teardown ritual ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](../DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)).
+> `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`; `wrapper = true`
+> when score < 1.0. **[spine]** = the shared conformance spine **S1–S6** (single inset ·
+> shell-not-hand-rolled · canonical states · atoms+tokens · mono figures · brand
+> primary), defined in [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md).
+
+**REQUIRED**
+
+- [ ] **One matrix shell** owns the row-header column + scrollable cell grid; axes
+      aren't hand-assembled from nested flex `<div>`s.
+- [ ] **Sticky row/column headers** via the shell, not duplicated static headers.
+- [ ] **Cells are a single primitive** (value/intensity/state) — no per-cell bespoke
+      markup variants; empty cells use the canonical empty treatment, not blank gaps.
+- [ ] **Legend/scale uses tokens** (sequential/semantic), no literal color ramps.
+- [ ] **[spine] S1, S2, S4, S5, S6** (S5: all cell figures mono/tabular).
+
+**SHOULD** (yellow, not red)
+
+- [ ] Dense mode keeps ≥ the minimum hit target for interactive cells.

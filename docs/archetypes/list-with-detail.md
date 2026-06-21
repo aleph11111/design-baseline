@@ -2,7 +2,7 @@
 key: A
 slug: list-with-detail
 kind: page
-version: 1.0
+version: 1.1
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.2
@@ -263,3 +263,38 @@ When a target project applies this archetype, it wires the generic primitives to
 - Project-local status color maps and badge variants.
 - Business rules governing which row actions appear for a given entity state.
 - Cross-resource invalidation topology (which keys to invalidate on which mutations).
+
+---
+
+## Acceptance gate
+
+> **Axis-C (adoption-quality) checklist** — the canonical list a page adopting this
+> archetype is scored against (see [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md)).
+> A page that composes this archetype's shell is **conformant** only when every
+> REQUIRED box passes; one that fails any REQUIRED box is a 🔴 **wrapper adoption**,
+> routed to the teardown ritual ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](../DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)).
+> `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`; `wrapper = true`
+> when score < 1.0. **[spine]** = the shared conformance spine **S1–S6** (single inset ·
+> shell-not-hand-rolled · canonical states · atoms+tokens · mono figures · brand
+> primary), defined in [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md).
+
+**REQUIRED**
+
+- [ ] **Actions live in the toolbar, nowhere else.** No action buttons in
+      `<PageHeader>`/its `actions` slot, none inline above/below the shell.
+      *Wrapper tell:* a legacy button row sitting above `<ListWithDetailShell>`.
+- [ ] **One shell owns the list chrome.** The table/card-grid/action-row renders
+      via `<ListWithDetailShell presentation=…>` — a card grid is a conformant
+      variant, **not** an excuse for a hand-rolled grid of `<Card>`s.
+- [ ] **Identifier cell is the click target** (`text-primary hover:underline`),
+      driving `onRowSelect`; row interaction isn't a stray per-row button column.
+- [ ] **Detail surface uses the `detail` slot** (auto Sheet-swaps on mobile) — not a
+      parallel hand-built right panel.
+- [ ] **[spine] S1–S6.**
+
+**SHOULD** (yellow, not red)
+
+- [ ] Toolbar search is the shared `SearchInput` (`max-w-sm`, `pl-9` icon), not a raw input.
+- [ ] Sort lives on table headers (table variant) or the toolbar (other variants).
+
+---

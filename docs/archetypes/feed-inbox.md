@@ -84,3 +84,27 @@ separate lightweight query (header badge). Mutations: mark-read / mark-all-read
 prepend new items; not required. Mobile: already a single column; the filter chips
 scroll horizontally. Permissions: a feed is per-user — scope every query to the
 viewer; never leak another user's items.
+
+---
+
+## Acceptance gate
+
+> **Axis-C (adoption-quality) checklist** — the canonical list a page adopting this
+> archetype is scored against (see [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md)).
+> A page that composes this archetype's shell is **conformant** only when every
+> REQUIRED box passes; one that fails any REQUIRED box is a 🔴 **wrapper adoption**,
+> routed to the teardown ritual ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](../DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)).
+> `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`; `wrapper = true`
+> when score < 1.0. **[spine]** = the shared conformance spine **S1–S6** (single inset ·
+> shell-not-hand-rolled · canonical states · atoms+tokens · mono figures · brand
+> primary), defined in [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md).
+
+**REQUIRED**
+
+- [ ] **One inbox shell** owns the list-pane + reading-pane split (Sheet-swap on
+      mobile) — not a parallel hand-built two-column flex.
+- [ ] **Items are a single row primitive** (avatar/title/preview/meta/unread dot),
+      not per-type bespoke markup.
+- [ ] **Unread/selected state via tokens** (brand/`muted`), not literal colors or bold-only.
+- [ ] **Actions ranked** — primary on the item/reading pane + overflow; no equal-weight button row.
+- [ ] **[spine] S1, S2, S3, S4, S5, S6.**

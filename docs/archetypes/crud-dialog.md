@@ -2,7 +2,7 @@
 key: J
 slug: crud-dialog
 kind: dialog
-version: 1.5
+version: 1.6
 promoted_from: brickshop-manager
 promoted_at: 2026-06-13
 source_spec_version: 1.3
@@ -360,3 +360,31 @@ When a target project applies this archetype, it wires the generic primitives to
 
 - **2026-06-13 — v1.2.** Promoted `useCrudDialogController` (shared view/edit/create action flow + derived footer labels) and the `crudStrings` neutral-defaults module from mistra. Added the controller's `labels` i18n option (`DEFAULT_CRUD_DIALOG_LABELS`) so localized consumers inject their strings rather than forking the donor primitives. Layers 13–14 now name the controller as the canonical owner of `handleClose`/`handlePrimary`/`handleSecondary` and the footer label derivation. Additive, backward-compatible.
 - **2026-06-14 — v1.5.** Closed a spec-ahead-of-code gap: the v1.2 controller (`useCrudDialogController`, `crudStrings`) was documented but its files had never been committed. Committed them, and migrated the reference demo to actually consume the controller with react-hook-form + zod and the shared `<Table>` / `<Badge>` / `<FormField>` molecules — it no longer reimplements `handleClose`/`handlePrimary`/`handleSecondary` inline (the spec's own anti-pattern). The demo now remounts per open, fixing stale mode/dirty state across reopens. Reconciled the frontmatter `version` (was stuck at 1.2) and `source_spec_version` (1.3) with the MANIFEST. Spec contract unchanged.
+
+---
+
+## Acceptance gate
+
+> **Axis-C (adoption-quality) checklist** — the canonical list a page adopting this
+> archetype is scored against (see [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md)).
+> A page that composes this archetype's shell is **conformant** only when every
+> REQUIRED box passes; one that fails any REQUIRED box is a 🔴 **wrapper adoption**,
+> routed to the teardown ritual ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](../DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)).
+> `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`; `wrapper = true`
+> when score < 1.0. **[spine]** = the shared conformance spine **S1–S6** (single inset ·
+> shell-not-hand-rolled · canonical states · atoms+tokens · mono figures · brand
+> primary), defined in [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md).
+
+**REQUIRED**
+
+- [ ] **CRUD actions in the footer.** Save/Create/Edit/Delete live in
+      `<CrudDialogFooter>`; the header `actions` slot holds only mode-toggle/icon
+      affordances. *Wrapper tell:* a Save button in the header or body.
+- [ ] **Body scroll owned by `<CrudDialogBody>`** — no custom `max-h-[90vh]
+      overflow-y-auto` on the shell.
+- [ ] **Shell composition** — `<CrudDialogHeader/Body/Footer>`, not a raw `<Dialog>`
+      with hand-rolled padding/scroll.
+- [ ] **Mode contract honored** — view vs edit vs create driven by `entityId`/mode,
+      not duplicated dialogs.
+- [ ] **Secondary actions in a `⋯` overflow** left of the primary group, not a button row.
+- [ ] **[spine] S2, S4, S5, S6** (+ S3 as the body loading-skeleton slot).

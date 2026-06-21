@@ -61,3 +61,32 @@ idempotent); ordering within a column, if persisted, needs a rank/position field
 Mobile: columns scroll horizontally; consider a single-column + status-select
 fallback for touch where DnD is awkward. Permissions: gate who can move cards vs
 view; a read-only viewer gets the board without drag handles.
+
+---
+
+## Acceptance gate
+
+> **Axis-C (adoption-quality) checklist** — the canonical list a page adopting this
+> archetype is scored against (see [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md)).
+> A page that composes this archetype's shell is **conformant** only when every
+> REQUIRED box passes; one that fails any REQUIRED box is a 🔴 **wrapper adoption**,
+> routed to the teardown ritual ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](../DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)).
+> `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`; `wrapper = true`
+> when score < 1.0. **[spine]** = the shared conformance spine **S1–S6** (single inset ·
+> shell-not-hand-rolled · canonical states · atoms+tokens · mono figures · brand
+> primary), defined in [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md).
+
+**REQUIRED**
+
+- [ ] **One board shell** owns columns + cards + drag context; columns aren't
+      hand-rolled flex tracks with bespoke headers.
+- [ ] **Card is a single primitive** (title, meta chips, assignee avatar), consistent
+      across columns — not per-column variants.
+- [ ] **Column header shows name + count** via the shell; WIP/empty columns use the
+      canonical empty treatment, not blank space.
+- [ ] **Status/label chips are shared `Badge`s** on tokens, not literal-colored pills.
+- [ ] **[spine] S1, S2, S4, S5, S6.**
+
+**SHOULD** (yellow, not red)
+
+- [ ] Add-card affordance is consistent per column (one pattern), ranked vs column actions.

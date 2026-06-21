@@ -68,3 +68,28 @@ key. Types: a parsed-row shape + a column-mapping shape. Mutations: the commit i
 the only write; invalidate the destination list on success. Mobile: the stepper
 collapses to "Step n of m"; bodies stack. Permissions: gate the route; a viewer
 without import rights sees history (read-only) but not the wizard.
+
+---
+
+## Acceptance gate
+
+> **Axis-C (adoption-quality) checklist** — the canonical list a page adopting this
+> archetype is scored against (see [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md)).
+> A page that composes this archetype's shell is **conformant** only when every
+> REQUIRED box passes; one that fails any REQUIRED box is a 🔴 **wrapper adoption**,
+> routed to the teardown ritual ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](../DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)).
+> `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`; `wrapper = true`
+> when score < 1.0. **[spine]** = the shared conformance spine **S1–S6** (single inset ·
+> shell-not-hand-rolled · canonical states · atoms+tokens · mono figures · brand
+> primary), defined in [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md).
+
+**REQUIRED**
+
+- [ ] **One wizard shell owns the step model** (stepper + current-step body + footer
+      nav) — steps aren't hand-rolled conditionals with bespoke progress UI.
+- [ ] **Stepper is the shared progress primitive** (`ProgressTracker`-class), one
+      current marker, done/pending states — not numbered `<div>`s.
+- [ ] **Nav actions in the wizard footer** (Back/Next/Finish), ranked (one primary),
+      not a button row in the body.
+- [ ] **Mapping/preview tables use the list primitive**, not hand-built grids.
+- [ ] **[spine] S1, S2, S4, S5, S6** (S3 → per-step validation/error states).

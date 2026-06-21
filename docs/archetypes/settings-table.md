@@ -2,7 +2,7 @@
 key: D2
 slug: settings-table
 kind: page
-version: 1.0
+version: 1.1
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.0
@@ -280,3 +280,33 @@ When a target project applies this archetype, it wires the generic primitives to
 - Business rules governing which row actions appear for a given entity state.
 - Cross-resource invalidation topology.
 - Edit dialog form logic (fields, validation, submit handler).
+
+---
+
+## Acceptance gate
+
+> **Axis-C (adoption-quality) checklist** — the canonical list a page adopting this
+> archetype is scored against (see [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md)).
+> A page that composes this archetype's shell is **conformant** only when every
+> REQUIRED box passes; one that fails any REQUIRED box is a 🔴 **wrapper adoption**,
+> routed to the teardown ritual ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](../DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)).
+> `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`; `wrapper = true`
+> when score < 1.0. **[spine]** = the shared conformance spine **S1–S6** (single inset ·
+> shell-not-hand-rolled · canonical states · atoms+tokens · mono figures · brand
+> primary), defined in [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md).
+
+**REQUIRED**
+
+- [ ] **Row click opens an edit dialog** (the D2 click contract) — **no** right-rail
+      detail panel (that's archetype A). *Wrapper tell:* a detail panel bolted on.
+- [ ] **Actions in the toolbar** (`toolbar` prop of `<SettingsTableShell>`), not in the header.
+- [ ] **One `<SettingsTableShell>`** owns the card + table + row-actions dropdown; no
+      hand-rolled card. (Split-pane table+form variant allowed only with an inline-documented reason.)
+- [ ] **[spine] S1–S6.**
+
+**SHOULD** (yellow, not red)
+
+- [ ] Bulk-select column only when bulk actions exist; otherwise omitted.
+- [ ] Edit dialog is the J `crud-dialog` shell once available, not a bespoke modal.
+
+---

@@ -10,7 +10,7 @@ This is the automated application of `docs/CHOOSING-A-SURFACE.md`: where that do
 is the human rubric for picking a surface, the audit *measures* which surface each
 real page actually uses and whether it should.
 
-## Two questions it answers
+## What it answers
 
 - **Fit** (every `surfaces:["frontend"]` project, adopted or not): for each route,
   which archetype does this page *resemble*, how strongly, and does it use the
@@ -19,6 +19,10 @@ real page actually uses and whether it should.
 - **Drift** (adopted projects): which adopted archetype versions trail the donor
   (`MANIFEST.json`), and which pages match an archetype's shape but bypass its
   reference primitive (silent divergence the version-drift scan can't see).
+- **Adoption quality** (Axis C — adopted pages): given a page *does* use the
+  archetype shell, did it also remove the content the archetype subsumes, or did it
+  wrap the old page? Scored against the archetype's `## Acceptance gate`; a wrapper
+  adoption is `adopted: true` AND red. See [`ADOPTION-QUALITY.md`](ADOPTION-QUALITY.md).
 
 ## Per-project scanner
 
@@ -140,6 +144,32 @@ you build this, build it from our substrate." It is the cheapest, highest-covera
 check in the audit and the one that makes add-ons indistinguishable from baseline.
 Record hits in `conformanceViolations` (schema below).
 
+### Adoption-quality rubric (Axis C — the wrapper-adoption detector)
+
+Axes A/B catch *not using* the primitive. Axis C catches the opposite failure: a page
+that **does** import an archetype shell — so the page-level pass scores it
+`adopted: true` — but kept the legacy content the archetype was meant to replace (the
+status band, the toolbar, the tab-as-primary-nav). The shell is new; the furniture is
+old. The full rationale, scan model, and rollout loop live in
+[`ADOPTION-QUALITY.md`](ADOPTION-QUALITY.md); the mechanics:
+
+1. **Deterministic tripwires** — `audit-signals.json → adoptionQuality`. Each is gated
+   by `coOccursWith` (the archetype's shell import names) so it ONLY fires on a file
+   that actually adopts that archetype. A tripwire is a **candidate, never a verdict**
+   (`tier: red|yellow`); it flags a route for stage 2.
+2. **Per-page acceptance gate** — for every route the page-level pass marks `adopted`
+   (and every tripwire-flagged route), walk the archetype's **`## Acceptance gate`**
+   (the canonical checklist in `docs/archetypes/<slug>.md`, restating Axis A/B via the
+   shared S1–S6 conformance spine). Each failed REQUIRED box is an Axis-C finding;
+   `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`, and `wrapper = true`
+   when score < 1.0. Record per route in `adoptionQuality` (schema below).
+
+A page can now be **`adopted: true` AND red** — the state Axes A/B couldn't express.
+Every 🔴 wrapper-adoption route routes to the teardown ritual
+([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)): DELETE-first,
+then re-map slots, with the filled inventory table + checked gate as required PR
+deliverables.
+
 ### Per-project output (schema)
 
 ```jsonc
@@ -153,7 +183,18 @@ Record hits in `conformanceViolations` (schema below).
     { "route": "/companies/:id", "file": "...",
       "archetype": "C", "fit": 0.7, "adopted": false,
       "signals": ["sections","stat-tiles","hand-rolled card chrome"],
-      "notes": "matches detail-overview but doesn't use DetailSection" }
+      "notes": "matches detail-overview but doesn't use DetailSection" },
+    { "route": "/orders/:id", "file": "...",
+      "archetype": "C", "fit": 1.0, "adopted": true,
+      "signals": ["DetailOverviewShell","layout=rail"],
+      "adoptionQuality": {                      // Axis C — only on adopted shell archetypes
+        "score": 0.4, "wrapper": true,          // adopted the shell, kept legacy content
+        "findings": [
+          { "box": "status-one-home", "tier": "red", "fix": "delete band; status→header, meta→rail facts" },
+          { "box": "content-stacked", "tier": "red", "fix": "stack primary sections; tabs only for secondary" }
+        ]
+      },
+      "notes": "wrapper adoption — run the teardown ritual" }
   ],
   "gaps": [ { "route": "/pipeline", "shape": "kanban board", "signals": [...] } ],
   "versionDrift": [ { "key": "J", "local": "1.2", "baseline": "1.3", "severity": "minor" } ],
@@ -192,6 +233,10 @@ A synthesis pass merges the per-project records into:
     { "key": "C", "variants": [ {project, file, howItDiffers} ], "verdict": "?" }
   ],
   "adoption": [ { "project": "brickshop-manager", "adopted": 0, "handRolled": 4 } ],
+  "adoptionQuality": [
+    { "project": "brickshop-manager", "adopted": 5, "wrappers": 2, "meanScore": 0.71,
+      "redRoutes": ["/orders/:id"] }
+  ],
   "conformance": [ { "project": "...", "violations": 12, "topRules": ["literal-color","raw-html"] } ],
   "promotionRadar": [
     { "pattern": "inline-cell editor", "projects": ["brickshop-manager","controlling-app","hk-crm"],
@@ -237,6 +282,14 @@ it. The radar is the durable artifact the dashboard hub renders (see
   incl. legit add-ons. Action: re-base on tokens/atoms — does **not** require a
   baseline component. This is what keeps add-ons looking native; treat a rising
   conformance count as the early warning that the seam is becoming visible.
+- 🔴 **wrapper adoption** (Axis C) — an `adopted: true` page that fails its archetype's
+  `## Acceptance gate`: it imports the shell but kept the content the archetype
+  subsumes (status band, equal-weight toolbar, tab-as-primary-nav). Distinct from
+  molecule drift (didn't use a primitive) and conformance (off-token) — here the
+  primitive *is* used, but the subtraction wasn't done. Action: run the **teardown
+  ritual** ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)) on
+  the route — DELETE-first, then re-map slots; the filled inventory table + checked
+  gate are required PR deliverables. Re-audit flips it green at `score → 1.0`.
 - ➕ **promotion candidate** (rule-of-2 on `handRolledMolecules`) — a pattern the
   donor doesn't own yet, now hand-rolled in ≥ 2 projects. Action: promote/wrap into
   the donor (component **or** archetype). This is the root-cause heal — it removes
@@ -251,8 +304,13 @@ confirms. Default ambiguous cases to yellow (don't unify away real difference).
 A **multi-agent fan-out** (one scanner agent per project, in parallel) → a single
 synthesis agent that aggregates, clusters gaps, and triages. Read-only; produces
 the report above + a prioritized action list (promote X, add variant axis to Y,
-adopt Z in project W). It changes nothing — every action is a proposal a human
-schedules (a `/ticket`, a donor iteration session, a `/style-archetypes --update`).
+adopt Z in project W). Each scanner runs all three axes: the deterministic molecule
+(Axis A) + conformance (Axis B) + adoption-quality tripwire (Axis C) greps from
+`audit-signals.json`, then — for every route it marks `adopted` for a shell archetype,
+plus every Axis-C-flagged route — the per-page **acceptance-gate** pass that turns
+tripwire candidates into `adoptionQuality` verdicts. It changes nothing — every action
+is a proposal a human schedules (a `/ticket`, a donor iteration session, a
+`/style-archetypes --update`; for wrapper adoptions, the teardown ritual).
 
 This is the runner the dashboard hub eventually hosts (Phase 3); until then it runs
 as an on-demand workflow.

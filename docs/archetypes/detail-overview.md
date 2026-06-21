@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 2.1
+version: 2.2
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.0
@@ -614,3 +614,97 @@ domain:
 - Server action implementations and revalidation topology.
 - Entity types and the server functions that resolve them.
 - Routing topology (which detail routes nest under which parent layouts).
+
+---
+
+## Acceptance gate
+
+> **Axis-C (adoption-quality) checklist** — the canonical list a page is scored
+> against (see [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md)). It is
+> layout-agnostic — every item holds for both `layout="vertical"` and `layout="rail"`.
+> A page that imports `DetailOverviewShell` is **conformant** only when every REQUIRED
+> box passes; one that fails any REQUIRED box is a 🔴 **wrapper adoption**, routed to
+> the teardown ritual ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](../DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)).
+> `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`; `wrapper = true`
+> when score < 1.0. **[spine]** = the shared conformance spine **S1–S6** (single inset ·
+> shell-not-hand-rolled · canonical states · atoms+tokens · mono figures · brand
+> primary), defined in [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md).
+
+### REQUIRED — single-home & subtraction (the wrapper detectors)
+
+- [ ] **Status has one home.** Each status dimension (order/payment/shipping,
+      stage/forecast, …) appears **exactly once** — in the header badge row. No
+      floating badge stack, no per-section status label, no second copy in a band.
+      *Fails when:* the same status value renders in ≥ 2 places.
+- [ ] **No status/meta band in `content`.** The content column contains **no**
+      full-width "Status + Payment + Currency + Address" selector/meta card. Status
+      *editing* is inline in the header; meta fields are master-data in the `summary`
+      `KeyValueList`.
+- [ ] **`content` is stacked, not tabbed.** Primary transactional sections
+      (records, breakdown) are always-visible `<DetailSection>`s. A tab group is
+      allowed **only** for genuinely secondary surfaces (history, external sync,
+      logs) and must not front the primary records.
+      *Fails when:* a `<TabsList>` is the primary navigation of the main content.
+- [ ] **Primary records are visible without interaction.** The main line collection
+      (items/positions/…) renders directly in a `<DetailSection>`, not behind a tab
+      or accordion. (Omit only if the entity has no line collection.)
+- [ ] **Actions are ranked.** The header carries **one** filled primary action + an
+      overflow `⋯` menu. No row of ≥ 3 equal-weight action buttons.
+- [ ] **Shell owns the inset.** The page adds no outer `p-*`/`px-*`/`py-*`; only
+      `space-y-*` (+ optional `max-w-*` in vertical). `AppShell`'s `<main>` is the
+      sole inset owner.
+
+### REQUIRED — slot order & roles
+
+- [ ] **Canonical order holds.** Reading order is header → summary (master data) →
+      stats/figures → content (transactional) → references — top-to-bottom in
+      vertical, and rail-then-main in `rail` (§4/§5). Slots are not reordered.
+- [ ] **Headline figures at a glance.** The 2 decision figures (e.g. Revenue +
+      Gross profit / Gesamtwert + ARR) are visible in `summary` without a click;
+      secondary figures sit behind a disclosure (`MetricList`) — never the reverse.
+- [ ] **References last.** Documents / linked records live in the `references` slot
+      (rail foot, or page end in vertical), never interleaved with `content`.
+
+### REQUIRED — visual substrate ([spine], restated at the gate)
+
+- [ ] **Figures are mono/tabular.** All money, IDs, quantities, dates render in
+      `font-mono tabular-nums`. *(S5)*
+- [ ] **Brand primary, not default.** Primary actions/active states read the brand
+      `--primary` (the target's token override is applied), not donor slate. *(S6)*
+- [ ] **Semantic state.** Negative / at-risk values (a loss, an overdue date) read
+      `text-destructive`; positive emphasis reads the brand — never a literal color. *(S4)*
+- [ ] **Tokens + atoms only.** No literal palette colors, no raw `<button>/<input>/
+      <select>` where an atom exists, standard focus ring. *(S4)*
+
+### SHOULD — quality polish (yellow, not red)
+
+- [ ] Lifecycle, if the entity has ordered stages, leads `content` as a
+      `ProgressTracker` (not a vertical list, not a tab).
+- [ ] Line records with images show thumbnails (≥ 40px); name + secondary note;
+      figures right-aligned with a subtotal footer.
+- [ ] `summary` master-data uses `KeyValueList`/`KeyValueRow` (label left, value
+      right tabular), not a hand-rolled grid.
+- [ ] Density suits the entity: `rail` for money-dense (order/deal/invoice),
+      `vertical` for light (lead/inquiry). A sparse rail on a light entity is a
+      signal to switch to vertical, not a failure.
+
+### Scoring example
+
+```jsonc
+{ "route": "/orders/:id", "archetype": "C", "adopted": true,
+  "adoptionQuality": {
+    "score": 0.45, "wrapper": true,
+    "findings": [
+      { "box": "status-one-home", "tier": "red", "fix": "remove floating badges + band; keep header row" },
+      { "box": "content-stacked", "tier": "red", "fix": "stack Items + Financials; tabs → secondary only" },
+      { "box": "actions-ranked",  "tier": "red", "fix": "1 primary + ⋯ overflow" },
+      { "box": "figures-mono",    "tier": "red", "fix": "apply --font-mono to figures" }
+    ]
+  } }
+```
+
+For any route the page-level pass marks `adopted` for archetype C, walk this gate
+(deterministic tripwires from `audit-signals.json → adoptionQuality` pre-flag the
+likely-red ones; the gate is the verdict). Emit one `findings[]` entry per failed
+REQUIRED box with its `fix`. Route every `wrapper: true` page to the teardown
+playbook; the remediation PR must paste this gate, fully checked, to close the ticket.

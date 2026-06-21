@@ -2,7 +2,7 @@
 key: B
 slug: form-page
 kind: page
-version: 1.1
+version: 1.2
 promoted_from: hk-crm
 promoted_at: 2026-05-24
 source_spec_version: 1.1
@@ -412,3 +412,35 @@ When a target project applies this archetype, it wires the generic primitives to
 - Project-specific toast library configuration.
 - Business rules governing which footer actions appear for a given entity state.
 - Cross-resource revalidation topology (which paths to `revalidatePath` on which writes).
+
+---
+
+## Acceptance gate
+
+> **Axis-C (adoption-quality) checklist** — the canonical list a page adopting this
+> archetype is scored against (see [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md)).
+> A page that composes this archetype's shell is **conformant** only when every
+> REQUIRED box passes; one that fails any REQUIRED box is a 🔴 **wrapper adoption**,
+> routed to the teardown ritual ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](../DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)).
+> `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`; `wrapper = true`
+> when score < 1.0. **[spine]** = the shared conformance spine **S1–S6** (single inset ·
+> shell-not-hand-rolled · canonical states · atoms+tokens · mono figures · brand
+> primary), defined in [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md).
+
+**REQUIRED**
+
+- [ ] **Actions in the footer only.** Submit/Cancel live in `<FormPageFooter>`;
+      `<FormPageHeader>` has **no** action slot. *Wrapper tell:* a Save button in the header.
+- [ ] **One `<FormPageShell>` column.** No hand-rolled `max-w-xl px-6 py-6` wrapper;
+      no horizontal centering (`mx-auto`) when the app left-aligns content.
+- [ ] **Fields are atoms** — `<FormField>`/labelled atoms with standard error text,
+      not raw `<input>`/`<select>` or bespoke label markup.
+- [ ] **One destructive confirm path** for discard/delete (dialog), not an inline raw button.
+- [ ] **[spine] S1, S2, S4, S5, S6.** (S3 → form submit/validation states.)
+
+**SHOULD** (yellow, not red)
+
+- [ ] Multi-section forms use titled `SectionCard`/fieldset rhythm, not flat stacks of 20 inputs.
+- [ ] Card chrome around the body only when emphasis is intended (default: none).
+
+---

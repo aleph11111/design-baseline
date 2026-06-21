@@ -2,7 +2,7 @@
 key: F2
 slug: tabbed-settings
 kind: page
-version: 1.0
+version: 1.1
 promoted_from: brickshop-manager
 promoted_at: 2026-05-31
 source_spec_version: 1.1
@@ -313,3 +313,31 @@ A page is conformant when **every required rule** above is satisfied:
   (router `useLocation()` in the source) became an explicit slot. Header split
   into `<SettingsPageShell>` + `<SettingsPageHeader>` to match the baseline
   form-page convention.
+
+---
+
+## Acceptance gate
+
+> **Axis-C (adoption-quality) checklist** — the canonical list a page adopting this
+> archetype is scored against (see [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md)).
+> A page that composes this archetype's shell is **conformant** only when every
+> REQUIRED box passes; one that fails any REQUIRED box is a 🔴 **wrapper adoption**,
+> routed to the teardown ritual ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](../DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)).
+> `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`; `wrapper = true`
+> when score < 1.0. **[spine]** = the shared conformance spine **S1–S6** (single inset ·
+> shell-not-hand-rolled · canonical states · atoms+tokens · mono figures · brand
+> primary), defined in [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md).
+
+**REQUIRED**
+
+- [ ] **Tabs are real section navigation**, driven by the shell + URL/state — not a
+      `Tabs` deck wrapping unrelated pages, and not faked with show/hide divs.
+- [ ] **Each panel is a form-page/settings body**, composing those primitives — tabs
+      don't excuse hand-rolled cards inside.
+- [ ] **Actions per panel follow that panel's archetype** (form → footer; table →
+      toolbar), not a global action bar straddling tabs.
+- [ ] **[spine] S1, S2, S4, S5, S6.**
+
+**SHOULD** (yellow, not red)
+
+- [ ] ≤ ~7 top-level tabs; deeper taxonomy nests inside a panel, not more top tabs.

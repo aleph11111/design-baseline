@@ -76,3 +76,32 @@ mild staleness). Types: a KPI shape + per-widget series shapes. Mutations: none
 (read-only). Mobile: the grid is already responsive; the filter bar wraps. Permissions:
 gate the whole route; gate individual widgets by hiding (not disabling) when a role
 can't see a metric.
+
+---
+
+## Acceptance gate
+
+> **Axis-C (adoption-quality) checklist** — the canonical list a page adopting this
+> archetype is scored against (see [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md)).
+> A page that composes this archetype's shell is **conformant** only when every
+> REQUIRED box passes; one that fails any REQUIRED box is a 🔴 **wrapper adoption**,
+> routed to the teardown ritual ([`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](../DETAIL-PAGE-TEARDOWN-PLAYBOOK.md)).
+> `adoptionQuality.score = REQUIRED passed ÷ REQUIRED applicable`; `wrapper = true`
+> when score < 1.0. **[spine]** = the shared conformance spine **S1–S6** (single inset ·
+> shell-not-hand-rolled · canonical states · atoms+tokens · mono figures · brand
+> primary), defined in [`docs/ADOPTION-QUALITY.md`](../ADOPTION-QUALITY.md).
+
+**REQUIRED**
+
+- [ ] **KPI row via `StatTileRow`/`StatTile`** — headline metrics in the canonical
+      tiles (mono/tabular), **not** hand-built metric `<Card>`s. *Wrapper tell:* a
+      grid of bespoke stat cards next to/instead of the tile row.
+- [ ] **Charts in titled section cards** with consistent chrome; one chart lib/token
+      palette, no literal series colors.
+- [ ] **Loading/empty/error per widget** use canonical states, not per-chart spinners.
+- [ ] **Single inset; no nested page padding** around the widget grid. **[spine] S1–S6.**
+
+**SHOULD** (yellow, not red)
+
+- [ ] Filter/date-range controls sit in one toolbar, not scattered per widget.
+- [ ] Number formatting (currency, %, deltas) is consistent and mono.
