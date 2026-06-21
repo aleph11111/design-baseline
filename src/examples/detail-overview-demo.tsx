@@ -232,6 +232,10 @@ export function DetailOverviewDemo(): React.ReactElement {
           />
         </div>
       </div>
+      {/* Muted mat — `surface="unified"` reads as one framed surface only when the
+          page behind it is muted (the app does this via AppShell's `<main>` on
+          bg-muted/30; the gallery has no AppShell, so the demo supplies it). */}
+      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <DetailOverviewShell
         layout={layout}
         surface={surface}
@@ -422,6 +426,7 @@ export function DetailOverviewDemo(): React.ReactElement {
         </DetailSection>
       }
       />
+      </div>
     </div>
   );
 }

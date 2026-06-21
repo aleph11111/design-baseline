@@ -49,7 +49,7 @@ export function StatTile({
   return (
     <div className={cn("px-5 py-4", className)}>
       <div className={OVERLINE_CLASS}>{label}</div>
-      <div className="mt-1.5 text-2xl font-semibold leading-none text-foreground tabular-nums">
+      <div className="mt-1.5 text-2xl font-mono font-semibold leading-none text-foreground tabular-nums">
         {value}
       </div>
       {hint && (

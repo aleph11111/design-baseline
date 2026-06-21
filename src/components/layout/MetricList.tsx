@@ -77,7 +77,7 @@ export function MetricRow({
       </div>
       <div
         className={cn(
-          "shrink-0 font-semibold tabular-nums",
+          "shrink-0 font-mono font-semibold tabular-nums",
           emphasis ? "text-base" : "text-sm",
           accent ? "text-primary" : "text-foreground",
         )}

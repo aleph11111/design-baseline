@@ -100,7 +100,7 @@ export function SectionCard({
             "overflow-hidden rounded-lg border",
             tone === "muted"
               ? "bg-muted/40"
-              : "bg-card text-card-foreground shadow-sm",
+              : "bg-card text-card-foreground",
           ),
         className,
       )}

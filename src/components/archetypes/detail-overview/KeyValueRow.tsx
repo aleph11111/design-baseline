@@ -62,7 +62,7 @@ export function KeyValueRow({
       )}
     >
       <dt className="shrink-0 text-sm text-muted-foreground">{label}</dt>
-      <dd className="min-w-0 text-right text-sm font-medium text-foreground tabular-nums">
+      <dd className="min-w-0 text-right text-sm font-mono font-medium text-foreground tabular-nums">
         {value}
       </dd>
     </div>

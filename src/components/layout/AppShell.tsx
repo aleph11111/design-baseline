@@ -23,7 +23,7 @@ export function AppShell({ sidebar, header, children, defaultSidebarOpen = true 
                 Pages and archetype shells render content WITHOUT their own outer
                 px-6/py-6 — adding it double-insets. One owner = no per-page drift.
                 See docs/STYLE.md "Spacing & rhythm". */}
-            <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
+            <main className="flex-1 bg-muted/30 p-4 md:p-6 overflow-auto">{children}</main>
           </div>
         </div>
       </SidebarProvider>

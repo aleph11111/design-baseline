@@ -71,14 +71,32 @@ The baseline uses Tailwind's 4 px scale. A handful of values carry consistent *m
 
 ### Typography
 
-No custom font is bundled. The baseline relies on the system stack from Tailwind. Set a custom font in the target project: either via `next/font` (Next.js) or a `@font-face`/`<link>` in `index.html` (Vite). Then add the family to a top-level wrapper class.
+**House style B — "Plex Ledger" (2026-06-21).** The house face is **IBM Plex Sans**;
+all figures (money / IDs / quantities / dates) render `font-mono tabular-nums` in
+**IBM Plex Mono**. The families are registered as `--font-sans` / `--font-mono` in
+`tokens.css @theme`; each app loads them in its entry (Next: `next/font/google`;
+Vite/gallery: a `<link>` in `index.html`). Prose, labels, and names stay
+`font-sans`; only number cells go mono — the layout primitives (`StatTile`,
+`KeyValueRow`, `MetricRow`) already carry `font-mono` on their value, so consumers
+get it for free. The brand accent is **not** part of the house style — it stays each
+app's `--primary` override (the baseline default is neutral slate).
 
 **Heading signatures** (canonical, do not hand-roll — compose the layout primitives that own them):
 
 | Level | Token | Owned by |
 |-------|-------|----------|
 | Page title (`h1`) | `text-2xl font-semibold tracking-tight` | `PageHeader` |
-| Section title (`h2`) | `text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground` ("ledger overline") | `SectionHeading` |
+| Section title (`h2`) | `text-xs font-semibold uppercase tracking-[0.09em] text-muted-foreground` ("ledger overline") | `SectionHeading` |
+
+### Surfaces
+
+The default section surface (`SectionCard` default tone) is a **flat hairline** card
+— `border`, no shadow — so cards read as fitted panels, not floaters. Shadow
+(`shadow-sm`) is reserved for genuinely **raised** surfaces: modals, popovers, and
+the detail-overview `surface="unified"` **outer frame** (the one elevated surface on
+the page). `surface="unified"` depends on the page behind the frame being muted
+(`AppShell`'s `<main>` is `bg-muted/30`); on a white page the frame has no edge and
+the effect collapses.
 
 ## Component inventory (`src/components/ui/`)
 
