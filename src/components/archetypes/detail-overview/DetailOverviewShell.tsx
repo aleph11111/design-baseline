@@ -56,8 +56,22 @@ export type DetailOverviewShellProps = {
    * - "md" (`max-w-3xl`): the record-page default — ruled rows and stat
    *   strips read best in a contained column.
    * - "lg" / "xl": wider single-column layouts.
+   *
+   * Ignored when `layout="rail"` — the rail variant manages its own widths.
    */
   width?: "none" | "md" | "lg" | "xl";
+  /**
+   * Page layout (Amendment v2.1 — the Command Rail variant).
+   * - "vertical" (default): the canonical v2.0 stack — slots rendered top to
+   *   bottom in canonical order. Zero churn for existing pages.
+   * - "rail": on `lg+`, a full-width `header` over a two-column Command Rail —
+   *   a sticky left identity rail (`summary` + `references`) beside a scrolling
+   *   main column (`stats` + `content`). Below `lg` it collapses to the exact
+   *   canonical vertical order, so it is the *same archetype*, only reflowed in
+   *   2D on wide viewports. Use for dense, transactional, financial entities
+   *   (orders, deals/opportunities, invoices); stay "vertical" for light ones.
+   */
+  layout?: "vertical" | "rail";
   className?: string;
 };
 
@@ -78,9 +92,14 @@ export type DetailOverviewShellProps = {
  * Renders a vertical stack with one of two rhythm presets and an optional
  * max-width clamp.
  *
- * The shell is **vertical only**. No horizontal columns, no sidebars. If a
- * sidebar is genuinely needed, the page is mis-classified (consider archetype
- * A — list-with-detail).
+ * Two sanctioned layouts (Amendment v2.1):
+ * - `layout="vertical"` (default): the v2.0 single-column stack.
+ * - `layout="rail"`: the Command Rail — a sticky left identity rail beside a
+ *   scrolling main column on `lg+`, collapsing to the exact same canonical
+ *   vertical order below `lg`. The rail is shell-owned: pages never hand-roll a
+ *   sidebar. There is never a second scroll container — the page scrolls and
+ *   the rail is `position: sticky`, which is what keeps it the *same* archetype
+ *   and preserves mobile parity.
  */
 export function DetailOverviewShell({
   header,
@@ -90,8 +109,54 @@ export function DetailOverviewShell({
   references,
   rhythm = "default",
   width = "none",
+  layout = "vertical",
   className,
 }: DetailOverviewShellProps): React.ReactElement {
+  if (layout === "rail") {
+    // Command Rail. The slots are rendered ONCE, in canonical source order
+    // (header → summary → stats → content → references), so below `lg` — where
+    // the grid is inert — they stack in the exact v2.0 vertical order and no
+    // node is duplicated or double-mounted. On `lg+` an explicit grid placement
+    // reflows them into two columns WITHOUT changing source order:
+    //   col 1 (aside): summary (rows 2–3, sticky) over references (row 4)
+    //   col 2 (main):  stats (row 2) over content (row 3)
+    // `summary` spans the main column's rows so its sticky box has the full
+    // scroll height to pin against — the identity/figures stay on screen while
+    // the long transactional body scrolls. `references` sits at the foot of the
+    // aside. This is the §4/§5 contract met with single instances.
+    return (
+      <div
+        className={cn(
+          RHYTHM_MAP[rhythm],
+          "lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-x-6 lg:gap-y-5 lg:space-y-0 lg:items-start",
+          className,
+        )}
+      >
+        {header && (
+          <div className="lg:col-span-2 lg:col-start-1 lg:row-start-1">
+            {header}
+          </div>
+        )}
+        {summary && (
+          <div className="lg:col-start-1 lg:row-start-2 lg:row-span-2 lg:sticky lg:top-6 lg:self-start">
+            {summary}
+          </div>
+        )}
+        {stats && (
+          <div className="lg:col-start-2 lg:row-start-2">{stats}</div>
+        )}
+        {content && (
+          <div className={cn("lg:col-start-2 lg:row-start-3", RHYTHM_MAP[rhythm])}>
+            {content}
+          </div>
+        )}
+        {references && (
+          <div className="lg:col-start-1 lg:row-start-4">{references}</div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(

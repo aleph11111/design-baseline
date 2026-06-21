@@ -10,6 +10,10 @@
  *     order the shell enforces: header → summary → stats → content →
  *     references (master data → aggregates → transactional data).
  *     `width="md"` (the record-page default), default `space-y-5` rhythm.
+ *   - Layout variant (v2.1) — a Vertical | Command rail toggle drives the
+ *     shell's `layout` prop. Rail pins `summary` (+ `references`) in a sticky
+ *     left rail beside the scrolling `stats`/`content` column on `lg+`, and
+ *     collapses to the exact same canonical vertical order below `lg`.
  *   - DetailOverviewHeader (Mode A — standalone): title, subtitle linking
  *     "back" to a parent collection, right-aligned actions row.
  *   - DetailSection (ledger design) as the bounded surface for every non-stat
@@ -27,10 +31,11 @@
  */
 
 import * as React from "react";
-import { Star } from "lucide-react";
+import { PanelLeft, Rows3, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   DetailOverviewShell,
   DetailOverviewHeader,
@@ -173,6 +178,9 @@ const SAMPLE_ENTRY: BoardGameEntry = {
 
 export function DetailOverviewDemo(): React.ReactElement {
   const entry = SAMPLE_ENTRY;
+  // Layout variant (Amendment v2.1): the same slots, two sanctioned placements.
+  // Default to "rail" so the new Command Rail variant is what the gallery shows.
+  const [layout, setLayout] = React.useState<"vertical" | "rail">("rail");
   // Editability variant (inline-edit): a section whose body swaps a read-only
   // value for an editable control in place — the same DetailSection, no new prop.
   const [editingNotes, setEditingNotes] = React.useState(false);
@@ -188,9 +196,28 @@ export function DetailOverviewDemo(): React.ReactElement {
       : null;
 
   return (
-    <DetailOverviewShell
-      width="md"
-      header={
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="max-w-prose text-sm text-muted-foreground">
+          Layout variant (Amendment v2.1) — the <strong>Command Rail</strong>{" "}
+          pins identity and figures in a sticky left rail while the
+          transactional body scrolls; it collapses to the canonical vertical
+          stack below <code className="text-xs">lg</code>.
+        </p>
+        <SegmentedControl
+          aria-label="Detail-overview layout"
+          value={layout}
+          onValueChange={setLayout}
+          options={[
+            { value: "rail", label: "Command rail", icon: PanelLeft },
+            { value: "vertical", label: "Vertical", icon: Rows3 },
+          ]}
+        />
+      </div>
+      <DetailOverviewShell
+        layout={layout}
+        width="md"
+        header={
         <DetailOverviewHeader
           title={entry.title}
           subtitle={
@@ -375,7 +402,8 @@ export function DetailOverviewDemo(): React.ReactElement {
           </ul>
         </DetailSection>
       }
-    />
+      />
+    </div>
   );
 }
 

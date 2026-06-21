@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 2.0
+version: 2.1
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.0
@@ -12,6 +12,18 @@ blueprint: docs/archetypes/detail-overview-blueprint.svg
 
 # Archetype C — Detail Overview
 
+> **v2.1 (2026-06-21) — the Command Rail variant.** The shell gains a second
+> sanctioned layout, `layout="rail"` (default still `"vertical"`): a sticky left
+> identity rail (`summary` + `references`) beside a scrolling main column
+> (`stats` + `content`) on `lg+`, collapsing to the exact canonical vertical
+> order below `lg`. This reverts v2.0's blanket prohibition on horizontal
+> layouts — but *only* through this shell-owned variant; ad-hoc sidebars and
+> hand-rolled columns stay forbidden. The slot model, story order, taxonomy,
+> data contract, and graded surfaces are all unchanged; the rail only changes
+> how the same ordered slots are placed in 2D on wide viewports. Additive,
+> backward-compatible (no API removed, default unchanged). See
+> "Layout variants — vertical & Command Rail" below.
+>
 > **v2.0 (2026-06-12) — fixed-blueprint upgrade.** The shell now owns the page
 > layout via named slots in a canonical order (header → summary → stats →
 > content → references: master data, then aggregates, then transactional
@@ -105,6 +117,97 @@ merely forbidden.
 
 ---
 
+## Layout variants — vertical & Command Rail
+
+The archetype has **two sanctioned layouts**. Both render the *same* named
+slots in the *same* canonical story order (master data → aggregates →
+transactional → references); they differ only in how the slots are placed in 2D
+on wide viewports. Choose with the `layout` prop on `<DetailOverviewShell>`.
+
+### When to use which
+
+| Entity profile | Layout |
+|---|---|
+| Dense + transactional + financial — **orders, deals/opportunities, invoices** | **`layout="rail"`** |
+| Light / early-stage — **leads, inquiries, simple contacts** | **`layout="vertical"`** (default). Rail is *allowed* but mostly empty — prefer vertical. |
+| Any entity below the `lg` breakpoint | Rail **auto-collapses to vertical** (see "Responsive contract") |
+
+Rule of thumb: if the page has ≥ 2 headline metrics **and** a long
+transactional body, use the rail. Otherwise stay vertical.
+
+### Rail slot placement (`lg+`)
+
+The header spans full width as a top bar. The remaining slots split across two
+columns; **reading order is preserved** — rail top→bottom, then main
+top→bottom, tells the same story.
+
+```
+┌───────────────────────────────────────────────────────────┐
+│  header  (back · breadcrumb · status badges · actions)      │  full width
+├───────────────┬───────────────────────────────────────────┤
+│  RAIL (aside) │  MAIN (scrolls)                             │
+│  ~300px,sticky│   stats        (StatTileRow — aggregates)   │
+│  summary      │   content[0…n] (transactional islands)      │
+│   (master     │                                             │
+│    data +     │                                             │
+│    compact    │                                             │
+│    metrics)   │                                             │
+│  references   │                                             │
+└───────────────┴───────────────────────────────────────────┘
+```
+
+| Slot | Rail placement |
+|---|---|
+| `header` | Full-width top bar (back, breadcrumb, status badges, actions + primary CTA) |
+| `summary` | **Aside** — master-data `<KeyValueList>` + an optional compact metric readout (see note). Sticky on `lg+`. |
+| `stats` | **Main**, top — `<StatTileRow>`. *May be omitted* when its 2–4 metrics are surfaced as the rail's compact readout instead (recommended for the rail variant, to avoid duplication). |
+| `content` | **Main** — the transactional sections in declaration order |
+| `references` | **Aside**, bottom (documents, linked records, external links) |
+
+**Compact metric readout (rail).** In the rail variant the `summary` slot may
+lead with a condensed, ruled metric list (label left, tabular value right, a
+"show more" disclosure for secondary figures) instead of the full
+`<StatTileRow>` — the "financials at a glance" affordance. It is still
+`summary`-slot master data, still ruled rows, **no new primitive**. Because
+`summary` is rendered once and placed into both the sticky aside (desktop) and
+the canonical vertical flow (mobile), keep it presentation-only — stateful
+edit islands belong in `content`, not in `summary` or `references`.
+
+### Responsive contract (the compliance keystone)
+
+Below `lg`, `layout="rail"` **collapses to the canonical vertical order**:
+`header → summary → stats → content → references`. The rail is purely a wide-
+viewport reflow of the same ordered slots; it never introduces a second scroll
+region, and it degrades to the vertical layout exactly. This is what keeps the
+rail variant *the same archetype* rather than a fork.
+
+- The aside is `lg:sticky lg:top-6 self-start`, its own `~300px` column on
+  `lg+`; full-width stacked above main below `lg`.
+- **No nested scroll containers** — the page scrolls; the rail is
+  `position: sticky`, not independently scrollable. The rail must never become a
+  second scroll surface; that rule preserves the single-surface mental model and
+  mobile parity.
+- Stat strip / metric readout keep their `grid-cols-1 → sm:grid-cols-N` ramp.
+
+### API
+
+```tsx
+<DetailOverviewShell
+  layout="rail"            // "vertical" (default) | "rail"
+  header={<DetailOverviewHeader … />}
+  summary={…}              // → aside (master data + optional compact metrics)
+  stats={…}                // → main top (omit if surfaced in summary)
+  content={<>…</>}         // → main
+  references={…}           // → aside bottom
+/>
+```
+
+`layout` defaults to `"vertical"` → zero churn for existing pages. Future rail
+tweaks propagate baseline-wide via `/style-archetypes --update`, same as any
+other shell-owned layout iteration.
+
+---
+
 ## Layer 1 — Route config
 
 **Required:**
@@ -135,12 +238,18 @@ merely forbidden.
 - `width="md"` (`max-w-3xl`) is the record-page default — ruled rows and the
   stat strip read best in a contained column. Use `width="none"` only when
   the page carries wide embedded tables that need the full content column.
+- `layout="rail"` (default `"vertical"`) renders the slots in the two-column
+  Command Rail placement (see "Layout variants" below) on `lg+` and collapses
+  to the canonical vertical order below `lg`. `width` is ignored when
+  `layout="rail"` (the rail variant manages its own widths).
 
 **Forbidden:**
-- Horizontal layouts (sidebars, side-by-side columns) at the page level. The
-  detail-overview archetype is vertical only. If a sidebar is genuinely needed,
-  the page is mis-classified — consider a list-with-detail layout or a custom
-  shape.
+- Horizontal layouts are permitted **only** through the sanctioned
+  `layout="rail"` variant of `<DetailOverviewShell>` (Amendment v2.1). Ad-hoc
+  sidebars, hand-rolled side-by-side columns, or any second scroll container
+  remain forbidden — the rail is a shell-owned layout, not a per-page
+  flex/grid. If a page needs a sidebar that the rail does not provide, it is
+  mis-classified — consider a list-with-detail layout or a custom shape.
 - Direct `<main>` / `<section>` semantics at the shell level — those belong to
   the app layout above the page.
 
@@ -226,8 +335,10 @@ Mix per section as the domain needs; the slot order and section chrome are uncha
   `children` prop — this no longer compiles).
 - Wrapping the entire page in a single `<Card>` (cards belong to individual
   sections, not the whole page).
-- Hand-rolled flex/grid containers at the shell level. The shell is a vertical
-  stack only.
+- Hand-rolled flex/grid containers at the shell level. The shell owns its
+  layout: a vertical stack (`layout="vertical"`) or the Command Rail
+  (`layout="rail"`). Consumers never add their own page-level columns — the only
+  horizontal layout is the shell-owned rail variant.
 
 ---
 
@@ -463,8 +574,9 @@ domain:
 1. **Toolbar.** No filter/search/pill bar. The entity is already resolved.
 2. **Pagination, sorting, or row-action menus at the page level.** Those belong
    to embedded list-with-detail surfaces or list pages, not here.
-3. **Horizontal layouts** (sidebars, side-by-side columns) at the shell level.
-   Detail-overview is vertical.
+3. **Ad-hoc horizontal layouts.** Side-by-side columns or sidebars created with
+   page-level flex/grid. The **only** permitted horizontal layout is the
+   shell-owned `layout="rail"` variant (v2.1).
 4. **Page-level `'use client'`.** Mutations belong to child islands.
 5. **Inline error fallback UI.** Use `error.tsx`.
 6. **Fixed `grid-cols-*` without responsive ramp.** Always collapse to one
