@@ -8,4 +8,4 @@
  * Compose with `cn(OVERLINE_CLASS, "…extra…")` — never re-type the string.
  */
 export const OVERLINE_CLASS =
-  "text-xs font-semibold uppercase tracking-[0.09em] text-muted-foreground";
+  "text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground";

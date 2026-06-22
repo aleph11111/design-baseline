@@ -66,19 +66,19 @@ export function MetricRow({
         <div
           className={cn(
             "font-medium text-foreground",
-            emphasis ? "text-sm" : "text-sm text-muted-foreground",
+            emphasis ? "text-[13px]" : "text-[13px] text-muted-foreground",
           )}
         >
           {label}
         </div>
         {hint && (
-          <div className="mt-0.5 text-xs text-muted-foreground">{hint}</div>
+          <div className="mt-0.5 text-[10.5px] text-muted-foreground">{hint}</div>
         )}
       </div>
       <div
         className={cn(
           "shrink-0 font-mono font-semibold tabular-nums",
-          emphasis ? "text-base" : "text-sm",
+          emphasis ? "text-base" : "text-[13px]",
           accent ? "text-primary" : "text-foreground",
         )}
       >

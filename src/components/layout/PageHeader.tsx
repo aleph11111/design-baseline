@@ -102,12 +102,12 @@ export function PageHeader({
             {Icon && (
               <Icon className="h-6 w-6 shrink-0 text-muted-foreground" />
             )}
-            <h1 className="text-2xl font-semibold leading-tight tracking-tight text-foreground">
+            <h1 className="text-lg font-semibold leading-tight tracking-tight text-foreground">
               {title}
             </h1>
           </div>
           {subtitle && (
-            <p className="text-sm text-muted-foreground">{subtitle}</p>
+            <p className="text-xs text-muted-foreground">{subtitle}</p>
           )}
         </div>
         {actions && (

@@ -81,12 +81,19 @@ Vite/gallery: a `<link>` in `index.html`). Prose, labels, and names stay
 get it for free. The brand accent is **not** part of the house style — it stays each
 app's `--primary` override (the baseline default is neutral slate).
 
+**Ledger type scale.** House style B runs a tight scale — every step ~1–2px below
+a conventional UI: page title `text-lg` (18px), overlines `text-[10.5px]`, ledger
+body (`KeyValueRow`/`MetricRow`/embedded tables) `text-[13px]`, headline figures
+`text-base` (16px). Numbers stay mono; prose/notes keep `text-sm` for readability.
+This density is part of the Plex Ledger voice — apply the same step-down to new
+ledger surfaces rather than reaching for the default `text-sm`/`text-xs`.
+
 **Heading signatures** (canonical, do not hand-roll — compose the layout primitives that own them):
 
 | Level | Token | Owned by |
 |-------|-------|----------|
-| Page title (`h1`) | `text-2xl font-semibold tracking-tight` | `PageHeader` |
-| Section title (`h2`) | `text-xs font-semibold uppercase tracking-[0.09em] text-muted-foreground` ("ledger overline") | `SectionHeading` |
+| Page title (`h1`) | `text-lg font-semibold tracking-tight` | `PageHeader` |
+| Section title (`h2`) | `text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground` ("ledger overline") | `SectionHeading` |
 
 ### Surfaces
 
@@ -139,7 +146,7 @@ Archetypes are optional — projects that don't want the page-shape vocabulary c
 | `AppShell`    | Top-level composition — mounts `TooltipProvider`, `SidebarProvider`, `<Toaster>`, `<Sonner>`. Slots: `sidebar`, `header`, `children`. |
 | `AppSidebar`  | Brand + collapsible nav groups + footer. Takes `navItems`/`groups` + a `renderLink` prop so it stays router-agnostic. Persists collapsed groups to `localStorage`. |
 | `AppHeader`   | Title + center slot (search) + right slot (actions, user menu). Sidebar trigger on mobile. |
-| `PageHeader`  | Canonical **page** title block (distinct from the app `AppHeader`): title + optional subtitle / icon / actions / back-link. The single source of page-title typography — `text-2xl font-semibold tracking-tight`. The archetype headers (`FormPageHeader`, `SettingsPageHeader`, `DetailOverviewHeader`) are thin wrappers that narrow its prop surface to their contract. Router-agnostic via `renderBackLink`. |
+| `PageHeader`  | Canonical **page** title block (distinct from the app `AppHeader`): title + optional subtitle / icon / actions / back-link. The single source of page-title typography — `text-lg font-semibold tracking-tight`. The archetype headers (`FormPageHeader`, `SettingsPageHeader`, `DetailOverviewHeader`) are thin wrappers that narrow its prop surface to their contract. Router-agnostic via `renderBackLink`. |
 | `SectionHeading` | Canonical **section** title — the "ledger" overline `<h2>` (`text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground`) + optional description / actions. The single source of sub-section title typography. Usually consumed via `SectionCard` (below); use it directly only for a bare heading with no bounding card. |
 | `SectionCard` | Canonical **titled bounded section** — a card with an optional ruled `SectionHeading` title bar (+ description / actions slot) and a flush-or-padded body, graded by `tone`. The single source of the "heading bound to its content as one block" shape. Composed by `DetailSection` (detail-overview), grouped-list groups, and form-page field groups. A section heading should never float as plain text above a detached card — wrap the block in `SectionCard`. `chrome={false}` renders it chromeless (title bar + padding, no border/shadow) for embedding inside an already-bounded surface (e.g. the detail-overview `surface="unified"` shell). |
 | `StatTileRow` / `StatTile` | Canonical **KPI / aggregate strip** — one bounded surface with hairline-divided cells (`StatTile`: overline label + `text-2xl tabular-nums` value + optional hint). Shared across archetypes: detail-overview's `stats` slot and the analytics-dashboard KPI row. (Re-exported from `@/components/archetypes/detail-overview` for back-compat.) |
