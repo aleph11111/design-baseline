@@ -87,12 +87,12 @@ function HBars({ data }: { data: { label: string; value: number }[] }) {
   return (
     <div className="space-y-2">
       {data.map((d) => (
-        <div key={d.label} className="flex items-center gap-2 text-sm">
+        <div key={d.label} className="flex items-center gap-2 text-[13px]">
           <span className="w-24 shrink-0 truncate text-muted-foreground">{d.label}</span>
           <div className="h-3 flex-1 rounded bg-muted">
             <div className="h-3 rounded bg-primary/70" style={{ width: `${(d.value / max) * 100}%` }} />
           </div>
-          <span className="w-10 shrink-0 text-right tabular-nums text-muted-foreground">
+          <span className="w-10 shrink-0 text-right font-mono tabular-nums text-muted-foreground">
             {d.value}
           </span>
         </div>
@@ -109,7 +109,7 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
   const k = KPIS[period];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
         title="Revenue analytics"
         subtitle="Sales performance across channels and categories."

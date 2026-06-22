@@ -63,7 +63,7 @@ const columns: ListColumn<Recipe>[] = [
   {
     key: "prep",
     header: "Prep",
-    cell: (r) => `${r.prepMinutes} min`,
+    cell: (r) => <span className="font-mono tabular-nums">{r.prepMinutes} min</span>,
     align: "right",
   },
   {
@@ -110,7 +110,7 @@ export function GroupedListDemo() {
   }, [search]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader title="Recipe book" subtitle="Browse recipes grouped by cuisine." />
 
       <GroupedListShell

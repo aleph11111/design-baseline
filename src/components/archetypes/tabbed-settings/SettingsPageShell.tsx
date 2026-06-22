@@ -48,7 +48,7 @@ export type SettingsPageShellProps = SettingsPageHeaderProps & {
  *   - <ErrorBoundary> wrapping all page content
  *   - an optional breadcrumb slot
  *   - <SettingsPageHeader> (title + optional subtitle / icon / actions)
- *   - a `space-y-6` body container with no outer padding
+ *   - a `space-y-5` body container with no outer padding
  *
  * The outer container intentionally omits padding — a settings layout route is
  * expected to supply the page inset. A standalone page (rendered outside such a
@@ -67,7 +67,7 @@ export function SettingsPageShell({
 }: SettingsPageShellProps): React.ReactElement {
   return (
     <ErrorBoundary>
-      <div className={cn("space-y-6", className)}>
+      <div className={cn("space-y-5", className)}>
         {breadcrumbs}
         <SettingsPageHeader {...header} />
         {children}

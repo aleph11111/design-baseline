@@ -106,7 +106,7 @@ function MatrixGridShellInner<Cell>({
         className,
       )}
     >
-      <table className="text-sm border-collapse">
+      <table className="text-[13px] border-collapse">
         <thead>
           {hasAnyGroup && (
             <tr className="bg-muted/50 border-b border-border">

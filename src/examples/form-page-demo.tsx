@@ -279,7 +279,7 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
       <FormPageHeader title={title} subtitle={subtitle} icon={ChefHat} />
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           {/* 3+ logical groups → each wrapped in a SectionCard (form-page spec
               Layer 5). The field weight is what makes this a page, not a dialog. */}
           <SectionCard title="Basics">
@@ -562,7 +562,7 @@ export function FormPageDemo(): React.ReactElement {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
         title="Recipe Library"
         subtitle="B (form-page) archetype demo — recipe domain"
@@ -575,7 +575,7 @@ export function FormPageDemo(): React.ReactElement {
         </div>
       )}
 
-      <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
+      <div className="rounded-lg border bg-card overflow-hidden">
         <div className="border-b px-4 py-3 flex items-center justify-between">
           <span className="text-sm text-muted-foreground">
             {recipes.length} recipe{recipes.length !== 1 ? "s" : ""}
@@ -609,7 +609,7 @@ export function FormPageDemo(): React.ReactElement {
                     {r.title}
                   </TableCell>
                   <TableCell>{CUISINE_LABELS[r.cuisine]}</TableCell>
-                  <TableCell className="text-right">{r.serves}</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums">{r.serves}</TableCell>
                   <TableCell className="text-muted-foreground">
                     {r.tag || "—"}
                   </TableCell>

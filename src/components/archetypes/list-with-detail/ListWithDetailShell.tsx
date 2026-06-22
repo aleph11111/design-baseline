@@ -251,7 +251,7 @@ function ListWithDetailShellInner<Row>(
                       alignClass(col.align),
                       isIdentifier && "text-primary hover:underline",
                       isIdentifier && onRowSelect !== undefined && "cursor-pointer",
-                      useMono && "font-mono text-sm font-medium",
+                      useMono && "font-mono text-[13px] font-medium",
                     )}
                     onClick={
                       isIdentifier && onRowSelect !== undefined
@@ -290,7 +290,7 @@ function ListWithDetailShellInner<Row>(
               data-state={isSelected ? "selected" : undefined}
               onClick={clickable ? () => handleRowSelect(row) : undefined}
               className={cn(
-                "rounded-lg border bg-card p-4 shadow-sm transition-colors",
+                "rounded-lg border bg-card p-4 transition-colors",
                 clickable && "cursor-pointer hover:bg-accent",
                 isSelected && "ring-2 ring-ring",
               )}
@@ -311,7 +311,7 @@ function ListWithDetailShellInner<Row>(
                   .map((col) => (
                     <div
                       key={col.key}
-                      className="flex items-baseline justify-between gap-3 text-sm"
+                      className="flex items-baseline justify-between gap-3 text-[13px]"
                     >
                       <dt className="shrink-0 text-muted-foreground">{col.header}</dt>
                       <dd className="min-w-0 text-right text-foreground tabular-nums">
@@ -349,7 +349,7 @@ function ListWithDetailShellInner<Row>(
                   {idCol ? idCol.cell(row) : null}
                 </div>
                 {secondary.length > 0 && (
-                  <div className="mt-0.5 flex flex-wrap gap-x-3 text-sm text-muted-foreground">
+                  <div className="mt-0.5 flex flex-wrap gap-x-3 text-[11px] text-muted-foreground">
                     {secondary.map((col) => (
                       <span key={col.key} className="truncate">
                         {col.cell(row)}
@@ -406,7 +406,7 @@ function ListWithDetailShellInner<Row>(
   return (
     <div
       className={cn(
-        !unstyled && "rounded-lg border bg-card shadow-sm overflow-hidden",
+        !unstyled && "rounded-lg border bg-card overflow-hidden",
         className,
       )}
     >

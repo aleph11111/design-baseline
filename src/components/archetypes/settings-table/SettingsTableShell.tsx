@@ -308,7 +308,7 @@ export function SettingsTableShell<Row>({
   return (
     <div
       className={cn(
-        "rounded-lg border bg-card shadow-sm overflow-hidden",
+        "rounded-lg border bg-card overflow-hidden",
         className,
       )}
     >

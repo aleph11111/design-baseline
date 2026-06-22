@@ -14,7 +14,7 @@ export const BoardCard = React.forwardRef<HTMLDivElement, BoardCardProps>(
     <div
       ref={ref}
       className={cn(
-        "rounded-md border bg-card p-3 text-sm shadow-sm",
+        "rounded-md border bg-card p-3 text-[13px]",
         rest.onClick && "cursor-pointer",
         rest.draggable && "cursor-grab active:cursor-grabbing",
         className,

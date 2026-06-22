@@ -119,7 +119,7 @@ function InboxDemo(): React.ReactElement {
   }
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-5">
       <PageHeader
         title="Notifications"
         subtitle={unreadCount > 0 ? `${unreadCount} unread` : "You're all caught up."}
@@ -177,7 +177,7 @@ function InboxDemo(): React.ReactElement {
 
 function TimelineDemo(): React.ReactElement {
   return (
-    <section className="space-y-6">
+    <section className="space-y-5">
       <PageHeader
         title="Activity"
         subtitle="A chronological media & event feed — body excerpt + trailing thumbnail, no read state."

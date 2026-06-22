@@ -51,7 +51,7 @@ export function WizardShell({
   const stepLabel = steps[current]?.label;
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("space-y-5", className)}>
       <WizardStepper steps={steps} current={current} />
 
       <SectionCard title={stepLabel}>{children}</SectionCard>

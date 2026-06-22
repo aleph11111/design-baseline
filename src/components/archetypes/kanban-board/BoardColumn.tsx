@@ -30,7 +30,7 @@ export const BoardColumn = React.forwardRef<HTMLDivElement, BoardColumnProps>(
       <div className="flex items-center gap-2 border-b border-border px-3 py-2">
         <h3 className={OVERLINE_CLASS}>{title}</h3>
         {count !== undefined && (
-          <span className="text-xs tabular-nums text-muted-foreground">{count}</span>
+          <span className="font-mono text-xs tabular-nums text-muted-foreground">{count}</span>
         )}
         {actions && <div className="ml-auto flex items-center">{actions}</div>}
       </div>

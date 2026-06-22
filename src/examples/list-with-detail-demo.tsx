@@ -54,10 +54,14 @@ const columns: ListColumn<Podcast>[] = [
   {
     key: "episodes",
     header: "Episodes",
-    cell: (p) => p.episodeCount,
+    cell: (p) => <span className="font-mono tabular-nums">{p.episodeCount}</span>,
     align: "right",
   },
-  { key: "last", header: "Last published", cell: (p) => p.lastPublishedAt },
+  {
+    key: "last",
+    header: "Last published",
+    cell: (p) => <span className="font-mono tabular-nums">{p.lastPublishedAt}</span>,
+  },
   { key: "category", header: "Category", cell: (p) => p.category },
 ];
 
@@ -106,7 +110,7 @@ export function ListWithDetailDemo() {
             <h3 className="font-medium">{selected.title}</h3>
             <p className="text-muted-foreground text-sm">by {selected.host}</p>
             <p className="text-muted-foreground text-sm mt-2">
-              {selected.episodeCount} episodes · {selected.category}
+              <span className="font-mono tabular-nums">{selected.episodeCount}</span> episodes · {selected.category}
             </p>
           </div>
         ) : (

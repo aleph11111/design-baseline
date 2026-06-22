@@ -44,7 +44,7 @@ export function GroupedListShell({
   const showSections = !showLoading && !showError && !showEmpty;
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("space-y-5", className)}>
       {/* Page-level toolbar: a bare flex row (no card chrome) — the same
           standalone-toolbar treatment as feed-inbox. The grouped sections below
           supply their own card boundaries. */}
@@ -58,7 +58,7 @@ export function GroupedListShell({
         <StateView variant="empty" message={emptyMessage ?? "No items yet"} />
       )}
 
-      {showSections && <div className="space-y-8">{children}</div>}
+      {showSections && <div className="space-y-5">{children}</div>}
     </div>
   );
 }

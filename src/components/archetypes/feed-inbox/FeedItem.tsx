@@ -70,17 +70,17 @@ export function FeedItem({
       <div className="min-w-0 flex-1">
         <div
           className={cn(
-            "text-sm text-foreground",
+            "text-[13px] text-foreground",
             unread ? "font-medium" : "font-normal",
           )}
         >
           {title}
         </div>
         {meta && (
-          <div className="mt-0.5 text-xs text-muted-foreground">{meta}</div>
+          <div className="mt-0.5 font-mono text-[11px] tabular-nums text-muted-foreground">{meta}</div>
         )}
         {body && (
-          <div className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+          <div className="mt-1 line-clamp-2 text-[13px] text-muted-foreground">
             {body}
           </div>
         )}

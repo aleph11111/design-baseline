@@ -279,7 +279,7 @@ function WorkoutDialog({
                 <FormItem>
                   <FormLabel>Date</FormLabel>
                   {isView ? (
-                    <p className="text-sm text-foreground">{field.value || "—"}</p>
+                    <p className="text-sm font-mono tabular-nums text-foreground">{field.value || "—"}</p>
                   ) : (
                     <FormControl>
                       <Input type="date" {...field} />
@@ -330,7 +330,7 @@ function WorkoutDialog({
                   <FormItem>
                     <FormLabel>Duration (min)</FormLabel>
                     {isView ? (
-                      <p className="text-sm text-foreground">{field.value}</p>
+                      <p className="text-sm font-mono tabular-nums text-foreground">{field.value}</p>
                     ) : (
                       <FormControl>
                         <Input
@@ -432,7 +432,7 @@ export function CrudDialogDemo(): React.ReactElement {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
         title="Fitness Log"
         subtitle="J (crud-dialog) archetype demo — workout domain"
@@ -446,7 +446,7 @@ export function CrudDialogDemo(): React.ReactElement {
       )}
 
       {/* Workout list */}
-      <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
+      <div className="rounded-lg border bg-card overflow-hidden">
         <div className="border-b px-4 py-3 flex items-center justify-between">
           <span className="text-sm text-muted-foreground">
             {workouts.length} workout{workouts.length !== 1 ? "s" : ""}
@@ -481,7 +481,7 @@ export function CrudDialogDemo(): React.ReactElement {
                     {w.date}
                   </TableCell>
                   <TableCell>{KIND_LABELS[w.kind]}</TableCell>
-                  <TableCell className="text-right">{w.durationMinutes} min</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums">{w.durationMinutes} min</TableCell>
                   <TableCell className="text-muted-foreground truncate max-w-[16rem]">
                     {w.notes || "—"}
                   </TableCell>

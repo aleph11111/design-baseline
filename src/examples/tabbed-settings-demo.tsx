@@ -184,7 +184,7 @@ export function TabbedSettingsDemo() {
               <div className="flex items-center justify-between rounded-md border px-4 py-3">
                 <div>
                   <p className="text-sm font-medium">Mark new episodes explicit</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground">
                     Applied to every newly published episode by default.
                   </p>
                 </div>
@@ -232,7 +232,7 @@ export function TabbedSettingsDemo() {
                         {channel.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">{channel.episodes}</TableCell>
+                    <TableCell className="text-right font-mono tabular-nums">{channel.episodes}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -277,7 +277,7 @@ export function TabbedSettingsDemo() {
               "No unsaved changes across tabs."
             )}
           </span>
-          <span>Workspace ID: ws_8f21</span>
+          <span>Workspace ID: <span className="font-mono tabular-nums">ws_8f21</span></span>
         </div>
       </SettingsPageShell>
     </div>

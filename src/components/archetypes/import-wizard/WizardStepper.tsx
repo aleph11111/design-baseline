@@ -32,7 +32,7 @@ export function WizardStepper({
             <div className="flex items-center gap-2">
               <span
                 className={cn(
-                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
+                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border font-mono text-xs font-semibold tabular-nums",
                   done && "border-primary bg-primary text-primary-foreground",
                   active && "border-primary text-primary ring-2 ring-ring",
                   !done && !active && "border-border text-muted-foreground",

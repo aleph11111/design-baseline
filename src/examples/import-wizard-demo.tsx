@@ -72,7 +72,7 @@ export function ImportWizardDemo(): React.ReactElement {
     return (
       <div>
         <PageHeader title="Import transactions" />
-        <div className="mt-6 flex flex-col items-center gap-3 rounded-lg border bg-card p-10 text-center shadow-sm">
+        <div className="mt-6 flex flex-col items-center gap-3 rounded-lg border bg-card p-10 text-center">
           <CheckCircle2 className="h-10 w-10 text-emerald-600" />
           <h2 className="text-lg font-semibold">Import complete</h2>
           <p className="text-sm text-muted-foreground">
@@ -94,7 +94,7 @@ export function ImportWizardDemo(): React.ReactElement {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <PageHeader
         title="Import transactions"
         subtitle="Bring in a CSV export from your bank."
@@ -178,9 +178,9 @@ export function ImportWizardDemo(): React.ReactElement {
               <TableBody>
                 {PREVIEW.map((r, i) => (
                   <TableRow key={i}>
-                    <TableCell>{r.date}</TableCell>
+                    <TableCell className="font-mono tabular-nums">{r.date}</TableCell>
                     <TableCell>{r.description}</TableCell>
-                    <TableCell className="text-right tabular-nums">{r.amount}</TableCell>
+                    <TableCell className="text-right font-mono tabular-nums">{r.amount}</TableCell>
                     <TableCell>{r.category}</TableCell>
                   </TableRow>
                 ))}
