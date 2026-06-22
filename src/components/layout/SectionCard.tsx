@@ -92,29 +92,34 @@ export function SectionCard({
   className,
 }: SectionCardProps): React.ReactElement {
   const hasBar = header !== undefined || title !== undefined;
+  const bar = header ?? (
+    <SectionHeading title={title} description={description} actions={actions} />
+  );
+
+  // Chromeless (embedded in an already-bounded surface, e.g. the unified rail):
+  // no card, and the title is a plain overline — NOT a bordered title bar — so
+  // the section reads as "overline over content" in one gutter, separated from
+  // its neighbours only by the host surface's hairline dividers. Symmetric `py-4`
+  // keeps each divider floating in whitespace.
+  if (!chrome) {
+    return (
+      <section className={cn("py-4", className)}>
+        {hasBar && <div className="mb-3 px-5">{bar}</div>}
+        {flush ? children : <div className="px-5">{children}</div>}
+      </section>
+    );
+  }
+
   return (
     <section
       className={cn(
-        chrome &&
-          cn(
-            "overflow-hidden rounded-lg border",
-            tone === "muted"
-              ? "bg-muted/40"
-              : "bg-card text-card-foreground",
-          ),
+        "overflow-hidden rounded-lg border",
+        tone === "muted" ? "bg-muted/40" : "bg-card text-card-foreground",
         className,
       )}
     >
       {hasBar && (
-        <div className="border-b border-border px-5 py-3">
-          {header ?? (
-            <SectionHeading
-              title={title}
-              description={description}
-              actions={actions}
-            />
-          )}
-        </div>
+        <div className="border-b border-border px-5 py-3">{bar}</div>
       )}
       {flush ? children : <div className="px-5 py-4">{children}</div>}
     </section>

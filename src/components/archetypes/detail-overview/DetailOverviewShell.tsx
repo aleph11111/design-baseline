@@ -72,18 +72,33 @@ export function DetailOverviewShell({
   if (surface === "unified") {
     // flatten the carded children in the main column so they don't "float"
     const mainFlatten = "[&_section]:shadow-none [&_section]:border-border/70";
+    // Rail section dividers: an INSET hairline between sibling sections (a faint
+    // pseudo-element aligned to the 20px content gutter), NOT a full-bleed
+    // `divide-y` rule striking edge-to-edge across the rail. `*+*` targets every
+    // section after the first; `inset-x-5` matches the sections' px-5 content.
+    const railDividers =
+      "[&>*+*]:relative [&>*+*]:before:absolute [&>*+*]:before:inset-x-5 " +
+      "[&>*+*]:before:top-0 [&>*+*]:before:h-px [&>*+*]:before:bg-border/60";
     const body =
       layout === "rail" ? (
         <div className="lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
           <UnifiedSurfaceContext.Provider value={true}>
-            <div className="divide-y divide-border bg-muted/20 lg:border-r lg:border-border lg:sticky lg:top-0 lg:self-start">
-              {summary && <div>{summary}</div>}
-              {references && <div>{references}</div>}
+            {/* Slot children render DIRECTLY into the rail container so a
+                multi-section `summary` (status · figures · partner · facts) gets
+                an inset hairline between each section (see `railDividers`). */}
+            <div
+              className={cn(
+                "bg-muted/20 lg:border-r lg:border-border/60 lg:sticky lg:top-0 lg:self-start",
+                railDividers,
+              )}
+            >
+              {summary}
+              {references}
             </div>
           </UnifiedSurfaceContext.Provider>
           <div
             className={cn(
-              "border-t border-border p-5 lg:border-t-0 space-y-4",
+              "border-t border-border/60 p-5 lg:border-t-0 space-y-4",
               mainFlatten,
             )}
           >
@@ -94,11 +109,9 @@ export function DetailOverviewShell({
       ) : (
         <div>
           <UnifiedSurfaceContext.Provider value={true}>
-            <div className="divide-y divide-border bg-muted/20">
-              {summary && <div>{summary}</div>}
-            </div>
+            <div className={cn("bg-muted/20", railDividers)}>{summary}</div>
           </UnifiedSurfaceContext.Provider>
-          <div className={cn("border-t border-border p-5 space-y-4", mainFlatten)}>
+          <div className={cn("border-t border-border/60 p-5 space-y-4", mainFlatten)}>
             {stats && <div>{stats}</div>}
             {content}
             {references && <div>{references}</div>}
@@ -114,7 +127,9 @@ export function DetailOverviewShell({
           className,
         )}
       >
-        {header && <div className="border-b border-border">{header}</div>}
+        {header && (
+          <div className="border-b border-border/60 px-5 py-4">{header}</div>
+        )}
         {body}
       </div>
     );
