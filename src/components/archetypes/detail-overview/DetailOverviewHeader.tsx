@@ -15,6 +15,13 @@ export type DetailOverviewHeaderProps = {
    */
   subtitle?: React.ReactNode;
   /**
+   * Optional status badges, rendered inline next to the title. This is the
+   * detail-overview "one home for status" — an entity's status dimensions
+   * (order: paid / shipped; deal: stage / forecast) live here as read-only
+   * `<Badge>`s, not duplicated in the rail or a content band.
+   */
+  badges?: React.ReactNode;
+  /**
    * Optional right-aligned actions row. Each child should be a `<Link>` or
    * `<Button>`. Visibility of individual actions may depend on entity state
    * (e.g. "Convert" only when the entity is in a pre-conversion state).
@@ -51,6 +58,7 @@ export type DetailOverviewHeaderProps = {
 export function DetailOverviewHeader({
   title,
   subtitle,
+  badges,
   actions,
   className,
 }: DetailOverviewHeaderProps): React.ReactElement {
@@ -58,6 +66,7 @@ export function DetailOverviewHeader({
     <PageHeader
       title={title}
       subtitle={subtitle}
+      badges={badges}
       actions={actions}
       className={className}
     />

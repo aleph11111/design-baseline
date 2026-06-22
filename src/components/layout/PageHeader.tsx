@@ -24,6 +24,14 @@ export type PageHeaderProps = {
    */
   icon?: React.ComponentType<{ className?: string }>;
   /**
+   * Optional status badges, rendered inline to the RIGHT of the title (same
+   * row, wrapping). Use for an entity's status dimensions (order: paid /
+   * shipped; deal: stage / forecast) — this is the "one home for status" the
+   * detail-overview acceptance gate prescribes. Pass `<Badge>`s. Distinct from
+   * `actions` (interactive) — badges are read-only state.
+   */
+  badges?: React.ReactNode;
+  /**
    * Optional right-aligned actions row. Each child should be a `<Button>` or
    * `<Link>`. Action buttons MUST NOT be mixed into the title line — they go
    * here. Some archetypes (form-page, crud-dialog) forbid header actions
@@ -73,6 +81,7 @@ export function PageHeader({
   title,
   subtitle,
   icon: Icon,
+  badges,
   actions,
   backHref,
   backLabel = "Back",
@@ -98,13 +107,16 @@ export function PageHeader({
       {backLink && <div>{backLink}</div>}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 space-y-1">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             {Icon && (
               <Icon className="h-6 w-6 shrink-0 text-muted-foreground" />
             )}
             <h1 className="text-lg font-semibold leading-tight tracking-tight text-foreground">
               {title}
             </h1>
+            {badges && (
+              <div className="flex flex-wrap items-center gap-1.5">{badges}</div>
+            )}
           </div>
           {subtitle && (
             <p className="text-xs text-muted-foreground">{subtitle}</p>

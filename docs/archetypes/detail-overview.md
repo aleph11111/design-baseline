@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 2.3
+version: 2.4
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.0
@@ -12,6 +12,12 @@ blueprint: docs/archetypes/detail-overview-blueprint.svg
 
 # Archetype C — Detail Overview
 
+> **v2.4 (2026-06-22) — header status badges.** `<DetailOverviewHeader>` (and the
+> shared `<PageHeader>`) gain a `badges` slot — read-only `<Badge>`s inline next
+> to the title. This is the archetype's **one home for status** (the acceptance
+> gate's status-once rule): an entity's status dimensions live here, not duplicated
+> in the rail or a content band. Additive, backward-compatible. See Layer 3.
+>
 > **v2.3 (2026-06-21) — the unified-surface variant (hybrid).** The shell gains a
 > `surface` prop (`"separated"` default | `"unified"`), orthogonal to `layout`.
 > `"unified"` wraps the record in **one bounded outer frame**: the **rail** renders
@@ -321,6 +327,12 @@ top-level entity routes like `/opportunities/[id]`).
   navigation (e.g. "Edit" routing to a form-page) or a `<Button>` whose
   visibility depends on entity state (e.g. "Convert" only when
   `status === 'PENDING'`).
+- **Status badges (`badges` slot).** An entity's status dimensions (order:
+  paid / shipped; deal: stage / forecast) render as read-only `<Badge>`s inline
+  next to the title, via `<DetailOverviewHeader badges={…}>` (a `badges` prop on
+  the shared `<PageHeader>`). This is the archetype's **one home for status** —
+  the acceptance gate fails a page that also repeats status in the rail or a
+  content band. Badges are read-only; interactive controls go in `actions`.
 
 ### Mode B — nested
 

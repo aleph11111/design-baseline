@@ -2,24 +2,23 @@
  * detail-overview-demo.tsx
  *
  * Sandbox demo for the C (detail-overview) archetype — the canonical
- * money-dense **Command Rail** page (the shape the rail + unified surface were
- * built for). Domain: a building/renovation project — deliberately far from
- * CRM/MSP nouns (no companies, contacts, opportunities, deals, devices), so it
- * still proves the primitives don't leak any source project's domain.
+ * money-dense **Command Rail** order page. Domain: an independent bookshop's
+ * customer order — deliberately far from CRM/MSP nouns, and product-shaped so
+ * the line items carry real thumbnails.
  *
- * Exercises (the full rail vocabulary, mirroring the reference mockup):
- *   - DetailOverviewShell `layout="rail"` + `surface="unified"` — the cohesive
- *     framed surface: a sticky, chromeless, hairline-divided rail beside a
- *     carded main column. Toggle both axes live.
- *   - summary (rail) = a STACK of hairline-divided sections: status badges →
- *     `MetricList` financial readout (headline figures + "show more" disclosure)
- *     → contractor identity → `KeyValueList` facts.
- *   - content (main) = `ProgressTracker` lifecycle → a line-item cost table with
- *     a subtotal footer → an inline-edit notes section (the editability axis).
+ * Exercises the full rail vocabulary (mirroring the order reference mockup):
+ *   - DetailOverviewShell `layout="rail"` + `surface="unified"` — sticky,
+ *     chromeless, inset-divided rail beside a carded main column. Toggle both.
+ *   - DetailOverviewHeader with the `badges` slot — status lives ONCE, inline
+ *     in the header (the gate's "one home for status"), next to a mono order #.
+ *   - summary (rail) = status-free stack: MetricList revenue/profit readout
+ *     (headline + disclosure) → customer identity → KeyValueList facts.
+ *   - content (main) = ProgressTracker activity → a line-item table WITH
+ *     thumbnails + subtotal footer → a financial breakdown w/ a profit highlight
+ *     → an inline-edit note (the editability axis).
  *   - references (rail foot) = documents.
- *   - House style B (Plex Ledger): every figure renders mono/tabular via the
- *     primitives (StatTile/KeyValueRow/MetricRow already carry `font-mono`); the
- *     table's figure cells opt in explicitly.
+ *   - House style B: every figure mono/tabular; BrickShop blue `--primary`
+ *     scoped to the demo surface (the donor default stays neutral).
  *
  * Types are LOCAL with zero reference to any source project's domain.
  */
@@ -44,46 +43,46 @@ import {
 } from "@/components/archetypes/detail-overview";
 
 // ---------------------------------------------------------------------------
-// Domain — a building / renovation project
+// Domain — a bookshop customer order
 // ---------------------------------------------------------------------------
 
 type LineItem = {
   id: string;
+  code: string; // short catalogue code, shown in the thumbnail placeholder
   name: string;
-  unit: string;
+  note: string;
   qty: number;
-  unitPrice: number; // whole GBP
+  unitPrice: number; // EUR
 };
 
-type RenovationProject = {
+type Order = {
   id: string;
-  ref: string;
-  title: string;
-  status: string;
-  onBudget: boolean;
-  contractValue: number;
-  spent: number;
-  spentBreakdown: { labour: number; materials: number; permitsFees: number };
-  contractor: { name: string; trade: string; initials: string };
-  lead: string;
-  startedOn: string; // ISO
-  targetOn: string; // ISO
-  permitRef: string;
-  phases: ProgressStep[];
+  number: string;
+  channel: string;
+  revenue: number;
+  grossProfit: number;
+  margin: string;
+  costOfGoods: number;
+  fees: number;
+  shipping: number;
+  customer: { name: string; sub: string; initials: string; email: string };
+  placedOn: string; // ISO
+  reference: string;
+  fulfilment: string;
+  activity: ProgressStep[];
   lineItems: LineItem[];
   documents: { name: string; kind: string }[];
-  notes: string;
+  note: string;
 };
 
 // ---------------------------------------------------------------------------
 // Local formatters (pre-format values; primitives never format)
 // ---------------------------------------------------------------------------
 
-function fmtGBP(amount: number): string {
-  return new Intl.NumberFormat("en-GB", {
+function fmtEUR(amount: number): string {
+  return new Intl.NumberFormat("de-DE", {
     style: "currency",
-    currency: "GBP",
-    maximumFractionDigits: 0,
+    currency: "EUR",
   }).format(amount);
 }
 
@@ -99,47 +98,44 @@ function fmtDate(iso: string): string {
 // Fixture
 // ---------------------------------------------------------------------------
 
-const PROJECT: RenovationProject = {
-  id: "proj-0142",
-  ref: "LC-0142",
-  title: "Loft Conversion — 14 Elm Row",
-  status: "In build",
-  onBudget: true,
-  contractValue: 48200,
-  spent: 31460,
-  spentBreakdown: { labour: 18900, materials: 9240, permitsFees: 3320 },
-  contractor: {
-    name: "Hartley & Voss Builders",
-    trade: "General contractor · 24 staff",
-    initials: "HV",
+const ORDER: Order = {
+  id: "order-0417",
+  number: "SO-2025-00417",
+  channel: "Web shop",
+  revenue: 162.0,
+  grossProfit: 55.08,
+  margin: "34.0%",
+  costOfGoods: 98.0,
+  fees: 8.92,
+  shipping: 9.0,
+  customer: {
+    name: "Jonas Berger",
+    sub: "Private customer · Köln, DE",
+    initials: "JB",
+    email: "j.berger@example.com",
   },
-  lead: "Dana Okafor",
-  startedOn: "2026-03-02",
-  targetOn: "2026-08-14",
-  permitRef: "BC-2026-0884",
-  phases: [
-    { label: "Survey", meta: "2 Mar", state: "done" },
-    { label: "Design", meta: "19 Mar", state: "done" },
-    { label: "Permits", meta: "24 Apr", state: "done" },
-    { label: "Build", meta: "In progress", state: "current" },
-    { label: "Handover", meta: "est. 14 Aug", state: "pending" },
+  placedOn: "2026-06-12",
+  reference: "WS-9921",
+  fulfilment: "DHL Paket",
+  activity: [
+    { label: "Placed", meta: "12 Jun", state: "done" },
+    { label: "Paid", meta: "12 Jun", state: "done" },
+    { label: "Packed", meta: "In progress", state: "current" },
+    { label: "Shipped", meta: "Pending", state: "pending" },
   ],
   lineItems: [
-    { id: "li-1", name: "Structural steelwork", unit: "RSJ beams", qty: 2, unitPrice: 1850 },
-    { id: "li-2", name: "First-fix electrical", unit: "circuits + points", qty: 38, unitPrice: 45 },
-    { id: "li-3", name: "Plumbing & heating", unit: "full system", qty: 1, unitPrice: 6800 },
-    { id: "li-4", name: "Plastering", unit: "per m²", qty: 64, unitPrice: 22 },
-    { id: "li-5", name: "Joinery & fit-out", unit: "fixed package", qty: 1, unitPrice: 8400 },
+    { id: "li-1", code: "GEB", name: "Gödel, Escher, Bach", note: "Hardcover · new", qty: 1, unitPrice: 42 },
+    { id: "li-2", code: "LHD", name: "The Left Hand of Darkness", note: "Paperback", qty: 2, unitPrice: 16 },
+    { id: "li-3", code: "SPQR", name: "SPQR: A History of Ancient Rome", note: "Hardcover", qty: 1, unitPrice: 34 },
+    { id: "li-4", code: "TFE", name: "Tales from Earthsea", note: "Paperback", qty: 3, unitPrice: 15 },
   ],
   documents: [
-    { name: "Structural survey.pdf", kind: "PDF" },
-    { name: "Building permit.pdf", kind: "PDF" },
-    { name: "Fixed-price quote.pdf", kind: "PDF" },
+    { name: "Invoice 2025-0417.pdf", kind: "PDF" },
+    { name: "Packing slip.pdf", kind: "PDF" },
   ],
-  notes:
-    "Steel delivery slipped a week — Build phase still on track for the 14 Aug " +
-    "handover. Party-wall sign-off received; awaiting the final electrical " +
-    "inspection before the stairwell can be plastered.",
+  note:
+    "Customer asked for the Earthsea set to be gift-wrapped. Packing in " +
+    "progress — ship via DHL once the SPQR restock lands (expected tomorrow).",
 };
 
 // ---------------------------------------------------------------------------
@@ -147,24 +143,22 @@ const PROJECT: RenovationProject = {
 // ---------------------------------------------------------------------------
 
 export function DetailOverviewDemo(): React.ReactElement {
-  const p = PROJECT;
-  // Layout (v2.1) + Surface (v2.3) variants — default to the dense pairing.
+  const o = ORDER;
   const [layout, setLayout] = React.useState<"vertical" | "rail">("rail");
   const [surface, setSurface] = React.useState<"separated" | "unified">("unified");
-  // Editability variant (inline-edit): same DetailSection, value ↔ editor in place.
-  const [editingNotes, setEditingNotes] = React.useState(false);
-  const [notes, setNotes] = React.useState(PROJECT.notes);
+  const [editingNote, setEditingNote] = React.useState(false);
+  const [note, setNote] = React.useState(ORDER.note);
 
-  const subtotal = p.lineItems.reduce((sum, li) => sum + li.qty * li.unitPrice, 0);
+  const subtotal = o.lineItems.reduce((sum, li) => sum + li.qty * li.unitPrice, 0);
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="max-w-prose text-sm text-muted-foreground">
-          The canonical money-dense record page. <strong>Layout</strong> (v2.1)
-          pins identity in a sticky rail; <strong>Surface</strong> (v2.3)
-          “unified” frames the whole record — chromeless hairline-divided rail
-          beside carded main panels.
+          The canonical money-dense record page. Status lives once, inline in the
+          header (`badges` slot); the rail pins figures + identity; the main
+          column stacks activity, line items with thumbnails, and the financial
+          breakdown. Toggle <strong>Layout</strong> / <strong>Surface</strong>.
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <SegmentedControl
@@ -191,17 +185,17 @@ export function DetailOverviewDemo(): React.ReactElement {
       {/* Muted mat — `surface="unified"` reads as one framed surface only when the
           page behind it is muted (the app does this via AppShell's `<main>` on
           bg-muted/30; the gallery has no AppShell, so the demo supplies it).
-          The teal `--primary` override is hk-crm's brand, scoped to this surface:
-          the donor default stays neutral slate; each app brings its own accent.
-          Setting one token re-skins every primary action, accent figure, badge,
-          and ProgressTracker dot — the whole point of token-driven theming. */}
+          The blue `--primary` override is BrickShop's brand, scoped to this
+          surface: the donor default stays neutral slate; each app brings its own
+          accent. One token re-skins every primary action, accent figure, badge,
+          and ProgressTracker dot. */}
       <div
         className="rounded-xl bg-muted/50 p-4 sm:p-6"
         style={
           {
-            "--primary": "187 100% 25%",
+            "--primary": "223 87% 29%",
             "--primary-foreground": "0 0% 100%",
-            "--ring": "187 100% 25%",
+            "--ring": "223 87% 29%",
           } as React.CSSProperties
         }
       >
@@ -211,18 +205,24 @@ export function DetailOverviewDemo(): React.ReactElement {
           width="md"
           header={
             <DetailOverviewHeader
-              title={p.title}
+              title={<span className="font-mono">{o.number}</span>}
               subtitle={
                 <>
-                  <span>Renovations</span>
+                  <span>Orders</span>
                   <span className="mx-2 text-border">·</span>
-                  <span className="font-mono">{p.ref}</span>
+                  <span>{o.channel}</span>
+                </>
+              }
+              badges={
+                <>
+                  <Badge variant="success">Paid</Badge>
+                  <Badge variant="warning">Packing</Badge>
                 </>
               }
               actions={
                 <>
                   <Button variant="outline" size="sm">
-                    Edit
+                    Invoice
                   </Button>
                   <Button
                     variant="ghost"
@@ -232,58 +232,51 @@ export function DetailOverviewDemo(): React.ReactElement {
                   >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
-                  <Button size="sm">Next phase →</Button>
+                  <Button size="sm">Mark as shipped</Button>
                 </>
               }
             />
           }
           summary={
             <>
-              {/* Status — leads the rail (the identity column) */}
-              <DetailSection>
-                <div className="flex flex-wrap gap-1.5">
-                  <Badge variant="secondary">{p.status}</Badge>
-                  {p.onBudget && <Badge variant="success">On budget</Badge>}
-                </div>
-              </DetailSection>
-
-              {/* Financials at a glance — MetricList with a disclosure */}
-              <DetailSection title="Budget &amp; spend">
+              {/* Revenue & profit at a glance — MetricList with a disclosure */}
+              <DetailSection title="Revenue & profit">
                 <MetricList
                   more={
                     <>
-                      <MetricRow label="Labour" value={fmtGBP(p.spentBreakdown.labour)} />
-                      <MetricRow label="Materials" value={fmtGBP(p.spentBreakdown.materials)} />
-                      <MetricRow label="Permits &amp; fees" value={fmtGBP(p.spentBreakdown.permitsFees)} />
+                      <MetricRow label="Items subtotal" value={fmtEUR(subtotal)} />
+                      <MetricRow label="Shipping" value={fmtEUR(o.shipping)} />
+                      <MetricRow label="Cost of goods" value={fmtEUR(o.costOfGoods)} />
+                      <MetricRow label="Fees & packaging" value={fmtEUR(o.fees)} />
                     </>
                   }
                 >
                   <MetricRow
-                    label="Contract value"
-                    value={fmtGBP(p.contractValue)}
-                    hint="fixed price, inc. VAT"
+                    label="Revenue"
+                    value={fmtEUR(o.revenue)}
+                    hint="incl. shipping"
                     emphasis
-                    accent
                   />
                   <MetricRow
-                    label="Spent to date"
-                    value={fmtGBP(p.spent)}
-                    hint="65% of contract"
+                    label="Gross profit"
+                    value={fmtEUR(o.grossProfit)}
+                    hint={`margin ${o.margin}`}
                     emphasis
+                    accent
                   />
                 </MetricList>
               </DetailSection>
 
-              {/* Contractor identity */}
-              <DetailSection title="Contractor">
+              {/* Customer identity */}
+              <DetailSection title="Customer">
                 <div className="flex items-center gap-3">
-                  <IconAvatar size="md">{p.contractor.initials}</IconAvatar>
+                  <IconAvatar size="md">{o.customer.initials}</IconAvatar>
                   <div className="min-w-0">
                     <div className="text-[13px] font-medium text-foreground">
-                      {p.contractor.name}
+                      {o.customer.name}
                     </div>
                     <div className="text-[11px] text-muted-foreground">
-                      {p.contractor.trade}
+                      {o.customer.sub}
                     </div>
                   </div>
                 </div>
@@ -292,75 +285,105 @@ export function DetailOverviewDemo(): React.ReactElement {
               {/* Master-data facts */}
               <DetailSection title="Details" flush>
                 <KeyValueList>
-                  <KeyValueRow label="Project lead" value={p.lead} />
-                  <KeyValueRow label="Started" value={fmtDate(p.startedOn)} />
-                  <KeyValueRow label="Target handover" value={fmtDate(p.targetOn)} />
-                  <KeyValueRow label="Permit ref" value={p.permitRef} />
+                  <KeyValueRow label="Placed" value={fmtDate(o.placedOn)} />
+                  <KeyValueRow label="Channel" value={o.channel} />
+                  <KeyValueRow label="Reference" value={o.reference} />
+                  <KeyValueRow label="Fulfilment" value={o.fulfilment} />
                 </KeyValueList>
               </DetailSection>
             </>
           }
           content={
             <>
-              {/* Lifecycle */}
-              <DetailSection title="Stage">
-                <ProgressTracker steps={p.phases} />
+              {/* Activity lifecycle */}
+              <DetailSection title="Activity">
+                <ProgressTracker steps={o.activity} />
               </DetailSection>
 
-              {/* Line-item cost table with a subtotal footer */}
+              {/* Line items WITH thumbnails + a subtotal footer */}
               <DetailSection
-                title="Cost breakdown"
-                actions={<Badge variant="secondary">{p.lineItems.length}</Badge>}
+                title="Line items"
+                actions={<Badge variant="secondary">{o.lineItems.length}</Badge>}
               >
-                <div className="grid grid-cols-[1fr_2.5rem_5.5rem_6rem] gap-x-3 border-b border-border pb-2 text-[10px] font-semibold uppercase tracking-[0.09em] text-muted-foreground">
+                <div className="grid grid-cols-[1fr_2.5rem_5rem_5.5rem] gap-x-3 border-b border-border pb-2 text-[10px] font-semibold uppercase tracking-[0.09em] text-muted-foreground">
                   <div>Item</div>
                   <div className="text-center">Qty</div>
                   <div className="text-right">Unit</div>
-                  <div className="text-right">Line total</div>
+                  <div className="text-right">Total</div>
                 </div>
                 <div className="divide-y divide-border/70">
-                  {p.lineItems.map((li) => (
+                  {o.lineItems.map((li) => (
                     <div
                       key={li.id}
-                      className="grid grid-cols-[1fr_2.5rem_5.5rem_6rem] items-center gap-x-3 py-2.5"
+                      className="grid grid-cols-[1fr_2.5rem_5rem_5.5rem] items-center gap-x-3 py-2.5"
                     >
-                      <div className="min-w-0">
-                        <div className="truncate text-[13px] font-medium text-foreground">
-                          {li.name}
+                      <div className="flex min-w-0 items-center gap-3">
+                        {/* Thumbnail — a product image stands here; the placeholder
+                            is the catalogue code, ≥40px per the acceptance gate. */}
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border bg-muted text-[8px] font-mono text-muted-foreground">
+                          {li.code}
                         </div>
-                        <div className="text-[11px] text-muted-foreground">{li.unit}</div>
+                        <div className="min-w-0">
+                          <div className="truncate text-[13px] font-medium text-foreground">
+                            {li.name}
+                          </div>
+                          <div className="text-[11px] text-muted-foreground">
+                            {li.note}
+                          </div>
+                        </div>
                       </div>
                       <div className="text-center font-mono text-[13px] tabular-nums text-muted-foreground">
                         {li.qty}
                       </div>
                       <div className="text-right font-mono text-[13px] tabular-nums text-muted-foreground">
-                        {fmtGBP(li.unitPrice)}
+                        {fmtEUR(li.unitPrice)}
                       </div>
                       <div className="text-right font-mono text-[13px] font-semibold tabular-nums text-foreground">
-                        {fmtGBP(li.qty * li.unitPrice)}
+                        {fmtEUR(li.qty * li.unitPrice)}
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="mt-2 flex items-center justify-between border-t-2 border-border pt-3">
                   <span className="text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground">
-                    Subtotal
+                    Items subtotal
                   </span>
                   <span className="font-mono text-sm font-semibold tabular-nums text-foreground">
-                    {fmtGBP(subtotal)}
+                    {fmtEUR(subtotal)}
+                  </span>
+                </div>
+              </DetailSection>
+
+              {/* Financial breakdown with a profit highlight */}
+              <DetailSection title="Financial breakdown">
+                <div className="divide-y divide-border/70">
+                  <BreakdownRow k="Items subtotal" v={fmtEUR(subtotal)} />
+                  <BreakdownRow k="Shipping" v={fmtEUR(o.shipping)} />
+                  <BreakdownRow k="Cost of goods" v={`− ${fmtEUR(o.costOfGoods)}`} muted />
+                  <BreakdownRow k="Fees & packaging" v={`− ${fmtEUR(o.fees)}`} muted />
+                </div>
+                <div className="mt-3 flex items-center justify-between rounded-md border border-border bg-muted/50 px-3 py-2.5">
+                  <span className="text-[13px] font-semibold text-foreground">
+                    Gross profit
+                  </span>
+                  <span className="flex items-baseline gap-2">
+                    <span className="font-mono text-base font-semibold tabular-nums text-primary">
+                      {fmtEUR(o.grossProfit)}
+                    </span>
+                    <Badge variant="secondary">{o.margin}</Badge>
                   </span>
                 </div>
               </DetailSection>
 
               {/* Editability variant — inline-edit (read-only value ↔ in-place editor) */}
               <DetailSection
-                title="Site notes"
+                title="Order note"
                 actions={
-                  editingNotes ? (
+                  editingNote ? (
                     <Button
                       size="sm"
                       className="-my-1.5 h-7 text-xs"
-                      onClick={() => setEditingNotes(false)}
+                      onClick={() => setEditingNote(false)}
                     >
                       Save
                     </Button>
@@ -369,21 +392,21 @@ export function DetailOverviewDemo(): React.ReactElement {
                       variant="ghost"
                       size="sm"
                       className="-my-1.5 h-7 text-xs"
-                      onClick={() => setEditingNotes(true)}
+                      onClick={() => setEditingNote(true)}
                     >
                       Edit
                     </Button>
                   )
                 }
               >
-                {editingNotes ? (
+                {editingNote ? (
                   <Textarea
                     rows={3}
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
                   />
                 ) : (
-                  <p className="text-sm leading-relaxed text-foreground">{notes}</p>
+                  <p className="text-sm leading-relaxed text-foreground">{note}</p>
                 )}
               </DetailSection>
             </>
@@ -391,7 +414,7 @@ export function DetailOverviewDemo(): React.ReactElement {
           references={
             <DetailSection title="Documents">
               <ul className="space-y-2">
-                {p.documents.map((d) => (
+                {o.documents.map((d) => (
                   <li key={d.name}>
                     <a
                       href="#"
@@ -417,3 +440,29 @@ export function DetailOverviewDemo(): React.ReactElement {
 }
 
 DetailOverviewDemo.displayName = "DetailOverviewDemo";
+
+/** One ruled row in the financial breakdown — label left, mono value right. */
+function BreakdownRow({
+  k,
+  v,
+  muted,
+}: {
+  k: string;
+  v: string;
+  muted?: boolean;
+}): React.ReactElement {
+  return (
+    <div className="flex items-center justify-between py-1.5 text-[13px]">
+      <span className="text-muted-foreground">{k}</span>
+      <span
+        className={
+          muted
+            ? "font-mono tabular-nums text-muted-foreground"
+            : "font-mono tabular-nums text-foreground"
+        }
+      >
+        {v}
+      </span>
+    </div>
+  );
+}
