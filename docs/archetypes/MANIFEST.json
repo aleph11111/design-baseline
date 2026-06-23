@@ -195,6 +195,30 @@
       "spec": "docs/archetypes/kanban-board.md",
       "primitives_dir": "src/components/archetypes/kanban-board",
       "example": "src/examples/kanban-board-demo.tsx"
+    },
+    {
+      "key": "R",
+      "namespace": "baseline",
+      "slug": "report",
+      "displayName": "Report",
+      "version": "1.0",
+      "authored": "2026-06-23",
+      "source_spec_version": "1.0",
+      "spec": "docs/archetypes/report.md",
+      "primitives_dir": "src/components/archetypes/report",
+      "example": "src/examples/report-demo.tsx"
+    },
+    {
+      "key": "Cal",
+      "namespace": "baseline",
+      "slug": "calendar",
+      "displayName": "Calendar",
+      "version": "1.0",
+      "authored": "2026-06-23",
+      "source_spec_version": "1.0",
+      "spec": "docs/archetypes/calendar.md",
+      "primitives_dir": "src/components/archetypes/calendar",
+      "example": "src/examples/calendar-demo.tsx"
     }
   ]
 }
