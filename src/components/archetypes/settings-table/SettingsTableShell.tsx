@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StateView } from "@/components/ui/state-view";
 import { RowActionsMenu, type RowAction } from "@/components/archetypes/shared";
+import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
+import { type HeaderFill } from "@/components/layout/headerFill";
 import { cn } from "@/lib/utils";
 
 // The row overflow menu + its action shape are shared with list-with-detail.
@@ -90,6 +92,18 @@ export type SettingsTableShellProps<Row> = {
    */
   onBulkDelete?: (rows: Row[]) => void;
 
+  // On-surface header (Plex Ledger board form). When `title` is set, the shell
+  // renders a `SurfaceHeader` at the top of its bounded surface — the title +
+  // actions sit ON the card, not in a separate PageHeader above it.
+  /** Overline kicker above the title (e.g. "Settings", "Catalog"). */
+  kicker?: React.ReactNode;
+  /** Surface title. When set, the on-surface header bar renders. */
+  title?: React.ReactNode;
+  /** Right-aligned actions in the on-surface header (e.g. Import / + New). */
+  headerActions?: React.ReactNode;
+  /** Header treatment for the on-surface header (House Style B). */
+  headerFill?: HeaderFill;
+
   className?: string;
 };
 
@@ -125,6 +139,10 @@ export function SettingsTableShell<Row>({
   onBulkSelectChange,
   bulkActions,
   onBulkDelete,
+  kicker,
+  title,
+  headerActions,
+  headerFill,
   className,
 }: SettingsTableShellProps<Row>): React.ReactElement {
   const hasActions =
@@ -312,6 +330,14 @@ export function SettingsTableShell<Row>({
         className,
       )}
     >
+      {title !== undefined && (
+        <SurfaceHeader
+          kicker={kicker}
+          title={title}
+          actions={headerActions}
+          headerFill={headerFill}
+        />
+      )}
       {toolbarRow}
       <div className="overflow-x-auto">
         {showLoading && loadingState}

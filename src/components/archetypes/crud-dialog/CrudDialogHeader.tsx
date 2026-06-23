@@ -2,6 +2,11 @@ import * as React from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SheetDescription, SheetTitle } from "@/components/ui/sheet";
+import {
+  useHeaderFill,
+  headerFillClasses,
+  type HeaderFill,
+} from "@/components/layout/headerFill";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -30,6 +35,13 @@ export type CrudDialogHeaderProps = {
    * when a labeled close button is required by the design.
    */
   onClose?: () => void;
+  /**
+   * Header treatment (House Style B 2-token contract). The dialog header is the
+   * `.card`'s first band, so it inherits `--header-fill` like every framed
+   * surface — solid by default (accent-filled with white title + inverted
+   * actions). Defaults to the project's `HeaderFillContext`.
+   */
+  headerFill?: HeaderFill;
   className?: string;
 };
 
@@ -54,12 +66,15 @@ export function CrudDialogHeader({
   subtitle,
   actions,
   onClose,
+  headerFill,
   className,
 }: CrudDialogHeaderProps): React.ReactElement {
+  const hfc = headerFillClasses(useHeaderFill(headerFill));
   return (
     <div
       className={cn(
-        "flex items-start justify-between gap-4 border-b px-6 py-4 shrink-0",
+        "flex items-start justify-between gap-4 px-6 py-4 shrink-0",
+        hfc.bar,
         className,
       )}
     >
@@ -70,9 +85,11 @@ export function CrudDialogHeader({
           empty, screen-reader-only SheetDescription so Content's
           aria-describedby never dangles (Radix's missing-description warning). */}
       <div className="min-w-0 flex-1">
-        <SheetTitle className="leading-tight truncate">{title}</SheetTitle>
+        <SheetTitle className={cn("leading-tight truncate", hfc.title)}>
+          {title}
+        </SheetTitle>
         {subtitle ? (
-          <SheetDescription className="mt-0.5 truncate">
+          <SheetDescription className={cn("mt-0.5 truncate", hfc.kicker)}>
             {subtitle}
           </SheetDescription>
         ) : (

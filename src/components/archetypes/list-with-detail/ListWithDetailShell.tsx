@@ -14,6 +14,7 @@ import {
   headerFillClasses,
   type HeaderFill,
 } from "@/components/layout/headerFill";
+import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { ListWithDetailEmptyState } from "./ListWithDetailEmptyState";
@@ -80,8 +81,20 @@ export type ListWithDetailShellProps<Row> = {
   detailTitle?: React.ReactNode;
   /** Optional right-aligned actions in the drawer header (e.g. an Edit button). */
   detailActions?: React.ReactNode;
-  /** Header treatment for the drawer header bar (House Style B). Default: project context. */
+  /** Header treatment for the drawer/sheet header bar and the master surface header
+   *  (House Style B). Default: project context. */
   headerFill?: HeaderFill;
+
+  // On-surface header (Plex Ledger board form). When `title` is set, the shell
+  // renders a `SurfaceHeader` at the top of the master list surface — the title +
+  // actions sit ON the card, not in a separate PageHeader above it.
+  /** Overline kicker above the title (e.g. "Podcasts", "Records"). */
+  kicker?: React.ReactNode;
+  /** Master surface title. When set, the on-surface header bar renders. */
+  title?: React.ReactNode;
+  /** Right-aligned actions in the master surface header (e.g. "+ New"). */
+  headerActions?: React.ReactNode;
+
   emptyStateMessage?: string;
   filteredEmpty?: boolean;
   sortBy?: string;
@@ -159,6 +172,9 @@ function ListWithDetailShellInner<Row>(
     detailTitle,
     detailActions,
     headerFill,
+    kicker,
+    title,
+    headerActions,
     emptyStateMessage,
     filteredEmpty,
     sortBy,
@@ -458,6 +474,14 @@ function ListWithDetailShellInner<Row>(
         className,
       )}
     >
+      {title !== undefined && (
+        <SurfaceHeader
+          kicker={kicker}
+          title={title}
+          actions={headerActions}
+          headerFill={headerFill}
+        />
+      )}
       {toolbar && <div className="border-b px-4 py-3">{toolbar}</div>}
       <div className="flex">
         <div className="min-w-0 flex-1 overflow-x-auto">{bodyContent}</div>

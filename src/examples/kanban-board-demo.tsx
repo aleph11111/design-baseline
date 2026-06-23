@@ -8,8 +8,7 @@
  */
 
 import * as React from "react";
-import { Plus } from "lucide-react";
-import { PageHeader } from "@/components/layout";
+import { Filter, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconAvatar } from "@/components/ui/icon-avatar";
@@ -53,10 +52,25 @@ export function KanbanBoardDemo(): React.ReactElement {
   }
 
   return (
-    <div className="space-y-5">
-      <PageHeader title="Delivery board" subtitle="Drag cards between columns." />
-
-      <BoardShell>
+    /* Plex Ledger board form: title + actions sit ON the bounded surface
+       (SurfaceHeader), one frame on a muted mat. */
+    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+      <BoardShell
+        kicker="Board"
+        title="Delivery board"
+        headerActions={
+          <>
+            <Button variant="outline" size="sm">
+              <Filter className="mr-1 h-4 w-4" />
+              Filter
+            </Button>
+            <Button size="sm">
+              <Plus className="mr-1 h-4 w-4" />
+              Add card
+            </Button>
+          </>
+        }
+      >
         {COLUMNS.map((col) => {
           const colCards = cards.filter((c) => c.column === col.key);
           return (

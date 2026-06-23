@@ -15,7 +15,6 @@
 
 import * as React from "react";
 import { SettingsTableShell } from "@/components/archetypes/settings-table";
-import { PageHeader } from "@/components/layout";
 import type { SettingsColumn, SettingsRowAction } from "@/components/archetypes/settings-table";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
@@ -161,36 +160,45 @@ export function SettingsTableDemo() {
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        title="Recipe Collection"
-        subtitle="D2 (settings-table) archetype demo"
-      />
-
       {lastAction && (
         <div className="rounded-md border bg-muted/50 px-4 py-2 text-sm text-muted-foreground">
           Last action: <span className="font-medium text-foreground">{lastAction}</span>
         </div>
       )}
 
-      <SettingsTableShell
-        rows={filtered}
-        columns={COLUMNS}
-        getRowId={(r) => r.id}
-        onRowEdit={handleRowEdit}
-        onAddNew={handleAddNew}
-        addNewLabel="Add recipe"
-        toolbar={toolbarContent}
-        rowActions={rowActions}
-        emptyMessage={
-          query.trim()
-            ? `No recipes match "${query}".`
-            : "No recipes yet."
-        }
-        bulkSelectable
-        selectedIds={selectedIds}
-        onBulkSelectChange={setSelectedIds}
-        bulkActions={bulkActions}
-      />
+      {/* Plex Ledger board form: the title + actions sit ON the bounded
+          surface (SurfaceHeader), one frame on a muted mat. */}
+      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+        <SettingsTableShell
+          kicker="Catalog"
+          title="Recipe Collection"
+          headerActions={
+            <>
+              <Button variant="outline" size="sm">
+                Import
+              </Button>
+              <Button size="sm" onClick={handleAddNew}>
+                Add recipe
+              </Button>
+            </>
+          }
+          rows={filtered}
+          columns={COLUMNS}
+          getRowId={(r) => r.id}
+          onRowEdit={handleRowEdit}
+          toolbar={toolbarContent}
+          rowActions={rowActions}
+          emptyMessage={
+            query.trim()
+              ? `No recipes match "${query}".`
+              : "No recipes yet."
+          }
+          bulkSelectable
+          selectedIds={selectedIds}
+          onBulkSelectChange={setSelectedIds}
+          bulkActions={bulkActions}
+        />
+      </div>
 
       {/* Alternate states */}
       <div className="grid gap-4 sm:grid-cols-3">

@@ -31,3 +31,4 @@ export {
   headerFillClasses,
   type HeaderFill,
 } from "./headerFill";
+export { SurfaceHeader, type SurfaceHeaderProps } from "./SurfaceHeader";

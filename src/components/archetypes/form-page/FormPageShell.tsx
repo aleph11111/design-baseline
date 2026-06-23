@@ -1,4 +1,6 @@
 import * as React from "react";
+import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
+import { type HeaderFill } from "@/components/layout/headerFill";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -23,6 +25,21 @@ export type FormPageShellProps = {
    * Defaults to "md" (~36rem / max-w-xl).
    */
   width?: "sm" | "md" | "lg" | "xl";
+
+  // On-surface header (Plex Ledger board form). When `title` is set, the shell
+  // renders a `SurfaceHeader` at the top of a bounded surface — the title sits
+  // ON the card, not in a separate FormPageHeader / PageHeader above it.
+  /** Overline kicker above the title (e.g. "Recipes", "Profile"). */
+  kicker?: React.ReactNode;
+  /** Surface title. When set, the on-surface header bar renders and the shell
+   *  gains card chrome (rounded-lg border bg-card). */
+  title?: React.ReactNode;
+  /** Right-aligned secondary actions in the on-surface header. The form's
+   *  primary save/cancel always stay in <FormPageActions> at the footer. */
+  headerActions?: React.ReactNode;
+  /** Header treatment for the on-surface header (House Style B). */
+  headerFill?: HeaderFill;
+
   className?: string;
 };
 
@@ -41,23 +58,55 @@ export type FormPageShellProps = {
  * Does NOT add page inset (px-6/py-6) — `<AppShell>`'s `<main>` owns that. Adding
  * it here would double-inset. See docs/STYLE.md "Spacing & rhythm".
  *
- * Children should be arranged as:
+ * Board form (Plex Ledger): pass `title` (and optionally `kicker` /
+ * `headerActions`) to render the on-surface header at the top of a bounded
+ * card. The form groups / SectionCards render below inside the same surface,
+ * and the primary save/cancel actions remain in <FormPageActions> at the
+ * footer. Without `title` the shell reverts to the classic free-floating
+ * column layout (unchanged behaviour).
+ *
+ * Classic layout children:
  *   <FormPageHeader … />
  *   <form className="space-y-4" onSubmit={…}>
  *     …fields…
  *     <FormPageActions … />
  *   </form>
  *
- * Or, when actions live outside the form element:
- *   <FormPageHeader … />
- *   <form className="space-y-4" onSubmit={…}>…fields…</form>
- *   <FormPageActions … />
+ * Board form children (no FormPageHeader needed):
+ *   <form className="space-y-4" onSubmit={…}>
+ *     …fields…
+ *     <FormPageActions … />
+ *   </form>
  */
 export function FormPageShell({
   children,
   width = "md",
+  kicker,
+  title,
+  headerActions,
+  headerFill,
   className,
 }: FormPageShellProps): React.ReactElement {
+  if (title !== undefined) {
+    return (
+      <div
+        className={cn(
+          "rounded-lg border bg-card overflow-hidden",
+          WIDTH_MAP[width],
+          className,
+        )}
+      >
+        <SurfaceHeader
+          kicker={kicker}
+          title={title}
+          actions={headerActions}
+          headerFill={headerFill}
+        />
+        <div className="p-5 space-y-5">{children}</div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(

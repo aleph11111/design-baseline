@@ -4,7 +4,6 @@ import {
   GroupedListShell,
   GroupedListSection,
 } from "@/components/archetypes/grouped-list";
-import { PageHeader } from "@/components/layout";
 import {
   ListWithDetailToolbar,
   type ListColumn,
@@ -111,9 +110,16 @@ export function GroupedListDemo() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Recipe book" subtitle="Browse recipes grouped by cuisine." />
-
+      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <GroupedListShell
+        kicker="Catalog"
+        title="Recipe Book"
+        headerActions={
+          <Button size="sm">
+            <Plus className="mr-1 h-4 w-4" />
+            Add recipe
+          </Button>
+        }
         isEmpty={isEmpty}
         emptyMessage={
           search
@@ -125,12 +131,6 @@ export function GroupedListDemo() {
             searchValue={search}
             onSearchChange={setSearch}
             searchPlaceholder="Search recipes…"
-            pageActions={
-              <Button size="sm">
-                <Plus className="mr-1 h-4 w-4" />
-                Add recipe
-              </Button>
-            }
           />
         }
       >
@@ -159,6 +159,7 @@ export function GroupedListDemo() {
           />
         )}
       </GroupedListShell>
+      </div>
     </div>
   );
 }

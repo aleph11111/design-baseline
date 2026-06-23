@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 
 // ---------------------------------------------------------------------------
 // Demo domain — a school-year gradebook.
@@ -197,23 +198,29 @@ export function MatrixGridDemo() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">
-          {STUDENTS.length} students · {SUBJECTS.length} subjects ·{" "}
-          {mode === "click" ? "click any cell to grade or update." : "edit grades inline."}
-        </p>
-        <SegmentedControl
-          value={mode}
-          onValueChange={(v) => setMode(v as "click" | "inline")}
-          options={[
-            { value: "click", label: "click to edit" },
-            { value: "inline", label: "inline edit" },
-          ]}
-          aria-label="Edit mode"
-        />
-      </div>
-
+      {/* Plex Ledger board form: title + actions sit ON the bounded surface
+          (SurfaceHeader), one frame on a muted mat. */}
+      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <MatrixGridShell<GradeEntry>
+        kicker="Gradebook"
+        title="Student Grades"
+        headerActions={
+          <>
+            <SegmentedControl
+              value={mode}
+              onValueChange={(v) => setMode(v as "click" | "inline")}
+              options={[
+                { value: "click", label: "click to edit" },
+                { value: "inline", label: "inline edit" },
+              ]}
+              aria-label="Edit mode"
+            />
+            <Button variant="outline" size="sm">
+              <Download className="mr-1 h-4 w-4" />
+              Export
+            </Button>
+          </>
+        }
         columns={columns}
         rows={rows}
         rowHeaderLabel="Student"
@@ -262,6 +269,7 @@ export function MatrixGridDemo() {
             : (ctx) => openCell(ctx.row.id, ctx.column.key, ctx.cell)
         }
       />
+      </div>
 
       <Sheet
         open={sheet.kind !== "closed"}

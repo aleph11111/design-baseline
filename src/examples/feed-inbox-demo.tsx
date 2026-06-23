@@ -22,7 +22,6 @@ import {
   MessageSquare,
   Settings,
 } from "lucide-react";
-import { PageHeader } from "@/components/layout";
 import { SectionCard } from "@/components/layout/SectionCard";
 import { Button } from "@/components/ui/button";
 import { FeedShell, FeedItem } from "@/components/archetypes/feed-inbox";
@@ -120,57 +119,60 @@ function InboxDemo(): React.ReactElement {
 
   return (
     <section className="space-y-5">
-      <PageHeader
-        title="Notifications"
-        subtitle={unreadCount > 0 ? `${unreadCount} unread` : "You're all caught up."}
-      />
-
-      <FeedShell
-        filters={
-          <SegmentedControl
-            value={filter}
-            onValueChange={(v) => setFilter(v as FilterKey)}
-            options={FILTERS.map((f) => ({ value: f.key, label: f.label }))}
-            aria-label="Filter notifications"
-          />
-        }
-        actions={
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={markAllRead}
-            disabled={unreadCount === 0}
-          >
-            Mark all read
-          </Button>
-        }
-        empty={
-          visible.length === 0 ? (
-            <StateView variant="empty" icon={Bell} message="Nothing here." />
-          ) : undefined
-        }
-      >
-        {GROUP_ORDER.map((group) => {
-          const groupItems = visible.filter((n) => n.group === group);
-          if (groupItems.length === 0) return null;
-          return (
-            <SectionCard key={group} title={group} flush>
-              <div className="divide-y divide-border">
-                {groupItems.map((n) => (
-                  <FeedItem
-                    key={n.id}
-                    icon={ICON[n.type]}
-                    title={n.title}
-                    meta={n.meta}
-                    unread={n.unread}
-                    onClick={() => markRead(n.id)}
-                  />
-                ))}
-              </div>
-            </SectionCard>
-          );
-        })}
-      </FeedShell>
+      {/* Plex Ledger board form: title + actions sit ON the bounded surface
+          (SurfaceHeader), one frame on a muted mat. */}
+      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+        <FeedShell
+          kicker="Inbox"
+          title="Notifications"
+          headerActions={
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={markAllRead}
+                disabled={unreadCount === 0}
+              >
+                Mark all read
+              </Button>
+            </>
+          }
+          filters={
+            <SegmentedControl
+              value={filter}
+              onValueChange={(v) => setFilter(v as FilterKey)}
+              options={FILTERS.map((f) => ({ value: f.key, label: f.label }))}
+              aria-label="Filter notifications"
+            />
+          }
+          empty={
+            visible.length === 0 ? (
+              <StateView variant="empty" icon={Bell} message="Nothing here." />
+            ) : undefined
+          }
+        >
+          {GROUP_ORDER.map((group) => {
+            const groupItems = visible.filter((n) => n.group === group);
+            if (groupItems.length === 0) return null;
+            return (
+              <SectionCard key={group} title={group} flush>
+                <div className="divide-y divide-border">
+                  {groupItems.map((n) => (
+                    <FeedItem
+                      key={n.id}
+                      icon={ICON[n.type]}
+                      title={n.title}
+                      meta={n.meta}
+                      unread={n.unread}
+                      onClick={() => markRead(n.id)}
+                    />
+                  ))}
+                </div>
+              </SectionCard>
+            );
+          })}
+        </FeedShell>
+      </div>
     </section>
   );
 }
@@ -178,33 +180,35 @@ function InboxDemo(): React.ReactElement {
 function TimelineDemo(): React.ReactElement {
   return (
     <section className="space-y-5">
-      <PageHeader
-        title="Activity"
-        subtitle="A chronological media & event feed — body excerpt + trailing thumbnail, no read state."
-      />
-
-      <FeedShell>
-        {GROUP_ORDER.map((group) => {
-          const groupItems = MEDIA_SEED.filter((m) => m.group === group);
-          if (groupItems.length === 0) return null;
-          return (
-            <SectionCard key={group} title={group} flush>
-              <div className="divide-y divide-border">
-                {groupItems.map((m) => (
-                  <FeedItem
-                    key={m.id}
-                    icon={MEDIA_ICON[m.type]}
-                    title={m.title}
-                    meta={m.meta}
-                    body={m.body}
-                    media={<img src={m.thumb} alt="" />}
-                  />
-                ))}
-              </div>
-            </SectionCard>
-          );
-        })}
-      </FeedShell>
+      {/* Plex Ledger board form — timeline sub-shape: no read state, no header
+          actions; kicker + title only. */}
+      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+        <FeedShell
+          kicker="Feed"
+          title="Activity"
+        >
+          {GROUP_ORDER.map((group) => {
+            const groupItems = MEDIA_SEED.filter((m) => m.group === group);
+            if (groupItems.length === 0) return null;
+            return (
+              <SectionCard key={group} title={group} flush>
+                <div className="divide-y divide-border">
+                  {groupItems.map((m) => (
+                    <FeedItem
+                      key={m.id}
+                      icon={MEDIA_ICON[m.type]}
+                      title={m.title}
+                      meta={m.meta}
+                      body={m.body}
+                      media={<img src={m.thumb} alt="" />}
+                    />
+                  ))}
+                </div>
+              </SectionCard>
+            );
+          })}
+        </FeedShell>
+      </div>
     </section>
   );
 }

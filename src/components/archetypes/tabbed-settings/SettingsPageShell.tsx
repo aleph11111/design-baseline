@@ -1,6 +1,8 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
+import { type HeaderFill } from "@/components/layout/headerFill";
 import {
   SettingsPageHeader,
   type SettingsPageHeaderProps,
@@ -33,6 +35,18 @@ export type SettingsPageShellProps = SettingsPageHeaderProps & {
    * otherwise supply, e.g. `className="container mx-auto px-6 py-6"`.
    */
   className?: string;
+
+  // On-surface header (Plex Ledger board form). When `kicker` or `headerActions`
+  // is set, the shell switches to board form: `SettingsPageHeader` is suppressed
+  // and a `SurfaceHeader` renders at the top of a bounded card wrapping the
+  // children. The existing `title` prop (from `SettingsPageHeaderProps`) is
+  // used as the surface title.
+  /** Overline kicker above the title (e.g. "Settings", "Configuration"). */
+  kicker?: React.ReactNode;
+  /** Right-aligned actions in the on-surface header. */
+  headerActions?: React.ReactNode;
+  /** Header treatment for the on-surface header (House Style B). */
+  headerFill?: HeaderFill;
 };
 
 // ---------------------------------------------------------------------------
@@ -63,14 +77,36 @@ export function SettingsPageShell({
   breadcrumbs,
   children,
   className,
+  kicker,
+  headerActions,
+  headerFill,
   ...header
 }: SettingsPageShellProps): React.ReactElement {
+  const boardForm = kicker !== undefined || headerActions !== undefined;
+
   return (
     <ErrorBoundary>
       <div className={cn("space-y-5", className)}>
         {breadcrumbs}
-        <SettingsPageHeader {...header} />
-        {children}
+        {boardForm ? (
+          // Board form: SurfaceHeader on the bounded card; SettingsPageHeader suppressed.
+          <div className="rounded-lg border bg-card overflow-hidden">
+            {header.title !== undefined && (
+              <SurfaceHeader
+                kicker={kicker}
+                title={header.title}
+                actions={headerActions}
+                headerFill={headerFill}
+              />
+            )}
+            <div className="p-5">{children}</div>
+          </div>
+        ) : (
+          <>
+            <SettingsPageHeader {...header} />
+            {children}
+          </>
+        )}
       </div>
     </ErrorBoundary>
   );

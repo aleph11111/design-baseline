@@ -21,7 +21,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { AlertTriangle, ChefHat } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Table,
@@ -50,10 +50,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { PageHeader, SectionCard } from "@/components/layout";
+import { SectionCard } from "@/components/layout";
 import {
   FormPageShell,
-  FormPageHeader,
   FormPageActions,
   useFormPageState,
 } from "@/components/archetypes/form-page";
@@ -269,14 +268,10 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
 
   const title =
     mode === "edit" ? `Edit Recipe — ${props.initial.title}` : "New Recipe";
-  const subtitle =
-    mode === "edit"
-      ? "Update the fields and save to keep the recipe."
-      : "Capture a new recipe for the library.";
 
   return (
-    <FormPageShell width="md">
-      <FormPageHeader title={title} subtitle={subtitle} icon={ChefHat} />
+    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+      <FormPageShell width="md" kicker="Recipes" title={title}>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -491,6 +486,7 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
         </form>
       </Form>
     </FormPageShell>
+    </div>
   );
 }
 
@@ -563,11 +559,6 @@ export function FormPageDemo(): React.ReactElement {
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        title="Recipe Library"
-        subtitle="B (form-page) archetype demo — recipe domain"
-      />
-
       {lastAction && (
         <div className="rounded-md border bg-muted/50 px-4 py-2 text-sm text-muted-foreground">
           Last action:{" "}
@@ -575,6 +566,7 @@ export function FormPageDemo(): React.ReactElement {
         </div>
       )}
 
+      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <div className="rounded-lg border bg-card overflow-hidden">
         <div className="border-b px-4 py-3 flex items-center justify-between">
           <span className="text-sm text-muted-foreground">
@@ -618,6 +610,7 @@ export function FormPageDemo(): React.ReactElement {
             </TableBody>
           </Table>
         )}
+      </div>
       </div>
 
       <div className="rounded-md border bg-muted/30 px-4 py-3 text-xs text-muted-foreground space-y-1">

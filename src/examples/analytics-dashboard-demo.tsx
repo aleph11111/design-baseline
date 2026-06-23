@@ -14,11 +14,13 @@
  */
 
 import * as React from "react";
-import { PageHeader, StatTile, StatTileRow } from "@/components/layout";
+import { StatTile, StatTileRow } from "@/components/layout";
 import {
   DashboardGrid,
+  DashboardShell,
   DashboardWidget,
 } from "@/components/archetypes/analytics-dashboard";
+import { Button } from "@/components/ui/button";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   Select,
@@ -110,76 +112,84 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        title="Revenue analytics"
-        subtitle="Sales performance across channels and categories."
-      />
+      {/* Plex Ledger board form: title + actions sit ON the primary bounded
+          surface (DashboardShell); widget cards are sibling cards in the mat. */}
+      <div className="rounded-xl bg-muted/30 p-4 sm:p-6 space-y-4">
+        <DashboardShell
+          kicker="Reporting"
+          title="Revenue Analytics"
+          headerActions={
+            <>
+              {/* Filter bar — period segmented control + a category/channel select. */}
+              <SegmentedControl
+                value={period}
+                onValueChange={(v) => setPeriod(v as Period)}
+                options={PERIODS.map((p) => ({ value: p, label: p }))}
+                aria-label="Period"
+              />
+              <Select value={channel} onValueChange={(v) => setChannel(v)}>
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All channels</SelectItem>
+                  <SelectItem value="web">Web</SelectItem>
+                  <SelectItem value="retail">Retail</SelectItem>
+                  <SelectItem value="wholesale">Wholesale</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="sm">
+                Export
+              </Button>
+            </>
+          }
+        >
+          {/* KPI row — reuses StatTileRow / StatTile. */}
+          <StatTileRow columns={4}>
+            <StatTile label="Revenue" value={k.revenue} hint={`vs last ${period.toLowerCase()}`} />
+            <StatTile label="Orders" value={k.orders} hint="paid + fulfilled" />
+            <StatTile label="Avg order value" value={k.aov} hint="net of refunds" />
+            <StatTile label="Active customers" value={k.customers} hint="bought at least once" />
+          </StatTileRow>
+        </DashboardShell>
 
-      {/* Filter bar — period segmented control + a category/channel select. */}
-      <div className="flex flex-wrap items-center gap-3">
-        <SegmentedControl
-          value={period}
-          onValueChange={(v) => setPeriod(v as Period)}
-          options={PERIODS.map((p) => ({ value: p, label: p }))}
-          aria-label="Period"
-        />
-        <Select value={channel} onValueChange={(v) => setChannel(v)}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All channels</SelectItem>
-            <SelectItem value="web">Web</SelectItem>
-            <SelectItem value="retail">Retail</SelectItem>
-            <SelectItem value="wholesale">Wholesale</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* Widget grid — chart bodies are placeholders (consumer brings the chart lib). */}
+        <DashboardGrid columns={3}>
+          <DashboardWidget title="Revenue over time" span={2}>
+            <Sparkline values={k.trend} />
+          </DashboardWidget>
+          <DashboardWidget title="Orders by channel">
+            <HBars
+              data={[
+                { label: "Web", value: 540 },
+                { label: "Retail", value: 210 },
+                { label: "Wholesale", value: 62 },
+              ]}
+            />
+          </DashboardWidget>
+          <DashboardWidget title="Top categories">
+            <Bars
+              data={[
+                { label: "Sets", value: 38 },
+                { label: "Parts", value: 27 },
+                { label: "Minifigs", value: 19 },
+                { label: "Books", value: 9 },
+                { label: "Other", value: 7 },
+              ]}
+            />
+          </DashboardWidget>
+          <DashboardWidget title="Conversion funnel" span={3}>
+            <HBars
+              data={[
+                { label: "Visits", value: 100 },
+                { label: "Added to cart", value: 42 },
+                { label: "Checkout", value: 28 },
+                { label: "Purchased", value: 21 },
+              ]}
+            />
+          </DashboardWidget>
+        </DashboardGrid>
       </div>
-
-      {/* KPI row — reuses StatTileRow / StatTile. */}
-      <StatTileRow columns={4}>
-        <StatTile label="Revenue" value={k.revenue} hint={`vs last ${period.toLowerCase()}`} />
-        <StatTile label="Orders" value={k.orders} hint="paid + fulfilled" />
-        <StatTile label="Avg order value" value={k.aov} hint="net of refunds" />
-        <StatTile label="Active customers" value={k.customers} hint="bought at least once" />
-      </StatTileRow>
-
-      {/* Widget grid — chart bodies are placeholders (consumer brings the chart lib). */}
-      <DashboardGrid columns={3}>
-        <DashboardWidget title="Revenue over time" span={2}>
-          <Sparkline values={k.trend} />
-        </DashboardWidget>
-        <DashboardWidget title="Orders by channel">
-          <HBars
-            data={[
-              { label: "Web", value: 540 },
-              { label: "Retail", value: 210 },
-              { label: "Wholesale", value: 62 },
-            ]}
-          />
-        </DashboardWidget>
-        <DashboardWidget title="Top categories">
-          <Bars
-            data={[
-              { label: "Sets", value: 38 },
-              { label: "Parts", value: 27 },
-              { label: "Minifigs", value: 19 },
-              { label: "Books", value: 9 },
-              { label: "Other", value: 7 },
-            ]}
-          />
-        </DashboardWidget>
-        <DashboardWidget title="Conversion funnel" span={3}>
-          <HBars
-            data={[
-              { label: "Visits", value: 100 },
-              { label: "Added to cart", value: 42 },
-              { label: "Checkout", value: 28 },
-              { label: "Purchased", value: 21 },
-            ]}
-          />
-        </DashboardWidget>
-      </DashboardGrid>
     </div>
   );
 }

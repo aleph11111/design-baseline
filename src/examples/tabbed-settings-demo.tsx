@@ -18,7 +18,6 @@
  */
 
 import * as React from "react";
-import { SlidersHorizontal } from "lucide-react";
 import { SettingsPageShell } from "@/components/archetypes/tabbed-settings";
 import {
   DetailSection,
@@ -121,13 +120,14 @@ export function TabbedSettingsDemo() {
   );
 
   return (
-    <div>
+    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+      {/* Plex Ledger board form: title + kicker sit ON the bounded surface
+          (SurfaceHeader); tabs and body render below inside the same card. */}
       <SettingsPageShell
         title="Workspace"
-        subtitle="Configure your podcast studio's general, distribution, and team settings."
-        icon={SlidersHorizontal}
+        kicker="Settings"
         breadcrumbs={breadcrumbs}
-        /* No `actions` — F2 has no page-level actions; per-tab actions live in each body. */
+        /* No `headerActions` — F2 has no page-level actions; per-tab actions live in each body. */
       >
         <Tabs defaultValue="overview">
           <TabsList>

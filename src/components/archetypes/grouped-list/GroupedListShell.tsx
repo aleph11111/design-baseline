@@ -1,9 +1,11 @@
 import * as React from "react";
 import { StateView } from "@/components/ui/state-view";
+import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
+import { type HeaderFill } from "@/components/layout/headerFill";
 import { cn } from "@/lib/utils";
 
 export type GroupedListShellProps = {
-  /** Page-level toolbar slot. Rendered as a single card bar above the sections region. */
+  /** Page-level toolbar slot. Rendered as a bare flex row above the sections region. */
   toolbar?: React.ReactNode;
   /** True while the initial fetch is in flight. */
   isLoading?: boolean;
@@ -17,6 +19,18 @@ export type GroupedListShellProps = {
   emptyMessage?: string;
   /** `<GroupedListSection>` instances. */
   children?: React.ReactNode;
+
+  // On-surface header (Plex Ledger board form). When `title` is set, the shell
+  // renders a `SurfaceHeader` above the toolbar and sections.
+  /** Overline kicker above the title (e.g. "Catalog", "Library"). */
+  kicker?: React.ReactNode;
+  /** Surface title. When set, the on-surface header bar renders. */
+  title?: React.ReactNode;
+  /** Right-aligned actions in the on-surface header (e.g. "+ New"). */
+  headerActions?: React.ReactNode;
+  /** Header treatment for the on-surface header (House Style B). */
+  headerFill?: HeaderFill;
+
   className?: string;
 };
 
@@ -36,6 +50,10 @@ export function GroupedListShell({
   isEmpty,
   emptyMessage,
   children,
+  kicker,
+  title,
+  headerActions,
+  headerFill,
   className,
 }: GroupedListShellProps): React.ReactElement {
   const showLoading = isLoading === true;
@@ -45,6 +63,15 @@ export function GroupedListShell({
 
   return (
     <div className={cn("space-y-5", className)}>
+      {title !== undefined && (
+        <SurfaceHeader
+          kicker={kicker}
+          title={title}
+          actions={headerActions}
+          headerFill={headerFill}
+        />
+      )}
+
       {/* Page-level toolbar: a bare flex row (no card chrome) — the same
           standalone-toolbar treatment as feed-inbox. The grouped sections below
           supply their own card boundaries. */}

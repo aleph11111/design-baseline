@@ -4,6 +4,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
+import { type HeaderFill } from "@/components/layout/headerFill";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -59,6 +61,19 @@ export type MatrixGridShellProps<Cell> = {
   };
   /** Click handler. When present, cells receive `cursor-pointer select-none touch-manipulation`. */
   onCellClick?: (ctx: MatrixCellContext<Cell>) => void;
+
+  // On-surface header (Plex Ledger board form). When `title` is set, the shell
+  // renders a `SurfaceHeader` at the top of its bounded surface — the title +
+  // actions sit ON the card, not in a separate PageHeader above it.
+  /** Overline kicker above the title (e.g. "Gradebook", "Schedule"). */
+  kicker?: React.ReactNode;
+  /** Surface title. When set, the on-surface header bar renders. */
+  title?: React.ReactNode;
+  /** Right-aligned actions in the on-surface header. */
+  headerActions?: React.ReactNode;
+  /** Header treatment for the on-surface header (House Style B). */
+  headerFill?: HeaderFill;
+
   /** Outer wrapper className override. */
   className?: string;
 };
@@ -80,6 +95,10 @@ function MatrixGridShellInner<Cell>({
   renderCell,
   cellStyle,
   onCellClick,
+  kicker,
+  title,
+  headerActions,
+  headerFill,
   className,
 }: MatrixGridShellProps<Cell>) {
   const isFilledFn = isFilled ?? defaultIsFilled;
@@ -106,6 +125,14 @@ function MatrixGridShellInner<Cell>({
         className,
       )}
     >
+      {title !== undefined && (
+        <SurfaceHeader
+          kicker={kicker}
+          title={title}
+          actions={headerActions}
+          headerFill={headerFill}
+        />
+      )}
       <table className="text-[13px] border-collapse">
         <thead>
           {hasAnyGroup && (

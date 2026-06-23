@@ -6,6 +6,7 @@ import {
 } from "@/components/archetypes/list-with-detail";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 type Podcast = {
   id: string;
@@ -83,71 +84,86 @@ export function ListWithDetailDemo() {
   const selected = filtered.find((p) => p.id === selectedId) ?? null;
 
   return (
-    <ListWithDetailShell<Podcast>
-      rows={filtered}
-      columns={columns}
-      getRowId={(p) => p.id}
-      onRowSelect={(p) => setSelectedId(p.id)}
-      selectedRowId={selectedId}
-      presentation={presentation}
-      detailPresentation={detailMode}
-      detailTitle={selected?.title}
-      detailActions={
-        <Button size="sm" variant="outline">
-          Edit
-        </Button>
-      }
-      toolbar={
-        <ListWithDetailToolbar
-          searchValue={search}
-          onSearchChange={setSearch}
-          searchPlaceholder="Search shows…"
-          pageActions={
-            <div className="flex flex-wrap items-center gap-2">
-              <SegmentedControl
-                value={presentation}
-                onValueChange={(v) =>
-                  setPresentation(v as (typeof PRESENTATIONS)[number])
-                }
-                options={PRESENTATIONS.map((p) => ({ value: p, label: p }))}
-                aria-label="Presentation"
-              />
-              <SegmentedControl
-                value={detailMode}
-                onValueChange={(v) => setDetailMode(v as "rail" | "drawer")}
-                options={[
-                  { value: "rail", label: "Rail" },
-                  { value: "drawer", label: "Drawer" },
-                ]}
-                aria-label="Detail"
-              />
+    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+      <ListWithDetailShell<Podcast>
+        kicker="Podcasts"
+        title="Podcast Library"
+        headerActions={
+          <>
+            <Button variant="outline" size="sm">
+              Import
+            </Button>
+            <Button size="sm">
+              <Plus className="mr-1 h-4 w-4" />
+              New show
+            </Button>
+          </>
+        }
+        rows={filtered}
+        columns={columns}
+        getRowId={(p) => p.id}
+        onRowSelect={(p) => setSelectedId(p.id)}
+        selectedRowId={selectedId}
+        presentation={presentation}
+        detailPresentation={detailMode}
+        detailTitle={selected?.title}
+        detailActions={
+          <Button size="sm" variant="outline">
+            Edit
+          </Button>
+        }
+        toolbar={
+          <ListWithDetailToolbar
+            searchValue={search}
+            onSearchChange={setSearch}
+            searchPlaceholder="Search shows…"
+            pageActions={
+              <div className="flex flex-wrap items-center gap-2">
+                <SegmentedControl
+                  value={presentation}
+                  onValueChange={(v) =>
+                    setPresentation(v as (typeof PRESENTATIONS)[number])
+                  }
+                  options={PRESENTATIONS.map((p) => ({ value: p, label: p }))}
+                  aria-label="Presentation"
+                />
+                <SegmentedControl
+                  value={detailMode}
+                  onValueChange={(v) => setDetailMode(v as "rail" | "drawer")}
+                  options={[
+                    { value: "rail", label: "Rail" },
+                    { value: "drawer", label: "Drawer" },
+                  ]}
+                  aria-label="Detail"
+                />
+              </div>
+            }
+          />
+        }
+        detail={
+          selected ? (
+            <div className="p-5">
+              <p className="text-muted-foreground text-[13px]">by {selected.host}</p>
+              <p className="text-muted-foreground text-[13px] mt-2">
+                <span className="font-mono tabular-nums">
+                  {selected.episodeCount}
+                </span>{" "}
+                episodes · {selected.category}
+              </p>
+              <p className="text-muted-foreground text-[13px] mt-2">
+                Last published{" "}
+                <span className="font-mono tabular-nums">
+                  {selected.lastPublishedAt}
+                </span>
+              </p>
             </div>
-          }
-        />
-      }
-      detail={
-        selected ? (
-          <div className="p-5">
-            <p className="text-muted-foreground text-[13px]">by {selected.host}</p>
-            <p className="text-muted-foreground text-[13px] mt-2">
-              <span className="font-mono tabular-nums">
-                {selected.episodeCount}
-              </span>{" "}
-              episodes · {selected.category}
-            </p>
-            <p className="text-muted-foreground text-[13px] mt-2">
-              Last published{" "}
-              <span className="font-mono tabular-nums">
-                {selected.lastPublishedAt}
-              </span>
-            </p>
-          </div>
-        ) : (
-          <div className="p-5 text-muted-foreground text-[13px]">
-            Select a show to see details.
-          </div>
-        )
-      }
-    />
+          ) : (
+            <div className="p-5 text-muted-foreground text-[13px]">
+              Select a show to see details.
+            </div>
+          )
+        }
+      />
+    </div>
   );
 }

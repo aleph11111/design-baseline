@@ -9,7 +9,6 @@
 
 import * as React from "react";
 import { UploadCloud, CheckCircle2 } from "lucide-react";
-import { PageHeader } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -70,9 +69,7 @@ export function ImportWizardDemo(): React.ReactElement {
 
   if (committed) {
     return (
-      <div>
-        <PageHeader title="Import transactions" />
-        <div className="mt-6 flex flex-col items-center gap-3 rounded-lg border bg-card p-10 text-center">
+      <div className="flex flex-col items-center gap-3 rounded-lg border bg-card p-10 text-center">
           <CheckCircle2 className="h-10 w-10 text-emerald-600" />
           <h2 className="text-lg font-semibold">Import complete</h2>
           <p className="text-sm text-muted-foreground">
@@ -88,19 +85,17 @@ export function ImportWizardDemo(): React.ReactElement {
           >
             Start another import
           </Button>
-        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-5">
-      <PageHeader
-        title="Import transactions"
-        subtitle="Bring in a CSV export from your bank."
-      />
-
+    /* Plex Ledger board form: title sits ON the bounded surface (SurfaceHeader),
+       one frame on a muted mat. Wizard Back/Next/Commit stay in the wizard footer. */
+    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <WizardShell
+        kicker="Import"
+        title="Import transactions"
         steps={STEPS}
         current={step}
         onBack={() => setStep((s) => Math.max(0, s - 1))}
