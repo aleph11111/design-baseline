@@ -5,6 +5,7 @@ import {
   type ListColumn,
 } from "@/components/archetypes/list-with-detail";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Button } from "@/components/ui/button";
 
 type Podcast = {
   id: string;
@@ -72,6 +73,8 @@ export function ListWithDetailDemo() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [presentation, setPresentation] =
     useState<(typeof PRESENTATIONS)[number]>("table");
+  // Detail presentation: a right rail, or a slide-in drawer (Sheet on desktop).
+  const [detailMode, setDetailMode] = useState<"rail" | "drawer">("drawer");
 
   const filtered = PODCASTS.filter((p) =>
     p.title.toLowerCase().includes(search.toLowerCase()),
@@ -87,34 +90,60 @@ export function ListWithDetailDemo() {
       onRowSelect={(p) => setSelectedId(p.id)}
       selectedRowId={selectedId}
       presentation={presentation}
+      detailPresentation={detailMode}
+      detailTitle={selected?.title}
+      detailActions={
+        <Button size="sm" variant="outline">
+          Edit
+        </Button>
+      }
       toolbar={
         <ListWithDetailToolbar
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder="Search shows…"
           pageActions={
-            <SegmentedControl
-              value={presentation}
-              onValueChange={(v) =>
-                setPresentation(v as (typeof PRESENTATIONS)[number])
-              }
-              options={PRESENTATIONS.map((p) => ({ value: p, label: p }))}
-              aria-label="Presentation"
-            />
+            <div className="flex flex-wrap items-center gap-2">
+              <SegmentedControl
+                value={presentation}
+                onValueChange={(v) =>
+                  setPresentation(v as (typeof PRESENTATIONS)[number])
+                }
+                options={PRESENTATIONS.map((p) => ({ value: p, label: p }))}
+                aria-label="Presentation"
+              />
+              <SegmentedControl
+                value={detailMode}
+                onValueChange={(v) => setDetailMode(v as "rail" | "drawer")}
+                options={[
+                  { value: "rail", label: "Rail" },
+                  { value: "drawer", label: "Drawer" },
+                ]}
+                aria-label="Detail"
+              />
+            </div>
           }
         />
       }
       detail={
         selected ? (
-          <div className="p-4">
-            <h3 className="font-medium">{selected.title}</h3>
-            <p className="text-muted-foreground text-sm">by {selected.host}</p>
-            <p className="text-muted-foreground text-sm mt-2">
-              <span className="font-mono tabular-nums">{selected.episodeCount}</span> episodes · {selected.category}
+          <div className="p-5">
+            <p className="text-muted-foreground text-[13px]">by {selected.host}</p>
+            <p className="text-muted-foreground text-[13px] mt-2">
+              <span className="font-mono tabular-nums">
+                {selected.episodeCount}
+              </span>{" "}
+              episodes · {selected.category}
+            </p>
+            <p className="text-muted-foreground text-[13px] mt-2">
+              Last published{" "}
+              <span className="font-mono tabular-nums">
+                {selected.lastPublishedAt}
+              </span>
             </p>
           </div>
         ) : (
-          <div className="p-4 text-muted-foreground text-sm">
+          <div className="p-5 text-muted-foreground text-[13px]">
             Select a show to see details.
           </div>
         )

@@ -9,6 +9,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import {
+  useHeaderFill,
+  headerFillClasses,
+  type HeaderFill,
+} from "@/components/layout/headerFill";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { ListWithDetailEmptyState } from "./ListWithDetailEmptyState";
@@ -60,6 +65,23 @@ export type ListWithDetailShellProps<Row> = {
   rowActions?: RowAction<Row>[];
   toolbar?: React.ReactNode;
   detail?: React.ReactNode;
+  /**
+   * How the `detail` surface presents on desktop:
+   * - `"rail"` (default): a right rail beside the list (collapses to a Sheet on
+   *   mobile, as always).
+   * - `"drawer"`: a slide-in Sheet from the right at every width — the
+   *   "slide-in details" pattern. The drawer header follows `headerFill`.
+   */
+  detailPresentation?: "rail" | "drawer";
+  /**
+   * Optional title for the drawer/sheet header bar (rendered with the house
+   * `headerFill` treatment). When omitted, the Sheet renders only `detail`.
+   */
+  detailTitle?: React.ReactNode;
+  /** Optional right-aligned actions in the drawer header (e.g. an Edit button). */
+  detailActions?: React.ReactNode;
+  /** Header treatment for the drawer header bar (House Style B). Default: project context. */
+  headerFill?: HeaderFill;
   emptyStateMessage?: string;
   filteredEmpty?: boolean;
   sortBy?: string;
@@ -133,6 +155,10 @@ function ListWithDetailShellInner<Row>(
     rowActions,
     toolbar,
     detail,
+    detailPresentation = "rail",
+    detailTitle,
+    detailActions,
+    headerFill,
     emptyStateMessage,
     filteredEmpty,
     sortBy,
@@ -146,6 +172,10 @@ function ListWithDetailShellInner<Row>(
 ) {
   const isMobile = useIsMobile();
   const [sheetOpen, setSheetOpen] = React.useState(false);
+  const hfc = headerFillClasses(useHeaderFill(headerFill));
+  // The detail presents as a Sheet on mobile always, and on desktop too when
+  // `detailPresentation="drawer"` (the slide-in pattern).
+  const asSheet = detailPresentation === "drawer" || isMobile;
 
   // Sync sheet visibility with selectedRowId: if the consumer clears the selection
   // (e.g. after a delete) while on mobile, close the sheet so stale detail is not shown.
@@ -158,12 +188,12 @@ function ListWithDetailShellInner<Row>(
   // When a row is selected on mobile, open the sheet.
   const handleRowSelect = React.useCallback(
     (row: Row) => {
-      if (isMobile && detail !== undefined) {
+      if (asSheet && detail !== undefined) {
         setSheetOpen(true);
       }
       onRowSelect?.(row);
     },
-    [isMobile, detail, onRowSelect],
+    [asSheet, detail, onRowSelect],
   );
 
   function handleSortClick(columnKey: string) {
@@ -391,12 +421,30 @@ function ListWithDetailShellInner<Row>(
       />
     );
 
-  // Detail panel: desktop = right rail, mobile = Sheet
+  // Detail panel: rail on desktop (default), or a slide-in Sheet (drawer mode,
+  // and always on mobile). The drawer header bar follows the house `headerFill`.
   const detailPanel =
     detail !== undefined ? (
-      isMobile ? (
+      asSheet ? (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-          <SheetContent side="right">{detail}</SheetContent>
+          <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
+            {detailTitle !== undefined ? (
+              <div
+                className={cn(
+                  "flex shrink-0 items-center justify-between gap-3 px-5 py-4",
+                  hfc.bar,
+                )}
+              >
+                <div className={cn("min-w-0 truncate text-lg font-semibold", hfc.title)}>
+                  {detailTitle}
+                </div>
+                {detailActions ? (
+                  <div className="flex shrink-0 items-center gap-2 pr-8">{detailActions}</div>
+                ) : null}
+              </div>
+            ) : null}
+            <div className="min-h-0 flex-1 overflow-y-auto">{detail}</div>
+          </SheetContent>
         </Sheet>
       ) : (
         <div className="w-80 shrink-0 border-l bg-card">{detail}</div>

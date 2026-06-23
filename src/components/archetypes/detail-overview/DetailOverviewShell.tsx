@@ -1,5 +1,10 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import {
+  useHeaderFill,
+  headerFillClasses,
+  type HeaderFill,
+} from "@/components/layout/headerFill";
 
 const WIDTH_MAP: Record<"none" | "md" | "lg" | "xl", string> = {
   none: "",
@@ -45,6 +50,12 @@ export type DetailOverviewShellProps = {
    *   a white frame on a white page has no contrast and the effect collapses.
    */
   surface?: "separated" | "unified";
+  /**
+   * Header treatment for the `surface="unified"` framed header (House Style B).
+   * Defaults to the project's `HeaderFillContext` ("solid" unless overridden).
+   * Only applies in unified mode (the separated header is a bare PageHeader).
+   */
+  headerFill?: HeaderFill;
   className?: string;
 };
 
@@ -58,8 +69,11 @@ export function DetailOverviewShell({
   width = "none",
   layout = "vertical",
   surface = "separated",
+  headerFill,
   className,
 }: DetailOverviewShellProps): React.ReactElement {
+  // House header treatment (only used by the unified framed header below).
+  const hfc = headerFillClasses(useHeaderFill(headerFill));
   // -------------------------------------------------------------------------
   // UNIFIED — the HYBRID model (Amendment v2.3). Cohesion comes from the OUTER
   // FRAME, not from stripping every card:
@@ -128,7 +142,7 @@ export function DetailOverviewShell({
         )}
       >
         {header && (
-          <div className="border-b border-border/60 px-5 py-4">{header}</div>
+          <div className={cn("px-5 py-4", hfc.bar)}>{header}</div>
         )}
         {body}
       </div>

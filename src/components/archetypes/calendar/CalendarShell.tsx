@@ -1,5 +1,10 @@
 import * as React from "react";
 import { OVERLINE_CLASS } from "@/components/layout/overline";
+import {
+  useHeaderFill,
+  headerFillClasses,
+  type HeaderFill,
+} from "@/components/layout/headerFill";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -52,6 +57,11 @@ export type CalendarShellProps = {
   days: CalendarDay[];
   /** Empty-column copy, centred faintly when a day has no events. Default: none. */
   emptyDayLabel?: React.ReactNode;
+  /**
+   * Header treatment (House Style B). Defaults to the project's
+   * `HeaderFillContext` ("solid" — accent-filled — unless overridden).
+   */
+  headerFill?: HeaderFill;
   /** Outer card className override. */
   className?: string;
 };
@@ -106,8 +116,10 @@ export function CalendarShell({
   actions,
   days,
   emptyDayLabel,
+  headerFill,
   className,
 }: CalendarShellProps): React.ReactElement {
+  const hfc = headerFillClasses(useHeaderFill(headerFill));
   return (
     <div
       className={cn(
@@ -116,12 +128,22 @@ export function CalendarShell({
       )}
     >
       {/* Header bar */}
-      <div className="flex items-start justify-between gap-5 border-b border-border px-4 py-3.5 sm:px-5">
+      <div
+        className={cn(
+          "flex items-start justify-between gap-5 px-4 py-3.5 sm:px-5",
+          hfc.bar,
+        )}
+      >
         <div className="min-w-0">
           {kicker ? (
-            <div className={cn(OVERLINE_CLASS, "mb-1")}>{kicker}</div>
+            <div className={cn(OVERLINE_CLASS, "mb-1", hfc.kicker)}>{kicker}</div>
           ) : null}
-          <div className="truncate text-lg font-semibold tracking-tight text-foreground">
+          <div
+            className={cn(
+              "truncate text-lg font-semibold tracking-tight text-foreground",
+              hfc.title,
+            )}
+          >
             {title}
           </div>
         </div>

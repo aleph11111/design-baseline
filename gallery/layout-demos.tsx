@@ -21,6 +21,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SearchInput } from "@/components/ui/search-input";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { StateView } from "@/components/ui/state-view";
 import { IconAvatar } from "@/components/ui/icon-avatar";
 import { CellInput, CellSelect } from "@/components/ui/cell-input";
@@ -156,13 +158,36 @@ function AuthCardDemo() {
       title="Sign in"
       description="Welcome back — enter your credentials."
       icon={Settings}
-      footer={<a className="text-primary hover:underline" href="#">Forgot password?</a>}
+      footer={
+        <span className="text-muted-foreground">
+          No account?{" "}
+          <a className="font-medium text-primary hover:underline" href="#">
+            Register
+          </a>
+        </span>
+      }
     >
-      <div className="space-y-3">
-        <input className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Email" />
-        <input className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Password" type="password" />
-        <Button className="w-full">Sign in</Button>
-      </div>
+      <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+        <div className="space-y-1.5">
+          <Label htmlFor="auth-email">Email</Label>
+          <Input id="auth-email" type="email" placeholder="name@company.com" />
+        </div>
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="auth-pw">Password</Label>
+            <a
+              className="text-xs text-muted-foreground hover:text-foreground"
+              href="#"
+            >
+              Forgot?
+            </a>
+          </div>
+          <Input id="auth-pw" type="password" placeholder="••••••••" />
+        </div>
+        <Button type="submit" className="w-full">
+          Sign in
+        </Button>
+      </form>
     </AuthCard>
   );
 }

@@ -25,3 +25,9 @@ export {
 } from "./SectionNav";
 export { BottomNav, type BottomNavItem } from "./BottomNav";
 export { ThemeToggle } from "./ThemeToggle";
+export {
+  HeaderFillContext,
+  useHeaderFill,
+  headerFillClasses,
+  type HeaderFill,
+} from "./headerFill";

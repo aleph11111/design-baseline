@@ -1,6 +1,11 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { OVERLINE_CLASS } from "@/components/layout/overline";
+import {
+  useHeaderFill,
+  headerFillClasses,
+  type HeaderFill,
+} from "@/components/layout/headerFill";
 
 export type ReportShellProps = {
   /**
@@ -33,6 +38,11 @@ export type ReportShellProps = {
    * - `"lg"`: `max-w-4xl` — a wide statement with many columns.
    */
   width?: "sm" | "md" | "lg";
+  /**
+   * Header treatment (House Style B). Defaults to the project's
+   * `HeaderFillContext` ("solid" — accent-filled — unless overridden).
+   */
+  headerFill?: HeaderFill;
   className?: string;
 };
 
@@ -67,8 +77,10 @@ export function ReportShell({
   actions,
   children,
   width = "md",
+  headerFill,
   className,
 }: ReportShellProps): React.ReactElement {
+  const hfc = headerFillClasses(useHeaderFill(headerFill));
   return (
     <div
       className={cn(
@@ -77,12 +89,22 @@ export function ReportShell({
         className,
       )}
     >
-      <div className="flex items-start justify-between gap-5 border-b border-border px-5 py-4">
+      <div
+        className={cn(
+          "flex items-start justify-between gap-5 px-5 py-4",
+          hfc.bar,
+        )}
+      >
         <div className="min-w-0">
           {kicker ? (
-            <div className={cn(OVERLINE_CLASS, "mb-1")}>{kicker}</div>
+            <div className={cn(OVERLINE_CLASS, "mb-1", hfc.kicker)}>{kicker}</div>
           ) : null}
-          <div className="text-lg font-semibold leading-tight text-foreground">
+          <div
+            className={cn(
+              "text-lg font-semibold leading-tight text-foreground",
+              hfc.title,
+            )}
+          >
             {title}
           </div>
         </div>

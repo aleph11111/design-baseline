@@ -105,6 +105,25 @@ the page). `surface="unified"` depends on the page behind the frame being muted
 (`AppShell`'s `<main>` is `bg-muted/30`); on a white page the frame has no edge and
 the effect collapses.
 
+**Header fill (the 2-token house contract).** A framed surface's header bar
+(`DetailOverviewShell` unified, `ReportShell`, `CalendarShell`, the
+`ListWithDetailShell` drawer) renders one of three ways via `--header-fill`,
+set once per project on `<AppShell headerFill="…">` (a `HeaderFillContext`,
+default **`solid`**) and read by every framed shell so they never diverge:
+
+- **`solid`** (default) — the bar is filled with the brand accent (`--primary`),
+  white title/kicker, **inverted** action buttons (outline → transparent/white
+  border; primary → white fill + accent text). Semantic status `<Badge>`s are
+  **not** inverted — they stay semantic.
+- **`tint`** — a soft muted fill (`bg-muted`), normal dark text.
+- **`white`** — plain white, hairline border only.
+
+The two tokens are **`--primary`** (the brand accent, each app's override; the
+donor default is neutral slate) and **`--header-fill`** (per-project, default
+solid). Everything else — header-on-surface, one frame on a muted mat, mono
+figures, semantic pills — composes from those. A single shell may override with
+a `headerFill` prop. See `src/components/layout/headerFill.ts`.
+
 ## Component inventory (`src/components/ui/`)
 
 Standard shadcn/ui set:

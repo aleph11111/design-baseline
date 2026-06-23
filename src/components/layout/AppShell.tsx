@@ -3,17 +3,31 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { HeaderFillContext, type HeaderFill } from "./headerFill";
 
 interface AppShellProps {
   sidebar: React.ReactNode;
   header: React.ReactNode;
   children: React.ReactNode;
   defaultSidebarOpen?: boolean;
+  /**
+   * The house header treatment for every framed surface below (House Style B).
+   * Set once per project; defaults to "solid" (accent-filled headers). See
+   * `headerFill.ts`.
+   */
+  headerFill?: HeaderFill;
 }
 
-export function AppShell({ sidebar, header, children, defaultSidebarOpen = true }: AppShellProps) {
+export function AppShell({
+  sidebar,
+  header,
+  children,
+  defaultSidebarOpen = true,
+  headerFill = "solid",
+}: AppShellProps) {
   return (
     <TooltipProvider>
+      <HeaderFillContext.Provider value={headerFill}>
       <SidebarProvider defaultOpen={defaultSidebarOpen}>
         <div className="h-svh flex w-full">
           {sidebar}
@@ -27,6 +41,7 @@ export function AppShell({ sidebar, header, children, defaultSidebarOpen = true 
           </div>
         </div>
       </SidebarProvider>
+      </HeaderFillContext.Provider>
       <Toaster />
       <Sonner />
     </TooltipProvider>
