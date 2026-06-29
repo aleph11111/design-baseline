@@ -155,7 +155,11 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
 
         {/* Widget grid — chart bodies are placeholders (consumer brings the chart lib). */}
         <DashboardGrid columns={3}>
-          <DashboardWidget title="Revenue over time" span={2}>
+          <DashboardWidget
+            title="Revenue over time"
+            description="Trailing 12 months, net of refunds"
+            span={2}
+          >
             <Sparkline values={k.trend} />
           </DashboardWidget>
           <DashboardWidget title="Orders by channel">

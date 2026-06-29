@@ -13,6 +13,8 @@ export type DashboardWidgetProps = {
   title: React.ReactNode;
   /** Optional right-aligned controls in the title bar (a small range toggle, a menu). */
   actions?: React.ReactNode;
+  /** Optional secondary line under the title (rendered by SectionCard). */
+  description?: React.ReactNode;
   /**
    * How many grid columns this widget spans. Defaults to 1. The grid collapses
    * responsively, so spans only apply at `sm`+.
@@ -35,12 +37,18 @@ export type DashboardWidgetProps = {
 export function DashboardWidget({
   title,
   actions,
+  description,
   span = 1,
   children,
   className,
 }: DashboardWidgetProps): React.ReactElement {
   return (
-    <SectionCard title={title} actions={actions} className={cn(SPAN_MAP[span], className)}>
+    <SectionCard
+      title={title}
+      description={description}
+      actions={actions}
+      className={cn(SPAN_MAP[span], className)}
+    >
       {children}
     </SectionCard>
   );

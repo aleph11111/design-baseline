@@ -149,7 +149,7 @@
       "namespace": "baseline",
       "slug": "analytics-dashboard",
       "displayName": "Analytics dashboard",
-      "version": "1.4",
+      "version": "1.5",
       "promoted_from": "fleet-audit-2026-06-13 (brickshop-manager, my-finance-app, hk-crm, mistra)",
       "promoted_at": "2026-06-14",
       "source_spec_version": "1.2",
