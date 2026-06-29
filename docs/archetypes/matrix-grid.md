@@ -49,7 +49,7 @@ If the page is a single-axis list of rows (no meaningful columns beyond display 
 
 **Required:**
 - The page renders inside `<AppShell>` from `src/components/layout/`. As of baseline v1.0, `<AppShell>` mounts `TooltipProvider`, `SidebarProvider`, `<Toaster>`, and `<Sonner>`, so those providers are always in the tree by the time a matrix-grid page renders. Consumers do not re-mount them at the page level. **`<MatrixGridShell>` itself does not re-mount `TooltipProvider`.**
-- Outer container: `<div className="space-y-4">` — **no page inset** (`AppShell`'s `<main>` supplies it). The matrix and its toolbar live in one vertical stack.
+- Outer container: `<div className="space-y-4">` — **no page inset** (`AppShell`'s `<main>` supplies it). It holds the bounded matrix surface (which now carries its own header + toolbar, see Layers 4/5) plus any sibling side-Sheets/dialogs.
 - `<ErrorBoundary>` wrapping page content at the page component level.
 - The baseline `<PageHeader>` layout primitive (`@/components/layout`) for the title bar (when the page has one — see Layer 3).
 
@@ -86,8 +86,8 @@ The page header is **purely informational** — title, optional subtitle, option
 The matrix toolbar is different from a list-with-detail toolbar: search and filter make less sense (rows are usually pre-scoped by the route) while **temporal / view selection** controls dominate.
 
 **Required:**
-- Toolbar renders as a sibling **above** `<MatrixGridShell>`, not as a slot of the shell. Layout: `<div className="flex items-end gap-4">`.
-- **Point-in-time control** when the matrix has temporal semantics. Pattern: a `<Input type="date">` bound to the URL's `as_of` query param, plus a "Today" button (`variant="outline" size="sm"`) that resets to today's ISO date.
+- Toolbar renders **on the surface**, via the shell's `toolbar` slot — a ruled band (`border-b px-4 py-3`) directly under the on-surface `SurfaceHeader`. Inner layout: `<div className="flex items-end gap-4">`. *(Pre-board-form the toolbar was a sibling above the shell; House Style B moved the title/actions onto the surface, so a floating toolbar now reads as orphaned from its header — pass it to the slot instead.)*
+- **Point-in-time control** when the matrix has temporal semantics. Pattern: a `<Input type="date">` bound to the URL's `as_of` query param, plus a "Today" button (`variant="outline" size="sm"`) that resets to today's ISO date. Because it lives in the on-surface `toolbar` band, it stays visible alongside the header even when the current date yields no rows (see Layer 7's `emptyState`).
 
 **Allowed variation:**
 - **Filter chips** — optional. If a matrix can be sliced by an additional dimension (e.g. "only customers in region X"), use a pill bar, **not** a Select dropdown. Same rule as Layer 4 in archetype A.
@@ -98,7 +98,7 @@ The matrix toolbar is different from a list-with-detail toolbar: search and filt
 **Forbidden:**
 - Per-cell actions in the toolbar (they belong in the side-Sheet that opens on cell click).
 - Status filter rendered as a Select dropdown.
-- Toolbar rendered as a slot of the shell. Matrix shell is grid-only; toolbar is a sibling.
+- Toolbar floating as a sibling above the bounded surface, orphaned from the on-surface header. Pass it to the shell's `toolbar` slot instead.
 
 ---
 
@@ -165,12 +165,12 @@ This is the core layer. The matrix shell is generic over a single type parameter
 
 ## Layer 7 — Empty / loading / error states
 
-A matrix has three kinds of emptiness, and the contract is **page-level**, not shell-level. The shell is dumb about WHY a matrix is empty; the consumer decides which message to show before passing rows/columns to the shell.
+A matrix has three kinds of emptiness, and the *message* is the consumer's call — the shell is dumb about WHY a matrix is empty. But the **chrome stays mounted**: the consumer passes its message to the shell's `emptyState` slot rather than rendering it instead of the shell, so the on-surface header and `toolbar` (the as-of control especially) remain visible — the user can change the date to escape the empty result.
 
 **Required (consumer responsibility):**
-- **No columns** — show `<p className="text-muted-foreground">{noColumnsMessage}</p>` instead of mounting the shell. Example copy: "No services configured yet."
+- **No columns** — mount the shell and pass `emptyState={<p className="…">{noColumnsMessage}</p>}`. Example copy: "No services configured yet."
 - **No rows but columns present** — same pattern. Example copy: "No customers match this view." (or query-aware: "No customers have active services as of {asOf}.")
-- **Both axes present, all cells empty** — render the shell. Empty cells are intentional; the matrix is showing a real "zero state" per intersection.
+- **Both axes present, all cells empty** — render the grid (omit `emptyState`). Empty cells are intentional; the matrix is showing a real "zero state" per intersection.
 
 **Loading:**
 - The matrix shell does **not** ship a loading state. Page-level data fetching renders a `loading.tsx` (Next.js) or skeleton above the shell. The shell mounts only when data is in hand.

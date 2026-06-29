@@ -124,6 +124,10 @@ export function MatrixGridDemo() {
   // Cell variant axis: "click" = read-only cells that open a side-sheet to edit;
   // "inline" = editable-cell (a <select> rendered directly in each filled cell).
   const [mode, setMode] = useState<"click" | "inline">("click");
+  // Toolbar axis: a grid-driving control (the term) lives in the `toolbar` band
+  // under the header — not in `headerActions`. Switching to a term with no
+  // entries exercises the `emptyState` slot while keeping the header + toolbar.
+  const [term, setTerm] = useState<"spring" | "summer">("spring");
 
   function setCellGrade(studentId: string, subjectKey: string, grade: Grade) {
     const today = new Date().toISOString().slice(0, 10);
@@ -153,6 +157,10 @@ export function MatrixGridDemo() {
     ),
     cells: gradesByStudent[student.id] ?? {},
   }));
+
+  // The spring term carries the seeded grades; summer has none yet — the latter
+  // drives the `emptyState` slot below.
+  const visibleRows = term === "spring" ? rows : [];
 
   function closeSheet() {
     setSheet({ kind: "closed" });
@@ -221,8 +229,31 @@ export function MatrixGridDemo() {
             </Button>
           </>
         }
+        toolbar={
+          <div className="flex items-end gap-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="term">Term</Label>
+              <Select value={term} onValueChange={(v) => setTerm(v as "spring" | "summer")}>
+                <SelectTrigger id="term" className="w-44">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="spring">Spring 2026</SelectItem>
+                  <SelectItem value="summer">Summer 2026</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        }
+        emptyState={
+          visibleRows.length === 0 ? (
+            <div className="px-4 py-16 text-center text-sm text-muted-foreground">
+              No grades recorded for this term yet.
+            </div>
+          ) : undefined
+        }
         columns={columns}
-        rows={rows}
+        rows={visibleRows}
         rowHeaderLabel="Student"
         renderCell={(ctx) =>
           mode === "inline" && ctx.isFilled ? (

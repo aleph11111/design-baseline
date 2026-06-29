@@ -74,6 +74,20 @@ export type MatrixGridShellProps<Cell> = {
   /** Header treatment for the on-surface header (House Style B). */
   headerFill?: HeaderFill;
 
+  /**
+   * Optional toolbar rendered as a ruled band directly under the on-surface
+   * header — the home for controls that drive the grid (an as-of date, filters,
+   * a scope toggle). Mirrors `ListWithDetailShell`'s `toolbar` slot so a
+   * data-driving matrix keeps its controls on the surface, not floating above it.
+   */
+  toolbar?: React.ReactNode;
+  /**
+   * Rendered in the body in place of the grid when set — typically an empty-state
+   * message. Kept inside the bounded surface so the header and `toolbar` still
+   * show (e.g. an as-of control remains usable when the current date has no rows).
+   */
+  emptyState?: React.ReactNode;
+
   /** Outer wrapper className override. */
   className?: string;
 };
@@ -99,6 +113,8 @@ function MatrixGridShellInner<Cell>({
   title,
   headerActions,
   headerFill,
+  toolbar,
+  emptyState,
   className,
 }: MatrixGridShellProps<Cell>) {
   const isFilledFn = isFilled ?? defaultIsFilled;
@@ -133,6 +149,12 @@ function MatrixGridShellInner<Cell>({
           headerFill={headerFill}
         />
       )}
+      {toolbar !== undefined && toolbar !== null && (
+        <div className="border-b px-4 py-3">{toolbar}</div>
+      )}
+      {emptyState !== undefined && emptyState !== null ? (
+        emptyState
+      ) : (
       <table className="text-[13px] border-collapse">
         <thead>
           {hasAnyGroup && (
@@ -238,6 +260,7 @@ function MatrixGridShellInner<Cell>({
           })}
         </tbody>
       </table>
+      )}
     </div>
   );
 }
