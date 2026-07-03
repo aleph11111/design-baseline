@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 2.4
+version: 2.5
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.0
@@ -12,6 +12,16 @@ blueprint: docs/archetypes/detail-overview-blueprint.svg
 
 # Archetype C — Detail Overview
 
+> **v2.5 (2026-07-03) — board-form / house-style sync.** Corrected the Mode A
+> header description to match the shared `<PageHeader>`'s actual title scale
+> (`text-lg font-semibold`, not `text-2xl` — the primitive was narrowed in a
+> prior pass but this spec wasn't updated). The `surface="unified"` framed
+> header now documents the `--header-fill` contract it already renders through
+> (`headerFill.ts` / `HeaderFillContext`, default `solid`). The S5
+> acceptance-gate box now requires `font-mono tabular-nums` figures, matching
+> the baseline's house-style mono-figure adoption (STYLE.md, 2026-06-21 Plex
+> Ledger amendment) rather than "aligned, mono not required". No API change.
+>
 > **v2.4 (2026-06-22) — header status badges.** `<DetailOverviewHeader>` (and the
 > shared `<PageHeader>`) gain a `badges` slot — read-only `<Badge>`s inline next
 > to the title. This is the archetype's **one home for status** (the acceptance
@@ -233,6 +243,13 @@ Orthogonal to `layout`, the `surface` prop chooses the **container model**:
   reference corrects. Works with either layout; the canonical pairing for dense
   record pages is **`layout="rail" surface="unified"`**.
 
+**Header fill.** In `surface="unified"`, the frame's header bar renders per the
+shared `--header-fill` contract (`headerFill.ts` / `HeaderFillContext`) — three
+modes, `solid` (accent-filled, default) / `tint` (`bg-muted`) / `white`
+(hairline only) — set once per project via `<AppShell headerFill>` and
+overridable per page via `<DetailOverviewShell headerFill>`. Only applies in
+unified mode; the separated header is a bare `<PageHeader>` with no fill.
+
 The acceptance gate's **"One outer frame, not a card scatter"** REQUIRED box
 scores this: a rail page is a wrapper adoption if it is loose cards on the bare
 page background with no frame, *or* if the rail is carded instead of flush.
@@ -314,10 +331,12 @@ The page renders its own header because no parent layout owns it (typical for
 top-level entity routes like `/opportunities/[id]`).
 
 **Required:**
-- `<DetailOverviewHeader>` renders title (`text-2xl font-semibold tracking-tight`)
-  and an optional right-aligned actions row. It is a thin wrapper over the
-  baseline `<PageHeader>` layout primitive (`@/components/layout`), narrowed to
-  the detail-overview contract (no icon, no back link).
+- `<DetailOverviewHeader>` renders title (`text-lg font-semibold leading-tight
+  tracking-tight`) and an optional right-aligned actions row. It is a thin
+  wrapper over the baseline `<PageHeader>` layout primitive
+  (`@/components/layout`), narrowed to the detail-overview contract (no icon,
+  no back link) — the title scale is `<PageHeader>`'s single source of truth,
+  not restated here.
 - Title text reflects the entity name; optional subtitle reads
   `text-sm text-muted-foreground` and may include a link back to the parent
   entity (e.g. an order's owning customer).
@@ -728,9 +747,9 @@ domain:
 
 ### REQUIRED — visual substrate ([spine], restated at the gate)
 
-- [ ] **Figures are aligned.** All money, IDs, quantities, dates use `tabular-nums`
-      for column alignment, in the **baseline's own font** (mono is not required
-      unless the baseline adopts mono figures at the house-style level). *(S5)*
+- [ ] **Figures are mono.** All money, IDs, quantities, dates use `font-mono
+      tabular-nums` — the baseline adopted mono figures at the house-style
+      level (STYLE.md, 2026-06-21 Plex Ledger amendment). *(S5)*
 - [ ] **Brand primary, not default.** Primary actions/active states read the brand
       `--primary` (the target's token override is applied), not donor slate. *(S6)*
 - [ ] **Semantic state.** Negative / at-risk values (a loss, an overdue date) read

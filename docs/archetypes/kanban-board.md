@@ -18,7 +18,10 @@ Promoted from the 2026-06-13 fleet audit (recurs in pmo and hk-crm; rule-of-2).
 
 ## Primitives
 
-- `<BoardShell>` — the horizontally-scrolling column row.
+- `<BoardShell kicker title headerActions headerFill>` — the horizontally-scrolling
+  column row. When `title` is set, the shell adopts the Plex Ledger board form: an
+  on-surface `<SurfaceHeader>` (kicker + title left, `headerActions` right) spans
+  the top of one bounded card, with the column scroll area below it.
 - `<BoardColumn title count actions>` — a column: overline header (title + count +
   actions like add-card) over a vertical card stack. Forwards ref + spreads props
   (the DnD droppable target).
@@ -34,13 +37,15 @@ suspense.
 container; the page does not.
 
 ## Layer 3 — Page header
-`<PageHeader>` with the board title; filters (assignee, label) can sit in the
-header `actions` slot or a toolbar below.
+`<BoardShell kicker title headerActions>` renders the on-surface `<SurfaceHeader>`
+(Plex Ledger board form) at the top of the bounded card — kicker + title left,
+actions right — not a detached `<PageHeader>` above the surface. Filters
+(assignee, label) can sit in `headerActions` or a toolbar below.
 
 ## Layer 5/6 — The board
 `<BoardShell>` of `<BoardColumn>`s of `<BoardCard>`s. Columns show a count and an
-add-card affordance; cards show a title + a couple of compact meta chips (label,
-assignee). Keep cards scannable — push detail into a crud-dialog (J) or a detail
+add-card affordance; cards show a title + a couple of compact meta chips — a
+`<Badge>` for the label, an `<IconAvatar>` for the assignee. Keep cards scannable — push detail into a crud-dialog (J) or a detail
 page (C) opened from the card, not onto the card.
 
 **Forbidden:** rendering a data table per column (that's grouped-list K — use this

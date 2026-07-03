@@ -2,7 +2,7 @@
 key: M
 slug: matrix-grid
 kind: page
-version: 1.1
+version: 1.2
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.0
@@ -67,17 +67,16 @@ If the page is a single-axis list of rows (no meaningful columns beyond display 
 
 The page header is **purely informational** — title, optional subtitle, optional icon. **Action buttons live in the toolbar (Layer 4).** A matrix page often omits the header entirely when the matrix view is itself a tab/segment within a parent page; that is permitted.
 
-**Required (when present, via `<PageHeader>`):**
-- **Title** — always present when the header is rendered. Rendered as `text-2xl font-semibold tracking-tight` (the canonical baseline title treatment).
+**Required (when present):**
+- **Title on the surface.** Pass `kicker` / `title` / `headerActions` to `<MatrixGridShell>`; the shell renders the shared `<SurfaceHeader>` (`@/components/layout/SurfaceHeader`) at the top of its bounded card — a `kicker` overline (e.g. "Gradebook") over the `title` (`text-lg font-semibold`), the same on-surface header every framed archetype shell mounts, sitting directly above the `toolbar` band (Layer 4) when both are present. There is no separate floating `<PageHeader>` above the shell.
 
 **Allowed variation:**
-- **Subtitle** — describes the axes (e.g. "Customers × Services, as of {asOf}").
-- **Icon** — optional, decorative. If used, size `h-6 w-6`.
-- **Header omitted** — permitted when the matrix is a tab inside a larger surface.
+- **Header omitted** — permitted when the matrix is a tab inside a larger surface, or the view has no title need (pass neither `kicker` nor `title`).
+- **Subtitle / icon** — `SurfaceHeader` carries `kicker` + `title` + `headerActions` only; there is no dedicated subtitle or icon slot. Fold axis context into the `kicker` or `title` text (e.g. `kicker="Customers × Services"`, or a `title` reading "…, as of {asOf}") rather than hand-rolling a second line.
 
 **Forbidden:**
-- Inline `<h1>`.
-- Action buttons in the header.
+- Inline `<h1>` or a hand-rolled title bar bypassing `<MatrixGridShell>`'s `kicker`/`title` props.
+- Per-cell actions surfaced in `headerActions` or the header bar generally — those belong in the side-Sheet that opens on cell click (Layer 6's click contract).
 
 ---
 
@@ -92,7 +91,7 @@ The matrix toolbar is different from a list-with-detail toolbar: search and filt
 **Allowed variation:**
 - **Filter chips** — optional. If a matrix can be sliced by an additional dimension (e.g. "only customers in region X"), use a pill bar, **not** a Select dropdown. Same rule as Layer 4 in archetype A.
 - **Result count** — small text muted, e.g. "{n} rows · {m} columns".
-- **Global action buttons** — bulk operations only (e.g. "Export CSV"). Per-cell actions belong inside the side-Sheet editor, not in the toolbar. Right-aligned, `size="sm"`.
+- **Global action buttons** — bulk operations only (e.g. "Export CSV"), and their canonical home is the shell's `headerActions` (the on-surface header, Layer 3), not the toolbar band — the toolbar owns view/scope controls (period select, filter chips). Per-cell actions belong inside the side-Sheet editor. `size="sm"`.
 - **Quick-filter chips** — for the secondary axis (e.g. "Show empty rows only"). Each chip may carry a count badge.
 
 **Forbidden:**
@@ -147,7 +146,7 @@ This is the core layer. The matrix shell is generic over a single type parameter
 
 **Allowed variation:**
 - **Cell variant axis** (composition via `renderCell` / `cellStyle` — not props; see `docs/CHOOSING-A-SURFACE.md`). The same shell covers several matrix flavors, all conformant; pick what the domain needs. The audit found controlling-app's ledger/entry/variance grids span all of these:
-  - **read-only vs editable-cell** — read-only renders values; editable returns an `<input>` from `renderCell` (the shell stays the same; a read-only matrix simply omits `onCellClick`).
+  - **read-only vs editable-cell** — read-only renders values; editable returns `<CellInput>` / `<CellSelect>` (`ui/cell-input`) from `renderCell` — the shared owner of any editable control sitting flush in a cell, not a bare native `<input>`/`<select>` (the shell stays the same; a read-only matrix simply omits `onCellClick`).
   - **ledger** — right-aligned `tabular-nums` numerics (route through a formatter).
   - **tile** — a badge/tile per cell (e.g. status chip, count).
   - **comparison / variance** — `cellStyle` returns variance colors (over/under) per cell.
@@ -284,7 +283,7 @@ The following patterns are never permitted in a matrix-grid page, regardless of 
 3. **Multiple matrices on one route.** Each matrix view is its own page. Tabs/segments are allowed (each tab points at its own matrix view, route segment, or query param).
 4. **Side-Sheet rendered inside the shell.** Always a sibling.
 5. **Hand-rolled `<table>` outside `<MatrixGridShell>`.**
-6. **Action buttons in `<PageHeader>`.** Bulk actions belong in the toolbar; per-cell actions belong in the side-Sheet.
+6. **Action buttons floating above the surface.** Bulk actions belong in the shell's `headerActions`; per-cell actions belong in the side-Sheet.
 7. **Status filter rendered as a Select dropdown.** Use pill bars.
 8. **Inline cell color maps** duplicated per consumer. Cell variants live in a shared file.
 9. **Raw ISO date or number strings in cells.** Always route through a formatter inside `renderCell`.

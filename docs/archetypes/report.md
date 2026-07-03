@@ -2,7 +2,7 @@
 key: R
 slug: report
 kind: page
-version: 1.0
+version: 1.1
 ---
 
 # Archetype R — Report
@@ -32,6 +32,10 @@ A report is a single bounded card. It has exactly two zones, in document order:
 **1 — Header bar** (`<ReportShell>` header, `border-b`)
 - A `kicker` overline (the document class — "Beleg", "Invoice", "Quote") over a `title` (the document's human ID — e.g. "Rechnung RE-2025-0417"; embed the ID figure in `font-mono`).
 - A right-aligned `actions` slot: a secondary `<Button variant="outline" size="sm">` (e.g. "PDF") + a primary `<Button size="sm">` (e.g. "Senden"). At most one primary action.
+- **Header fill** — the bar renders per the shared `--header-fill` contract
+  (`headerFill.ts` / `HeaderFillContext`): `solid` (accent-filled, default) /
+  `tint` (`bg-muted`) / `white` (hairline only). Set once per project on
+  `<AppShell headerFill>`, overridable per document via `<ReportShell headerFill>`.
 
 **2 — Document body** (`<ReportShell>` children, `p-6`), top-to-bottom:
 - **Parties row** — a `from` identity block (overline label + bold name + address lines) | a `to` block | a right-aligned dates block (issue + due dates, dates in `font-mono tabular-nums`).

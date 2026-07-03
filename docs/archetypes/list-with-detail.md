@@ -2,7 +2,7 @@
 key: A
 slug: list-with-detail
 kind: page
-version: 1.1
+version: 1.2
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.2
@@ -40,31 +40,33 @@ A **list-with-detail** page shows a table of domain entities (items, users, orde
 - The page renders inside `<AppShell>` from `src/components/layout/` — the baseline's top-level layout primitive. As of baseline v1.0, `<AppShell>` mounts `TooltipProvider`, `SidebarProvider`, `<Toaster>`, and `<Sonner>`, so those providers are always in the tree by the time a list-with-detail page renders. Consumers do not re-mount them at the page level.
 - Outer container: `<div className="space-y-6">` — **no page inset**; `AppShell`'s `<main>` supplies it (adding `px-6 py-6` here double-insets). The `space-y-6` is internal rhythm only.
 - `<ErrorBoundary>` wrapping page content at the page component level.
-- The baseline `<PageHeader>` layout primitive (`@/components/layout`) for the title bar.
+- The on-surface title bar — `<ListWithDetailShell>`'s `kicker`/`title`/`headerActions` props, rendered via the shared `<SurfaceHeader>` (see Layer 3). There is no separate `<PageHeader>` mounted above the shell.
 
 **Allowed variation:**
 - A page-level React context provider is optional. Introduce one only when the page's filter or selection state is consumed by more than one child component tree; do not add one for single-tree state.
 
 **Forbidden:**
-- Inline `<h1>` or custom header markup (use `<PageHeader>`).
+- Inline `<h1>` or custom header markup (use the shell's `kicker`/`title`/`headerActions` props).
 - Missing `<ErrorBoundary>`.
 
 ---
 
 ## Layer 3 — Page header
 
-The page header is **purely informational** — title, optional subtitle, optional icon. Action buttons live in the toolbar (Layer 4) so every interactive control sits in one functional band adjacent to the data it acts on, not detached at the top of the page.
+The page header no longer floats above the shell as a separate `<PageHeader>`. `<ListWithDetailShell>` mounts the shared `<SurfaceHeader>` (`src/components/layout/SurfaceHeader.tsx`) at the top of its one bounded card — the title bar sits ON the surface, driven entirely by shell props.
 
-**Required (via `<PageHeader>`):**
-- **Title** — always present. `<PageHeader>` renders it as `text-2xl font-semibold tracking-tight` (the canonical baseline title treatment).
+**Required (via shell props):**
+- **`title`** — always present when the on-surface header renders. `<SurfaceHeader>` renders it `text-lg font-semibold` (the current Plex Ledger title scale — supersedes the old `text-2xl font-semibold tracking-tight` `<PageHeader>` treatment). Embed any ID/number figure in the title with `font-mono` at the call site.
+- The bar follows the `--header-fill` contract (`HeaderFillContext`, `src/components/layout/headerFill.ts`): `solid` (default) fills the bar with the brand accent and inverts the title/kicker/action buttons to white; `tint` is a quieter `bg-muted` step; `white` is hairline-border-only. Status `<Badge>`s passed into `headerActions` are never inverted, even on `solid`.
 
 **Allowed variation:**
-- **Subtitle** — optional. Use when the title alone is insufficient to convey scope (e.g. an /items page might carry "Showing items added this week"). Omit when the title is self-explanatory.
-- **Icon** — optional, decorative. If used, size `h-6 w-6`, placed inside `<PageHeader>`.
+- **`kicker`** — optional overline above the title (the entity class, e.g. "Podcasts", "Records"), rendered via the shared `OVERLINE_CLASS`. Use in place of the old subtitle when the title alone doesn't convey scope.
+- **`headerActions`** — optional right-aligned `<Button size="sm">`s: `variant="outline"` for secondary actions (e.g. "Import"), default variant for the primary creation action (e.g. "New show"). At most one primary action.
+- **`headerFill`** — a single shell instance may override the project's house `headerFill` context.
 
 **Forbidden:**
-- Inline `<h1>` or custom header markup.
-- Action buttons in the header or its `actions` slot. All page-level actions belong in the toolbar (Layer 4).
+- Inline `<h1>` or custom header markup — always the shell's `kicker`/`title`/`headerActions` props.
+- A hand-rolled header bar reproducing `<SurfaceHeader>`'s layout instead of using the shell's props.
 
 ---
 
@@ -72,20 +74,20 @@ The page header is **purely informational** — title, optional subtitle, option
 
 **Required:**
 - Toolbar renders as a prop of `<ListWithDetailShell>` (the `toolbar` slot), not above or below the shell.
-- **Search input** — present on every page. Sized `max-w-sm flex-1`. Icon: absolutely positioned (`absolute left-3 top-1/2 -translate-y-1/2`); input has `pl-9` left padding to accommodate it. Placeholder text describes what is searched (e.g. "Search by name or ID…").
+- **Search input** — present on every page, via the shared `<SearchInput>` molecule (`ui/search-input` — `inputSize`/`clearable`/`count` props); never hand-rolled. Placeholder text describes what is searched (e.g. "Search by name or ID…").
 - **Result count** — `text-sm text-muted-foreground`, right-aligned near the action buttons, format: `{n} results`.
 
 **Allowed variation:**
-- **Status filter** — optional. If present, use a pill bar (tab-like filter chips), **not** a Select dropdown.
+- **Status filter** — optional. If present, use the shared `<SegmentedControl>` (`ui/segmented-control`) — a one-of-N pill row — **not** a Select dropdown.
 - **Quick-filter chips** — a richer compound-filter pattern (e.g. "Needs attention", "Unassigned", "Overdue") is allowed when a page has compound filter dimensions that exceed a single status axis. Each chip may display a count badge.
-- **Global action buttons** (Add, Create, Import, Export) — canonical placement for all page-level write actions. Right-aligned inside the toolbar, `size="sm"`, with a leading icon. Variant: `default` for the primary creation action (at most one per toolbar), `outline` for secondary actions.
+- **Global action buttons** (Add, Create, Import, Export) — canonical placement is the shell's `headerActions` (the on-surface header bar, Layer 3; they invert on a solid header fill). `size="sm"`, leading icon; variant `default` for the single primary creation action, `outline` for secondary. A legacy toolbar placement is still tolerated on existing pages, but new pages put write actions in the header — the toolbar owns data controls (search / filters / count), not writes.
 - **Refresh button** — allowed as an icon button when the page has long-running async work that warrants manual refresh.
 
 **Forbidden:**
-- Status filters rendered as Select dropdowns (migrate to pill bar).
-- Search inputs without the left-aligned icon.
+- Status filters rendered as Select dropdowns (migrate to `<SegmentedControl>`).
+- Hand-rolled search inputs — always compose via the shared `<SearchInput>` molecule (which owns the left-aligned icon).
 - Toolbar rendered outside `<ListWithDetailShell>`.
-- Action buttons placed anywhere other than the toolbar (not in `<PageHeader>`, not inline above or below the shell).
+- Action buttons placed anywhere other than the toolbar or the shell's `headerActions` — never inline above or below the shell.
 
 ---
 
@@ -135,11 +137,11 @@ The page header is **purely informational** — title, optional subtitle, option
 ## Layer 7 — Empty / loading / error states
 
 **Required:**
-- **Loading** — handled by `<ListWithDetailEmptyState mode="loading">`. Text-only "Loading…" centered with `p-8`. No skeleton screens.
-- **Empty state** — handled by `<ListWithDetailEmptyState mode="empty">`. Text is query-dependent:
+- **Loading** — handled by `<ListWithDetailEmptyState mode="loading">`, a thin adapter over the shared `<StateView variant="loading">` (`ui/state-view`) — the single owner of the loading/empty/error visual planes across list-with-detail, settings-table, and grouped-list. No skeleton screens.
+- **Empty state** — handled by `<ListWithDetailEmptyState mode="empty">` (`<StateView variant="empty">`). Text is query-dependent:
   - Search or filter active: `"No {things} match your search."`
   - No items at all: `"No {things} yet. {CTA hint if applicable}"`
-- **Error state (required)** — handled by `<ListWithDetailEmptyState mode="error">`. When the list query fails, pass `error` to the empty-state component; it renders the canonical load-error treatment (destructive `<Alert>` with `<AlertTitle>Something went wrong</AlertTitle>`, AlertTriangle icon, `error.message` or a generic fallback, `p-4` wrapper — see README "Layer 7 — canonical state treatments"). When `onRetry` is also provided, the description includes a `w-fit` "Try again" button; when omitted, the panel renders without the button (error message only). The `isEmpty` condition **must** be gated with `&& !isError` so a failed query never renders as "empty".
+- **Error state (required)** — handled by `<ListWithDetailEmptyState mode="error">` (`<StateView variant="error">`). When the list query fails, pass `error` to the empty-state component; `<StateView>` owns the canonical load-error visual (destructive `<Alert>`, title, icon, message). When `onRetry` is also provided, `<StateView>` renders a "Try again" button; when omitted, it renders without the button (error message only). The `isEmpty` condition **must** be gated with `&& !isError` so a failed query never renders as "empty".
 - **Mutation errors** — surface through the app-wide toast. Render-crash errors are caught by the page's `<ErrorBoundary>` (Layer 2).
 
 **Allowed variation:**
@@ -187,7 +189,7 @@ Mutations are out of the primitive's scope. The consumer's row-click handler or 
 
 **Required primitive surface:**
 - `onRowSelect(row: Row): void` — called when a row's primary identifier cell is clicked. Consumer decides whether to navigate, open a panel, or open a modal.
-- `rowActions?: RowAction<Row>[]` — optional array of per-row action descriptors. The primitive renders these as a row-level dropdown or icon-button set. Each `RowAction` carries a label, icon, and `onClick(row: Row): void` callback. Destructive actions carry a `variant: 'destructive'` hint.
+- `rowActions?: RowAction<Row>[]` — optional array of per-row action descriptors, rendered via the shared `<RowActionsMenu>` (`archetypes/shared`) — the single owner of the row-level `⋯` overflow trigger, shared byte-for-byte with settings-table. Each `RowAction` carries a `label`, optional `icon`, an `onSelect(row: Row): void` callback, and an optional `destructive?: boolean` flag.
 
 **Consumer contracts:**
 - All mutations use the project's async state library (React Query, SWR, RTK Query, or equivalent). No manual imperative refetch via refs on the list component.
@@ -208,6 +210,7 @@ Mutations are out of the primitive's scope. The consumer's row-click handler or 
 - No dedicated `/mobile/...` route for list-with-detail pages. The same route serves all viewports.
 - **Table body** — stays a standard `<Table>` on all viewport widths. The primitive's content wrapper provides `overflow-x-auto` so the table scrolls horizontally on narrow viewports rather than overflowing. Consumers do not add their own `overflow-x-auto` wrapper.
 - **Detail panel slot** — the primitive uses an internal `useIsMobile` hook to swap the presentation of whatever element the consumer passes as the `detail` prop. On desktop, `detail` renders as a right rail alongside the list. On mobile, the same `detail` element renders inside a `<Sheet>` (full-screen overlay). Consumers pass one `detail` element; the primitive handles the swap automatically.
+- **Header fill** — when `detailTitle` is provided, the Sheet's header bar follows the same `--header-fill` contract as the master surface header (`HeaderFillContext`, 3 modes — solid / tint / white — `src/components/layout/headerFill.ts`); pass `headerFill` on the shell to override it per instance.
 
 **Extension points (not shipped in baseline v1.0 — consumer may add):**
 - **Card-collapse for the table body** — replacing `<Table>` with a stacked card layout on narrow viewports. Would be consumer-owned; the primitive does not provide this.
@@ -280,8 +283,9 @@ When a target project applies this archetype, it wires the generic primitives to
 
 **REQUIRED**
 
-- [ ] **Actions live in the toolbar, nowhere else.** No action buttons in
-      `<PageHeader>`/its `actions` slot, none inline above/below the shell.
+- [ ] **Write actions live on the shell** — in `headerActions` (canonical, board
+      form) or, on legacy pages, the `toolbar` slot — never inline above/below
+      the shell or in a floating page header.
       *Wrapper tell:* a legacy button row sitting above `<ListWithDetailShell>`.
 - [ ] **One shell owns the list chrome.** The table/card-grid/action-row renders
       via `<ListWithDetailShell presentation=…>` — a card grid is a conformant
@@ -294,7 +298,7 @@ When a target project applies this archetype, it wires the generic primitives to
 
 **SHOULD** (yellow, not red)
 
-- [ ] Toolbar search is the shared `SearchInput` (`max-w-sm`, `pl-9` icon), not a raw input.
+- [ ] Toolbar search is the shared `<SearchInput>` molecule, not a raw input.
 - [ ] Sort lives on table headers (table variant) or the toolbar (other variants).
 
 ---

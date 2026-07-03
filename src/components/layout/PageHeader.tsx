@@ -9,13 +9,13 @@ import { cn } from "@/lib/utils";
 export type PageHeaderProps = {
   /**
    * Page title. Always present. Rendered as an `<h1>` at the canonical
-   * `text-2xl font-semibold tracking-tight` — the single title treatment
-   * shared by every archetype header in the baseline.
+   * `text-lg font-semibold tracking-tight` (Plex Ledger scale) — the single
+   * title treatment shared by every archetype header in the baseline.
    */
   title: React.ReactNode;
   /**
    * Optional secondary line below the title (status hint, parent-entity
-   * link, created date). Rendered as `<p>` at `text-sm text-muted-foreground`.
+   * link, created date). Rendered as `<p>` at `text-xs text-muted-foreground`.
    */
   subtitle?: React.ReactNode;
   /**

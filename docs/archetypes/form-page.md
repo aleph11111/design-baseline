@@ -2,7 +2,7 @@
 key: B
 slug: form-page
 kind: page
-version: 1.2
+version: 1.3
 promoted_from: hk-crm
 promoted_at: 2026-05-24
 source_spec_version: 1.1
@@ -84,22 +84,23 @@ B is **not** the right choice for:
 
 The form-page header is **purely informational** — title, optional subtitle, optional icon. Action buttons live in the footer (Layer 14), not in the header.
 
-**Required (via `<FormPageHeader>`):**
+**Required (board form — `<FormPageShell kicker title headerActions>`):**
 
-- **Title** — always present. Rendered as `text-2xl font-semibold tracking-tight` (the canonical baseline title treatment). Use the entity-context phrase: `"New Task"`, `"Edit Contact — Jane Doe"`, `"New Opportunity"`. In edit mode, including the entity's identifier helps the user confirm they're editing the right record.
-- The header is rendered as the first child of `<FormPageShell>`, before the form body.
-- `<FormPageHeader>` is a thin wrapper over the baseline `<PageHeader>` layout primitive (`@/components/layout`) — it exposes the back-link and icon contract but omits the actions slot (form actions live in the footer).
+- **Title on the surface.** Pass `title` (and optionally `kicker`, `headerActions`) to `<FormPageShell>` and it renders the shared `<SurfaceHeader>` (`@/components/layout/SurfaceHeader`) at the top of its bounded card — a `kicker` overline (the entity class, e.g. "Recipes") over the `title` (`text-lg font-semibold`; embed an entity identifier in `font-mono`, e.g. `"Edit Recipe — Sunday Carbonara"`). This is the same on-surface header every framed archetype shell mounts; there is no separate floating `<PageHeader>` above the card.
+- `headerActions` — optional right-aligned secondary actions in the bar. The form's Save/Cancel/Delete stay in `<FormPageActions>` at the footer regardless of what's in `headerActions`.
+- The bar's fill follows the project's `--header-fill` contract (`HeaderFillContext` from `@/components/layout/headerFill` — solid/tint/white, default solid); override per instance via `<FormPageShell headerFill="…">`.
 
 **Allowed variation:**
 
-- **Subtitle** — optional. Use for secondary identifying info (e.g. created date, status, "Editing as administrator"). Rendered as `text-sm text-muted-foreground` directly below the title.
-- **Icon** — optional, decorative. If used, size `h-6 w-6`, placed inside `<FormPageHeader>` before the title.
-- **Back link** — optional `backHref` prop on `<FormPageHeader>` renders a small "← Back to {list}" link above the title. Use when the form page is reached from a context the user is likely to want to return to.
+- **Classic floating header** — when `<FormPageShell>` is used without a `title` prop, it reverts to the unstyled column layout; compose `<FormPageHeader>` (a thin wrapper over the baseline `<PageHeader>`, same `text-lg font-semibold` title treatment) as the first child instead. Use this path when the page needs a `subtitle`, decorative `icon`, or `backHref` — the on-surface `SurfaceHeader` carries `kicker`/`title`/`headerActions` only, no subtitle/icon/back-link slots.
+- **Subtitle** — classic header only. Use for secondary identifying info (e.g. created date, status, "Editing as administrator"). Rendered as `text-xs text-muted-foreground` directly below the title.
+- **Icon** — classic header only, decorative. If used, size `h-6 w-6`, placed inside `<FormPageHeader>` before the title.
+- **Back link** — classic header only. Optional `backHref` prop on `<FormPageHeader>` renders a small "← Back to {list}" link above the title. Use when the form page is reached from a context the user is likely to want to return to.
 
 **Forbidden:**
 
 - Action buttons (Save, Cancel, Delete) placed in the header or its actions slot. All form-write actions belong in the footer (Layer 14). This is what separates B from a list-detail page.
-- Inline `<h1>` markup that bypasses `<FormPageHeader>`. The shared header is what gives every form page the same chrome.
+- Inline `<h1>` markup, or a hand-rolled title bar, bypassing `<FormPageShell>`'s `SurfaceHeader` / `<FormPageHeader>`. The shared header is what gives every form page the same chrome.
 
 ---
 

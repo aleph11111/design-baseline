@@ -28,16 +28,20 @@ than minting a new archetype or hand-rolling a `<ul>`.
 
 ## Primitives
 
-- `<FeedShell filters actions empty>` — the container: a toolbar (filter chips +
-  trailing actions like "Mark all read") above a time-grouped stack. Filter and
-  read state are consumer-owned.
+- `<FeedShell filters actions empty kicker title headerActions headerFill>` — the
+  container: when `title` is set, the shell adopts the Plex Ledger board form —
+  an on-surface `<SurfaceHeader>` (kicker + title left, `headerActions` right) at
+  the top of one bounded card, with a toolbar (filter chips + trailing actions
+  like "Mark all read") above the time-grouped stack below it. Filter and read
+  state are consumer-owned.
 - `<FeedItem icon title meta body media unread actions onClick>` — one event row
-  (leading icon/avatar, title + meta, optional multi-line `body`, optional
-  trailing `media` thumbnail, unread dot, optional trailing action). NOT a table
-  cell row. Inbox rows fill `icon`/`title`/`meta`/`unread`; timeline rows add
-  `body` and a trailing `media` thumbnail and skip `unread`.
+  (leading icon/avatar in an `<IconAvatar>` circle, title + meta, optional
+  multi-line `body`, optional trailing `media` thumbnail, unread dot, optional
+  trailing action). NOT a table cell row. Inbox rows fill
+  `icon`/`title`/`meta`/`unread`; timeline rows add `body` and a trailing `media`
+  thumbnail and skip `unread`.
 - **Reused:** `<SectionCard title="Today" flush>` for each time group (rows inside
-  use `divide-y`); `<PageHeader>` for the title.
+  use `divide-y`); `<StateView>` for the loading/empty planes.
 
 ## Layer 1 — Route config
 A top-level route (`/notifications`, `/activity`, `/inbox`) or a popover/sheet
@@ -48,17 +52,21 @@ launched from a header bell. Lazy + suspense for a full-page feed.
 one column, not full width). `<ErrorBoundary>` around content.
 
 ## Layer 3 — Page header
-`<PageHeader>` with the feed title; the subtitle is a good home for the unread
-count ("3 unread" / "You're all caught up").
+`<FeedShell kicker title headerActions>` renders the on-surface `<SurfaceHeader>`
+(Plex Ledger board form) at the top of the bounded card — kicker + title left,
+actions right — not a detached `<PageHeader>` above the surface.
+`<SurfaceHeader>` has no subtitle slot; fold an unread count ("3 unread" /
+"You're all caught up") into the kicker, or surface it as a `headerActions` badge.
 
 ## Layer 4 — Toolbar (filters)
-Filter chips / a segmented control (All · Unread · by type) at the start of the
-`<FeedShell>` toolbar; a "Mark all read" action at the end. Filter state is
-consumer-owned and URL-syncable.
+Filter chips / a segmented control (via `<SegmentedControl>`; All · Unread · by
+type) at the start of the `<FeedShell>` toolbar row — rendered below the
+on-surface header, inside the same bounded card; a "Mark all read" action at the
+end. Filter state is consumer-owned and URL-syncable.
 
 ## Layer 5/6 — The feed
 Time-grouped `<SectionCard>`s of `<FeedItem>`s. Each item: a leading type icon (or
-actor avatar), the event text (actor in `font-semibold`), a meta line (actor ·
+actor avatar) in an `<IconAvatar>` circle, the event text (actor in `font-semibold`), a meta line (actor ·
 relative time), and — depending on sub-shape — an unread dot + one inline action
 (inbox) or a `body` excerpt + a trailing `media` thumbnail (timeline). Group by
 recency buckets; drop empty groups after filtering. The trailing `media` slot is
@@ -70,8 +78,9 @@ actions into the item's detail); infinite walls with no time grouping or filter.
 
 ## Layer 7 — States
 - **Loading** — a few skeleton rows; never a full-page spinner.
-- **Empty** — a centered "Nothing here" via `FeedShell`'s `empty` slot (distinguish
-  "no notifications" from "none match this filter").
+- **Empty** — a centered `<StateView variant="empty">` ("Nothing here") passed
+  into `FeedShell`'s `empty` slot (distinguish "no notifications" from "none
+  match this filter").
 - **Read state (inbox only)** — unread items are visually stronger (dot + subtle
   surface); opening an item or "mark all read" clears it. Read state is optimistic.
   The timeline sub-shape has no read state — it's purely chronological, so drop
@@ -101,8 +110,9 @@ viewer; never leak another user's items.
 
 **REQUIRED**
 
-- [ ] **One inbox shell** owns the list-pane + reading-pane split (Sheet-swap on
-      mobile) — not a parallel hand-built two-column flex.
+- [ ] **One feed shell** owns the bounded surface — on-surface header + filter
+      row + time-grouped item stack via `<FeedShell>` — not a parallel
+      hand-built card + list.
 - [ ] **Items are a single row primitive** (avatar/title/preview/meta/unread dot),
       not per-type bespoke markup.
 - [ ] **Unread/selected state via tokens** (brand/`muted`), not literal colors or bold-only.

@@ -2,7 +2,7 @@
 key: J
 slug: crud-dialog
 kind: dialog
-version: 1.6
+version: 1.7
 promoted_from: brickshop-manager
 promoted_at: 2026-06-13
 source_spec_version: 1.3
@@ -73,6 +73,7 @@ J is the first non-page archetype in the baseline. It extends the twelve-layer p
 - Optional `actions` slot: rendered right of title, before the close button. Use for mode-toggle affordances or secondary icon buttons. Primary CRUD actions (Save, Create, Edit, Delete) belong in the footer (Layer 14).
 - The Sheet's built-in close button (X) is provided by `<SheetContent>` — do not add a separate manual close button unless the design requires an explicit labeled close.
 - **Accessible name (a11y contract).** `<CrudDialogHeader>` MUST render `title` through `<SheetTitle>` (Radix `Dialog.Title`) and `subtitle` through `<SheetDescription>` (Radix `Dialog.Description`), so `<SheetContent>` (Radix `Dialog.Content`) always exposes an accessible name and a non-dangling `aria-describedby`. When no `subtitle` is supplied, render an empty `sr-only` `<SheetDescription>` as the fallback. Radix logs a development error when `Dialog.Content` has no `Dialog.Title` descendant and a warning when `aria-describedby` references a missing node; this contract guarantees neither fires.
+- **Header fill.** `<CrudDialogHeader>` is the Sheet's first band, so it reads the project's `--header-fill` contract (`HeaderFillContext` from `@/components/layout/headerFill` — `"solid"` / `"tint"` / `"white"`, default `"solid"`) the same way every framed archetype header does: on `"solid"`, the bar fills with the brand accent and the title/subtitle/`actions` buttons invert (white text, inverted outline/primary treatment). Override per dialog via the `headerFill` prop on `<CrudDialogHeader>`. Semantic `<Badge>`s placed in `actions` are never inverted.
 
 **Allowed variation:**
 - `subtitle` prop for secondary identifying info (e.g. created date, status string). Rendered via `<SheetDescription>` per the accessible-name contract above.
@@ -138,7 +139,7 @@ to a detail page (C) when the entity outgrows a dialog (owns collections, etc.).
 - **Loading:** `<CrudDialogBody isLoading>` renders a skeleton. Required for any dialog that fetches data on open.
 - **Error (fetch):** Render `<div className="bg-destructive/10 p-4 rounded text-sm text-destructive">` with a human-readable message. Not hardcoded `bg-red-50`.
 - **Saving:** Pass `isSubmitting={true}` to `<CrudDialogFooter>`. The footer disables and relabels the primary button automatically.
-- **Empty (Tab 2):** If Tab 2's connected-entity list is empty, render a centered icon + `"No {things} yet."` message. Not `null` or a blank area.
+- **Empty (Tab 2):** If Tab 2's connected-entity list is empty, render `<StateView variant="empty" icon={…} title="No {things} yet." />` (`ui/state-view`) — not `null`, not a blank area, and not a hand-rolled centered-icon `<div>`.
 
 **Allowed variation:**
 - Additional inline loading states for secondary queries within Tab 2 (e.g. a connected-orders list that loads separately from the entity data).
@@ -360,6 +361,7 @@ When a target project applies this archetype, it wires the generic primitives to
 
 - **2026-06-13 — v1.2.** Promoted `useCrudDialogController` (shared view/edit/create action flow + derived footer labels) and the `crudStrings` neutral-defaults module from mistra. Added the controller's `labels` i18n option (`DEFAULT_CRUD_DIALOG_LABELS`) so localized consumers inject their strings rather than forking the donor primitives. Layers 13–14 now name the controller as the canonical owner of `handleClose`/`handlePrimary`/`handleSecondary` and the footer label derivation. Additive, backward-compatible.
 - **2026-06-14 — v1.5.** Closed a spec-ahead-of-code gap: the v1.2 controller (`useCrudDialogController`, `crudStrings`) was documented but its files had never been committed. Committed them, and migrated the reference demo to actually consume the controller with react-hook-form + zod and the shared `<Table>` / `<Badge>` / `<FormField>` molecules — it no longer reimplements `handleClose`/`handlePrimary`/`handleSecondary` inline (the spec's own anti-pattern). The demo now remounts per open, fixing stale mode/dirty state across reopens. Reconciled the frontmatter `version` (was stuck at 1.2) and `source_spec_version` (1.3) with the MANIFEST. Spec contract unchanged.
+- **2026-07-03 — v1.7.** Board-form sync: on-surface `SurfaceHeader` header, ledger title scale, single-owner molecule references.
 
 ---
 

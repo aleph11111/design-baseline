@@ -2,7 +2,7 @@
 key: Cal
 slug: calendar
 kind: page
-version: 1.0
+version: 1.1
 status: locked
 ---
 
@@ -89,6 +89,10 @@ one ruled band.
   (week number, date span) renders `font-mono tabular-nums`.
 - **Kicker** — the overline above the title, composed from `OVERLINE_CLASS`
   (`text-[10.5px]`).
+- **Header fill** — the bar renders per the shared `--header-fill` contract
+  (`headerFill.ts` / `HeaderFillContext`): `solid` (accent-filled, default) /
+  `tint` (`bg-muted`) / `white` (hairline only). Set once per project on
+  `<AppShell headerFill>`, overridable per page via `<CalendarShell headerFill>`.
 
 **Allowed variation:**
 - **Nav / create cluster** (`actions` slot) — right-aligned `<Button size="sm">`

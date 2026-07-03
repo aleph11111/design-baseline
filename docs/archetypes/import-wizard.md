@@ -12,15 +12,19 @@ my-finance-app — rule-of-2).
 
 ## Primitives
 
-- `<WizardShell steps current onBack onNext onCommit canProceed busy>` — the flow
-  shell: a `<WizardStepper>`, the current step's body in a `<SectionCard>`, and a
-  footer that shows **Back** + **Next**, swapping Next for a single **Commit** on
-  the last step. Flow state is **consumer-owned** (the consumer holds `current`
-  and per-step data); the shell renders chrome and emits navigation intents.
+- `<WizardShell steps current onBack onNext onCommit canProceed busy kicker title
+  headerFill>` — the flow shell: when `title` is set, the shell adopts the Plex
+  Ledger board form — an on-surface `<SurfaceHeader>` (kicker + title; no
+  `headerActions` prop — the wizard's nav actions always stay in the footer, not
+  the header) atop one bounded card, over a `<WizardStepper>`, the current step's
+  body in a `<SectionCard>`, and a footer that shows **Back** + **Next**, swapping
+  Next for a single **Commit** on the last step. Flow state is **consumer-owned**
+  (the consumer holds `current` and per-step data); the shell renders chrome and
+  emits navigation intents.
 - `<WizardStepper steps current>` — the read-only step indicator (done = check,
   active = ringed, upcoming = muted). Navigation is via the footer, not by
   clicking steps.
-- **Reused:** `<SectionCard>` (step body surface) + `<PageHeader>` (title).
+- **Reused:** `<SectionCard>` (step body surface).
 
 ## Layer 1 — Route config
 A dedicated route (e.g. `/imports/new`, `/transactions/import`). Lazy + suspense.
@@ -31,7 +35,11 @@ Often paired with an **import history** list (see Layer 4).
 step surfaces inline, never loses earlier steps' state.
 
 ## Layer 3 — Page header
-`<PageHeader>` with the import title + a one-line subtitle naming the source.
+`<WizardShell kicker title>` renders the on-surface `<SurfaceHeader>` (Plex
+Ledger board form) at the top of the bounded card — not a detached `<PageHeader>`
+above the surface. `<SurfaceHeader>` has no `headerActions` prop on
+`<WizardShell>` (nav actions stay in the footer) and no subtitle slot; fold a
+one-line source name into the kicker.
 
 ## Layer 4 — Toolbar / history toggle
 An import wizard usually lives beside an **import history** (past runs: when, who,

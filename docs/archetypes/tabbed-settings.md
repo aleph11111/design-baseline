@@ -2,7 +2,7 @@
 key: F2
 slug: tabbed-settings
 kind: page
-version: 1.1
+version: 1.2
 promoted_from: brickshop-manager
 promoted_at: 2026-05-31
 source_spec_version: 1.1
@@ -88,25 +88,39 @@ distinctions from a domain hub (F1) are:
 
 ### Layer 3 — Page header
 
-**Required (via `<SettingsPageHeader>`):**
-- **Title** — always present, rendered `text-2xl font-semibold tracking-tight`
-  (`<SettingsPageHeader>` is a thin wrapper over the baseline `<PageHeader>`).
+**Required (via `<SettingsPageShell>`):**
+- **Title on the surface (board form).** Pass `kicker` and/or `headerActions`
+  to `<SettingsPageShell>` and it switches to the board form: `<SettingsPageHeader>`
+  is suppressed and the shared `<SurfaceHeader>` (`@/components/layout/SurfaceHeader`)
+  renders inside a bounded card wrapping the tab strip and body — a `kicker`
+  overline (e.g. "Settings") over the `title` (`text-lg font-semibold`), the
+  same on-surface header every framed archetype shell mounts. F2 pages have no
+  page-level actions (see below), so the board form typically triggers on
+  `kicker` alone.
 - **No action buttons in the page header.** A tabbed-settings page has no
-  page-level actions.
+  page-level actions — `headerActions` (board form) / `actions` (classic
+  `<SettingsPageHeader>`, from `SettingsPageHeaderProps`) stay empty for F2.
+  That slot exists only for the shared settings-form (D1) consumer.
 
 **Allowed variation:**
-- **Subtitle** — optional; use when the title alone does not convey purpose.
-- **Icon** — optional, decorative; pass a sized icon component to the `icon`
-  prop.
+- **Classic header** — when neither `kicker` nor `headerActions` is passed,
+  `<SettingsPageShell>` falls back to rendering `<SettingsPageHeader>` (a thin
+  wrapper over the baseline `<PageHeader>`, same `text-lg font-semibold` title
+  treatment) above an unbounded body. Use this path for `subtitle` / `icon`,
+  which the on-surface `SurfaceHeader` has no slot for.
+- **Subtitle** — classic header only; use when the title alone does not convey
+  purpose.
+- **Icon** — classic header only, decorative; pass a sized icon component to
+  the `icon` prop.
 
 **Forbidden:**
-- Inline `<h1>` / `<h2>` elements — use `<SettingsPageHeader>`.
-- A `text-3xl` (or otherwise off-scale) title — the contract is `text-2xl
-  font-semibold`.
+- Inline `<h1>` / `<h2>` elements, or a hand-rolled title bar, bypassing
+  `<SettingsPageShell>`'s `SurfaceHeader` / `<SettingsPageHeader>`.
+- A title off the `text-lg font-semibold` scale (both the board-form
+  `SurfaceHeader` and the classic `<SettingsPageHeader>` render at `text-lg`).
 - Action buttons in the page-header row. Page titles name categories, so actions
   live in per-tab toolbars (typically inherited from each tab's table or form
-  body). The header's `actions` slot exists only for the shared settings-form
-  (D1) consumer.
+  body).
 
 ### Layer 4 — Tab strip
 
@@ -285,8 +299,9 @@ A page is conformant when **every required rule** above is satisfied:
       correctly (inherited or inline)
 - [ ] **Layer 2** — Uses `<SettingsPageShell>`; no outer padding class when
       nested in a settings layout; error boundary + breadcrumbs present
-- [ ] **Layer 3** — `<SettingsPageHeader>` title is `text-2xl font-semibold`; no
-      action buttons in the header
+- [ ] **Layer 3** — title (board-form `SurfaceHeader` or classic
+      `<SettingsPageHeader>`) is `text-lg font-semibold`; no action buttons in
+      the header
 - [ ] **Layer 4** — Design-system `Tabs` primitives; tab strip at page-body
       level (not in a card)
 - [ ] **Layer 5** — Each tab body satisfies the A / D1 / D2 delegation contract;
@@ -313,6 +328,8 @@ A page is conformant when **every required rule** above is satisfied:
   (router `useLocation()` in the source) became an explicit slot. Header split
   into `<SettingsPageShell>` + `<SettingsPageHeader>` to match the baseline
   form-page convention.
+- **2026-07-03:** Board-form sync: on-surface `SurfaceHeader` header, ledger
+  title scale, single-owner molecule references.
 
 ---
 

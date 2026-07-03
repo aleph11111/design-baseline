@@ -2,7 +2,7 @@
 key: K
 slug: grouped-list
 kind: page
-version: 1.1
+version: 1.2
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.0
@@ -41,31 +41,32 @@ K **inherits A's table contract**. Layers 6–10 (table, empty states, data, typ
 - The page renders inside `<AppShell>` (baseline). The shell mounts providers; consumers do not re-mount them at the page level.
 - Outer container: `<div className="space-y-6">` — **no page inset** (`AppShell`'s `<main>` supplies it), same as A. The `space-y-6` separates the page header band from the grouped content region; `<GroupedListShell>` supplies its own inner `space-y-8` between sections.
 - `<ErrorBoundary>` wrapping page content at the page component level.
-- The baseline `<PageHeader>` layout primitive (`@/components/layout`) for the title bar.
+- The on-surface title bar — `<GroupedListShell>`'s `kicker`/`title`/`headerActions` props, rendered via the shared `<SurfaceHeader>` (see Layer 3). There is no separate `<PageHeader>` mounted above the shell.
 
 **Allowed variation:**
 - Page-level React context provider — optional. Use only when filter or selection state is consumed by more than one child component tree.
 
 **Forbidden:**
-- Inline `<h1>` or custom header markup (use `<PageHeader>`).
+- Inline `<h1>` or custom header markup (use the shell's `kicker`/`title`/`headerActions` props).
 - Missing `<ErrorBoundary>`.
 
 ---
 
 ## Layer 3 — Page header
 
-The page header is **purely informational** — title, optional subtitle, optional icon. Action buttons live in the toolbar (Layer 4) so every interactive control sits in one functional band, not detached at the top of the page.
+The page header no longer floats above the shell as a separate `<PageHeader>`. `<GroupedListShell>` mounts the shared `<SurfaceHeader>` (`src/components/layout/SurfaceHeader.tsx`) at the top of its outer container, above the toolbar and the sections region — the title bar sits ON the surface, driven entirely by shell props.
 
-**Required (via `<PageHeader>`):**
-- Title — always present. Rendered as `text-2xl font-semibold tracking-tight` (the canonical baseline title treatment).
+**Required (via shell props):**
+- **`title`** — always present when the on-surface header renders. `<SurfaceHeader>` renders it `text-lg font-semibold` (the current Plex Ledger title scale — supersedes the old `text-2xl font-semibold tracking-tight` `<PageHeader>` treatment).
+- The bar follows the `--header-fill` contract (`HeaderFillContext`, `src/components/layout/headerFill.ts`): `solid` (default) fills the bar with the brand accent and inverts the title/kicker/action buttons to white; `tint` is a quieter `bg-muted` step; `white` is hairline-border-only.
 
 **Allowed variation:**
-- Subtitle — optional. Use when the title alone is insufficient to convey scope.
-- Icon — optional, decorative; `h-6 w-6`.
+- **`kicker`** — optional overline above the title (e.g. "Catalog", "Library"), rendered via the shared `OVERLINE_CLASS`.
+- **`headerActions`** — optional right-aligned `<Button size="sm">`s, most commonly the page's single Add action (default variant, leading `Plus` icon). `headerActions` renders whether or not a `toolbar` is also present (Layer 4) — the two slots are independent, so the Add action is never orphaned by omitting the toolbar (see Layer 4 "no toolbar").
+- **`headerFill`** — a single shell instance may override the project's house `headerFill` context.
 
 **Forbidden:**
-- Inline `<h1>` or custom header markup.
-- Action buttons in the header or its `actions` slot. Page-level actions belong in the toolbar (Layer 4).
+- Inline `<h1>` or custom header markup — always the shell's `kicker`/`title`/`headerActions` props.
 
 ---
 
@@ -77,18 +78,17 @@ The toolbar renders as a prop of `<GroupedListShell>` (the `toolbar` slot), abov
 - Toolbar renders inside `<GroupedListShell>`'s `toolbar` slot, not above or below the shell.
 
 **Allowed variation:**
-- **Page-level add action** — right-aligned `<Button size="sm" variant="default">` with a leading `Plus` icon. At most one primary creation action per page.
-- **Cross-section search** — search input (`max-w-sm flex-1`, left-aligned icon, `pl-9`) for filtering rows across every section by a shared substring. The primitive does not implement the filter; the consumer pre-filters each section's `rows` and `ungrouped` arrays before passing them to `<GroupedListShell>`. The search input is purely a controlled-value slot in the toolbar.
-- **Status / category pill bar** — for filtering rows across sections by a shared categorical dimension. Pill chips, not a `<Select>` dropdown.
+- **Cross-section search** — the shared `<SearchInput>` molecule (`ui/search-input`) for filtering rows across every section by a shared substring. The primitive does not implement the filter; the consumer pre-filters each section's `rows` and `ungrouped` arrays before passing them to `<GroupedListShell>`. The search input is purely a controlled-value slot in the toolbar.
+- **Status / category pill bar** — for filtering rows across sections by a shared categorical dimension, via the shared `<SegmentedControl>` (`ui/segmented-control`) — a one-of-N pill row — not a `<Select>` dropdown.
 - **Result count** — `text-sm text-muted-foreground`, format: `{n} results`.
 
-**Allowed shape — header-only (no toolbar):**
-- A grouped-list page **may omit the toolbar entirely** when it has no cross-section search, no filters, and the only page-level action would be Add. In that case the Add action moves to `<PageHeader>`'s `actions` slot (this is the **one** exception to Layer 3's "no actions in header" rule — explicitly permitted for grouped-list when no toolbar is rendered, so the Add action isn't orphaned). Document the choice inline.
+**Allowed shape — no toolbar:**
+- A grouped-list page **may omit the toolbar entirely** when it has no cross-section search and no filters. The page's Add action still renders — it lives in the shell's `headerActions` (Layer 3), which is independent of `toolbar`, so dropping the toolbar never orphans the Add action. This is the ordinary shape now, not a special-cased exception: `headerActions` is where the primary page-level action lives regardless of whether a toolbar is rendered.
 
 **Forbidden:**
 - Per-section toolbars. A toolbar in one section but not others creates visual noise. Page-level toolbar only.
-- Status filters rendered as `<Select>` dropdowns (use pill bar).
-- Search inputs without the left-aligned icon.
+- Status filters rendered as `<Select>` dropdowns (use `<SegmentedControl>`).
+- Hand-rolled search inputs — always compose via the shared `<SearchInput>` molecule.
 
 ---
 
@@ -96,7 +96,7 @@ The toolbar renders as a prop of `<GroupedListShell>` (the `toolbar` slot), abov
 
 **Required:**
 - `<GroupedListShell>` from `src/components/archetypes/grouped-list/`. The shell provides:
-  - Optional toolbar slot rendered as a single card bar `rounded-lg border bg-card px-4 py-3 shadow-sm` (when `toolbar` is provided).
+  - Optional toolbar slot rendered as a bare `flex flex-wrap items-center gap-3` row — no card chrome, same as feed-inbox (standalone page toolbars are bare rows per STYLE.md; only toolbars *inside* a table card get the ruled `border-b px-4 py-3` band).
   - Sections region: `<div className="space-y-8">` — vertical rhythm between sections wide enough that each section reads as its own block.
   - Page-level empty state (rendered when `isEmpty` is true and not loading or erroring).
 - One `<GroupedListSection>` per group, plus an optional trailing section for ungrouped rows. Sections are passed as children of `<GroupedListShell>`.
@@ -134,11 +134,11 @@ The toolbar renders as a prop of `<GroupedListShell>` (the `toolbar` slot), abov
 The grouped-list page has **two empty/loading planes**: page-level (the whole page has nothing to show) and section-level (delegated to A's empty state per section, but in practice unused — see below).
 
 **Page-level — required:**
-- **Loading** — handled by `<GroupedListShell isLoading>`. Text-only "Loading…" centered with `p-8`. No skeleton screens.
-- **Empty state** — handled by `<GroupedListShell isEmpty emptyMessage="…">`. Rendered when there are zero sections **and** zero ungrouped rows. Text-only, centered, query-dependent copy:
+- **Loading** — handled by `<GroupedListShell isLoading>`, via the shared `<StateView variant="loading">` (`ui/state-view`) — the single owner of the loading/empty/error visual planes across grouped-list, list-with-detail, and settings-table. No skeleton screens.
+- **Empty state** — handled by `<GroupedListShell isEmpty emptyMessage="…">` (`<StateView variant="empty">`). Rendered when there are zero sections **and** zero ungrouped rows. Query-dependent copy:
   - Search or filter active: `"No {things} match your search."`
   - No items at all: `"No {things} yet. {CTA hint if applicable}"`
-- **Error state** — handled by `<GroupedListShell error={err} onRetry={…}>`. Renders the canonical load-error treatment (destructive `<Alert>` with `<AlertTitle>Something went wrong</AlertTitle>`, AlertTriangle icon, `error.message` or generic fallback, `p-4` wrapper — see README "Layer 7 — canonical state treatments") with an optional `w-fit` "Try again" button when `onRetry` is provided. The `isEmpty` condition must be gated with `&& !error`.
+- **Error state** — handled by `<GroupedListShell error={err} onRetry={…}>` (`<StateView variant="error">`), which owns the canonical load-error visual (destructive `<Alert>`, title, icon, message) with a "Try again" button when `onRetry` is provided. The `isEmpty` condition must be gated with `&& !error`.
 
 **Section-level — discouraged:**
 - A section should never be rendered with zero rows. The consumer is expected to drop empty groups before building the `sections` array. If a section does render empty, its inner `<ListWithDetailShell>` will show A's empty state — visually a card with "No items yet" inside — which is correct but wasteful. Pre-filter on the data layer.
@@ -192,7 +192,7 @@ type GroupedListData<Group, Row> = {
 
 ## Layer 10 — Mutations & invalidation (contract)
 
-**Delegated to the inner `<ListWithDetailShell>` per section.** A's Layer 10 applies unchanged: `onRowSelect` for primary identifier click, `rowActions` for per-row dropdown actions, consumer-owned mutations and invalidation.
+**Delegated to the inner `<ListWithDetailShell>` per section.** A's Layer 10 applies unchanged: `onRowSelect` for primary identifier click, `rowActions` for per-row dropdown actions (rendered via the shared `<RowActionsMenu>`, `archetypes/shared`), consumer-owned mutations and invalidation.
 
 **Grouped-list-specific:**
 - Mutations may move a row between groups (e.g. recategorising a service). The consumer invalidates the page-level query key on success; the next render places the row in the correct section.
@@ -280,8 +280,8 @@ When a target project applies this archetype, it wires the generic primitives to
       count) with the inner table `<ListWithDetailShell unstyled>` flush — **no**
       nested card chrome, no hand-rolled section markup.
 - [ ] **Page-level toolbar only** (`<GroupedListShell>` `toolbar` slot), not per-section
-      toolbars. If no toolbar, the single Add action may sit in `<PageHeader>` actions
-      (the one sanctioned exception) — document it inline.
+      toolbars. The Add action lives in the shell's `headerActions` (Layer 3) regardless
+      of whether a toolbar is rendered — never a hand-placed button above the shell.
 - [ ] **No empty sections rendered** — groups pre-filtered on the data layer.
 - [ ] **No detail panel inside a section** — detail goes to a route.
 - [ ] **[spine] S1–S6** (inherits A's table contract unchanged).

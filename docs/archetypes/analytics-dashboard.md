@@ -17,16 +17,20 @@ no archetype to adopt — a clear rule-of-2 gap.
 
 ## Primitives
 
+- `<DashboardShell kicker title headerActions headerFill>` — the primary bounded
+  surface (Plex Ledger board form): an on-surface `<SurfaceHeader>` (kicker +
+  title left, actions right) at the top of the card, with the KPI row rendered
+  in the body below. There is no separate `toolbar`/`filters` slot — see Layer 4.
 - `<DashboardGrid columns={2|3|4}>` — the responsive widget grid (collapses to 1
-  col, then 2 at `sm`, then `columns` at `lg`). **The only new chrome this
-  archetype adds.**
+  col, then 2 at `sm`, then `columns` at `lg`).
 - `<DashboardWidget title span={1|2|3}>` — one widget card; a thin wrapper over the
   shared `<SectionCard>` (same ruled title bar) plus a grid column span. Body is
   chart-agnostic.
 - **Reused (all shared `layout/` primitives — G has no dependency on other
   archetypes):** `<StatTileRow>` / `<StatTile>` (the KPI row — same strip as
-  detail-overview's `stats` slot), `<SectionCard>` (the widget surface), and
-  `<PageHeader>` (the title).
+  detail-overview's `stats` slot) and `<SectionCard>` (the widget surface).
+  `<PageHeader>` is **not** used — the on-surface `<SurfaceHeader>` inside
+  `<DashboardShell>` is the title.
 
 ## Layer 1 — Route config
 A top-level route (e.g. `/dashboard`, `/reports`, `/analytics`). Lazy + suspense
@@ -38,16 +42,23 @@ Renders inside `<AppShell>` (its `<main>` supplies the page inset; the page adds
 message, never a blank page.
 
 ## Layer 3 — Page header
-`<PageHeader>` with the dashboard title + optional subtitle. No page-level write
-actions (the page is read-only); an export/share affordance may sit in the header
-`actions` slot.
+`<DashboardShell kicker title headerActions>` renders the on-surface
+`<SurfaceHeader>` (Plex Ledger board form) at the top of the primary bounded
+surface — kicker + title left, actions right — not a detached `<PageHeader>`
+above the card. No page-level write actions (the page is read-only); an
+export/share affordance sits in `headerActions`.
 
 ## Layer 4 — Toolbar (filter bar)
-A filter bar below the header: a **period** control (segmented `Week / Month /
-Quarter / Year` or a date-range picker) and zero or more **segment** filters
-(channel, category, region) as selects/pills. Changing a filter re-scopes the
-KPIs and every widget. Filter state is consumer-owned (URL-synced is encouraged so
-a dashboard view is shareable).
+`<DashboardShell>` exposes no dedicated `toolbar`/`filters` slot (unlike
+list-with-detail (A), settings-table (D2), kanban-board (P), or matrix-grid (M),
+which do). The filter bar — a **period** control (`<SegmentedControl>` for
+`Week / Month / Quarter / Year`, or a date-range picker) and zero or more
+**segment** filters (channel, category, region) as selects/pills — is
+page-composed and passed into `<DashboardShell headerActions>`, so it renders
+inline in the `SurfaceHeader` actions row alongside any export/share action (the
+shape the reference demo ships). Changing a filter re-scopes the KPIs and every
+widget. Filter state is consumer-owned (URL-synced is encouraged so a dashboard
+view is shareable).
 
 ## Layer 5 — KPI row
 A `<StatTileRow columns={2|3|4}>` of `<StatTile>`s — the headline numbers, each
