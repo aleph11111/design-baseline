@@ -146,6 +146,7 @@ export function DetailOverviewDemo(): React.ReactElement {
   const o = ORDER;
   const [layout, setLayout] = React.useState<"vertical" | "rail">("rail");
   const [surface, setSurface] = React.useState<"separated" | "unified">("unified");
+  const [width, setWidth] = React.useState<"none" | "md" | "lg" | "xl">("md");
   const [editingNote, setEditingNote] = React.useState(false);
   const [note, setNote] = React.useState(ORDER.note);
 
@@ -158,7 +159,9 @@ export function DetailOverviewDemo(): React.ReactElement {
           The canonical money-dense record page. Status lives once, inline in the
           header (`badges` slot); the rail pins figures + identity; the main
           column stacks activity, line items with thumbnails, and the financial
-          breakdown. Toggle <strong>Layout</strong> / <strong>Surface</strong>.
+          breakdown. Toggle <strong>Layout</strong> / <strong>Surface</strong> /{" "}
+          <strong>Width</strong> (Width only bounds the <em>vertical</em> layout —
+          the rail is sticky-full and ignores it).
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <SegmentedControl
@@ -177,6 +180,17 @@ export function DetailOverviewDemo(): React.ReactElement {
             options={[
               { value: "unified", label: "Unified" },
               { value: "separated", label: "Separated" },
+            ]}
+          />
+          <SegmentedControl
+            aria-label="Detail-overview width"
+            value={width}
+            onValueChange={setWidth}
+            options={[
+              { value: "none", label: "None" },
+              { value: "md", label: "Md" },
+              { value: "lg", label: "Lg" },
+              { value: "xl", label: "Xl" },
             ]}
           />
         </div>
@@ -202,7 +216,7 @@ export function DetailOverviewDemo(): React.ReactElement {
         <DetailOverviewShell
           layout={layout}
           surface={surface}
-          width="md"
+          width={width}
           header={
             <DetailOverviewHeader
               title={<span className="font-mono">{o.number}</span>}

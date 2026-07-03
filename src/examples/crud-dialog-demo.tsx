@@ -28,7 +28,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus } from "lucide-react";
+import { History, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -56,6 +56,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { StateView } from "@/components/ui/state-view";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   CrudDialogSheet,
   CrudDialogHeader,
@@ -66,6 +69,9 @@ import {
   confirmDiscard,
 } from "@/components/archetypes/crud-dialog";
 import { PageHeader } from "@/components/layout";
+
+type DialogWidth = "sm" | "md" | "lg";
+type DialogBodyLayout = "flat" | "two-column" | "two-tab";
 
 // ---------------------------------------------------------------------------
 // Domain type
@@ -127,6 +133,10 @@ type WorkoutDialogProps = {
   onSave: (updated: Workout) => void;
   onCreate: (created: Omit<Workout, "id">) => void;
   onDelete: (id: string) => void;
+  /** Drives `<CrudDialogSheet width>`. */
+  width: DialogWidth;
+  /** Drives `<CrudDialogBody layout>` — "two-tab" composes shadcn `<Tabs>` manually. */
+  bodyLayout: DialogBodyLayout;
 };
 
 function WorkoutDialog({
@@ -137,6 +147,8 @@ function WorkoutDialog({
   onSave,
   onCreate,
   onDelete,
+  width,
+  bodyLayout,
 }: WorkoutDialogProps): React.ReactElement {
   // Simulate a fetch delay when opening an existing workout in view mode.
   const [isLoading, setIsLoading] = React.useState(false);
@@ -244,9 +256,123 @@ function WorkoutDialog({
     : "Workout";
   const subtitle = mode.isCreate ? undefined : workout?.date;
 
+  // Two-tab shape's read-only Tab 2 — other logged workouts of the same kind.
+  const relatedHistory = workout
+    ? workouts.filter((w) => w.kind === workout.kind && w.id !== workout.id)
+    : [];
+
   const destructiveProps = mode.isCreate
     ? {}
     : { destructiveLabel: "Delete", onDestructive: handleDelete };
+
+  // Mode badge — indicates current mode visually. `sm:col-span-2` is a no-op
+  // in flat/two-tab layouts and spans the full row under `layout="two-column"`.
+  const modeBadge = (
+    <div className="sm:col-span-2">
+      <Badge variant="outline" className="capitalize">{mode.mode}</Badge>
+    </div>
+  );
+
+  // Canonical RHF field stack: shadcn <FormField>/<FormLabel>/<FormControl> —
+  // the bound variant of the shared field molecule, visually identical to the
+  // manual <Label>+<Input> stack. View mode renders the value as text. Fields
+  // are flat siblings (no wrapping <div>s) so `<CrudDialogBody layout>` can
+  // arrange them into a stack or a 2-col grid on its own — see Layer 6.
+  const fields = (
+    <>
+      <FormField
+        control={form.control}
+        name="date"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Date</FormLabel>
+            {isView ? (
+              <p className="text-sm font-mono tabular-nums text-foreground">{field.value || "—"}</p>
+            ) : (
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+            )}
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="kind"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Type</FormLabel>
+            {isView ? (
+              <p className="text-sm text-foreground">
+                {KIND_LABELS[field.value]}
+              </p>
+            ) : (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {(Object.keys(KIND_LABELS) as WorkoutKind[]).map((k) => (
+                    <SelectItem key={k} value={k}>
+                      {KIND_LABELS[k]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="durationMinutes"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Duration (min)</FormLabel>
+            {isView ? (
+              <p className="text-sm font-mono tabular-nums text-foreground">{field.value}</p>
+            ) : (
+              <FormControl>
+                <Input
+                  type="number"
+                  min={1}
+                  {...field}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                />
+              </FormControl>
+            )}
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="notes"
+        render={({ field }) => (
+          <FormItem className="sm:col-span-2">
+            <FormLabel>Notes</FormLabel>
+            {isView ? (
+              <p className="text-sm text-foreground whitespace-pre-line">
+                {field.value || "—"}
+              </p>
+            ) : (
+              <FormControl>
+                <Textarea rows={4} {...field} />
+              </FormControl>
+            )}
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </>
+  );
 
   return (
     <CrudDialogSheet
@@ -254,121 +380,58 @@ function WorkoutDialog({
       onOpenChange={(next) => {
         if (!next) void controller.handleClose();
       }}
-      width="md"
+      width={width}
     >
       <CrudDialogHeader title={title} subtitle={subtitle} />
 
-      {/* Mixed body (full-width field + a 2-col section), so `layout` is omitted
-          and composed manually. A pure paired-field dialog would instead pass
-          `<CrudDialogBody layout="two-column">` (or `"flat"`) — see Layer 6. */}
-      <CrudDialogBody isLoading={isLoading}>
-        {/* Mode badge — indicates current mode visually */}
-        <div className="mb-4">
-          <Badge variant="outline" className="capitalize">{mode.mode}</Badge>
-        </div>
-
-        {/* Canonical RHF field stack: shadcn <FormField>/<FormLabel>/<FormControl>
-            — the bound variant of the shared field molecule, visually identical to
-            the manual <Label>+<Input> stack. View mode renders the value as text. */}
-        <Form {...form}>
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date</FormLabel>
-                  {isView ? (
-                    <p className="text-sm font-mono tabular-nums text-foreground">{field.value || "—"}</p>
-                  ) : (
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Kind + Duration — 2-col grid (collapses on mobile, per Layer 6) */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="kind"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Type</FormLabel>
-                    {isView ? (
-                      <p className="text-sm text-foreground">
-                        {KIND_LABELS[field.value]}
-                      </p>
-                    ) : (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {(Object.keys(KIND_LABELS) as WorkoutKind[]).map((k) => (
-                            <SelectItem key={k} value={k}>
-                              {KIND_LABELS[k]}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="durationMinutes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Duration (min)</FormLabel>
-                    {isView ? (
-                      <p className="text-sm font-mono tabular-nums text-foreground">{field.value}</p>
-                    ) : (
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min={1}
-                          {...field}
-                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                        />
-                      </FormControl>
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes</FormLabel>
-                  {isView ? (
-                    <p className="text-sm text-foreground whitespace-pre-line">
-                      {field.value || "—"}
-                    </p>
-                  ) : (
-                    <FormControl>
-                      <Textarea rows={4} {...field} />
-                    </FormControl>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      {bodyLayout === "two-tab" ? (
+        // Two-tab shape — shadcn <Tabs>, `layout` omitted and composed
+        // manually (Layer 6). Tab 1 owns mode state (the entity form); Tab 2
+        // is read-only (other logged workouts of the same kind).
+        <CrudDialogBody isLoading={isLoading}>
+          <div className="mb-4">
+            <Badge variant="outline" className="capitalize">{mode.mode}</Badge>
           </div>
-        </Form>
-      </CrudDialogBody>
+          <Tabs defaultValue="details">
+            <TabsList className="mb-4">
+              <TabsTrigger value="details">Details</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
+            </TabsList>
+            <TabsContent value="details" className="space-y-4">
+              <Form {...form}>{fields}</Form>
+            </TabsContent>
+            <TabsContent value="history">
+              {relatedHistory.length === 0 ? (
+                <StateView
+                  variant="empty"
+                  icon={History}
+                  title="No history yet."
+                  description="Other workouts of this type will show up here."
+                />
+              ) : (
+                <ul className="space-y-2">
+                  {relatedHistory.map((w) => (
+                    <li
+                      key={w.id}
+                      className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
+                    >
+                      <span className="font-mono tabular-nums text-foreground">{w.date}</span>
+                      <span className="text-muted-foreground">{w.durationMinutes} min</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </TabsContent>
+          </Tabs>
+        </CrudDialogBody>
+      ) : (
+        // Flat stack / two-column grid — the pure shapes, driven by the real
+        // `layout` prop (Layer 6).
+        <CrudDialogBody isLoading={isLoading} layout={bodyLayout}>
+          {modeBadge}
+          <Form {...form}>{fields}</Form>
+        </CrudDialogBody>
+      )}
 
       {/* Every footer prop except delete is derived by the controller. */}
       <CrudDialogFooter
@@ -395,6 +458,8 @@ export function CrudDialogDemo(): React.ReactElement {
   // Bumped on every open so the dialog (and its form/mode hooks) remounts fresh
   // each time — no stale mode/dirty state leaking across opens.
   const [openSeq, setOpenSeq] = React.useState(0);
+  const [width, setWidth] = React.useState<DialogWidth>("md");
+  const [bodyLayout, setBodyLayout] = React.useState<DialogBodyLayout>("flat");
 
   function openView(id: string) {
     setSelectedId(id);
@@ -437,6 +502,37 @@ export function CrudDialogDemo(): React.ReactElement {
         title="Fitness Log"
         subtitle="J (crud-dialog) archetype demo — workout domain"
       />
+
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="max-w-prose text-sm text-muted-foreground">
+          The dialog body's graded richness axis — <strong>Layout</strong>{" "}
+          (flat stack / two-column grid / two-tab with a read-only History
+          tab) — and the slide-in <strong>Width</strong>. Open a workout to
+          see them applied.
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <SegmentedControl
+            aria-label="Dialog body layout"
+            value={bodyLayout}
+            onValueChange={setBodyLayout}
+            options={[
+              { value: "flat", label: "Flat" },
+              { value: "two-column", label: "Two-column" },
+              { value: "two-tab", label: "Two-tab" },
+            ]}
+          />
+          <SegmentedControl
+            aria-label="Dialog width"
+            value={width}
+            onValueChange={setWidth}
+            options={[
+              { value: "sm", label: "Sm" },
+              { value: "md", label: "Md" },
+              { value: "lg", label: "Lg" },
+            ]}
+          />
+        </div>
+      </div>
 
       {lastAction && (
         <div className="rounded-md border bg-muted/50 px-4 py-2 text-sm text-muted-foreground">
@@ -503,6 +599,11 @@ export function CrudDialogDemo(): React.ReactElement {
           <li>Click <strong>Log workout</strong> → dialog opens in CREATE mode (no fetch).</li>
           <li>Fill fields → click <strong>Create</strong> → new workout appears in list.</li>
           <li>Open a workout → click <strong>Delete</strong> → confirm → removed from list.</li>
+          <li>
+            Toggle <strong>Layout</strong> to two-tab, open a workout with a
+            sibling of the same type in the list → its <strong>History</strong>{" "}
+            tab lists it; otherwise it shows the empty state.
+          </li>
         </ol>
       </div>
 
@@ -516,6 +617,8 @@ export function CrudDialogDemo(): React.ReactElement {
         onSave={handleSave}
         onCreate={handleCreate}
         onDelete={handleDelete}
+        width={width}
+        bodyLayout={bodyLayout}
       />
     </div>
   );

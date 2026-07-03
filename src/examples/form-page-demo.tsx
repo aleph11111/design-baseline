@@ -50,12 +50,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Switch } from "@/components/ui/switch";
 import { SectionCard } from "@/components/layout";
 import {
   FormPageShell,
+  FormPageHeader,
   FormPageActions,
   useFormPageState,
 } from "@/components/archetypes/form-page";
+
+type FormWidth = "sm" | "md" | "lg" | "xl";
+type FormChrome = "board" | "classic";
 
 // ---------------------------------------------------------------------------
 // Domain
@@ -179,23 +186,39 @@ function buildPayload(values: FormValues) {
 // Recipe form (consumes the form-page archetype)
 // ---------------------------------------------------------------------------
 
-type RecipeFormProps =
-  | {
-      mode: "create";
-      onSubmitSuccess: (recipe: Recipe) => void;
-      onCancel: () => void;
-    }
-  | {
-      mode: "edit";
-      id: string;
-      initial: Recipe;
-      onSubmitSuccess: (recipe: Recipe) => void;
-      onDelete: (id: string) => void;
-      onCancel: () => void;
-    };
+type RecipeFormCommonProps = {
+  /** Drives `<FormPageShell width>` — the demo's Width toggle. */
+  width: FormWidth;
+  /**
+   * "board" = the on-surface header (title on FormPageShell, current default).
+   * "classic" = the classic floating `<FormPageHeader>` + the documented
+   * "Card chrome wrapper around the form body" allowed variation
+   * (docs/archetypes/form-page.md Layer 2).
+   */
+  chrome: FormChrome;
+  /** When true, onSubmit throws so the root-level error Alert is reachable. */
+  simulateError: boolean;
+};
+
+type RecipeFormProps = RecipeFormCommonProps &
+  (
+    | {
+        mode: "create";
+        onSubmitSuccess: (recipe: Recipe) => void;
+        onCancel: () => void;
+      }
+    | {
+        mode: "edit";
+        id: string;
+        initial: Recipe;
+        onSubmitSuccess: (recipe: Recipe) => void;
+        onDelete: (id: string) => void;
+        onCancel: () => void;
+      }
+  );
 
 function RecipeForm(props: RecipeFormProps): React.ReactElement {
-  const { mode } = props;
+  const { mode, width, chrome, simulateError } = props;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -230,6 +253,11 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
     try {
       // Simulate server call.
       await new Promise((r) => setTimeout(r, 800));
+      if (simulateError) {
+        throw new Error(
+          "The server rejected the request (simulated — toggle off to save).",
+        );
+      }
       const payload = buildPayload(values);
       const saved: Recipe =
         mode === "edit"
@@ -269,10 +297,7 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
   const title =
     mode === "edit" ? `Edit Recipe — ${props.initial.title}` : "New Recipe";
 
-  return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <FormPageShell width="md" kicker="Recipes" title={title}>
-
+  const formBody = (
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           {/* 3+ logical groups → each wrapped in a SectionCard (form-page spec
@@ -485,7 +510,25 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
           />
         </form>
       </Form>
-    </FormPageShell>
+  );
+
+  return (
+    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+      {chrome === "board" ? (
+        <FormPageShell width={width} kicker="Recipes" title={title}>
+          {formBody}
+        </FormPageShell>
+      ) : (
+        <FormPageShell width={width}>
+          <FormPageHeader title={title} />
+          {/* Allowed variation (form-page.md Layer 2): a Card chrome wrapper
+              around the form body for extra visual emphasis, on top of the
+              classic floating header. */}
+          <Card>
+            <CardContent className="p-5">{formBody}</CardContent>
+          </Card>
+        </FormPageShell>
+      )}
     </div>
   );
 }
@@ -505,6 +548,9 @@ export function FormPageDemo(): React.ReactElement {
   // multi-section form) rather than the list scaffold used to reach it.
   const [mode, setMode] = React.useState<DemoMode>({ kind: "create" });
   const [lastAction, setLastAction] = React.useState<string | null>(null);
+  const [width, setWidth] = React.useState<FormWidth>("md");
+  const [chrome, setChrome] = React.useState<FormChrome>("board");
+  const [simulateError, setSimulateError] = React.useState(false);
 
   function handleCreated(recipe: Recipe) {
     setRecipes((prev) => [...prev, recipe]);
@@ -526,13 +572,58 @@ export function FormPageDemo(): React.ReactElement {
     setMode({ kind: "list" });
   }
 
+  // Toggle row shared by the create/edit form views — drives FormPageShell's
+  // width, board-vs-classic chrome, and a deterministic root-error trigger.
+  const controls = (
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <p className="max-w-prose text-sm text-muted-foreground">
+        Toggle <strong>Width</strong>, <strong>Chrome</strong> (on-surface
+        board header vs. the classic floating header + Card wrapper), and{" "}
+        <strong>Simulate server error</strong> to surface the root-level
+        error banner on submit.
+      </p>
+      <div className="flex flex-wrap items-center gap-3">
+        <SegmentedControl
+          aria-label="Form width"
+          value={width}
+          onValueChange={setWidth}
+          options={[
+            { value: "sm", label: "Sm" },
+            { value: "md", label: "Md" },
+            { value: "lg", label: "Lg" },
+            { value: "xl", label: "Xl" },
+          ]}
+        />
+        <SegmentedControl
+          aria-label="Form chrome"
+          value={chrome}
+          onValueChange={setChrome}
+          options={[
+            { value: "board", label: "Board" },
+            { value: "classic", label: "Classic + Card" },
+          ]}
+        />
+        <label className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+          <Switch checked={simulateError} onCheckedChange={setSimulateError} />
+          Simulate server error
+        </label>
+      </div>
+    </div>
+  );
+
   if (mode.kind === "create") {
     return (
-      <RecipeForm
-        mode="create"
-        onSubmitSuccess={handleCreated}
-        onCancel={() => setMode({ kind: "list" })}
-      />
+      <div className="space-y-5">
+        {controls}
+        <RecipeForm
+          mode="create"
+          width={width}
+          chrome={chrome}
+          simulateError={simulateError}
+          onSubmitSuccess={handleCreated}
+          onCancel={() => setMode({ kind: "list" })}
+        />
+      </div>
     );
   }
 
@@ -546,14 +637,20 @@ export function FormPageDemo(): React.ReactElement {
       return <div />;
     }
     return (
-      <RecipeForm
-        mode="edit"
-        id={recipe.id}
-        initial={recipe}
-        onSubmitSuccess={handleSaved}
-        onDelete={handleDeleted}
-        onCancel={() => setMode({ kind: "list" })}
-      />
+      <div className="space-y-5">
+        {controls}
+        <RecipeForm
+          mode="edit"
+          id={recipe.id}
+          initial={recipe}
+          width={width}
+          chrome={chrome}
+          simulateError={simulateError}
+          onSubmitSuccess={handleSaved}
+          onDelete={handleDeleted}
+          onCancel={() => setMode({ kind: "list" })}
+        />
+      </div>
     );
   }
 
@@ -641,6 +738,11 @@ export function FormPageDemo(): React.ReactElement {
           <li>
             Submit a valid form → 800ms simulated server call (spinner on
             primary button), then return to list.
+          </li>
+          <li>
+            Open <strong>New recipe</strong> or edit a recipe, flip{" "}
+            <strong>Simulate server error</strong>, then submit → the
+            root-level error Alert renders above the footer.
           </li>
         </ol>
       </div>

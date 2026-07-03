@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { FeedShell, FeedItem } from "@/components/archetypes/feed-inbox";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { StateView } from "@/components/ui/state-view";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type FeedType = "mention" | "comment" | "system";
 type Group = "Today" | "Yesterday" | "Earlier";
@@ -98,9 +99,26 @@ const MEDIA_SEED: MediaEvent[] = [
   { id: "m4", type: "event", title: "Quarterly review recap posted", meta: "Events · 4d ago", body: "Slides and the recording are attached. Next planning round opens Monday.", group: "Earlier", thumb: thumb("24 95% 53%", "★") },
 ];
 
+// FeedShell (src/components/archetypes/feed-inbox/FeedShell.tsx) has no
+// `isLoading` prop — the loading plane is page-composed inside the shell's
+// content slot per docs/archetypes/feed-inbox.md Layer 7 ("a few skeleton
+// rows; never a full-page spinner").
+function FeedItemSkeleton(): React.ReactElement {
+  return (
+    <div className="flex items-start gap-3 px-5 py-3" aria-hidden>
+      <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
+      <div className="min-w-0 flex-1 space-y-1.5">
+        <Skeleton className="h-3.5 w-3/4" />
+        <Skeleton className="h-3 w-24" />
+      </div>
+    </div>
+  );
+}
+
 function InboxDemo(): React.ReactElement {
   const [items, setItems] = React.useState<Notification[]>(SEED);
   const [filter, setFilter] = React.useState<FilterKey>("all");
+  const [state, setState] = React.useState<"Loaded" | "Loading">("Loaded");
 
   const visible = items.filter((n) => {
     if (filter === "unread") return n.unread;
@@ -119,6 +137,23 @@ function InboxDemo(): React.ReactElement {
 
   return (
     <section className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="max-w-prose text-sm text-muted-foreground">
+          <strong>State</strong> — loading renders a few skeleton rows in the
+          shell&apos;s content slot; <code>FeedShell</code> has no{" "}
+          <code>isLoading</code> prop of its own.
+        </p>
+        <SegmentedControl
+          aria-label="Feed state"
+          value={state}
+          onValueChange={setState}
+          options={[
+            { value: "Loaded", label: "Loaded" },
+            { value: "Loading", label: "Loading" },
+          ]}
+        />
+      </div>
+
       {/* Plex Ledger board form: title + actions sit ON the bounded surface
           (SurfaceHeader), one frame on a muted mat. */}
       <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
@@ -146,31 +181,39 @@ function InboxDemo(): React.ReactElement {
             />
           }
           empty={
-            visible.length === 0 ? (
+            state === "Loaded" && visible.length === 0 ? (
               <StateView variant="empty" icon={Bell} message="Nothing here." />
             ) : undefined
           }
         >
-          {GROUP_ORDER.map((group) => {
-            const groupItems = visible.filter((n) => n.group === group);
-            if (groupItems.length === 0) return null;
-            return (
-              <SectionCard key={group} title={group} flush>
-                <div className="divide-y divide-border">
-                  {groupItems.map((n) => (
-                    <FeedItem
-                      key={n.id}
-                      icon={ICON[n.type]}
-                      title={n.title}
-                      meta={n.meta}
-                      unread={n.unread}
-                      onClick={() => markRead(n.id)}
-                    />
-                  ))}
-                </div>
-              </SectionCard>
-            );
-          })}
+          {state === "Loading" ? (
+            <div className="divide-y divide-border rounded-md border border-border/70">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <FeedItemSkeleton key={i} />
+              ))}
+            </div>
+          ) : (
+            GROUP_ORDER.map((group) => {
+              const groupItems = visible.filter((n) => n.group === group);
+              if (groupItems.length === 0) return null;
+              return (
+                <SectionCard key={group} title={group} flush>
+                  <div className="divide-y divide-border">
+                    {groupItems.map((n) => (
+                      <FeedItem
+                        key={n.id}
+                        icon={ICON[n.type]}
+                        title={n.title}
+                        meta={n.meta}
+                        unread={n.unread}
+                        onClick={() => markRead(n.id)}
+                      />
+                    ))}
+                  </div>
+                </SectionCard>
+              );
+            })
+          )}
         </FeedShell>
       </div>
     </section>

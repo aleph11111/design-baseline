@@ -12,6 +12,8 @@ import { Filter, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconAvatar } from "@/components/ui/icon-avatar";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   BoardShell,
   BoardColumn,
@@ -43,85 +45,130 @@ const SEED: Card[] = [
   { id: "t6", title: "Draft import-wizard", column: "doing", tag: "baseline", who: "CB" },
 ];
 
+// BoardShell/BoardColumn (src/components/archetypes/kanban-board/) have no
+// loading prop — the loading plane is page-composed inside each column per
+// docs/archetypes/kanban-board.md Layer 7 ("column skeletons; never a single
+// page spinner").
+function BoardCardSkeleton(): React.ReactElement {
+  return (
+    <div className="rounded-md border bg-card p-3" aria-hidden>
+      <Skeleton className="h-3.5 w-3/4" />
+      <div className="mt-3 flex items-center justify-between">
+        <Skeleton className="h-4 w-14 rounded-full" />
+        <Skeleton className="h-5 w-5 rounded-full" />
+      </div>
+    </div>
+  );
+}
+
 export function KanbanBoardDemo(): React.ReactElement {
   const [cards, setCards] = React.useState<Card[]>(SEED);
   const [over, setOver] = React.useState<ColKey | null>(null);
+  const [state, setState] = React.useState<"Loaded" | "Loading">("Loaded");
 
   function move(id: string, to: ColKey) {
     setCards((prev) => prev.map((c) => (c.id === id ? { ...c, column: to } : c)));
   }
 
   return (
-    /* Plex Ledger board form: title + actions sit ON the bounded surface
-       (SurfaceHeader), one frame on a muted mat. */
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <BoardShell
-        kicker="Board"
-        title="Delivery board"
-        headerActions={
-          <>
-            <Button variant="outline" size="sm">
-              <Filter className="mr-1 h-4 w-4" />
-              Filter
-            </Button>
-            <Button size="sm">
-              <Plus className="mr-1 h-4 w-4" />
-              Add card
-            </Button>
-          </>
-        }
-      >
-        {COLUMNS.map((col) => {
-          const colCards = cards.filter((c) => c.column === col.key);
-          return (
-            <BoardColumn
-              key={col.key}
-              title={col.title}
-              count={colCards.length}
-              actions={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={`Add to ${col.title}`}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              }
-              onDragOver={(e) => {
-                e.preventDefault();
-                setOver(col.key);
-              }}
-              onDragLeave={() => setOver((o) => (o === col.key ? null : o))}
-              onDrop={(e) => {
-                e.preventDefault();
-                const id = e.dataTransfer.getData("text/plain");
-                if (id) move(id, col.key);
-                setOver(null);
-              }}
-              className={over === col.key ? "ring-2 ring-ring" : undefined}
-            >
-              {colCards.map((c) => (
-                <BoardCard
-                  key={c.id}
-                  draggable
-                  onDragStart={(e) => e.dataTransfer.setData("text/plain", c.id)}
-                >
-                  <div className="font-medium text-foreground">{c.title}</div>
-                  <div className="mt-2 flex items-center justify-between">
-                    <Badge variant="secondary">{c.tag}</Badge>
-                    <IconAvatar size="xs">{c.who}</IconAvatar>
-                  </div>
-                </BoardCard>
-              ))}
-              {colCards.length === 0 && (
-                <div className="rounded-md border border-dashed py-6 text-center text-xs text-muted-foreground">
-                  Drop here
-                </div>
-              )}
-            </BoardColumn>
-          );
-        })}
-      </BoardShell>
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="max-w-prose text-sm text-muted-foreground">
+          <strong>State</strong> — loading renders column skeletons in place
+          of cards; <code>BoardShell</code>/<code>BoardColumn</code> have no
+          loading prop of their own.
+        </p>
+        <SegmentedControl
+          aria-label="Board state"
+          value={state}
+          onValueChange={setState}
+          options={[
+            { value: "Loaded", label: "Loaded" },
+            { value: "Loading", label: "Loading" },
+          ]}
+        />
+      </div>
+
+      {/* Plex Ledger board form: title + actions sit ON the bounded surface
+         (SurfaceHeader), one frame on a muted mat. */}
+      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+        <BoardShell
+          kicker="Board"
+          title="Delivery board"
+          headerActions={
+            <>
+              <Button variant="outline" size="sm">
+                <Filter className="mr-1 h-4 w-4" />
+                Filter
+              </Button>
+              <Button size="sm">
+                <Plus className="mr-1 h-4 w-4" />
+                Add card
+              </Button>
+            </>
+          }
+        >
+          {COLUMNS.map((col) => {
+            const colCards = cards.filter((c) => c.column === col.key);
+            return (
+              <BoardColumn
+                key={col.key}
+                title={col.title}
+                count={state === "Loading" ? undefined : colCards.length}
+                actions={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={`Add to ${col.title}`}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                }
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setOver(col.key);
+                }}
+                onDragLeave={() => setOver((o) => (o === col.key ? null : o))}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const id = e.dataTransfer.getData("text/plain");
+                  if (id) move(id, col.key);
+                  setOver(null);
+                }}
+                className={over === col.key ? "ring-2 ring-ring" : undefined}
+              >
+                {state === "Loading" ? (
+                  <>
+                    <BoardCardSkeleton />
+                    <BoardCardSkeleton />
+                  </>
+                ) : (
+                  <>
+                    {colCards.map((c) => (
+                      <BoardCard
+                        key={c.id}
+                        draggable
+                        onDragStart={(e) => e.dataTransfer.setData("text/plain", c.id)}
+                      >
+                        <div className="font-medium text-foreground">{c.title}</div>
+                        <div className="mt-2 flex items-center justify-between">
+                          <Badge variant="secondary">{c.tag}</Badge>
+                          <IconAvatar size="xs">{c.who}</IconAvatar>
+                        </div>
+                      </BoardCard>
+                    ))}
+                    {colCards.length === 0 && (
+                      <div className="rounded-md border border-dashed py-6 text-center text-xs text-muted-foreground">
+                        Drop here
+                      </div>
+                    )}
+                  </>
+                )}
+              </BoardColumn>
+            );
+          })}
+        </BoardShell>
+      </div>
     </div>
   );
 }

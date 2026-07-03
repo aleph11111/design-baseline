@@ -2,7 +2,7 @@
 key: D2
 slug: settings-table
 kind: page
-version: 1.2
+version: 1.3
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.0
@@ -130,7 +130,7 @@ The page header no longer floats above the shell as a separate `<PageHeader>`. `
 - **Sortable headers** — optional. Sort state is consumer-owned; pass pre-sorted `rows`.
 - **Status indicators:**
   - Categorical status — use a shared `<Badge>` variant.
-  - Binary toggle (active / archived) — colored dot (`bg-green-500` / `bg-muted-foreground`) + label text.
+  - Binary toggle (active / archived) — colored dot (`bg-primary` on / `bg-muted-foreground` off) + label text. Token-pure — never a literal palette color at the call site.
 - **Per-row dropdown menu** — optional for secondary actions (Delete, Duplicate, Deactivate), via the shared `<RowActionsMenu>` (`archetypes/shared`) — the single owner of the row-level `⋯` overflow trigger, shared byte-for-byte with list-with-detail. Do **not** include "Edit" in the menu — identifier-cell click is the only edit trigger.
 - **Row checkbox column** — when `bulkSelectable` is true, a leading checkbox column appears. Selecting all rows checks a header checkbox.
 - **Identifier without `font-mono`** — when the identifier is a human-readable name (e.g. a category name, a tag label), `font-mono` may be omitted. `text-primary hover:underline` still applies.

@@ -20,6 +20,7 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   ReportShell,
   ReportLineTable,
@@ -114,17 +115,30 @@ export function ReportDemo(): React.ReactElement {
     style: "percent",
     maximumFractionDigits: 0,
   }).format(inv.taxRate);
+  const [width, setWidth] = React.useState<"sm" | "md" | "lg">("md");
 
   return (
     <div className="space-y-5">
-      <p className="max-w-prose text-sm text-muted-foreground">
-        The formal-document archetype — one bounded card holding a complete
-        invoice. A <strong>kicker + title</strong> header bar carries the
-        document class and its mono ID with PDF / Senden actions; the body
-        stacks a <strong>parties row</strong>, a line-item table, and a
-        right-aligned totals stack with a tinted <strong>Gesamt</strong>. Every
-        figure is mono &amp; tabular.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="max-w-prose text-sm text-muted-foreground">
+          The formal-document archetype — one bounded card holding a complete
+          invoice. A <strong>kicker + title</strong> header bar carries the
+          document class and its mono ID with PDF / Senden actions; the body
+          stacks a <strong>parties row</strong>, a line-item table, and a
+          right-aligned totals stack with a tinted <strong>Gesamt</strong>. Every
+          figure is mono &amp; tabular. Toggle <strong>Width</strong>.
+        </p>
+        <SegmentedControl
+          aria-label="Report width"
+          value={width}
+          onValueChange={setWidth}
+          options={[
+            { value: "sm", label: "Compact" },
+            { value: "md", label: "Standard" },
+            { value: "lg", label: "Wide" },
+          ]}
+        />
+      </div>
 
       <ReportShell
         kicker="Beleg"
@@ -141,6 +155,7 @@ export function ReportDemo(): React.ReactElement {
             <Button size="sm">Senden</Button>
           </>
         }
+        width={width}
       >
         {/* Parties row — Von / An identity blocks + right-aligned mono dates */}
         <div className="mb-6 flex justify-between gap-6">

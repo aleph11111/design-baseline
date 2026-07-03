@@ -3,9 +3,12 @@ import {
   ListWithDetailShell,
   ListWithDetailToolbar,
   type ListColumn,
+  type SortDirection,
 } from "@/components/archetypes/list-with-detail";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
 
 type Podcast = {
@@ -15,6 +18,7 @@ type Podcast = {
   episodeCount: number;
   lastPublishedAt: string;
   category: "interview" | "narrative" | "panel" | "solo";
+  isActive: boolean;
 };
 
 const PODCASTS: Podcast[] = [
@@ -25,6 +29,7 @@ const PODCASTS: Podcast[] = [
     episodeCount: 142,
     lastPublishedAt: "2026-05-18",
     category: "interview",
+    isActive: true,
   },
   {
     id: "p2",
@@ -33,6 +38,7 @@ const PODCASTS: Podcast[] = [
     episodeCount: 23,
     lastPublishedAt: "2026-05-20",
     category: "narrative",
+    isActive: true,
   },
   {
     id: "p3",
@@ -41,8 +47,26 @@ const PODCASTS: Podcast[] = [
     episodeCount: 89,
     lastPublishedAt: "2026-04-11",
     category: "panel",
+    isActive: false,
   },
 ];
+
+// Categorical status — a shared <Badge> variant per value (Layer 6), not a
+// per-page color map. Only secondary/outline are used to keep the category
+// axis visually quiet next to the binary status dot.
+const CATEGORY_LABELS: Record<Podcast["category"], string> = {
+  interview: "Interview",
+  narrative: "Narrative",
+  panel: "Panel",
+  solo: "Solo",
+};
+
+const CATEGORY_BADGE_VARIANT: Record<Podcast["category"], "secondary" | "outline"> = {
+  interview: "secondary",
+  narrative: "outline",
+  panel: "secondary",
+  solo: "outline",
+};
 
 const columns: ListColumn<Podcast>[] = [
   {
@@ -58,16 +82,47 @@ const columns: ListColumn<Podcast>[] = [
     header: "Episodes",
     cell: (p) => <span className="font-mono tabular-nums">{p.episodeCount}</span>,
     align: "right",
+    sortable: true,
+    sortFn: (a, b) => a.episodeCount - b.episodeCount,
   },
   {
     key: "last",
     header: "Last published",
     cell: (p) => <span className="font-mono tabular-nums">{p.lastPublishedAt}</span>,
+    sortable: true,
+    sortFn: (a, b) => a.lastPublishedAt.localeCompare(b.lastPublishedAt),
   },
-  { key: "category", header: "Category", cell: (p) => p.category },
+  {
+    key: "category",
+    header: "Category",
+    cell: (p) => (
+      <Badge variant={CATEGORY_BADGE_VARIANT[p.category]}>
+        {CATEGORY_LABELS[p.category]}
+      </Badge>
+    ),
+  },
+  {
+    key: "status",
+    header: "Status",
+    // Binary toggle (Layer 6) — token-pure dot + label text.
+    cell: (p) => (
+      <span className="inline-flex items-center gap-1.5">
+        <span
+          className={cn(
+            "h-2 w-2 rounded-full",
+            p.isActive ? "bg-primary" : "bg-muted-foreground",
+          )}
+        />
+        <span className="text-[13px] text-foreground">
+          {p.isActive ? "Active" : "On hiatus"}
+        </span>
+      </span>
+    ),
+  },
 ];
 
 const PRESENTATIONS = ["table", "card-grid", "action-row"] as const;
+const STATES = ["loaded", "loading", "error"] as const;
 
 export function ListWithDetailDemo() {
   const [search, setSearch] = useState("");
@@ -76,12 +131,29 @@ export function ListWithDetailDemo() {
     useState<(typeof PRESENTATIONS)[number]>("table");
   // Detail presentation: a right rail, or a slide-in drawer (Sheet on desktop).
   const [detailMode, setDetailMode] = useState<"rail" | "drawer">("drawer");
+  // State plane: exercises the shell's loading/error StateView, driven by
+  // isLoading/error/onRetry (Layer 7).
+  const [state, setState] = useState<(typeof STATES)[number]>("loaded");
+  const [sortBy, setSortBy] = useState<string | undefined>(undefined);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
   const filtered = PODCASTS.filter((p) =>
     p.title.toLowerCase().includes(search.toLowerCase()),
   );
 
+  const sortCol = columns.find((c) => c.key === sortBy);
+  const sorted = sortCol?.sortFn
+    ? [...filtered].sort(
+        sortDirection === "asc"
+          ? sortCol.sortFn
+          : (a, b) => -sortCol.sortFn!(a, b),
+      )
+    : filtered;
+
   const selected = filtered.find((p) => p.id === selectedId) ?? null;
+
+  const isLoading = state === "loading";
+  const error = state === "error" ? new Error("Failed to load podcasts.") : null;
 
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
@@ -99,7 +171,7 @@ export function ListWithDetailDemo() {
             </Button>
           </>
         }
-        rows={filtered}
+        rows={sorted}
         columns={columns}
         getRowId={(p) => p.id}
         onRowSelect={(p) => setSelectedId(p.id)}
@@ -112,6 +184,15 @@ export function ListWithDetailDemo() {
             Edit
           </Button>
         }
+        isLoading={isLoading}
+        error={error}
+        onRetry={() => setState("loaded")}
+        sortBy={sortBy}
+        sortDirection={sortDirection}
+        onSortChange={(nextSortBy, nextDirection) => {
+          setSortBy(nextSortBy);
+          setSortDirection(nextDirection);
+        }}
         toolbar={
           <ListWithDetailToolbar
             searchValue={search}
@@ -135,6 +216,16 @@ export function ListWithDetailDemo() {
                     { value: "drawer", label: "Drawer" },
                   ]}
                   aria-label="Detail"
+                />
+                <SegmentedControl
+                  value={state}
+                  onValueChange={(v) => setState(v as (typeof STATES)[number])}
+                  options={[
+                    { value: "loaded", label: "Loaded" },
+                    { value: "loading", label: "Loading" },
+                    { value: "error", label: "Error" },
+                  ]}
+                  aria-label="State"
                 />
               </div>
             }

@@ -2,7 +2,7 @@
 key: A
 slug: list-with-detail
 kind: page
-version: 1.2
+version: 1.3
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.2
@@ -122,7 +122,7 @@ The page header no longer floats above the shell as a separate `<PageHeader>`. `
 - **Sortable headers** — optional. Sort is a consumer-owned feature. To opt in, declare `sortable?: boolean` and an optional `sortFn` per column in the `columns` config. The primitive renders a sort affordance (arrow icon + click handler) in the header cell when `sortable: true`. Sort state — which column and direction — is owned by the consumer via `sortBy?: string`, `sortDirection?: "asc" | "desc"`, and `onSortChange?: (sortBy: string, sortDirection: "asc" | "desc") => void`. The primitive does NOT sort the `rows` array; the consumer pre-sorts before passing.
 - **Status indicators:**
   - **Categorical status** (draft / active / archived / paid / …) — use a shared `<Badge>` variant. Color map lives in a shared file, not duplicated per page.
-  - **Binary toggle** (enabled/disabled, monitored/paused, …) — colored dot (`bg-green-500` / `bg-muted-foreground`) plus label text.
+  - **Binary toggle** (enabled/disabled, monitored/paused, …) — colored dot (`bg-primary` on / `bg-muted-foreground` off) plus label text. Token-pure — never a literal palette color (`bg-green-500`) at the call site; semantic raw-color mappings live only inside owning primitives (`badge.tsx`, calendar tones).
 - **Identifier without `font-mono`** — when the identifier is a human-readable name rather than a numeric or alphanumeric code (e.g. a search name, a tag label), `font-mono` may be intentionally omitted. The `text-primary hover:underline` requirement still applies for all identifier cells, including human-readable name identifiers.
 
 **Forbidden:**

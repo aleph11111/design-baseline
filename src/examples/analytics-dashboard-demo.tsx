@@ -22,6 +22,8 @@ import {
 } from "@/components/archetypes/analytics-dashboard";
 import { Button } from "@/components/ui/button";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StateView } from "@/components/ui/state-view";
 import {
   Select,
   SelectContent,
@@ -103,15 +105,102 @@ function HBars({ data }: { data: { label: string; value: number }[] }) {
   );
 }
 
+// --- per-widget state planes ---------------------------------------------
+//
+// DashboardWidget (src/components/archetypes/analytics-dashboard/DashboardWidget.tsx)
+// has no loading/empty/error prop — it is a chrome-only SectionCard wrapper
+// (title/actions/description/span/children). Per docs/archetypes/analytics-dashboard.md
+// Layer 7, the per-widget planes are page-composed inside the widget body via
+// the canonical StateView + a skeleton, not a primitive-owned prop.
+
+type WidgetKey = "revenue" | "channel" | "categories" | "funnel";
+type WidgetPlane = "loaded" | "loading" | "empty" | "error";
+type WidgetMode = "Loaded" | "Loading" | "Mixed";
+
+// "Mixed" puts each of the three non-loaded planes on a different widget so
+// loading/empty/error are all visible at once, with the rest loaded.
+const MIXED_PLANES: Record<WidgetKey, WidgetPlane> = {
+  revenue: "loading",
+  channel: "empty",
+  categories: "error",
+  funnel: "loaded",
+};
+
+function widgetPlane(key: WidgetKey, mode: WidgetMode): WidgetPlane {
+  if (mode === "Loaded") return "loaded";
+  if (mode === "Loading") return "loading";
+  return MIXED_PLANES[key];
+}
+
+function WidgetBody({
+  plane,
+  onRetry,
+  children,
+}: {
+  plane: WidgetPlane;
+  onRetry: () => void;
+  children: React.ReactNode;
+}): React.ReactElement {
+  if (plane === "loading") {
+    return <Skeleton className="h-40 w-full" aria-hidden />;
+  }
+  if (plane === "empty") {
+    return <StateView variant="empty" message="No data for this period." />;
+  }
+  if (plane === "error") {
+    return (
+      <StateView
+        variant="error"
+        error={new Error("Failed to load widget data.")}
+        onRetry={onRetry}
+      />
+    );
+  }
+  return <>{children}</>;
+}
+
 // ------------------------------------------------------------------------------
 
 export function AnalyticsDashboardDemo(): React.ReactElement {
   const [period, setPeriod] = React.useState<Period>("Month");
   const [channel, setChannel] = React.useState("all");
+  const [widgetMode, setWidgetMode] = React.useState<WidgetMode>("Loaded");
+  const [columns, setColumns] = React.useState<"2" | "3" | "4">("3");
   const k = KPIS[period];
+  const retry = () => setWidgetMode("Loaded");
 
   return (
     <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="max-w-prose text-sm text-muted-foreground">
+          Widgets degrade independently — <strong>Widget states</strong> shows
+          the loading/empty/error planes (per docs Layer 7); <strong>Columns</strong>{" "}
+          drives <code>DashboardGrid</code>&apos;s <code>lg</code> column count.
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <SegmentedControl
+            aria-label="Widget states"
+            value={widgetMode}
+            onValueChange={setWidgetMode}
+            options={[
+              { value: "Loaded", label: "Loaded" },
+              { value: "Loading", label: "Loading" },
+              { value: "Mixed", label: "Mixed" },
+            ]}
+          />
+          <SegmentedControl
+            aria-label="Columns"
+            value={columns}
+            onValueChange={setColumns}
+            options={[
+              { value: "2", label: "2 cols" },
+              { value: "3", label: "3 cols" },
+              { value: "4", label: "4 cols" },
+            ]}
+          />
+        </div>
+      </div>
+
       {/* Plex Ledger board form: title + actions sit ON the primary bounded
           surface (DashboardShell); widget cards are sibling cards in the mat. */}
       <div className="rounded-xl bg-muted/30 p-4 sm:p-6 space-y-4">
@@ -154,43 +243,51 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
         </DashboardShell>
 
         {/* Widget grid — chart bodies are placeholders (consumer brings the chart lib). */}
-        <DashboardGrid columns={3}>
+        <DashboardGrid columns={Number(columns) as 2 | 3 | 4}>
           <DashboardWidget
             title="Revenue over time"
             description="Trailing 12 months, net of refunds"
             span={2}
           >
-            <Sparkline values={k.trend} />
+            <WidgetBody plane={widgetPlane("revenue", widgetMode)} onRetry={retry}>
+              <Sparkline values={k.trend} />
+            </WidgetBody>
           </DashboardWidget>
           <DashboardWidget title="Orders by channel">
-            <HBars
-              data={[
-                { label: "Web", value: 540 },
-                { label: "Retail", value: 210 },
-                { label: "Wholesale", value: 62 },
-              ]}
-            />
+            <WidgetBody plane={widgetPlane("channel", widgetMode)} onRetry={retry}>
+              <HBars
+                data={[
+                  { label: "Web", value: 540 },
+                  { label: "Retail", value: 210 },
+                  { label: "Wholesale", value: 62 },
+                ]}
+              />
+            </WidgetBody>
           </DashboardWidget>
           <DashboardWidget title="Top categories">
-            <Bars
-              data={[
-                { label: "Sets", value: 38 },
-                { label: "Parts", value: 27 },
-                { label: "Minifigs", value: 19 },
-                { label: "Books", value: 9 },
-                { label: "Other", value: 7 },
-              ]}
-            />
+            <WidgetBody plane={widgetPlane("categories", widgetMode)} onRetry={retry}>
+              <Bars
+                data={[
+                  { label: "Sets", value: 38 },
+                  { label: "Parts", value: 27 },
+                  { label: "Minifigs", value: 19 },
+                  { label: "Books", value: 9 },
+                  { label: "Other", value: 7 },
+                ]}
+              />
+            </WidgetBody>
           </DashboardWidget>
           <DashboardWidget title="Conversion funnel" span={3}>
-            <HBars
-              data={[
-                { label: "Visits", value: 100 },
-                { label: "Added to cart", value: 42 },
-                { label: "Checkout", value: 28 },
-                { label: "Purchased", value: 21 },
-              ]}
-            />
+            <WidgetBody plane={widgetPlane("funnel", widgetMode)} onRetry={retry}>
+              <HBars
+                data={[
+                  { label: "Visits", value: 100 },
+                  { label: "Added to cart", value: 42 },
+                  { label: "Checkout", value: 28 },
+                  { label: "Purchased", value: 21 },
+                ]}
+              />
+            </WidgetBody>
           </DashboardWidget>
         </DashboardGrid>
       </div>
