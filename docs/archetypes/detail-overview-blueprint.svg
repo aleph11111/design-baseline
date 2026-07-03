@@ -1,12 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 1010" font-family="-apple-system, 'Segoe UI', system-ui, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 1700" font-family="-apple-system, 'Segoe UI', system-ui, sans-serif">
   <!--
     Archetype C — detail-overview — annotated layout blueprint (v2.0, revised
-    after rendered design review 2026-06-12).
+    after rendered design review 2026-06-12; v2.1 Command Rail panel added
+    2026-07-03).
     Canonical slot order rendered by <DetailOverviewShell>:
       1 header -> 2 summary (master data) -> 3 stats (aggregates)
       -> 4 content (transactional data) -> 5 references
     Slots may be omitted, never reordered. Everything below the header is a
-    bounded <DetailSection> surface. Spec: detail-overview.md
+    bounded <DetailSection> surface. Panel 1: canonical vertical layout.
+    Panel 2: layout="rail" (lg+ placement of the SAME ordered slots).
+    Spec: detail-overview.md
   -->
   <defs>
     <style>
@@ -30,7 +33,7 @@
     </style>
   </defs>
 
-  <text x="40" y="42" class="title">Archetype C — Detail Overview · layout blueprint (v2.0)</text>
+  <text x="40" y="42" class="title">Archetype C — Detail Overview · layout blueprint (v2.0 · v2.1 rail panel below)</text>
   <text x="40" y="64" class="sub">One resolved entity, vertical stack: master data → aggregates → transactional data. Everything below the header is a bounded section. Omit slots — never reorder.</text>
 
   <!-- ============ PAGE FRAME ============ -->
@@ -97,7 +100,7 @@
   <rect x="64" y="522" width="592" height="270" class="zone" rx="6"/>
   <circle cx="84" cy="542" r="11" class="num"/><text x="84" y="546.5" class="numTxt">4</text>
   <text x="102" y="546" class="zlabel">TRANSACTIONAL DATA</text>
-  <text x="272" y="546" class="zslot">content</text>
+  <text x="300" y="546" class="zslot">content</text>
   <!-- bounded DetailSection: embedded read-only list/table -->
   <g>
     <rect x="84" y="560" width="554" height="150" class="bounded" rx="6"/>
@@ -136,7 +139,7 @@
   <g>
     <line x1="656" y1="158" x2="730" y2="158" class="lead"/>
     <text x="738" y="142" class="noteB">1 · header — slot: header</text>
-    <text x="738" y="160" class="note">Title text-2xl font-semibold, left. Subtitle text-sm muted below.</text>
+    <text x="738" y="160" class="note">Title text-lg font-semibold, left. Subtitle text-xs muted below.</text>
     <text x="738" y="176" class="note">Actions ALWAYS a right-aligned row — never mixed into the title</text>
     <text x="738" y="192" class="note">line. No breadcrumbs (app shell owns them). Omit the slot when a</text>
     <text x="738" y="208" class="note">parent layout renders the title (Mode B).</text>
@@ -172,9 +175,137 @@
     <text x="738" y="912" class="note">surface. Graded weights: shadowed data → flat strip → muted refs.</text>
   </g>
 
-  <!-- ============ GLOBAL RULES (bottom) ============ -->
+  <!-- ============ GLOBAL RULES (panel 1 footer) ============ -->
   <g>
     <text x="40" y="998" class="noteB">Page-wide rules:</text>
-    <text x="160" y="998" class="note">vertical stack only (space-y-6) · everything below the header is a bounded DetailSection — naked sections are the defining anti-pattern · no toolbar, no pagination, no sidebars · omit slots, never reorder.</text>
+    <text x="160" y="998" class="note">everything below the header is a bounded DetailSection — naked sections are the defining anti-pattern · no toolbar, no pagination · omit slots, never reorder.</text>
+  </g>
+
+  <!-- ==================================================================== -->
+  <!-- ============ PANEL 2 — COMMAND RAIL VARIANT (v2.1, lg+) ============ -->
+  <!-- ==================================================================== -->
+  <text x="40" y="1056" class="title">Command Rail variant — layout="rail" · lg+ placement</text>
+  <text x="40" y="1078" class="sub">The SAME ordered slots placed in 2D: sticky identity rail (summary + references) beside a scrolling main column (stats + content).</text>
+  <text x="40" y="1094" class="sub">Recommended pairing: surface="unified" — one bounded frame on the muted page mat.</text>
+
+  <!-- unified outer frame -->
+  <rect x="40" y="1100" width="640" height="490" class="frame" rx="10"/>
+
+  <!-- ZONE 1: HEADER (full-width across the frame) -->
+  <rect x="64" y="1120" width="592" height="60" class="zone" rx="6"/>
+  <circle cx="84" cy="1140" r="11" class="num"/><text x="84" y="1144.5" class="numTxt">1</text>
+  <text x="102" y="1144" class="zlabel">HEADER</text>
+  <text x="172" y="1144" class="zslot">header</text>
+  <rect x="84" y="1156" width="200" height="14" class="ghostD" rx="3"/>
+  <rect x="500" y="1152" width="64" height="22" class="btnGhost" rx="5"/>
+  <rect x="572" y="1152" width="64" height="22" class="btn" rx="5"/>
+
+  <!-- internal hairline between rail and main (unified frame divider) -->
+  <line x1="252" y1="1196" x2="252" y2="1566" stroke="#e2e8f0" stroke-width="1.25"/>
+
+  <!-- RAIL (aside, sticky): summary top, references bottom — chromeless in unified -->
+  <rect x="64" y="1196" width="176" height="230" class="zone" rx="6"/>
+  <circle cx="84" cy="1216" r="11" class="num"/><text x="84" y="1220.5" class="numTxt">2</text>
+  <text x="102" y="1220" class="zlabel">MASTER DATA</text>
+  <text x="84" y="1240" class="zslot">summary</text>
+  <!-- compact metric readout: ruled label/value rows, disclosure -->
+  <rect x="84" y="1252" width="70" height="7" class="ghost" rx="2"/>
+  <rect x="176" y="1252" width="48" height="7" class="ghostD" rx="2"/>
+  <rect x="84" y="1266" width="140" height="1.25" class="ghost"/>
+  <rect x="84" y="1274" width="60" height="7" class="ghost" rx="2"/>
+  <rect x="184" y="1274" width="40" height="7" class="ghostD" rx="2"/>
+  <rect x="84" y="1288" width="140" height="1.25" class="ghost"/>
+  <rect x="84" y="1296" width="76" height="7" class="ghost" rx="2"/>
+  <rect x="192" y="1296" width="32" height="7" class="ghostD" rx="2"/>
+  <rect x="84" y="1310" width="140" height="1.25" class="ghost"/>
+  <rect x="84" y="1320" width="86" height="7" class="ghost" rx="2"/>
+  <rect x="84" y="1338" width="70" height="7" class="ghost" rx="2"/>
+  <rect x="176" y="1338" width="48" height="7" class="ghostD" rx="2"/>
+  <rect x="84" y="1356" width="96" height="9" class="ghost" rx="2"/>
+
+  <rect x="64" y="1442" width="176" height="124" class="zone" rx="6"/>
+  <circle cx="84" cy="1462" r="11" class="num"/><text x="84" y="1466.5" class="numTxt">5</text>
+  <text x="102" y="1466" class="zlabel">REFERENCES</text>
+  <text x="84" y="1486" class="zslot">references</text>
+  <rect x="84" y="1498" width="120" height="8" class="ghost" rx="2"/>
+  <rect x="84" y="1516" width="104" height="8" class="ghost" rx="2"/>
+  <rect x="84" y="1534" width="130" height="8" class="ghost" rx="2"/>
+
+  <!-- MAIN column: stats strip, then content sections -->
+  <rect x="264" y="1196" width="392" height="70" class="zone" rx="6"/>
+  <circle cx="284" cy="1216" r="11" class="num"/><text x="284" y="1220.5" class="numTxt">3</text>
+  <text x="302" y="1220" class="zlabel">AGGREGATES</text>
+  <text x="412" y="1220" class="zslot">stats</text>
+  <g>
+    <rect x="284" y="1230" width="352" height="28" class="bounded" rx="5"/>
+    <line x1="401" y1="1230" x2="401" y2="1258" stroke="#e2e8f0" stroke-width="1.25"/>
+    <line x1="518" y1="1230" x2="518" y2="1258" stroke="#e2e8f0" stroke-width="1.25"/>
+    <rect x="296" y="1236" width="40" height="5" class="ghost" rx="2"/>
+    <rect x="296" y="1245" width="32" height="9" class="ghostD" rx="2"/>
+    <rect x="413" y="1236" width="40" height="5" class="ghost" rx="2"/>
+    <rect x="413" y="1245" width="32" height="9" class="ghostD" rx="2"/>
+    <rect x="530" y="1236" width="40" height="5" class="ghost" rx="2"/>
+    <rect x="530" y="1245" width="32" height="9" class="ghostD" rx="2"/>
+  </g>
+
+  <rect x="264" y="1282" width="392" height="284" class="zone" rx="6"/>
+  <circle cx="284" cy="1302" r="11" class="num"/><text x="284" y="1306.5" class="numTxt">4</text>
+  <text x="302" y="1306" class="zlabel">TRANSACTIONAL DATA</text>
+  <text x="502" y="1306" class="zslot">content</text>
+  <g>
+    <rect x="284" y="1318" width="352" height="140" class="bounded" rx="6"/>
+    <text x="300" y="1338" class="stitle">Recent activity</text>
+    <rect x="300" y="1350" width="320" height="1.5" class="ghost"/>
+    <rect x="300" y="1362" width="120" height="8" class="ghost" rx="2"/>
+    <rect x="520" y="1362" width="100" height="8" class="ghost" rx="2"/>
+    <rect x="300" y="1382" width="320" height="1.5" class="ghost"/>
+    <rect x="300" y="1394" width="120" height="8" class="ghost" rx="2"/>
+    <rect x="520" y="1394" width="100" height="8" class="ghost" rx="2"/>
+    <rect x="300" y="1414" width="320" height="1.5" class="ghost"/>
+    <rect x="300" y="1426" width="120" height="8" class="ghost" rx="2"/>
+    <rect x="520" y="1426" width="100" height="8" class="ghost" rx="2"/>
+  </g>
+  <g>
+    <rect x="284" y="1470" width="352" height="52" class="bounded" rx="6"/>
+    <text x="300" y="1490" class="stitle">In-context widget (island)</text>
+    <rect x="300" y="1500" width="140" height="12" class="ghost" rx="3"/>
+    <rect x="540" y="1496" width="80" height="18" class="btnGhost" rx="5"/>
+  </g>
+
+  <!-- PANEL 2 ANNOTATIONS -->
+  <g>
+    <line x1="656" y1="1150" x2="730" y2="1150" class="lead"/>
+    <text x="738" y="1134" class="noteB">1 · header — full-width across the frame</text>
+    <text x="738" y="1152" class="note">Spans rail + main. In surface="unified" this bar follows the</text>
+    <text x="738" y="1168" class="note">--header-fill contract (solid default: accent fill, inverted</text>
+    <text x="738" y="1184" class="note">actions; tint / white are the quieter steps).</text>
+
+    <line x1="680" y1="1300" x2="730" y2="1300" class="lead"/>
+    <text x="738" y="1252" class="noteB">2 + 5 · identity rail — aside, ~300px, lg:sticky top-6</text>
+    <text x="738" y="1270" class="note">summary on top — may lead with the compact metric readout</text>
+    <text x="738" y="1286" class="note">(MetricList: ruled label/value rows + "show more" disclosure);</text>
+    <text x="738" y="1302" class="note">references pinned at the rail's bottom. In unified the rail is</text>
+    <text x="738" y="1318" class="note">CHROMELESS — flush, hairline-divided (UnifiedSurfaceContext) —</text>
+    <text x="738" y="1334" class="note">never carded. The rail is sticky, NEVER its own scroll region.</text>
+
+    <line x1="656" y1="1400" x2="730" y2="1400" class="lead"/>
+    <text x="738" y="1384" class="noteB">3 + 4 · main column — stats, then content</text>
+    <text x="738" y="1402" class="note">Stats strip may be OMITTED when its 2–4 metrics surface in the</text>
+    <text x="738" y="1418" class="note">rail readout instead (recommended — avoids duplication).</text>
+    <text x="738" y="1434" class="note">Content sections keep declaration order; inside the unified</text>
+    <text x="738" y="1450" class="note">frame they render flattened (no shadow, softer border).</text>
+
+    <text x="738" y="1500" class="noteB">Responsive collapse (the compliance keystone)</text>
+    <text x="738" y="1518" class="note">Below lg the rail collapses to Panel 1 EXACTLY — the canonical</text>
+    <text x="738" y="1534" class="note">vertical order header → summary → stats → content → references.</text>
+    <text x="738" y="1550" class="note">Reading order preserved: rail top→bottom, then main. Same</text>
+    <text x="738" y="1566" class="note">archetype, not a fork — no second scroll container, ever.</text>
+  </g>
+
+  <!-- PANEL 2 FOOTER -->
+  <g>
+    <text x="40" y="1648" class="noteB">Rail rules:</text>
+    <text x="128" y="1648" class="note">sanctioned two-column layout ONLY via layout="rail" — ad-hoc sidebars and hand-rolled columns stay forbidden · use for dense transactional</text>
+    <text x="128" y="1666" class="note">records (orders, deals, invoices); otherwise stay vertical · recommended pairing: layout="rail" surface="unified".</text>
   </g>
 </svg>
