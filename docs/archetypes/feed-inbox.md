@@ -10,11 +10,18 @@ Promoted from the 2026-06-13 fleet audit (recurs as a standalone activity feed i
 brickshop — its internal "archetype H" — and hk-crm; rule-of-2). Key `H` mirrors
 brickshop's existing naming.
 
+> **Reference implementation.** This file is the **stack-agnostic contract** — every
+> rule names a *role*, not a primitive. The baseline-stack binding (concrete
+> primitives + Tailwind-4 class strings) lives in
+> [`feed-inbox.baseline.md`](./feed-inbox.baseline.md). A project on a different
+> stack adopts this contract without needing that file.
+
 ### Two sub-shapes — same molecule
 
-H has two recurring sub-shapes. They share the *same* primitives (`FeedShell` +
-`FeedItem` + time-group `SectionCard`s) and must read as the same molecule —
-choose by which slots you fill, not by hand-rolling a second component:
+H has two recurring sub-shapes. They share the *same* primitives (the feed shell +
+the feed-item primitive + time-group card/section-card surfaces) and must read as
+the same molecule — choose by which slots you fill, not by hand-rolling a second
+component:
 
 | Sub-shape | What it is | Read state | Per-item slots |
 |-----------|------------|------------|----------------|
@@ -23,54 +30,40 @@ choose by which slots you fill, not by hand-rolling a second component:
 
 The **timeline** sub-shape is what a downstream *chronological media/event `<ul>`
 feed* adopts (the `media-feed-adopt-feeditem` candidate): a feed, **not** a record
-list — so it's H, not A. Adopt `FeedItem` with the `media` + `body` slots rather
-than minting a new archetype or hand-rolling a `<ul>`.
-
-## Primitives
-
-- `<FeedShell filters actions empty kicker title headerActions headerFill>` — the
-  container: when `title` is set, the shell adopts the Plex Ledger board form —
-  an on-surface `<SurfaceHeader>` (kicker + title left, `headerActions` right) at
-  the top of one bounded card, with a toolbar (filter chips + trailing actions
-  like "Mark all read") above the time-grouped stack below it. Filter and read
-  state are consumer-owned.
-- `<FeedItem icon title meta body media unread actions onClick>` — one event row
-  (leading icon/avatar in an `<IconAvatar>` circle, title + meta, optional
-  multi-line `body`, optional trailing `media` thumbnail, unread dot, optional
-  trailing action). NOT a table cell row. Inbox rows fill
-  `icon`/`title`/`meta`/`unread`; timeline rows add `body` and a trailing `media`
-  thumbnail and skip `unread`.
-- **Reused:** `<SectionCard title="Today" flush>` for each time group (rows inside
-  use `divide-y`); `<StateView>` for the loading/empty planes.
+list — so it's H, not A. Adopt the feed-item primitive with the `media` + `body`
+slots rather than minting a new archetype or hand-rolling a `<ul>`.
 
 ## Layer 1 — Route config
-A top-level route (`/notifications`, `/activity`, `/inbox`) or a popover/sheet
-launched from a header bell. Lazy + suspense for a full-page feed.
+A top-level route (`/notifications`, `/activity`, `/inbox`) or a popover /
+overlay surface (sheet) launched from a header bell. The framework's lazy-load
+boundary for a full-page feed.
 
 ## Layer 2 — Page shell
-`<AppShell>` + a narrow content column (`max-w-2xl` is typical — a feed reads as
-one column, not full width). `<ErrorBoundary>` around content.
+The project's top-level app shell plus a narrow content column (a feed reads as
+one column, not full width). A render-error boundary around content.
 
 ## Layer 3 — Page header
-`<FeedShell kicker title headerActions>` renders the on-surface `<SurfaceHeader>`
-(Plex Ledger board form) at the top of the bounded card — kicker + title left,
-actions right — not a detached `<PageHeader>` above the surface.
-`<SurfaceHeader>` has no subtitle slot; fold an unread count ("3 unread" /
-"You're all caught up") into the kicker, or surface it as a `headerActions` badge.
+The feed shell (`kicker`, `title`, `headerActions`) renders the on-surface header
+bar at the top of the bounded card — kicker + title left, actions right — not a
+detached floating page header above the surface. The on-surface header bar has no
+subtitle slot; fold an unread count ("3 unread" / "You're all caught up") into the
+kicker, or surface it as a `headerActions` badge.
 
 ## Layer 4 — Toolbar (filters)
-Filter chips / a segmented control (via `<SegmentedControl>`; All · Unread · by
-type) at the start of the `<FeedShell>` toolbar row — rendered below the
+Filter chips / the shared one-of-N segmented control (a pill row; All · Unread ·
+by type) at the start of the feed shell's toolbar row — rendered below the
 on-surface header, inside the same bounded card; a "Mark all read" action at the
 end. Filter state is consumer-owned and URL-syncable.
 
 ## Layer 5/6 — The feed
-Time-grouped `<SectionCard>`s of `<FeedItem>`s. Each item: a leading type icon (or
-actor avatar) in an `<IconAvatar>` circle, the event text (actor in `font-semibold`), a meta line (actor ·
-relative time), and — depending on sub-shape — an unread dot + one inline action
-(inbox) or a `body` excerpt + a trailing `media` thumbnail (timeline). Group by
-recency buckets; drop empty groups after filtering. The trailing `media` slot is
-a fixed-size rounded holder so an `<img>` fills it uniformly without per-feed CSS.
+Time-grouped instances of the project's card / section-card surface, made up of
+instances of the feed-item primitive. Each item: a leading type icon (or actor
+avatar) in a circular icon/avatar treatment, the event text (actor rendered with
+emphasis), a meta line (actor · relative time), and — depending on sub-shape — an
+unread dot + one inline action (inbox) or a `body` excerpt + a trailing `media`
+thumbnail (timeline). Group by recency buckets; drop empty groups after filtering.
+The trailing `media` slot is a fixed-size rounded holder so an `<img>` fills it
+uniformly without per-feed CSS.
 
 **Forbidden:** sortable column headers / a data table (that's A — link out to the
 record from an item instead); more than one inline action per row (push extra
@@ -78,9 +71,9 @@ actions into the item's detail); infinite walls with no time grouping or filter.
 
 ## Layer 7 — States
 - **Loading** — a few skeleton rows; never a full-page spinner.
-- **Empty** — a centered `<StateView variant="empty">` ("Nothing here") passed
-  into `FeedShell`'s `empty` slot (distinguish "no notifications" from "none
-  match this filter").
+- **Empty** — the shared loading/empty/error state-view primitive, centered
+  (`variant="empty"`, "Nothing here"), passed into the feed shell's `empty` slot
+  (distinguish "no notifications" from "none match this filter").
 - **Read state (inbox only)** — unread items are visually stronger (dot + subtle
   surface); opening an item or "mark all read" clears it. Read state is optimistic.
   The timeline sub-shape has no read state — it's purely chronological, so drop
@@ -111,8 +104,8 @@ viewer; never leak another user's items.
 **REQUIRED**
 
 - [ ] **One feed shell** owns the bounded surface — on-surface header + filter
-      row + time-grouped item stack via `<FeedShell>` — not a parallel
-      hand-built card + list.
+      row + time-grouped item stack via the shell — not a parallel hand-built
+      card + list.
 - [ ] **Items are a single row primitive** (avatar/title/preview/meta/unread dot),
       not per-type bespoke markup.
 - [ ] **Unread/selected state via tokens** (brand/`muted`), not literal colors or bold-only.

@@ -14,9 +14,15 @@ status: locked
 This document is the cross-project contract for every **tabbed settings** page.
 Any new page of this archetype must satisfy every rule marked *required*.
 
-The archetype owns the shared `<SettingsPageShell>` / `<SettingsPageHeader>`
+The archetype owns the shared **settings-page shell** / **settings-page header**
 primitives, which are also reused by the settings-form (D1) and settings-table
 (D2) archetypes.
+
+> **Reference implementation.** This file is the **stack-agnostic contract** — every
+> rule names a *role*, not a primitive. The baseline-stack binding (concrete
+> primitives + Tailwind-4 class strings) lives in
+> [`tabbed-settings.baseline.md`](./tabbed-settings.baseline.md). A project on a
+> different stack adopts this contract without needing that file.
 
 ---
 
@@ -53,8 +59,9 @@ distinctions from a domain hub (F1) are:
   the auth guard, app shell, and settings layout from the parent route. Do not
   re-apply them at the child route.
 - **Standalone pages** (not under a settings layout): apply the auth guard and
-  app shell inline on the route. These render full-width with no settings
-  sidebar and must supply their own page inset (see Layer 2).
+  the project's **top-level app shell** inline on the route. These render
+  full-width with no settings sidebar and must supply their own page inset
+  (see Layer 2).
 
 **Forbidden:**
 - Static (non-lazy) imports of tabbed-settings pages — bundle-size regression.
@@ -63,61 +70,64 @@ distinctions from a domain hub (F1) are:
 
 ### Layer 2 — Page shell
 
-**Required (via `<SettingsPageShell>`):**
-- Outer container is a `space-y-6` stack wrapping breadcrumbs + header + body.
-- An error boundary wraps all page content (provided by the shell).
+**Required (via the settings-page shell):**
+- Outer container uses the **canonical vertical rhythm** to stack breadcrumbs +
+  header + body.
+- A **render-error boundary** wraps all page content (provided by the shell).
 - Breadcrumbs render at the top, above the header, when supplied.
 - The page header renders the title block.
-- No outer padding classes on the page component itself — the surrounding
+- No outer **page inset** on the page component itself — the surrounding
   settings layout supplies the inset for settings-tree pages.
 
 **Allowed variation:**
-- **Standalone pages:** pass `className` (e.g. `container mx-auto px-6 py-6`) to
-  add the padding the settings layout would otherwise provide. No double-inset,
-  because the settings layout is absent.
+- **Standalone pages:** pass `className` to add the **page inset** the settings
+  layout would otherwise provide. No double-inset, because the settings layout
+  is absent.
 - **Breadcrumb derivation is project-specific.** The shell takes breadcrumbs as
   a slot rather than deriving them from the router, so the consuming project
   wires its own router-aware breadcrumb component.
 
 **Forbidden:**
-- Padding classes (`p-6`, `px-6 py-6`) on the page's own outer container when it
-  is nested inside a settings layout — causes double-inset.
-- Inline `<h1>` / `<h2>` header markup. Use `<SettingsPageHeader>` exclusively.
-- Omitting the error boundary or (for pages that have a trail) the breadcrumbs —
-  both are provided by `<SettingsPageShell>`.
+- A **page inset** applied on the page's own outer container when it is nested
+  inside a settings layout — causes double-inset.
+- Inline `<h1>` / `<h2>` header markup. Use the shell's page-header treatment
+  exclusively.
+- Omitting the render-error boundary or (for pages that have a trail) the
+  breadcrumbs — both are provided by the settings-page shell.
 
 ### Layer 3 — Page header
 
-**Required (via `<SettingsPageShell>`):**
+**Required (via the settings-page shell):**
 - **Title on the surface (board form).** Pass `kicker` and/or `headerActions`
-  to `<SettingsPageShell>` and it switches to the board form: `<SettingsPageHeader>`
-  is suppressed and the shared `<SurfaceHeader>` (`@/components/layout/SurfaceHeader`)
+  to the settings-page shell and it switches to the board form: the classic
+  page-header treatment is suppressed and the shared **on-surface header bar**
   renders inside a bounded card wrapping the tab strip and body — a `kicker`
-  overline (e.g. "Settings") over the `title` (`text-lg font-semibold`), the
-  same on-surface header every framed archetype shell mounts. F2 pages have no
-  page-level actions (see below), so the board form typically triggers on
-  `kicker` alone.
+  overline (e.g. "Settings") over the `title` (in the project's **canonical
+  page-title type style**), the same on-surface header every framed archetype
+  shell mounts. F2 pages have no page-level actions (see below), so the board
+  form typically triggers on `kicker` alone.
 - **No action buttons in the page header.** A tabbed-settings page has no
   page-level actions — `headerActions` (board form) / `actions` (classic
-  `<SettingsPageHeader>`, from `SettingsPageHeaderProps`) stay empty for F2.
-  That slot exists only for the shared settings-form (D1) consumer.
+  page-header treatment) stay empty for F2. That slot exists only for the
+  shared settings-form (D1) consumer.
 
 **Allowed variation:**
 - **Classic header** — when neither `kicker` nor `headerActions` is passed,
-  `<SettingsPageShell>` falls back to rendering `<SettingsPageHeader>` (a thin
-  wrapper over the baseline `<PageHeader>`, same `text-lg font-semibold` title
-  treatment) above an unbounded body. Use this path for `subtitle` / `icon`,
-  which the on-surface `SurfaceHeader` has no slot for.
+  the settings-page shell falls back to rendering the classic **page-header
+  treatment** (the same **canonical page-title type style**) above an unbounded
+  body. Use this path for `subtitle` / `icon`, which the **on-surface header
+  bar** has no slot for.
 - **Subtitle** — classic header only; use when the title alone does not convey
   purpose.
 - **Icon** — classic header only, decorative; pass a sized icon component to
   the `icon` prop.
 
 **Forbidden:**
-- Inline `<h1>` / `<h2>` elements, or a hand-rolled title bar, bypassing
-  `<SettingsPageShell>`'s `SurfaceHeader` / `<SettingsPageHeader>`.
-- A title off the `text-lg font-semibold` scale (both the board-form
-  `SurfaceHeader` and the classic `<SettingsPageHeader>` render at `text-lg`).
+- Inline `<h1>` / `<h2>` elements, or a hand-rolled title bar, bypassing the
+  settings-page shell's on-surface header bar / classic page-header treatment.
+- A title off the **canonical page-title type style** (both the board-form
+  on-surface header bar and the classic page-header treatment render at the
+  same scale).
 - Action buttons in the page-header row. Page titles name categories, so actions
   live in per-tab toolbars (typically inherited from each tab's table or form
   body).
@@ -125,7 +135,7 @@ distinctions from a domain hub (F1) are:
 ### Layer 4 — Tab strip
 
 **Required:**
-- Use the design system's `Tabs` / `TabsList` / `TabsTrigger` primitives.
+- Use the design system's **tab-strip primitive**.
 - The tab strip is a direct child of the page shell's body (a sibling of the
   header), not nested inside a card or toolbar.
 
@@ -134,12 +144,12 @@ distinctions from a domain hub (F1) are:
 - **Filter-mode tab strip:** when a page uses the tab strip as a type-filter
   (all values render the same body, only the filter changes), this is allowed.
   The filter tab strip may live inside the toolbar area rather than at the top
-  level; document the "filter" role in an inline comment. `<SettingsPageShell>`
-  still applies.
+  level; document the "filter" role in an inline comment. The settings-page
+  shell still applies.
 - **URL sync** — optional per-page choice (manage a `?tab=` search param).
 
 **Forbidden:**
-- A `<Select>` dropdown instead of tabs for multi-category navigation.
+- A **dropdown select** instead of tabs for multi-category navigation.
 - Nested page-level tabs inside a tab body (tabs within tabs).
 
 ### Layer 5 — Per-tab body delegation
@@ -159,7 +169,7 @@ distinctions from a domain hub (F1) are:
   each tab's body. Use it when a deep entity's detail page is too large for one
   scroll and splits cleanly into tabs.
 - **Persistent below-tab section:** content that applies to all tabs may render
-  below the `Tabs` component at the page level, separated by a `Separator`. This
+  below the tab-strip primitive at the page level, separated by a divider. This
   section is always visible (it is not a tab body); document the reason inline.
 - **Log/feed tab body:** a read-only activity-log tab body is accepted. If the
   project later ships a consolidated activity surface, such a tab should become a
@@ -188,7 +198,8 @@ styling, empty states, etc.
 **Required:**
 - Per-tab loading and empty states are handled by the tab body's own primitives
   (the table shell for D2 bodies, a form skeleton for D1, etc.).
-- Page-level errors are caught by the error boundary in `<SettingsPageShell>`.
+- Page-level errors are caught by the render-error boundary in the settings-page
+  shell.
 
 **Allowed variation:**
 - A custom tab-body loading indicator is acceptable when the body is a legacy
@@ -224,9 +235,9 @@ data contract for the page and its tab bodies:
 **Required:**
 - All mutations go through the project's mutation layer; on success, invalidate
   the affected list/query state.
-- **Destructive actions** are gated through a shared confirm dialog (the
-  crud-dialog / AlertDialog pattern). Native `window.confirm` and ad-hoc
-  per-page confirm dialogs are forbidden.
+- **Destructive actions** are gated through the shared **confirm-dialog
+  primitive**. Native `window.confirm` and ad-hoc per-page confirm dialogs are
+  forbidden.
 - Mutation feedback uses the project's single toast system.
 
 **Forbidden:**
@@ -247,65 +258,21 @@ data contract for the page and its tab bodies:
 
 ---
 
-## `<SettingsPageShell>` / `<SettingsPageHeader>` — shared primitives
-
-**Location:** `src/components/archetypes/tabbed-settings/`
-
-### What they provide
-
-`<SettingsPageShell>` wraps every settings-page body (tabbed settings, settings
-form, settings table) with:
-1. an error boundary — catches render errors,
-2. an optional breadcrumb slot,
-3. `<SettingsPageHeader>` — title plus optional subtitle / icon / actions,
-4. a `space-y-6` body container with no outer padding.
-
-### Signatures
-
-```ts
-type SettingsPageHeaderProps = {
-  title: ReactNode;
-  subtitle?: ReactNode;
-  icon?: ComponentType<{ className?: string }>;
-  actions?: ReactNode;       // empty for F2; used by the D1 form consumer
-  className?: string;
-};
-
-type SettingsPageShellProps = SettingsPageHeaderProps & {
-  breadcrumbs?: ReactNode;   // slot — derivation is project-specific
-  children: ReactNode;       // F2: <Tabs>; D1: <form>; D2: settings-table shell
-  className?: string;        // standalone pages add their own padding here
-};
-```
-
-### Notes
-
-- The `actions` slot is always empty for tabbed-settings pages (no page-level
-  actions). A settings-form (D1) page may use it for a Save button. A
-  settings-table (D2) page leaves it empty (its toolbar handles actions).
-- The outer container omits padding — the settings layout supplies the inset.
-  Standalone pages must add their own padding via `className`.
-- `<SettingsPageHeader>` is a thin wrapper over the baseline `<PageHeader>`
-  layout primitive (`@/components/layout`) — it narrows the surface to the
-  settings contract while title layout and typography live in one place.
-
----
-
 ## Migration acceptance checklist
 
 A page is conformant when **every required rule** above is satisfied:
 
 - [ ] **Layer 1** — Route is lazy + suspense-wrapped; auth guard applied
       correctly (inherited or inline)
-- [ ] **Layer 2** — Uses `<SettingsPageShell>`; no outer padding class when
+- [ ] **Layer 2** — Uses the settings-page shell; no outer page inset when
       nested in a settings layout; error boundary + breadcrumbs present
-- [ ] **Layer 3** — title (board-form `SurfaceHeader` or classic
-      `<SettingsPageHeader>`) is `text-lg font-semibold`; no action buttons in
-      the header
-- [ ] **Layer 4** — Design-system `Tabs` primitives; tab strip at page-body
+- [ ] **Layer 3** — title (board-form on-surface header bar or classic
+      page-header treatment) is in the canonical page-title type style; no
+      action buttons in the header
+- [ ] **Layer 4** — Design-system tab-strip primitive; tab strip at page-body
       level (not in a card)
 - [ ] **Layer 5** — Each tab body satisfies the A / D1 / D2 delegation contract;
-      any persistent below-tab content is separated by a `Separator` and
+      any persistent below-tab content is separated by a divider and
       documented inline
 - [ ] **Layer 7** — Loading / empty handled per-tab by the body's own primitives
 - [ ] **Layer 8** — Project query layer for all fetching; no imperative fetch;
@@ -320,16 +287,13 @@ A page is conformant when **every required rule** above is satisfied:
 ## Revision log
 
 - **v1.0 (2026-05-31):** Promoted from brickshop-manager (source spec v1.1).
-  De-source-ified: brickshop routes (`/data-mapping`, `/settings/*`), framework
-  specifics (`<ProtectedRoute>`, `<MainLayout>`, `<SettingsLayout>`, the `<S>`
-  Suspense helper), and stack brands (React Query `staleTime`/query keys,
-  Supabase `supabase.from()`, Sonner, shadcn `useToast`) generalised into
-  framework-neutral contracts. The `<SettingsPageShell>` breadcrumb auto-derive
-  (router `useLocation()` in the source) became an explicit slot. Header split
-  into `<SettingsPageShell>` + `<SettingsPageHeader>` to match the baseline
-  form-page convention.
-- **2026-07-03:** Board-form sync: on-surface `SurfaceHeader` header, ledger
-  title scale, single-owner molecule references.
+  De-source-ified: project-specific routes, framework-specific primitives, and
+  stack-specific libraries generalised into framework-neutral contracts. The
+  settings-page shell's breadcrumb auto-derive (router-based in the source)
+  became an explicit slot. Header split into the settings-page shell +
+  settings-page header primitives to match the canonical form-page convention.
+- **2026-07-03:** Board-form sync: on-surface header bar, canonical title
+  scale, single-owner molecule references.
 
 ---
 
@@ -348,7 +312,7 @@ A page is conformant when **every required rule** above is satisfied:
 **REQUIRED**
 
 - [ ] **Tabs are real section navigation**, driven by the shell + URL/state — not a
-      `Tabs` deck wrapping unrelated pages, and not faked with show/hide divs.
+      tab-strip deck wrapping unrelated pages, and not faked with show/hide divs.
 - [ ] **Each panel is a form-page/settings body**, composing those primitives — tabs
       don't excuse hand-rolled cards inside.
 - [ ] **Actions per panel follow that panel's archetype** (form → footer; table →

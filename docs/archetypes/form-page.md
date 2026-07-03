@@ -24,13 +24,11 @@ B is **not** the right choice for:
 - Multi-step flows or wizards spanning multiple submission stages → use a flow archetype (not in baseline v1.0).
 - Inline-table editing → out of scope for both A and B.
 
-## Reference primitives
-
-`<FormPageShell>` in `src/components/archetypes/form-page/` — the max-width single-column container for the form route. Composed of:
-
-- `<FormPageHeader>` — title, optional subtitle, optional icon. No action slot (actions live in the footer).
-- `<FormPageActions>` — sticky-or-inline footer with destructive (left) + secondary + primary (right) buttons. Mode-aware.
-- `useFormPageState` — hook centralizing form mode (`create` / `edit`), dirty state, isSubmitting, and the dirty-guarded discard flow.
+> **Reference implementation.** This file is the **stack-agnostic contract** — every
+> rule names a *role*, not a primitive. The baseline-stack binding (concrete
+> primitives + Tailwind-4 class strings) lives in
+> [`form-page.baseline.md`](./form-page.baseline.md). A project on a different stack
+> adopts this contract without needing that file.
 
 ---
 
@@ -60,22 +58,22 @@ B is **not** the right choice for:
 
 **Required:**
 
-- The page renders inside `<AppShell>` (or the project's top-level layout primitive). The shell does not re-mount providers.
-- Outer container: `<FormPageShell>` from `src/components/archetypes/form-page/`. The shell provides:
-  - Single-column max-width: default `max-w-xl` (~36rem), left-aligned. Overridable via the `width` prop — `"sm"` (max-w-md), `"md"` (max-w-xl, default), `"lg"` (max-w-2xl), `"xl"` (max-w-4xl for wide multi-column layouts).
-  - Vertical spacing: `space-y-6` between header and form body.
-  - **No page inset** — `AppShell`'s `<main>` supplies it; the shell adds none (adding `px-6 py-6` here would double-inset).
-- `<ErrorBoundary>` (or framework equivalent) wraps the page content at the page-component level.
+- The page renders inside the project's **top-level app shell** — the outer layout frame that mounts global providers, nav/sidebar, and the main content region. The shell does not re-mount providers.
+- Outer container: the **form-page shell** — the archetype's content-shell primitive. The shell provides:
+  - Single-column max-width, left-aligned. Overridable via a `width` prop with `"sm"` / `"md"` (default) / `"lg"` / `"xl"` size steps (`"xl"` for wide multi-column layouts).
+  - The **canonical vertical rhythm** between header and form body.
+  - **No page inset** — the app shell's main region supplies it; the shell adds none (re-insetting here would double-inset).
+- A **render-error boundary** (or framework equivalent) wraps the page content at the page-component level.
 
 **Allowed variation:**
 
-- A `<Card>` chrome wrapper around the form body when the visual emphasis is desired (e.g. tenant-onboarding forms). Default is no card; form sits directly inside the shell.
-- Two-column layout via `grid grid-cols-1 lg:grid-cols-2 gap-6` inside the form body — only with `width="lg"` or `width="xl"`. Sections collapse to single-column on narrow viewports.
+- A **card-surface** chrome wrapper around the form body when visual emphasis is desired (e.g. tenant-onboarding forms). Default is no card; form sits directly inside the shell.
+- Two-column layout inside the form body — only with the `"lg"` or `"xl"` width step. Sections collapse to single-column on narrow viewports.
 
 **Forbidden:**
 
-- Inline `<div className="max-w-xl px-6 py-6">…` hand-rolled wrappers. Always use `<FormPageShell>`.
-- Centering the form horizontally on the page (`mx-auto`) when the project's layout already left-aligns content. The shell respects whatever alignment the surrounding `<AppShell>` imposes.
+- Inline hand-rolled max-width/inset wrappers. Always use the form-page shell.
+- Centering the form horizontally on the page when the project's layout already left-aligns content. The shell respects whatever alignment the surrounding app shell imposes.
 - Multiple `<form>` elements on a single form page. One page, one form.
 
 ---
@@ -84,23 +82,23 @@ B is **not** the right choice for:
 
 The form-page header is **purely informational** — title, optional subtitle, optional icon. Action buttons live in the footer (Layer 14), not in the header.
 
-**Required (board form — `<FormPageShell kicker title headerActions>`):**
+**Required (board form — via the form-page shell's `kicker`/`title`/`headerActions` props):**
 
-- **Title on the surface.** Pass `title` (and optionally `kicker`, `headerActions`) to `<FormPageShell>` and it renders the shared `<SurfaceHeader>` (`@/components/layout/SurfaceHeader`) at the top of its bounded card — a `kicker` overline (the entity class, e.g. "Recipes") over the `title` (`text-lg font-semibold`; embed an entity identifier in `font-mono`, e.g. `"Edit Recipe — Sunday Carbonara"`). This is the same on-surface header every framed archetype shell mounts; there is no separate floating `<PageHeader>` above the card.
-- `headerActions` — optional right-aligned secondary actions in the bar. The form's Save/Cancel/Delete stay in `<FormPageActions>` at the footer regardless of what's in `headerActions`.
-- The bar's fill follows the project's `--header-fill` contract (`HeaderFillContext` from `@/components/layout/headerFill` — solid/tint/white, default solid); override per instance via `<FormPageShell headerFill="…">`.
+- **Title on the surface.** Pass `title` (and optionally `kicker`, `headerActions`) to the form-page shell and it renders the shared **on-surface header bar** (the title bar that sits ON the content surface, driven by shell props) at the top of its bounded card — a `kicker` overline (the entity class, e.g. "Recipes") over the `title`, in the project's **canonical page-title type style**; embed an entity identifier in the **monospace identifier style**, e.g. `"Edit Recipe — Sunday Carbonara"`. This is the same on-surface header every framed archetype shell mounts; there is no separate floating page header above the card.
+- `headerActions` — optional right-aligned secondary actions in the bar. The form's Save/Cancel/Delete stay in the **actions-footer primitive** (the sticky-or-inline footer owning the destructive/secondary/primary write actions) at the footer regardless of what's in `headerActions`.
+- The bar follows the **header-fill contract** (three modes: brand-filled/default, muted tint, and hairline-border-only); override per instance via the form-page shell's `headerFill` prop.
 
 **Allowed variation:**
 
-- **Classic floating header** — when `<FormPageShell>` is used without a `title` prop, it reverts to the unstyled column layout; compose `<FormPageHeader>` (a thin wrapper over the baseline `<PageHeader>`, same `text-lg font-semibold` title treatment) as the first child instead. Use this path when the page needs a `subtitle`, decorative `icon`, or `backHref` — the on-surface `SurfaceHeader` carries `kicker`/`title`/`headerActions` only, no subtitle/icon/back-link slots.
-- **Subtitle** — classic header only. Use for secondary identifying info (e.g. created date, status, "Editing as administrator"). Rendered as `text-xs text-muted-foreground` directly below the title.
-- **Icon** — classic header only, decorative. If used, size `h-6 w-6`, placed inside `<FormPageHeader>` before the title.
-- **Back link** — classic header only. Optional `backHref` prop on `<FormPageHeader>` renders a small "← Back to {list}" link above the title. Use when the form page is reached from a context the user is likely to want to return to.
+- **Classic floating header** — when the form-page shell is used without a `title` prop, it reverts to the unstyled column layout; compose the **floating page-header treatment** (the canonical page-header treatment, in the same canonical page-title type style) as the first child instead. Use this path when the page needs a `subtitle`, decorative `icon`, or `backHref` — the on-surface header bar carries `kicker`/`title`/`headerActions` only, no subtitle/icon/back-link slots.
+- **Subtitle** — classic header only. Use for secondary identifying info (e.g. created date, status, "Editing as administrator"). Rendered in a **muted extra-small supporting-text style** directly below the title.
+- **Icon** — classic header only, decorative. If used, a small icon sized to the header scale, placed inside the floating page-header treatment before the title.
+- **Back link** — classic header only. Optional `backHref` prop on the floating page-header treatment renders a small "← Back to {list}" link above the title.
 
 **Forbidden:**
 
 - Action buttons (Save, Cancel, Delete) placed in the header or its actions slot. All form-write actions belong in the footer (Layer 14). This is what separates B from a list-detail page.
-- Inline `<h1>` markup, or a hand-rolled title bar, bypassing `<FormPageShell>`'s `SurfaceHeader` / `<FormPageHeader>`. The shared header is what gives every form page the same chrome.
+- Inline `<h1>` markup, or a hand-rolled title bar, bypassing the form-page shell's on-surface header bar / floating page-header treatment. The shared header is what gives every form page the same chrome.
 
 ---
 
@@ -114,21 +112,21 @@ Form pages do not have a toolbar layer. This layer number is reserved to keep pa
 
 **Required:**
 
-- The form body is wrapped in shadcn's `<Form>` from `src/components/ui/form` (the react-hook-form `FormProvider` bridge). Every field renders inside `<FormField>` + `<FormItem>` + `<FormLabel>` + `<FormControl>` + `<FormMessage>` — never bare `<input>` outside the FormField tree.
-- The `<form>` element carries `className="space-y-4"` (gap between field groups). Override only when the layout uses a `grid` body, in which case the grid sets the gap.
-- The form body is **the consumer's responsibility** — `<FormPageShell>` does not own the field set. Consumers render their RHF form as a direct child between `<FormPageHeader>` and `<FormPageActions>`.
+- The form body is wrapped in the **form-provider bridge** (the react-hook-form `FormProvider` bridge). Every field renders inside the **form-field primitive** tree — never bare `<input>` outside it.
+- The `<form>` element carries the **canonical field-group gap** between field groups. Override only when the layout uses a grid body, in which case the grid sets the gap.
+- The form body is **the consumer's responsibility** — the form-page shell does not own the field set. Consumers render their RHF form as a direct child between the header and the actions-footer primitive.
 
 **Allowed variation:**
 
-- **Section grouping** — when the form has 3+ logical groups (e.g. "Contact info" / "Address" / "Preferences"), wrap each group in the shared `<SectionCard title="…">` primitive (`@/components/layout`) so the group heading is bound to its fields as one titled bounded block — the same titled-section shape used by detail-overview (`<DetailSection>`) and grouped-list groups. The fields render in the card's padded (non-`flush`) body. Do not float a bare heading above an unbounded `<div>` of fields, and do not hand-roll the card/heading chrome. Forms with fewer than 3 groups stay flat (no `<SectionCard>`) — a single bounded section adds chrome without earning it.
-- **Card-grouped sections** — `<Card>` around each section when visual separation is desired (e.g. compliance forms with optional sub-collections).
-- **Two-column field grids** — `<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">` for paired short fields (firstName + lastName, city + zip). Collapse to single-column on narrow viewports.
+- **Section grouping** — when the form has 3+ logical groups (e.g. "Contact info" / "Address" / "Preferences"), wrap each group in the shared **card / section-card surface** (with a `title`) so the group heading is bound to its fields as one titled bounded block — the same titled-section shape used by detail-overview (the **detail-section** primitive) and grouped-list groups. The fields render in the card's padded (non-`flush`) body. Do not float a bare heading above an unbounded `<div>` of fields, and do not hand-roll the card/heading chrome. Forms with fewer than 3 groups stay flat (no card/section-card surface) — a single bounded section adds chrome without earning it.
+- **Card-grouped sections** — a card-surface wrapper around each section when visual separation is desired (e.g. compliance forms with optional sub-collections).
+- **Two-column field grids** — a two-column grid for paired short fields (firstName + lastName, city + zip). Collapse to single-column on narrow viewports.
 
 **Forbidden:**
 
-- Bare `<input>` / `<textarea>` / `<select>` outside `<FormField>`. Every interactive field flows through RHF + the shadcn Form bridge — that's what produces the error message under the field and the accessible label association.
-- Multiple `<form>` elements within `<FormPageShell>`. Compose sub-forms as nested field groups, never as nested `<form>` tags.
-- Hand-rolled error message paragraphs inside a field. Use `<FormMessage />` — it reads from RHF's validation state.
+- Bare `<input>` / `<textarea>` / `<select>` outside the form-field primitive. Every interactive field flows through RHF + the form-provider bridge — that's what produces the error message under the field and the accessible label association.
+- Multiple `<form>` elements within the form-page shell. Compose sub-forms as nested field groups, never as nested `<form>` tags.
+- Hand-rolled error message paragraphs inside a field. Use the **form-message primitive** — it reads from RHF's validation state.
 
 ---
 
@@ -136,14 +134,14 @@ Form pages do not have a toolbar layer. This layer number is reserved to keep pa
 
 **Required:**
 
-- **shadcn `<Form>` primitives** — `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormMessage` (and optionally `FormDescription`). These bind to react-hook-form's `Controller` and surface validation errors automatically.
-- **Field input components** — shadcn `<Input>`, `<Textarea>`, `<Select>`, `<Switch>`, `<Checkbox>`, `<RadioGroup>`, `<DatePicker>` (or `<Input type="date">`). No third-party form-input libraries that bypass the shadcn primitives.
-- **Required-field marker** — `<FormLabel>` renders an asterisk for required fields when the Zod schema declares them as `.min(1)` / non-optional. Mark optional fields explicitly via `<FormDescription>` or label text — do not invert the asterisk semantic.
-- **Server-action error mapping** — when a server action returns a field-specific error, route it back into RHF via `form.setError(<fieldName>, { message })` so the same `<FormMessage />` slot surfaces it.
+- **The form-field primitives** — field/label/control/message components (plus an optional description slot). These bind to react-hook-form's `Controller` and surface validation errors automatically.
+- **Field input components** — the project's text, textarea, select, switch, checkbox, radio-group, and date-picker input primitives. No third-party form-input libraries that bypass those primitives.
+- **Required-field marker** — the form-field label renders an asterisk for required fields when the Zod schema declares them as `.min(1)` / non-optional. Mark optional fields explicitly via a description slot or label text — do not invert the asterisk semantic.
+- **Server-action error mapping** — when a server action returns a field-specific error, route it back into RHF via `form.setError(<fieldName>, { message })` so the same **form-message** slot surfaces it.
 
 **Allowed variation:**
 
-- **Custom controls** — a project-owned compound input (e.g. an entity picker with autocomplete, an address combinator, a multi-tag chip input). The custom control must accept `value` + `onChange` so it composes with `<FormField>`'s `Controller` render prop.
+- **Custom controls** — a project-owned compound input (e.g. an entity picker with autocomplete, an address combinator, a multi-tag chip input). The custom control must accept `value` + `onChange` so it composes with the form-field primitive's `Controller` render prop.
 - **Conditional fields** — fields shown / hidden based on other field values. Implement via `form.watch(<dep>)` and a `useMemo`-gated render. Conditional fields still register with RHF on mount.
 
 **Forbidden:**
@@ -158,20 +156,20 @@ Form pages do not have a toolbar layer. This layer number is reserved to keep pa
 
 **Required:**
 
-- **Submitting** — the primary button in `<FormPageActions>` disables and shows a spinner / "Saving…" / "Creating…" text. Other interactive elements (secondary buttons, fields) remain enabled so the user can read the form during the async window.
+- **Submitting** — the primary button in the actions-footer primitive disables and shows a spinner / "Saving…" / "Creating…" text. Other interactive elements (secondary buttons, fields) remain enabled so the user can read the form during the async window.
 - **Loading (initial data)** — handled by the server-component data fetch (Layer 8). The client form never sees a loading state for its `initial` values.
-- **Field validation errors** — shadcn's `<FormMessage />` renders the RHF error message below each field. Required for every `<FormField>`.
-- **Form-level errors** — submission errors that don't map to a specific field surface via `form.setError('root', { message })` and render in a fixed slot above `<FormPageActions>`. Use the canonical compact form/dialog inline-error treatment — a tinted box `bg-destructive/10 p-4 rounded text-sm text-destructive` (shared with the J crud-dialog inline error; see README "Layer 7 — canonical state treatments"). Not a full `<Alert>` (that is the shell load-error treatment) and not `bg-red-50`.
+- **Field validation errors** — the **form-message primitive** renders the RHF error message below each field. Required for every form-field.
+- **Form-level errors** — submission errors that don't map to a specific field surface via `form.setError('root', { message })` and render in a fixed slot above the actions-footer primitive. Use the canonical **compact inline-error box** treatment (shared with the J crud-dialog inline error; see README "Layer 7 — canonical state treatments"). Not the shell's full **destructive alert** load-error treatment, and not an ad hoc muted-red tint.
 - **Success** — toast on save / create via the project's toast library (Sonner `toast()` recommended). The page does not render an inline success banner; success is signaled by toast + navigation.
 
 **Allowed variation:**
 
-- **Inline field warnings** — non-blocking notices via `<FormDescription>` for soft constraints (e.g. "This name is unusually long").
+- **Inline field warnings** — non-blocking notices via a description slot for soft constraints (e.g. "This name is unusually long").
 - **Optimistic redirect** — navigate to the destination before the server confirms when the operation is genuinely safe to retry. Use sparingly; default is await-then-navigate.
 
 **Forbidden:**
 
-- Alert banners or modal dialogs for routine validation errors. Use `<FormMessage />` and `form.setError('root', …)` only.
+- Alert banners or modal dialogs for routine validation errors. Use the form-message primitive and `form.setError('root', …)` only.
 - Blocking spinners that cover the form during submit. The primary button's loading state is the submit affordance.
 - Silently swallowing server-action errors. Either map to a specific field or surface via `form.setError('root', …)`.
 
@@ -214,7 +212,7 @@ The primitive does not wire data. It expects the consumer's server component to 
     | { mode: 'edit'; id: string; initial: FormValues; …refs };
   ```
   Reference-data props (`users`, `companies`, etc.) are required regardless of mode.
-- **Sentinel for empty select values** — Radix's `<Select.Item>` reserves `''` as the "no value / placeholder" sentinel. Use a non-empty token (e.g. `'__none__'`) for "no selection" and translate to `null` / `undefined` at the server-action boundary. The token is private to the form module.
+- **Sentinel for empty select values** — the project's **dropdown select** reserves `''` as the "no value / placeholder" sentinel for its item options. Use a non-empty token (e.g. `'__none__'`) for "no selection" and translate to `null` / `undefined` at the server-action boundary. The token is private to the form module.
 
 **Allowed variation:**
 
@@ -262,17 +260,17 @@ Mutations are the consumer's responsibility. The primitive's footer exposes the 
 **Required:**
 
 - No dedicated `/mobile/...` route. The same route + same component serves all viewports.
-- `<FormPageShell>` uses the same max-width container on all viewports. Field grids collapse via `grid-cols-1 sm:grid-cols-2` — the only allowed responsive override.
-- `<FormPageActions>` becomes sticky to the bottom of the viewport on narrow screens (`sm:static`) so the primary action remains reachable without scrolling past the form. The primitive handles this automatically.
+- The form-page shell uses the same max-width container on all viewports. Field grids collapse to single-column on narrow viewports — the only allowed responsive override.
+- The actions-footer primitive becomes sticky to the bottom of the viewport on narrow screens so the primary action remains reachable without scrolling past the form. The primitive handles this automatically.
 
 **Allowed variation:**
 
-- Touch-optimized custom field controls (date pickers, time pickers) for mobile devices. Use shadcn's responsive primitives or a project-owned compound control; do not branch on viewport in the shell.
+- Touch-optimized custom field controls (date pickers, time pickers) for mobile devices. Use the project's responsive primitives or a project-owned compound control; do not branch on viewport in the shell.
 
 **Forbidden:**
 
 - Per-consumer `useMediaQuery` inside the form component for layout decisions. Shell handles responsive behavior.
-- Custom `max-w-*` overrides at the consumer level that bypass the `width` prop on `<FormPageShell>`.
+- Custom max-width overrides at the consumer level that bypass the `width` prop on the form-page shell.
 
 ---
 
@@ -282,7 +280,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes the 
 
 - Route-level auth guard at the page boundary (not inside the form component). When the route is role-gated, the guard either renders the page or surfaces a 403.
 - **Edit mode without write permission** — surface 403 at the route, not a disabled form. Read-only viewing of an entity uses a separate detail-view archetype, not B with disabled inputs.
-- **Delete affordance** — hidden (not disabled) in `<FormPageActions>` when the user lacks delete permission. The primitive accepts a `canDelete` boolean prop (default `true`).
+- **Delete affordance** — hidden (not disabled) in the actions-footer primitive when the user lacks delete permission. The primitive accepts a `canDelete` boolean prop (default `true`).
 
 **Allowed variation:**
 
@@ -291,7 +289,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes the 
 **Forbidden:**
 
 - Disabling (greying out) the Save button to enforce read-only viewing. Use a route-level guard or a separate detail-view route.
-- Showing the Delete button in create mode. `<FormPageActions>` enforces this automatically when `mode="create"`.
+- Showing the Delete button in create mode. The actions-footer primitive enforces this automatically when `mode="create"`.
 
 ---
 
@@ -300,7 +298,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes the 
 **Required:**
 
 - **react-hook-form** is the form state library. `useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema), defaultValues })`.
-- **`useFormPageState`** from `src/components/archetypes/form-page/` centralizes mode + dirty + isSubmitting. Returns `{ mode, isCreate, isEdit, isDirty, isSubmitting, beginSubmit, endSubmit, requestDiscard }`. The hook syncs `isDirty` from `form.formState.isDirty` automatically when given the `form` instance.
+- **The archetype's form-state hook** centralizes mode + dirty + isSubmitting. Returns `{ mode, isCreate, isEdit, isDirty, isSubmitting, beginSubmit, endSubmit, requestDiscard }`. The hook syncs `isDirty` from `form.formState.isDirty` automatically when given the `form` instance.
 - **Mode is fixed at mount** — passed in as a `mode: 'create' | 'edit'` prop. The form does not transition between create and edit at runtime (that's J's territory). A new entity that has just been created navigates to the edit route, where a fresh component instance mounts in edit mode.
 - **Default values** — derived from `initial` in edit mode (every field has a defined value, no `undefined`), or from a per-field default in create mode (often empty string + sentinel tokens for selects).
 - **Reset on initial change** — `useEffect(() => form.reset(<derived defaults>), [initial])` so navigating between two edit pages re-hydrates the form.
@@ -322,10 +320,10 @@ Mutations are the consumer's responsibility. The primitive's footer exposes the 
 
 **Required:**
 
-- Use `<FormPageActions>` from `src/components/archetypes/form-page/`.
+- Use the **actions-footer primitive** — the sticky-or-inline footer with destructive (left) + secondary + primary (right) buttons, mode-aware.
 - Props: `primaryLabel`, `onPrimary` (or omit when the form uses native `<button type="submit">`), `isSubmitting`, optional `submittingLabel`, optional `secondaryLabel` / `onSecondary`, optional `destructiveLabel` / `onDestructive`, `canDelete`.
 - The footer enforces the mode-aware button layout described below.
-- Layout: flex container, `justify-between`, gap-2, top padding `pt-2`. Destructive button on the leading edge; secondary + primary on the trailing edge.
+- Layout: a flex row splitting the leading edge (destructive) from the trailing edge (secondary + primary), with a small gap and top padding.
 - **i18n note for `submittingLabel`:** when omitted, the in-flight label is derived from `primaryLabel` by stripping a trailing `e` and appending `ing…` ("Save" → "Saving…"). That derivation is English-only — non-English consumers MUST pass `submittingLabel` explicitly, otherwise the button briefly shows mangled output (e.g. `"Speichern"` → `"Speicherning…"`).
 
 **Mode-aware layout:**
@@ -335,22 +333,22 @@ Mutations are the consumer's responsibility. The primitive's footer exposes the 
 | Create | —                                                | Cancel · **Create**              |
 | Edit   | Delete (visible only when `canDelete === true`)  | Cancel · **Save**                |
 
-- **Primary button** — rightmost. `variant="default"`. `type="submit"` (or `onClick={onPrimary}` if submission is controlled imperatively). When `isSubmitting === true`: disabled + spinner + the in-flight label (explicit `submittingLabel` when provided, otherwise the English derivation from `primaryLabel` — "Saving…" / "Creating…").
-- **Secondary button (Cancel)** — to the left of primary. `variant="outline"`. Navigates back (e.g. `router.back()`) or to the list page. Disabled while submitting.
-- **Destructive button (Delete)** — leading edge. `variant="destructive"`. Visible only in `edit` mode and when `canDelete === true`. Triggers a confirm flow (project-owned — `<AlertDialog>` recommended; `window.confirm` acceptable in early-phase consumers and demos) before calling the delete server action.
-- **Sticky on mobile** — `<FormPageActions>` becomes `sticky bottom-0` with a background fill below `sm` breakpoint. Static on desktop.
+- **Primary button** — rightmost, in the **default/primary button style**. `type="submit"` (or `onClick={onPrimary}` if submission is controlled imperatively). When `isSubmitting === true`: disabled + spinner + the in-flight label (explicit `submittingLabel` when provided, otherwise the English derivation from `primaryLabel` — "Saving…" / "Creating…").
+- **Secondary button (Cancel)** — to the left of primary, in the **secondary button style**. Navigates back (e.g. `router.back()`) or to the list page. Disabled while submitting.
+- **Destructive button (Delete)** — leading edge, in the **destructive button style**. Visible only in `edit` mode and when `canDelete === true`. Triggers a confirm flow (project-owned — the **confirm-dialog primitive** recommended; `window.confirm` acceptable in early-phase consumers and demos) before calling the delete server action.
+- **Sticky on mobile** — the actions-footer primitive becomes sticky to the bottom of the viewport with a background fill below the mobile breakpoint. Static on desktop.
 
 **Allowed variation:**
 
 - **Overflow menu** — an optional `⋯` button to the left of the primary group for secondary actions (Duplicate, Archive, Export).
-- **Secondary actions inline** — when there are multiple write-adjacent actions in edit mode (e.g. "Save and continue" vs "Save and return"), render them as separate `Button` instances inside the `<FormPageActions>` trailing group. Keep the primary action rightmost.
+- **Secondary actions inline** — when there are multiple write-adjacent actions in edit mode (e.g. "Save and continue" vs "Save and return"), render them as separate button instances inside the actions-footer primitive's trailing group. Keep the primary action rightmost.
 
 **Forbidden:**
 
-- Action buttons placed in `<FormPageHeader>`. Footer is the only home.
+- Action buttons placed in the floating page-header treatment. Footer is the only home.
 - Primary button on the left, destructive on the right. Reversed order breaks the cross-archetype convention (matches J's footer).
-- Delete button visible in create mode. `<FormPageActions>` enforces this automatically.
-- Using shadcn's `<DialogFooter>` or `<CardFooter>` — those are for dialog / card chrome, not form pages.
+- Delete button visible in create mode. The actions-footer primitive enforces this automatically.
+- Using the dialog-footer or card-footer chrome primitives — those are for dialog / card surfaces, not form pages.
 - Auto-submitting the form on Enter inside text inputs without a confirmation step when the form has destructive consequences. Use `<form onSubmit>` as normal, but require explicit primary-button click for destructive flows.
 
 ---
@@ -366,13 +364,13 @@ Mutations are the consumer's responsibility. The primitive's footer exposes the 
 
 **Allowed variation:**
 
-- **Embed within a wizard / parent page** — when the form's body is reused as a step inside a multi-step flow, factor the field set into a sub-component (e.g. `<TaskFields>`) that both the standalone form and the wizard step render. The standalone form retains its `<FormPageActions>` footer; the wizard supplies its own navigation.
+- **Embed within a wizard / parent page** — when the form's body is reused as a step inside a multi-step flow, factor the field set into a sub-component (e.g. `<TaskFields>`) that both the standalone form and the wizard step render. The standalone form retains its actions-footer primitive; the wizard supplies its own navigation.
 
 **Forbidden:**
 
 - Two separate form components for the same entity's create vs edit paths.
 - Passing call-site-specific behavior props (e.g. `sourcePageId`) that branch field rendering. The form must render identically regardless of where it was reached from. Pre-fill is the only context-dependent input.
-- Mounting the form inside a Sheet / Dialog. If the team decides the form belongs in a side-sheet, migrate it to J — don't compose B's primitives inside a Sheet shell.
+- Mounting the form inside an **overlay surface** (sheet or dialog). If the team decides the form belongs in a side-sheet, migrate it to J — don't compose B's primitives inside an overlay-surface shell.
 
 ---
 
@@ -382,13 +380,13 @@ The following patterns are never permitted in a form page, regardless of domain:
 
 1. **Client-side hydration of `initial` values.** The server component fetches; the client form renders.
 2. **Multiple `<form>` elements on a single form page.** One page, one form.
-3. **Bare `<input>` outside `<FormField>`.** Every field flows through RHF + shadcn's `<Form>` bridge.
+3. **Bare `<input>` outside the form-field primitive.** Every field flows through RHF + the form-provider bridge.
 4. **`useState` per field.** All form state lives in RHF.
 5. **Form-values type re-declared apart from the Zod schema.** Drift waiting to happen.
-6. **Action buttons in `<FormPageHeader>`.** Footer is the only home.
+6. **Action buttons in the floating page-header treatment.** Footer is the only home.
 7. **Primary button on the left, destructive on the right.** Reversed order breaks the cross-archetype convention.
-8. **Delete button visible in create mode.** `<FormPageActions>` enforces.
-9. **Mounting B's primitives inside a Sheet shell.** If you need a sheet, migrate to J.
+8. **Delete button visible in create mode.** The actions-footer primitive enforces.
+9. **Mounting B's primitives inside an overlay-surface shell.** If you need one, migrate to J.
 10. **Sharing one route to handle both create and edit via a query string.** Mode is encoded in the URL segment.
 
 ---
@@ -399,17 +397,17 @@ When a target project applies this archetype, it wires the generic primitives to
 
 **Allowed project extensions:**
 
-- **Project-specific field components.** A consumer may provide custom input components (autocomplete pickers, address combinators, signature pads) as long as they compose with `<FormField>`'s `Controller` render prop (accept `value` + `onChange`).
+- **Project-specific field components.** A consumer may provide custom input components (autocomplete pickers, address combinators, signature pads) as long as they compose with the form-field primitive's `Controller` render prop (accept `value` + `onChange`).
 - **Project-specific Zod schemas and reference-data shapes.** The primitive's contract is mode + initial + reference props; the consumer owns the schema and the prop shape.
 - **Project-specific destination routing.** A `redirectTo` prop on the form may override the default post-submit destination.
-- **Project-specific confirm-discard flows.** `useFormPageState`'s `requestDiscard` is a hook into the project's confirm dialog (shadcn `<AlertDialog>` recommended).
+- **Project-specific confirm-discard flows.** The form-state hook's `requestDiscard` is a hook into the project's confirm dialog (the **confirm-dialog primitive** recommended).
 - **Project-specific delete patterns.** Soft-delete with undo, hard-delete with confirm, archive-instead-of-delete — all are consumer-owned. The primitive exposes the destructive button slot only.
 
 **What stays in the project (does not propagate to baseline):**
 
 - Domain-specific Zod schemas, form-values types, and reference-data fetchers.
 - Domain-specific server actions for create / update / delete.
-- The project's confirm-dialog pattern (shadcn `<AlertDialog>`, custom modal, etc.).
+- The project's confirm-dialog pattern (the confirm-dialog primitive, a custom modal, etc.).
 - Project-specific toast library configuration.
 - Business rules governing which footer actions appear for a given entity state.
 - Cross-resource revalidation topology (which paths to `revalidatePath` on which writes).
@@ -430,18 +428,19 @@ When a target project applies this archetype, it wires the generic primitives to
 
 **REQUIRED**
 
-- [ ] **Actions in the footer only.** Submit/Cancel live in `<FormPageFooter>`;
-      `<FormPageHeader>` has **no** action slot. *Wrapper tell:* a Save button in the header.
-- [ ] **One `<FormPageShell>` column.** No hand-rolled `max-w-xl px-6 py-6` wrapper;
-      no horizontal centering (`mx-auto`) when the app left-aligns content.
-- [ ] **Fields are atoms** — `<FormField>`/labelled atoms with standard error text,
+- [ ] **Actions in the footer only.** Submit/Cancel live in the actions-footer
+      primitive; the header has **no** action slot. *Wrapper tell:* a Save button
+      in the header.
+- [ ] **One form-page-shell column.** No hand-rolled max-width/inset wrapper;
+      no horizontal centering when the app left-aligns content.
+- [ ] **Fields are atoms** — form-field primitives/labelled atoms with standard error text,
       not raw `<input>`/`<select>` or bespoke label markup.
 - [ ] **One destructive confirm path** for discard/delete (dialog), not an inline raw button.
 - [ ] **[spine] S1, S2, S4, S5, S6.** (S3 → form submit/validation states.)
 
 **SHOULD** (yellow, not red)
 
-- [ ] Multi-section forms use titled `SectionCard`/fieldset rhythm, not flat stacks of 20 inputs.
-- [ ] Card chrome around the body only when emphasis is intended (default: none).
+- [ ] Multi-section forms use a titled card/section-card rhythm, not flat stacks of 20 inputs.
+- [ ] Card-surface chrome around the body only when emphasis is intended (default: none).
 
 ---

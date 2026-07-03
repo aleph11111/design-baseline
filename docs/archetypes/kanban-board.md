@@ -9,43 +9,39 @@ fixed row×column intersection grid, not movable cards.
 
 Promoted from the 2026-06-13 fleet audit (recurs in pmo and hk-crm; rule-of-2).
 
+> **Reference implementation.** This file is the **stack-agnostic contract** — every
+> rule names a *role*, not a primitive. The baseline-stack binding (concrete
+> primitives + Tailwind-4 class strings) lives in
+> [`kanban-board.baseline.md`](./kanban-board.baseline.md). A project on a
+> different stack adopts this contract without needing that file.
+
 > **Drag-agnostic by design.** The baseline ships **no drag-and-drop library**
 > (same stance as charts — DnD is heavy and consumers differ: dnd-kit, native
 > HTML5, pragmatic-dnd). The archetype owns the **board chrome**; the consumer
-> wires its own DnD. `<BoardColumn>` and `<BoardCard>` forward refs and spread
-> props precisely so a consumer can attach `draggable`/`onDragStart`/`onDrop` or
-> dnd-kit `ref`/`attributes`/`listeners` without the primitive caring how.
-
-## Primitives
-
-- `<BoardShell kicker title headerActions headerFill>` — the horizontally-scrolling
-  column row. When `title` is set, the shell adopts the Plex Ledger board form: an
-  on-surface `<SurfaceHeader>` (kicker + title left, `headerActions` right) spans
-  the top of one bounded card, with the column scroll area below it.
-- `<BoardColumn title count actions>` — a column: overline header (title + count +
-  actions like add-card) over a vertical card stack. Forwards ref + spreads props
-  (the DnD droppable target).
-- `<BoardCard>` — a card; forwards ref + spreads props (the DnD draggable). Pure
-  chrome — it never moves itself; a move is the consumer's state change.
+> wires its own DnD. The **board-column** and **board-card primitives** forward
+> refs and spread props precisely so a consumer can attach
+> `draggable`/`onDragStart`/`onDrop` or dnd-kit `ref`/`attributes`/`listeners`
+> without the primitive caring how.
 
 ## Layer 1 — Route config
 A top-level route (`/board`, `/pipeline`) or a tab within a larger surface. Lazy +
 suspense.
 
 ## Layer 2 — Page shell
-`<AppShell>` (its `<main>` supplies the page inset; the page adds none). The board scrolls horizontally inside its own
+The project's **top-level app shell** (its `<main>` supplies the page inset; the page adds none). The board scrolls horizontally inside its own
 container; the page does not.
 
 ## Layer 3 — Page header
-`<BoardShell kicker title headerActions>` renders the on-surface `<SurfaceHeader>`
-(Plex Ledger board form) at the top of the bounded card — kicker + title left,
-actions right — not a detached `<PageHeader>` above the surface. Filters
-(assignee, label) can sit in `headerActions` or a toolbar below.
+The board shell (`kicker`/`title`/`headerActions` props) renders the shared
+**on-surface header bar** at the top of the bounded card — kicker + title left,
+actions right — not a detached **canonical page-header treatment** above the
+surface. Filters (assignee, label) can sit in `headerActions` or a toolbar below.
 
 ## Layer 5/6 — The board
-`<BoardShell>` of `<BoardColumn>`s of `<BoardCard>`s. Columns show a count and an
-add-card affordance; cards show a title + a couple of compact meta chips — a
-`<Badge>` for the label, an `<IconAvatar>` for the assignee. Keep cards scannable — push detail into a crud-dialog (J) or a detail
+The board shell of board-column primitives of board-card primitives. Columns show
+a count and an add-card affordance; cards show a title + a couple of compact meta
+chips — a status-badge primitive for the label, an avatar primitive for the
+assignee. Keep cards scannable — push detail into a crud-dialog (J) or a detail
 page (C) opened from the card, not onto the card.
 
 **Forbidden:** rendering a data table per column (that's grouped-list K — use this
@@ -89,7 +85,7 @@ view; a read-only viewer gets the board without drag handles.
       across columns — not per-column variants.
 - [ ] **Column header shows name + count** via the shell; WIP/empty columns use the
       canonical empty treatment, not blank space.
-- [ ] **Status/label chips are shared `Badge`s** on tokens, not literal-colored pills.
+- [ ] **Status/label chips are shared status-badge primitives** on tokens, not literal-colored pills.
 - [ ] **[spine] S1, S2, S4, S5, S6.**
 
 **SHOULD** (yellow, not red)

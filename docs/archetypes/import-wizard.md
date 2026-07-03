@@ -10,45 +10,43 @@ indicator and the Back / Next·Commit footer — is constant.
 Promoted from the 2026-06-13 fleet audit (recurs in controlling-app and
 my-finance-app — rule-of-2).
 
-## Primitives
-
-- `<WizardShell steps current onBack onNext onCommit canProceed busy kicker title
-  headerFill>` — the flow shell: when `title` is set, the shell adopts the Plex
-  Ledger board form — an on-surface `<SurfaceHeader>` (kicker + title; no
-  `headerActions` prop — the wizard's nav actions always stay in the footer, not
-  the header) atop one bounded card, over a `<WizardStepper>`, the current step's
-  body in a `<SectionCard>`, and a footer that shows **Back** + **Next**, swapping
-  Next for a single **Commit** on the last step. Flow state is **consumer-owned**
-  (the consumer holds `current` and per-step data); the shell renders chrome and
-  emits navigation intents.
-- `<WizardStepper steps current>` — the read-only step indicator (done = check,
-  active = ringed, upcoming = muted). Navigation is via the footer, not by
-  clicking steps.
-- **Reused:** `<SectionCard>` (step body surface).
+> **Reference implementation.** This file is the **stack-agnostic contract** — every
+> rule names a *role*, not a primitive. The baseline-stack binding (concrete
+> primitives + Tailwind-4 class strings) lives in
+> [`import-wizard.baseline.md`](./import-wizard.baseline.md). A project on a
+> different stack adopts this contract without needing that file.
 
 ## Layer 1 — Route config
 A dedicated route (e.g. `/imports/new`, `/transactions/import`). Lazy + suspense.
 Often paired with an **import history** list (see Layer 4).
 
 ## Layer 2 — Page shell
-`<AppShell>` (its `<main>` supplies the page inset; the page adds none). An `<ErrorBoundary>` wraps content; a failed
-step surfaces inline, never loses earlier steps' state.
+The project's top-level app shell (its main region supplies the page inset; the
+page adds none). A render-error boundary wraps content; a failed step surfaces
+inline, never loses earlier steps' state.
 
 ## Layer 3 — Page header
-`<WizardShell kicker title>` renders the on-surface `<SurfaceHeader>` (Plex
-Ledger board form) at the top of the bounded card — not a detached `<PageHeader>`
-above the surface. `<SurfaceHeader>` has no `headerActions` prop on
-`<WizardShell>` (nav actions stay in the footer) and no subtitle slot; fold a
-one-line source name into the kicker.
+The wizard shell, given `kicker`/`title`, renders the on-surface header bar at
+the top of the bounded card — not the canonical page-header treatment floated
+above the surface. The header bar exposes no `headerActions` prop on the wizard
+shell (nav actions stay in the footer) and no subtitle slot; fold a one-line
+source name into the kicker.
 
 ## Layer 4 — Toolbar / history toggle
 An import wizard usually lives beside an **import history** (past runs: when, who,
 counts, status). Model the history as a list-with-detail (A) and toggle between
-"New import" (the wizard) and "History" — a `Tabs` strip or two routes. The
+"New import" (the wizard) and "History" — a tab strip or two routes. The
 history is its own archetype, not part of W; W is the new-import flow.
 
 ## Layer 5 — The step flow
-`<WizardShell>` with an ordered `steps` array. Canonical stages:
+The wizard shell, given an ordered `steps` array, renders the shared
+step-progress primitive between the header and the current step's body — done
+steps show a check, the active step is ringed, upcoming steps are muted;
+navigation is via the footer, not by clicking steps. The current step's body
+renders in the project's card/section-card surface, with a footer showing
+**Back** + **Next**, swapping Next for a single **Commit** on the last step.
+Flow state is **consumer-owned** — the consumer holds `current` and per-step
+data; the shell renders chrome and emits navigation intents. Canonical stages:
 - **Upload** — a file dropzone (or a paste / connect-source affordance). `canProceed`
   gates on a file being present.
 - **Map columns** — match source columns → target fields (a small grid of
@@ -95,8 +93,8 @@ without import rights sees history (read-only) but not the wizard.
 
 - [ ] **One wizard shell owns the step model** (stepper + current-step body + footer
       nav) — steps aren't hand-rolled conditionals with bespoke progress UI.
-- [ ] **Stepper is the shared progress primitive** (`ProgressTracker`-class), one
-      current marker, done/pending states — not numbered `<div>`s.
+- [ ] **Stepper is the shared progress primitive**, one current marker, done/pending
+      states — not numbered `<div>`s.
 - [ ] **Nav actions in the wizard footer** (Back/Next/Finish), ranked (one primary),
       not a button row in the body.
 - [ ] **Mapping/preview tables use the list primitive**, not hand-built grids.

@@ -15,63 +15,55 @@ no archetype to adopt — a clear rule-of-2 gap.
 > consumer drops its own chart components (recharts / nivo / visx / …) into the
 > widget bodies. A baseline that mandated a chart lib would not be re-skinnable.
 
-## Primitives
-
-- `<DashboardShell kicker title headerActions headerFill>` — the primary bounded
-  surface (Plex Ledger board form): an on-surface `<SurfaceHeader>` (kicker +
-  title left, actions right) at the top of the card, with the KPI row rendered
-  in the body below. There is no separate `toolbar`/`filters` slot — see Layer 4.
-- `<DashboardGrid columns={2|3|4}>` — the responsive widget grid (collapses to 1
-  col, then 2 at `sm`, then `columns` at `lg`).
-- `<DashboardWidget title span={1|2|3}>` — one widget card; a thin wrapper over the
-  shared `<SectionCard>` (same ruled title bar) plus a grid column span. Body is
-  chart-agnostic.
-- **Reused (all shared `layout/` primitives — G has no dependency on other
-  archetypes):** `<StatTileRow>` / `<StatTile>` (the KPI row — same strip as
-  detail-overview's `stats` slot) and `<SectionCard>` (the widget surface).
-  `<PageHeader>` is **not** used — the on-surface `<SurfaceHeader>` inside
-  `<DashboardShell>` is the title.
+> **Reference implementation.** This file is the **stack-agnostic contract** — every
+> rule names a *role*, not a primitive. The baseline-stack binding (concrete
+> primitives + Tailwind-4 class strings) lives in
+> [`analytics-dashboard.baseline.md`](./analytics-dashboard.baseline.md). A project on a
+> different stack adopts this contract without needing that file.
 
 ## Layer 1 — Route config
-A top-level route (e.g. `/dashboard`, `/reports`, `/analytics`). Lazy + suspense
-like any page. Read-only — no create/edit routes hang off it.
+A top-level route (e.g. `/dashboard`, `/reports`, `/analytics`). Code-split behind
+the framework's **lazy-load boundary**, like any page. Read-only — no create/edit
+routes hang off it.
 
 ## Layer 2 — Page shell
-Renders inside `<AppShell>` (its `<main>` supplies the page inset; the page adds none). Outer container `space-y-6`. An
-`<ErrorBoundary>` wraps content; per-widget fetch errors degrade to a per-widget
-message, never a blank page.
+Renders inside the project's **top-level app shell** (the app shell's main region
+supplies the page inset; the page adds none). Outer container uses the **canonical
+vertical rhythm**. A **render-error boundary** wraps content; per-widget fetch
+errors degrade to a per-widget message, never a blank page.
 
 ## Layer 3 — Page header
-`<DashboardShell kicker title headerActions>` renders the on-surface
-`<SurfaceHeader>` (Plex Ledger board form) at the top of the primary bounded
-surface — kicker + title left, actions right — not a detached `<PageHeader>`
-above the card. No page-level write actions (the page is read-only); an
-export/share affordance sits in `headerActions`.
+The archetype's **content-shell primitive**, with its `kicker`/`title`/`headerActions`
+props, renders the shared **on-surface header bar** at the top of the primary
+bounded surface — kicker + title left, actions right — not a separate floating
+page header above the card. No page-level write actions (the page is read-only);
+an export/share affordance sits in `headerActions`.
 
 ## Layer 4 — Toolbar (filter bar)
-`<DashboardShell>` exposes no dedicated `toolbar`/`filters` slot (unlike
-list-with-detail (A), settings-table (D2), kanban-board (P), or matrix-grid (M),
-which do). The filter bar — a **period** control (`<SegmentedControl>` for
-`Week / Month / Quarter / Year`, or a date-range picker) and zero or more
-**segment** filters (channel, category, region) as selects/pills — is
-page-composed and passed into `<DashboardShell headerActions>`, so it renders
-inline in the `SurfaceHeader` actions row alongside any export/share action (the
-shape the reference demo ships). Changing a filter re-scopes the KPIs and every
-widget. Filter state is consumer-owned (URL-synced is encouraged so a dashboard
-view is shareable).
+The archetype's **content-shell primitive** exposes no dedicated `toolbar`/`filters`
+slot (unlike list-with-detail (A), settings-table (D2), kanban-board (P), or
+matrix-grid (M), which do). The filter bar — a **period** control (the shared
+**one-of-N segmented control** for `Week / Month / Quarter / Year`, or a
+date-range picker) and zero or more **segment** filters (channel, category,
+region) as selects/pills — is page-composed and passed into the shell's
+`headerActions`, so it renders inline in the **on-surface header bar**'s actions
+row alongside any export/share action. Changing a filter re-scopes the KPIs and
+every widget. Filter state is consumer-owned (URL-synced is encouraged so a
+dashboard view is shareable).
 
 ## Layer 5 — KPI row
-A `<StatTileRow columns={2|3|4}>` of `<StatTile>`s — the headline numbers, each
-with an optional comparison `hint` ("vs last month"). Pre-format values; the tile
-never formats.
+A row of the shared **stat-tile / KPI-tile primitives** (`columns={2|3|4}`) — the
+headline numbers, each with an optional comparison `hint` ("vs last month").
+Pre-format values; the tile never formats.
 
 ## Layer 6 — Widget grid
-A `<DashboardGrid>` of `<DashboardWidget>`s. Each widget: a short title, optional
-in-bar control (a range toggle), and a body that is a chart, a number, or a small
-ranked list/table. Use `span` for wider widgets (a primary trend line spans 2–3).
-**Forbidden:** a hand-rolled grid of bare `<Card>`s — use `<DashboardWidget>` so
-widgets share the section chrome; embedding an interactive data *table* that
-belongs to list-with-detail (A) — link out instead.
+The archetype's **widget-grid** primitive containing the **widget-card** primitive
+for each widget. Each widget: a short title, optional in-bar control (a range
+toggle), and a body that is a chart, a number, or a small ranked list/table. Use
+`span` for wider widgets (a primary trend line spans 2–3). **Forbidden:** a
+hand-rolled grid of bare cards — use the **widget-card** primitive so widgets
+share the section chrome; embedding an interactive data *table* that belongs to
+list-with-detail (A) — link out instead.
 
 ## Layer 7 — States
 - **Loading** — per-widget skeletons (a widget loads independently); never a
@@ -104,9 +96,9 @@ can't see a metric.
 
 **REQUIRED**
 
-- [ ] **KPI row via `StatTileRow`/`StatTile`** — headline metrics in the canonical
-      tiles (mono/tabular), **not** hand-built metric `<Card>`s. *Wrapper tell:* a
-      grid of bespoke stat cards next to/instead of the tile row.
+- [ ] **KPI row via the stat-tile / KPI-tile primitives** — headline metrics in
+      the canonical tiles (mono/tabular), **not** hand-built metric cards.
+      *Wrapper tell:* a grid of bespoke stat cards next to/instead of the tile row.
 - [ ] **Charts in titled section cards** with consistent chrome; one chart lib/token
       palette, no literal series colors.
 - [ ] **Loading/empty/error per widget** use canonical states, not per-chart spinners.

@@ -17,9 +17,11 @@ A **settings table** page shows a list of configuration entities (categories, su
 
 D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, toolbar, and data-fetching contracts. The key divergence is the **click contract**: D2 opens an edit dialog on row click rather than navigating to a detail route or opening a right-rail panel.
 
-## Reference primitive
-
-`<SettingsTableShell>` in `src/components/archetypes/settings-table/`. Provides card chrome, toolbar slot, table with optional bulk-select column, row-actions dropdown, and inline loading / empty / error states. The edit dialog and "add new" dialog are consumer-owned (the primitive exposes callbacks); the J (`crud-dialog`) archetype supplies the composable dialog shell once promoted.
+> **Reference implementation.** This file is the **stack-agnostic contract** — every
+> rule names a *role*, not a primitive. The baseline-stack binding (concrete
+> primitives + Tailwind-4 class strings) lives in
+> [`settings-table.baseline.md`](./settings-table.baseline.md). A project on a
+> different stack adopts this contract without needing that file.
 
 ---
 
@@ -27,46 +29,45 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
 
 **Required:**
 - Path: `/settings/<group>/<entity-plural>` nested under the project's settings parent route (e.g. `/settings/master-data/customers`, `/settings/order-processing/shipping-methods`).
-- The parent route handles auth wrapping (e.g. `<ProtectedRoute>`) and layout injection (`<AppShell>`, `<SettingsLayout>`). Do not re-apply these wrappers at the child route.
-- Lazy-import the page component: `const Page = lazy(() => import('./pages/settings/Page'))`.
-- Wrap in `<Suspense fallback={null}>` at the route definition.
+- The parent route handles the route-level auth guard and layout injection (the project's top-level app shell and the settings-section layout). Do not re-apply these wrappers at the child route.
+- Code-split the page behind the framework's lazy-load boundary (lazy import + a suspense fallback that renders nothing).
 
 **Forbidden:**
 - Static (non-lazy) imports of D2 pages (bundle-size regression).
-- Applying `<ProtectedRoute>` or layout wrappers redundantly at the child route level.
+- Applying the auth guard or layout wrappers redundantly at the child route level.
 
 ---
 
 ## Layer 2 — Page shell
 
 **Required:**
-- The page renders inside `<AppShell>` (via the parent route's layout). `<AppShell>` mounts providers (`TooltipProvider`, `SidebarProvider`, `<Toaster>`, `<Sonner>`); consumers do not re-mount them at the page level.
-- Outer container: `<div className="space-y-6">` — spaces the title block from the table card. No `px-6 py-6` or equivalent outer padding; the settings layout's `<main>` supplies all inset.
-- `<ErrorBoundary>` wrapping page content at the page component level.
-- `<Breadcrumbs>` rendered at the top of the page shell, above `<SettingsTableShell>`'s on-surface header (see Layer 3) — there is no separate `<PageHeader>`.
+- The page renders inside the project's **top-level app shell** — the outer layout frame that mounts the global providers (tooltip, sidebar, toast surfaces), the nav/sidebar, and the main content region, via the parent route's layout. Those providers are always in the tree by the time a settings-table page renders; the page does not re-mount them.
+- Outer container uses the **canonical vertical rhythm** to space the title block from the table card — **no page inset**; the settings layout's main region supplies all inset.
+- A **render-error boundary** wrapping page content at the page-component level.
+- A **breadcrumb trail** rendered at the top of the page shell, above the settings-table shell's on-surface header (see Layer 3) — there is no separate floating page header.
 
 **Allowed variation:**
-- A page-level React context provider is optional. Introduce one only when filter or selection state is consumed by more than one child component tree; do not add one for single-tree state.
+- A page-level state-provider is optional. Introduce one only when filter or selection state is consumed by more than one child component tree; do not add one for single-tree state.
 
 **Forbidden:**
-- Outer padding classes (`px-6 py-6`, `p-6`, etc.) — double-insets inside the settings layout.
-- Page-level `<Card>` wrapping the table content (chrome lives in the content wrapper — Layer 5).
-- Missing `<ErrorBoundary>`.
+- Outer page-inset — double-insets inside the settings layout.
+- Page-level card wrapping the table content (chrome lives in the content wrapper — Layer 5).
+- Missing render-error boundary.
 
 ---
 
 ## Layer 3 — Page header
 
-The page header no longer floats above the shell as a separate `<PageHeader>`. `<SettingsTableShell>` mounts the shared `<SurfaceHeader>` (`src/components/layout/SurfaceHeader.tsx`) at the top of its one bounded card — the title bar sits ON the surface, driven entirely by shell props.
+The page header no longer floats above the shell as a separate page-header primitive. The settings-table shell mounts the shared **on-surface header bar** at the top of its one bounded card — the title bar sits ON the surface, driven entirely by shell props.
 
 **Required (via shell props):**
-- **`title`** — always present when the on-surface header renders. `<SurfaceHeader>` renders it `text-lg font-semibold` (the current Plex Ledger title scale — supersedes the old `text-2xl font-semibold tracking-tight` `<PageHeader>` treatment).
-- The bar follows the `--header-fill` contract (`HeaderFillContext`, `src/components/layout/headerFill.ts`): `solid` (default) fills the bar with the brand accent and inverts the title/kicker/action buttons to white; `tint` is a quieter `bg-muted` step; `white` is hairline-border-only.
+- **`title`** — always present when the on-surface header renders, in the project's **canonical page-title type style**.
+- The bar follows the **header-fill contract**: brand-filled (default) fills the bar with the brand accent and inverts the title/kicker/action buttons to white; a quieter muted-tint step; and a hairline-border-only mode.
 
 **Allowed variation:**
-- **`kicker`** — optional overline above the title (e.g. "Settings", "Catalog"), rendered via the shared `OVERLINE_CLASS`.
-- **`headerActions`** — optional right-aligned `<Button size="sm">`s (e.g. "Import", "Add {entity}"): `variant="outline"` for secondary actions, default variant for the primary action. At most one primary action.
-- **`headerFill`** — a single shell instance may override the project's house `headerFill` context.
+- **`kicker`** — optional overline above the title (e.g. "Settings", "Catalog"), in the **canonical overline/kicker style**.
+- **`headerActions`** — optional right-aligned small buttons (e.g. "Import", "Add {entity}"): a secondary-style button for secondary actions, the default/primary style for the primary action. At most one primary action.
+- **`headerFill`** — a single shell instance may override the project's house header-fill mode.
 - **Sync / refresh action** — some D2 pages back their data from an external system and expose a "Sync" action. When present, place it in the toolbar (Layer 4) as an async action button.
 
 **Forbidden:**
@@ -77,21 +78,21 @@ The page header no longer floats above the shell as a separate `<PageHeader>`. `
 ## Layer 4 — Toolbar
 
 **Required:**
-- Toolbar renders as the `toolbar` prop of `<SettingsTableShell>`, not above or below the shell.
-- **Primary create action** — single button, `variant="default" size="sm"`, leading `Plus` icon. Label: "Add {entity}". Opens the add dialog. Canonical home: the shell's `headerActions` (the on-surface header bar, Layer 3 — it inverts on a solid header fill). The legacy `onAddNew` toolbar button remains supported on existing pages, but new pages put the create action in the header — the toolbar owns data controls, not writes.
-- **Result count** — `text-sm text-muted-foreground`, right-aligned, format: `{n} results` or `{n} {entity-plural}`.
+- Toolbar renders as the shell's `toolbar` slot, not above or below the shell.
+- **Primary create action** — single button (small), the default/primary style, leading "add" icon. Label: "Add {entity}". Opens the add dialog. Canonical home: the shell's `headerActions` (the on-surface header bar, Layer 3 — it inverts on a brand-filled header). The legacy `onAddNew` toolbar button remains supported on existing pages, but new pages put the create action in the header — the toolbar owns data controls, not writes.
+- **Result count** — in the **canonical muted small-text style**, right-aligned, format: `{n} results` or `{n} {entity-plural}`.
 
 **Allowed variation:**
-- **Search input** — the shared `<SearchInput>` molecule (`ui/search-input` — `inputSize`/`clearable`/`count` props); never hand-rolled. Required when the dataset is not intrinsically small (threshold: more than ~10 rows). Omit for pages where search adds no value (e.g. a fixed list of ≤10 numbering series).
-- **Filter pill bar** — for categorical filters (e.g. status), via the shared `<SegmentedControl>` (`ui/segmented-control`) — a one-of-N pill row — not a `<Select>` dropdown.
+- **Search input** — the shared **search-input molecule**; never hand-rolled. Required when the dataset is not intrinsically small (threshold: more than ~10 rows). Omit for pages where search adds no value (e.g. a fixed list of ≤10 numbering series).
+- **Filter pill bar** — for categorical filters (e.g. status), via the shared **one-of-N segmented control** — a pill row — not a dropdown select.
 - **Binary filter switches** — for toggle-style filters (e.g. "Show archived").
-- **Async action button** — for long-running operations like Sync / Enrich. Show an inline spinner during the run. The J archetype's `<AsyncButton>` or an equivalent wrapper is recommended.
+- **Async action button** — for long-running operations like Sync / Enrich. Show an inline spinner during the run. The J archetype's async-button primitive or an equivalent wrapper is recommended.
 - **Bulk actions** — when rows are selected, a bulk-action affordance (e.g. "Delete selected") appears in the toolbar. Renders only while `selectedIds.length > 0`.
 
 **Forbidden:**
-- Status filters rendered as `<Select>` dropdowns (use `<SegmentedControl>`).
-- Hand-rolled search inputs — always compose via the shared `<SearchInput>` molecule.
-- Toolbars rendered outside `<SettingsTableShell>`.
+- Status filters rendered as dropdown selects (use the segmented control).
+- Hand-rolled search inputs — always compose via the shared search-input molecule.
+- Toolbars rendered outside the shell.
 - Action buttons placed anywhere other than the toolbar or the shell's `headerActions`.
 
 ---
@@ -99,20 +100,20 @@ The page header no longer floats above the shell as a separate `<PageHeader>`. `
 ## Layer 5 — Content wrapper
 
 **Required:**
-- `<SettingsTableShell>` from `src/components/archetypes/settings-table/`. The shell provides:
-  - Card chrome: `rounded-lg border bg-card shadow-sm overflow-hidden`
-  - Toolbar slot with `border-b px-4 py-3` separator
-  - Body with `overflow-x-auto`
+- The **settings-table shell** — the single primitive that owns this archetype's chrome. The shell provides:
+  - The **canonical card chrome** (hairline border, subtle shadow, rounded corners, clipped overflow)
+  - A toolbar slot with a bottom-border separator
+  - A body with horizontal scroll on overflow
   - Loading, empty, and error states rendered inline
   - Optional bulk-select checkbox column
-  - Row-level `hover:bg-muted/50`
+  - Row-level hover highlight
 
 **Allowed variation — split-pane editing:**
-- When users edit rows in rapid succession and a dialog's open/close cycle creates friction, a `grid lg:grid-cols-2 gap-6` layout with left = table card and right = edit form card is permitted. Both cards use the same chrome as `<SettingsTableShell>`. Document the reason inline. This is an uncommon variation; use only when the UX case is clear.
+- When users edit rows in rapid succession and a dialog's open/close cycle creates friction, a two-column layout with left = table card and right = edit form card is permitted. Both cards use the same **canonical card chrome** as the settings-table shell. Document the reason inline. This is an uncommon variation; use only when the UX case is clear.
 
 **Forbidden:**
-- Hand-rolled card wrappers. Always use `<SettingsTableShell>` (or the split-pane variation above).
-- Nested `<Card>` chrome — one card boundary per visible surface.
+- Hand-rolled card wrappers. Always use the settings-table shell (or the split-pane variation above).
+- Nested card chrome — one card boundary per visible surface.
 - Page-level `max-width`. Full-width.
 
 ---
@@ -120,20 +121,20 @@ The page header no longer floats above the shell as a separate `<PageHeader>`. `
 ## Layer 6 — Table / grid
 
 **Required:**
-- shadcn/ui `<Table>` primitive (`src/components/ui/table`).
+- The project's **base table primitive**.
 - **Number formatting** — monetary values routed through a consumer-provided formatter. No raw currency symbols or `.toFixed(2)` in cells.
 - **Date formatting** — every date cell renders through a consumer-provided formatter (e.g. `formatDate(value)`). No raw ISO strings in the UI.
-- **Identifier columns** — `font-mono text-sm font-medium` for alphanumeric codes or slugs; omit `font-mono` for human-readable name identifiers.
-- **Primary identifier cell** — `text-primary hover:underline cursor-pointer`. Clicking it calls `onRowEdit(row)` — the consumer opens the edit dialog. This is D2's core click contract: **row click → edit dialog, never a detail route or a detail panel**.
+- **Identifier columns** — in the **monospace identifier style** for alphanumeric codes or slugs; omit the monospace style for human-readable name identifiers.
+- **Primary identifier cell** — rendered in the **brand/primary color with a hover underline**, with a pointer cursor. Clicking it calls `onRowEdit(row)` — the consumer opens the edit dialog. This is D2's core click contract: **row click → edit dialog, never a detail route or a detail panel**.
 
 **Allowed variation:**
 - **Sortable headers** — optional. Sort state is consumer-owned; pass pre-sorted `rows`.
 - **Status indicators:**
-  - Categorical status — use a shared `<Badge>` variant.
-  - Binary toggle (active / archived) — colored dot (`bg-primary` on / `bg-muted-foreground` off) + label text. Token-pure — never a literal palette color at the call site.
-- **Per-row dropdown menu** — optional for secondary actions (Delete, Duplicate, Deactivate), via the shared `<RowActionsMenu>` (`archetypes/shared`) — the single owner of the row-level `⋯` overflow trigger, shared byte-for-byte with list-with-detail. Do **not** include "Edit" in the menu — identifier-cell click is the only edit trigger.
+  - Categorical status — use a shared **status-badge** variant.
+  - Binary toggle (active / archived) — a **brand-primary dot** (on) / **muted dot** (off) + label text. Token-pure — never a literal palette color at the call site.
+- **Per-row dropdown menu** — optional for secondary actions (Delete, Duplicate, Deactivate), via the shared **row-actions overflow menu** — the single owner of the row-level `⋯` overflow trigger, shared byte-for-byte with list-with-detail. Do **not** include "Edit" in the menu — identifier-cell click is the only edit trigger.
 - **Row checkbox column** — when `bulkSelectable` is true, a leading checkbox column appears. Selecting all rows checks a header checkbox.
-- **Identifier without `font-mono`** — when the identifier is a human-readable name (e.g. a category name, a tag label), `font-mono` may be omitted. `text-primary hover:underline` still applies.
+- **Identifier without the monospace style** — when the identifier is a human-readable name (e.g. a category name, a tag label), the monospace style may be omitted. The **brand/primary color + hover underline** still applies.
 
 **Forbidden:**
 - Explicit "Edit" icon column — identifier-cell click is the only edit trigger.
@@ -143,19 +144,19 @@ The page header no longer floats above the shell as a separate `<PageHeader>`. `
 - Inline status color maps duplicated per page — categorical statuses go through a shared variant.
 - Raw number formatting in cells.
 - Raw ISO date strings in cells.
-- Clickable identifier cells without `text-primary`.
+- Clickable identifier cells not rendered in the brand/primary color.
 
 ---
 
 ## Layer 7 — Empty / loading / error states
 
 **Required:**
-- **Loading** — provided by `<SettingsTableShell>` via the shared `<StateView variant="loading">` (`ui/state-view`) — the single owner of the loading/empty/error visual planes across settings-table, list-with-detail, and grouped-list. No skeleton screens.
-- **Empty state** — `<StateView variant="empty">`, inline, query-dependent copy:
+- **Loading** — provided by the shell via the shared **state-view primitive** (loading variant) — the single owner of the loading/empty/error visual planes across settings-table, list-with-detail, and grouped-list. No skeleton screens.
+- **Empty state** — state-view (empty variant), inline, query-dependent copy:
   - Filter / search active: `"No {things} match {query}."`
   - No items at all: `"No {things} yet."` + a primary CTA button ("Add {entity}") calling `onAddNew`. The CTA is the entry point to the first record.
-- **Error state (required)** — when `error` is non-null, `<StateView variant="error">` renders the canonical load-error visual (destructive `<Alert>`, title, icon, message) and — when `onRetry` is provided — a "Try again" button. The `isEmpty` condition must be gated with `&& !error` so a failed query does not render as "empty".
-- **Mutation errors** — surface through the app-wide toast (Sonner). Render crashes are caught by the page's `<ErrorBoundary>` (Layer 2).
+- **Error state (required)** — when `error` is non-null, state-view (error variant) renders the canonical load-error visual (a **destructive alert** with title, icon, message) and — when `onRetry` is provided — a "Try again" button. The `isEmpty` condition must be gated with `&& !error` so a failed query does not render as "empty".
+- **Mutation errors** — surface through the app-wide toast. Render crashes are caught by the page's render-error boundary (Layer 2).
 
 **Allowed variation:**
 - **Empty-state icon** — optional decoration centered above the empty text.
@@ -183,7 +184,7 @@ The primitive does not wire data. It expects consumer-provided props. No assumpt
 ## Layer 9 — Type shapes (contract)
 
 **Required:**
-- `<SettingsTableShell>` is generic in `Row`: `SettingsTableShell<Row>`.
+- The settings-table shell is generic in its row type: `Shell<Row extends object>`.
 - Consumers pass a discriminated row type. The primitive does not assume any domain fields beyond what the column configuration references.
 - Row types should derive from or be generated by the project's authoritative source (e.g. auto-generated database types, OpenAPI response types). Hand-written types that duplicate a machine-generated schema drift silently.
 - Joined or aggregate types (e.g. a row that joins a parent entity for display) are built by extending the base row type: `type MethodWithCarrier = ShippingMethod & { carrier: Carrier | null }`.
@@ -200,13 +201,13 @@ Mutations are out of the primitive's scope. Callbacks surface the intent; the co
 **Required primitive surface:**
 - `onRowEdit?: (row: Row) => void` — called when the identifier cell is clicked. Consumer opens the edit dialog.
 - `onAddNew?: () => void` — called when the "Add new" button (toolbar) or the empty-state CTA is clicked.
-- `rowActions?: SettingsRowAction<Row>[]` — optional per-row secondary actions. Each carries a label, `onSelect` callback, and optional `destructive` flag. Rendered via the shared `<RowActionsMenu>` (`archetypes/shared`). Do not include "Edit" here.
+- `rowActions?: SettingsRowAction<Row>[]` — optional per-row secondary actions. Each carries a label, `onSelect` callback, and optional `destructive` flag. Rendered via the shared **row-actions overflow menu**. Do not include "Edit" here.
 - Optional bulk surface: `onBulkSelectChange?(selectedIds: string[]) => void` + `bulkActions?: React.ReactNode` (rendered in the toolbar while rows are selected).
 - Optional: `onBulkDelete?(rows: Row[]) => void` for convenience when bulk delete is the only bulk action.
 
 **Consumer contracts:**
 - All mutations use the project's async state library. No manual imperative refetch.
-- **Delete confirmation** — every destructive action opens a confirmation dialog (shadcn `<AlertDialog>` or equivalent). Standard copy: Title "Delete {entity}?", Description "This action cannot be undone.", Confirm button variant `destructive`. Never use `window.confirm`.
+- **Delete confirmation** — every destructive action opens the shared **confirm-dialog** primitive. Standard copy: Title "Delete {entity}?", Description "This action cannot be undone.", Confirm button styled as destructive. Never use `window.confirm`.
 - On success, invalidate the list cache key. Cross-resource: invalidate every affected key.
 
 **Allowed variation:**
@@ -223,11 +224,11 @@ Mutations are out of the primitive's scope. Callbacks surface the intent; the co
 
 **Required:**
 - No dedicated `/mobile/...` route. The same route serves all viewports.
-- **Table body** — stays a standard `<Table>` on all viewports. The primitive's content wrapper provides `overflow-x-auto` so the table scrolls horizontally on narrow viewports.
-- **Edit dialog** — opens as a full-screen `<Sheet>` on mobile (same adaptive pattern as A's detail panel). D2's edit dialog composes the J (`crud-dialog`) archetype's `<CrudDialogSheet>` family — `<CrudDialogSheet>` + `<CrudDialogHeader>`/`<CrudDialogBody>`/`<CrudDialogFooter>` + `useCrudDialogMode` — which handles the desktop-width / mobile-full-viewport swap automatically.
+- **Table body** — stays the base table primitive on all viewports. The content wrapper provides horizontal scroll on overflow so the table scrolls on narrow viewports.
+- **Edit dialog** — opens as a full-screen **overlay surface** on mobile (same adaptive pattern as Archetype A's detail panel). D2's edit dialog composes the J (`crud-dialog`) archetype's dialog-shell family — the header/body/footer sub-primitives plus a mode hook — which handles the desktop-width / mobile-full-viewport swap automatically.
 
 **Extension points (not in baseline v1.0 — consumer may add):**
-- Card-collapse layout — replacing `<Table>` with stacked row cards on narrow viewports.
+- Card-collapse layout — replacing the table with stacked row cards on narrow viewports.
 - Swipe-to-action gestures on touch devices.
 
 ---
@@ -237,12 +238,12 @@ Mutations are out of the primitive's scope. Callbacks surface the intent; the co
 Permissions are out of the primitive's scope. The consumer controls who reaches the page.
 
 **Required:**
-- Route-level auth guard (e.g. `<ProtectedRoute>`) with no role requirement unless RBAC is explicitly in scope.
+- The project's route-level auth guard with no role requirement unless RBAC is explicitly in scope.
 - No feature flags or read-only mode baked into the primitive.
 - Row-level action visibility is driven by entity state (e.g. "Deactivate" hidden when already inactive), not by user role, unless RBAC is explicitly in scope.
 
 **Extension point:**
-- Role-based UI gating — when a project needs it, add a `permissions?: PagePermissions` prop to the consumer's page wrapper. Do not add it to the baseline primitive.
+- Role-based UI gating — when a project needs it, add a `permissions?: PagePermissions` prop to the consumer's page wrapper. Do not add it to the primitive.
 
 ---
 
@@ -255,12 +256,12 @@ The following patterns are never permitted in a settings-table page, regardless 
 3. **Detail route navigation on click.** D2's click contract is dialog — never navigate to a detail route.
 4. **Deeply nested rows.** Settings tables are flat. No tree or hierarchy in the table.
 5. **Explicit "Edit" icon column.** Identifier-cell click is the only edit trigger.
-6. **Hand-rolled card wrappers.** Always use `<SettingsTableShell>`.
-7. **Action buttons in `<PageHeader>`.** All write actions live in the toolbar.
+6. **Hand-rolled card wrappers.** Always use the settings-table shell.
+7. **Action buttons in a floating page header.** All write actions live in the toolbar.
 8. **Status dropdowns.** Use pill bars or toggle switches (see Layer 4 Allowed variations).
-9. **`window.confirm` for delete.** Use a confirmation dialog (`<AlertDialog>`).
+9. **`window.confirm` for delete.** Use the confirm-dialog primitive.
 10. **Static (non-lazy) page imports.** Always lazy-import D2 pages.
-11. **Missing `<ErrorBoundary>`.** Every settings-table page must have one at the page-component level.
+11. **Missing render-error boundary.** Every settings-table page must have one at the page-component level.
 
 ---
 
@@ -271,8 +272,8 @@ When a target project applies this archetype, it wires the generic primitives to
 **Allowed project extensions:**
 - **Project-specific cell renderers.** Pass custom column render functions (image thumbnail, compound badge, color swatch) via the column configuration prop. The primitive renders them in the cell; it does not inspect their output.
 - **Project-specific row actions.** Extend `SettingsRowAction` with domain-specific labels (e.g. "Make default", "Archive", "Duplicate"). Any non-Edit action is valid in the per-row dropdown.
-- **Edit dialog composition.** Use the J (`crud-dialog`) archetype's `<CrudDialogSheet>` + `<CrudDialogHeader>`/`<CrudDialogBody>`/`<CrudDialogFooter>` + `useCrudDialogMode` for the edit surface. Consumers that intentionally want a plain shadcn `<Dialog>` may use it instead.
-- **Project-specific empty-state copy.** Pass `emptyMessage` prop to `<SettingsTableShell>`.
+- **Edit dialog composition.** Use the J (`crud-dialog`) archetype's dialog-shell family (header/body/footer sub-primitives plus a mode hook) for the edit surface. Consumers that intentionally want a plain **overlay-surface** primitive (modal) may use it instead.
+- **Project-specific empty-state copy.** Pass `emptyMessage` prop to the settings-table shell.
 - **Server-side pagination.** The primitive accepts an optional `pagination` prop; wire it to the paginated query hook.
 
 **What stays in the project (does not propagate to baseline):**
@@ -301,7 +302,7 @@ When a target project applies this archetype, it wires the generic primitives to
       detail panel (that's archetype A). *Wrapper tell:* a detail panel bolted on.
 - [ ] **Write actions live on the shell** — in `headerActions` (canonical, board
       form) or, on legacy pages, the `toolbar` slot — never floating above the shell.
-- [ ] **One `<SettingsTableShell>`** owns the card + table + row-actions dropdown; no
+- [ ] **One settings-table shell** owns the card + table + row-actions dropdown; no
       hand-rolled card. (Split-pane table+form variant allowed only with an inline-documented reason.)
 - [ ] **[spine] S1–S6.**
 

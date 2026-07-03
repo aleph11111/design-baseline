@@ -32,15 +32,11 @@ per-cell editing, use archetype M (matrix-grid) — a calendar is *not* a matrix
 its columns are time, its cells stack multiple chips, and it scrolls rather than
 densifies.
 
-## Reference primitive
-
-`<CalendarShell>` in `src/components/archetypes/calendar/`. A single structural
-shell: a ruled header bar (`kicker` + `title` left, a nav/create `actions`
-cluster right) over a 7-column grid it renders internally from a `days` prop.
-Row 1 is the day headers (dow overline + mono day-number, today's cell tinted);
-row 2 is the day columns, each stacking tone-coded `CalendarEvent` chips. Event
-interaction (open / create) is **consumer-owned** — the shell renders chips and
-the header actions; the consumer wires their click handlers.
+> **Reference implementation.** This file is the **stack-agnostic contract** — every
+> rule names a *role*, not a primitive. The baseline-stack binding (concrete
+> primitives + Tailwind-4 class strings) lives in
+> [`calendar.baseline.md`](./calendar.baseline.md). A project on a different stack
+> adopts this contract without needing that file.
 
 ---
 
@@ -49,9 +45,9 @@ the header actions; the consumer wires their click handlers.
 **Required:**
 - Path: single-segment route (e.g. `/calendar`, `/schedule`, `/timetable`). One
   period view per route.
-- Wrap in the project's auth guard (e.g. `<ProtectedRoute>`). No role requirement
+- Wrap in the project's **route-level auth guard**. No role requirement
   unless RBAC is explicitly in scope.
-- Lazy-import the page component.
+- Code-split the page behind the framework's **lazy-load boundary**.
 - The visible period (e.g. `?week=2026-W26`) is allowed as a query param and is
   the canonical way to make a period bookmarkable; in-memory state alone is not
   sufficient for a navigable calendar.
@@ -64,70 +60,73 @@ the header actions; the consumer wires their click handlers.
 ## Layer 2 — Page shell
 
 **Required:**
-- The page renders inside `<AppShell>` (baseline). The shell mounts providers;
-  consumers do not re-mount them at the page level.
-- Outer container: `<div className="space-y-5">` — **no page inset** (`AppShell`'s
-  `<main>` supplies it).
-- `<ErrorBoundary>` wrapping page content at the page-component level.
+- The page renders inside the project's **top-level app shell**. The shell
+  mounts providers; consumers do not re-mount them at the page level.
+- Outer container uses the **canonical vertical rhythm** for internal section
+  spacing only — **no page inset** (the app shell's main region supplies it).
+- A **render-error boundary** wrapping page content at the page-component level.
 
 **Forbidden:**
 - Outer padding classes that double-inset inside the app layout.
-- A second `<Card>` wrapping `<CalendarShell>` — the shell **is** the one card
-  boundary (nested chrome).
+- A second **card surface** wrapping the **calendar shell** — the shell **is**
+  the one card boundary (nested chrome).
 
 ---
 
 ## Layer 3 — Header bar
 
-The calendar's header is **integral to the shell's card**, not a detached page
-`<PageHeader>`. It carries both the period identity and the period controls in
-one ruled band.
+The calendar's header is **integral to the shell's card**, not a detached
+floating page header. It carries both the period identity and the period
+controls in one ruled band.
 
-**Required (via `<CalendarShell>`):**
-- **Title** — always present (`text-lg font-semibold tracking-tight`). Names the
-  visible period (e.g. "June 2026 · Week 26"). Any numeric run in the title
-  (week number, date span) renders `font-mono tabular-nums`.
-- **Kicker** — the overline above the title, composed from `OVERLINE_CLASS`
-  (`text-[10.5px]`).
-- **Header fill** — the bar renders per the shared `--header-fill` contract
-  (`headerFill.ts` / `HeaderFillContext`): `solid` (accent-filled, default) /
-  `tint` (`bg-muted`) / `white` (hairline only). Set once per project on
-  `<AppShell headerFill>`, overridable per page via `<CalendarShell headerFill>`.
+**Required (via the calendar shell):**
+- **Title** — always present, in the project's **canonical page-title type
+  style**. Names the visible period (e.g. "June 2026 · Week 26"). Any numeric
+  run in the title (week number, date span) renders in the **canonical
+  monospace identifier style**.
+- **Kicker** — the overline above the title, in the **canonical
+  overline/kicker style**.
+- **Header fill** — the bar renders per the **header-fill contract**: `solid`
+  (accent-filled, default) / `tint` (muted tint) / `white` (hairline only).
+  Set once per project on the app shell, overridable per page via the
+  calendar shell's `headerFill` prop.
 
 **Allowed variation:**
-- **Nav / create cluster** (`actions` slot) — right-aligned `<Button size="sm">`
-  controls: a `‹` previous, a "Today", a `›` next (icon-only buttons use
-  `aria-label`), and a single primary `+ Event` create action (`variant="default"`).
-  At most one primary creation action.
+- **Nav / create cluster** (`actions` slot) — right-aligned small **buttons**:
+  a `‹` previous, a "Today", a `›` next (icon-only buttons use `aria-label`),
+  and a single primary `+ Event` create action (primary/default style). At
+  most one primary creation action.
 
 **Forbidden:**
-- A separate `<PageHeader>` above the card — the period title lives in the shell's
-  header bar (one home for the period identity).
-- More than one primary (`default`) button in the cluster.
+- A separate floating page header above the card — the period title lives in
+  the shell's header bar (one home for the period identity).
+- More than one primary button in the cluster.
 - A baked brand accent on the primary — it stays the donor-neutral default; a
-  consuming app re-skins it via its `--primary` token.
+  consuming app re-skins it via its **brand/primary color** token.
 
 ---
 
 ## Layer 4 — Grid
 
 **Required:**
-- The shell renders a `grid grid-cols-7` from the `days` prop — the consumer
-  passes seven `CalendarDay` columns in display order; the shell never computes
-  the period.
-- **Day header cell** — centred: a `text-[9.5px] … uppercase tracking-[0.09em]`
-  dow overline over a `font-mono text-base tabular-nums` day-number. The day
-  flagged `today` tints its header cell (`bg-muted`) and brightens its number to
-  the foreground.
-- **Hairlines** — grid lines are faint (`border-border/60`); the header bar is
-  `border-b border-border`.
-- **Day column** — `min-h-[170px]`, stacking event chips top-down with tight gap.
+- The shell renders a seven-column grid from the `days` prop — the consumer
+  passes seven `CalendarDay` columns in display order; the shell never
+  computes the period.
+- **Day header cell** — centred: a dow overline in the **canonical
+  overline/kicker style** over a day-number in the **canonical monospace
+  identifier style**. The day flagged `today` tints its header cell (a muted
+  tint) and brightens its number to the foreground.
+- **Hairlines** — grid lines render as a faint hairline; the header bar
+  carries a hairline bottom border.
+- **Day column** — tall enough to hold a few stacked event chips, stacking
+  them top-down with tight gap.
 
 **Allowed variation:**
 - **Empty-day label** — `emptyDayLabel` renders faint centred copy (e.g. "—")
   when a day has no events. Omit for a blank column.
-- **Horizontal scroll** — the grid keeps a `min-w` and scrolls-x on narrow
-  viewports rather than reflowing. A week stays a week.
+- **Horizontal scroll** — the grid keeps a minimum width and scrolls
+  horizontally on narrow viewports rather than reflowing. A week stays a
+  week.
 
 **Forbidden:**
 - Reflowing the seven columns into a stacked/accordion list on mobile (that
@@ -139,14 +138,14 @@ one ruled band.
 ## Layer 5 — Event chip
 
 **Required:**
-- Each event is a chip: a left accent bar (`border-l-[3px]`) + a faint tinted
-  background, a `font-mono text-[10px] tabular-nums` time over a
-  `text-[11.5px] font-semibold` sans title.
-- **Tone → token classes.** A chip's `tone` selects a token-backed bar+tint pair
-  via the shell's `TONE_CLASS` map. `default` = muted / foreground; `success` /
-  `info` / `warning` borrow the Badge-family semantic tints (`green` / `primary`
-  / `yellow`). **No literal hex** — tones resolve to tokens so a consuming app's
-  palette re-skins them.
+- Each event is a chip: a left accent bar plus a faint tinted background, a
+  time in the **canonical monospace identifier style** over a semibold sans
+  title.
+- **Tone → token classes.** A chip's `tone` selects a token-backed bar+tint
+  pair via the **calendar tone tokens, owned by the calendar primitive**.
+  `default` = muted / foreground; `success` / `info` / `warning` borrow the
+  same semantic tints as the shared **status-badge primitive**. **No literal
+  hex** — tones resolve to tokens so a consuming app's palette re-skins them.
 
 **Forbidden:**
 - Inline per-chip colour maps with literal hex.
@@ -194,9 +193,9 @@ type CalendarDay = {
 
 ## Forbidden patterns
 
-1. **A detached `<PageHeader>` above the card.** The period title lives in the
+1. **A detached page header above the card.** The period title lives in the
    shell's header bar.
-2. **Nested card chrome.** `<CalendarShell>` is the one card boundary.
+2. **Nested card chrome.** The calendar shell is the one card boundary.
 3. **Literal-hex tone maps.** Tones resolve to tokens.
 4. **Reflowing the 7 columns on mobile.** Scroll-x; keep the period shape.
 5. **Formatting inside the primitive.** Consumers pre-format times and dates.
@@ -218,19 +217,22 @@ type CalendarDay = {
 
 **REQUIRED**
 
-- [ ] **One `<CalendarShell>`** owns the header bar + the 7-column grid — **no**
-      hand-rolled grid, no second card wrapping it. *Wrapper tell:* a `<PageHeader>`
-      bolted above a bare grid.
-- [ ] **Period title + nav/create live in the shell header bar**, not a detached
-      page header. At most one primary (`default`) create action.
-- [ ] **Tones are token-backed** (`TONE_CLASS`) — no literal-hex chip colour maps.
-- [ ] **Day-numbers + event times are `font-mono tabular-nums`**; titles + button
-      labels stay sans.
+- [ ] **One calendar shell** owns the header bar + the seven-column grid —
+      **no** hand-rolled grid, no second card wrapping it. *Wrapper tell:* a
+      floating page header bolted above a bare grid.
+- [ ] **Period title + nav/create live in the shell header bar**, not a
+      detached page header. At most one primary create action.
+- [ ] **Tones are token-backed** (the calendar tone tokens) — no literal-hex
+      chip colour maps.
+- [ ] **Day-numbers + event times render in the canonical monospace
+      identifier style**; titles + button labels stay sans.
 - [ ] **[spine] S1–S6** (single inset · shell-not-hand-rolled · token tones ·
       aligned mono figures · neutral-default primary).
 
 **SHOULD** (yellow, not red)
 
-- [ ] Today's cell tinted (`bg-muted`) with its number brightened to foreground.
-- [ ] Grid scrolls-x on narrow viewports rather than reflowing the seven columns.
+- [ ] Today's cell carries a muted tint, with its number brightened to
+      foreground.
+- [ ] Grid scrolls horizontally on narrow viewports rather than reflowing the
+      seven columns.
 - [ ] Empty days carry a faint `emptyDayLabel` rather than a bare column.

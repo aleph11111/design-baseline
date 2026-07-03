@@ -13,19 +13,15 @@ status: locked
 
 ## Purpose
 
-An **entity CRUD dialog** is a right-side Sheet that creates, views, or edits a single domain entity without navigating away from the current page. Use this archetype whenever a surface owns a full CRUD lifecycle for a single entity — loading skeleton, mode state machine, footer contract, and cache invalidation. It is the most common dialog shape in a business application.
+An **entity CRUD dialog** is a right-side overlay surface that creates, views, or edits a single domain entity without navigating away from the current page. Use this archetype whenever a surface owns a full CRUD lifecycle for a single entity — loading skeleton, mode state machine, footer contract, and cache invalidation. It is the most common dialog shape in a business application.
 
 J is the first non-page archetype in the baseline. It extends the twelve-layer page framework with three dialog-specific layers: mode contract, footer contract, and cross-context invocation. Dialogs that own a single entity's lifecycle belong here. Confirm dialogs (destructive only, no entity model), transient flow dialogs (multi-step action, no owned entity), and read-only reference viewers are out of scope.
 
-## Reference primitives
-
-`<CrudDialogSheet>` in `src/components/archetypes/crud-dialog/` — the Sheet wrapper with mobile-adaptive width. Composed of:
-- `<CrudDialogHeader>` — title, optional subtitle, optional close button, actions slot.
-- `<CrudDialogBody>` — ScrollArea body wrapper with consistent padding and loading skeleton slot.
-- `<CrudDialogFooter>` — mode-aware footer enforcing the button layout contract.
-- `useCrudDialogMode` — hook centralizing mode state and dirty-close logic.
-- `useCrudDialogController` — hook owning the shared view/edit/create action flow (dirty-guarded close, primary/secondary handlers, derived footer labels). Composes `useCrudDialogMode` with the form and mutations.
-- `crudStrings` — neutral English defaults (`CRUD_ERRORS`, `CRUD_DISCARD_PROMPT`, `confirmDiscard`). Consumers in another language inject their own via the controller's `labels` option; the baseline never bakes in a specific language.
+> **Reference implementation.** This file is the **stack-agnostic contract** — every
+> rule names a *role*, not a primitive. The baseline-stack binding (concrete
+> primitives + Tailwind-4 class strings) lives in
+> [`crud-dialog.baseline.md`](./crud-dialog.baseline.md). A project on a
+> different stack adopts this contract without needing that file.
 
 ---
 
@@ -33,7 +29,7 @@ J is the first non-page archetype in the baseline. It extends the twelve-layer p
 
 **Required:**
 - Props: `open: boolean` and `onClose: () => void`. The caller owns open/close state (imperative pattern).
-- Wire the Sheet's `onOpenChange` internally as `(next) => { if (!next) onClose(); }`. The dialog never calls `onClose()` on open transitions.
+- Wire the overlay-surface primitive's `onOpenChange` internally as `(next) => { if (!next) onClose(); }`. The dialog never calls `onClose()` on open transitions.
 - Optional: `onSaved?: (entity: Entity) => void` side-effect callback for callers that need to act on the saved result (e.g. pre-fill a parent form after creating an entity mid-flow).
 
 **Allowed variation:**
@@ -46,41 +42,41 @@ J is the first non-page archetype in the baseline. It extends the twelve-layer p
 
 ---
 
-## Layer 2 — Sheet shell
+## Layer 2 — Dialog shell
 
 **Required:**
-- Use `<CrudDialogSheet>` from `src/components/archetypes/crud-dialog/`.
+- Use the **CRUD-dialog shell** — the single primitive that owns this archetype's chrome (the overlay wrapper with mobile-adaptive width).
 - Pass `open`, `onOpenChange` (wrapping `onClose`), and optionally `width` (`"sm" | "md" | "lg"`).
 - Default width `"md"` (~480 px). Use `"lg"` for tabbed or complex entities. Use `"sm"` for minimal forms (3–4 fields only).
-- Desktop: right-side slide-in at the chosen width. Mobile: full-viewport (handled automatically by `<CrudDialogSheet>` via `useIsMobile`).
+- Desktop: right-side slide-in at the chosen width. Mobile: full-viewport (handled automatically by the CRUD-dialog shell via the **viewport-breakpoint hook**).
 
 **Allowed variation:**
 - Width variant choice per consumer.
 
 **Forbidden:**
-- Using shadcn `Dialog` directly for J dialogs — all J dialogs use `<CrudDialogSheet>`.
-- Manual `max-w-*` or viewport-relative `w-[…]` classes on the Sheet content. Width is controlled via the `width` prop only.
-- Custom `max-h-[90vh] overflow-y-auto` on the shell — scroll is managed by `<CrudDialogBody>` (Layer 5).
-- Adding a `SheetTrigger` inside the dialog component — triggers belong at the call site.
+- Using the overlay-surface primitive's modal variant directly for J dialogs — all J dialogs use the CRUD-dialog shell (its sheet variant).
+- Manual max-width or viewport-relative width-override classes on the overlay content. Width is controlled via the `width` prop only.
+- Custom scroll/max-height overrides on the shell — scroll is managed by the dialog-body primitive (Layer 5).
+- Adding a trigger element inside the dialog component — triggers belong at the call site.
 
 ---
 
 ## Layer 3 — Dialog header
 
 **Required:**
-- Use `<CrudDialogHeader>` from `src/components/archetypes/crud-dialog/`.
+- Use the **dialog-header primitive**.
 - `title` prop: entity name or entity type + name (e.g. `"Customer · Acme Corp"`, `"Workout · Morning Run"`). Never a static string like `"Edit Item"`.
 - Optional `actions` slot: rendered right of title, before the close button. Use for mode-toggle affordances or secondary icon buttons. Primary CRUD actions (Save, Create, Edit, Delete) belong in the footer (Layer 14).
-- The Sheet's built-in close button (X) is provided by `<SheetContent>` — do not add a separate manual close button unless the design requires an explicit labeled close.
-- **Accessible name (a11y contract).** `<CrudDialogHeader>` MUST render `title` through `<SheetTitle>` (Radix `Dialog.Title`) and `subtitle` through `<SheetDescription>` (Radix `Dialog.Description`), so `<SheetContent>` (Radix `Dialog.Content`) always exposes an accessible name and a non-dangling `aria-describedby`. When no `subtitle` is supplied, render an empty `sr-only` `<SheetDescription>` as the fallback. Radix logs a development error when `Dialog.Content` has no `Dialog.Title` descendant and a warning when `aria-describedby` references a missing node; this contract guarantees neither fires.
-- **Header fill.** `<CrudDialogHeader>` is the Sheet's first band, so it reads the project's `--header-fill` contract (`HeaderFillContext` from `@/components/layout/headerFill` — `"solid"` / `"tint"` / `"white"`, default `"solid"`) the same way every framed archetype header does: on `"solid"`, the bar fills with the brand accent and the title/subtitle/`actions` buttons invert (white text, inverted outline/primary treatment). Override per dialog via the `headerFill` prop on `<CrudDialogHeader>`. Semantic `<Badge>`s placed in `actions` are never inverted.
+- The overlay-surface primitive's built-in close button (X) is provided by the shell — do not add a separate manual close button unless the design requires an explicit labeled close.
+- **Accessible name (a11y contract).** The dialog-header primitive MUST render `title` through the overlay-surface primitive's title element and `subtitle` through its description element, so the overlay-surface primitive's content region always exposes an accessible name and a non-dangling `aria-describedby`. When no `subtitle` is supplied, render an empty visually-hidden description element as the fallback.
+- **Header fill.** The dialog-header primitive is the CRUD-dialog shell's first band, so it follows the project's **header-fill contract** the same way every framed archetype header does: on the brand-filled mode, the bar fills with the brand accent and the title/subtitle/`actions` buttons invert (white text, inverted outline/primary treatment); a quieter muted-tint mode and a hairline-border-only mode are also available. Override per dialog via the `headerFill` prop on the dialog-header primitive. The shared **status-badge primitive** placed in `actions` is never inverted.
 
 **Allowed variation:**
-- `subtitle` prop for secondary identifying info (e.g. created date, status string). Rendered via `<SheetDescription>` per the accessible-name contract above.
-- `onClose` prop on `<CrudDialogHeader>` to render an explicit close button in the header alongside the `actions` slot.
+- `subtitle` prop for secondary identifying info (e.g. created date, status string). Rendered via the overlay-surface primitive's description element per the accessible-name contract above.
+- `onClose` prop on the dialog-header primitive to render an explicit close button in the header alongside the `actions` slot.
 
 **Forbidden:**
-- A header `title` rendered as a bare element (e.g. a plain `<h2>` or `<div>`) instead of `<SheetTitle>`, or a `<SheetContent>` with no `<SheetTitle>` descendant — this leaves the dialog with no accessible name and a dangling `aria-describedby`.
+- A header `title` rendered as a bare element (e.g. a plain `<h2>` or `<div>`) instead of the overlay-surface primitive's title element, or overlay content with no title-element descendant — this leaves the dialog with no accessible name and a dangling `aria-describedby`.
 - Static entity-type titles like `"Customer Details"` or `"Item Details"` — entity name must appear in the title.
 - Action buttons (Edit, Save, Cancel) placed in the header; these belong in the footer.
 
@@ -95,18 +91,18 @@ Dialogs do not have a toolbar layer. This layer number is reserved to keep parit
 ## Layer 5 — Body wrapper
 
 **Required:**
-- Use `<CrudDialogBody>` from `src/components/archetypes/crud-dialog/`.
+- Use the **dialog-body primitive**.
 - Pass `isLoading={true}` while the entity fetch is pending. The body renders a skeleton automatically; children are suppressed.
-- The body provides `flex-1 overflow-y-auto px-6 py-4` — do not add extra padding inside direct children of `<CrudDialogBody>`.
+- The body provides the **canonical dialog-body padding and scroll treatment** — do not add extra padding inside direct children of the dialog-body primitive.
 
 **Allowed variation:**
 - `isLoading` omitted (defaults `false`) for dialogs that receive entity data via prop (no in-dialog fetch).
 
 **Forbidden:**
-- Extra `py-2` / `py-4` padding inside the body's immediate children.
-- `overflow-y-auto` on the `SheetContent` or its direct children — scroll belongs in `<CrudDialogBody>`.
-- Centered spinner as the loading state — use `isLoading` prop on `<CrudDialogBody>` which renders a skeleton.
-- `animate-pulse` hand-rolled skeleton blocks.
+- Extra vertical padding inside the body's immediate children.
+- A scroll wrapper on the overlay content or its direct children — scroll belongs in the dialog-body primitive.
+- Centered spinner as the loading state — use the `isLoading` prop on the dialog-body primitive, which renders a skeleton.
+- Hand-rolled pulsing-skeleton blocks.
 
 ---
 
@@ -118,17 +114,17 @@ are **variants of the one J archetype, not separate tiers** — see
 to a detail page (C) when the entity outgrows a dialog (owns collections, etc.).
 
 **Required (pick one):**
-- **Flat stack** — `<CrudDialogBody layout="flat">`. A single `space-y-4` stack of labeled field groups. For simple entities (5–8 fields).
-- **Two-column** — `<CrudDialogBody layout="two-column">`. A paired-field grid; the body bakes in the mandated mobile collapse (`grid-cols-1 sm:grid-cols-2 gap-4`) so consumers don't hand-roll (or forget) it. For entities with paired fields.
-- **Two-tab** — shadcn `<Tabs>` with exactly 2 tabs, composed as the body's children (`<CrudDialogBody>` with no `layout`). Tab 1 owns mode state (entity data + form). Tab 2 is read-only (connected entities, KPIs, history).
+- **Flat stack** — the dialog-body primitive with `layout="flat"`. A single stack, using the **canonical vertical rhythm**, of labeled field groups. For simple entities (5–8 fields).
+- **Two-column** — the dialog-body primitive with `layout="two-column"`. A paired-field grid; the body bakes in the mandated mobile collapse so consumers don't hand-roll (or forget) it. For entities with paired fields.
+- **Two-tab** — the project's **tab primitive** with exactly 2 tabs, composed as the body's children (the dialog-body primitive with no `layout`). Tab 1 owns mode state (entity data + form). Tab 2 is read-only (connected entities, KPIs, history).
 
 **Allowed variation:**
-- **Mixed bodies** (a 2-col section beside full-width flat fields) — omit `layout` and compose `space-y-4` + an inner `grid grid-cols-1 sm:grid-cols-2 gap-4` yourself. The `layout` prop is for the *pure* flat / two-column cases; mixed stays manual.
-- Sub-sections with `<Card>` chrome for grouping logically distinct blocks (e.g. Contact vs. Address within Tab 1).
+- **Mixed bodies** (a 2-col section beside full-width flat fields) — omit `layout` and compose the **canonical vertical rhythm** plus an inner responsive paired-field grid yourself. The `layout` prop is for the *pure* flat / two-column cases; mixed stays manual.
+- Sub-sections with the project's **card / section-card surface** for grouping logically distinct blocks (e.g. Contact vs. Address within Tab 1).
 
 **Forbidden:**
 - More than 2 tabs. If 3+ tabs are needed the entity belongs in a dedicated page, not a J dialog.
-- Nested J dialogs inside the body. The one allowed exception is a `<ConfirmDeleteDialog>` (confirm-only, no entity lifecycle) opened from the footer's Delete action.
+- Nested J dialogs inside the body. The one allowed exception is the **confirm-dialog primitive** (confirm-only, no entity lifecycle) opened from the footer's Delete action.
 - Edit actions for sub-entities inside Tab 1 — navigate to that sub-entity's own dialog or page instead.
 
 ---
@@ -136,17 +132,17 @@ to a detail page (C) when the entity outgrows a dialog (owns collections, etc.).
 ## Layer 7 — States
 
 **Required:**
-- **Loading:** `<CrudDialogBody isLoading>` renders a skeleton. Required for any dialog that fetches data on open.
-- **Error (fetch):** Render `<div className="bg-destructive/10 p-4 rounded text-sm text-destructive">` with a human-readable message. Not hardcoded `bg-red-50`.
-- **Saving:** Pass `isSubmitting={true}` to `<CrudDialogFooter>`. The footer disables and relabels the primary button automatically.
-- **Empty (Tab 2):** If Tab 2's connected-entity list is empty, render `<StateView variant="empty" icon={…} title="No {things} yet." />` (`ui/state-view`) — not `null`, not a blank area, and not a hand-rolled centered-icon `<div>`.
+- **Loading:** the dialog-body primitive with `isLoading` renders a skeleton. Required for any dialog that fetches data on open.
+- **Error (fetch):** render the **compact inline-error box** treatment with a human-readable message. Not a hardcoded ad-hoc color.
+- **Saving:** pass `isSubmitting={true}` to the dialog-footer primitive. The footer disables and relabels the primary button automatically.
+- **Empty (Tab 2):** if Tab 2's connected-entity list is empty, render the shared **state-view primitive** (empty variant) with an icon and "No {things} yet." title — not `null`, not a blank area, and not a hand-rolled centered-icon container.
 
 **Allowed variation:**
 - Additional inline loading states for secondary queries within Tab 2 (e.g. a connected-orders list that loads separately from the entity data).
 
 **Forbidden:**
 - Centered spinner as the primary loading state.
-- Saving indicator via text replacement on the button label ("Updating…", "Creating…"). Use `isSubmitting` on `<CrudDialogFooter>`.
+- Saving indicator via text replacement on the button label ("Updating…", "Creating…"). Use `isSubmitting` on the dialog-footer primitive.
 - No saving indicator at all on mutation buttons.
 
 ---
@@ -156,15 +152,15 @@ to a detail page (C) when the entity outgrows a dialog (owns collections, etc.).
 The primitive does not wire data. It expects consumer-provided state.
 
 **Required (consumer hook contract):**
-- Entity fetched by `entityId` via a dedicated query hook with `enabled: open && !!entityId`.
-- Apply `staleTime: 30_000` and `gcTime: 300_000` for entity detail queries (dialog-scope data).
+- Entity fetched by `entityId` via a dedicated query hook, gated so it only runs while the dialog is open and an `entityId` is present (React Query: `enabled`; SWR: conditional key; RTK Query: `skip`).
+- Apply a freshness window of at least 30 seconds and a cache-retention window of at least 5 minutes for entity detail queries, dialog-scope data (React Query: `staleTime` / `gcTime`; SWR: `dedupingInterval`; RTK Query: `keepUnusedDataFor`).
 - Create mode: no entity fetch. Form defaults to empty or caller-supplied `defaultValues`.
 
 **Allowed variation:**
 - Prop-fed entity data when the caller's list query already holds the full entity shape. Secondary lookups (dropdowns, linked data) may still use query hooks.
 
 **Forbidden:**
-- `useState + useEffect` fetching pattern inside the dialog.
+- Manual local-state-plus-effect fetching pattern inside the dialog.
 - Direct database/API calls inside the dialog component. Route through a service module layer.
 - Raw inline queries for dropdown options — use dedicated hooks.
 
@@ -174,15 +170,15 @@ The primitive does not wire data. It expects consumer-provided state.
 
 **Required:**
 - Entity type shared with list/detail views. Not re-declared inside the dialog.
-- Form state typed as `z.infer<typeof schema>` using a Zod schema defined in the same file (or imported from a shared forms module).
-- `useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema) })` — react-hook-form with Zod resolver.
+- Form state typed as the inferred output of the project's **schema-validation definition**, defined in the same file (or imported from a shared forms module).
+- Wire the schema-validation definition through the project's **schema-validated form hook** — a typed form-state hook whose validation is resolved against that definition.
 
 **Allowed variation:**
-- For dialogs that receive entity data via prop and have no editable form (view-only or edit delegated to caller via `onSave`), react-hook-form is optional.
+- For dialogs that receive entity data via prop and have no editable form (view-only or edit delegated to caller via `onSave`), the schema-validated form hook is optional.
 
 **Forbidden:**
-- Multiple individual `useState<string>` per form field.
-- `any`-typed form state.
+- Multiple individual local-state fields, one `useState` per form field.
+- Untyped (`any`) form state.
 - Entity types declared inside API modules or hooks — they must live in the project's shared types layer.
 
 ---
@@ -197,10 +193,10 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 2. **Controlled form** — the dialog owns no mutation; it emits values via a typed `onSave(values)` callback and the parent persists them. Delegating is compliant **provided** the parent persists through a self-invalidating mutation hook or `invalidate<Entity>()` helper.
 
 **Required (consumer contracts):**
-- All mutations use the project's async state library (`useMutation` from React Query or equivalent).
+- All mutations use the project's async state library (React Query, SWR, RTK Query, or equivalent).
 - On mutation success in a self-contained dialog: call a centralized `invalidate<Entity>(queryClient, entityId)` helper that enumerates every queryKey where the entity appears (list, detail, and all parent queries that join or embed the entity).
 - A controlled form's `onSave(values)` must be persisted by the caller through a self-invalidating mutation hook or `invalidate<Entity>()` helper — never an ad-hoc per-call-site `invalidateQueries`.
-- Toast on success via the project's toast library (Sonner `toast()` recommended). Both Sonner and shadcn Toaster may be mounted; pick one and document the choice.
+- Toast on success via the project's toast library. If more than one toast surface is mounted by the app shell, pick one and document the choice.
 
 **Allowed variation:**
 - `onSaved` callback invoked after successful mutation + invalidation, for callers that need to react. In a self-contained dialog it must fire *after* the dialog's own `invalidate<Entity>()`, never as a substitute for it.
@@ -217,12 +213,12 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 
 **Required:**
 - No dedicated mobile route. The same component serves all viewports.
-- On desktop: right-side Sheet at the chosen width. On mobile: full-viewport Sheet. `<CrudDialogSheet>` handles this automatically via `useIsMobile`.
-- Body 2-col grids must collapse via `grid-cols-1 sm:grid-cols-2` — the only allowed per-consumer responsive override.
+- On desktop: right-side overlay surface at the chosen width. On mobile: full-viewport overlay surface. The CRUD-dialog shell handles this automatically via the **viewport-breakpoint hook**.
+- Body 2-col grids must collapse to a single column on narrow viewports — the only allowed per-consumer responsive override.
 
 **Forbidden:**
-- Custom `sm:max-w-*` or `w-[…]` overrides at the consumer level that bypass the width system.
-- Per-consumer `useMediaQuery` inside dialog components for anything beyond column collapse.
+- Custom width overrides at the consumer level that bypass the width system.
+- Per-consumer viewport-query hooks inside dialog components for anything beyond column collapse.
 
 ---
 
@@ -238,56 +234,56 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 
 **Forbidden:**
 - Disabling (greying out) the Edit/Delete button for read-only users — the spec requires hiding, not disabling.
-- Showing the Delete button in create mode. `<CrudDialogFooter>` enforces this automatically.
+- Showing the Delete button in create mode. The dialog-footer primitive enforces this automatically.
 
 ---
 
 ## Layer 13 — Mode contract *(dialog-specific)*
 
 **Required:**
-- Use `useCrudDialogMode` from `src/components/archetypes/crud-dialog/`. Returns `{ mode, setMode, isView, isEdit, isCreate }`.
-- Use `useCrudDialogController` from `src/components/archetypes/crud-dialog/` to own the action flow on top of the mode hook. It is the canonical owner of `handleClose`, `handlePrimary`, and `handleSecondary` — the dialog wires these to the Sheet's close, the footer primary, and the footer secondary respectively, and does not reimplement the transition logic inline. The controller composes `useCrudDialogMode`, the react-hook-form instance, and the create/update mutations; the dialog keeps its schema, default values, mutation bodies, and form JSX.
+- Use the **mode-state hook**. Returns `{ mode, setMode, isView, isEdit, isCreate }`.
+- Use the **action-flow controller** to own the action flow on top of the mode-state hook. It is the canonical owner of `handleClose`, `handlePrimary`, and `handleSecondary` — the dialog wires these to the overlay's close, the footer primary, and the footer secondary respectively, and does not reimplement the transition logic inline. The controller composes the mode-state hook, the schema-validated form hook instance, and the create/update mutations; the dialog keeps its schema, default values, mutation bodies, and form JSX.
 - `initialMode`: pass `"create"` when `entityId` is absent; pass `"view"` or `"edit"` when `entityId` is present. Caller controls the initial mode via prop.
 - **view → edit:** Call `setMode("edit")`. Fields switch from read-only display to form inputs. No confirmation needed (no data loss on forward transition).
-- **edit → view (cancel):** Call `setMode("view")` via `onConfirmDiscard`. If `isDirty` is true and `onConfirmDiscard` is provided, the mode hook requests confirmation before transitioning. On confirmed: transition + reset form.
+- **edit → view (cancel):** Call `setMode("view")` via `onConfirmDiscard`. If `isDirty` is true and `onConfirmDiscard` is provided, the mode-state hook requests confirmation before transitioning. On confirmed: transition + reset form.
 - **edit → view (save success):** `setMode("view")` after mutation `onSuccess`. Call `invalidate<Entity>()` and show a success toast.
 - **create → closed (success):** Call `onClose()` after mutation `onSuccess`. Call `invalidate<Entity>()` and show a success toast.
 - **any → closed (X / backdrop / Esc):** Wrap `onClose()` in a dirty-check guard. If mode is `edit` or `create` and the form is dirty, request confirmation before calling `onClose()`.
-- On form field change: keep `isDirty` in sync with react-hook-form's `formState.isDirty` via `useEffect` or inline comparison.
+- On form field change: keep `isDirty` in sync with the schema-validated form hook's dirty-state flag via `useEffect` or inline comparison.
 
 **Allowed variation:**
 - View-only dialogs (no edit path) may initialize with `mode="view"` and never call `setMode`. The footer shows only a Close action.
 
 **Forbidden:**
-- `isEditing: boolean` local state instead of `useCrudDialogMode`.
+- `isEditing: boolean` local state instead of the mode-state hook.
 - Mode driven entirely by prop null-check (e.g. `isEdit = entity !== null`) without a runtime-switchable mode state.
 - Silently discarding unsaved changes when the X button is clicked — dirty-check on close is required in edit and create modes.
-- Mode transitions outside `useCrudDialogMode`.
-- Reimplementing `handleClose` / `handlePrimary` / `handleSecondary` inline instead of deriving them from `useCrudDialogController`.
+- Mode transitions outside the mode-state hook.
+- Reimplementing `handleClose` / `handlePrimary` / `handleSecondary` inline instead of deriving them from the action-flow controller.
 
 ---
 
 ## Layer 14 — Footer contract *(dialog-specific)*
 
 **Required:**
-- Use `<CrudDialogFooter>` from `src/components/archetypes/crud-dialog/`.
+- Use the **dialog-footer primitive**.
 - Pass `primaryLabel`, `onPrimary`, `isSubmitting`, and optionally `secondaryLabel`, `onSecondary`, `destructiveLabel`, `onDestructive`.
-- `primaryLabel` / `secondaryLabel` and the `onPrimary` / `onSecondary` handlers are derived by `useCrudDialogController` (per mode: Edit/Save/Create for primary, Close/Cancel for secondary) — read them off the controller rather than hand-rolling per-mode label and handler switches in the dialog.
-- **i18n.** The controller's label derivation reads from a `labels` option that defaults to neutral English (`DEFAULT_CRUD_DIALOG_LABELS`: Edit / Create / Save / Close / Cancel / "Discard changes?"). A consumer in another language passes a localized `CrudDialogLabels` set to the controller's `labels` option (and a matching `onConfirmDiscard` to `useCrudDialogMode`); the baseline ships no non-English strings. Keep the localized strings in a project-local module, not inside the donor-managed archetype directory, so a `/style-archetypes` re-apply cannot overwrite them.
+- `primaryLabel` / `secondaryLabel` and the `onPrimary` / `onSecondary` handlers are derived by the **action-flow controller** (per mode: Edit/Save/Create for primary, Close/Cancel for secondary) — read them off the controller rather than hand-rolling per-mode label and handler switches in the dialog.
+- **i18n.** The controller's label derivation reads from a `labels` option that defaults to a neutral-language default set (Edit / Create / Save / Close / Cancel / "Discard changes?"). A consumer in another language passes a localized label set to the controller's `labels` option (and a matching `onConfirmDiscard` to the mode-state hook); the baseline ships no non-English strings. Keep the localized strings in a project-local module, not inside the donor-managed archetype directory, so a re-apply of the archetype cannot overwrite them.
 - The footer enforces the mode-aware button layout described below.
-- Delete click must open a `<ConfirmDeleteDialog>` (or shadcn `<AlertDialog>`) before executing the delete mutation. Never call the delete mutation directly on button click.
+- Delete click must open the **confirm-dialog primitive** before executing the delete mutation. Never call the delete mutation directly on button click.
 
 **Mode-aware layout:**
 
 | Mode   | Left edge (destructive) | Right edge (secondary → primary) |
 |--------|------------------------|----------------------------------|
-| View   | Delete (outline, text-destructive, disabled) | Close · **Edit** |
-| Edit   | Delete (outline, text-destructive, enabled)  | Cancel · **Save** |
+| View   | Delete (outline style, destructive color, disabled) | Close · **Edit** |
+| Edit   | Delete (outline style, destructive color, enabled)  | Cancel · **Save** |
 | Create | —                      | Cancel · **Create** |
 
-- Delete: always left-aligned. Disabled in view mode. Absent in create mode. Triggers confirm dialog before mutation.
-- Primary (Edit / Save / Create): rightmost, default variant. When `isSubmitting`, disabled and labeled "Saving…" / "Creating…".
-- Secondary (Close / Cancel): outline variant, to the left of primary.
+- Delete: always left-aligned. Disabled in view mode. Absent in create mode. Triggers the confirm-dialog primitive before mutation.
+- Primary (Edit / Save / Create): rightmost, the primary button style. When `isSubmitting`, disabled and labeled "Saving…" / "Creating…".
+- Secondary (Close / Cancel): the secondary (outline) button style, to the left of primary.
 
 **Allowed variation:**
 - Secondary actions (Duplicate, Archive, Export) may be added as a `⋯` overflow menu button to the left of the primary action group.
@@ -296,9 +292,9 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 **Forbidden:**
 - Footer actions placed in the dialog header or inside the body.
 - Primary button on the left, secondary on the right (reversed order).
-- `window.confirm()` for delete confirmation — use `<AlertDialog>` or `<ConfirmDeleteDialog>`.
+- Using a raw browser confirm dialog for delete confirmation — use the confirm-dialog primitive.
 - Delete button visible in create mode.
-- Using shadcn `<DialogFooter>` in a J dialog.
+- Using a generic, unstyled footer container in a J dialog instead of the dialog-footer primitive.
 
 ---
 
@@ -306,16 +302,16 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 
 **Required:**
 - A single dialog component per entity, invocable from every call site. Zero per-context duplicates.
-- The same `<WorkoutDialog>` (or `<CustomerDialog>`, etc.) is opened from a list row, from a header search result, from a detail panel — wherever the entity appears. The caller passes `entityId` + `open` + `onClose` only.
+- The same entity dialog (e.g. a Workout dialog, a Customer dialog) is opened from a list row, from a header search result, from a detail panel — wherever the entity appears. The caller passes `entityId` + `open` + `onClose` only.
 - Entity fetching lives outside the primitive shell (consumer hook). The dialog's API is open/close + entityId (for view/edit) or null/undefined (for create).
 - Multiple call sites must not race — the rendering shell is the caller's concern; data fetching is outside the primitive.
 
 **Allowed variation:**
-- Separate create and view/edit dialogs for the same entity when the surfaces are genuinely different (e.g. a creation wizard vs. a view/edit sheet). Justify per entity.
+- Separate create and view/edit dialogs for the same entity when the surfaces are genuinely different (e.g. a creation wizard vs. a view/edit surface). Justify per entity.
 
 **Forbidden:**
 - Two separate components for the same entity's edit path (duplicate edit dialogs).
-- Dialog-inside-dialog pattern (opening a second J dialog from inside a first J dialog). The exception is a `<ConfirmDeleteDialog>` (confirm-only).
+- Dialog-inside-dialog pattern (opening a second J dialog from inside a first J dialog). The exception is the confirm-dialog primitive (confirm-only).
 - Passing context-specific props (e.g. `orderId`, `sourcePageId`) to a J dialog to distinguish invocation-site behavior. The dialog must work identically from all call sites.
 
 ---
@@ -325,15 +321,15 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 The following patterns are never permitted in a J dialog, regardless of domain:
 
 1. **Silently discarding dirty state.** Always confirm before closing when the user has unsaved changes.
-2. **Mode outside `useCrudDialogMode`.** All mode logic is centralized there.
+2. **Mode outside the mode-state hook.** All mode logic is centralized there.
 3. **Footer actions in the header or body.** Footer has a fixed slot; header and body do not own CRUD actions.
 4. **Bottom-sheet on desktop.** Right slide-in is the J convention on desktop.
 5. **Inline editing of sub-entities inside Tab 1.** Navigate to the sub-entity's own dialog or page.
 6. **More than 2 tabs.** If 3+ are needed, the entity is a page-archetype candidate, not a J dialog.
-7. **`window.confirm()` for delete.** Use `<AlertDialog>`.
+7. **Raw browser confirm for delete.** Use the confirm-dialog primitive.
 8. **Re-declaring entity types inside the dialog.** Entity types live in the project's shared types layer.
 9. **Nested J dialogs.** No J dialog may open another J dialog on top of itself.
-10. **Static entity-type titles.** The entity's name or identifier must appear in the `<CrudDialogHeader>` title.
+10. **Static entity-type titles.** The entity's name or identifier must appear in the dialog-header primitive's title.
 
 ---
 
@@ -342,15 +338,15 @@ The following patterns are never permitted in a J dialog, regardless of domain:
 When a target project applies this archetype, it wires the generic primitives to its own data layer and may extend them with project-specific behavior as described below.
 
 **Allowed project extensions:**
-- **Project-specific form fields.** The body content is fully consumer-controlled. Pass any form, field group, or tab layout as children of `<CrudDialogBody>`.
-- **Project-specific footer secondary actions.** The `<CrudDialogFooter>` accepts an optional overflow menu slot for domain-specific secondary actions (Duplicate, Archive, Export).
+- **Project-specific form fields.** The body content is fully consumer-controlled. Pass any form, field group, or tab layout as children of the dialog-body primitive.
+- **Project-specific footer secondary actions.** The dialog-footer primitive accepts an optional overflow menu slot for domain-specific secondary actions (Duplicate, Archive, Export).
 - **Project-specific permissions.** Pass `canEdit` and `canDelete` booleans derived from the project's RBAC hook.
 - **Project-specific `invalidate<Entity>()` helpers.** Each entity must have its own invalidation helper that enumerates every derived queryKey. These live in the project, not in the baseline primitive.
 - **Separate create and view/edit dialogs.** When the create and edit surfaces genuinely differ (different field set, different trigger context, different width), two separate components for the same entity are allowed. Justify per entity.
 
 **What stays in the project (does not propagate to baseline):**
 - Domain-specific query hooks (e.g. `useWorkout()`, `useCustomer()`).
-- Domain-specific entity types, Zod schemas, and form default values.
+- Domain-specific entity types, schema-validation definitions, and form default values.
 - Centralized `invalidate<Entity>()` helpers (per entity, per project).
 - Business rules governing which footer actions appear for a given entity state.
 - Cross-resource invalidation topology.
@@ -359,9 +355,9 @@ When a target project applies this archetype, it wires the generic primitives to
 
 ## Revision log
 
-- **2026-06-13 — v1.2.** Promoted `useCrudDialogController` (shared view/edit/create action flow + derived footer labels) and the `crudStrings` neutral-defaults module from mistra. Added the controller's `labels` i18n option (`DEFAULT_CRUD_DIALOG_LABELS`) so localized consumers inject their strings rather than forking the donor primitives. Layers 13–14 now name the controller as the canonical owner of `handleClose`/`handlePrimary`/`handleSecondary` and the footer label derivation. Additive, backward-compatible.
-- **2026-06-14 — v1.5.** Closed a spec-ahead-of-code gap: the v1.2 controller (`useCrudDialogController`, `crudStrings`) was documented but its files had never been committed. Committed them, and migrated the reference demo to actually consume the controller with react-hook-form + zod and the shared `<Table>` / `<Badge>` / `<FormField>` molecules — it no longer reimplements `handleClose`/`handlePrimary`/`handleSecondary` inline (the spec's own anti-pattern). The demo now remounts per open, fixing stale mode/dirty state across reopens. Reconciled the frontmatter `version` (was stuck at 1.2) and `source_spec_version` (1.3) with the MANIFEST. Spec contract unchanged.
-- **2026-07-03 — v1.7.** Board-form sync: on-surface `SurfaceHeader` header, ledger title scale, single-owner molecule references.
+- **2026-06-13 — v1.2.** Promoted the action-flow controller (shared view/edit/create action flow + derived footer labels) and the neutral-defaults strings module from mistra. Added the controller's `labels` i18n option (a neutral-language default set) so localized consumers inject their strings rather than forking the donor primitives. Layers 13–14 now name the controller as the canonical owner of `handleClose`/`handlePrimary`/`handleSecondary` and the footer label derivation. Additive, backward-compatible.
+- **2026-06-14 — v1.5.** Closed a spec-ahead-of-code gap: the v1.2 controller (action-flow controller, neutral-defaults strings module) was documented but its files had never been committed. Committed them, and migrated the reference demo to actually consume the controller with a schema-validated form hook and the shared table / status-badge / form-field molecules — it no longer reimplements `handleClose`/`handlePrimary`/`handleSecondary` inline (the spec's own anti-pattern). The demo now remounts per open, fixing stale mode/dirty state across reopens. Reconciled the frontmatter `version` (was stuck at 1.2) and `source_spec_version` (1.3) with the MANIFEST. Spec contract unchanged.
+- **2026-07-03 — v1.7.** Board-form sync: on-surface header-bar treatment, ledger title scale, single-owner molecule references.
 
 ---
 
@@ -380,12 +376,12 @@ When a target project applies this archetype, it wires the generic primitives to
 **REQUIRED**
 
 - [ ] **CRUD actions in the footer.** Save/Create/Edit/Delete live in
-      `<CrudDialogFooter>`; the header `actions` slot holds only mode-toggle/icon
+      the dialog-footer primitive; the header `actions` slot holds only mode-toggle/icon
       affordances. *Wrapper tell:* a Save button in the header or body.
-- [ ] **Body scroll owned by `<CrudDialogBody>`** — no custom `max-h-[90vh]
-      overflow-y-auto` on the shell.
-- [ ] **Shell composition** — `<CrudDialogHeader/Body/Footer>`, not a raw `<Dialog>`
-      with hand-rolled padding/scroll.
+- [ ] **Body scroll owned by the dialog-body primitive** — no custom scroll/max-height
+      override on the shell.
+- [ ] **Shell composition** — the dialog-header/body/footer primitives compose the
+      CRUD-dialog shell, not a raw overlay primitive with hand-rolled padding/scroll.
 - [ ] **Mode contract honored** — view vs edit vs create driven by `entityId`/mode,
       not duplicated dialogs.
 - [ ] **Secondary actions in a `⋯` overflow** left of the primary group, not a button row.
