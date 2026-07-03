@@ -144,12 +144,52 @@ Project-added archetypes (not in the baseline MANIFEST) are never touched by `/s
 
 ### Versioning
 
+Each archetype carries **two `version` numbers that are independent by design** — they
+count different things, so they legitimately drift apart. A gap between them is not a bug.
+
+| Field | Lives in | Counts | Bumped when |
+|-------|----------|--------|-------------|
+| **Spec version** | the spec doc's frontmatter `version:` (`docs/archetypes/<slug>.md`) | the archetype's written **contract** — the rules a consuming page must satisfy | a spec **rule** changes (a layer contract, a required prop, an allowed-variation boundary) |
+| **Deliverable version** | the `MANIFEST.json` entry's `version:` | the whole shipped **deliverable** — spec **+** primitives **+** demo **+** blueprint | **any** shipped change to any of those parts, including ones that leave the contract untouched |
+
+The deliverable version counts a **superset** of events: every spec-rule change is also a
+deliverable change, but a demo-coverage pass, a blueprint panel, or a primitive styling
+fix is a deliverable change that is *not* a spec-rule change. So the deliverable version
+always runs **≥** the spec version and pulls ahead over time. Example: `detail-overview`
+is spec `2.5` / deliverable `2.17` — the contract has had 5 minor revisions while the
+deliverable has shipped 17. The **major** components stay aligned: a contract-breaking
+change (spec major bump) is by definition also a breaking deliverable change (deliverable
+major bump), so a `2.x` deliverable always pairs with a `2.x` spec.
+
+**Which number does an amendment bump?**
+
+- **A spec rule changed** (you tightened a layer, added a required prop, loosened an
+  allowed variation) → bump the **spec** frontmatter `version:` per the minor/major table
+  below, **and** bump the MANIFEST `version` (the deliverable changed too).
+- **Only the demo, blueprint, or a primitive changed** and the written contract is
+  untouched (a demo-coverage pass, a Command Rail panel on the blueprint, a styling fix) →
+  bump **only** the MANIFEST `version`. Leave the spec frontmatter alone. (This is the same
+  rule the "Every documented variant gets a living demo" note above states: demo changes
+  bump `MANIFEST.json`, not the spec doc.)
+
+Minor vs major applies to **both** counters:
+
 | Bump | When | Example |
 |------|------|---------|
 | Minor (`1.0` → `1.1`) | Backward-compatible — new optional props, looser allowed-variation, additional layer rules | Adding an optional density prop |
 | Major (`1.0` → `2.0`) | Breaking — required props change, layer rules tighten, primitives rename or split | Renaming a primitive component |
 
-`MANIFEST.json` tracks `version` (baseline version) and `source_spec_version` (the source project's spec version that fed the promotion). This lets `--update` compute the right diff window even if multiple source versions accumulated since the last promotion.
+**Specs with no frontmatter version.** A few specs promoted from the 2026-06-13 fleet
+audit (`analytics-dashboard`, `feed-inbox`, `import-wizard`, `kanban-board`) open with a
+heading and carry no frontmatter, so they have no spec `version:` yet. Treat their contract
+as unversioned (effectively `1.0`); the MANIFEST `version` is authoritative for what
+baseline ships. When you first amend one of their **rules**, add a frontmatter `version:`
+starting at `1.1` (minor) or `2.0` (major) from that `1.0` baseline.
+
+**A third, unrelated version.** `MANIFEST.json` also tracks `source_spec_version` — the
+version in the *source project's* spec that fed the promotion (not a baseline version at
+all). This lets `/promote-archetype --update` compute the right diff window even if
+multiple source versions accumulated since the last promotion.
 
 ## What baseline does NOT ship
 
