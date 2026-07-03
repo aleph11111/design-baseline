@@ -41,12 +41,14 @@ export type HeaderFillClasses = {
 
 // Inversions for solid headers, scoped to the bar via arbitrary descendant
 // selectors. Buttons: outline → transparent/white border; primary → white fill
-// + accent text. Composed PageHeader title (`h1`) → white, subtitle (`p`) →
-// dimmed white. `<Badge>` status pills are intentionally untouched (semantic).
+// + accent text. `:is(button,a)` so a `<Button asChild>` link (renders as an
+// `<a>` carrying the same button classes) inverts too. Composed PageHeader
+// title (`h1`) → white, subtitle (`p`) → dimmed white. `<Badge>` status pills
+// are intentionally untouched (semantic).
 const SOLID_INVERT =
-  "[&_button]:text-primary-foreground " +
-  "[&_button.border-input]:border-primary-foreground/40 [&_button.border-input]:bg-transparent [&_button.border-input]:hover:bg-primary-foreground/10 " +
-  "[&_button.bg-primary]:bg-primary-foreground [&_button.bg-primary]:text-primary [&_button.bg-primary]:hover:bg-primary-foreground/90 [&_button.bg-primary]:hover:text-primary " +
+  "[&_:is(button,a)]:text-primary-foreground " +
+  "[&_:is(button,a).border-input]:border-primary-foreground/40 [&_:is(button,a).border-input]:bg-transparent [&_:is(button,a).border-input]:hover:bg-primary-foreground/10 " +
+  "[&_:is(button,a).bg-primary]:bg-primary-foreground [&_:is(button,a).bg-primary]:text-primary [&_:is(button,a).bg-primary]:hover:bg-primary-foreground/90 [&_:is(button,a).bg-primary]:hover:text-primary " +
   "[&_h1]:text-primary-foreground [&_p]:text-primary-foreground/70";
 
 export function headerFillClasses(fill: HeaderFill): HeaderFillClasses {

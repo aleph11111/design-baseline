@@ -14,8 +14,8 @@ const WIDTH_MAP: Record<"none" | "md" | "lg" | "xl", string> = {
 };
 
 const RHYTHM_MAP: Record<"compact" | "default", string> = {
-  compact: "space-y-3",
-  default: "space-y-4",
+  compact: "space-y-4",
+  default: "space-y-5",
 };
 
 /**

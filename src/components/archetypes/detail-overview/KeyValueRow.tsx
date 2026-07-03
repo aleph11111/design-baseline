@@ -3,13 +3,14 @@ import { cn } from "@/lib/utils";
 
 export type KeyValueRowProps = {
   /**
-   * Field label. Rendered as `<dt>` at `text-sm text-muted-foreground`,
-   * anchored left.
+   * Field label. Rendered as `<dt>` at `text-[13px] text-muted-foreground`
+   * (ledger body scale), anchored left.
    */
   label: React.ReactNode;
   /**
-   * Field value. Rendered as `<dd>` at `text-sm font-medium`, anchored right
-   * with `tabular-nums`. When the underlying data is unavailable, pass the
+   * Field value. Rendered as `<dd>` at `text-[13px] font-mono font-medium`,
+   * anchored right with `tabular-nums` (ledger figures). When the underlying
+   * data is unavailable, pass the
    * em-dash string `"—"` — the primitive does NOT auto-render a placeholder
    * for falsy values.
    *
@@ -21,8 +22,9 @@ export type KeyValueRowProps = {
   value: React.ReactNode;
   /**
    * When `true`, switch to a stacked layout — label on top, value below at
-   * `leading-relaxed`. Use for long free-text fields (notes, reasons) that
-   * would fight the right-aligned column.
+   * `text-sm leading-relaxed` (prose stays at `text-sm` for readability, per
+   * the house type scale). Use for long free-text fields (notes, reasons)
+   * that would fight the right-aligned column.
    */
   block?: boolean;
   className?: string;
@@ -32,7 +34,7 @@ export type KeyValueRowProps = {
  * KeyValueRow — one ruled row inside a `<KeyValueList>`.
  *
  * Default layout (single line):
- *   [label (sm muted)]                    [value (sm medium, right, tabular)]
+ *   [label (13px muted)]             [value (13px mono medium, right, tabular)]
  *
  * Block layout (`block`):
  *   [label (sm muted)]

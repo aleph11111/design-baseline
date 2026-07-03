@@ -65,6 +65,7 @@ The baseline uses Tailwind's 4 px scale. A handful of values carry consistent *m
 | `px-5 py-4` | Section content (non-flush `<DetailSection>`), stat tile |
 | `px-5 py-2.5` | Ruled list row (`<KeyValueRow>`) |
 | `px-6 py-4` | Dialog body (`<CrudDialogBody>`) |
+| `p-6` | Report document body (`<ReportShell>`) — the paper-like inset of a bounded formal document; the one surface with equal padding on all sides |
 | `px-2 py-2` | Dense grid cells (matrix-grid) — the one place padding tightens below `px-4` |
 
 **Grid gaps:** `gap-6` between two-column form sections; `gap-4` for paired fields and dialog two-column bodies; `gap-2`/`gap-3` for inline control clusters.
