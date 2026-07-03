@@ -16,6 +16,7 @@ import {
   SectionHeading,
   StatTile,
   StatTileRow,
+  SurfaceHeader,
 } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -505,7 +506,54 @@ function MetricListDemo() {
   );
 }
 
+function SurfaceHeaderDemo() {
+  const body = (
+    <div className="px-5 py-4 text-[13px] text-muted-foreground">
+      Surface body — the framed content the header bar belongs to.
+    </div>
+  );
+  const actions = (
+    <>
+      <Badge variant="success">Aktiv</Badge>
+      <Button variant="outline" size="sm" asChild>
+        <a href="#surface-header">Bearbeiten</a>
+      </Button>
+      <Button size="sm">
+        <Plus /> Anlegen
+      </Button>
+    </>
+  );
+  return (
+    <div className="max-w-3xl space-y-8">
+      <Variant label='--header-fill: solid (the per-project default — accent bar, inverted actions; the semantic Badge and the asChild link both keep their contract)'>
+        <div className="overflow-hidden rounded-lg border bg-card">
+          <SurfaceHeader kicker="Aufträge" title="Order #1042" actions={actions} headerFill="solid" />
+          {body}
+        </div>
+      </Variant>
+      <Variant label="--header-fill: tint (soft bg-muted bar, normal text)">
+        <div className="overflow-hidden rounded-lg border bg-card">
+          <SurfaceHeader kicker="Aufträge" title="Order #1042" actions={actions} headerFill="tint" />
+          {body}
+        </div>
+      </Variant>
+      <Variant label="--header-fill: white (hairline border only — the quietest)">
+        <div className="overflow-hidden rounded-lg border bg-card">
+          <SurfaceHeader kicker="Aufträge" title="Order #1042" actions={actions} headerFill="white" />
+          {body}
+        </div>
+      </Variant>
+      <p className="max-w-prose text-[13px] leading-relaxed text-muted-foreground">
+        Set once per project via <code>{"<AppShell headerFill=\"…\">"}</code>; every framed
+        shell (detail-overview unified, report, calendar, the list drawer, the crud-dialog
+        header) reads the same context, so the treatment never diverges within an app.
+      </p>
+    </div>
+  );
+}
+
 export const LAYOUT_PRIMS: LayoutPrim[] = [
+  { slug: "surface-header", displayName: "SurfaceHeader / header fill", Demo: SurfaceHeaderDemo },
   { slug: "page-header", displayName: "PageHeader", Demo: PageHeaderDemo },
   { slug: "section-heading", displayName: "SectionHeading", Demo: SectionHeadingDemo },
   { slug: "section-card", displayName: "SectionCard", Demo: SectionCardDemo },
