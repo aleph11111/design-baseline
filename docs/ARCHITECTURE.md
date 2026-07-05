@@ -68,8 +68,8 @@ Two independent verification paths, both donor-only (never copied to targets):
 | W | import-wizard | page | fleet-audit-2026-06-13 (multi-source) |
 | H | feed-inbox | page | fleet-audit-2026-06-13 (multi-source) |
 | P | kanban-board | page | fleet-audit-2026-06-13 (multi-source) |
-| R | report | page | *authored directly* (no `promoted_from`) |
-| Cal | calendar | page | *authored directly* (no `promoted_from`) |
+| R | report | page | baseline-authored — sanctioned exception ([ADR 0001](adr/0001-grandfather-authored-report-calendar.md)) |
+| Cal | calendar | page | baseline-authored — sanctioned exception ([ADR 0001](adr/0001-grandfather-authored-report-calendar.md)) |
 
 `component` and `flow` archetype kinds are defined in the methodology but **deferred** — no baseline archetypes of either kind exist yet (formalized once two projects independently need the shape, per Rule of 2).
 
@@ -124,4 +124,4 @@ Source project (e.g. brickshop-manager)
 ## 9. Open questions / uncertainty
 
 - Exact current relationship between `.design-sync/` and the gallery/hub plugin path is not fully understood from this survey — both seem to serve "preview this component set elsewhere" but via different mechanisms (`claude.ai/design` sync vs. dashboard hub iframe).
-- No ADRs exist yet (`docs/adr/` / `docs/decisions/` absent) despite the promotion maturity gate referencing "a governing ADR" as an alternative to `status: locked` — presumably ADRs are expected to accrue as this repo's own architecture decisions mature.
+- ADRs have begun to accrue under `docs/adr/` (index at `docs/adr/INDEX.md`) — the first, [ADR 0001](adr/0001-grandfather-authored-report-calendar.md), grandfathers the baseline-authored `report`/`calendar` archetypes and serves as the "governing ADR" alternative the promotion maturity gate references. Further ADRs are expected as this repo's own architecture decisions mature.

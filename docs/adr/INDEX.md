@@ -5,4 +5,4 @@ Architecture Decision Records for design-baseline. One file per decision:
 
 | # | Title | Status |
 |---|-------|--------|
-| _none yet_ | | |
+| [0001](0001-grandfather-authored-report-calendar.md) | Grandfather the baseline-authored `report` and `calendar` archetypes | Accepted |

@@ -4,7 +4,7 @@ Hard invariants for the design-baseline donor, mined from `docs/archetypes/READM
 
 ## Hard Rules
 
-1. **Baseline never originates archetypes.** Every archetype must trace back to a `promoted_from` source project that built and used it first. Why: baseline exists to generalize proven shapes, not to invent unproven ones — an un-sourced archetype has no evidence it's actually reusable. *(Two current MANIFEST entries — `report`, `calendar` — carry `authored` instead of `promoted_from`; this is a discovered pre-existing exception, not license to repeat it.)*
+1. **Baseline never originates archetypes.** Every archetype must trace back to a `promoted_from` source project that built and used it first. Why: baseline exists to generalize proven shapes, not to invent unproven ones — an un-sourced archetype has no evidence it's actually reusable. *(The sole sanctioned exceptions are `report` and `calendar`, baseline-authored from the Plex Ledger gallery mockup board and grandfathered by [ADR 0001](adr/0001-grandfather-authored-report-calendar.md); each carries an `authored_reason` in `MANIFEST.json`. This is a **closed set** — no further `authored`/no-`promoted_from` entries may be added.)*
 
 2. **Every promoted archetype ships as two docs, not one.** The stack-agnostic contract `docs/archetypes/<slug>.md` (rules named by role) and its baseline reference-implementation sibling `docs/archetypes/<slug>.baseline.md` (roles bound to concrete primitives + Tailwind classes), recorded in `MANIFEST.json` as `spec` / `reference_impl`. Why: this is what lets a non-baseline stack legitimately adopt the contract without the baseline's primitives installed — the split is the enabler for stack-agnostic fit-scoring (`docs/FLEET-AUDIT.md`).
 
