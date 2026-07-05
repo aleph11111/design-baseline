@@ -32,16 +32,19 @@ the hub usable without a baseline, and what lets someone bring their own.
      }
      ```
    - an **`archetypes`** array, each entry: `key`, `slug`, `displayName`,
-     `version`, `source_spec_version`, `spec` (repo-relative), `primitives_dir`,
-     `example` (the demo). `version` / `source_spec_version` are what the hub
-     diffs against a target's adopted versions to compute **drift**.
+     `version`, `source_spec_version`, `spec` (repo-relative, the stack-agnostic
+     contract), `reference_impl` (repo-relative, the baseline reference sibling
+     `<slug>.baseline.md`), `primitives_dir`, `example` (the demo).
+     `version` / `source_spec_version` are what the hub diffs against a target's
+     adopted versions to compute **drift**.
 
 2. **A buildable gallery surface** — `npm run gallery:build` emits a static,
    self-contained `gallery-dist/` (per the `surface` block). The hub serves this
    dir and iframes it; it never copies the plugin's components.
 
-3. **The archetype bodies** the manifest points at: specs
-   (`docs/archetypes/<slug>.md`), reference primitives
+3. **The archetype bodies** the manifest points at: contracts
+   (`docs/archetypes/<slug>.md`), their baseline reference siblings
+   (`docs/archetypes/<slug>.baseline.md`), reference primitives
    (`src/components/archetypes/<slug>/`), and demos
    (`src/examples/<slug>-demo.tsx`).
 
