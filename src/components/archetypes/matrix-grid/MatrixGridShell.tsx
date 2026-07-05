@@ -7,6 +7,7 @@ import {
 import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
 import { type HeaderFill } from "@/components/layout/headerFill";
 import { cn } from "@/lib/utils";
+import { getInteractiveRowProps, interactiveRowFocusRing } from "../shared";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -227,6 +228,7 @@ function MatrixGridShellInner<Cell>({
                   };
                   const style = cellStyle ? cellStyle(ctx) : undefined;
                   const content = filled && renderCell ? renderCell(ctx) : null;
+                  const activate = clickable ? () => onCellClick!(ctx) : undefined;
 
                   const td = (
                     <td
@@ -234,11 +236,11 @@ function MatrixGridShellInner<Cell>({
                       className={cn(
                         "px-2 py-2 text-center border-r border-border/60",
                         clickable && "cursor-pointer select-none touch-manipulation",
+                        clickable && interactiveRowFocusRing,
                         style?.className,
                       )}
-                      onClick={
-                        clickable ? () => onCellClick!(ctx) : undefined
-                      }
+                      onClick={activate}
+                      {...getInteractiveRowProps(activate)}
                     >
                       {content}
                     </td>

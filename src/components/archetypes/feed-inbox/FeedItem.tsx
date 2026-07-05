@@ -1,6 +1,7 @@
 import * as React from "react";
 import { IconAvatar } from "@/components/ui/icon-avatar";
 import { cn } from "@/lib/utils";
+import { getInteractiveRowProps, interactiveRowFocusRing } from "../shared";
 
 export type FeedItemProps = {
   /**
@@ -59,8 +60,10 @@ export function FeedItem({
         "flex items-start gap-3 px-5 py-3",
         unread && "bg-primary/[0.03]",
         onClick && "cursor-pointer hover:bg-muted/50",
+        onClick && interactiveRowFocusRing,
         className,
       )}
+      {...getInteractiveRowProps(onClick)}
     >
       {icon !== undefined && (
         <IconAvatar size="sm" className="mt-0.5">

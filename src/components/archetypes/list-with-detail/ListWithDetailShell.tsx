@@ -18,7 +18,7 @@ import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { ListWithDetailEmptyState } from "./ListWithDetailEmptyState";
-import { RowActionsMenu } from "../shared";
+import { RowActionsMenu, getInteractiveRowProps, interactiveRowFocusRing } from "../shared";
 import type { RowAction } from "../shared";
 
 // The per-row overflow menu and its action shape are owned by the shared
@@ -290,20 +290,22 @@ function ListWithDetailShellInner<Row>(
               {columns.map((col) => {
                 const isIdentifier = col.isIdentifier === true;
                 const useMono = isIdentifier && col.identifierMono !== false;
+                const activate =
+                  isIdentifier && onRowSelect !== undefined
+                    ? () => handleRowSelect(row)
+                    : undefined;
                 return (
                   <TableCell
                     key={col.key}
                     className={cn(
                       alignClass(col.align),
                       isIdentifier && "text-primary hover:underline",
-                      isIdentifier && onRowSelect !== undefined && "cursor-pointer",
+                      activate && "cursor-pointer",
+                      activate && interactiveRowFocusRing,
                       useMono && "font-mono text-[13px] font-medium",
                     )}
-                    onClick={
-                      isIdentifier && onRowSelect !== undefined
-                        ? () => handleRowSelect(row)
-                        : undefined
-                    }
+                    onClick={activate}
+                    {...getInteractiveRowProps(activate)}
                   >
                     {col.cell(row)}
                   </TableCell>
@@ -330,16 +332,19 @@ function ListWithDetailShellInner<Row>(
         {rows.map((row) => {
           const rowId = getRowId(row);
           const isSelected = selectedRowId === rowId;
+          const activate = clickable ? () => handleRowSelect(row) : undefined;
           return (
             <div
               key={rowId}
               data-state={isSelected ? "selected" : undefined}
-              onClick={clickable ? () => handleRowSelect(row) : undefined}
+              onClick={activate}
               className={cn(
                 "rounded-lg border bg-card p-4 transition-colors",
                 clickable && "cursor-pointer hover:bg-accent",
+                clickable && interactiveRowFocusRing,
                 isSelected && "ring-2 ring-ring",
               )}
+              {...getInteractiveRowProps(activate)}
             >
               <div className="flex items-start justify-between gap-2">
                 <div className={cn("min-w-0 font-medium", clickable && "text-primary")}>
@@ -379,16 +384,19 @@ function ListWithDetailShellInner<Row>(
           const rowId = getRowId(row);
           const isSelected = selectedRowId === rowId;
           const secondary = columns.filter((c) => c !== idCol).slice(0, 2);
+          const activate = clickable ? () => handleRowSelect(row) : undefined;
           return (
             <div
               key={rowId}
               data-state={isSelected ? "selected" : undefined}
-              onClick={clickable ? () => handleRowSelect(row) : undefined}
+              onClick={activate}
               className={cn(
                 "flex items-center gap-3 px-4 py-3",
                 clickable && "cursor-pointer hover:bg-muted/50",
+                clickable && interactiveRowFocusRing,
                 isSelected && "bg-muted",
               )}
+              {...getInteractiveRowProps(activate)}
             >
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium text-foreground">

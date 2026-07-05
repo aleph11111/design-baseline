@@ -6,3 +6,5 @@ export {
   type RowActionItem,
   type RowActionsMenuProps,
 } from "./RowActionsMenu";
+
+export { getInteractiveRowProps, interactiveRowFocusRing } from "./interactiveRow";
