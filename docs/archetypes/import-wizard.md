@@ -1,3 +1,14 @@
+---
+key: W
+slug: import-wizard
+kind: page
+version: 1.0
+promoted_from: fleet-audit-2026-06-13 (controlling-app, my-finance-app)
+promoted_at: 2026-06-14
+source_spec_version: 1.2
+status: locked
+---
+
 # Archetype W — import-wizard
 
 A **stepped data-ingestion flow**: bring external data in through ordered stages —

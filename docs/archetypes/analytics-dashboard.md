@@ -1,3 +1,14 @@
+---
+key: G
+slug: analytics-dashboard
+kind: page
+version: 1.0
+promoted_from: fleet-audit-2026-06-13 (brickshop-manager, my-finance-app, hk-crm, mistra)
+promoted_at: 2026-06-14
+source_spec_version: 1.3
+status: locked
+---
+
 # Archetype G — analytics-dashboard
 
 A read-only **overview-by-numbers** page: a KPI stat row, a grid of chart/metric

@@ -192,13 +192,6 @@ Minor vs major applies to **both** counters:
 | Minor (`1.0` → `1.1`) | Backward-compatible — new optional props, looser allowed-variation, additional layer rules | Adding an optional density prop |
 | Major (`1.0` → `2.0`) | Breaking — required props change, layer rules tighten, primitives rename or split | Renaming a primitive component |
 
-**Specs with no frontmatter version.** A few specs promoted from the 2026-06-13 fleet
-audit (`analytics-dashboard`, `feed-inbox`, `import-wizard`, `kanban-board`) open with a
-heading and carry no frontmatter, so they have no spec `version:` yet. Treat their contract
-as unversioned (effectively `1.0`); the MANIFEST `version` is authoritative for what
-baseline ships. When you first amend one of their **rules**, add a frontmatter `version:`
-starting at `1.1` (minor) or `2.0` (major) from that `1.0` baseline.
-
 **A third, unrelated version.** `MANIFEST.json` also tracks `source_spec_version` — the
 version in the *source project's* spec that fed the promotion (not a baseline version at
 all). This lets `/promote-archetype --update` compute the right diff window even if

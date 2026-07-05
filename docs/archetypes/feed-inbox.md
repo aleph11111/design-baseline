@@ -1,3 +1,14 @@
+---
+key: H
+slug: feed-inbox
+kind: page
+version: 1.0
+promoted_from: fleet-audit-2026-06-13 (brickshop-manager, hk-crm)
+promoted_at: 2026-06-14
+source_spec_version: 1.2
+status: locked
+---
+
 # Archetype H — feed-inbox
 
 A **chronological stream of events** — notifications, activity, an inbox, a

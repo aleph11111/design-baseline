@@ -1,3 +1,14 @@
+---
+key: P
+slug: kanban-board
+kind: page
+version: 1.0
+promoted_from: fleet-audit-2026-06-13 (pmo, hk-crm)
+promoted_at: 2026-06-14
+source_spec_version: 1.2
+status: locked
+---
+
 # Archetype P — kanban-board
 
 A **board of columns of draggable cards** — a pipeline / kanban view where items
