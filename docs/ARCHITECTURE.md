@@ -34,7 +34,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `src/utils/logger.ts` | console wrapper required by `ui/error-boundary.tsx` |
 | `src/components/ui/` | 44 shadcn/ui primitives (button, dialog, table, sidebar, form, sheet, command, calendar, segmented-control, state-view, cell-input, confirmation-dialog, icon-avatar, search-input, …) |
 | `src/components/layout/` | App-shell layer: `AppShell`, `AppSidebar`/`Sidebar` (+ `NavItem`/`NavGroup` types), `AppHeader`, `PageHeader`, `SectionHeading`, `SectionCard`, `SurfaceHeader` (+ `headerFill` context/classes), `StatTile`/`StatTileRow`, `ProgressTracker`, `MetricList`, `AuthCard`, `SectionNavShell`, `BottomNav`, `ThemeToggle` |
-| `src/components/archetypes/<slug>/` | Reference primitives per shipped archetype (one dir each; 14 registered in MANIFEST — see §4. Note: the directory currently holds one more dir than MANIFEST registers; reconcile as a follow-up) |
+| `src/components/archetypes/<slug>/` | Reference primitives per shipped archetype (one dir each; 14 registered in MANIFEST — see §4). Plus a non-archetype `shared/` dir (`RowActionsMenu`, `interactiveRow`) holding primitives reused across archetypes — correctly absent from MANIFEST |
 | `src/examples/<slug>-demo.tsx` | Sandbox demo per archetype — the "generic-ness contract" proving the primitive has zero domain-type leakage. Donor-dev only, **never copied** to targets |
 | `src/examples/DemoNextApp.tsx` / `DemoViteApp.tsx` | Reference wiring for Next.js 16 App Router / Vite + React Router 7 consumers |
 | `gallery/` | Donor-dev Vite app (`Gallery.tsx`, `registry.ts`, `layout-demos.tsx`) that mounts every demo behind a nav; also the buildable `gallery-dist/` surface the dashboard hub iframes per `docs/PLUGIN-CONTRACT.md` |
@@ -124,5 +124,4 @@ Source project (e.g. brickshop-manager)
 ## 9. Open questions / uncertainty
 
 - Exact current relationship between `.design-sync/` and the gallery/hub plugin path is not fully understood from this survey — both seem to serve "preview this component set elsewhere" but via different mechanisms (`claude.ai/design` sync vs. dashboard hub iframe).
-- The `src/components/archetypes/` directory holds one more slug dir than `MANIFEST.json` registers (15 dirs vs 14 entries) — an unregistered/WIP archetype or drift; reconcile as a follow-up.
 - No ADRs exist yet (`docs/adr/` / `docs/decisions/` absent) despite the promotion maturity gate referencing "a governing ADR" as an alternative to `status: locked` — presumably ADRs are expected to accrue as this repo's own architecture decisions mature.

@@ -51,8 +51,6 @@ Post-migration, new tickets go through `/ticket`, not hand-written files.
 ## Risk notes / follow-ups (not blocking this migration)
 - **`report` + `calendar` MANIFEST entries** carry `authored`, violating the "baseline never originates
   archetypes" rule — pre-existing; flag for a reconciliation ticket.
-- **`src/components/archetypes/` holds 15 slug dirs vs 14 MANIFEST entries** — an unregistered/WIP
-  archetype or drift; reconcile.
 - **`promote-archetype` writes to the donor's primary checkout on `main`**, which the parallel-safe hook
   now rejects — the skill needs rewiring to write in a `/feat` worktree (tracked as dashboard Phase 3.6).
 - **No `docs/backlog/README.md`** documenting this repo's ticket frontmatter schema.
