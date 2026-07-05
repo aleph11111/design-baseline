@@ -184,7 +184,7 @@ function ListWithDetailShellInner<Row>(
     unstyled,
     className,
   }: ListWithDetailShellProps<Row>,
-  _ref: React.Ref<HTMLDivElement>,
+  ref: React.Ref<HTMLDivElement>,
 ) {
   const isMobile = useIsMobile();
   const [sheetOpen, setSheetOpen] = React.useState(false);
@@ -477,6 +477,7 @@ function ListWithDetailShellInner<Row>(
 
   return (
     <div
+      ref={ref}
       className={cn(
         !unstyled && "rounded-lg border bg-card overflow-hidden",
         className,

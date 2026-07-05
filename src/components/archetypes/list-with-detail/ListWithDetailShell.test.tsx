@@ -1,3 +1,4 @@
+import { createRef } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { ListWithDetailShell, type ListColumn } from "./ListWithDetailShell";
@@ -97,5 +98,13 @@ describe("ListWithDetailShell", () => {
       />,
     );
     expect(screen.queryByRole("button", { name: "Ada Lovelace" })).toBeNull();
+  });
+
+  it("forwards the ref to the root element", () => {
+    const ref = createRef<HTMLDivElement>();
+    render(
+      <ListWithDetailShell ref={ref} rows={rows} columns={columns} getRowId={(row) => row.id} />,
+    );
+    expect(ref.current).toBeInstanceOf(HTMLDivElement);
   });
 });
