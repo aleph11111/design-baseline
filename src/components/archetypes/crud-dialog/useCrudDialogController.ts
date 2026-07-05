@@ -34,6 +34,19 @@ export type CrudDialogLabels = {
   cancel: string;
   /** Confirmation message shown when closing with unsaved changes. */
   discardPrompt: string;
+  /**
+   * Primary button label while the update mutation is in-flight. When
+   * omitted, derived from `save` by stripping a trailing "e" and appending
+   * "ing…" ("Save" → "Saving…"). That derivation only works for English;
+   * non-English consumers MUST pass this to avoid mangled output (e.g.
+   * "Speichern" → "Speicherning…").
+   */
+  saving?: string;
+  /**
+   * Primary button label while the create mutation is in-flight. When
+   * omitted, derived from `create` the same way ("Create" → "Creating…").
+   */
+  creating?: string;
 };
 
 export const DEFAULT_CRUD_DIALOG_LABELS: CrudDialogLabels = {
@@ -78,6 +91,13 @@ export type UseCrudDialogControllerResult = {
   handleSecondary: () => Promise<void>;
   isSubmitting: boolean;
   primaryLabel: string;
+  /**
+   * Primary button label while `isSubmitting` is true — pass straight to
+   * `<CrudDialogFooter submittingLabel>`. Resolved from `labels.saving` /
+   * `labels.creating` when provided, otherwise derived from `labels.save` /
+   * `labels.create` (English-only derivation — see `CrudDialogLabels`).
+   */
+  submittingLabel: string;
   secondaryLabel: string;
   readOnly: boolean;
   showPrimary: boolean;
@@ -145,12 +165,18 @@ export function useCrudDialogController<TValues extends FieldValues>(
     if (ok) form.reset(defaultValues);
   }
 
+  // Derive English fallback: "Save" → "Saving…", "Create" → "Creating…".
+  const deriveSubmittingLabel = (label: string) => `${label.replace(/e$/, "")}ing…`;
+
   return {
     handleClose,
     handlePrimary,
     handleSecondary,
     isSubmitting: createMutation.isPending || updateMutation.isPending,
     primaryLabel: mode.isView ? labels.edit : mode.isCreate ? labels.create : labels.save,
+    submittingLabel: mode.isCreate
+      ? labels.creating ?? deriveSubmittingLabel(labels.create)
+      : labels.saving ?? deriveSubmittingLabel(labels.save),
     secondaryLabel: mode.isView ? labels.close : labels.cancel,
     readOnly: mode.isView,
     showPrimary: mode.isCreate || mode.isEdit || canEdit,

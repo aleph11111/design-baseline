@@ -270,6 +270,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 - Pass `primaryLabel`, `onPrimary`, `isSubmitting`, and optionally `secondaryLabel`, `onSecondary`, `destructiveLabel`, `onDestructive`.
 - `primaryLabel` / `secondaryLabel` and the `onPrimary` / `onSecondary` handlers are derived by the **action-flow controller** (per mode: Edit/Save/Create for primary, Close/Cancel for secondary) — read them off the controller rather than hand-rolling per-mode label and handler switches in the dialog.
 - **i18n.** The controller's label derivation reads from a `labels` option that defaults to a neutral-language default set (Edit / Create / Save / Close / Cancel / "Discard changes?"). A consumer in another language passes a localized label set to the controller's `labels` option (and a matching `onConfirmDiscard` to the mode-state hook); the baseline ships no non-English strings. Keep the localized strings in a project-local module, not inside the donor-managed archetype directory, so a re-apply of the archetype cannot overwrite them.
+- **i18n (submitting label).** The dialog-footer primitive's in-flight primary label defaults to an English derivation of `primaryLabel` (stripping a trailing "e" and appending "ing…"), which only produces correct output for "Save"/"Create". The action-flow controller resolves the real label from `labels.saving` / `labels.creating` (falling back to that same derivation from `labels.save` / `labels.create`) and exposes it as `submittingLabel` — read it off the controller and pass it straight to the dialog-footer primitive rather than letting the primitive derive it from a localized `primaryLabel`, which would mangle non-English words into invalid gerunds.
 - The footer enforces the mode-aware button layout described below.
 - Delete click must open the **confirm-dialog primitive** before executing the delete mutation. Never call the delete mutation directly on button click.
 
@@ -282,7 +283,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 | Create | —                      | Cancel · **Create** |
 
 - Delete: always left-aligned. Disabled in view mode. Absent in create mode. Triggers the confirm-dialog primitive before mutation.
-- Primary (Edit / Save / Create): rightmost, the primary button style. When `isSubmitting`, disabled and labeled "Saving…" / "Creating…".
+- Primary (Edit / Save / Create): rightmost, the primary button style. When `isSubmitting`, disabled and labeled with the controller's `submittingLabel` ("Saving…" / "Creating…" by default).
 - Secondary (Close / Cancel): the secondary (outline) button style, to the left of primary.
 
 **Allowed variation:**

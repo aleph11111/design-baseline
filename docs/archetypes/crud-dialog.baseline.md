@@ -90,6 +90,7 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 ### Layer 14 — Footer contract
 - Dialog-footer primitive → `<CrudDialogFooter>` from `src/components/archetypes/crud-dialog/`.
 - Neutral-language default label set → `DEFAULT_CRUD_DIALOG_LABELS`; localized override type → `CrudDialogLabels`. Keep project-local localized strings out of the donor-managed `src/components/archetypes/crud-dialog/` directory so a `/style-archetypes` re-apply doesn't overwrite them.
+- Localizable submitting label → `CrudDialogLabels.saving` / `.creating`, resolved by `useCrudDialogController` into `submittingLabel` and forwarded to `<CrudDialogFooter submittingLabel>`. Omit to fall back to the English `${label.replace(/e$/, "")}ing…` derivation (mirrors `FormPageActions`'s `submittingLabel` prop).
 - Confirm-dialog primitive → `<ConfirmDeleteDialog>` (or shadcn `<AlertDialog>`).
 - Delete button style → `variant="outline"`, `text-destructive`.
 - Primary button style → default variant. Secondary button style → `variant="outline"`.

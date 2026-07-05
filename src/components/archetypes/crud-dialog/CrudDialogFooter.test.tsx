@@ -64,3 +64,24 @@ describe("CrudDialogFooter — destructive button in-flight state", () => {
     expect(button.querySelector(".animate-spin")).toBeNull();
   });
 });
+
+describe("CrudDialogFooter", () => {
+  it("renders an explicit submittingLabel verbatim instead of mangling primaryLabel", () => {
+    render(
+      <CrudDialogFooter
+        primaryLabel="Speichern"
+        isSubmitting
+        submittingLabel="Speichern…"
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Speichern…" })).toBeDefined();
+    expect(screen.queryByText("Speicherning…")).toBeNull();
+  });
+
+  it("falls back to the English derivation when submittingLabel is omitted", () => {
+    render(<CrudDialogFooter primaryLabel="Save" isSubmitting />);
+
+    expect(screen.getByRole("button", { name: "Saving…" })).toBeDefined();
+  });
+});

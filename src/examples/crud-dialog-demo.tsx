@@ -440,6 +440,7 @@ function WorkoutDialog({
         secondaryLabel={controller.secondaryLabel}
         onSecondary={controller.handleSecondary}
         isSubmitting={controller.isSubmitting}
+        submittingLabel={controller.submittingLabel}
         {...destructiveProps}
       />
     </CrudDialogSheet>

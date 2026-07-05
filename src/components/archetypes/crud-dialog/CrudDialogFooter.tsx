@@ -17,6 +17,14 @@ export type CrudDialogFooterProps = {
    * Use while the save/create mutation is in-flight.
    */
   isSubmitting?: boolean;
+  /**
+   * Label shown on the primary button while `isSubmitting` is true. When
+   * omitted, the label is derived from `primaryLabel` by stripping a trailing
+   * "e" and appending "ing…" ("Save" → "Saving…", "Create" → "Creating…").
+   * That derivation only works for English; non-English consumers MUST pass
+   * this prop to avoid mangled output (e.g. "Speichern" → "Speicherning…").
+   */
+  submittingLabel?: string;
 
   /**
    * When true, the destructive button is disabled and shows a loading
@@ -69,6 +77,8 @@ export type CrudDialogFooterProps = {
  *
  * When isSubmitting=true, the primary button shows a spinner + "Saving…" /
  * "Creating…" text derived from primaryLabel (appends "…") and is disabled.
+ * The derivation is English-only; pass `submittingLabel` explicitly for
+ * non-English UIs.
  *
  * The consumer is responsible for opening a <ConfirmDeleteDialog> or
  * <AlertDialog> before calling the delete mutation — onDestructive should
@@ -79,6 +89,7 @@ export function CrudDialogFooter({
   onPrimary,
   primaryDisabled = false,
   isSubmitting = false,
+  submittingLabel,
   isDeleting = false,
   secondaryLabel,
   onSecondary,
@@ -91,11 +102,11 @@ export function CrudDialogFooter({
   const hasSecondary = secondaryLabel !== undefined;
   const hasDestructive = destructiveLabel !== undefined && onDestructive !== undefined;
 
-  // Derive a submitting label: "Save" → "Saving…", "Create" → "Creating…"
-  const submittingLabel =
-    primaryLabel
-      ? `${primaryLabel.replace(/e$/, "")}ing…`
-      : "Saving…";
+  // Resolve the submitting label: explicit override (i18n-safe) wins,
+  // otherwise derive English: "Save" → "Saving…", "Create" → "Creating…".
+  const resolvedSubmittingLabel =
+    submittingLabel ??
+    (primaryLabel ? `${primaryLabel.replace(/e$/, "")}ing…` : "Saving…");
 
   return (
     <div
@@ -144,7 +155,7 @@ export function CrudDialogFooter({
             {isSubmitting && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            {isSubmitting ? submittingLabel : primaryLabel}
+            {isSubmitting ? resolvedSubmittingLabel : primaryLabel}
           </Button>
         )}
       </div>
