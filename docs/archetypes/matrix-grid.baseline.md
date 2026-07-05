@@ -29,13 +29,12 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 - Tooltip provider not re-mounted → `<MatrixGridShell>` renders `<Tooltip>` directly rather than mounting its own `TooltipProvider`; the provider is `<AppShell>`'s job.
 - Canonical vertical rhythm / no page inset → outer container `<div className="space-y-4">`. `AppShell`'s `<main>` supplies the inset.
 - Render-error boundary → `<ErrorBoundary>`.
-- Canonical page-header treatment → the baseline `<PageHeader>` layout primitive (`@/components/layout`).
+- On-surface header bar → `<SurfaceHeader>` (see Layer 3), mounted by `<MatrixGridShell>` via its `kicker`/`title`/`headerActions` props; there is no separate `<PageHeader>` above the shell.
 - State-provider → a page-level React context provider (rarely needed; a `useState` overlay-open flag suffices for typical consumers).
 
 ### Layer 3 — Page header
 - On-surface header bar → the shared `<SurfaceHeader>` (`@/components/layout/SurfaceHeader`), mounted by `<MatrixGridShell>` via its `kicker`/`title`/`headerActions` props.
 - Canonical page-title type style → `title` renders as `text-lg font-semibold`.
-- Floating page-header treatment (not mounted above the shell) → `<PageHeader>`.
 
 ### Layer 4 — Toolbar
 - Toolbar slot → the shell's `toolbar` prop, rendered as a ruled band: `border-b px-4 py-3`; inner layout `<div className="flex items-end gap-4">`.

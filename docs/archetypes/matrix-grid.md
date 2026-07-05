@@ -52,7 +52,7 @@ If the page is a single-axis list of rows (no meaningful columns beyond display 
 - The page renders inside the project's **top-level app shell** — the outer layout frame that mounts global providers (tooltip, sidebar, toast surfaces), the nav/sidebar, and the main content region. Those providers are always in the tree by the time a matrix-grid page renders. Consumers do not re-mount them at the page level. **The matrix-grid shell itself does not re-mount the tooltip provider.**
 - Outer container uses the **canonical vertical rhythm** for internal spacing only — **no page inset** (the app shell's main region supplies it). It holds the bounded matrix surface (which now carries its own header + toolbar, see Layers 4/5) plus any sibling side overlays/dialogs.
 - A **render-error boundary** wrapping page content at the page component level.
-- The **canonical page-header treatment** for the title bar (when the page has one — see Layer 3).
+- **The on-surface title bar** (when the page has one — see Layer 3) — the shell's `kicker`/`title`/`headerActions` props, rendered via the shared **on-surface header bar**. There is no separate floating page header mounted above the shell.
 
 **Allowed variation:**
 - A page-level state-provider is optional and rarely needed (the shell is mostly stateless plus an overlay-open flag — local component state suffices for typical consumers).
