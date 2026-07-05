@@ -151,9 +151,10 @@ export function SettingsTableShell<Row>({
   const hasBulkSelection = hasBulk && selectedIds.length > 0;
 
   // Bulk select helpers
+  const selectedSet = React.useMemo(() => new Set(selectedIds), [selectedIds]);
   const allIds = rows.map(getRowId);
   const allSelected =
-    hasBulk && allIds.length > 0 && allIds.every((id) => selectedIds.includes(id));
+    hasBulk && allIds.length > 0 && allIds.every((id) => selectedSet.has(id));
   const someSelected =
     hasBulk && selectedIds.length > 0 && !allSelected;
 
@@ -168,7 +169,7 @@ export function SettingsTableShell<Row>({
 
   function toggleRow(rowId: string) {
     if (!onBulkSelectChange) return;
-    if (selectedIds.includes(rowId)) {
+    if (selectedSet.has(rowId)) {
       onBulkSelectChange(selectedIds.filter((id) => id !== rowId));
     } else {
       onBulkSelectChange([...selectedIds, rowId]);
@@ -177,7 +178,7 @@ export function SettingsTableShell<Row>({
 
   function handleBulkDelete() {
     if (!onBulkDelete || !onBulkSelectChange) return;
-    const selectedRows = rows.filter((row) => selectedIds.includes(getRowId(row)));
+    const selectedRows = rows.filter((row) => selectedSet.has(getRowId(row)));
     onBulkDelete(selectedRows);
     onBulkSelectChange([]);
   }
@@ -273,7 +274,7 @@ export function SettingsTableShell<Row>({
       <TableBody>
         {rows.map((row) => {
           const rowId = getRowId(row);
-          const isSelected = hasBulk && selectedIds.includes(rowId);
+          const isSelected = hasBulk && selectedSet.has(rowId);
           return (
             <TableRow
               key={rowId}
