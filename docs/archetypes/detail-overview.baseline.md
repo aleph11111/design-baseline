@@ -118,8 +118,7 @@ contract role. Only layers with a baseline-specific binding appear.
 - Surface grading → default tone / `tone="muted"`.
 
 **6d. Embedded read-only table**
-- Shared table primitive → `<RecordTable>` / equivalent (same primitive used by list-with-detail pages).
-- Forbidden inline markup → `<Table>`.
+- Shared table primitive → shadcn/ui `<Table>` (`src/components/ui/table`), embedded directly inside the `<DetailSection>` — same shared molecule list-with-detail and settings-table render through (`docs/STYLE.md`).
 
 **6f. Reference panel**
 - Renders inside `<DetailSection>`.

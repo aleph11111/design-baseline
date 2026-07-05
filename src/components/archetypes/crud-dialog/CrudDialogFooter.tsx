@@ -80,7 +80,7 @@ export type CrudDialogFooterProps = {
  * The derivation is English-only; pass `submittingLabel` explicitly for
  * non-English UIs.
  *
- * The consumer is responsible for opening a <ConfirmDeleteDialog> or
+ * The consumer is responsible for opening a <ConfirmationDialog> or
  * <AlertDialog> before calling the delete mutation — onDestructive should
  * trigger that confirm flow, not the mutation directly.
  */

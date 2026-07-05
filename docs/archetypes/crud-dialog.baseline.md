@@ -58,7 +58,7 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 - Tab primitive → shadcn `<Tabs>` with exactly 2 tabs, composed as `<CrudDialogBody>` children (no `layout`).
 - Mixed bodies → hand-composed `space-y-4` + inner `grid grid-cols-1 sm:grid-cols-2 gap-4`.
 - Card / section-card surface → `<Card>`.
-- Confirm-dialog primitive → `<ConfirmDeleteDialog>`.
+- Confirm-dialog primitive → `<ConfirmationDialog>` (`src/components/ui/confirmation-dialog.tsx`).
 
 ### Layer 7 — States
 - Compact inline-error box → `<div className="bg-destructive/10 p-4 rounded text-sm text-destructive">` (not hardcoded `bg-red-50`).
@@ -91,7 +91,7 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 - Dialog-footer primitive → `<CrudDialogFooter>` from `src/components/archetypes/crud-dialog/`.
 - Neutral-language default label set → `DEFAULT_CRUD_DIALOG_LABELS`; localized override type → `CrudDialogLabels`. Keep project-local localized strings out of the donor-managed `src/components/archetypes/crud-dialog/` directory so a `/style-archetypes` re-apply doesn't overwrite them.
 - Localizable submitting label → `CrudDialogLabels.saving` / `.creating`, resolved by `useCrudDialogController` into `submittingLabel` and forwarded to `<CrudDialogFooter submittingLabel>`. Omit to fall back to the English `${label.replace(/e$/, "")}ing…` derivation (mirrors `FormPageActions`'s `submittingLabel` prop).
-- Confirm-dialog primitive → `<ConfirmDeleteDialog>` (or shadcn `<AlertDialog>`).
+- Confirm-dialog primitive → `<ConfirmationDialog>` (or shadcn `<AlertDialog>`).
 - Delete button style → `variant="outline"`, `text-destructive`.
 - Primary button style → default variant. Secondary button style → `variant="outline"`.
 - Forbidden raw confirm → `window.confirm()`.
@@ -99,7 +99,7 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 
 ### Layer 15 — Cross-context invocation
 - Example entity dialogs → `<WorkoutDialog>`, `<CustomerDialog>`.
-- Confirm-dialog primitive exception → `<ConfirmDeleteDialog>`.
+- Confirm-dialog primitive exception → `<ConfirmationDialog>`.
 
 ## Acceptance gate (baseline tells)
 - Footer → `<CrudDialogFooter>`.
