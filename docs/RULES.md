@@ -1,0 +1,37 @@
+# Rules
+
+Hard invariants for the design-baseline donor, mined from `docs/archetypes/README.md`, the archetype-promotion design spec/plan, and the `~/.claude/commands/promote-archetype.md` skill. Each is a real, sourced rule — not invented. Guidelines (strong conventions, not enforced/enforceable) are split into their own section at the end.
+
+## Hard Rules
+
+1. **Baseline never originates archetypes.** Every archetype must trace back to a `promoted_from` source project that built and used it first. Why: baseline exists to generalize proven shapes, not to invent unproven ones — an un-sourced archetype has no evidence it's actually reusable. *(Two current MANIFEST entries — `report`, `calendar` — carry `authored` instead of `promoted_from`; this is a discovered pre-existing exception, not license to repeat it.)*
+
+2. **Every promoted archetype ships as two docs, not one.** The stack-agnostic contract `docs/archetypes/<slug>.md` (rules named by role) and its baseline reference-implementation sibling `docs/archetypes/<slug>.baseline.md` (roles bound to concrete primitives + Tailwind classes), recorded in `MANIFEST.json` as `spec` / `reference_impl`. Why: this is what lets a non-baseline stack legitimately adopt the contract without the baseline's primitives installed — the split is the enabler for stack-agnostic fit-scoring (`docs/FLEET-AUDIT.md`).
+
+3. **A contract file (`<slug>.md`) may never name a concrete primitive or a literal Tailwind class.** If a required/forbidden rule mentions a `src/components/...` import or a class string, it belongs in the `.baseline.md` sibling. Why: a single leaked primitive name re-couples the "portable" contract to this stack, defeating rule 2.
+
+4. **Maturity gates are required for first-time promotion, no exceptions without `--force-promote`:** (a) source spec has `status: locked` OR a governing ADR exists; (b) source spec version is v1+; (c) Phase 4 migration has started (≥1 page live on the spec in the source project); (d) the spec has been stable for at least one full source-project session. Why: promoting an unstable, unlocked, unproven-in-use spec ships churn into every downstream consumer at once.
+
+5. **`--force-promote` is never auto-added.** Overriding a failed maturity gate requires the user to explicitly add `--force-promote` support to the skill invocation — the skill's own author left this out on purpose. Why: friction here is a deliberate safety feature, not an oversight; auto-bypassing gates would silently defeat rule 4.
+
+6. **The sandbox demo domain must use completely different nouns from the source project**, with types written first (zero reference to the source spec) before wiring into the primitive. Why: this is the actual test of generic-ness — if project-far types don't fit the primitive without modification, the primitive still has domain leakage, and that gap must be fixed before the archetype ships.
+
+7. **A baseline primitive's TypeScript must compile against zero domain types.** Verified mechanically by the sandbox second-consumer demo compiling clean. Why: this is the enforceable proxy for "the primitive is actually generic," not just an aspiration.
+
+8. **`/style-archetypes` merges `MANIFEST.json` by `slug`, and only touches slugs it copied from the donor.** Project-local entries (different slugs, non-`baseline` namespace) are never modified or removed. Why: target projects layer their own archetypes into the same manifest; a merge-by-anything-else would silently clobber project-local entries.
+
+9. **The framework `README.md` is only overwritten in a target when the target has none, or the target's copy is byte-identical to the donor's.** A diverged target README is left in place; the donor's copy is dropped alongside as `README.donor.md` for manual reconciliation. Why: the README is treated as project-maintainable once a target has customized it — silent overwrite would destroy that customization.
+
+10. **Version fields track different things and must not be conflated:** the spec frontmatter `version:` counts contract-rule changes only; the MANIFEST entry `version:` counts any shipped-deliverable change (spec, reference-impl, primitives, demo, or blueprint); `source_spec_version` tracks the *source project's* spec version that fed the promotion (not a baseline version at all). Why: `/promote-archetype --update` computes its diff window from `source_spec_version` — conflating it with either baseline version number breaks update diffing.
+
+11. **Promotion writes must land via a `/feat` worktree + `/ship`, not the primary checkout on `main`**, now that this repo is a managed git project — the `block-main-checkout-tracked-write` hook rejects tracked writes to a dirty primary `main`. Why: same parallel-safe discipline as every other managed repo; a direct write here would strand a dirty main for concurrent sessions. *(Known gap: `promote-archetype.md`'s own Notes section flags that its write steps haven't been updated to do this yet — treat as a real hard rule going forward even though the current skill implementation doesn't enforce it.)*
+
+## Guidelines
+
+- **Rule of 2** — only formalize a new archetype (or promote a hand-rolled pattern into the baseline) once 2+ pages/projects independently need the same structural shape. Single-page/single-project outliers stay bespoke.
+- **Every documented variant axis gets a living demo** in `src/examples/<slug>-demo.tsx` — the gallery is the review surface; a spec note nobody can see in the gallery can't be visually caught when it regresses.
+- **Layer 7 canonical state treatments** (loading/error/empty) should reuse the documented chrome (text-only "Loading…", the two Alert-vs-inline-box error treatments, the shared empty-state styling) — vary copy, not chrome.
+- **Reuse the documented spacing/rhythm scale** (`docs/STYLE.md` "Spacing & rhythm") rather than introducing a new vertical-rhythm or padding value when writing or auditing an archetype.
+- **The page inset has one owner** (`AppShell`'s `<main>`) — no archetype shell or page adds its own outer `px-*`/`py-*` page inset.
+- **Fleet audits (`docs/FLEET-AUDIT.md`, `docs/audits/`) are read-only** — they measure adoption/drift across other projects and never write to them.
+- **Sandbox demo files are never copied to targets** by `/style-archetypes` — they exist solely as the donor's own generic-ness contract.
