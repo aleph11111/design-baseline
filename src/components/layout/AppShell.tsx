@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { HeaderFillContext, type HeaderFill } from "./headerFill";
 
-interface AppShellProps {
+export interface AppShellProps {
   sidebar: React.ReactNode;
   header: React.ReactNode;
   children: React.ReactNode;

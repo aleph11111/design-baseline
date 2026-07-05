@@ -2,7 +2,7 @@ import * as React from "react";
 import { Menu } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
-interface AppHeaderProps {
+export interface AppHeaderProps {
   /** Page or app title rendered next to the mobile sidebar toggle. */
   title: string;
   /** Center slot — usually a command/search input. Hidden if omitted. */
