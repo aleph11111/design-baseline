@@ -24,7 +24,7 @@ export {
   type SectionNavShellProps,
 } from "./SectionNav";
 export { BottomNav, type BottomNavItem } from "./BottomNav";
-export { ThemeToggle } from "./ThemeToggle";
+export { ThemeToggle, type ThemeToggleProps, type ThemeToggleLabels } from "./ThemeToggle";
 export {
   HeaderFillContext,
   useHeaderFill,

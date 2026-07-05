@@ -20,9 +20,13 @@ export interface BottomNavItem {
 
 interface BottomNavProps {
   items: readonly BottomNavItem[];
-  /** Items rendered inside the "Mehr" sheet. Omit to hide the Mehr trigger. */
+  /** Items rendered inside the "more" sheet. Omit to hide the more trigger. */
   moreItems?: readonly BottomNavItem[];
   moreLabel?: string;
+  /** Accessible name for the nav landmark. */
+  navLabel?: string;
+  /** Accessible name for the more-trigger button. Independent of `moreLabel`. */
+  moreMenuLabel?: string;
 }
 
 function NavCell({ children }: { children: React.ReactNode }) {
@@ -38,12 +42,18 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
     isActive && "text-primary",
   );
 
-export function BottomNav({ items, moreItems, moreLabel = "Mehr" }: BottomNavProps) {
+export function BottomNav({
+  items,
+  moreItems,
+  moreLabel = "More",
+  navLabel = "Bottom navigation",
+  moreMenuLabel = "Open more menu",
+}: BottomNavProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <nav
-      aria-label="Mobile-Navigation"
+      aria-label={navLabel}
       className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t border-border bg-background flex"
     >
       {items.map((item) => (
@@ -60,7 +70,7 @@ export function BottomNav({ items, moreItems, moreLabel = "Mehr" }: BottomNavPro
             <button
               type="button"
               onClick={() => setOpen(true)}
-              aria-label={`${moreLabel}-Menü öffnen`}
+              aria-label={moreMenuLabel}
               aria-expanded={open}
               className={cn(
                 "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium",
