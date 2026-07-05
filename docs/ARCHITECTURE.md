@@ -50,7 +50,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `docs/ADOPTION-QUALITY.md`, `docs/PROMOTION-RADAR.md`, `docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md` | Supporting audit axis (adopted-but-not-torn-down pages), a rule-of-2 candidate radar, and a stack-agnostic teardown-first adoption playbook. Skimmed, not deeply read — treat as living/audit-machinery docs |
 | `.design-sync/` | Appears to sync component previews + fonts for a `claude.ai/design` integration (`config.json`, `previews/*.tsx`, `fetch-fonts.mjs`, `build-pkg.mjs`). **Uncertain** — not fully explored; distinct from the gallery/hub plugin path |
 | `docs/superpowers/specs/2026-05-22-archetype-promotion-design.md`, `docs/superpowers/plans/2026-05-22-archetype-promotion-implementation.md` | Design spec + implementation plan that originated the whole archetype layer |
-| `docs/backlog/` | Open root tickets + an `archive/` of resolved ones; no `docs/backlog/README.md` schema doc exists yet (unlike some sibling projects) |
+| `docs/backlog/` | Open root tickets + a `wip/` (in-flight) and `archive/` (resolved) subdir; `docs/backlog/README.md` is the ticket frontmatter schema authority `/ticket` reads (canonical `area` list, `gate` block, optional `kind`/`model` fields) |
 
 ## 4. The 14 shipped archetypes (per `MANIFEST.json`)
 
@@ -125,5 +125,4 @@ Source project (e.g. brickshop-manager)
 
 - Exact current relationship between `.design-sync/` and the gallery/hub plugin path is not fully understood from this survey — both seem to serve "preview this component set elsewhere" but via different mechanisms (`claude.ai/design` sync vs. dashboard hub iframe).
 - The `src/components/archetypes/` directory holds one more slug dir than `MANIFEST.json` registers (15 dirs vs 14 entries) — an unregistered/WIP archetype or drift; reconcile as a follow-up.
-- No `docs/backlog/README.md` exists yet documenting this repo's ticket frontmatter schema (`area`, `gate`, `model`/`model_reason` fields were observed empirically in `docs/backlog/*.md`, not from a written spec).
 - No ADRs exist yet (`docs/adr/` / `docs/decisions/` absent) despite the promotion maturity gate referencing "a governing ADR" as an alternative to `status: locked` — presumably ADRs are expected to accrue as this repo's own architecture decisions mature.
