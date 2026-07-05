@@ -1,10 +1,6 @@
 import * as React from "react";
-import { OVERLINE_CLASS } from "@/components/layout/overline";
-import {
-  useHeaderFill,
-  headerFillClasses,
-  type HeaderFill,
-} from "@/components/layout/headerFill";
+import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
+import { type HeaderFill } from "@/components/layout/headerFill";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -119,7 +115,6 @@ export function CalendarShell({
   headerFill,
   className,
 }: CalendarShellProps): React.ReactElement {
-  const hfc = headerFillClasses(useHeaderFill(headerFill));
   return (
     <div
       className={cn(
@@ -127,30 +122,12 @@ export function CalendarShell({
         className,
       )}
     >
-      {/* Header bar */}
-      <div
-        className={cn(
-          "flex items-start justify-between gap-5 px-4 py-3.5 sm:px-5",
-          hfc.bar,
-        )}
-      >
-        <div className="min-w-0">
-          {kicker ? (
-            <div className={cn(OVERLINE_CLASS, "mb-1", hfc.kicker)}>{kicker}</div>
-          ) : null}
-          <div
-            className={cn(
-              "truncate text-lg font-semibold tracking-tight text-foreground",
-              hfc.title,
-            )}
-          >
-            {title}
-          </div>
-        </div>
-        {actions ? (
-          <div className="flex shrink-0 items-center gap-2">{actions}</div>
-        ) : null}
-      </div>
+      <SurfaceHeader
+        kicker={kicker}
+        title={title}
+        actions={actions}
+        headerFill={headerFill}
+      />
 
       {/* Grid — scrolls horizontally on narrow viewports. */}
       <div className="overflow-x-auto">

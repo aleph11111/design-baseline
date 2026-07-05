@@ -2,7 +2,7 @@
 
 A reusable frontend foundation extracted from the patterns that worked in `controlling-app` and `brickshop-manager`. The goal: start a new project, say "use the baseline," and get a coherent, dark-mode-ready, accessible UI on day one.
 
-**This repo is donor source, not a buildable app.** Files in `src/` are meant to be copied into a target project — either manually or via the `/style-baseline` skill. The donor itself is typecheck-only: run `npm install && npx tsc --noEmit` to verify that primitives compile against the strict TypeScript settings real targets use.
+**This repo is donor source, not a buildable app.** Files in `src/` are meant to be copied into a target project — either manually or via the `/style-baseline` skill. Verify the donor with `npm install && npx tsc --noEmit` (strict TypeScript settings real targets use) and `npm test` (component tests guarding shared primitives like `SurfaceHeader`).
 
 ## What's in it
 

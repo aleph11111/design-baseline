@@ -1,11 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { OVERLINE_CLASS } from "@/components/layout/overline";
-import {
-  useHeaderFill,
-  headerFillClasses,
-  type HeaderFill,
-} from "@/components/layout/headerFill";
+import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
+import { type HeaderFill } from "@/components/layout/headerFill";
 
 export type ReportShellProps = {
   /**
@@ -80,7 +76,6 @@ export function ReportShell({
   headerFill,
   className,
 }: ReportShellProps): React.ReactElement {
-  const hfc = headerFillClasses(useHeaderFill(headerFill));
   return (
     <div
       className={cn(
@@ -89,29 +84,12 @@ export function ReportShell({
         className,
       )}
     >
-      <div
-        className={cn(
-          "flex items-start justify-between gap-5 px-5 py-4",
-          hfc.bar,
-        )}
-      >
-        <div className="min-w-0">
-          {kicker ? (
-            <div className={cn(OVERLINE_CLASS, "mb-1", hfc.kicker)}>{kicker}</div>
-          ) : null}
-          <div
-            className={cn(
-              "text-lg font-semibold leading-tight text-foreground",
-              hfc.title,
-            )}
-          >
-            {title}
-          </div>
-        </div>
-        {actions ? (
-          <div className="flex shrink-0 items-center gap-2">{actions}</div>
-        ) : null}
-      </div>
+      <SurfaceHeader
+        kicker={kicker}
+        title={title}
+        actions={actions}
+        headerFill={headerFill}
+      />
       <div className="p-6">{children}</div>
     </div>
   );

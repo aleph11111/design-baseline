@@ -40,6 +40,7 @@ export function SurfaceHeader({
   const hfc = headerFillClasses(useHeaderFill(headerFill));
   return (
     <div
+      data-slot="surface-header"
       className={cn(
         "flex items-start justify-between gap-5 px-5 py-4",
         hfc.bar,
