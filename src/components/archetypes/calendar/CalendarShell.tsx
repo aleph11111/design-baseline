@@ -48,7 +48,7 @@ export type CalendarShellProps = {
   /** The period title (e.g. "June 2026 · Week 26"). */
   title: React.ReactNode;
   /** Nav / create cluster, right-aligned in the header bar (`‹ Today › + Event`). */
-  actions?: React.ReactNode;
+  headerActions?: React.ReactNode;
   /** The seven day columns in display order. */
   days: CalendarDay[];
   /** Empty-column copy, centred faintly when a day has no events. Default: none. */
@@ -109,7 +109,7 @@ const TONE_CLASS: Record<CalendarEventTone, ToneClasses> = {
 export function CalendarShell({
   kicker,
   title,
-  actions,
+  headerActions,
   days,
   emptyDayLabel,
   headerFill,
@@ -125,7 +125,7 @@ export function CalendarShell({
       <SurfaceHeader
         kicker={kicker}
         title={title}
-        actions={actions}
+        actions={headerActions}
         headerFill={headerFill}
       />
 

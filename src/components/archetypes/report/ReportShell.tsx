@@ -21,7 +21,7 @@ export type ReportShellProps = {
    * (size="sm"): secondary = `variant="outline"`, primary = default. Actions
    * MUST NOT be mixed into the title — pass them here.
    */
-  actions?: React.ReactNode;
+  headerActions?: React.ReactNode;
   /**
    * Document body — the parties row, line-item table, and totals stack. The
    * shell pads it (`p-6`); the body composes its own internal rhythm.
@@ -70,7 +70,7 @@ const WIDTH: Record<NonNullable<ReportShellProps["width"]>, string> = {
 export function ReportShell({
   kicker,
   title,
-  actions,
+  headerActions,
   children,
   width = "md",
   headerFill,
@@ -87,7 +87,7 @@ export function ReportShell({
       <SurfaceHeader
         kicker={kicker}
         title={title}
-        actions={actions}
+        actions={headerActions}
         headerFill={headerFill}
       />
       <div className="p-6">{children}</div>

@@ -147,7 +147,7 @@ export function ReportDemo(): React.ReactElement {
             Rechnung <span className="font-mono">{inv.number}</span>
           </>
         }
-        actions={
+        headerActions={
           <>
             <Button variant="outline" size="sm">
               PDF

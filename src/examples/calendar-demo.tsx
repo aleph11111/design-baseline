@@ -8,7 +8,7 @@
  *
  * Exercises the full vocabulary mirroring the calendar reference mockup:
  *   - CalendarShell with a `kicker` + `title` header bar over the 7-col grid,
- *     and a nav/create `actions` cluster (‹ · Today · › · + Event).
+ *     and a nav/create `headerActions` cluster (‹ · Today · › · + Event).
  *   - Seven `CalendarDay` columns; one marked `today` (header tints, number
  *     brightens); a handful of `CalendarEvent` chips across all four tones.
  *   - House style B: every time/day-number mono + tabular; titles + button
@@ -145,7 +145,7 @@ export function CalendarDemo(): React.ReactElement {
             <span className="font-mono tabular-nums">Week 26</span>
           </>
         }
-        actions={
+        headerActions={
           <>
             <Button variant="outline" size="sm" className="px-2" aria-label="Previous week">
               <ChevronLeft className="h-4 w-4" />
