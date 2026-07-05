@@ -1,6 +1,5 @@
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 import type { UseCrudDialogModeResult } from "./useCrudDialogMode";
-import { confirmDiscard } from "./crudStrings";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -114,9 +113,11 @@ export function useCrudDialogController<TValues extends FieldValues>(
   const labels: CrudDialogLabels = { ...DEFAULT_CRUD_DIALOG_LABELS, ...options.labels };
 
   async function handleClose() {
-    if ((mode.isEdit || mode.isCreate) && form.formState.isDirty) {
-      if (!confirmDiscard(labels.discardPrompt)) return;
-    }
+    // mode.requestDiscard() is the single discard-confirm guard shared with
+    // the edit/create -> view transition (mode.setMode), so both exit paths
+    // read the same isDirty and call the same onConfirmDiscard.
+    const ok = await mode.requestDiscard();
+    if (!ok) return;
     onClose();
   }
 

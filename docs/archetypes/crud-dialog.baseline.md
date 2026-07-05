@@ -84,8 +84,8 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 - Forbidden viewport hook → per-consumer `useMediaQuery`.
 
 ### Layer 13 — Mode contract
-- Mode-state hook → `useCrudDialogMode` (`src/components/archetypes/crud-dialog/`). Returns `{ mode, setMode, isView, isEdit, isCreate }`.
-- Action-flow controller → `useCrudDialogController` (`src/components/archetypes/crud-dialog/`), owner of `handleClose` / `handlePrimary` / `handleSecondary`.
+- Mode-state hook → `useCrudDialogMode` (`src/components/archetypes/crud-dialog/`). Returns `{ mode, setMode, requestDiscard, isView, isEdit, isCreate }`.
+- Action-flow controller → `useCrudDialogController` (`src/components/archetypes/crud-dialog/`), owner of `handleClose` / `handlePrimary` / `handleSecondary`. `handleClose` calls `mode.requestDiscard()` — the same guard `setMode` uses internally — so the X/Esc/backdrop close path and the edit→view cancel path share one `isDirty` source and one `onConfirmDiscard`.
 
 ### Layer 14 — Footer contract
 - Dialog-footer primitive → `<CrudDialogFooter>` from `src/components/archetypes/crud-dialog/`.

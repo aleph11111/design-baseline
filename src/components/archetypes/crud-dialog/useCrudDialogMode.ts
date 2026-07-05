@@ -43,6 +43,15 @@ export type UseCrudDialogModeResult = {
    * Returns true if the transition completed, false if it was cancelled.
    */
   setMode: (next: CrudDialogMode) => Promise<boolean>;
+  /**
+   * The single discard-confirm guard: resolves true immediately unless the
+   * current mode is edit/create, isDirty is true, and onConfirmDiscard is
+   * provided — in which case it resolves to onConfirmDiscard's result. This
+   * is the same guard setMode uses internally; call it directly for exit
+   * paths that don't go through setMode (e.g. closing the dialog entirely),
+   * so every exit path shares one isDirty source and one confirm mechanism.
+   */
+  requestDiscard: () => Promise<boolean>;
   isView: boolean;
   isEdit: boolean;
   isCreate: boolean;
@@ -75,27 +84,31 @@ export function useCrudDialogMode(
 
   const [mode, setModeState] = useState<CrudDialogMode>(initialMode);
 
+  const requestDiscard = useCallback(async (): Promise<boolean> => {
+    // Guard: leaving edit or create with dirty state.
+    const isLeavingEdits = mode === "edit" || mode === "create";
+    if (!isLeavingEdits || !isDirty || !onConfirmDiscard) return true;
+    return onConfirmDiscard();
+  }, [mode, isDirty, onConfirmDiscard]);
+
   const setMode = useCallback(
     async (next: CrudDialogMode): Promise<boolean> => {
       // No-op: already in the target mode.
       if (next === mode) return true;
 
-      // Guard: leaving edit or create with dirty state.
-      const isLeavingEdits = mode === "edit" || mode === "create";
-      if (isLeavingEdits && isDirty && onConfirmDiscard) {
-        const confirmed = await onConfirmDiscard();
-        if (!confirmed) return false;
-      }
+      const confirmed = await requestDiscard();
+      if (!confirmed) return false;
 
       setModeState(next);
       return true;
     },
-    [mode, isDirty, onConfirmDiscard],
+    [mode, requestDiscard],
   );
 
   return {
     mode,
     setMode,
+    requestDiscard,
     isView: mode === "view",
     isEdit: mode === "edit",
     isCreate: mode === "create",
