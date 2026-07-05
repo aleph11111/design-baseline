@@ -18,6 +18,12 @@ export type CrudDialogFooterProps = {
    */
   isSubmitting?: boolean;
 
+  /**
+   * When true, the destructive button is disabled and shows a loading
+   * indicator. Use while the delete mutation is in-flight.
+   */
+  isDeleting?: boolean;
+
   // Secondary action (left of primary)
   secondaryLabel?: string;
   onSecondary?: () => void;
@@ -73,6 +79,7 @@ export function CrudDialogFooter({
   onPrimary,
   primaryDisabled = false,
   isSubmitting = false,
+  isDeleting = false,
   secondaryLabel,
   onSecondary,
   destructiveLabel,
@@ -104,7 +111,11 @@ export function CrudDialogFooter({
             variant="outline"
             className="text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
             onClick={onDestructive}
+            disabled={isDeleting || isSubmitting}
           >
+            {isDeleting && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
             {destructiveLabel}
           </Button>
         )}
