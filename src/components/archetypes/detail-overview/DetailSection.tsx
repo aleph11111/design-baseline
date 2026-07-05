@@ -28,8 +28,8 @@ export type DetailSectionProps = {
   flush?: boolean;
   /**
    * Surface weight.
-   * - `"default"`: card surface with shadow — for data sections (master
-   *   data, transactional lists).
+   * - `"default"`: flat hairline card — `border`, no shadow — for data
+   *   sections (master data, transactional lists).
    * - `"muted"`: muted background, no shadow — for the page's lightest
    *   sections (reference panels).
    */

@@ -4,15 +4,14 @@ import { OVERLINE_CLASS } from "./overline";
 
 export type StatTileProps = {
   /**
-   * Short label. Rendered as an overline above the value:
-   * `text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground`
+   * Short label. Rendered as an overline above the value via `OVERLINE_CLASS`
    * — matching the section-title signature.
    */
   label: React.ReactNode;
   /**
-   * Display value. Rendered at `text-2xl font-semibold tabular-nums`. When
-   * the underlying data is unavailable, pass the em-dash string `"—"` — the
-   * primitive does NOT auto-render a placeholder for falsy values; the
+   * Display value. Rendered at `text-2xl font-mono font-semibold tabular-nums`.
+   * When the underlying data is unavailable, pass the em-dash string `"—"` —
+   * the primitive does NOT auto-render a placeholder for falsy values; the
    * consumer is in control.
    *
    * Consumers may pre-format the value (e.g. `fmtCurrency(amount)`); the tile
@@ -33,8 +32,8 @@ export type StatTileProps = {
  *
  * Shared layout primitive (used by detail-overview's `stats` slot and the
  * analytics-dashboard KPI row). Visual contract:
- *   [LABEL (overline xs)]
- *   [value (2xl semibold tabular)]
+ *   [LABEL (overline)]
+ *   [value (2xl mono semibold tabular)]
  *   [hint (xs muted, optional)]
  *
  * The cell carries no border of its own — the strip draws the outer boundary

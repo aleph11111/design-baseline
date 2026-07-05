@@ -4,14 +4,14 @@ import { PageHeader } from "@/components/layout/PageHeader";
 export type DetailOverviewHeaderProps = {
   /**
    * Entity title. Reflects the resolved entity name (e.g. "Acme Corp",
-   * "Order #1042"). Rendered as an `<h1>` at the canonical
-   * `text-2xl font-semibold tracking-tight`.
+   * "Order #1042"). Rendered as the wrapped `<PageHeader>`'s `<h1>` — see its
+   * `title` prop for the canonical type scale.
    */
   title: React.ReactNode;
   /**
    * Optional secondary line below the title. Use for parent-entity links,
-   * status hints, or short metadata. Rendered as `<p>` at
-   * `text-sm text-muted-foreground`.
+   * status hints, or short metadata. Rendered as the wrapped `<PageHeader>`'s
+   * `<p>` — see its `subtitle` prop for the canonical type scale.
    */
   subtitle?: React.ReactNode;
   /**

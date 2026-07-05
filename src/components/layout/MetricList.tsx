@@ -21,10 +21,9 @@
  *     <MetricRow label="Rohertrag" value={fmtEur(gp)}  hint="Marge 34,2 %" emphasis accent />
  *   </MetricList>
  *
- * IDIOM NOTE: values use `tabular-nums` for ruled-list alignment but inherit the
- * BASELINE font — they do NOT force a mono face. Keep this in step with how the
- * baseline's StatTile renders figures; if the baseline later adopts mono figures
- * at the house-style level, this primitive inherits it automatically.
+ * IDIOM NOTE: values render `font-mono tabular-nums`, matching the baseline's
+ * mono-figure house style (see `StatTile`). Keep this primitive's figure
+ * treatment in step if that house style ever changes.
  */
 import * as React from "react";
 import { cn } from "@/lib/utils";

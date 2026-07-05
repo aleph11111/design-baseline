@@ -20,8 +20,8 @@ outer container for the route. Composed alongside:
 
 - `<DetailOverviewHeader>` — optional standalone header (title + actions row).
 - `<DetailSection>` — the bounded section surface: ruled overline title bar
-  (small-caps `text-xs` tracked label + right-aligned actions), `flush` or
-  padded content, graded `tone` (`default` card surface with shadow, `muted`
+  (`OVERLINE_CLASS` label + right-aligned actions), `flush` or padded content,
+  graded `tone` (`default` flat hairline card — border, no shadow — `muted`
   for the lightest sections). A thin wrapper over the shared `<SectionCard>`
   layout primitive (the same titled-section shape grouped-list and form-page
   use). Every zone below the header renders inside one; the shadcn `<Card>`
@@ -99,8 +99,8 @@ contract role. Only layers with a baseline-specific binding appear.
 
 **6a. Stat strip**
 - `<StatTileRow>` + `<StatTile>`.
-- Overline label → `text-xs font-semibold uppercase` tracked, muted.
-- Large value → `text-2xl font-semibold tabular-nums`.
+- Overline label → `OVERLINE_CLASS` (`text-[10.5px] font-semibold uppercase tracking-[0.09em]`, muted).
+- Large value → `text-2xl font-mono font-semibold tabular-nums`.
 - Optional hint → `text-xs` muted.
 - Responsive collapse → `grid-cols-1` stacked with horizontal hairlines on narrow viewports, `sm:grid-cols-N` with vertical hairlines from `sm` up.
 - Forbidden fixed layout → `grid-cols-3`.

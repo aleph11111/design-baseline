@@ -8,8 +8,7 @@ import { OVERLINE_CLASS } from "./overline";
 
 export type SectionHeadingProps = {
   /**
-   * Section label. Rendered as an `<h2>` overline at
-   * `text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground`
+   * Section label. Rendered as an `<h2>` overline via `OVERLINE_CLASS`
    * — the baseline's canonical section-title signature. Use a short noun
    * phrase ("Details", "Recent plays", "Contact info").
    */

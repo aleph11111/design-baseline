@@ -8,8 +8,9 @@ import { PageHeader } from "@/components/layout/PageHeader";
 export type SettingsPageHeaderProps = {
   /**
    * Page title. Names the settings *category* the page configures
-   * (e.g. "Integrations", "Order Processing"). Rendered at the canonical
-   * `text-2xl font-semibold tracking-tight`.
+   * (e.g. "Integrations", "Order Processing"). Rendered as the wrapped
+   * `<PageHeader>`'s `<h1>` — see its `title` prop for the canonical type
+   * scale.
    */
   title: React.ReactNode;
   /**

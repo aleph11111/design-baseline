@@ -39,7 +39,8 @@ export type SectionCardProps = {
   flush?: boolean;
   /**
    * Surface weight.
-   * - `"default"`: card surface with shadow — for primary data sections.
+   * - `"default"`: flat hairline card — `border`, no shadow — for primary
+   *   data sections.
    * - `"muted"`: muted background, no shadow — for the lightest sections
    *   (reference panels).
    */
