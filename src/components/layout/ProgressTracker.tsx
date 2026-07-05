@@ -46,8 +46,13 @@ export function ProgressTracker({
         const last = i === steps.length - 1;
         const done = s.state === "done";
         const current = s.state === "current";
+        const stateWord = done ? "completed" : current ? "current" : "upcoming";
         return (
-          <li key={i} className="min-w-0">
+          <li
+            key={i}
+            className="min-w-0"
+            aria-current={current ? "step" : undefined}
+          >
             <div className="flex items-center">
               <span
                 className={cn(
@@ -73,7 +78,7 @@ export function ProgressTracker({
                   s.state === "pending" && "text-muted-foreground",
                 )}
               >
-                {s.label}
+                {s.label} <span className="sr-only">({stateWord})</span>
               </div>
               {s.meta && (
                 <div className="mt-0.5 text-xs text-muted-foreground">

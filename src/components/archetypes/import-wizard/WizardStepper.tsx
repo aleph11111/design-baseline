@@ -27,8 +27,13 @@ export function WizardStepper({
       {steps.map((step, i) => {
         const done = i < current;
         const active = i === current;
+        const stateWord = done ? "completed" : active ? "current" : "upcoming";
         return (
-          <li key={step.key} className="flex flex-1 items-center gap-2 last:flex-none">
+          <li
+            key={step.key}
+            className="flex flex-1 items-center gap-2 last:flex-none"
+            aria-current={active ? "step" : undefined}
+          >
             <div className="flex items-center gap-2">
               <span
                 className={cn(
@@ -46,7 +51,7 @@ export function WizardStepper({
                   active ? "font-medium text-foreground" : "text-muted-foreground",
                 )}
               >
-                {step.label}
+                {step.label} <span className="sr-only">({stateWord})</span>
               </span>
             </div>
             {i < steps.length - 1 && (
