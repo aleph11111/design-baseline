@@ -325,6 +325,7 @@ function ListWithDetailShellInner<Row>(
 
   // Identifier column drives the title/primary field in the non-table presentations.
   const idCol = columns.find((c) => c.isIdentifier === true) ?? columns[0];
+  const secondaryColumns = columns.filter((c) => c !== idCol);
 
   const cardGridBody =
     showTable && presentation === "card-grid" ? (
@@ -357,19 +358,17 @@ function ListWithDetailShellInner<Row>(
                 )}
               </div>
               <dl className="mt-2 space-y-1">
-                {columns
-                  .filter((c) => c !== idCol)
-                  .map((col) => (
-                    <div
-                      key={col.key}
-                      className="flex items-baseline justify-between gap-3 text-[13px]"
-                    >
-                      <dt className="shrink-0 text-muted-foreground">{col.header}</dt>
-                      <dd className="min-w-0 text-right text-foreground tabular-nums">
-                        {col.cell(row)}
-                      </dd>
-                    </div>
-                  ))}
+                {secondaryColumns.map((col) => (
+                  <div
+                    key={col.key}
+                    className="flex items-baseline justify-between gap-3 text-[13px]"
+                  >
+                    <dt className="shrink-0 text-muted-foreground">{col.header}</dt>
+                    <dd className="min-w-0 text-right text-foreground tabular-nums">
+                      {col.cell(row)}
+                    </dd>
+                  </div>
+                ))}
               </dl>
             </div>
           );
@@ -377,13 +376,14 @@ function ListWithDetailShellInner<Row>(
       </div>
     ) : null;
 
+  const actionRowSecondaryColumns = secondaryColumns.slice(0, 2);
+
   const actionRowBody =
     showTable && presentation === "action-row" ? (
       <div className="divide-y">
         {rows.map((row) => {
           const rowId = getRowId(row);
           const isSelected = selectedRowId === rowId;
-          const secondary = columns.filter((c) => c !== idCol).slice(0, 2);
           const activate = clickable ? () => handleRowSelect(row) : undefined;
           return (
             <div
@@ -402,9 +402,9 @@ function ListWithDetailShellInner<Row>(
                 <div className="truncate font-medium text-foreground">
                   {idCol ? idCol.cell(row) : null}
                 </div>
-                {secondary.length > 0 && (
+                {actionRowSecondaryColumns.length > 0 && (
                   <div className="mt-0.5 flex flex-wrap gap-x-3 text-[11px] text-muted-foreground">
-                    {secondary.map((col) => (
+                    {actionRowSecondaryColumns.map((col) => (
                       <span key={col.key} className="truncate">
                         {col.cell(row)}
                       </span>
