@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { cn } from "@/lib/utils";
 
 export type SegmentedOption<T extends string> = {
@@ -29,6 +30,11 @@ export type SegmentedControlProps<T extends string> = {
  *
  * For larger / route-like switches use `<Tabs>`; this is for compact, in-place
  * mode/filter toggles that sit in a toolbar.
+ *
+ * Built on `@radix-ui/react-radio-group` (same primitive as `ui/radio-group.tsx`)
+ * rather than plain buttons, so the WAI-ARIA radiogroup pattern — one tab stop,
+ * arrow keys to move and select — comes from the primitive instead of hand-rolled
+ * keydown handling.
  */
 export function SegmentedControl<T extends string>({
   value,
@@ -38,8 +44,9 @@ export function SegmentedControl<T extends string>({
   ...rest
 }: SegmentedControlProps<T>): React.ReactElement {
   return (
-    <div
-      role="radiogroup"
+    <RadioGroupPrimitive.Root
+      value={value}
+      onValueChange={(next) => onValueChange(next as T)}
       aria-label={rest["aria-label"]}
       className={cn(
         "inline-flex items-center gap-1 rounded-md border p-0.5",
@@ -50,12 +57,9 @@ export function SegmentedControl<T extends string>({
         const Icon = opt.icon;
         const active = opt.value === value;
         return (
-          <button
+          <RadioGroupPrimitive.Item
             key={opt.value}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            onClick={() => onValueChange(opt.value)}
+            value={opt.value}
             className={cn(
               "inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition-colors",
               active
@@ -65,10 +69,10 @@ export function SegmentedControl<T extends string>({
           >
             {Icon && <Icon className="h-3.5 w-3.5" />}
             {opt.label}
-          </button>
+          </RadioGroupPrimitive.Item>
         );
       })}
-    </div>
+    </RadioGroupPrimitive.Root>
   );
 }
 
