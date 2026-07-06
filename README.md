@@ -9,9 +9,15 @@ A reusable frontend foundation extracted from the patterns that worked in `contr
 ```
 design-baseline/
 ├── components.json                 # shadcn-cli config
+├── _adherence.oxlintrc.json        # adherence lint config consumers wire as `lint:design` (ADOPTION.md gate 2)
 ├── package.json                    # reference dep list + typecheck devDependencies
 ├── docs/
-│   └── STYLE.md                    # tokens, components, conventions, re-skin checklist
+│   ├── STYLE.md                    # tokens, components, conventions, re-skin checklist
+│   ├── CHOOSING-A-SURFACE.md       # methodology — which surface/archetype for which job
+│   ├── PLACEMENT.md                # methodology — what goes where inside any archetype
+│   ├── STACK.md                    # methodology — the pinned package contract (divergence needs an ADR)
+│   ├── ADOPTION.md                 # methodology — the adoption contract + 4-gate enforcement stack
+│   └── archetypes/                 # page-shape contracts + MANIFEST.json registry
 └── src/
     ├── styles/
     │   └── tokens.css              # Tailwind 4 entry + HSL design tokens (light + dark)
@@ -30,6 +36,17 @@ design-baseline/
         ├── DemoNextApp.tsx         # wiring for Next.js 16 App Router
         └── DemoViteApp.tsx         # wiring for Vite + React Router 7
 ```
+
+### Methodology
+
+Four cross-archetype methodology docs sit upstream of the individual archetype specs — they decide *which* surface a job gets, *where* things go inside it, *what* stack it runs on, and *how* a project adopts and stays on the baseline. Registered in `docs/archetypes/MANIFEST.json` under the `methodology` key.
+
+| Doc | Owns |
+|-----|------|
+| [`docs/CHOOSING-A-SURFACE.md`](docs/CHOOSING-A-SURFACE.md) | Selection — which surface/archetype for which job (the CRUD ladder + collection chooser). Every archetype spec defers to it. |
+| [`docs/PLACEMENT.md`](docs/PLACEMENT.md) | Placement — what goes where inside any archetype; each recurring slot → its owning primitive; green/yellow/red grid. |
+| [`docs/STACK.md`](docs/STACK.md) | The pinned package contract + known trip points; diverging from a row requires an ADR. |
+| [`docs/ADOPTION.md`](docs/ADOPTION.md) | The adoption contract — 8-point checklist, 4-gate enforcement stack, two-way feedback loop. `_adherence.oxlintrc.json` is its mechanical gate 2. |
 
 ## How to apply it
 

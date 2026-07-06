@@ -38,13 +38,16 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `src/examples/<slug>-demo.tsx` | Sandbox demo per archetype — the "generic-ness contract" proving the primitive has zero domain-type leakage. Donor-dev only, **never copied** to targets |
 | `src/examples/DemoNextApp.tsx` / `DemoViteApp.tsx` | Reference wiring for Next.js 16 App Router / Vite + React Router 7 consumers |
 | `gallery/` | Donor-dev Vite app (`Gallery.tsx`, `registry.ts`, `layout-demos.tsx`) that mounts every demo behind a nav; also the buildable `gallery-dist/` surface the dashboard hub iframes per `docs/PLUGIN-CONTRACT.md` |
-| `docs/archetypes/MANIFEST.json` | Versioned registry: `plugin` block (hub-binding metadata + declared actions), `namespaces`, and the `archetypes` array (key, slug, version, promoted_from/promoted_at, source_spec_version, spec, reference_impl, primitives_dir, example) |
+| `docs/archetypes/MANIFEST.json` | Versioned registry: `plugin` block (hub-binding metadata + declared actions), `namespaces`, the `archetypes` array (key, slug, version, promoted_from/promoted_at, source_spec_version, spec, reference_impl, primitives_dir, example), and the `methodology` array (the four cross-archetype methodology docs: slug, version, status, doc, governs) |
 | `docs/archetypes/<slug>.md` | Stack-agnostic **contract** per archetype (see §5) |
 | `docs/archetypes/<slug>.baseline.md` | Baseline-stack **reference implementation** binding per archetype (see §5) |
 | `docs/archetypes/README.md` | The methodology: layer sets, phases, Rule of 2, promotion contract, versioning rules |
 | `docs/STYLE.md` | Tokens, spacing/rhythm scale, typography, re-skin checklist, ownership-boundary statement |
 | `docs/TAXONOMY.md` | Canonical vocabulary (Baseline / Token / Layout primitive / Archetype / Reference primitive / Demo / Gallery / Plugin) |
-| `docs/CHOOSING-A-SURFACE.md` | The surface-ladder rubric (inline token → list row → quick dialog → detail section → detail page) + compose-within/escalate-between mechanisms |
+| `docs/CHOOSING-A-SURFACE.md` | **Methodology** (v2.0) — surface *selection*: the entity CRUD ladder (token → row → dialog → pane → page), the create/edit (J vs B) and read/detail (A vs C) spectrums, and the Part 2 collection/overview chooser. Every archetype spec defers to it; each project resolves it into a local `docs/SURFACES.md` |
+| `docs/PLACEMENT.md` | **Methodology** (v1.1) — *placement*: what goes where inside any archetype; each recurring slot (title, primary action, search, count, per-row menu, footer order) → its single owning primitive; green/yellow/red enforcement grid |
+| `docs/STACK.md` | **Methodology** (v1.1) — the pinned package contract (React 19, Tailwind 4, Radix, RHF+zod, …) + known trip points; diverging from a contract row requires an ADR |
+| `docs/ADOPTION.md` | **Methodology** (v1.0) — the adoption contract: 8-point checklist, 4-gate enforcement stack, two-way feedback loop. Its mechanical gate 2 ships as `_adherence.oxlintrc.json` at repo root |
 | `docs/PLUGIN-CONTRACT.md` | What makes this repo a hub-connectable "design-plugin" (MANIFEST `plugin` block + buildable gallery surface) |
 | `docs/FLEET-AUDIT.md` + `docs/audits/*.md`/`.json` | Read-only fit/drift/adoption-quality sweeps across other frontend repos, scored against archetype contracts |
 | `docs/ADOPTION-QUALITY.md`, `docs/PROMOTION-RADAR.md`, `docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md` | Supporting audit axis (adopted-but-not-torn-down pages), a rule-of-2 candidate radar, and a stack-agnostic teardown-first adoption playbook. Skimmed, not deeply read — treat as living/audit-machinery docs |

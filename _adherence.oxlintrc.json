@@ -1,0 +1,34 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "_doc": "design-baseline adherence lint — the mechanical half of ADOPTION.md gate 2 (see docs/ADOPTION.md, docs/PLACEMENT.md). A consuming project wires a `lint:design` script pointing at this file and runs it in CI: warnings are allowed during rollout, and each rule is ratcheted to error as its violation class is cleaned. Only rules expressible as oxlint AST selectors live under `overrides`/`rules`; rules that need custom AST tooling (which oxlint cannot express natively as of this writing) are enumerated in `_candidate_rules_todo` below and grow into real checks as a plugin/codegen lands. The `overrides` glob targets the donor's own `src/**/*.tsx`; a consumer retargets it to its app-page directories (e.g. `src/app/(app)/**`), since these bans apply to page bodies, not marketing or auth chrome.",
+  "plugins": [],
+  "overrides": [
+    {
+      "files": ["src/**/*.tsx"],
+      "rules": {
+        "no-restricted-syntax": [
+          "warn",
+          {
+            "selector": "JSXOpeningElement[name.name='h1']",
+            "message": "Page titles go through PageHeader — never a bare <h1> in a page body (PLACEMENT.md, Header slots)."
+          },
+          {
+            "selector": "JSXOpeningElement[name.name='table']",
+            "message": "Use the DS table primitives, not a raw <table> (ADOPTION.md gate 2)."
+          },
+          {
+            "selector": "JSXOpeningElement[name.name='button']",
+            "message": "Use the Button primitive, not a bare <button> (ADOPTION.md gate 2)."
+          }
+        ]
+      }
+    }
+  ],
+  "_candidate_rules_todo": [
+    "exactly one primary action node per PageHeader — count primary-variant Buttons in a PageHeader subtree (custom AST rule)",
+    "RowActionsMenu is the only per-row overflow menu — ban a raw DropdownMenu inside list/grouped/board row render (custom AST rule)",
+    "no bg-red-50 / ad-hoc destructive color classes — scan className string literals; use the two canonical error treatments (Alert shell / tinted box), never a raw error color (custom className scan)",
+    "no local *-skeleton components — StateView owns the async planes; ban project-local skeleton/loading component definitions (custom identifier scan)",
+    "vendored-file @ds-version header stamp present — every vendored file carries a `/* design-baseline@<version> — vendored <date> */` header (custom top-of-file comment scan)"
+  ]
+}

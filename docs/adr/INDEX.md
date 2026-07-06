@@ -6,3 +6,4 @@ Architecture Decision Records for design-baseline. One file per decision:
 | # | Title | Status |
 |---|-------|--------|
 | [0001](0001-grandfather-authored-report-calendar.md) | Grandfather the baseline-authored `report` and `calendar` archetypes | Accepted |
+| [0002](0002-adopt-baseline-upstream-methodology.md) | Adopt the baseline-upstream methodology docs (selection, placement, stack, adoption) | Accepted |
