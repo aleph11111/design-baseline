@@ -25,6 +25,7 @@
     }
   ],
   "_candidate_rules_todo": [
+    "app layout files must render AppShell — no raw <main> with padding/background classes (PLACEMENT.md app-frame slot; ADOPTION.md point 1). The `p-8 bg-slate-50` iframe-feel scar (custom AST/className scan)",
     "exactly one primary action node per PageHeader — count primary-variant Buttons in a PageHeader subtree (custom AST rule)",
     "RowActionsMenu is the only per-row overflow menu — ban a raw DropdownMenu inside list/grouped/board row render (custom AST rule)",
     "no bg-red-50 / ad-hoc destructive color classes — scan className string literals; use the two canonical error treatments (Alert shell / tinted box), never a raw error color (custom className scan)",

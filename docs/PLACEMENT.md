@@ -1,7 +1,7 @@
 ---
 slug: placement
 kind: methodology
-version: 1.1
+version: 1.2
 status: locked
 governs: [A, B, C, J, K, D2, F2, M, P, G, R, H]
 ---
@@ -28,6 +28,27 @@ This is why the archetype primitives exist. `PageHeader`, `ListWithDetailToolbar
 `KeyValueList`, `StateView` are not styling conveniences — each is the **single owner of a
 slot**. Composing them *is* the placement contract; hand-rolling their content is how drift
 gets in.
+
+---
+
+## The app frame — the desk every page sits on
+
+The outermost slot of all, and the easiest to get wrong because it's written once and
+never reviewed again. **`AppShell` is the single owner of the app frame** — sidebar,
+header, and the content desk (`bg-muted/30 p-4 md:p-6 overflow-auto`). Archetype shells
+are *framed surfaces* designed to sit on that specific desk: a near-white wash and a
+modest inset, so the card border reads as a hairline frame.
+
+A hand-rolled `<main>` with its own padding and background is red, not yellow. The known
+failure mode (scar origin: hk-crm, 2026-07): `p-8 bg-slate-50` — double the inset on a
+solid gray desk — makes every framed surface read as a floating iframe. Same components,
+wrong desk, whole app feels wrong.
+
+| Slot | Home | Rule |
+|------|------|------|
+| **Sidebar / header chrome** | `AppShell` props | Never a hand-rolled flex frame |
+| **Content desk** | `AppShell`'s main | `bg-muted/30 p-4 md:p-6` — pages add no outer inset of their own |
+| **Framed-surface header fill** | `headerFill` on `AppShell` | Set once per project (House Style B) |
 
 ---
 
@@ -161,6 +182,7 @@ primitive), **yellow** (a documented essential variation), or **red** (drift).
 
 **Red — reject in review:**
 
+- A hand-rolled app frame — any `<main>` with its own padding/background instead of `AppShell`’s desk.
 - A page title as a bare `<h1>`/`<div>` instead of `PageHeader`.
 - More than one primary action in a `PageHeader`, or a create action living in the toolbar.
 - Search anywhere but the toolbar's left; a count as free text instead of `ResultsCount`.
@@ -196,6 +218,7 @@ When the same placement mistake lands twice in a consuming project, promote it: 
 
 ## Revision log
 
+- **1.2** — Added the app-frame slot: `AppShell` owns the desk; hand-rolled `<main>` frames are red (scar origin: hk-crm iframe-feel, 2026-07).
 - **1.1** — Promoted to the Design Baseline; enforcement wording generalized from the
   originating project (hk-crm) to any consumer.
 

@@ -8,7 +8,7 @@
   "plugin": {
     "kind": "design",
     "name": "design-baseline",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "taxonomy": "docs/TAXONOMY.md",
     "surface": {
       "type": "vite-app",
@@ -252,7 +252,7 @@
       "slug": "placement",
       "kind": "methodology",
       "displayName": "Placement",
-      "version": "1.1",
+      "version": "1.2",
       "status": "locked",
       "doc": "docs/PLACEMENT.md",
       "governs": ["A", "B", "C", "J", "K", "D2", "F2", "M", "P", "G", "R", "H"]

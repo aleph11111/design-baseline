@@ -22,27 +22,30 @@ versions.
 
 ## The adoption contract (checklist)
 
-A project is *adopted* when all eight hold. Keep this checklist, checked, at the top of
+A project is *adopted* when all nine hold. Keep this checklist, checked, at the top of
 the project's `docs/ADOPTION.md`.
 
-1. **Stack pinned** — dependencies match `STACK.md`; any overlap/divergence has an ADR in
+1. **Frame adopted** — the app layout uses `AppShell` for sidebar/header/desk; no hand-rolled
+   `<main>` frame. (The desk — `bg-muted/30 p-4 md:p-6` — is part of the house style; a custom
+   frame made a whole app feel like an iframe before this rule existed.)
+2. **Stack pinned** — dependencies match `STACK.md`; any overlap/divergence has an ADR in
    `docs/adr/`. No second headless-UI, icon, toast, or form library without one.
-2. **Adherence lint wired** — `lint:design` script pointing at the baseline's
+3. **Adherence lint wired** — `lint:design` script pointing at the baseline's
    `_adherence.oxlintrc.json`, running in CI. Warnings allowed during rollout; each rule
    ratcheted to error as its violation class is cleaned.
-3. **Surfaces resolved** — `docs/SURFACES.md` exists: one row per entity (create/edit/read
+4. **Surfaces resolved** — `docs/SURFACES.md` exists: one row per entity (create/edit/read
    surface per `CHOOSING-A-SURFACE.md`) and one row per page (archetype). Reviews check
    against it.
-4. **Placement inherited** — `PLACEMENT.md` referenced from the project's review checklist;
+5. **Placement inherited** — `PLACEMENT.md` referenced from the project's review checklist;
    the project adds no competing placement rules, only documented yellows.
-5. **Versions stamped** — every vendored file carries a header line
+6. **Versions stamped** — every vendored file carries a header line
    (`/* design-baseline@<version> — vendored <date> */`); the adopted baseline version and
    Tailwind version are recorded in `docs/ADOPTION.md`.
-6. **State law honored** — async states go through `StateView` (or its archetype adapters);
+7. **State law honored** — async states go through `StateView` (or its archetype adapters);
    no project-local skeleton/loading/error inventions.
-7. **Visual baselines captured** — one Playwright screenshot test per archetype in use,
+8. **Visual baselines captured** — one Playwright screenshot test per archetype in use,
    committed at adoption time.
-8. **Scar channel open** — the project has `docs/RULES.md`; recurring violations get
+9. **Scar channel open** — the project has `docs/RULES.md`; recurring violations get
    promoted per the feedback loop below.
 
 ---
@@ -77,6 +80,7 @@ config (gate 2) or a snapshot (gate 3) — so it stops costing review attention.
 Promoted candidates from the first consumer audit (add to `_adherence.oxlintrc.json` as
 they become checkable):
 
+- app layout files must render `AppShell`; no raw `<main>` with padding/background classes
 - no bare `<h1>` in app page bodies — titles go through `PageHeader`
 - exactly one primary action per `PageHeader`
 - `RowActionsMenu` is the only per-row overflow menu

@@ -46,7 +46,7 @@ Four cross-archetype methodology docs sit upstream of the individual archetype s
 | [`docs/CHOOSING-A-SURFACE.md`](docs/CHOOSING-A-SURFACE.md) | Selection — which surface/archetype for which job (the CRUD ladder + collection chooser). Every archetype spec defers to it. |
 | [`docs/PLACEMENT.md`](docs/PLACEMENT.md) | Placement — what goes where inside any archetype; each recurring slot → its owning primitive; green/yellow/red grid. |
 | [`docs/STACK.md`](docs/STACK.md) | The pinned package contract + known trip points; diverging from a row requires an ADR. |
-| [`docs/ADOPTION.md`](docs/ADOPTION.md) | The adoption contract — 8-point checklist, 4-gate enforcement stack, two-way feedback loop. `_adherence.oxlintrc.json` is its mechanical gate 2. |
+| [`docs/ADOPTION.md`](docs/ADOPTION.md) | The adoption contract — 9-point checklist (point 1: adopt the `AppShell` frame), 4-gate enforcement stack, two-way feedback loop. `_adherence.oxlintrc.json` is its mechanical gate 2. |
 
 ## How to apply it
 

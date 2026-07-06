@@ -31,3 +31,13 @@ The one non-mechanical question was `_adherence.oxlintrc.json`, referenced by AD
 - **STACK.md introduces a new ADR trigger:** diverging from a pinned package row (second headless-UI/icon/toast/form library, a major bump, opting a surface out of Radix) now requires an ADR here — the same standard as a RULES.md scar.
 - The `methodology` docs carry no primitives or demos and are correctly absent from the `archetypes` array and the gallery; they are cross-archetype law, not page shapes. This is a deliberate second MANIFEST category, not a new archetype (Rule 1 "baseline never originates archetypes" is untouched).
 - The adherence lint is real but partial. Gate 2 of ADOPTION.md is only as strong as `_adherence.oxlintrc.json`; the `_candidate_rules_todo` block inside that file is the honest ledger of what still lives in prose (gate 4) until custom oxlint tooling can express it.
+
+## 2026-07-06 amendment — app-frame slot (donor v0.3.1)
+
+A corrected/completed cut of the same handoff bundle landed the same day, refining two of the four docs (the other two, CHOOSING-A-SURFACE and STACK, were byte-identical):
+
+- **`PLACEMENT.md` v1.1 → v1.2** adds *the app frame* as the outermost placement slot: `AppShell` is the single owner of the sidebar/header/content desk (`bg-muted/30 p-4 md:p-6`). A hand-rolled `<main>` with its own padding/background (the `p-8 bg-slate-50` "iframe-feel" scar, origin hk-crm 2026-07) is red, not yellow.
+- **`ADOPTION.md` 8 → 9 points** promotes that to adoption **point 1, "Frame adopted"**, and adds the matching `_candidate_rules_todo` entry (no raw `<main>` frame).
+- Ripple: `MANIFEST` placement 1.1 → 1.2 and `plugin.version` 0.3.0 → **0.3.1** (a refinement of the 0.3.0 layer, not a new layer); the global `/adopt-baseline` skill's hardcoded checklist updated 8 → 9 points.
+
+This does not change the decision above — it completes it. The app frame was the one placement slot the original cut omitted, and it is the exact drift the audit that produced these docs diagnosed.
