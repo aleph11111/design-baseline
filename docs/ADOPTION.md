@@ -1,7 +1,7 @@
 ---
 slug: adoption
 kind: methodology
-version: 1.0
+version: 1.1
 status: locked
 ---
 
@@ -30,9 +30,9 @@ the project's `docs/ADOPTION.md`.
    frame made a whole app feel like an iframe before this rule existed.)
 2. **Stack pinned** — dependencies match `STACK.md`; any overlap/divergence has an ADR in
    `docs/adr/`. No second headless-UI, icon, toast, or form library without one.
-3. **Adherence lint wired** — `lint:design` script pointing at the baseline's
-   `_adherence.oxlintrc.json`, running in CI. Warnings allowed during rollout; each rule
-   ratcheted to error as its violation class is cleaned.
+3. **Adherence lint wired** — `lint:design` script running the baseline's zero-dep
+   `scripts/lint-design.mjs` (rules in `_adherence.json`) in CI. Warnings allowed during
+   rollout; each rule ratcheted to error as its violation class is cleaned.
 4. **Surfaces resolved** — `docs/SURFACES.md` exists: one row per entity (create/edit/read
    surface per `CHOOSING-A-SURFACE.md`) and one row per page (archetype). Reviews check
    against it.
@@ -55,7 +55,7 @@ the project's `docs/ADOPTION.md`.
 | Gate | Catches | Mechanism | When |
 |------|---------|-----------|------|
 | 1. Types | wrong props, wrong variants | vendored `.d.ts` / package types, `tsc --noEmit` | on save / CI |
-| 2. Adherence lint | raw hex/px/palette classes, raw `<button>`/`<table>`, off-contract props | `_adherence.oxlintrc.json` via oxlint | pre-commit + CI |
+| 2. Adherence lint | raw hex/px/palette classes, raw `<button>`/`<table>`, off-contract props | `scripts/lint-design.mjs` (zero-dep scan, rules in `_adherence.json`) | pre-commit + CI |
 | 3. Visual baselines | drift the linter can't see (spacing, chrome, states) | Playwright `toHaveScreenshot()` per archetype page | CI |
 | 4. Review against docs | surface choice, placement, navigation model | `SURFACES.md` + `PLACEMENT.md` + `CHOOSING-A-SURFACE.md` as the review checklist | PR review |
 
@@ -72,13 +72,13 @@ config (gate 2) or a snapshot (gate 3) — so it stops costing review attention.
   becomes a scar in that project's `RULES.md`. When the same scar appears in a second
   project — Rule of 2, same as archetypes — it is promoted into the baseline: into
   `PLACEMENT.md` / `STACK.md` / `CHOOSING-A-SURFACE.md` as prose, and into
-  `_adherence.oxlintrc.json` as a check where mechanically possible. Every consumer then
-  inherits the fix.
+  `_adherence.json` (run by `scripts/lint-design.mjs`) as a check where mechanically
+  possible. Every consumer then inherits the fix.
 
 ## Lint rules the baseline should grow next
 
-Promoted candidates from the first consumer audit (add to `_adherence.oxlintrc.json` as
-they become checkable):
+Promoted candidates from the first consumer audit (tracked in `_adherence.NOTES.md`; add to
+`_adherence.json` as the scanner grows to express them):
 
 - app layout files must render `AppShell`; no raw `<main>` with padding/background classes
 - no bare `<h1>` in app page bodies — titles go through `PageHeader`
@@ -92,5 +92,8 @@ they become checkable):
 
 ## Revision log
 
+- **1.1** — Gate 2 mechanism corrected: the adherence lint ships as a zero-dep scanner
+  (`scripts/lint-design.mjs` + `_adherence.json` + `_adherence.NOTES.md`), not an oxlint
+  `no-restricted-syntax` config (which never ran — oxlint lacks that rule). See ADR-0003.
 - **1.0** — First draft, generalizing the hk-crm adoption/enforcement plan
   (IMPLEMENTATION.md, 2026-07) into the baseline's standing contract.

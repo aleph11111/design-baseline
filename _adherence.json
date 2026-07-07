@@ -1,0 +1,23 @@
+{
+  "targets": ["src"],
+  "rules": [
+    {
+      "id": "no-bare-h1",
+      "tag": "h1",
+      "severity": "warn",
+      "message": "Page titles go through PageHeader — never a bare <h1> in a page body (PLACEMENT.md, Header slots)."
+    },
+    {
+      "id": "no-raw-table",
+      "tag": "table",
+      "severity": "warn",
+      "message": "Use the DS table primitives, not a raw <table> (ADOPTION.md gate 2)."
+    },
+    {
+      "id": "no-bare-button",
+      "tag": "button",
+      "severity": "warn",
+      "message": "Use the Button primitive, not a bare <button> (ADOPTION.md gate 2)."
+    }
+  ]
+}
