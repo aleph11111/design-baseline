@@ -1,13 +1,4 @@
 import * as React from "react";
-import { ArrowUp, ArrowDown, ArrowUpDown, ChevronRight } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   useHeaderFill,
@@ -18,7 +9,9 @@ import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { ListWithDetailEmptyState } from "./ListWithDetailEmptyState";
-import { RowActionsMenu, getInteractiveRowProps, interactiveRowFocusRing } from "../shared";
+import { TableBody } from "./presentations/TableBody";
+import { CardGridBody } from "./presentations/CardGridBody";
+import { ActionRowBody } from "./presentations/ActionRowBody";
 import type { RowAction } from "../shared";
 
 // The per-row overflow menu and its action shape are owned by the shared
@@ -123,35 +116,6 @@ export type ListWithDetailShellProps<Row> = {
 };
 
 // ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function alignClass(align: ListColumn<unknown>["align"]): string {
-  if (align === "right") return "text-right";
-  if (align === "center") return "text-center";
-  return "text-left";
-}
-
-function SortIcon({
-  columnKey,
-  sortBy,
-  sortDirection,
-}: {
-  columnKey: string;
-  sortBy: string | undefined;
-  sortDirection: SortDirection | undefined;
-}) {
-  const isActive = sortBy === columnKey;
-  if (!isActive) {
-    return <ArrowUpDown className="h-4 w-4 opacity-30" />;
-  }
-  if (sortDirection === "asc") {
-    return <ArrowUp className="h-4 w-4" />;
-  }
-  return <ArrowDown className="h-4 w-4" />;
-}
-
-// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -212,218 +176,12 @@ function ListWithDetailShellInner<Row>(
     [asSheet, detail, onRowSelect],
   );
 
-  function handleSortClick(columnKey: string) {
-    if (!onSortChange) return;
-    if (sortBy === columnKey) {
-      onSortChange(columnKey, sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      onSortChange(columnKey, "asc");
-    }
-  }
-
   // Determine body content
   const showLoading = isLoading === true;
   const showError = !showLoading && error != null;
   const showFilteredEmpty =
     !showLoading && !showError && rows.length === 0 && filteredEmpty === true;
   const showTable = !showLoading && !showError && rows.length > 0;
-
-  const hasActions = rowActions !== undefined && rowActions.length > 0;
-  const clickable = onRowSelect !== undefined;
-
-  const tableBody = showTable && presentation === "table" ? (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          {columns.map((col) => {
-            const canSort = col.sortable === true && onSortChange !== undefined;
-            return (
-              <TableHead
-                key={col.key}
-                style={
-                  col.width !== undefined
-                    ? { width: col.width }
-                    : undefined
-                }
-                className={cn(
-                  alignClass(col.align),
-                  canSort && "cursor-pointer select-none hover:bg-muted/50",
-                )}
-                aria-sort={
-                  canSort
-                    ? sortBy === col.key
-                      ? sortDirection === "asc"
-                        ? "ascending"
-                        : "descending"
-                      : "none"
-                    : undefined
-                }
-                onClick={canSort ? () => handleSortClick(col.key) : undefined}
-              >
-                {canSort ? (
-                  <div className="flex items-center gap-2">
-                    {col.header}
-                    <SortIcon
-                      columnKey={col.key}
-                      sortBy={sortBy}
-                      sortDirection={sortDirection}
-                    />
-                  </div>
-                ) : (
-                  col.header
-                )}
-              </TableHead>
-            );
-          })}
-          {hasActions && <TableHead className="w-12" />}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {rows.map((row) => {
-          const rowId = getRowId(row);
-          const isSelected = selectedRowId === rowId;
-          return (
-            <TableRow
-              key={rowId}
-              data-state={isSelected ? "selected" : undefined}
-            >
-              {columns.map((col) => {
-                const isIdentifier = col.isIdentifier === true;
-                const useMono = isIdentifier && col.identifierMono !== false;
-                const activate =
-                  isIdentifier && onRowSelect !== undefined
-                    ? () => handleRowSelect(row)
-                    : undefined;
-                return (
-                  <TableCell
-                    key={col.key}
-                    className={cn(
-                      alignClass(col.align),
-                      isIdentifier && "text-primary hover:underline",
-                      activate && "cursor-pointer",
-                      activate && interactiveRowFocusRing,
-                      useMono && "font-mono text-[13px] font-medium",
-                    )}
-                    onClick={activate}
-                    {...getInteractiveRowProps(activate)}
-                  >
-                    {col.cell(row)}
-                  </TableCell>
-                );
-              })}
-              {hasActions && (
-                <TableCell className="w-12">
-                  <RowActionsMenu row={row} actions={rowActions} />
-                </TableCell>
-              )}
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
-  ) : null;
-
-  // Identifier column drives the title/primary field in the non-table presentations.
-  const idCol = columns.find((c) => c.isIdentifier === true) ?? columns[0];
-  const secondaryColumns = columns.filter((c) => c !== idCol);
-
-  const cardGridBody =
-    showTable && presentation === "card-grid" ? (
-      <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
-        {rows.map((row) => {
-          const rowId = getRowId(row);
-          const isSelected = selectedRowId === rowId;
-          const activate = clickable ? () => handleRowSelect(row) : undefined;
-          return (
-            <div
-              key={rowId}
-              data-state={isSelected ? "selected" : undefined}
-              onClick={activate}
-              className={cn(
-                "rounded-lg border bg-card p-4 transition-colors",
-                clickable && "cursor-pointer hover:bg-accent",
-                clickable && interactiveRowFocusRing,
-                isSelected && "ring-2 ring-ring",
-              )}
-              {...getInteractiveRowProps(activate)}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className={cn("min-w-0 font-medium", clickable && "text-primary")}>
-                  {idCol ? idCol.cell(row) : null}
-                </div>
-                {hasActions && (
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <RowActionsMenu row={row} actions={rowActions} />
-                  </div>
-                )}
-              </div>
-              <dl className="mt-2 space-y-1">
-                {secondaryColumns.map((col) => (
-                  <div
-                    key={col.key}
-                    className="flex items-baseline justify-between gap-3 text-[13px]"
-                  >
-                    <dt className="shrink-0 text-muted-foreground">{col.header}</dt>
-                    <dd className="min-w-0 text-right text-foreground tabular-nums">
-                      {col.cell(row)}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          );
-        })}
-      </div>
-    ) : null;
-
-  const actionRowSecondaryColumns = secondaryColumns.slice(0, 2);
-
-  const actionRowBody =
-    showTable && presentation === "action-row" ? (
-      <div className="divide-y">
-        {rows.map((row) => {
-          const rowId = getRowId(row);
-          const isSelected = selectedRowId === rowId;
-          const activate = clickable ? () => handleRowSelect(row) : undefined;
-          return (
-            <div
-              key={rowId}
-              data-state={isSelected ? "selected" : undefined}
-              onClick={activate}
-              className={cn(
-                "flex items-center gap-3 px-4 py-3",
-                clickable && "cursor-pointer hover:bg-muted/50",
-                clickable && interactiveRowFocusRing,
-                isSelected && "bg-muted",
-              )}
-              {...getInteractiveRowProps(activate)}
-            >
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-medium text-foreground">
-                  {idCol ? idCol.cell(row) : null}
-                </div>
-                {actionRowSecondaryColumns.length > 0 && (
-                  <div className="mt-0.5 flex flex-wrap gap-x-3 text-[11px] text-muted-foreground">
-                    {actionRowSecondaryColumns.map((col) => (
-                      <span key={col.key} className="truncate">
-                        {col.cell(row)}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-              {hasActions ? (
-                <div onClick={(e) => e.stopPropagation()}>
-                  <RowActionsMenu row={row} actions={rowActions} />
-                </div>
-              ) : clickable ? (
-                <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
-    ) : null;
 
   const emptyStateMode = showLoading
     ? "loading"
@@ -433,17 +191,37 @@ function ListWithDetailShellInner<Row>(
         ? "filtered-empty"
         : "empty";
 
-  const bodyContent =
-    showTable ? (
-      tableBody ?? cardGridBody ?? actionRowBody
-    ) : (
-      <ListWithDetailEmptyState
-        mode={emptyStateMode}
-        message={emptyStateMessage}
-        error={error}
-        onRetry={onRetry}
-      />
-    );
+  const presentationProps = {
+    rows,
+    columns,
+    getRowId,
+    selectedRowId,
+    rowActions,
+    // Forward undefined (not the always-defined handleRowSelect wrapper) when
+    // the consumer didn't pass onRowSelect, so presentations correctly treat
+    // rows as non-interactive rather than always-clickable.
+    onRowSelect: onRowSelect !== undefined ? handleRowSelect : undefined,
+  };
+
+  const bodyContent = !showTable ? (
+    <ListWithDetailEmptyState
+      mode={emptyStateMode}
+      message={emptyStateMessage}
+      error={error}
+      onRetry={onRetry}
+    />
+  ) : presentation === "card-grid" ? (
+    <CardGridBody {...presentationProps} />
+  ) : presentation === "action-row" ? (
+    <ActionRowBody {...presentationProps} />
+  ) : (
+    <TableBody
+      {...presentationProps}
+      sortBy={sortBy}
+      sortDirection={sortDirection}
+      onSortChange={onSortChange}
+    />
+  );
 
   // Detail panel: rail on desktop (default), or a slide-in Sheet (drawer mode,
   // and always on mobile). The drawer header bar follows the house `headerFill`.
