@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ActionFooterBar } from "@/components/archetypes/shared/ActionFooterBar";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -125,77 +124,34 @@ export function FormPageActions({
   stickyOnMobile = true,
   className,
 }: FormPageActionsProps): React.ReactElement {
-  const hasPrimary = primaryLabel !== undefined;
-  const hasSecondary = secondaryLabel !== undefined;
-  const hasDestructive =
-    mode === "edit" &&
-    canDelete &&
-    destructiveLabel !== undefined &&
-    onDestructive !== undefined;
-
-  // Resolve the submitting label: explicit override (i18n-safe) wins,
-  // otherwise derive English: "Save" → "Saving…", "Create" → "Creating…".
-  const resolvedSubmittingLabel =
-    submittingLabel ??
-    (primaryLabel ? `${primaryLabel.replace(/e$/, "")}ing…` : "Saving…");
-
+  // Thin wrapper over the shared ActionFooterBar core. B's distinct surface:
+  // the sticky-on-mobile container, `mode`/`canDelete` gating of the
+  // destructive button, form-aware button `type`s (the footer lives in a
+  // native <form>), and freezing every action while a delete is in flight —
+  // hence `formAware` and `disableActionsWhileDeleting`.
   return (
-    <div
+    <ActionFooterBar
       className={cn(
-        "flex items-center justify-between gap-2 pt-2",
+        "pt-2",
         stickyOnMobile &&
           "sticky bottom-0 -mx-6 border-t bg-background/95 px-6 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/75 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none",
         className,
       )}
-    >
-      {/* Leading edge — destructive action */}
-      <div className="flex items-center">
-        {hasDestructive && (
-          <Button
-            type="button"
-            variant="outline"
-            className="text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
-            onClick={onDestructive}
-            disabled={isDeleting || isSubmitting}
-          >
-            {isDeleting && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            {destructiveLabel}
-          </Button>
-        )}
-      </div>
-
-      {/* Trailing edge — overflow menu + secondary + primary */}
-      <div className="flex items-center gap-2">
-        {overflowMenu}
-
-        {hasSecondary && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onSecondary}
-            disabled={isSubmitting || isDeleting}
-          >
-            {secondaryLabel}
-          </Button>
-        )}
-
-        {hasPrimary && (
-          <Button
-            type={onPrimary ? "button" : "submit"}
-            variant="default"
-            onClick={onPrimary}
-            disabled={primaryDisabled || isSubmitting || isDeleting}
-          >
-            {isSubmitting && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            {isSubmitting ? resolvedSubmittingLabel : primaryLabel}
-          </Button>
-        )}
-      </div>
-    </div>
+      primaryLabel={primaryLabel}
+      onPrimary={onPrimary}
+      primaryDisabled={primaryDisabled}
+      isSubmitting={isSubmitting}
+      submittingLabel={submittingLabel}
+      isDeleting={isDeleting}
+      secondaryLabel={secondaryLabel}
+      onSecondary={onSecondary}
+      destructiveLabel={destructiveLabel}
+      onDestructive={onDestructive}
+      showDestructive={mode === "edit" && canDelete}
+      overflowMenu={overflowMenu}
+      formAware
+      disableActionsWhileDeleting
+    />
   );
 }
 

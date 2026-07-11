@@ -1,5 +1,6 @@
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 import type { UseCrudDialogModeResult } from "./useCrudDialogMode";
+import { deriveSubmittingLabel } from "@/components/archetypes/shared/submittingLabel";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -164,9 +165,6 @@ export function useCrudDialogController<TValues extends FieldValues>(
     const ok = await mode.setMode("view");
     if (ok) form.reset(defaultValues);
   }
-
-  // Derive English fallback: "Save" → "Saving…", "Create" → "Creating…".
-  const deriveSubmittingLabel = (label: string) => `${label.replace(/e$/, "")}ing…`;
 
   return {
     handleClose,
