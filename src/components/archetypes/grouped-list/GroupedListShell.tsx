@@ -1,5 +1,6 @@
 import * as React from "react";
 import { StateView } from "@/components/ui/state-view";
+import { resolveListState } from "@/components/archetypes/shared";
 import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
 import { type HeaderFill } from "@/components/layout/headerFill";
 import { cn } from "@/lib/utils";
@@ -56,10 +57,11 @@ export function GroupedListShell({
   headerFill,
   className,
 }: GroupedListShellProps): React.ReactElement {
-  const showLoading = isLoading === true;
-  const showError = !showLoading && error != null;
-  const showEmpty = !showLoading && !showError && isEmpty === true;
-  const showSections = !showLoading && !showError && !showEmpty;
+  const listState = resolveListState({ isLoading, error, isEmpty: isEmpty === true });
+  const showLoading = listState === "loading";
+  const showError = listState === "error";
+  const showEmpty = listState === "empty";
+  const showSections = listState === "content";
 
   return (
     <div className={cn("space-y-5", className)}>
