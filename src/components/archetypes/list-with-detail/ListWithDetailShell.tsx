@@ -8,11 +8,14 @@ import {
 import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { ListWithDetailEmptyState } from "./ListWithDetailEmptyState";
+import {
+  ListWithDetailEmptyState,
+  type ListEmptyMode,
+} from "./ListWithDetailEmptyState";
 import { TableBody } from "./presentations/TableBody";
 import { CardGridBody } from "./presentations/CardGridBody";
 import { ActionRowBody } from "./presentations/ActionRowBody";
-import type { RowAction } from "../shared";
+import { resolveListState, type RowAction } from "../shared";
 
 // The per-row overflow menu and its action shape are owned by the shared
 // primitive (../shared/RowActionsMenu) so list-with-detail and settings-table
@@ -177,19 +180,17 @@ function ListWithDetailShellInner<Row>(
   );
 
   // Determine body content
-  const showLoading = isLoading === true;
-  const showError = !showLoading && error != null;
-  const showFilteredEmpty =
-    !showLoading && !showError && rows.length === 0 && filteredEmpty === true;
-  const showTable = !showLoading && !showError && rows.length > 0;
+  const listState = resolveListState({ isLoading, error, isEmpty: rows.length === 0 });
+  const showTable = listState === "content";
 
-  const emptyStateMode = showLoading
-    ? "loading"
-    : showError
-      ? "error"
-      : showFilteredEmpty
-        ? "filtered-empty"
-        : "empty";
+  // "filtered-empty" is list-with-detail's own sub-mode of the shared "empty"
+  // phase — a thin wrapper the helper doesn't need to know about.
+  const showFilteredEmpty = listState === "empty" && filteredEmpty === true;
+  const emptyStateMode: ListEmptyMode = showFilteredEmpty
+    ? "filtered-empty"
+    : listState === "loading" || listState === "error"
+      ? listState
+      : "empty";
 
   const presentationProps = {
     rows,

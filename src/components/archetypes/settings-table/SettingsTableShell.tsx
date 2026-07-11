@@ -11,7 +11,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StateView } from "@/components/ui/state-view";
-import { RowActionsMenu, type RowAction } from "@/components/archetypes/shared";
+import {
+  RowActionsMenu,
+  resolveListState,
+  type RowAction,
+} from "@/components/archetypes/shared";
 import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
 import { type HeaderFill } from "@/components/layout/headerFill";
 import { cn } from "@/lib/utils";
@@ -184,10 +188,11 @@ export function SettingsTableShell<Row>({
   }
 
   // Body content resolution
-  const showLoading = isLoading === true;
-  const showError = !showLoading && error != null;
-  const showTable = !showLoading && !showError && rows.length > 0;
-  const showEmpty = !showLoading && !showError && rows.length === 0;
+  const listState = resolveListState({ isLoading, error, isEmpty: rows.length === 0 });
+  const showLoading = listState === "loading";
+  const showError = listState === "error";
+  const showTable = listState === "content";
+  const showEmpty = listState === "empty";
 
   // Toolbar bar — rendered above the table (below the separator)
   const toolbarRow = (
