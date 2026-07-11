@@ -93,7 +93,7 @@ export function SectionNavDemo(): React.ReactElement {
   );
 
   return (
-    <div className="h-screen">
+    <div className="h-full min-h-[30rem]">
       <SectionNavShell groups={NAV_GROUPS} pathname={pathname} renderLink={renderLink} ariaLabel="Account settings">
         {/* In a routed app this content is the router's <Outlet /> — typically a
             <SettingsPageShell> from the tabbed-settings archetype. */}

@@ -36,6 +36,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { RowActionsMenu } from "@/components/archetypes/shared";
+import { SectionNavDemo } from "@/examples/section-nav-demo";
 
 export type LayoutPrim = {
   slug: string;
@@ -567,6 +568,7 @@ export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "icon-avatar", displayName: "IconAvatar", Demo: IconAvatarDemo },
   { slug: "row-actions-menu", displayName: "RowActionsMenu", Demo: RowActionsMenuDemo },
   { slug: "cell-field", displayName: "CellInput / CellSelect", Demo: CellFieldDemo },
+  { slug: "section-nav", displayName: "SectionNavShell", Demo: SectionNavDemo },
 ];
 
 export function findLayoutPrim(slug: string | undefined): LayoutPrim | undefined {
