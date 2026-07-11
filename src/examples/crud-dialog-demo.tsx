@@ -59,6 +59,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StateView } from "@/components/ui/state-view";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import {
   CrudDialogSheet,
   CrudDialogHeader,
@@ -156,6 +157,8 @@ function WorkoutDialog({
   // The values handleSecondary resets to when cancelling an edit — the last
   // loaded entity (EMPTY_FORM in create mode).
   const [loadedValues, setLoadedValues] = React.useState<WorkoutFormValues>(EMPTY_FORM);
+  // Controls the accessible delete-confirmation dialog (rendered below).
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = React.useState(false);
 
   const isCreateMode = entityId === null;
 
@@ -237,12 +240,12 @@ function WorkoutDialog({
   }, [open, entityId]);
 
   // Delete is the consumer's concern — the controller owns create/update/edit +
-  // close, never deletion. Shown in view/edit, never in create.
-  function handleDelete() {
+  // close, never deletion. Shown in view/edit, never in create. onDestructive
+  // opens the baseline's accessible <ConfirmationDialog> (rendered below) instead
+  // of a blocking window.confirm — the confirm flow CrudDialogFooter's contract
+  // says the consumer must own.
+  function confirmDelete() {
     if (!entityId) return;
-    // Real consumers: swap window.confirm for a shadcn <AlertDialog> — see Layer 14.
-    const ok = window.confirm("Delete this workout? This action cannot be undone.");
-    if (!ok) return;
     onDelete(entityId);
     onClose();
   }
@@ -263,7 +266,7 @@ function WorkoutDialog({
 
   const destructiveProps = mode.isCreate
     ? {}
-    : { destructiveLabel: "Delete", onDestructive: handleDelete };
+    : { destructiveLabel: "Delete", onDestructive: () => setConfirmDeleteOpen(true) };
 
   // Mode badge — indicates current mode visually. `sm:col-span-2` is a no-op
   // in flat/two-tab layouts and spans the full row under `layout="two-column"`.
@@ -442,6 +445,19 @@ function WorkoutDialog({
         isSubmitting={controller.isSubmitting}
         submittingLabel={controller.submittingLabel}
         {...destructiveProps}
+      />
+
+      {/* Accessible delete confirmation — the <AlertDialog>-based flow
+          CrudDialogFooter's contract says the consumer must own, replacing a
+          blocking window.confirm. */}
+      <ConfirmationDialog
+        isOpen={confirmDeleteOpen}
+        onClose={() => setConfirmDeleteOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete this workout?"
+        description="This action cannot be undone."
+        confirmText="Delete"
+        variant="destructive"
       />
     </CrudDialogSheet>
   );

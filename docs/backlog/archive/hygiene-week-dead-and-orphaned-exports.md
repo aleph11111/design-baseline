@@ -35,3 +35,19 @@ None of this is standard shadcn boilerplate (partial-adoption of a vendored mult
 
 - `docs/RULES.md` Guidelines — "Every documented variant axis gets a living demo in `src/examples/<slug>-demo.tsx`"
 - `docs/STYLE.md:217` — the stale pointer to `section-nav-demo.tsx`
+
+## Resolution (2026-07-11)
+
+- **ConfirmationDialog** — wired into `src/examples/crud-dialog-demo.tsx`: the delete flow now
+  opens the baseline's accessible `<ConfirmationDialog>` instead of a blocking `window.confirm`,
+  giving the primitive a real consumer, a visible gallery demo, and realizing the intent
+  `CrudDialogFooter`'s JSDoc documents.
+- **SectionNavShell** — `SectionNavDemo` added to `gallery/layout-demos.tsx` LAYOUT_PRIMS (slug
+  `section-nav`), reachable from `npm run gallery`. The example's root height changed
+  `h-screen`→`h-full min-h-[30rem]` so it frames cleanly inside the gallery's inset `<main>`.
+  The `docs/STYLE.md:217` pointer stays valid (now backed by a live gallery surface).
+- **CRUD_ERRORS / CRUD_DISCARD_PROMPT / DEFAULT_CRUD_DIALOG_LABELS** — **kept** as-is. These are
+  documented donor public API (`crud-dialog.baseline.md:23,92`); for a donor repo, an export
+  being unused in the local demo is the expected state, not dead code. Pruning would shrink a
+  deliberately-documented surface and force contradicting doc edits. The ticket's "dead export"
+  framing was app-logic that doesn't transfer to a donor (lesson recorded in `docs/lessons.md`).
