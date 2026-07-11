@@ -1,6 +1,8 @@
 import * as React from "react";
-import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
-import { type HeaderFill } from "@/components/layout/headerFill";
+import {
+  SurfaceHeaderSlot,
+  type SurfaceHeaderSlotProps,
+} from "@/components/layout/SurfaceHeaderSlot";
 import { cn } from "@/lib/utils";
 
 export type FeedShellProps = {
@@ -19,20 +21,8 @@ export type FeedShellProps = {
   /** Shown (centered, muted) when there are no items — pass for the empty state. */
   empty?: React.ReactNode;
 
-  // On-surface header (Plex Ledger board form). When `title` is set, the shell
-  // renders a `SurfaceHeader` at the top of its bounded surface — the title +
-  // actions sit ON the card, not in a separate PageHeader above it.
-  /** Overline kicker above the title (e.g. "Inbox", "Activity"). */
-  kicker?: React.ReactNode;
-  /** Surface title. When set, the on-surface header bar renders. */
-  title?: React.ReactNode;
-  /** Right-aligned actions in the on-surface header (e.g. "Mark all read"). */
-  headerActions?: React.ReactNode;
-  /** Header treatment for the on-surface header (House Style B). */
-  headerFill?: HeaderFill;
-
   className?: string;
-};
+} & SurfaceHeaderSlotProps;
 
 /**
  * FeedShell — the container for a feed/inbox (H) surface: a toolbar (filter chips
@@ -62,14 +52,12 @@ export function FeedShell({
         className,
       )}
     >
-      {title !== undefined && (
-        <SurfaceHeader
-          kicker={kicker}
-          title={title}
-          actions={headerActions}
-          headerFill={headerFill}
-        />
-      )}
+      <SurfaceHeaderSlot
+        kicker={kicker}
+        title={title}
+        headerActions={headerActions}
+        headerFill={headerFill}
+      />
       <div className={cn(title !== undefined && "p-5 space-y-5")}>
         {(filters || actions) && (
           <div className="flex flex-wrap items-center gap-3">

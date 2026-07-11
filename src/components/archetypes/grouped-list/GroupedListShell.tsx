@@ -1,8 +1,10 @@
 import * as React from "react";
 import { StateView } from "@/components/ui/state-view";
 import { resolveListState } from "@/components/archetypes/shared";
-import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
-import { type HeaderFill } from "@/components/layout/headerFill";
+import {
+  SurfaceHeaderSlot,
+  type SurfaceHeaderSlotProps,
+} from "@/components/layout/SurfaceHeaderSlot";
 import { cn } from "@/lib/utils";
 
 export type GroupedListShellProps = {
@@ -21,19 +23,8 @@ export type GroupedListShellProps = {
   /** `<GroupedListSection>` instances. */
   children?: React.ReactNode;
 
-  // On-surface header (Plex Ledger board form). When `title` is set, the shell
-  // renders a `SurfaceHeader` above the toolbar and sections.
-  /** Overline kicker above the title (e.g. "Catalog", "Library"). */
-  kicker?: React.ReactNode;
-  /** Surface title. When set, the on-surface header bar renders. */
-  title?: React.ReactNode;
-  /** Right-aligned actions in the on-surface header (e.g. "+ New"). */
-  headerActions?: React.ReactNode;
-  /** Header treatment for the on-surface header (House Style B). */
-  headerFill?: HeaderFill;
-
   className?: string;
-};
+} & SurfaceHeaderSlotProps;
 
 /**
  * Page-level wrapper for an Archetype K (grouped-list) page. Renders an
@@ -65,14 +56,12 @@ export function GroupedListShell({
 
   return (
     <div className={cn("space-y-5", className)}>
-      {title !== undefined && (
-        <SurfaceHeader
-          kicker={kicker}
-          title={title}
-          actions={headerActions}
-          headerFill={headerFill}
-        />
-      )}
+      <SurfaceHeaderSlot
+        kicker={kicker}
+        title={title}
+        headerActions={headerActions}
+        headerFill={headerFill}
+      />
 
       {/* Page-level toolbar: a bare flex row (no card chrome) — the same
           standalone-toolbar treatment as feed-inbox. The grouped sections below

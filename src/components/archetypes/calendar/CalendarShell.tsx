@@ -1,6 +1,8 @@
 import * as React from "react";
-import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
-import { type HeaderFill } from "@/components/layout/headerFill";
+import {
+  SurfaceHeaderSlot,
+  type SurfaceHeaderSlotProps,
+} from "@/components/layout/SurfaceHeaderSlot";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -42,22 +44,14 @@ export type CalendarDay = {
   events: CalendarEvent[];
 };
 
-export type CalendarShellProps = {
-  /** Overline kicker above the title (e.g. "Schedule", "Planung"). */
-  kicker?: React.ReactNode;
-  /** The period title (e.g. "June 2026 · Week 26"). */
+export type CalendarShellProps = Omit<SurfaceHeaderSlotProps, "title"> & {
+  /** The period title (e.g. "June 2026 · Week 26"). Unlike the other framed
+   *  shells, a calendar's header is never optional. */
   title: React.ReactNode;
-  /** Nav / create cluster, right-aligned in the header bar (`‹ Today › + Event`). */
-  headerActions?: React.ReactNode;
   /** The seven day columns in display order. */
   days: CalendarDay[];
   /** Empty-column copy, centred faintly when a day has no events. Default: none. */
   emptyDayLabel?: React.ReactNode;
-  /**
-   * Header treatment (House Style B). Defaults to the project's
-   * `HeaderFillContext` ("solid" — accent-filled — unless overridden).
-   */
-  headerFill?: HeaderFill;
   /** Outer card className override. */
   className?: string;
 };
@@ -122,10 +116,10 @@ export function CalendarShell({
         className,
       )}
     >
-      <SurfaceHeader
+      <SurfaceHeaderSlot
         kicker={kicker}
         title={title}
-        actions={headerActions}
+        headerActions={headerActions}
         headerFill={headerFill}
       />
 
