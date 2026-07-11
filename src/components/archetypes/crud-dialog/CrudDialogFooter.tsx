@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ActionFooterBar } from "@/components/archetypes/shared/ActionFooterBar";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -98,68 +97,26 @@ export function CrudDialogFooter({
   overflowMenu,
   className,
 }: CrudDialogFooterProps): React.ReactElement {
-  const hasPrimary = primaryLabel !== undefined;
-  const hasSecondary = secondaryLabel !== undefined;
-  const hasDestructive = destructiveLabel !== undefined && onDestructive !== undefined;
-
-  // Resolve the submitting label: explicit override (i18n-safe) wins,
-  // otherwise derive English: "Save" → "Saving…", "Create" → "Creating…".
-  const resolvedSubmittingLabel =
-    submittingLabel ??
-    (primaryLabel ? `${primaryLabel.replace(/e$/, "")}ing…` : "Saving…");
-
+  // Thin wrapper over the shared ActionFooterBar core: J's distinct surface is
+  // just the bordered `px-6 py-4` container. Destructive gating is the plain
+  // "label + handler present" check (no mode), buttons carry no form `type`
+  // (dialog, not a form), and a delete in flight leaves the secondary/primary
+  // actions enabled — so `formAware`/`disableActionsWhileDeleting` stay off.
   return (
-    <div
-      className={cn(
-        "flex items-center justify-between gap-2 border-t px-6 py-4 shrink-0",
-        className,
-      )}
-    >
-      {/* Leading edge — destructive action */}
-      <div className="flex items-center">
-        {hasDestructive && (
-          <Button
-            variant="outline"
-            className="text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
-            onClick={onDestructive}
-            disabled={isDeleting || isSubmitting}
-          >
-            {isDeleting && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            {destructiveLabel}
-          </Button>
-        )}
-      </div>
-
-      {/* Trailing edge — overflow menu + secondary + primary */}
-      <div className="flex items-center gap-2">
-        {overflowMenu}
-
-        {hasSecondary && (
-          <Button
-            variant="outline"
-            onClick={onSecondary}
-            disabled={isSubmitting}
-          >
-            {secondaryLabel}
-          </Button>
-        )}
-
-        {hasPrimary && (
-          <Button
-            variant="default"
-            onClick={onPrimary}
-            disabled={primaryDisabled || isSubmitting}
-          >
-            {isSubmitting && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            {isSubmitting ? resolvedSubmittingLabel : primaryLabel}
-          </Button>
-        )}
-      </div>
-    </div>
+    <ActionFooterBar
+      className={cn("border-t px-6 py-4 shrink-0", className)}
+      primaryLabel={primaryLabel}
+      onPrimary={onPrimary}
+      primaryDisabled={primaryDisabled}
+      isSubmitting={isSubmitting}
+      submittingLabel={submittingLabel}
+      isDeleting={isDeleting}
+      secondaryLabel={secondaryLabel}
+      onSecondary={onSecondary}
+      destructiveLabel={destructiveLabel}
+      onDestructive={onDestructive}
+      overflowMenu={overflowMenu}
+    />
   );
 }
 
