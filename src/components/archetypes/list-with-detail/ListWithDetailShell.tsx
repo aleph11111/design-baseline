@@ -1,11 +1,10 @@
 import * as React from "react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { useHeaderFill, headerFillClasses } from "@/components/layout/headerFill";
 import {
-  useHeaderFill,
-  headerFillClasses,
-  type HeaderFill,
-} from "@/components/layout/headerFill";
-import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
+  SurfaceHeaderSlot,
+  type SurfaceHeaderSlotProps,
+} from "@/components/layout/SurfaceHeaderSlot";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import {
@@ -77,19 +76,9 @@ export type ListWithDetailShellProps<Row> = {
   detailTitle?: React.ReactNode;
   /** Optional right-aligned actions in the drawer header (e.g. an Edit button). */
   detailActions?: React.ReactNode;
-  /** Header treatment for the drawer/sheet header bar and the master surface header
-   *  (House Style B). Default: project context. */
-  headerFill?: HeaderFill;
 
-  // On-surface header (Plex Ledger board form). When `title` is set, the shell
-  // renders a `SurfaceHeader` at the top of the master list surface — the title +
-  // actions sit ON the card, not in a separate PageHeader above it.
-  /** Overline kicker above the title (e.g. "Podcasts", "Records"). */
-  kicker?: React.ReactNode;
-  /** Master surface title. When set, the on-surface header bar renders. */
-  title?: React.ReactNode;
-  /** Right-aligned actions in the master surface header (e.g. "+ New"). */
-  headerActions?: React.ReactNode;
+  // `headerFill` (from SurfaceHeaderSlotProps below) also drives the drawer/sheet
+  // header bar, not just the master on-surface header.
 
   emptyStateMessage?: string;
   filteredEmpty?: boolean;
@@ -116,7 +105,7 @@ export type ListWithDetailShellProps<Row> = {
    */
   unstyled?: boolean;
   className?: string;
-};
+} & SurfaceHeaderSlotProps;
 
 // ---------------------------------------------------------------------------
 // Component
@@ -262,14 +251,12 @@ function ListWithDetailShellInner<Row>(
         className,
       )}
     >
-      {title !== undefined && (
-        <SurfaceHeader
-          kicker={kicker}
-          title={title}
-          actions={headerActions}
-          headerFill={headerFill}
-        />
-      )}
+      <SurfaceHeaderSlot
+        kicker={kicker}
+        title={title}
+        headerActions={headerActions}
+        headerFill={headerFill}
+      />
       {toolbar && <div className="border-b px-4 py-3">{toolbar}</div>}
       <div className="flex">
         <div className="min-w-0 flex-1 overflow-x-auto">{bodyContent}</div>

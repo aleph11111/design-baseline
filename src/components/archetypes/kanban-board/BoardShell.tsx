@@ -1,26 +1,16 @@
 import * as React from "react";
-import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
-import { type HeaderFill } from "@/components/layout/headerFill";
+import {
+  SurfaceHeaderSlot,
+  type SurfaceHeaderSlotProps,
+} from "@/components/layout/SurfaceHeaderSlot";
 import { cn } from "@/lib/utils";
 
 export type BoardShellProps = {
   /** `<BoardColumn>` children, laid out as a horizontally-scrolling row. */
   children: React.ReactNode;
 
-  // On-surface header (Plex Ledger board form). When `title` is set, the shell
-  // renders a `SurfaceHeader` at the top of its bounded surface — the title +
-  // actions sit ON the card, not in a separate PageHeader above it.
-  /** Overline kicker above the title (e.g. "Board", "Backlog"). */
-  kicker?: React.ReactNode;
-  /** Surface title. When set, the on-surface header bar renders. */
-  title?: React.ReactNode;
-  /** Right-aligned actions in the on-surface header (e.g. "+ Add card" / filter). */
-  headerActions?: React.ReactNode;
-  /** Header treatment for the on-surface header (House Style B). */
-  headerFill?: HeaderFill;
-
   className?: string;
-};
+} & SurfaceHeaderSlotProps;
 
 /**
  * BoardShell — the horizontally-scrolling column row for a kanban-board (P)
@@ -44,10 +34,10 @@ export function BoardShell({
   if (title !== undefined) {
     return (
       <div className={cn("rounded-lg border bg-card overflow-hidden", className)}>
-        <SurfaceHeader
+        <SurfaceHeaderSlot
           kicker={kicker}
           title={title}
-          actions={headerActions}
+          headerActions={headerActions}
           headerFill={headerFill}
         />
         <div className="flex items-start gap-4 overflow-x-auto p-4 pb-6">

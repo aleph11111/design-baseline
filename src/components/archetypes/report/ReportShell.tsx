@@ -1,27 +1,18 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
-import { type HeaderFill } from "@/components/layout/headerFill";
+import {
+  SurfaceHeaderSlot,
+  type SurfaceHeaderSlotProps,
+} from "@/components/layout/SurfaceHeaderSlot";
 
-export type ReportShellProps = {
-  /**
-   * Overline kicker above the title — the document class (e.g. "Beleg",
-   * "Invoice", "Quote"). Rendered via the shared `OVERLINE_CLASS` so the
-   * uppercase-label signature never drifts.
-   */
-  kicker?: React.ReactNode;
+export type ReportShellProps = Omit<SurfaceHeaderSlotProps, "title"> & {
   /**
    * The document title — the human identifier of the document (e.g.
    * "Rechnung RE-2025-0417"). Rendered as `text-lg font-semibold`. The
-   * caller wraps any embedded ID figure in `font-mono` itself.
+   * caller wraps any embedded ID figure in `font-mono` itself. Unlike the
+   * other framed shells, a report's header is never optional.
    */
   title: React.ReactNode;
-  /**
-   * Optional right-aligned actions row in the header bar. Pass `<Button>`s
-   * (size="sm"): secondary = `variant="outline"`, primary = default. Actions
-   * MUST NOT be mixed into the title — pass them here.
-   */
-  headerActions?: React.ReactNode;
   /**
    * Document body — the parties row, line-item table, and totals stack. The
    * shell pads it (`p-6`); the body composes its own internal rhythm.
@@ -34,11 +25,6 @@ export type ReportShellProps = {
    * - `"lg"`: `max-w-4xl` — a wide statement with many columns.
    */
   width?: "sm" | "md" | "lg";
-  /**
-   * Header treatment (House Style B). Defaults to the project's
-   * `HeaderFillContext` ("solid" — accent-filled — unless overridden).
-   */
-  headerFill?: HeaderFill;
   className?: string;
 };
 
@@ -84,10 +70,10 @@ export function ReportShell({
         className,
       )}
     >
-      <SurfaceHeader
+      <SurfaceHeaderSlot
         kicker={kicker}
         title={title}
-        actions={headerActions}
+        headerActions={headerActions}
         headerFill={headerFill}
       />
       <div className="p-6">{children}</div>

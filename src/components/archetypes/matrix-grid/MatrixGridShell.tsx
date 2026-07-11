@@ -4,8 +4,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
-import { type HeaderFill } from "@/components/layout/headerFill";
+import {
+  SurfaceHeaderSlot,
+  type SurfaceHeaderSlotProps,
+} from "@/components/layout/SurfaceHeaderSlot";
 import { cn } from "@/lib/utils";
 import { getInteractiveRowProps, interactiveRowFocusRing } from "../shared";
 
@@ -63,18 +65,6 @@ export type MatrixGridShellProps<Cell> = {
   /** Click handler. When present, cells receive `cursor-pointer select-none touch-manipulation`. */
   onCellClick?: (ctx: MatrixCellContext<Cell>) => void;
 
-  // On-surface header (Plex Ledger board form). When `title` is set, the shell
-  // renders a `SurfaceHeader` at the top of its bounded surface — the title +
-  // actions sit ON the card, not in a separate PageHeader above it.
-  /** Overline kicker above the title (e.g. "Gradebook", "Schedule"). */
-  kicker?: React.ReactNode;
-  /** Surface title. When set, the on-surface header bar renders. */
-  title?: React.ReactNode;
-  /** Right-aligned actions in the on-surface header. */
-  headerActions?: React.ReactNode;
-  /** Header treatment for the on-surface header (House Style B). */
-  headerFill?: HeaderFill;
-
   /**
    * Optional toolbar rendered as a ruled band directly under the on-surface
    * header — the home for controls that drive the grid (an as-of date, filters,
@@ -91,7 +81,7 @@ export type MatrixGridShellProps<Cell> = {
 
   /** Outer wrapper className override. */
   className?: string;
-};
+} & SurfaceHeaderSlotProps;
 
 // ---------------------------------------------------------------------------
 // Component
@@ -142,14 +132,12 @@ function MatrixGridShellInner<Cell>({
         className,
       )}
     >
-      {title !== undefined && (
-        <SurfaceHeader
-          kicker={kicker}
-          title={title}
-          actions={headerActions}
-          headerFill={headerFill}
-        />
-      )}
+      <SurfaceHeaderSlot
+        kicker={kicker}
+        title={title}
+        headerActions={headerActions}
+        headerFill={headerFill}
+      />
       {toolbar !== undefined && toolbar !== null && (
         <div className="border-b px-4 py-3">{toolbar}</div>
       )}

@@ -27,11 +27,11 @@ The four props appear together in `SettingsTableShell.tsx` (`src/components/arch
 
 ## What to do
 
-- [ ] Add a shared header slot to the layout layer: either a `SurfaceHeaderSlot` component that renders the `title !== undefined` guard + `<SurfaceHeader>` internally, or a reusable `SurfaceHeaderSlotProps = Pick<SurfaceHeaderProps, "kicker" | "title" | "headerFill"> & { headerActions?: React.ReactNode }` type the shells spread.
-- [ ] Refactor the eleven framed shells to consume the shared slot instead of re-declaring the four props and the conditional `<SurfaceHeader>` block, so the on-surface-header contract lives in exactly one place.
-- [ ] Keep the change contract-preserving: no consumer-facing prop rename beyond what `shell-header-actions-prop-naming` already mandates (`actions` → `headerActions`), no import churn for consumers.
-- [ ] Add a red/green test (`vitest` + `@testing-library/react`) asserting a representative shell renders its header through the shared slot (shared `data-slot="surface-header"` present) and omits it when `title` is undefined.
-- [ ] Bump the affected archetype `version`s in `docs/archetypes/MANIFEST.json` so consumers adopt via `/promote-archetype --update`.
+- [x] Add a shared header slot to the layout layer: either a `SurfaceHeaderSlot` component that renders the `title !== undefined` guard + `<SurfaceHeader>` internally, or a reusable `SurfaceHeaderSlotProps = Pick<SurfaceHeaderProps, "kicker" | "title" | "headerFill"> & { headerActions?: React.ReactNode }` type the shells spread.
+- [x] Refactor the eleven framed shells to consume the shared slot instead of re-declaring the four props and the conditional `<SurfaceHeader>` block, so the on-surface-header contract lives in exactly one place.
+- [x] Keep the change contract-preserving: no consumer-facing prop rename beyond what `shell-header-actions-prop-naming` already mandates (`actions` → `headerActions`), no import churn for consumers.
+- [x] Add a red/green test (`vitest` + `@testing-library/react`) asserting a representative shell renders its header through the shared slot (shared `data-slot="surface-header"` present) and omits it when `title` is undefined.
+- [x] Bump the affected archetype `version`s in `docs/archetypes/MANIFEST.json` so consumers adopt via `/promote-archetype --update`.
 
 ## Acceptance
 

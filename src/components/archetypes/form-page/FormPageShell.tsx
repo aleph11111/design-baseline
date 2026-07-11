@@ -1,6 +1,8 @@
 import * as React from "react";
-import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
-import { type HeaderFill } from "@/components/layout/headerFill";
+import {
+  SurfaceHeaderSlot,
+  type SurfaceHeaderSlotProps,
+} from "@/components/layout/SurfaceHeaderSlot";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -26,22 +28,8 @@ export type FormPageShellProps = {
    */
   width?: "sm" | "md" | "lg" | "xl";
 
-  // On-surface header (Plex Ledger board form). When `title` is set, the shell
-  // renders a `SurfaceHeader` at the top of a bounded surface — the title sits
-  // ON the card, not in a separate FormPageHeader / PageHeader above it.
-  /** Overline kicker above the title (e.g. "Recipes", "Profile"). */
-  kicker?: React.ReactNode;
-  /** Surface title. When set, the on-surface header bar renders and the shell
-   *  gains card chrome (rounded-lg border bg-card). */
-  title?: React.ReactNode;
-  /** Right-aligned secondary actions in the on-surface header. The form's
-   *  primary save/cancel always stay in <FormPageActions> at the footer. */
-  headerActions?: React.ReactNode;
-  /** Header treatment for the on-surface header (House Style B). */
-  headerFill?: HeaderFill;
-
   className?: string;
-};
+} & SurfaceHeaderSlotProps;
 
 // ---------------------------------------------------------------------------
 // Component
@@ -96,10 +84,10 @@ export function FormPageShell({
           className,
         )}
       >
-        <SurfaceHeader
+        <SurfaceHeaderSlot
           kicker={kicker}
           title={title}
-          actions={headerActions}
+          headerActions={headerActions}
           headerFill={headerFill}
         />
         <div className="p-5 space-y-5">{children}</div>

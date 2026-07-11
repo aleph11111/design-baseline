@@ -1,8 +1,10 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
-import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
-import { type HeaderFill } from "@/components/layout/headerFill";
+import {
+  SurfaceHeaderSlot,
+  type SurfaceHeaderSlotProps,
+} from "@/components/layout/SurfaceHeaderSlot";
 import {
   SettingsPageHeader,
   type SettingsPageHeaderProps,
@@ -12,42 +14,36 @@ import {
 // Public types
 // ---------------------------------------------------------------------------
 
-export type SettingsPageShellProps = SettingsPageHeaderProps & {
-  /**
-   * Optional breadcrumb trail rendered above the header.
-   *
-   * Kept as a slot rather than auto-derived from the router: breadcrumb
-   * derivation is framework-specific (it needs the current location), so the
-   * consuming project wires its own router-aware breadcrumb component here.
-   */
-  breadcrumbs?: React.ReactNode;
-  /**
-   * Page body. This slot is the only structural variation between the three
-   * settings consumers that share this shell:
-   *   - tabbed settings (F2): pass a `<Tabs>` element
-   *   - settings form    (D1): pass a `<form>` element
-   *   - settings table   (D2): pass a settings-table shell
-   */
-  children: React.ReactNode;
-  /**
-   * Extra classes for the inner container. Use on a standalone page (one not
-   * nested under a settings layout) to add the outer padding the layout would
-   * otherwise supply, e.g. `className="container mx-auto px-6 py-6"`.
-   */
-  className?: string;
-
-  // On-surface header (Plex Ledger board form). When `kicker` or `headerActions`
-  // is set, the shell switches to board form: `SettingsPageHeader` is suppressed
-  // and a `SurfaceHeader` renders at the top of a bounded card wrapping the
-  // children. The existing `title` prop (from `SettingsPageHeaderProps`) is
-  // used as the surface title.
-  /** Overline kicker above the title (e.g. "Settings", "Configuration"). */
-  kicker?: React.ReactNode;
-  /** Right-aligned actions in the on-surface header. */
-  headerActions?: React.ReactNode;
-  /** Header treatment for the on-surface header (House Style B). */
-  headerFill?: HeaderFill;
-};
+// On-surface header (Plex Ledger board form). When `kicker` or `headerActions`
+// is set, the shell switches to board form: `SettingsPageHeader` is suppressed
+// and a `SurfaceHeader` renders at the top of a bounded card wrapping the
+// children. The existing `title` prop (from `SettingsPageHeaderProps`) is
+// used as the surface title.
+export type SettingsPageShellProps = SettingsPageHeaderProps &
+  Omit<SurfaceHeaderSlotProps, "title"> & {
+    /**
+     * Optional breadcrumb trail rendered above the header.
+     *
+     * Kept as a slot rather than auto-derived from the router: breadcrumb
+     * derivation is framework-specific (it needs the current location), so the
+     * consuming project wires its own router-aware breadcrumb component here.
+     */
+    breadcrumbs?: React.ReactNode;
+    /**
+     * Page body. This slot is the only structural variation between the three
+     * settings consumers that share this shell:
+     *   - tabbed settings (F2): pass a `<Tabs>` element
+     *   - settings form    (D1): pass a `<form>` element
+     *   - settings table   (D2): pass a settings-table shell
+     */
+    children: React.ReactNode;
+    /**
+     * Extra classes for the inner container. Use on a standalone page (one not
+     * nested under a settings layout) to add the outer padding the layout would
+     * otherwise supply, e.g. `className="container mx-auto px-6 py-6"`.
+     */
+    className?: string;
+  };
 
 // ---------------------------------------------------------------------------
 // Component
@@ -91,14 +87,12 @@ export function SettingsPageShell({
         {boardForm ? (
           // Board form: SurfaceHeader on the bounded card; SettingsPageHeader suppressed.
           <div className="rounded-lg border bg-card overflow-hidden">
-            {header.title !== undefined && (
-              <SurfaceHeader
-                kicker={kicker}
-                title={header.title}
-                actions={headerActions}
-                headerFill={headerFill}
-              />
-            )}
+            <SurfaceHeaderSlot
+              kicker={kicker}
+              title={header.title}
+              headerActions={headerActions}
+              headerFill={headerFill}
+            />
             <div className="p-5">{children}</div>
           </div>
         ) : (
