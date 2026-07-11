@@ -1,8 +1,10 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/layout/SectionCard";
-import { SurfaceHeader } from "@/components/layout/SurfaceHeader";
-import { type HeaderFill } from "@/components/layout/headerFill";
+import {
+  SurfaceHeaderSlot,
+  type SurfaceHeaderSlotProps,
+} from "@/components/layout/SurfaceHeaderSlot";
 import { cn } from "@/lib/utils";
 import { WizardStepper, type WizardStep } from "./WizardStepper";
 
@@ -26,19 +28,8 @@ export type WizardShellProps = {
   /** The current step's body. */
   children: React.ReactNode;
 
-  // On-surface header (Plex Ledger board form). When `title` is set, the shell
-  // renders a `SurfaceHeader` at the top of its bounded surface — the title sits
-  // ON the card, with the stepper + step body + footer below. The wizard's
-  // Back / Next / Commit actions always remain in the wizard footer.
-  /** Overline kicker above the title (e.g. "Import", "Setup"). */
-  kicker?: React.ReactNode;
-  /** Surface title. When set, the on-surface header bar renders. */
-  title?: React.ReactNode;
-  /** Header treatment for the on-surface header (House Style B). */
-  headerFill?: HeaderFill;
-
   className?: string;
-};
+} & Omit<SurfaceHeaderSlotProps, "headerActions">;
 
 /**
  * WizardShell — the import-wizard (W) archetype shell: a step indicator, the
@@ -101,7 +92,7 @@ export function WizardShell({
   if (title !== undefined) {
     return (
       <div className={cn("rounded-lg border bg-card overflow-hidden", className)}>
-        <SurfaceHeader
+        <SurfaceHeaderSlot
           kicker={kicker}
           title={title}
           headerFill={headerFill}
