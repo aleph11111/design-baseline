@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-19
-status: ready
+status: done
 model: sonnet
 model_reason: single config field in vitest.config.ts with a clear pass/fail check
 gate:
@@ -24,8 +24,8 @@ gate:
 
 ## What to do
 
-- [ ] Add an explicit `testTimeout` to the `test` block in `vitest.config.ts`, sized above the observed jsdom interaction-test cost (the 5s default is demonstrably too tight; 30s passes reliably).
-- [ ] Rerun `npm test` from a loaded machine to confirm `ThemeToggle.test.tsx` and `SettingsTableShell.test.tsx` no longer time out.
+- [x] Add an explicit `testTimeout` to the `test` block in `vitest.config.ts`, sized above the observed jsdom interaction-test cost (the 5s default is demonstrably too tight; 30s passes reliably).
+- [x] Rerun `npm test` from a loaded machine to confirm `ThemeToggle.test.tsx` and `SettingsTableShell.test.tsx` no longer time out.
 - [ ] ? Investigate whether the 26–36s environment setup itself can be reduced (e.g. narrowing the jsdom environment to files that need it), which would shrink the timeout pressure at its source rather than raising the ceiling.
 
 ## Acceptance

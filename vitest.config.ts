@@ -19,5 +19,9 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     include: ["src/**/*.test.{ts,tsx}"],
+    // jsdom environment setup alone costs 26–36s per run, so vitest's 5s
+    // default leaves interaction-heavy tests (ThemeToggle, SettingsTableShell)
+    // timing out under load even though they pass in isolation.
+    testTimeout: 30_000,
   },
 });
