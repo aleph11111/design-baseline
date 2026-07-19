@@ -1,7 +1,7 @@
 ---
 area: ops-health
 opened: 2026-07-19
-status: ready
+status: done
 gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
@@ -40,3 +40,22 @@ Per the ops-health ritual's read-only constraint, none of these worktrees, branc
 - `~/.claude/CLAUDE.md`, "Parallel-Safe Workflow" — `/ship-cleanup` is the documented mechanism for reconciling merged PRs (remove worktree, delete local branch, pull main); these four cases are exactly what it's meant to catch.
 - `docs/backlog/archive/style-baseline-stack-aware-preflight.md` — the archived, `status: done` ticket whose worktree/branch were never cleaned up.
 - `[[feedback-donor-master-trunk-shipping]]` memory — notes that `gh`'s local branch-delete can fail under worktrees, a plausible root cause for why cleanup silently didn't complete for some of these.
+
+## Resolution — 2026-07-19
+
+**Root cause (supersedes the `gh`-branch-delete hypothesis above).** `gh api "repos/aleph11111/design-baseline/pulls?state=all&head=aleph11111:feat/<slug>"` returns **zero PRs for all four branches**. They were merged directly into `main` before this repo gained its GitHub origin on 2026-07-09. `/ship-cleanup` is driven entirely by `pending-ships.jsonl` entries keyed on `pr_number`, plus a step-10 reaper that sweeps only *remote* branches — so a locally-merged branch has neither a key to match nor a remote ref to sweep. Nothing failed silently; the cases were structurally invisible.
+
+Merge status re-verified against a fresh `git fetch origin` (`git rev-list --left-right --count origin/main...<branch>`):
+
+| Branch | Count | Disposition |
+|---|---|---|
+| `feat/style-baseline-stack-aware-preflight` | `47 0` | worktree removed, branch deleted |
+| `feat/command-rail-primitives-surface` | `67 0` | branch deleted (no worktree) |
+| `feat/plex-ledger-board-finish` | `58 0` | branch deleted (no worktree) |
+| `feat/matrix-grid-per-cell-tooltip-perf` | `45 3` | **kept** — see below |
+
+All three deletions used `git branch -d` (safe mode, which refuses unmerged branches) rather than `-D`, so git independently confirmed the merge status a second time. The `style-baseline` worktree was checked with `git status --porcelain -uno` before removal.
+
+**Case 4 was deliberately not discarded.** `feat/matrix-grid-per-cell-tooltip-perf` holds complete, tested work: `MatrixGridShell.tsx` shares one `Tooltip` across all cells instead of one per cell, plus a new 104-line `MatrixGridShell.test.tsx`; the worktree is clean and its own ticket was already self-archived on the branch. Discarding it would have destroyed finished work with test coverage. Filed as [ship-stranded-matrix-grid-tooltip-branch.md](../ship-stranded-matrix-grid-tooltip-branch.md) — the branch and worktree are left in place for that ticket to rebase and ship. This satisfies the third acceptance criterion via its "has a corresponding backlog ticket tracking its unmerged work" arm.
+
+**Item 4 (the `/ship-cleanup` resilience question) is answered and filed**, not implemented here: the fix belongs in `~/.claude/lib/ship-reconcile.sh` and `~/.claude/commands/ship-cleanup.md`, which are global config and cannot ride a design-baseline PR. Filed as [ship-cleanup-local-orphan-reaper.md](../ship-cleanup-local-orphan-reaper.md) with `kind: ops`.
