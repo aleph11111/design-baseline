@@ -33,9 +33,28 @@ All tokens are HSL triplets in `src/styles/tokens.css`. Every shadcn component r
 | `muted-foreground`    | `215.4 16.3% 46.9%`       | `215 20.2% 65.1%`         | Secondary text, helper text           |
 | `accent`              | `210 40% 96.1%`           | `217.2 32.6% 17.5%`       | Hover states, subtle highlights       |
 | `destructive`         | `0 84.2% 60.2%`           | `0 62.8% 30.6%`           | Errors, danger buttons                |
+| `success`             | `142.4 71.8% 29.2%`       | `141.9 69.2% 58%`         | Positive status, confirmations        |
+| `warning`             | `26 90.5% 37.1%`          | `43 96% 56%`              | Caution status, non-blocking problems |
 | `border` / `input`    | `214.3 31.8% 91.4%`       | `217.2 32.6% 17.5%`       | Borders, input outlines               |
 | `ring`                | `222.2 84% 4.9%`          | `212.7 26.8% 83.9%`       | Focus ring                            |
 | `sidebar-*`           | (separate palette)        | (separate palette)        | Sidebar surface + accents             |
+
+**Semantic status color — `success` / `warning` only, and there is no `info`.**
+Any positive/caution state must route through these tokens (or a `<Badge>` /
+`<Alert>` variant that does). Literal palette classes — `bg-green-500`,
+`text-emerald-600`, `bg-amber-50` — are forbidden: they ignore the re-skin, and
+because Tailwind's palette has no theme awareness they silently misrender in
+dark mode. "Info" is **not** a fourth token: it maps to `--primary`, so an
+informational alert or event chip re-skins with the brand like everything else.
+
+Unlike `--destructive`, these two **flip lightness between themes** (dark base +
+light text in `:root`; light base + dark text in `.dark`), matching how
+`--primary` / `--secondary` / `--muted` / `--accent` already behave. That flip is
+what lets one token pair serve both uses — `bg-success` as a solid chip *and*
+`text-success` as an on-surface label — in either theme. A fixed-lightness token
+can only ever be legible for one of the two. When tinting (`bg-success/15`), keep
+the label on `text-foreground`: a colored `text-*` over a same-hue tint has
+contrast in exactly one theme.
 
 ### Radius
 
@@ -291,6 +310,7 @@ consolidation pass, after an audit found each hand-rolled in 3–4 places):
 | Loading / empty / error plane (icon + title + description + CTA) | `StateView` (`ui/state-view`) | inline "Loading…" / centered `<div>` / ad-hoc `<Alert>` / a two-line hand-rolled empty |
 | Entity circle (icon / initials) | `IconAvatar` (`ui/icon-avatar`) | a `<span className="rounded-full bg-muted">` |
 | Status / category chip | `<Badge>` (`ui/badge`) | a `<span className="rounded-full border px-2.5 py-0.5">` |
+| Positive / caution status color | `--success` / `--warning` tokens (`styles/tokens.css`) | `bg-green-500`, `text-emerald-600`, `bg-amber-50`, or a second tone→class map beside `<Badge>`'s |
 | Uppercase overline label | `OVERLINE_CLASS` (`layout/overline`), via `SectionHeading`/`StatTile` | a re-typed `text-xs uppercase tracking-*` string |
 | Editable control flush in a table/grid cell | `CellInput` / `CellSelect` (`ui/cell-input`) | a bare native `<input>`/`<select>` in a `<td>` |
 
@@ -359,6 +379,9 @@ When applying the baseline to a new project with its own brand:
 1. Edit `src/styles/tokens.css`:
    - Override `--primary`, `--secondary`, `--accent` (and dark variants) with the brand HSLs.
    - Override `--radius` if the brand wants squared or pill-shaped UI.
+   - Leave `--success` / `--warning` alone unless the brand genuinely redefines
+     them — they are semantic, not brand, and the donor defaults are already
+     contrast-checked in both themes.
    - Tweak `--sidebar-*` for a contrasting sidebar surface if desired.
 2. Set the brand font in the project entry (Next: `next/font/google`; Vite: `<link>` in `index.html`).
 3. Replace the `brand` and `appName` props on `<AppSidebar>` with real values.
