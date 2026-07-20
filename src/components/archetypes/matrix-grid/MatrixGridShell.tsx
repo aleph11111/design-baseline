@@ -112,6 +112,13 @@ function MatrixGridShellInner<Cell>({
   const rowIdOf = getRowId ?? ((r: MatrixRow<Cell>) => r.id);
   const clickable = onCellClick !== undefined;
 
+  // A dense R×C matrix must not mount one Tooltip Root per cell (heavy mount
+  // cost, memory, re-render surface for a feature that only ever shows one
+  // tooltip at a time). Plain-text tooltips skip Radix entirely via the native
+  // `title` attribute; rich content shares a single Tooltip, mounted only for
+  // the currently-hovered cell.
+  const [hoveredCellKey, setHoveredCellKey] = React.useState<string | null>(null);
+
   // Merge adjacent columns by group. Empty group => standalone header (no banded row 1).
   const hasAnyGroup = columns.some((c) => c.group !== undefined && c.group !== "");
   const groupSpans: { group: string | undefined; span: number; startIdx: number }[] = [];
@@ -218,6 +225,13 @@ function MatrixGridShellInner<Cell>({
                   const content = filled && renderCell ? renderCell(ctx) : null;
                   const activate = clickable ? () => onCellClick!(ctx) : undefined;
 
+                  const tooltip = style?.tooltip;
+                  const hasTooltip = tooltip !== undefined && tooltip !== null;
+                  const isPlainTextTooltip =
+                    typeof tooltip === "string" || typeof tooltip === "number";
+                  const isRichTooltip = hasTooltip && !isPlainTextTooltip;
+                  const cellKey = `${rowKey}::${col.key}`;
+
                   const td = (
                     <td
                       key={col.key}
@@ -227,18 +241,27 @@ function MatrixGridShellInner<Cell>({
                         clickable && interactiveRowFocusRing,
                         style?.className,
                       )}
+                      title={isPlainTextTooltip ? String(tooltip) : undefined}
                       onClick={activate}
+                      onMouseEnter={
+                        isRichTooltip ? () => setHoveredCellKey(cellKey) : undefined
+                      }
+                      onMouseLeave={
+                        isRichTooltip
+                          ? () => setHoveredCellKey((k) => (k === cellKey ? null : k))
+                          : undefined
+                      }
                       {...getInteractiveRowProps(activate)}
                     >
                       {content}
                     </td>
                   );
 
-                  if (style?.tooltip !== undefined && style.tooltip !== null) {
+                  if (isRichTooltip && hoveredCellKey === cellKey) {
                     return (
-                      <Tooltip key={col.key}>
+                      <Tooltip key={col.key} defaultOpen>
                         <TooltipTrigger asChild>{td}</TooltipTrigger>
-                        <TooltipContent>{style.tooltip}</TooltipContent>
+                        <TooltipContent>{tooltip}</TooltipContent>
                       </Tooltip>
                     );
                   }
