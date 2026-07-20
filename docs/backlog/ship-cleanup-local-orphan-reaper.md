@@ -9,7 +9,7 @@ gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
   failed: []
-  graded_at: 2026-07-19T00:00:00Z
+  graded_at: 2026-07-20T13:20:00Z
 ---
 
 # Add a local-orphan reaper to /ship-cleanup for branches merged outside its view
@@ -49,3 +49,74 @@ The mechanical counterpart that needs the same change is `~/.claude/lib/ship-rec
 - `~/.claude/commands/ship-cleanup.md` — steps 0, 6, and 10 are the ones this change extends.
 - `~/.claude/lib/ship-reconcile.sh` — the mechanical script where the loop belongs.
 - `~/.claude/CLAUDE.md`, "Parallel-Safe Workflow" — defines `/ship-cleanup` as the documented reconciliation mechanism.
+
+## 2026-07-20 — evidence: still unimplemented, and the plan above would not work
+
+Three findings from a live `/ship-cleanup` run on `design-baseline`. The first two
+are verifiable right now; the third is reported deliberately without attribution.
+
+### 1. `ship-cleanup.md` already claims this is done — it is not
+
+`~/.claude/commands/ship-cleanup.md:152` (step 11) states:
+
+> **Implemented mechanically in `~/.claude/lib/ship-reconcile.sh` section 4** — per the
+> Architecture note below, the loop lives in the script; this entry documents it. Step 0's
+> delegation already runs it, so there is nothing to inline here.
+
+**There is no section 4.** `ship-reconcile.sh` carries exactly three numbered sections:
+`1. Self-heal` (:72), `2. Snapshot under lock` (:118), `3. Orphan discovery` (:267). No
+code path in the script enumerates local branches for reaping.
+
+This is worse than the gap being open, because the skill now *asserts* the gap is closed.
+Anyone — human or agent — reading `ship-cleanup.md` will believe local orphans are
+handled and stop looking. The doc ran ahead of the script. Whoever implements this ticket
+must land the code and the doc together; whoever does not should revert :152 to describe
+it as pending.
+
+Note also that section 3 is a **worktree**-orphan reaper, not a local-branch one, and it
+early-exits on `[ -z "$pr_num" ] && continue` — a branch that never had a PR is invisible
+to it by construction. That is precisely the population this ticket exists to cover.
+
+### 2. The "What to do" above is stale — it prescribes an ancestry test
+
+Two bullets specify `git rev-list --count origin/main..<branch>` with `0` meaning merged,
+and `git branch -d` as "a second independent safety check". Both are **ancestry** tests,
+and `ship-cleanup.md`'s own step 11 text now contradicts them directly:
+
+> For a fully-merged branch `rev-list --count origin/main..<b>` is therefore **never 0**,
+> `git branch -d` **refuses** it (same ancestry test — not an independent check)
+
+`/ship` squash-merges, which rewrites the branch into one new commit with a fresh SHA, so
+neither test can recognise a merged branch. Implemented as written, the reaper would never
+fire on anything — the same defect as the sibling ticket
+[ship-cleanup-step10-squash-misdetection.md](ship-cleanup-step10-squash-misdetection.md).
+The correct test is the content one: `git merge-tree --write-tree origin/main <branch>`
+equal to `origin/main^{tree}`. Update these bullets before implementing, and keep
+`branch -D` (not `-d`) since `-d` cannot see a squash merge.
+
+### 3. A branch and worktree disappeared; cause unattributed
+
+During the same run, `feat/crud-dialog-footer-submitting-label` (local-only, never pushed,
+no PR, no JSONL entry, clean worktree) lost both its ref and its worktree. It was present
+and healthy earlier in the session — `git worktree list` showed it, and a rebase was
+attempted in it and cleanly aborted.
+
+**No cause was established, and none should be assumed.** The two scripts run during the
+window cannot account for it: `ship-reap-remote-branches.sh` only issues
+`git push origin --delete` (remote-only, verified — no local `branch -d`/`-D` anywhere in
+it), and `ship-reconcile.sh` section 3 skips branches with no merged PR. Several sessions
+work this repo in parallel, so another session remains a plausible and unexamined
+explanation. Recording it here as an **observation, not a diagnosis**.
+
+No work was lost: commit `068a0f5` remained in the object store with its parent chain
+intact and the ref has been restored via `git branch feat/crud-dialog-footer-submitting-label 068a0f5`.
+The worktree was not recreated. Separately, that branch turns out to be fully superseded —
+`main` implements the same localizable-submitting-label feature better, via shared
+`ActionFooterBar` + `archetypes/shared/submittingLabel.ts` (#10), with the i18n case
+already covered in `FormPageActions.test.tsx`; merging the branch would revert that
+refactor.
+
+The transferable point for this ticket's acceptance criteria: a reaper must treat
+"differs from `main`" as a prompt to ask, never as licence to delete. Both branches
+adjudicated in this session reported "contributes content" under the content test, and in
+both cases the content was a **regression** against what had already landed.
