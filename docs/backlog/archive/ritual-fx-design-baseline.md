@@ -1,7 +1,7 @@
 ---
 area: ritual-fx
 opened: 2026-07-19
-status: ready
+status: done
 ---
 
 # Ritual effectiveness review — design-baseline (3 runs, 4 tickets filed, 4 shipped)
@@ -49,8 +49,19 @@ One proposed action per ritual. **This ticket proposes only — the review run p
 - [ ] If the `hygiene-week` cadence proposal is accepted, `cadenceDays` for `hygiene-week` is changed in `~/.claude/dashboard/server/types.ts` (or scoped per-repo if the matrix supports it) — a change made deliberately by the user, not by this ritual.
 - [ ] This ticket is moved to `archive/` (verdict acted on) or `discarded/` (verdict: no action warranted). Leaving it in `docs/backlog/` blocks the next `ritual-effectiveness` run by its own skip rule, so it should not sit here indefinitely.
 
+## Verdict (2026-07-20)
+
+User read the per-ritual table and ruled on all three exercised rituals:
+
+- **`refactor` — no change.** Accepted as proposed. Earning its keep (3 filed / 3 shipped / 0 rot). 30d cadence and prompt stay.
+- **`design` — no change, exempt from scoring.** Accepted as proposed. Interactive-by-design, no ticket-filing contract; scoring it on ticket yield is a category error.
+- **`hygiene-week` — cadence left at 7d; no dashboard cadence edit made.** The proposal was "slow to 30d *for this repo*", but `RITUALS` in `server/types.ts` has no per-repo scoping — `cadenceDays` is one global number (confirmed: `rituals.ts:259/:300`, `ritualAutomation.ts:106`, `roadmap.ts:462` all read `def.cadenceDays` directly). A global 7d→30d would wrongly slow hygiene on active app repos (e.g. `controlling-app`). So the real finding is the mechanism gap, filed as a dashboard follow-up: **`~/.claude/dashboard/docs/backlog/ritual-cadence-per-repo-override.md`** (add per-repo cadence override; seed `design-baseline`+`hygiene-week`→30d). `design-baseline` stays on the global 7d until that lands.
+
+No ritual retired, no prompt tuned — this repo has zero rotted or discarded tickets, which is the bar for either. This review file is design-baseline's only write; no ritual definition/prompt/cadence was modified here.
+
 ## Related
 
+- `~/.claude/dashboard/docs/backlog/ritual-cadence-per-repo-override.md` — the per-repo cadence-override follow-up filed by this verdict (dashboard repo)
 - `~/.claude/state/ritual-runs.jsonl` — the append-only run log this review reads (read-only; outside this repo)
 - `~/.claude/dashboard/server/types.ts` — `RITUALS` matrix, `RitualRun` shape, and the `design`-is-standalone note (read-only; outside this repo)
 - `docs/backlog/archive/refactor-list-state-resolution-helper.md`, `refactor-mode-aware-footer-core-duplication.md`, `refactor-shell-surface-header-slot-duplication.md` — the `refactor` run's three shipped tickets (PR #7)
