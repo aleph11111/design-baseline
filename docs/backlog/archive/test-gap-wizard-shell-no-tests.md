@@ -1,7 +1,7 @@
 ---
 area: test-gap
 opened: 2026-07-19
-status: ready
+status: done
 ---
 
 # WizardShell's step/footer state logic has no test coverage
@@ -18,11 +18,11 @@ Untested branching:
 
 ## What to do
 
-- [ ] Add `src/components/archetypes/import-wizard/WizardShell.test.tsx` covering: `current === 0` disables Back; `current === steps.length - 1` renders the Commit button (not Next) and calls `onCommit` when clicked.
-- [ ] Test intermediate steps render Next and call `onNext`.
-- [ ] Test `busy=true` disables both footer buttons and shows the "Importing…" label on the terminal step.
-- [ ] Test `canProceed=false` disables the forward action regardless of `busy`.
-- [ ] Test the `title` prop switches to the board-form wrapper.
+- [x] Add `src/components/archetypes/import-wizard/WizardShell.test.tsx` covering: `current === 0` disables Back; `current === steps.length - 1` renders the Commit button (not Next) and calls `onCommit` when clicked.
+- [x] Test intermediate steps render Next and call `onNext`.
+- [x] Test `busy=true` disables both footer buttons and shows the "Importing…" label on the terminal step.
+- [x] Test `canProceed=false` disables the forward action regardless of `busy`.
+- [x] Test the `title` prop switches to the board-form wrapper.
 
 ## Acceptance
 
