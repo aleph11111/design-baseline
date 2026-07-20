@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-19
-status: ready
+status: done
 model: sonnet
 model_reason: narrow a spy's scope and/or raise a config timeout — mechanical, with a reproducible acceptance check
 gate:
@@ -36,3 +36,10 @@ The prime suspect is the SettingsTableShell test's global prototype spies: it ca
 - [archive/settings-table-selected-set-perf.md](archive/settings-table-selected-set-perf.md) — the shipped ticket that introduced this test and the repo's vitest harness
 - [test-gap-logger-zero-tests.md](test-gap-logger-zero-tests.md) — sibling test-harness ticket
 - [vite-config-worktree-root-climb.md](vite-config-worktree-root-climb.md) — sibling vite/vitest config ticket
+
+## 2026-07-20 — superseded
+
+Consolidated into [vitest-default-timeout-flaky-suite.md](vitest-default-timeout-flaky-suite.md),
+which now carries this ticket's diagnosis and evidence. Archived as a duplicate
+report of one symptom, not as resolved work — the underlying flakiness is still open
+there.

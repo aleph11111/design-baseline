@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-19
-status: ready
+status: done
 model: opus
 model_reason: requires measuring real test cost and judging per-test timeout vs. global config change — not a mechanical edit
 gate:
@@ -35,3 +35,10 @@ gate:
 - [archive/segmented-control-radio-keyboard.md](archive/segmented-control-radio-keyboard.md) — the ticket that added the flaking segmented-control keyboard test
 - [archive/settings-table-selected-set-perf.md](archive/settings-table-selected-set-perf.md) — the ticket that added the flaking `Set`-membership perf test
 - [vite-config-worktree-root-climb.md](vite-config-worktree-root-climb.md) — sibling open ticket on vite/vitest config correctness in worktrees
+
+## 2026-07-20 — superseded
+
+Consolidated into [vitest-default-timeout-flaky-suite.md](vitest-default-timeout-flaky-suite.md),
+which now carries this ticket's diagnosis and evidence. Archived as a duplicate
+report of one symptom, not as resolved work — the underlying flakiness is still open
+there.
