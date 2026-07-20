@@ -50,7 +50,13 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 - Canonical dialog-body padding/scroll treatment → `flex-1 overflow-y-auto px-6 py-4`.
 - Forbidden extra padding → `py-2` / `py-4` inside the body's immediate children.
 - Forbidden scroll wrapper → `overflow-y-auto` on `<SheetContent>` or its direct children.
-- Forbidden hand-rolled skeleton → `animate-pulse` blocks.
+- Loading skeleton → the shared `<Skeleton>` atom (`ui/skeleton`), which already
+  carries `animate-pulse rounded-md bg-muted`; the body composes it into a
+  label-over-control field stack matching the real field's `space-y-1.5`. This is
+  the **one** sanctioned skeleton in the baseline (see `README.md`, "Layer 7 —
+  canonical state treatments").
+- Forbidden hand-rolled skeleton → raw `animate-pulse` / `bg-muted` `<div>` blocks
+  in place of the `<Skeleton>` atom.
 
 ### Layer 6 — Body content shape
 - Flat stack → `<CrudDialogBody layout="flat">`, internally a `space-y-4` stack.

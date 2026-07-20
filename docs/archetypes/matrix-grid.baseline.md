@@ -62,7 +62,11 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 - Canonical micro-badge style → `text-[10px] opacity-70`.
 
 ### Layer 7 — Empty / loading / error states
-- Empty message node → `emptyState={<p className="…">{noColumnsMessage}</p>}`.
+- Empty message node → `emptyState={<StateView variant="empty" message={noColumnsMessage} />}`
+  (`ui/state-view`). The shared empty plane is the single owner of the canonical
+  `p-8 text-center text-sm text-muted-foreground` treatment — do not hand-roll a
+  bare `<p>`/`<div>` here, and note the chrome stays mounted (the node goes into
+  the shell's `emptyState` slot, not in place of the shell).
 - Route-level loading view → `loading.tsx` (Next.js) or a skeleton above the shell.
 - Render-error boundary + per-route error view → `<ErrorBoundary>` (Layer 2) + `error.tsx`.
 

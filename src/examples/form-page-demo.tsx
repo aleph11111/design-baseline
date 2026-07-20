@@ -21,8 +21,6 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { AlertTriangle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Table,
   TableBody,
@@ -196,7 +194,7 @@ type RecipeFormCommonProps = {
    * (docs/archetypes/form-page.md Layer 2).
    */
   chrome: FormChrome;
-  /** When true, onSubmit throws so the root-level error Alert is reachable. */
+  /** When true, onSubmit throws so the root-level error box is reachable. */
   simulateError: boolean;
 };
 
@@ -489,12 +487,15 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
             </div>
           </SectionCard>
 
+          {/* Form-level (root) error. The canonical treatment for a form or
+              dialog inline error is the compact tinted box — NOT the full
+              destructive <Alert>, which is reserved for a shell/page load
+              failure. See docs/archetypes/README.md, "Layer 7 — canonical
+              state treatments". Shared verbatim with J (crud-dialog). */}
           {form.formState.errors.root && (
-            <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Something went wrong</AlertTitle>
-              <AlertDescription>{form.formState.errors.root.message}</AlertDescription>
-            </Alert>
+            <div className="rounded bg-destructive/10 p-4 text-sm text-destructive">
+              {form.formState.errors.root.message}
+            </div>
           )}
 
           <FormPageActions
@@ -742,7 +743,7 @@ export function FormPageDemo(): React.ReactElement {
           <li>
             Open <strong>New recipe</strong> or edit a recipe, flip{" "}
             <strong>Simulate server error</strong>, then submit → the
-            root-level error Alert renders above the footer.
+            root-level error box renders above the footer.
           </li>
         </ol>
       </div>
