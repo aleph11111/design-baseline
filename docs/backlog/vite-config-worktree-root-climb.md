@@ -1,13 +1,14 @@
 ---
 area: tooling
 opened: 2026-07-05
-status: needs-enrichment
+status: ready
+model: opus
+model_reason: root cause isn't isolated yet — needs a debugging pass through Vite/esbuild's config-loading internals, then a judgment call on which boundary option to pin
 gate:
-  score: 4
-  passed: [title, context, what-to-do, related]
-  failed:
-    - acceptance: "acceptance bullets are plausible but not yet verified against the actual esbuild code path, since the root cause wasn't fully isolated"
-  graded_at: 2026-07-05T00:00:00Z
+  score: 5
+  passed: [title, context, what-to-do, acceptance, related]
+  failed: []
+  graded_at: 2026-07-20T00:00:00Z
 ---
 
 # Vite/vitest config loading climbs past a worktree's own package.json into the main checkout
@@ -28,13 +29,16 @@ Vite's `searchForWorkspaceRoot`/`searchForPackageRoot` (`node_modules/vite/dist/
 
 ## Acceptance
 
-- ? Running `npm test` or `npm run gallery` from inside a `.worktrees/*` worktree succeeds regardless of the syntactic validity of the main checkout's `package.json` two levels up (e.g. simulate by temporarily writing invalid JSON there and confirming no crash).
-- No behavior change for running the same commands from the main checkout itself.
+- With deliberately invalid JSON (e.g. `<<<<<<< HEAD`) temporarily written into the **main checkout's** `package.json`, `npx vitest run` from inside a `.worktrees/<slug>` directory no longer fails with `[ERROR] Expected string in JSON but found "<<"` — this is the exact reproduction described in Context, so the fix is verified by re-running it.
+- `npm run gallery:build` from inside the same worktree, under the same corrupted-ancestor condition, completes without reading the ancestor `package.json` (or is documented as unaffected, if the third What-to-do bullet shows the gallery path never climbs — `vite.config.ts` already pins `root: "gallery"`).
+- Running `npm test` and `npm run gallery:build` from the main checkout itself produces the same results as before the change — no new config errors, same test count.
 
 ## Related
 
-- segmented-control-radio-keyboard.md — the ticket that surfaced this while adding `vitest.config.ts`
-- `vite.config.ts`, `vitest.config.ts` — the two config files loaded via the affected code path
+- [archive/segmented-control-radio-keyboard.md](archive/segmented-control-radio-keyboard.md) — the ticket that surfaced this while adding `vitest.config.ts`
+- [vitest-default-timeout-flaky-suite.md](vitest-default-timeout-flaky-suite.md) — sibling `vitest.config.ts` ticket; its `testTimeout`/`maxWorkers` block is the other parallel-worktree-contention fix in the same file
+- [vitest-jsdom-setup-cost.md](vitest-jsdom-setup-cost.md) — sibling ticket also editing `vitest.config.ts`; coordinate to avoid conflicting edits
+- `vite.config.ts` (vite ^6, already pins `root: "gallery"`), `vitest.config.ts` (vitest ^4, repo-root scoped, no explicit `root`) — the two config files loaded via the affected code path; the asymmetry in `root` is a lead worth checking first
 - CLAUDE.md, "Parallel-Safe Workflow" — the reason multiple sessions can have the main checkout mid-merge at any moment
 
 ## Open question
