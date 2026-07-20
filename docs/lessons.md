@@ -3,6 +3,31 @@
 Durable, tracked corrections that survive across worktrees and ship with the repo.
 Reviewed at session start; drained here from `tasks/lessons.md` by `/ship`.
 
+## A `~/.claude/` path may be a symlink into another repo — fetch *that* repo
+
+Verifying an ops ticket on 2026-07-20, a session read `~/.claude/lib/ship-reconcile.sh`,
+found three numbered sections, and reported the ticket's gap as still open. It was not:
+the fix had merged ~2h earlier as dashboard PR #66. The file is a **symlink** to
+`claude-skills/lib/ship-reconcile.sh`, a tracked file in the `aleph11111/dashboard` repo,
+and what was read was that repo's **stale working tree**. The session then re-implemented
+the same 122-line reaper and only caught the duplication when the splice landed beside an
+existing `# 4. Local-orphan reaper` header.
+
+The existing "fetch before diagnosing" habit covers the repo you are sitting in. It does
+not cover a path that resolves elsewhere. **Before diagnosing any `~/.claude/…` file:
+`readlink -f` it, and if it lands in a git repo, `git -C <that repo> fetch` and read
+`origin/main` — not the working tree.** A parallel session may have shipped it already.
+This also determines whether the work can ship as a PR at all.
+
+## `kind: ops` is about *git artifacts*, not about living outside this repo
+
+The same ticket carried `kind: ops` justified as "targets `~/.claude/` global config, so it
+cannot ship via a design-baseline PR." Only the second half held. The file was tracked in
+another GitHub repo and shipped there as an ordinary PR (#66). "Not shippable from *this*
+repo" is not the same as "leaves no git artifact" — the latter is what `kind: ops` means
+(see `docs/backlog/README.md`). Resolve the symlink and check for a tracked path before
+assigning `kind`; a cross-repo code ticket should say which repo it ships from.
+
 ## Donor exports: "unused in-repo" ≠ dead code
 
 design-baseline is a **donor** — `src/` exports are copy-source for downstream projects.
