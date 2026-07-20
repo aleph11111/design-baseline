@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-05
-status: ready
+status: done
 model: opus
 model_reason: root cause isn't isolated yet — needs a debugging pass through Vite/esbuild's config-loading internals, then a judgment call on which boundary option to pin
 gate:

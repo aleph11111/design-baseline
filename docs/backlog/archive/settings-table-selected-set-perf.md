@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-07-04
-status: ready
+status: done
 model: sonnet
 model_reason: memoized-Set swap on a shared shell, mechanical with clear acceptance
 gate:

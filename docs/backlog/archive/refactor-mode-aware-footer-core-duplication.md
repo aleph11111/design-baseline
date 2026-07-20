@@ -1,7 +1,7 @@
 ---
 area: refactor
 opened: 2026-07-11
-status: ready
+status: done
 model: opus
 model_reason: extracting a shared footer core across two archetypes' reference primitives touches two versioned contracts (J crud-dialog, B form-page) and needs judgment on how much to unify vs keep archetype-specific
 gate:

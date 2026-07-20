@@ -1,7 +1,7 @@
 ---
 area: refactor
 opened: 2026-07-11
-status: ready
+status: done
 model: sonnet
 model_reason: extract a copy-pasted 4-line boolean derivation into one shared helper across three shells; established StateView precedent, clear acceptance, no design decisions
 gate:

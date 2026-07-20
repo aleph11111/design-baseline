@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-07
-status: ready
+status: done
 model: opus
 model_reason: mechanism decision (grep/AST script vs ESLint flat-config) + multi-file ripple across the config, the /adopt-baseline skill, and three methodology docs
 gate:

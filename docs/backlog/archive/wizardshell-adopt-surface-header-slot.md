@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-07-11
-status: ready
+status: done
 model: sonnet
 model_reason: mechanical follow-on to an already-landed pattern (SurfaceHeaderSlot) — no design decisions left, just apply the same substitution to one more shell.
 gate:

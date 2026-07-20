@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-07-19
-status: ready
+status: done
 model: sonnet
 model_reason: scoped single-test fix with a clear preferred approach and unchanged assertions
 gate:

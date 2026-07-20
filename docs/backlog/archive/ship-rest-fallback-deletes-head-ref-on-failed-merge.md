@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-20
-status: ready
+status: done
 model: sonnet
 model_reason: two-line control-flow fix in a shell block with a precisely described failure and an obvious guard; no design decisions left
 gate:

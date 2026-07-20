@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-05
-status: ready
+status: done
 gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]

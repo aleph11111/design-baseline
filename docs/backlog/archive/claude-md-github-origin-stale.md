@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: 2026-07-09
-status: ready
+status: done
 model: sonnet
 model_reason: doc reconciliation against verified current git state, no design decisions
 gate:

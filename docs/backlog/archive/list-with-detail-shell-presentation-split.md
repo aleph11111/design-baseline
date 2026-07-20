@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-07-09
-status: ready
+status: done
 model: sonnet
 model_reason: contract-preserving module extraction with clear acceptance and an in-repo precedent (crud-dialog split); no design decisions left
 gate:

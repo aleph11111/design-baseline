@@ -1,7 +1,7 @@
 ---
 area: test-gap
 opened: 2026-07-19
-status: ready
+status: done
 ---
 
 # logger's NODE_ENV-gated debug branch has zero test references

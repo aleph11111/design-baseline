@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-07-04
-status: ready
+status: done
 model: sonnet
 model_reason: attach-or-drop-the-ref, one-line fix with clear acceptance
 gate:

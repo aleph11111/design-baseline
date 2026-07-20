@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: 2026-07-04
-status: ready
+status: done
 model: sonnet
 model_reason: reorder guard + null default context, small mechanical fix with clear acceptance
 gate:

@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-07-04
-status: ready
+status: done
 model: sonnet
 model_reason: scoped shared-tooltip refactor with a clear performance acceptance
 gate:

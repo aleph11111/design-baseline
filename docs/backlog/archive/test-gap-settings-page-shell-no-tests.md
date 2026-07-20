@@ -1,7 +1,7 @@
 ---
 area: test-gap
 opened: 2026-07-19
-status: ready
+status: done
 ---
 
 # SettingsPageShell's board-form branch and ErrorBoundary wrap have no test coverage

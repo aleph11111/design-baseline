@@ -1,7 +1,7 @@
 ---
 area: i18n
 opened: 2026-07-04
-status: ready
+status: done
 model: sonnet
 model_reason: add override props / English defaults to two primitives, clear acceptance
 gate:

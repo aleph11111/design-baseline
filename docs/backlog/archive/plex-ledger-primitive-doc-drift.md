@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: 2026-07-04
-status: ready
+status: done
 model: sonnet
 model_reason: reconcile stale JSDoc/STYLE.md prose with shipped code in one pass, grep-verifiable
 gate:

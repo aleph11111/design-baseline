@@ -1,7 +1,7 @@
 ---
 area: hygiene-week
 opened: 2026-07-11
-status: ready
+status: done
 ---
 
 # Dead and orphaned exports across ui/crud-dialog/layout primitives

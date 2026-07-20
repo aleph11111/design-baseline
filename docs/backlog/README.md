@@ -22,7 +22,7 @@ Every ticket opens with a YAML frontmatter block. Required fields are always pre
 |-------|------|---------------|---------|
 | `area` | ✅ | one of the canonical buckets below (or `other`) | Workstream this ticket belongs to. |
 | `opened` | ✅ | `YYYY-MM-DD` | Date the ticket was first captured. |
-| `status` | ✅ | `needs-enrichment` \| `ready` \| `done` | Enrichment readiness (see below). Set by the gate, not by hand. |
+| `status` | ✅ | `needs-enrichment` \| `ready` \| `done` | Enrichment readiness (see below). `needs-enrichment`/`ready` are set by the gate; `done` is set by the archive step (`/ship`), not the gate. |
 | `gate` | ✅ | block — see [The gate block](#the-gate-block) | Quality-gate result: `score` / `passed` / `failed` / `graded_at`. |
 | `kind` | ⬚ | `ops` \| `roadmap` | How the ticket is closed. Omitted for the normal capture → `/feat` → archive lifecycle. |
 | `model` | ⬚ | `sonnet` \| `opus` \| `fable` | Suggested implementation model, consumed by `/feat`. Never `haiku`. |
@@ -32,7 +32,7 @@ Every ticket opens with a YAML frontmatter block. Required fields are always pre
 
 - **`needs-enrichment`** — gate `score < 5`; the ticket is missing something (see its `gate.failed` list) before it's ready to hand off. Re-grade after editing with `/ticket --regrade <slug>`.
 - **`ready`** — gate `score == 5`; hand off with `/feat <slug>`.
-- **`done`** — resolved. Lives in `archive/`.
+- **`done`** — resolved. Lives in `archive/`. Set by the archive step (`ship-archive-wip.sh`) when the file moves into `archive/`, not by the gate.
 
 ### `kind` — how a ticket is closed (optional)
 

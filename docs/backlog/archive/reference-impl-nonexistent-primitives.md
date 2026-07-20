@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: 2026-07-04
-status: ready
+status: done
 model: sonnet
 model_reason: doc-and-comment fixes binding to real exports, clear grep-verifiable acceptance
 gate:

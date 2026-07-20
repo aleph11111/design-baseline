@@ -1,7 +1,7 @@
 ---
 area: test-gap
 opened: 2026-07-19
-status: ready
+status: done
 ---
 
 # PageHeader's back-link resolution has no test coverage
