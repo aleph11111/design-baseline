@@ -1,3 +1,6 @@
+// @vitest-environment node
+// Props are computed, never rendered — the React event objects are hand-rolled
+// stubs, so no jsdom is needed. See resolveListState.test.ts.
 import { describe, expect, it, vi } from "vitest";
 import { getInteractiveRowProps } from "./interactiveRow";
 

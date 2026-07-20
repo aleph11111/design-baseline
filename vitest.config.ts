@@ -17,6 +17,10 @@ export default defineConfig({
     },
   },
   test: {
+    // jsdom is the default because nearly every suite renders. The few
+    // DOM-free files opt out per-file with a `// @vitest-environment node`
+    // docblock rather than being carved out here by glob — the docblock sits
+    // next to the code that justifies it, so it can't drift as files move.
     environment: "jsdom",
     include: ["src/**/*.test.{ts,tsx}"],
     // Vitest's 5s default is not enough here. The donor runs several parallel
@@ -33,5 +37,12 @@ export default defineConfig({
     // 21-file run: 7 failing files uncapped, 1 at `--maxWorkers=2`. Capping
     // also cut wall-clock from ~49s to ~4s, since the workers stop thrashing.
     maxWorkers: 4,
+    // Left on the default `forks` pool deliberately. `threads` measured faster
+    // idle (30 files: ~10.5s environment / ~4.9s wall vs ~11.7s / ~5.4s), but
+    // the advantage inverts under the saturated-CPU condition this repo
+    // actually runs in — with every core busy, threads measured ~26.9s
+    // environment / ~12.5s wall against forks' ~24.1s / ~11.2s. The idle win
+    // is not the case worth optimising for; don't re-adopt it on an idle
+    // benchmark alone.
   },
 });

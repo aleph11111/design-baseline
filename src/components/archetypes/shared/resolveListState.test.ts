@@ -1,3 +1,6 @@
+// @vitest-environment node
+// Pure state resolution — no DOM. Opting out of the config-wide jsdom
+// environment skips a per-file jsdom build this file never uses.
 import { describe, expect, it } from "vitest";
 import { resolveListState } from "./resolveListState";
 
