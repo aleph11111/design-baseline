@@ -18,7 +18,7 @@ The generic skills read this block to find the project's documentation artifacts
 - `lessons: docs/lessons.md`
 - `backlog: docs/backlog/`
 - `architecture: docs/ARCHITECTURE.md`
-- `decisions: docs/adr/` *(per-file ADRs `<NNNN>-<slug>.md`; index at `docs/adr/INDEX.md`; no ADRs recorded yet)*
+- `decisions: docs/adr/` *(per-file ADRs `<NNNN>-<slug>.md`; see `docs/adr/INDEX.md` for the current list)*
 - `rules: docs/RULES.md`
 - `specs: docs/superpowers/specs/` *(design specs — e.g. the archetype-promotion design)*
 - `plans: docs/superpowers/plans/` *(implementation plans)*
