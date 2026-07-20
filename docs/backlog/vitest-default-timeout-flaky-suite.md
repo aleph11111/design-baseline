@@ -6,7 +6,7 @@ gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
   failed: []
-  graded_at: 2026-07-20T09:40:00Z
+  graded_at: 2026-07-20T13:40:00Z
 ---
 
 # Vitest's 5s default timeout makes the suite flaky under parallel workers
@@ -31,11 +31,31 @@ This ticket absorbs `test-suite-prototype-spy-timeout-flake`, `flaky-test-timeou
 
 Note that `vitest-jsdom-setup-cost` is deliberately **not** merged here — it covers jsdom environment setup and module-import cost dominating the run, which is plausibly the underlying driver of cause 3 rather than another report of the same symptom.
 
-## What to do
+### Status, 2026-07-20 — cause 3 mitigated; causes 1 and 2 open
+
+The two config-level mitigations have **landed on `main`** and are struck through below.
+`vitest.config.ts` now carries `testTimeout: 30_000` and `maxWorkers: 4`, both with their
+measurements recorded in-comment. Observed effect: a full run that failed 6/61 under
+parallel-worktree load now completes **163/163 in ~4s**.
+
+That removes the *symptom* — `npm test` is usable as a `/ship` gate again — without
+touching **causes 1 and 2**, which are the ones that make individual tests slow rather
+than merely starved:
+
+- The `SettingsTableShell` prototype spies still instrument React's render path
+  (18–21s of self-time for one `it` block). This remains the single largest contributor
+  and is now **masked** by the 30s ceiling rather than fixed.
+- The `*ByRole` queries are still 5–8s each.
+- The act-environment warning is still emitted; `vitest.config.ts` still declares no
+  `setupFiles`.
+
+Keeping this ticket open is deliberate: a raised ceiling plus a worker cap buys headroom,
+but a test that legitimately needs 18–21s is a latent regression that will re-break the
+gate as the suite grows. The acceptance criteria below are unchanged and still unmet.
 
 - [ ] Narrow the prototype spies in `SettingsTableShell.test.tsx` so React's render path is not instrumented — install them only around the assertion-relevant work, or assert membership on an extracted `isSelected` helper instead of patching globals. The test's own comment at `:42–45` already notes the spy catches React's internal `includes` calls. **Do this first: it is the single largest contributor (18–21s → single-digit).**
-- [ ] Raise `test.testTimeout` in `vitest.config.ts` above the observed worst case (10000ms), with a comment naming why — matching the file's existing convention of explaining its scope split from `vite.config.ts`.
-- [ ] Bound worker concurrency (`poolOptions` / `maxWorkers`) so a full run stops starving on contention — the failing set spans trivial single-render tests, so a per-test timeout alone will not fix it.
+- [x] ~~Raise `test.testTimeout` in `vitest.config.ts` above the observed worst case (10000ms), with a comment naming why.~~ **Landed** — `vitest.config.ts` now sets `testTimeout: 30_000` with a comment recording the measurement (a 67-test run spending ~186s in `environment` and ~125s in `import` against ~61s of actual `tests`; up to 9 of 21 files failing under the default).
+- [x] ~~Bound worker concurrency (`poolOptions` / `maxWorkers`) so a full run stops starving on contention.~~ **Landed** — `vitest.config.ts` now sets `maxWorkers: 4`, with the measurement in-comment: 7 failing files uncapped vs 1 at `--maxWorkers=2`, and wall-clock cut from ~49s to ~4s because the workers stop thrashing.
 - [ ] Add the missing act environment: set `globalThis.IS_REACT_ACT_ENVIRONMENT` via a `test.setupFiles` entry (`vitest.config.ts` currently declares none), clearing the `act(...)` warning from `segmented-control.test.tsx`.
 - [ ] Replace the hot `getAllByRole` / `getByRole` calls in `src/components/ui/segmented-control.test.tsx` and `src/components/archetypes/settings-table/SettingsTableShell.test.tsx` with cheaper `container.querySelectorAll('[role="…"]')` lookups — the pattern already used in `src/components/archetypes/shared/RowActionsMenu.test.tsx`.
 - [ ] Re-check the remaining role-heavy suites (`ListWithDetailShell.test.tsx`, `GroupedListShell.test.tsx`, `CalendarShell.test.tsx`, `MatrixGridShell.test.tsx`) for the same pattern and convert the slowest.
@@ -52,9 +72,9 @@ Note that `vitest-jsdom-setup-cost` is deliberately **not** merged here — it c
 
 ## Related
 
-- [test-gap-row-actions-menu-zero-tests.md](wip/test-gap-row-actions-menu-zero-tests.md) — the ticket whose full-suite verification surfaced this; its test file demonstrates the `querySelectorAll` workaround.
+- [test-gap-row-actions-menu-zero-tests.md](archive/test-gap-row-actions-menu-zero-tests.md) — the ticket whose full-suite verification surfaced this; its test file demonstrates the `querySelectorAll` workaround. (Shipped; moved from `wip/` to `archive/`.)
 - [vite-config-worktree-root-climb.md](vite-config-worktree-root-climb.md) — sibling `tooling` ticket touching the same config layer.
-- [test-gap-settings-page-shell-no-tests.md](test-gap-settings-page-shell-no-tests.md) — adds more tests to the suite this flakiness affects.
+- [test-gap-settings-page-shell-no-tests.md](archive/test-gap-settings-page-shell-no-tests.md) — added more tests to the suite this flakiness affects. (Shipped; now in `archive/`.)
 - [vitest-jsdom-setup-cost.md](vitest-jsdom-setup-cost.md) — **not** a duplicate: jsdom setup + module-import cost, plausibly the driver behind contributing cause 3. Fix that one and this one may soften on its own.
 - Consolidated into this ticket on 2026-07-20 (archived as duplicate reports, not as resolved):
   [test-suite-prototype-spy-timeout-flake.md](archive/test-suite-prototype-spy-timeout-flake.md),
