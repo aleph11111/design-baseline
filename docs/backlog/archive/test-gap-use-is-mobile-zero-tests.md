@@ -1,7 +1,8 @@
 ---
 area: test-gap
 opened: 2026-07-19
-status: ready
+status: done
+closed: 2026-07-19
 ---
 
 # useIsMobile hook has zero direct test coverage of its listener lifecycle
