@@ -31,9 +31,9 @@ design-baseline/
     ├── utils/
     │   └── logger.ts               # console wrapper — required by ui/error-boundary.tsx
     ├── components/
-    │   ├── ui/                     # 36 shadcn/ui primitives
+    │   ├── ui/                     # shadcn/ui primitives — see docs/ARCHITECTURE.md for the current count
     │   ├── layout/                 # AppShell, AppSidebar, AppHeader (router-agnostic)
-    │   └── archetypes/             # page-shape contracts (list-with-detail, settings-table, crud-dialog)
+    │   └── archetypes/             # page-shape contracts — docs/archetypes/MANIFEST.json is the living list
     └── examples/
         ├── DemoNextApp.tsx         # wiring for Next.js 16 App Router
         └── DemoViteApp.tsx         # wiring for Vite + React Router 7
@@ -62,7 +62,7 @@ From inside a fresh project:
 
 The skill detects your target stack (Next.js vs Vite), copies `src/styles/tokens.css`, `src/lib/utils.ts`, `src/hooks/`, `src/utils/`, `src/components/ui/`, `src/components/layout/`, and `components.json` into the project, adds `"use client"` where Next requires it, installs the dependency set, and prints the brand-token edits you should make next.
 
-Optionally, run `/style-archetypes` after `/style-baseline` to also copy the page-shape archetypes (list-with-detail, settings-table, crud-dialog) into the project. See `docs/archetypes/README.md` for the methodology.
+Optionally, run `/style-archetypes` after `/style-baseline` to also copy the page-shape archetypes into the project — `docs/archetypes/MANIFEST.json` is the living list of what ships. See `docs/archetypes/README.md` for the methodology.
 
 ### Option 2 — manual
 
