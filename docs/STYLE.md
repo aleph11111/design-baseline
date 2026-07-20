@@ -174,7 +174,7 @@ These ship alongside `components/ui/` because the shadcn primitives import them 
 
 Archetypes are page-shape contracts that sit on top of the layout primitives. Each archetype is a 12–15 layer spec covering route, shell, header, toolbar, data fetching, types, mutations, mobile, permissions — plus reference primitive components that implement the chrome. See `docs/archetypes/README.md` for the methodology.
 
-Apply with the sibling command `/style-archetypes` (requires `/style-baseline` to have run first). The first ship covers list-with-detail, settings-table, and crud-dialog.
+Apply with the sibling command `/style-archetypes` (requires `/style-baseline` to have run first). `docs/archetypes/MANIFEST.json` is the living catalog of what ships — read it (or `/style-archetypes --list`) rather than relying on any list enumerated here.
 
 Archetypes are optional — projects that don't want the page-shape vocabulary can use the baseline chrome alone. Project-specific archetypes live alongside baseline ones in the target's `docs/archetypes/`; `/style-archetypes` never touches files that aren't in the MANIFEST.
 
