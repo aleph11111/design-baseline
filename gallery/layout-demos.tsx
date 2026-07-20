@@ -5,7 +5,7 @@
  */
 
 import * as React from "react";
-import { Bell, Box, Inbox, Plus, Settings, User } from "lucide-react";
+import { Bell, Box, CreditCard, Inbox, Plus, Settings, User } from "lucide-react";
 import {
   AuthCard,
   MetricList,
@@ -544,10 +544,44 @@ function SurfaceHeaderDemo() {
           {body}
         </div>
       </Variant>
+      <Variant label="subtitle + icon (compact metadata at text-xs, matching PageHeader — dimmed automatically on a solid fill)">
+        <div className="space-y-3">
+          <div className="overflow-hidden rounded-lg border bg-card">
+            <SurfaceHeader
+              kicker="Einstellungen"
+              title="Abrechnung"
+              subtitle="Zuletzt geändert vor 2 Tagen"
+              icon={CreditCard}
+              actions={actions}
+              headerFill="solid"
+            />
+            {body}
+          </div>
+          <div className="overflow-hidden rounded-lg border bg-card">
+            <SurfaceHeader
+              kicker="Einstellungen"
+              title="Abrechnung"
+              subtitle="Zuletzt geändert vor 2 Tagen"
+              icon={CreditCard}
+              actions={actions}
+              headerFill="white"
+            />
+            {body}
+          </div>
+        </div>
+      </Variant>
       <p className="max-w-prose text-[13px] leading-relaxed text-muted-foreground">
         Set once per project via <code>{"<AppShell headerFill=\"…\">"}</code>; every framed
         shell (detail-overview unified, report, calendar, the list drawer, the crud-dialog
         header) reads the same context, so the treatment never diverges within an app.
+      </p>
+      <p className="max-w-prose text-[13px] leading-relaxed text-muted-foreground">
+        The <code>subtitle</code> / <code>icon</code> slots exist so a shell needing a
+        secondary line no longer has to fall back to the classic{" "}
+        <code>{"<PageHeader>"}</code> and lose the on-surface treatment — that fallback
+        was the only reason tabbed-settings kept two header paths. Subtitle is compact{" "}
+        <em>metadata</em> at <code>text-xs</code>; prose descriptions stay on{" "}
+        <code>text-sm</code> via <code>SectionHeading</code>.
       </p>
     </div>
   );

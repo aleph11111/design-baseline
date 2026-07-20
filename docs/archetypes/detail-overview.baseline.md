@@ -86,7 +86,12 @@ contract role. Only layers with a baseline-specific binding appear.
 - Detail-overview header → `<DetailOverviewHeader>`.
 - Canonical page-title type style → `text-lg font-semibold leading-tight tracking-tight`.
 - Canonical page-header treatment → the baseline `<PageHeader>` layout primitive (`@/components/layout`); the title scale is `<PageHeader>`'s single source of truth.
-- Canonical muted small-text style (subtitle) → `text-sm text-muted-foreground`.
+- Canonical muted small-text style (subtitle) → `text-xs text-muted-foreground`
+  — the header subtitle is compact *metadata* (created date, short identifier),
+  not prose. `text-sm text-muted-foreground` is the prose scale, used for
+  descriptions (`SectionHeading`, `CardDescription`, `StateView`) per
+  `STYLE.md` ("prose/notes keep `text-sm`"). `<PageHeader>` is the single
+  source of truth for both, and renders the subtitle at `text-xs`.
 - Inline navigation link → `<Link>`.
 - Button → `<Button>`.
 - Status badges → read-only `<Badge>`s, via `<DetailOverviewHeader badges={…}>` (a `badges` prop on the shared `<PageHeader>`).
