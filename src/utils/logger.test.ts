@@ -1,3 +1,5 @@
+// @vitest-environment node
+// Console/env behaviour only — no DOM. See resolveListState.test.ts.
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { logger } from "./logger";
 
