@@ -138,6 +138,7 @@ This is the core layer. The matrix shell is generic over a single type parameter
 - `isFilled?: (cell: Cell | undefined) => boolean` — defines whether a cell is "filled" (data present) or "empty" (blank). Default: `cell !== undefined && cell !== null`.
 - `renderCell?: (ctx: MatrixCellContext<Cell>) => React.ReactNode` — renders content inside filled cells. `ctx` carries `{ row, column, cell, isFilled }`. Empty cells render no content by default (their background may still come from `cellStyle`).
 - `cellStyle?: (ctx) => { className?: string; tooltip?: string }` — returns per-cell className and optional tooltip text. Used by both filled and empty cells. When `tooltip` is provided, the cell is wrapped in a **tooltip affordance** (the shell's responsibility).
+- **`data-filled` DOM attribute.** The shell stamps `data-filled` (empty-string value) on a cell's `<td>` when `isFilled(cell)` is true, and omits the attribute entirely on empty cells. This is public DOM surface — consumers (and their e2e tests) select on `[data-filled]` to detect fill state instead of coupling to `cellStyle`'s className, which is presentation and free to change (color tokens, variants) without notice.
 
 **Click contract:**
 - `onCellClick?: (ctx: MatrixCellContext<Cell>) => void` — fires when a cell is clicked. Consumers route this into their side overlay open/close state. The shell applies the **clickable-cell interaction treatment** (pointer cursor, no text selection) to cells when `onCellClick` is present.

@@ -35,6 +35,25 @@ describe("MatrixGridShell", () => {
     render(<MatrixGridShell columns={columns} rows={rows} renderCell={(ctx) => ctx.cell} />);
     expect(screen.queryByRole("button", { name: "P" })).toBeNull();
   });
+
+  it("stamps data-filled on filled cells, omits it on empty cells", () => {
+    const mixedColumns: MatrixColumn[] = [{ key: "mon", label: "Mon" }, { key: "tue", label: "Tue" }];
+    const mixedRows: MatrixRow<string>[] = [
+      { id: "1", label: "Ada", cells: { mon: "P" } },
+    ];
+    render(
+      <MatrixGridShell
+        columns={mixedColumns}
+        rows={mixedRows}
+        renderCell={(ctx) => ctx.cell}
+      />,
+    );
+    const filledCell = screen.getByText("P").closest("td")!;
+    expect(filledCell.getAttribute("data-filled")).toBe("");
+
+    const emptyCell = document.querySelectorAll("tbody td")[1]!;
+    expect(emptyCell.hasAttribute("data-filled")).toBe(false);
+  });
 });
 
 // A dense matrix, well beyond what a single visible tooltip could justify —
