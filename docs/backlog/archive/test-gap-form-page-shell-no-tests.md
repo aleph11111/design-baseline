@@ -1,7 +1,7 @@
 ---
 area: test-gap
 opened: 2026-07-19
-status: ready
+status: done
 ---
 
 # FormPageShell's board-form/classic branch has no test coverage

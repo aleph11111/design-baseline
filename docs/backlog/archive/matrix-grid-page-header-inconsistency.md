@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-07-03
-status: ready
+status: done
 model: sonnet
 model_reason: small doc-wording fix in one archetype spec, clear acceptance
 gate:

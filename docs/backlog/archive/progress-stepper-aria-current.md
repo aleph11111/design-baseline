@@ -1,7 +1,7 @@
 ---
 area: a11y
 opened: 2026-07-04
-status: ready
+status: done
 model: sonnet
 model_reason: additive ARIA + sr-only state on two primitives, clear acceptance
 gate:

@@ -1,7 +1,7 @@
 ---
 area: a11y
 opened: 2026-07-04
-status: ready
+status: done
 model: sonnet
 model_reason: repeated established a11y pattern across a few shells, clear acceptance
 gate:

@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-20
-status: ready
+status: done
 kind: ops
 model: sonnet
 model_reason: the correct mechanic is already implemented and verified in dashboard PR #66 — this is porting a known-good content test into a second call site

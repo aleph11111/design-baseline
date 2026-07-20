@@ -1,7 +1,7 @@
 ---
 area: test-gap
 opened: 2026-07-19
-status: ready
+status: done
 ---
 
 # RowActionsMenu's discriminated-union rendering has zero test references

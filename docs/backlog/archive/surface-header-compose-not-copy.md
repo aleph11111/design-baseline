@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-07-04
-status: ready
+status: done
 model: sonnet
 model_reason: DRY refactor to compose the canonical primitive, clear acceptance
 gate:

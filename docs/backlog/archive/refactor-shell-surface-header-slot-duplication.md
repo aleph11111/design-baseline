@@ -1,7 +1,7 @@
 ---
 area: refactor
 opened: 2026-07-11
-status: ready
+status: done
 model: sonnet
 model_reason: contract-preserving extraction of a repeated prop-set + render block across many shells; the target seam (SurfaceHeader/SurfaceHeaderProps) already exists, no design decisions left
 gate:

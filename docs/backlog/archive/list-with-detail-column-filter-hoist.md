@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-07-04
-status: ready
+status: done
 model: sonnet
 model_reason: loop-invariant hoist in one shell, mechanical with clear acceptance
 gate:

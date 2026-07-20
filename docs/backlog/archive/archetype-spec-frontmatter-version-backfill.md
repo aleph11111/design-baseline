@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-07-03
-status: ready
+status: done
 model: sonnet
 model_reason: mechanical backfill mirroring sibling frontmatter from MANIFEST values; no design judgment
 gate:

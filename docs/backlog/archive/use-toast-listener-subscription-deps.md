@@ -1,7 +1,7 @@
 ---
 area: hooks
 opened: 2026-07-04
-status: ready
+status: done
 model: sonnet
 model_reason: one-line dependency-array fix with a clear behavioral test, mechanical
 gate:

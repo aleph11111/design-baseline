@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-20
-status: ready
+status: done
 model: sonnet
 model_reason: the correct dependency set is already pinned in STACK.md — this is reconciling package.json against an existing contract, no design judgment left
 gate:

@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-07-19
-status: ready
+status: done
 model: opus
 model_reason: rebase requires judgment about which commits to drop vs keep against a main that moved 45 commits
 gate:

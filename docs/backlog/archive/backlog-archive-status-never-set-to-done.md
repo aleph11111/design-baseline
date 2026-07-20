@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-20
-status: ready
+status: done
 model: sonnet
 model_reason: one field rewrite in a shell helper plus a mechanical backfill loop; acceptance is exactly checkable
 gate:

@@ -1,7 +1,7 @@
 ---
 area: test-gap
 opened: 2026-07-19
-status: ready
+status: done
 ---
 
 # DetailOverviewShell has no test despite being the most-changed detail-overview file

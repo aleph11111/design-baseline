@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-19
-status: ready
+status: done
 kind: ops
 model: opus
 model_reason: touches a destructive shell reaper that runs unattended via launchd — safety gating needs real judgment

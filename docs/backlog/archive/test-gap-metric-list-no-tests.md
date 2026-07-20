@@ -1,7 +1,7 @@
 ---
 area: test-gap
 opened: 2026-07-19
-status: ready
+status: done
 ---
 
 # MetricList's disclosure state and MetricRow emphasis styling have no test coverage

@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-20
-status: ready
+status: done
 kind: ops
 model: sonnet
 model_reason: single scoped edit to one skill file with a clear before/after; no design ambiguity beyond the fetch question already answered below
