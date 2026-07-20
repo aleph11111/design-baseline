@@ -68,8 +68,10 @@ contract role. Only layers with a baseline-specific binding appear.
   tabular-nums`.
 - Sans title → `text-[11.5px] font-semibold`.
 - Calendar tone tokens → the shell's `TONE_CLASS` map: `default` = muted /
-  foreground; `success` / `info` / `warning` borrow the Badge-family semantic
-  tints (`green` / `primary` / `yellow`).
+  foreground; `success` / `info` / `warning` resolve to the semantic CSS tokens
+  (`--success` / `--primary` / `--warning`) as a `/10` chip tint, a solid
+  `border-l-*` accent, and a `text-*` time label. No literal palette classes and
+  no `dark:` overrides — the tokens flip with the theme themselves.
 - Status-badge primitive → `<Badge>`.
 
 ## Acceptance gate (baseline tells)

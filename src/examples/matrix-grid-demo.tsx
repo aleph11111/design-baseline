@@ -92,19 +92,24 @@ const SEED_GRADES: Record<string, Record<string, GradeEntry>> = {
   },
 };
 
+// Ordinal good→bad scale expressed in semantic tokens, per archetype M's
+// acceptance gate ("legend/scale uses tokens, no literal color ramps").
+// The tint carries the meaning; the label stays `text-foreground` so it
+// remains legible when the theme flips — a `text-<hue>` on a same-hue tint
+// only ever has contrast in one of the two themes.
 function classNameForGrade(g: Grade): string {
   switch (g) {
     case "A":
     case "B":
-      return "bg-emerald-100 text-emerald-900 hover:bg-emerald-200";
+      return "bg-success/15 text-foreground hover:bg-success/25";
     case "C":
-      return "bg-sky-100 text-sky-900 hover:bg-sky-200";
+      return "bg-primary/10 text-foreground hover:bg-primary/20";
     case "D":
-      return "bg-amber-100 text-amber-900 hover:bg-amber-200";
+      return "bg-warning/15 text-foreground hover:bg-warning/25";
     case "F":
-      return "bg-rose-100 text-rose-900 hover:bg-rose-200";
+      return "bg-destructive/15 text-foreground hover:bg-destructive/25";
     case "INCOMPLETE":
-      return "bg-slate-200 text-slate-700 hover:bg-slate-300";
+      return "bg-muted text-muted-foreground hover:bg-muted/80";
   }
 }
 

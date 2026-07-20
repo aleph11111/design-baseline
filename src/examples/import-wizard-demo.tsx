@@ -70,7 +70,7 @@ export function ImportWizardDemo(): React.ReactElement {
   if (committed) {
     return (
       <div className="flex flex-col items-center gap-3 rounded-lg border bg-card p-10 text-center">
-          <CheckCircle2 className="h-10 w-10 text-emerald-600" />
+          <CheckCircle2 className="h-10 w-10 text-success" />
           <h2 className="text-lg font-semibold">Import complete</h2>
           <p className="text-sm text-muted-foreground">
             126 transactions imported into Checking · 2 rows skipped.
