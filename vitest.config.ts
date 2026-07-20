@@ -19,5 +19,13 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     include: ["src/**/*.test.{ts,tsx}"],
+    // Vitest's 5s default is not enough here. The donor runs several parallel
+    // `/feat` worktrees on one machine, and this suite's cost is jsdom setup
+    // and module import, not assertions — a 67-test run reports ~186s in
+    // `environment` and ~125s in `import` against ~61s of actual `tests`.
+    // Under the default, a load-dependent subset of files (up to 9 of 21)
+    // failed with "Test timed out in 5000ms" on an untouched tree, which made
+    // `npm test` unusable as the `/ship` gate. 30s clears it with margin.
+    testTimeout: 30_000,
   },
 });

@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-19
-status: ready
+status: done
 gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
@@ -23,8 +23,8 @@ This repo has no `.github/workflows/`, so the practical blast radius is the loca
 
 ## What to do
 
-- [ ] Raise `test.testTimeout` in `vitest.config.ts` to a value that survives a loaded machine (30000ms is the value empirically shown to pass the whole suite).
-- [ ] ? Investigate whether the `environment 248s` / `import 143s` cost can be cut — e.g. by narrowing which suites need the full `jsdom` environment, or by sharing a jsdom instance across files rather than per-file construction.
+- [x] Raise `test.testTimeout` in `vitest.config.ts` to a value that survives a loaded machine (30000ms is the value empirically shown to pass the whole suite).
+- [ ] ? Investigate whether the `environment 248s` / `import 143s` cost can be cut — e.g. by narrowing which suites need the full `jsdom` environment, or by sharing a jsdom instance across files rather than per-file construction. → split out to [vitest-jsdom-setup-cost.md](../vitest-jsdom-setup-cost.md).
 
 ## Acceptance
 
@@ -32,7 +32,13 @@ This repo has no `.github/workflows/`, so the practical blast radius is the loca
 - `vitest.config.ts` declares an explicit `testTimeout` under `test`, so the budget is no longer an inherited default.
 - Running `npm test` twice in a row returns the same result — no load-dependent variation in which files fail.
 
+## Resolution
+
+`vitest.config.ts` now declares `testTimeout: 30_000` under `test`, with a comment recording the measured setup/import cost that motivates it. `npm test` passes 21 files / 67 tests. Shipped on `feat/test-gap-settings-page-shell-no-tests`, the branch whose verification step surfaced the flake.
+
+The residual performance question — why jsdom setup and import dominate the run at all — is split out to [vitest-jsdom-setup-cost.md](../vitest-jsdom-setup-cost.md); raising the timeout makes the gate honest but does not make the suite fast.
+
 ## Related
 
-- [vite-config-worktree-root-climb.md](vite-config-worktree-root-climb.md) — the other `vitest.config.ts` / config-loading defect found under the same parallel-worktree conditions.
-- [test-gap-settings-page-shell-no-tests.md](wip/test-gap-settings-page-shell-no-tests.md) — the ticket whose verification step surfaced this.
+- [vite-config-worktree-root-climb.md](../vite-config-worktree-root-climb.md) — the other `vitest.config.ts` / config-loading defect found under the same parallel-worktree conditions.
+- [test-gap-settings-page-shell-no-tests.md](test-gap-settings-page-shell-no-tests.md) — the ticket whose verification step surfaced this.
