@@ -41,7 +41,8 @@
     "react-hook-form": "^7.53.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.6.0",
-    "tailwindcss-animate": "^1.0.7",
+    "tw-animate-css": "^1",
+    "vaul": "^1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
