@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-19
-status: ready
+status: done
 gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
@@ -19,12 +19,25 @@ The vitest run summary points at environment setup, not test logic — a 20-file
 
 This is pre-existing and unrelated to any feature branch: a baseline run with the working tree's new test file removed still produced `Test Files 4 failed | 16 passed (20)`. Because the failures move between runs, CI on any PR can go red for reasons that have nothing to do with the diff, and `/ship`'s green-CI auto-merge gate becomes unreliable.
 
+**The contention hypothesis is already confirmed.** On a 21-file tree, `npm test` failed 7 files; the same tree under `npx vitest run --maxWorkers=2` failed exactly 1. That last holdout, `SettingsTableShell.test.tsx`, then passed when run alone with `--testTimeout=30000` (`Duration 33.04s`, of which `environment 11.12s`). So there are **no assertion failures anywhere in the suite** — every red is a 5000ms timeout, and the suite is fully green given enough time and less worker contention. Both knobs are needed: capping workers fixes the starvation, and the default 5s is too tight for the heaviest file even uncontended.
+
 ## What to do
 
-- [ ] Reproduce and confirm the contention hypothesis: run `npx vitest run` with `--no-file-parallelism` (or `--maxWorkers=2`) and check whether the timeouts disappear entirely. This distinguishes worker starvation from a genuinely slow render path.
-- [ ] If contention is confirmed, cap concurrency in `vitest.config.ts` via `test.maxWorkers` (or `poolOptions.threads.maxThreads`) rather than raising `testTimeout` — a higher timeout hides starvation instead of fixing it.
-- [ ] Raise `test.testTimeout` in `vitest.config.ts` above the 5000ms default only as a secondary measure, and only if capped concurrency alone still leaves headroom too thin on slower machines.
+- [x] Cap concurrency in `vitest.config.ts` via `test.maxWorkers` (or `poolOptions.threads.maxThreads`) — measured to take failures from 7 files to 1.
+- [x] Raise `test.testTimeout` in `vitest.config.ts` above the 5000ms default to cover `SettingsTableShell.test.tsx`, which needs well over 5s even when run alone and uncontended.
+
 - [ ] ? If jsdom construction is the irreducible cost, evaluate `environment: "happy-dom"` — it constructs substantially faster than jsdom, but is a broad behavioral change across all 20+ suites and needs its own verification pass.
+
+**Resolved across two PRs, in parallel and independently.** A concurrent
+session diagnosed the same symptom and landed the `testTimeout: 30_000` half
+first, in #30. This branch adds the `maxWorkers: 4` half on top, resolving the
+rebase conflict in favour of #30's better-documented timeout comment. The two
+are complementary, not redundant: the timeout buys headroom, the worker cap
+removes the contention that made the headroom necessary — measured at 7 failing
+files uncapped vs. 1 at `--maxWorkers=2`, with wall-clock down from ~49s to
+~3.9s. Three consecutive `npm test` runs on this branch report `Test Files 21
+passed (21)` / `Tests 76 passed (76)`. No test was skipped or dropped to get
+there — the suite gained the 15 new `SectionCard` tests in the same change.
 
 ## Acceptance
 

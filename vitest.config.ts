@@ -27,5 +27,11 @@ export default defineConfig({
     // failed with "Test timed out in 5000ms" on an untouched tree, which made
     // `npm test` unusable as the `/ship` gate. 30s clears it with margin.
     testTimeout: 30_000,
+    // Cap workers on top of that timeout. Left uncapped, vitest spawns one
+    // worker per core and the jsdom builds starve each other, so the fix above
+    // buys headroom without removing the contention causing it. Measured on a
+    // 21-file run: 7 failing files uncapped, 1 at `--maxWorkers=2`. Capping
+    // also cut wall-clock from ~49s to ~4s, since the workers stop thrashing.
+    maxWorkers: 4,
   },
 });
