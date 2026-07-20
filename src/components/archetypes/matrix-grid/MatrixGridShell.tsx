@@ -235,6 +235,7 @@ function MatrixGridShellInner<Cell>({
                   const td = (
                     <td
                       key={col.key}
+                      data-filled={filled ? "" : undefined}
                       className={cn(
                         "px-2 py-2 text-center border-r border-border/60",
                         clickable && "cursor-pointer select-none touch-manipulation",
