@@ -7,6 +7,14 @@ import { fileURLToPath, URL } from "node:url";
 // which is scoped to the donor-dev gallery build (root: "gallery") — see
 // STYLE.md, "Donor file scope". This config is repo-root scoped so tests can
 // live alongside the primitives they cover under `src/`.
+//
+// The `test` script passes `--configLoader runner`. Vite's default `bundle`
+// loader hands this file to esbuild, and esbuild parses the `package.json` of
+// EVERY ancestor directory — not just the nearest one — so a run from inside
+// `.worktrees/<slug>` reads the main checkout's `package.json` two levels up.
+// When a concurrent session leaves that file mid-merge, this run dies with
+// `Expected string in JSON but found "<<"`. No `root`/workspace option stops
+// the climb; `runner` skips esbuild entirely. Same flag on the gallery scripts.
 // ---------------------------------------------------------------------------
 
 export default defineConfig({

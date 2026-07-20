@@ -88,3 +88,21 @@ separate findings, they are usually one finding.** Here, "SurfaceHeader has no s
 slot" and "F2 silently falls back to the classic header" were the same defect seen from
 two ends; fixing the gap (adding the slot) is the real work, and forcing the fallback
 away without it would have been a regression.
+
+## esbuild parses every ancestor `package.json` — pin `--configLoader runner`
+
+Vite's default config loader (`bundle`) hands `vite.config.ts` / `vitest.config.ts` to
+esbuild, and esbuild builds directory info for the **whole ancestor chain**, parsing each
+directory's `package.json` — not just the nearest one. Run from `.worktrees/<slug>`, that
+reaches the main checkout's `package.json` two levels up. When a concurrent session leaves
+that file mid-merge, an unrelated worktree's run dies with
+`Expected string in JSON but found "<<"`.
+
+Two things that look like fixes and are not: **`root:`** (`vite.config.ts` already pins
+`root: "gallery"` and still climbed) and **a local `node_modules`** (verified — the climb
+is dir-info caching, not module resolution). The only lever is skipping esbuild:
+`--configLoader runner` on every `vite`/`vitest` script. `native` also works but relies on
+Node's type-stripping; `runner` is the safer default.
+
+Generalizes past this repo: any parallel-worktree layout where a shared ancestor holds a
+`package.json` can have one session's merge conflict break another session's test run.

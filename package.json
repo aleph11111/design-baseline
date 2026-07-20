@@ -4,11 +4,11 @@
   "private": true,
   "description": "Design-baseline donor. Typecheck-only as a library (npx tsc --noEmit), with donor-owned component tests (npm test); ships an optional donor-dev gallery (npm run gallery) that renders the archetype demos. Neither the test harness nor the gallery is part of the baseline broadcast — see STYLE.md.",
   "scripts": {
-    "gallery": "vite",
-    "gallery:build": "vite build",
-    "gallery:preview": "vite preview",
-    "gallery:view": "vite build && vite preview --port 5173",
-    "test": "vitest run"
+    "gallery": "vite --configLoader runner",
+    "gallery:build": "vite build --configLoader runner",
+    "gallery:preview": "vite preview --configLoader runner",
+    "gallery:view": "vite build --configLoader runner && vite preview --configLoader runner --port 5173",
+    "test": "vitest run --configLoader runner"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
