@@ -7,6 +7,10 @@ export type SurfaceHeaderSlotProps = {
   kicker?: React.ReactNode;
   /** Surface title. When set, the on-surface header bar renders. */
   title?: React.ReactNode;
+  /** Optional secondary metadata line below the title (`text-xs`). */
+  subtitle?: React.ReactNode;
+  /** Optional decorative icon left of the title. */
+  icon?: React.ComponentType<{ className?: string }>;
   /** Right-aligned actions in the on-surface header. */
   headerActions?: React.ReactNode;
   /** Header treatment for the on-surface header (House Style B). */
@@ -22,6 +26,8 @@ export type SurfaceHeaderSlotProps = {
 export function SurfaceHeaderSlot({
   kicker,
   title,
+  subtitle,
+  icon,
   headerActions,
   headerFill,
 }: SurfaceHeaderSlotProps): React.ReactElement | null {
@@ -30,6 +36,8 @@ export function SurfaceHeaderSlot({
     <SurfaceHeader
       kicker={kicker}
       title={title}
+      subtitle={subtitle}
+      icon={icon}
       actions={headerActions}
       headerFill={headerFill}
     />

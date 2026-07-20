@@ -10,6 +10,16 @@ export type SurfaceHeaderProps = {
   /** The surface title (`text-lg font-semibold`). Embedded ID/number figures
    *  should be wrapped in `font-mono` by the caller. */
   title: React.ReactNode;
+  /** Optional secondary line below the title — compact metadata (created date,
+   *  short identifier, status string), not prose. Rendered at `text-xs`, the
+   *  same scale as `<PageHeader>`'s subtitle, and dimmed automatically on a
+   *  solid header. Parity with the classic `<PageHeader>` path: without this
+   *  slot, a shell needing a subtitle had to fall back to the classic header
+   *  and lose the on-surface treatment entirely. */
+  subtitle?: React.ReactNode;
+  /** Optional decorative icon to the left of the title (`h-6 w-6`), matching
+   *  `<PageHeader>`'s icon slot. Pass a lucide-react icon component. */
+  icon?: React.ComponentType<{ className?: string }>;
   /** Right-aligned actions row — `<Button>`s (size="sm"): secondary =
    *  `variant="outline"`, primary = default. They invert on a solid header. */
   actions?: React.ReactNode;
@@ -33,6 +43,8 @@ export type SurfaceHeaderProps = {
 export function SurfaceHeader({
   kicker,
   title,
+  subtitle,
+  icon: Icon,
   actions,
   headerFill,
   className,
@@ -51,14 +63,29 @@ export function SurfaceHeader({
         {kicker ? (
           <div className={cn(OVERLINE_CLASS, "mb-1", hfc.kicker)}>{kicker}</div>
         ) : null}
-        <div
-          className={cn(
-            "text-lg font-semibold leading-tight text-foreground",
-            hfc.title,
-          )}
-        >
-          {title}
+        <div className="flex items-center gap-2">
+          {Icon ? (
+            <Icon className={cn("h-6 w-6 shrink-0", hfc.title)} />
+          ) : null}
+          <div
+            className={cn(
+              "text-lg font-semibold leading-tight text-foreground",
+              hfc.title,
+            )}
+          >
+            {title}
+          </div>
         </div>
+        {subtitle ? (
+          <p
+            className={cn(
+              "mt-0.5 text-xs text-muted-foreground",
+              hfc.subtitle,
+            )}
+          >
+            {subtitle}
+          </p>
+        ) : null}
       </div>
       {actions ? (
         <div className="flex shrink-0 items-center gap-2">{actions}</div>

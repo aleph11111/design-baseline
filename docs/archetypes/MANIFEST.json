@@ -8,7 +8,7 @@
   "plugin": {
     "kind": "design",
     "name": "design-baseline",
-    "version": "0.4.1",
+    "version": "0.5.0",
     "taxonomy": "docs/TAXONOMY.md",
     "surface": {
       "type": "vite-app",
@@ -72,7 +72,7 @@
       "namespace": "baseline",
       "slug": "detail-overview",
       "displayName": "Detail overview",
-      "version": "2.18",
+      "version": "2.19",
       "promoted_from": "hk-crm",
       "promoted_at": "2026-05-23",
       "source_spec_version": "1.6",

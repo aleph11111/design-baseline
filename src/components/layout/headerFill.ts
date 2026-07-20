@@ -37,6 +37,11 @@ export type HeaderFillClasses = {
   kicker: string;
   /** Apply to a custom title element (overrides its foreground color). */
   title: string;
+  /** Apply to a custom subtitle element (overrides its muted color). Matches
+   *  what `SOLID_INVERT` does to a composed `<PageHeader>`'s `<p>` subtitle —
+   *  stated explicitly here so a shell rendering its own subtitle element does
+   *  not have to rely on the `[&_p]` descendant selector happening to match. */
+  subtitle: string;
 };
 
 // Inversions for solid headers, scoped to the bar via arbitrary descendant
@@ -58,11 +63,22 @@ export function headerFillClasses(fill: HeaderFill): HeaderFillClasses {
         bar: `bg-primary text-primary-foreground ${SOLID_INVERT}`,
         kicker: "text-primary-foreground/80",
         title: "text-primary-foreground",
+        subtitle: "text-primary-foreground/70",
       };
     case "tint":
-      return { bar: "bg-muted border-b border-border", kicker: "", title: "" };
+      return {
+        bar: "bg-muted border-b border-border",
+        kicker: "",
+        title: "",
+        subtitle: "",
+      };
     case "white":
     default:
-      return { bar: "bg-card border-b border-border", kicker: "", title: "" };
+      return {
+        bar: "bg-card border-b border-border",
+        kicker: "",
+        title: "",
+        subtitle: "",
+      };
   }
 }

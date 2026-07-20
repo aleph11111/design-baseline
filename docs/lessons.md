@@ -38,3 +38,28 @@ The genuine drift signal is narrower: a plane that hand-rolls chrome the contrac
 should be **shared** (an inline empty `<div>` where the canonical empty is `StateView`),
 or a skeleton built from raw `animate-pulse`/`bg-muted` divs instead of the `<Skeleton>`
 atom. Both were real; the other four flagged sites were correct as written.
+
+## Documented variation is not drift — and a workaround is not a second bug
+
+A consistency audit greps for *"shells that differ"*, which cannot distinguish a
+divergence from a **sanctioned variation**. Three sweeps in a row over-flagged in this
+same direction; every one of the following was reported as a defect and is correct:
+
+- **F2's dual header path** (board form vs classic) is an explicit **"Allowed variation"**
+  in `tabbed-settings.md` Layer 3, and it exists for a stated reason: the on-surface
+  header bar had no `subtitle`/`icon` slot. Forcing board-form unconditionally would
+  have *removed* the only way to render a subtitle on an F2 page.
+- **C's `surface="separated"` default.** The "One outer frame, not a card scatter"
+  gate is scoped to `layout="rail"` pages (`detail-overview.md`) — the default is
+  `layout="vertical"`, where it does not apply.
+- **J's `px-6` header gutter.** `STYLE.md`'s surface-padding table assigns `px-6 py-4`
+  to the dialog surface; `px-5` is the *page*-surface gutter. "Unifying" the dialog
+  header to `px-5` would have misaligned it from its own body directly beneath.
+
+Two rules of thumb. **(1) Read the archetype's own contract before believing a
+cross-archetype comparison** — the contracts encode intent that a diff cannot see.
+**(2) When an audit reports both a capability gap and the workaround for that gap as
+separate findings, they are usually one finding.** Here, "SurfaceHeader has no subtitle
+slot" and "F2 silently falls back to the classic header" were the same defect seen from
+two ends; fixing the gap (adding the slot) is the real work, and forcing the fallback
+away without it would have been a regression.
