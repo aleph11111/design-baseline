@@ -5,6 +5,7 @@ import {
   type MatrixRow,
 } from "@/components/archetypes/matrix-grid";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { StateView } from "@/components/ui/state-view";
 import {
   Sheet,
   SheetContent,
@@ -252,9 +253,10 @@ export function MatrixGridDemo() {
         }
         emptyState={
           visibleRows.length === 0 ? (
-            <div className="px-4 py-16 text-center text-sm text-muted-foreground">
-              No grades recorded for this term yet.
-            </div>
+            <StateView
+              variant="empty"
+              message="No grades recorded for this term yet."
+            />
           ) : undefined
         }
         columns={columns}

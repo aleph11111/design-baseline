@@ -1,5 +1,6 @@
 import * as React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -31,41 +32,43 @@ export type CrudDialogBodyProps = {
 // Skeleton
 // ---------------------------------------------------------------------------
 
+// One skeleton field: label bar over control bar, matching the real field
+// stack's `space-y-1.5`. Composed from the shared `<Skeleton>` atom — the
+// contract forbids hand-rolled pulsing blocks (crud-dialog.md, Layer 5
+// Forbidden), and `<Skeleton>` already carries `animate-pulse rounded-md
+// bg-muted` so no wrapper animation is needed.
+function SkeletonField({
+  labelWidth,
+  controlHeight = "h-9",
+}: {
+  labelWidth: string;
+  controlHeight?: string;
+}): React.ReactElement {
+  return (
+    <div className="space-y-1.5">
+      <Skeleton className={cn("h-3", labelWidth)} />
+      <Skeleton className={controlHeight} />
+    </div>
+  );
+}
+
 function BodySkeleton(): React.ReactElement {
   return (
-    <div className="space-y-4 px-6 py-4 animate-pulse" aria-hidden>
+    <div className="space-y-4 px-6 py-4" aria-hidden>
       {/* Simulate a two-column field section */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <div className="h-3 w-16 rounded bg-muted" />
-          <div className="h-9 rounded bg-muted" />
-        </div>
-        <div className="space-y-1.5">
-          <div className="h-3 w-20 rounded bg-muted" />
-          <div className="h-9 rounded bg-muted" />
-        </div>
+        <SkeletonField labelWidth="w-16" />
+        <SkeletonField labelWidth="w-20" />
       </div>
       {/* Simulate a full-width field */}
-      <div className="space-y-1.5">
-        <div className="h-3 w-24 rounded bg-muted" />
-        <div className="h-9 rounded bg-muted" />
-      </div>
+      <SkeletonField labelWidth="w-24" />
       {/* Simulate another field group */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <div className="h-3 w-14 rounded bg-muted" />
-          <div className="h-9 rounded bg-muted" />
-        </div>
-        <div className="space-y-1.5">
-          <div className="h-3 w-18 rounded bg-muted" />
-          <div className="h-9 rounded bg-muted" />
-        </div>
+        <SkeletonField labelWidth="w-14" />
+        <SkeletonField labelWidth="w-20" />
       </div>
       {/* Simulate a textarea field */}
-      <div className="space-y-1.5">
-        <div className="h-3 w-12 rounded bg-muted" />
-        <div className="h-24 rounded bg-muted" />
-      </div>
+      <SkeletonField labelWidth="w-12" controlHeight="h-24" />
     </div>
   );
 }

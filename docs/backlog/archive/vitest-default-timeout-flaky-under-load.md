@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-19
-status: ready
+status: done
 model: sonnet
 model_reason: mechanical config change plus a measurement pass; no design tradeoffs
 gate:
@@ -60,3 +60,10 @@ waved through.
   other open `area: tooling` ticket against this repo's vite/vitest config.
 - The ten open `test-gap-*` tickets add new tests to this same suite; each one
   lands more RTL renders under the same 5s ceiling.
+
+## 2026-07-20 — superseded
+
+Consolidated into [vitest-default-timeout-flaky-suite.md](vitest-default-timeout-flaky-suite.md),
+which now carries this ticket's diagnosis and evidence. Archived as a duplicate
+report of one symptom, not as resolved work — the underlying flakiness is still open
+there.
