@@ -13,6 +13,7 @@ import {
   Box,
   FileText,
   LayoutDashboard,
+  Loader,
   Settings,
   UploadCloud,
   type LucideIcon,
@@ -45,6 +46,7 @@ const ICON_BY_SLUG: Record<string, LucideIcon> = {
   "import-wizard": UploadCloud,
   "feed-inbox": Bell,
   "kanban-board": LayoutDashboard,
+  "skeleton-loader": Loader,
 };
 
 function toNavItem(a: ArchetypeEntry): NavItem {
@@ -53,11 +55,15 @@ function toNavItem(a: ArchetypeEntry): NavItem {
 
 const PAGES = ARCHETYPES.filter((a) => a.kind === "page");
 const DIALOGS = ARCHETYPES.filter((a) => a.kind === "dialog");
+const COMPONENTS = ARCHETYPES.filter((a) => a.kind === "component");
 
 const NAV_GROUPS: NavGroup[] = [
   { label: "Page archetypes", items: PAGES.map(toNavItem) },
   ...(DIALOGS.length
     ? [{ label: "Dialog archetypes", items: DIALOGS.map(toNavItem) }]
+    : []),
+  ...(COMPONENTS.length
+    ? [{ label: "Component archetypes", items: COMPONENTS.map(toNavItem) }]
     : []),
   {
     label: "Layout & molecules",

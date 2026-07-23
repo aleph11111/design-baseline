@@ -151,7 +151,7 @@ The page header no longer floats above the shell as a separate page-header primi
 ## Layer 7 — Empty / loading / error states
 
 **Required:**
-- **Loading** — provided by the shell via the shared **state-view primitive** (loading variant) — the single owner of the loading/empty/error visual planes across settings-table, list-with-detail, and grouped-list. No skeleton screens.
+- **Loading** — provided by the shell via the shared **state-view primitive** (loading variant) — the single owner of the loading/empty/error visual planes across settings-table, list-with-detail, and grouped-list. Text loader is the default; a **skeleton** (the `skeleton-loader` archetype) may be passed through the loading plane's skeleton override when this table's column shape is known ahead of the fetch. Never a full-page spinner.
 - **Empty state** — state-view (empty variant), inline, query-dependent copy:
   - Filter / search active: `"No {things} match {query}."`
   - No items at all: `"No {things} yet."` + a primary CTA button ("Add {entity}") calling `onAddNew`. The CTA is the entry point to the first record.

@@ -21,6 +21,13 @@ export type StateViewProps = {
   description?: React.ReactNode;
   /** Back-compat single-line copy (also the loading label override). Aliased to `description`. */
   message?: React.ReactNode;
+  /**
+   * Loading-plane override: a skeleton node (e.g. `<ListSkeleton>`) rendered in
+   * place of the centered "Loading…" text when `variant="loading"`. The node
+   * owns its own `role="status"`, so StateView renders it verbatim. Omit for the
+   * default text loader.
+   */
+  loadingSkeleton?: React.ReactNode;
   /** Optional leading icon for the empty state (centered above the text). */
   icon?: LucideIcon;
   /** Error object for the error variant; message is derived from it. */
@@ -45,7 +52,8 @@ function errorMessage(error: unknown): string {
  * drifted (text-only vs icon empties, `p-8` vs `p-10`, `ring-1` vs Alert). All
  * shells now delegate here so the planes look identical everywhere.
  *
- *  - loading: centered "Loading…", `role="status"`, `p-8`.
+ *  - loading: centered "Loading…", `role="status"`, `p-8` — or a `loadingSkeleton`
+ *    node (e.g. `<ListSkeleton>`) rendered verbatim when the row shape is known.
  *  - empty:   centered `p-8`, optional icon + optional title + description + CTA.
  *  - error:   a destructive `<Alert>` with an optional retry button.
  *
@@ -62,9 +70,11 @@ export function StateView({
   error,
   onRetry,
   action,
+  loadingSkeleton,
   className,
 }: StateViewProps): React.ReactElement {
   if (variant === "loading") {
+    if (loadingSkeleton) return <>{loadingSkeleton}</>;
     return (
       <div
         className={cn(

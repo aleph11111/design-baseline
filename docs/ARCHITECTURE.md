@@ -34,7 +34,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `src/utils/logger.ts` | console wrapper required by `ui/error-boundary.tsx` |
 | `src/components/ui/` | 46 shadcn/ui primitives (button, dialog, table, sidebar, form, sheet, command, calendar, segmented-control, state-view, cell-input, confirmation-dialog, icon-avatar, search-input, color-field, file-field, …) |
 | `src/components/layout/` | App-shell layer: `AppShell`, `AppSidebar`/`Sidebar` (+ `NavItem`/`NavGroup` types), `AppHeader`, `PageHeader`, `SectionHeading`, `SectionCard`, `SurfaceHeader` (+ `headerFill` context/classes), `StatTile`/`StatTileRow`, `ProgressTracker`, `MetricList`, `AuthCard`, `SectionNavShell`, `BottomNav`, `ThemeToggle` |
-| `src/components/archetypes/<slug>/` | Reference primitives per shipped archetype (one dir each; 14 registered in MANIFEST — see §4). Plus a non-archetype `shared/` dir (`RowActionsMenu`, `interactiveRow`) holding primitives reused across archetypes — correctly absent from MANIFEST |
+| `src/components/archetypes/<slug>/` | Reference primitives per shipped archetype (one dir each; 15 registered in MANIFEST — see §4). Plus a non-archetype `shared/` dir (`RowActionsMenu`, `interactiveRow`) holding primitives reused across archetypes — correctly absent from MANIFEST |
 | `src/examples/<slug>-demo.tsx` | Sandbox demo per archetype — the "generic-ness contract" proving the primitive has zero domain-type leakage. Donor-dev only, **never copied** to targets |
 | `src/examples/DemoNextApp.tsx` / `DemoViteApp.tsx` | Reference wiring for Next.js 16 App Router / Vite + React Router 7 consumers |
 | `gallery/` | Donor-dev Vite app (`Gallery.tsx`, `registry.ts`, `layout-demos.tsx`) that mounts every demo behind a nav; also the buildable `gallery-dist/` surface the dashboard hub iframes per `docs/PLUGIN-CONTRACT.md` |
@@ -55,7 +55,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `docs/superpowers/specs/2026-05-22-archetype-promotion-design.md`, `docs/superpowers/plans/2026-05-22-archetype-promotion-implementation.md` | Design spec + implementation plan that originated the whole archetype layer |
 | `docs/backlog/` | Open root tickets + a `wip/` (in-flight) and `archive/` (resolved) subdir; `docs/backlog/README.md` is the ticket frontmatter schema authority `/ticket` reads (canonical `area` list, `gate` block, optional `kind`/`model` fields) |
 
-## 4. The 14 shipped archetypes (per `MANIFEST.json`)
+## 4. The 15 shipped archetypes (per `MANIFEST.json`)
 
 | Key | Slug | Kind | Promoted from |
 |---|---|---|---|
@@ -73,8 +73,9 @@ Two independent verification paths, both donor-only (never copied to targets):
 | P | kanban-board | page | fleet-audit-2026-06-13 (multi-source) |
 | R | report | page | baseline-authored — sanctioned exception ([ADR 0001](adr/0001-grandfather-authored-report-calendar.md)) |
 | Cal | calendar | page | baseline-authored — sanctioned exception ([ADR 0001](adr/0001-grandfather-authored-report-calendar.md)) |
+| Sk | skeleton-loader | component | brickshop-manager (fleet synthesis; hk-crm, controlling-app) |
 
-`component` and `flow` archetype kinds are defined in the methodology but **deferred** — no baseline archetypes of either kind exist yet (formalized once two projects independently need the shape, per Rule of 2).
+`Sk` (skeleton-loader) is the first **component**-kind archetype — a molecule reused across page archetypes rather than a page shape of its own. The `flow` kind remains **deferred** (no baseline archetypes yet; formalized once two projects independently need the shape, per Rule of 2).
 
 ## 5. The contract / reference-implementation split
 

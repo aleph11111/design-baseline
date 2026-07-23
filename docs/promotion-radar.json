@@ -21,12 +21,13 @@
       "scanSignal": "skeleton-loader",
       "pattern": "Route/list-shaped skeleton loader (animate-pulse rows) instead of a spinner",
       "axisA": "promote",
-      "donorTarget": "ListSkeleton (hk-crm's is the ready donor candidate) + Skeleton-based StateView loading variant",
+      "donorTarget": "ListSkeleton (archetype Sk) + StateView loadingSkeleton override",
       "projects": ["hk-crm", "brickshop-manager", "controlling-app"],
       "count": 3,
-      "status": "candidate",
+      "status": "promoted",
+      "promotedAt": "2026-07-23",
       "axisB": "on-token",
-      "notes": "Skeletons are richer than StateView's text loader; donor should bless the pattern, not treat it as an exception."
+      "notes": "Promoted 2026-07-23 as the first Component-kind archetype (Sk, skeleton-loader): ListSkeleton (rows/columns/showHeader/avatar + role=status/aria-busy/sr-only label) composing the Skeleton atom, plus a non-breaking StateView `loadingSkeleton` override. Authored FRESH, not lifted: the 'hk-crm ready donor' premise did not hold — hk-crm deleted its hand-rolled list-skeleton (commit e2bc720) and moved to the text StateView; the real driver is brickshop's ~40 uncoordinated inline copies (5 shapes, no shared component, no a11y). Relaxed the absolute 'no skeleton screens' rule (README + list-with-detail/settings-table/grouped-list) to conditional: text is default, skeleton permitted where row shape is known."
     },
     {
       "id": "inline-cell-field",
