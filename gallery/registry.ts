@@ -94,6 +94,10 @@ const DEMOS: Record<
     kind: "component",
     Demo: lazyDemo(() => import("@/examples/skeleton-loader-demo"), "SkeletonLoaderDemo"),
   },
+  "field": {
+    kind: "component",
+    Demo: lazyDemo(() => import("@/examples/field-demo"), "FieldDemo"),
+  },
 };
 
 type ManifestArchetype = {

@@ -5,6 +5,20 @@
   "status_legend": ["candidate", "watch", "promoting", "promoted", "sanctioned"],
   "candidates": [
     {
+      "id": "raw-label",
+      "scanSignal": "raw-label",
+      "pattern": "Raw <label> + control hand-assembled outside a form library (label+control+description+error), no htmlFor/aria wiring",
+      "axisA": "promote",
+      "donorTarget": "Field molecule (archetype Fd) — non-RHF twin of the FormItem stack, auto id/aria wiring",
+      "projects": ["controlling-app", "my-finance-app", "dashboard", "pmo", "mistra", "hk-crm"],
+      "count": 6,
+      "status": "promoted",
+      "promotedAt": "2026-07-23",
+      "axisB": "token parity with the RHF field stack",
+      "notes": "Promoted 2026-07-23 as archetype Fd (field): <Field> in src/components/archetypes/field/ — a stateless, non-react-hook-form labeled-field molecule. Wires htmlFor + aria-describedby (description+error) + aria-invalid via useId, composes the Label atom, and matches ui/form.tsx's FormItem/FormDescription/FormMessage tokens exactly so a standalone field and an RHF field render identically. Fleet synthesis, not lifted: controlling-app had already converged on the exact molecule (useId-wired Field adopted in 15 files); my-finance-app (55 sites) and dashboard (7) and pmo (7) have no molecule at all and hand-roll it fresh with divergent label classes and near-universally absent id/aria wiring (the a11y gap the promotion closes). Out of scope and left raw: <label>-wraps-control shapes (checkbox/radio rows, file dropzones) that are already associated by DOM nesting — see the sanctioned list.",
+      "scanSignalNote": "scanSignal stays 'raw-label' so the deterministic fleet scan keeps tracking regressions (new raw <label> product-UI sites)."
+    },
+    {
       "id": "stateview-rich-empty-error",
       "pattern": "Empty/error plane richer than a single line (title+description, optional icon/CTA; action-less error)",
       "axisA": "promote",
@@ -114,7 +128,8 @@
   "sanctioned": [
     { "pattern": "matrix/pivot <table> (sticky cols + group spans)", "reason": "not a record list; structurally unique. Inline cell control still routes to CellSelect (Axis A)." },
     { "pattern": "combobox / CommandInput search", "reason": "different widget (command palette), not a toolbar search box." },
-    { "pattern": "test-fixture raw <label>/<input>", "reason": "test fixtures, not product UI." }
+    { "pattern": "test-fixture raw <label>/<input>", "reason": "test fixtures, not product UI." },
+    { "pattern": "<label>-wraps-control (checkbox/radio row, file dropzone with hidden input)", "reason": "already associated by DOM nesting — correct as raw markup; out of scope for the Field molecule (archetype Fd)." }
   ],
   "sync": [
     {
