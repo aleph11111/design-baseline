@@ -136,7 +136,7 @@ The toolbar renders as a prop of the grouped-list shell (the `toolbar` slot), ab
 The grouped-list page has **two empty/loading planes**: page-level (the whole page has nothing to show) and section-level (delegated to A's empty state per section, but in practice unused — see below).
 
 **Page-level — required:**
-- **Loading** — handled by the shell's `isLoading` prop, via the shared **state-view primitive** (loading variant) — the single owner of the loading/empty/error visual planes across grouped-list, list-with-detail, and settings-table. No skeleton screens.
+- **Loading** — handled by the shell's `isLoading` prop, via the shared **state-view primitive** (loading variant) — the single owner of the loading/empty/error visual planes across grouped-list, list-with-detail, and settings-table. Text loader is the default; a **skeleton** (the `skeleton-loader` archetype) may be passed through the loading plane's skeleton override when this page's row shape is known ahead of the fetch. Never a full-page spinner.
 - **Empty state** — handled by the shell's `isEmpty`/`emptyMessage` props (state-view, empty variant). Rendered when there are zero sections **and** zero ungrouped rows. Query-dependent copy:
   - Search or filter active: `"No {things} match your search."`
   - No items at all: `"No {things} yet. {CTA hint if applicable}"`

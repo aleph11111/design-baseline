@@ -14,7 +14,7 @@ export type ArchetypeEntry = {
   displayName: string;
   version: string;
   spec: string;
-  kind: "page" | "dialog";
+  kind: "page" | "dialog" | "component";
   Demo: React.LazyExoticComponent<React.ComponentType>;
 };
 
@@ -32,7 +32,7 @@ function lazyDemo(
 // MANIFEST's `example` path resolved to its named export.
 const DEMOS: Record<
   string,
-  { Demo: React.LazyExoticComponent<React.ComponentType>; kind: "page" | "dialog" }
+  { Demo: React.LazyExoticComponent<React.ComponentType>; kind: "page" | "dialog" | "component" }
 > = {
   "list-with-detail": {
     kind: "page",
@@ -89,6 +89,10 @@ const DEMOS: Record<
   "calendar": {
     kind: "page",
     Demo: lazyDemo(() => import("@/examples/calendar-demo"), "CalendarDemo"),
+  },
+  "skeleton-loader": {
+    kind: "component",
+    Demo: lazyDemo(() => import("@/examples/skeleton-loader-demo"), "SkeletonLoaderDemo"),
   },
 };
 

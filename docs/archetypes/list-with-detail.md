@@ -142,7 +142,7 @@ The page header does not float above the shell as a separate page-header primiti
 ## Layer 7 — Empty / loading / error states
 
 **Required:**
-- **Loading** — handled by the shell's loading slot, a thin adapter over the shared **state-view primitive** (loading variant) — the single owner of the loading/empty/error visual planes across list-with-detail, settings-table, and grouped-list. No skeleton screens.
+- **Loading** — handled by the shell's loading slot, a thin adapter over the shared **state-view primitive** (loading variant) — the single owner of the loading/empty/error visual planes across list-with-detail, settings-table, and grouped-list. Text loader is the default; a **skeleton** (the `skeleton-loader` archetype) may be passed through the loading slot's skeleton override when this page's row shape is known ahead of the fetch. Never a full-page spinner.
 - **Empty state** — handled by the shell's empty slot (state-view, empty variant). Text is query-dependent:
   - Search or filter active: `"No {things} match your search."`
   - No items at all: `"No {things} yet. {CTA hint if applicable}"`
