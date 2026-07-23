@@ -15,6 +15,7 @@ import {
   LayoutDashboard,
   Loader,
   Settings,
+  TextCursorInput,
   UploadCloud,
   type LucideIcon,
 } from "lucide-react";
@@ -47,6 +48,7 @@ const ICON_BY_SLUG: Record<string, LucideIcon> = {
   "feed-inbox": Bell,
   "kanban-board": LayoutDashboard,
   "skeleton-loader": Loader,
+  "raw-textarea": TextCursorInput,
 };
 
 function toNavItem(a: ArchetypeEntry): NavItem {

@@ -161,6 +161,27 @@
       "promotedAt": "2026-07-23",
       "axisB": "on-token (rides shared field chrome + accent-primary range)",
       "notes": "Promoted 2026-07-23 as the second Component-kind archetype (I, raw-input): NativeField. The <input\\b scan splits into already-solved gaps (file->FileField, color->ColorField, cell->CellInput), adoption debt (text/checkbox/select where a primitive exists or the repo has none), and the genuinely un-homed shape this promotes: the labeled-native-field triad with the universal fleet gap being accessibility (no label association / aria-invalid / aria-describedby), plus native-only types with no shadcn wrapper (mistra's range x4, date/time). Scoped to the standalone labeled field: booleans stay Checkbox/Switch, enums stay Select, grid cells stay CellInput. scanSignal kept as 'raw-input' so the deterministic fleet scan keeps tracking regressions."
+    },
+    {
+      "id": "raw-textarea",
+      "scanSignal": "raw-textarea",
+      "pattern": "Labeled multi-line text field re-hand-composed at every call site (label + textarea + helper/error), + optional char-count and mono/JSON variant",
+      "axisA": "promote",
+      "donorTarget": "TextareaField (archetype T) — Label + Textarea atom + helper/error slot + optional showCount threshold counter + mono variant",
+      "projects": [
+        "dashboard",
+        "controlling-app",
+        "my-finance-app",
+        "brickshop-manager",
+        "mistra",
+        "hk-crm",
+        "pmo"
+      ],
+      "count": 7,
+      "status": "promoted",
+      "promotedAt": "2026-07-23",
+      "axisB": "on-token",
+      "notes": "Promoted 2026-07-23 as Component-kind archetype T (raw-textarea): TextareaField composes the shadcn Textarea + Label atoms, binding-neutral (useState or RHF), with opt-in maxLength char-counter (muted->amber->destructive) and mono/JSON variant. No auto-resize built — fleet-wide search for scrollHeight/field-sizing/auto-resize came back empty. Field composition met rule-of-2 across all 7 projects; mono variant across controlling-app + mistra; counter a repeated idiom within brickshop."
     }
   ],
   "sanctioned": [
