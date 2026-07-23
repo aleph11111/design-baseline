@@ -16,7 +16,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 |---|---|---|
 | Build (gallery only) | Vite 6 + `@vitejs/plugin-react` | `vite.config.ts`, `root: "gallery"`, relative base + hash routing so the built gallery is mountable at an arbitrary iframe subpath |
 | Styling | Tailwind CSS 4 (`@tailwindcss/vite`) | CSS-first config; no `tailwind.config.ts`. Tokens in `src/styles/tokens.css` |
-| UI primitives | shadcn/ui via `components.json` (style `default`, base color `slate`, RSC-aware) | 44 primitives in `src/components/ui/` |
+| UI primitives | shadcn/ui via `components.json` (style `default`, base color `slate`, RSC-aware) | 46 primitives in `src/components/ui/` |
 | Framework (donor typecheck) | React 19, TypeScript 5.6 (strict) | React/react-dom are **devDependencies only** — donor typechecking; targets pin their own |
 | Testing | Vitest 4 + jsdom + `@testing-library/react` | Separate `vitest.config.ts` (repo-root scoped) from `vite.config.ts` (gallery-scoped) |
 | Forms / icons / toasts | react-hook-form + zod, lucide-react, sonner + shadcn `<Toaster>` | Per `docs/STYLE.md` |
@@ -32,7 +32,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `src/lib/utils.ts` | `cn()` |
 | `src/hooks/` | `use-mobile.ts` (`useIsMobile`, required by `ui/sidebar.tsx`), `use-toast.ts` (canonical shadcn toast hook) |
 | `src/utils/logger.ts` | console wrapper required by `ui/error-boundary.tsx` |
-| `src/components/ui/` | 44 shadcn/ui primitives (button, dialog, table, sidebar, form, sheet, command, calendar, segmented-control, state-view, cell-input, confirmation-dialog, icon-avatar, search-input, …) |
+| `src/components/ui/` | 46 shadcn/ui primitives (button, dialog, table, sidebar, form, sheet, command, calendar, segmented-control, state-view, cell-input, confirmation-dialog, icon-avatar, search-input, color-field, file-field, …) |
 | `src/components/layout/` | App-shell layer: `AppShell`, `AppSidebar`/`Sidebar` (+ `NavItem`/`NavGroup` types), `AppHeader`, `PageHeader`, `SectionHeading`, `SectionCard`, `SurfaceHeader` (+ `headerFill` context/classes), `StatTile`/`StatTileRow`, `ProgressTracker`, `MetricList`, `AuthCard`, `SectionNavShell`, `BottomNav`, `ThemeToggle` |
 | `src/components/archetypes/<slug>/` | Reference primitives per shipped archetype (one dir each; 14 registered in MANIFEST — see §4). Plus a non-archetype `shared/` dir (`RowActionsMenu`, `interactiveRow`) holding primitives reused across archetypes — correctly absent from MANIFEST |
 | `src/examples/<slug>-demo.tsx` | Sandbox demo per archetype — the "generic-ness contract" proving the primitive has zero domain-type leakage. Donor-dev only, **never copied** to targets |

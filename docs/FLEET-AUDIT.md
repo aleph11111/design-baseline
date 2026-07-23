@@ -109,6 +109,8 @@ its inline-cell control is a `<CellSelect>` candidate, not a permanent carve-out
 |--------------------------------|------------|
 | `<ul`/`<div>` rows rendering a record list (cells, columns) | `<Table>` |
 | `<label` / `<input` / `<select` / `<textarea` (raw, not shadcn) | shared field stack (`<Label>`+`<Input>`/`<Select>`/`<Textarea>` or RHF `<FormField>`) |
+| `<input type="color">` (boxed swatch, optional hex `<Input>`) | `ColorField` (`ui/color-field`) |
+| `<input type="file">` (hidden + hand-rolled trigger / dropzone / filename row) | `FileField` (`ui/file-field`) |
 | `rounded-md border p-0.5` wrapping `<button>`s | `SegmentedControl` |
 | `relative … max-w-sm` + `Search` icon + `<Input className="pl-9">` | `SearchInput` |
 | `rounded-full border px-2.5 py-0.5` text pill | `<Badge>` |
