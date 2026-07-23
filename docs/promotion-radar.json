@@ -60,9 +60,10 @@
       "donorTarget": "ColorField / FileField (wrap the native control so it is shared AND on-token)",
       "projects": ["controlling-app", "brickshop-manager"],
       "count": 2,
-      "status": "candidate",
+      "status": "promoted",
+      "promotedAt": "2026-07-23",
       "axisB": "wrapper supplies tokenized chrome",
-      "notes": "The only true shadcn gap — closed by wrapping, not exempting."
+      "notes": "Promoted 2026-07-23 as ui/color-field (ColorField) + ui/file-field (FileField). ColorField = boxed native swatch + paired editable hex Input on one value/onChange; FileField = hidden native input + button/dropzone trigger, built-in input.value='' reset, maxSizeBytes gate, and optional name+size+clear row (real drag-and-drop left out — one-off in the fleet). The only true shadcn gap — closed by wrapping, not exempting."
     },
     {
       "id": "media-feed-adopt-feeditem",

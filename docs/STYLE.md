@@ -155,7 +155,7 @@ Plus:
 - `confirmation-dialog` — opinionated wrapper around `AlertDialog` for "Are you sure?" prompts.
 - `error-boundary` — React `ErrorBoundary` class component (depends on `@/utils/logger`).
 - `use-toast` — re-export shim that points at `@/hooks/use-toast` so legacy callers keep working.
-- `segmented-control`, `search-input`, `state-view`, `icon-avatar`, `cell-input` — shared content molecules (see "Shared content molecules" below). These are the single owners of the pill-toggle, toolbar search, async-plane, entity-circle, and inline-cell-field patterns; compose them rather than hand-rolling.
+- `segmented-control`, `search-input`, `state-view`, `icon-avatar`, `cell-input`, `color-field`, `file-field` — shared content molecules (see "Shared content molecules" below). These are the single owners of the pill-toggle, toolbar search, async-plane, entity-circle, inline-cell-field, native-colour-picker, and native-file-picker patterns; compose them rather than hand-rolling.
 
 Don't modify these files directly. To extend or recolor a component, wrap it. To upgrade, regenerate with `npx shadcn add <name>` after copying.
 
@@ -314,6 +314,8 @@ consolidation pass, after an audit found each hand-rolled in 3–4 places):
 | Positive / caution status color | `--success` / `--warning` tokens (`styles/tokens.css`) | `bg-green-500`, `text-emerald-600`, `bg-amber-50`, or a second tone→class map beside `<Badge>`'s |
 | Uppercase overline label | `OVERLINE_CLASS` (`layout/overline`), via `SectionHeading`/`StatTile` | a re-typed `text-xs uppercase tracking-*` string |
 | Editable control flush in a table/grid cell | `CellInput` / `CellSelect` (`ui/cell-input`) | a bare native `<input>`/`<select>` in a `<td>` |
+| Native colour picker (swatch + hex) | `ColorField` (`ui/color-field`) | a bare boxed `<input type="color">`, with or without a paired hex `<Input>` |
+| Native file picker (trigger + selected row) | `FileField` (`ui/file-field`) — `variant` (button/dropzone), `accept`, `multiple`, `busy`, `maxSizeBytes` | a hidden `<input type="file">` + hand-rolled trigger / `input.value=""` reset / filename+size row |
 
 One **deliberate** non-molecule (don't force it onto the owners above): the
 matrix-grid pivot `<table>` (sticky columns + group spans — not a record list). Its
