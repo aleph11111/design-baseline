@@ -8,7 +8,7 @@
   "plugin": {
     "kind": "design",
     "name": "design-baseline",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "taxonomy": "docs/TAXONOMY.md",
     "surface": {
       "type": "vite-app",
@@ -265,6 +265,21 @@
       "reference_impl": "docs/archetypes/raw-input.baseline.md",
       "primitives_dir": "src/components/archetypes/raw-input",
       "example": "src/examples/raw-input-demo.tsx"
+    },
+    {
+      "key": "T",
+      "namespace": "baseline",
+      "slug": "raw-textarea",
+      "displayName": "Textarea field",
+      "kind": "component",
+      "version": "1.0",
+      "promoted_from": "brickshop-manager (fleet synthesis; dashboard, controlling-app, my-finance-app, mistra, hk-crm, pmo)",
+      "promoted_at": "2026-07-23",
+      "source_spec_version": "n/a (fleet synthesis — no single source spec)",
+      "spec": "docs/archetypes/raw-textarea.md",
+      "reference_impl": "docs/archetypes/raw-textarea.baseline.md",
+      "primitives_dir": "src/components/archetypes/raw-textarea",
+      "example": "src/examples/raw-textarea-demo.tsx"
     }
   ],
   "_methodology_note": "Cross-archetype methodology docs — the selection/placement/stack/adoption laws the individual archetype specs defer to. Not page shapes; no primitives or demos. `governs` lists the archetype keys each doc's rules bear on. Adopted from the hk-crm 360° audit (2026-07); see docs/adr/0002-adopt-baseline-upstream-methodology.md.",
