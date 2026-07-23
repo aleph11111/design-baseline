@@ -163,6 +163,26 @@
       "notes": "Promoted 2026-07-23 as the second Component-kind archetype (I, raw-input): NativeField. The <input\\b scan splits into already-solved gaps (file->FileField, color->ColorField, cell->CellInput), adoption debt (text/checkbox/select where a primitive exists or the repo has none), and the genuinely un-homed shape this promotes: the labeled-native-field triad with the universal fleet gap being accessibility (no label association / aria-invalid / aria-describedby), plus native-only types with no shadcn wrapper (mistra's range x4, date/time). Scoped to the standalone labeled field: booleans stay Checkbox/Switch, enums stay Select, grid cells stay CellInput. scanSignal kept as 'raw-input' so the deterministic fleet scan keeps tracking regressions."
     },
     {
+      "id": "raw-label",
+      "scanSignal": "raw-label",
+      "pattern": "Raw <label> hand-rolled + control (incl. non-native Select), no htmlFor/aria wiring — the label-side view of the un-homed labeled-field triad",
+      "axisA": "promote",
+      "donorTarget": "NativeField (archetype I, raw-input) — the labeled-field assembly closes the label-association a11y gap this signal tracks",
+      "projects": [
+        "controlling-app",
+        "my-finance-app",
+        "dashboard",
+        "pmo",
+        "mistra",
+        "hk-crm"
+      ],
+      "count": 6,
+      "status": "promoted",
+      "promotedAt": "2026-07-23",
+      "axisB": "token parity with the shared field chrome",
+      "notes": "Promoted 2026-07-23 via archetype I (raw-input / NativeField) — the SAME molecule the 'raw-input' candidate promotes, tracked here from the complementary '<label' scan angle (a raw <label> around a Select has no bare <input>, so the raw-input scan alone would miss it). A separate 'field' promotion (Fd) was drafted from this signal and dropped as a duplicate once raw-input merged first (one archetype owns the shape). RESIDUAL: NativeField deliberately scopes OUT enum controls ('enums stay Select'), so the label+wiring assembly around a shadcn Select — the dominant raw-label shape in controlling-app's filter toolbars — is not yet covered; tracked as a follow-up to widen NativeField with a control-agnostic slot. scanSignal kept as 'raw-label' so the deterministic fleet scan keeps tracking <label> regressions."
+    },
+    {
       "id": "raw-textarea",
       "scanSignal": "raw-textarea",
       "pattern": "Labeled multi-line text field re-hand-composed at every call site (label + textarea + helper/error), + optional char-count and mono/JSON variant",
@@ -196,6 +216,10 @@
     {
       "pattern": "test-fixture raw <label>/<input>",
       "reason": "test fixtures, not product UI."
+    },
+    {
+      "pattern": "<label>-wraps-control (checkbox/radio row, file dropzone with hidden input)",
+      "reason": "already associated by DOM nesting — correct as raw markup; out of scope for NativeField (archetype I)."
     }
   ],
   "sync": [
