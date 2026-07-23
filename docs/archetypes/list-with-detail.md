@@ -2,7 +2,7 @@
 key: A
 slug: list-with-detail
 kind: page
-version: 1.3
+version: 1.4
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.2
@@ -79,13 +79,17 @@ The page header does not float above the shell as a separate page-header primiti
 - **Result count** — in the **canonical muted small-text style**, right-aligned near the action buttons, format: `{n} results`.
 
 **Allowed variation:**
-- **Status filter** — optional. If present, use the shared **one-of-N segmented control** — a pill row — **not** a dropdown select.
+- **Status filter** — optional. Default to the shared **one-of-N segmented control** (a pill row). A **dropdown select is permitted** when *either* of these holds, because a pill row stops being the better control:
+  - the status enum exposes **more than 3 selectable values** — beyond three mutually-exclusive chips the pill row crowds the toolbar and scans worse than a labelled dropdown; or
+  - the toolbar already carries **2 or more other filter dimensions** (owner, category, source, step…) — a lone pill row beside several selects fragments the control band, so a select keeps the row visually coherent.
+
+  When neither holds — a small status enum that is the toolbar's primary filter axis — use the segmented control. Rationale: the pill row's advantage is legibility for a *small, primary* set of states; a large enum or a multi-dimension toolbar inverts that, and both cases were proven by real consumers (rule-of-2).
 - **Quick-filter chips** — a richer compound-filter pattern (e.g. "Needs attention", "Unassigned", "Overdue") is allowed when a page has compound filter dimensions that exceed a single status axis. Each chip may display a count badge.
 - **Global action buttons** (Add, Create, Import, Export) — canonical placement is the shell's `headerActions` (the on-surface header bar, Layer 3; they invert on a brand-filled header). Small, leading icon; the default/primary style for the single primary creation action, the secondary style otherwise. A legacy toolbar placement is still tolerated on existing pages, but new pages put write actions in the header — the toolbar owns data controls (search / filters / count), not writes.
 - **Refresh button** — allowed as an icon button when the page has long-running async work that warrants manual refresh.
 
 **Forbidden:**
-- Status filters rendered as dropdown selects (migrate to the segmented control).
+- Status filters rendered as dropdown selects *when the segmented control applies* — i.e. a small status enum (≤3 values) that is the toolbar's primary filter axis. (A select is allowed for a large enum or a multi-dimension toolbar — see Allowed variation above.)
 - Hand-rolled search inputs — always compose via the shared search-input molecule (which owns the left-aligned icon).
 - Toolbar rendered outside the shell.
 - Action buttons placed anywhere other than the toolbar or the shell's `headerActions` — never inline above or below the shell.
@@ -243,7 +247,7 @@ The following patterns are never permitted in a list-with-detail page, regardles
 3. **Embedded settings tables.** A settings-table (archetype D2) inside a list-with-detail conflicts with the list semantics. Use a separate page or a modal.
 4. **Hand-rolled card wrappers.** Always use the list-with-detail shell. Do not copy-paste the card chrome.
 5. **Action buttons in a floating page header.** All write actions live on the shell (header actions or, on legacy pages, the toolbar).
-6. **Status dropdowns.** Use pill bars or quick-filter chips (see Allowed variations 1–2).
+6. **Status dropdowns as the default.** Prefer the segmented control (pill row) for a small status enum (≤3 values) that is the page's primary filter axis. A dropdown select is permitted only for a large status enum (>3 values) or a toolbar with 2+ other filter dimensions (see Layer 4, Allowed variation).
 7. **Raw ISO date or number strings in cells.** Always route through consumer-provided formatters.
 8. **Static (non-lazy) page imports.** Always lazy-import list-with-detail pages.
 9. **Missing render-error boundary.** Every list-with-detail page must have one at the page-component level.

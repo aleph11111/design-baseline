@@ -40,7 +40,8 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 ### Layer 4 — Toolbar
 - Search-input molecule → `<SearchInput>` (`ui/search-input` — `inputSize`/`clearable`/`count` props).
 - Result count style → `text-sm text-muted-foreground`.
-- One-of-N segmented control → `<SegmentedControl>` (`ui/segmented-control`).
+- One-of-N segmented control → `<SegmentedControl>` (`ui/segmented-control`). Default status-filter control.
+- Status filter as a select (conditional — large enum or multi-dimension toolbar, see spec Layer 4) → `<Select>` (`ui/select`).
 - Global action buttons → `size="sm"`, leading icon; variant `default` for the single primary creation action, `outline` for secondary.
 
 ### Layer 5 — Content wrapper
