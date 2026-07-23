@@ -2,14 +2,23 @@
   "artifact": "promotion-radar",
   "generated": "2026-06-15",
   "model": "Axis A = own as component (promote/wrap/adopt-existing); Axis B = conform to look (mandatory for all). rule-of-2 trips a pattern onto the radar.",
-  "status_legend": ["candidate", "watch", "promoting", "promoted", "sanctioned"],
+  "status_legend": [
+    "candidate",
+    "watch",
+    "promoting",
+    "promoted",
+    "sanctioned"
+  ],
   "candidates": [
     {
       "id": "stateview-rich-empty-error",
       "pattern": "Empty/error plane richer than a single line (title+description, optional icon/CTA; action-less error)",
       "axisA": "promote",
       "donorTarget": "extend StateView (empty: title+description+icon+action; error: optional retry)",
-      "projects": ["brickshop-manager", "controlling-app"],
+      "projects": [
+        "brickshop-manager",
+        "controlling-app"
+      ],
       "count": 2,
       "status": "promoted",
       "promotedAt": "2026-06-15",
@@ -22,7 +31,11 @@
       "pattern": "Route/list-shaped skeleton loader (animate-pulse rows) instead of a spinner",
       "axisA": "promote",
       "donorTarget": "ListSkeleton (archetype Sk) + StateView loadingSkeleton override",
-      "projects": ["hk-crm", "brickshop-manager", "controlling-app"],
+      "projects": [
+        "hk-crm",
+        "brickshop-manager",
+        "controlling-app"
+      ],
       "count": 3,
       "status": "promoted",
       "promotedAt": "2026-07-23",
@@ -34,7 +47,11 @@
       "pattern": "Editable control sitting flush inside a table/grid cell (number/text/select)",
       "axisA": "promote",
       "donorTarget": "CellInput / CellSelect (thin wrappers over Input/Select, flush-cell styling + focus-visible ring)",
-      "projects": ["brickshop-manager", "controlling-app", "hk-crm"],
+      "projects": [
+        "brickshop-manager",
+        "controlling-app",
+        "hk-crm"
+      ],
       "count": 3,
       "status": "promoted",
       "promotedAt": "2026-06-15",
@@ -46,7 +63,10 @@
       "pattern": "Compact/clearable/mobile search box (h-6/h-12, clear-X, match counter, inputMode)",
       "axisA": "promote",
       "donorTarget": "extend SearchInput (size, clearable, input passthrough props)",
-      "projects": ["controlling-app", "brickshop-manager"],
+      "projects": [
+        "controlling-app",
+        "brickshop-manager"
+      ],
       "count": 2,
       "status": "promoted",
       "promotedAt": "2026-06-15",
@@ -59,7 +79,10 @@
       "pattern": "Native color/file inputs (no shadcn equivalent)",
       "axisA": "wrap",
       "donorTarget": "ColorField / FileField (wrap the native control so it is shared AND on-token)",
-      "projects": ["controlling-app", "brickshop-manager"],
+      "projects": [
+        "controlling-app",
+        "brickshop-manager"
+      ],
       "count": 2,
       "status": "promoted",
       "promotedAt": "2026-07-23",
@@ -71,7 +94,10 @@
       "pattern": "Chronological media/event <ul> feed (NOT a record list)",
       "axisA": "adopt-existing",
       "donorTarget": "FeedItem / archetype H (already in the donor)",
-      "projects": ["mistra", "brickshop-manager"],
+      "projects": [
+        "mistra",
+        "brickshop-manager"
+      ],
       "count": 2,
       "status": "candidate",
       "axisB": "on-token",
@@ -82,7 +108,9 @@
       "pattern": "Filter toolbar: pill row with synthetic 'all' + labeled filter caption above a control",
       "axisA": "promote",
       "donorTarget": "PillBar + LabeledFilter (hk-crm's are donor candidates)",
-      "projects": ["hk-crm"],
+      "projects": [
+        "hk-crm"
+      ],
       "count": 1,
       "status": "watch",
       "axisB": "on-token",
@@ -93,7 +121,9 @@
       "pattern": "Colored/semantic icon circle (accent/status), not the muted entity avatar",
       "axisA": "promote",
       "donorTarget": "IconAvatar `tone` prop (or a separate accent-circle molecule)",
-      "projects": ["brickshop-manager"],
+      "projects": [
+        "brickshop-manager"
+      ],
       "count": 1,
       "status": "watch",
       "axisB": "tokenized accent colors",
@@ -104,27 +134,64 @@
       "pattern": "Non-row contextual/overflow menu (tab-strip menu, custom-trigger status menu needing event access)",
       "axisA": "watch",
       "donorTarget": "possible RowActionsMenu sibling, or a generic ActionMenu with custom trigger + onSelect event access",
-      "projects": ["controlling-app", "brickshop-manager"],
+      "projects": [
+        "controlling-app",
+        "brickshop-manager"
+      ],
       "count": 2,
       "status": "watch",
       "axisB": "on-token",
       "notes": "RowActionsMenu is row-specific; these need a custom trigger / event access. Evaluate a sibling primitive."
+    },
+    {
+      "id": "raw-input-native-field",
+      "scanSignal": "raw-input",
+      "pattern": "Hand-rolled labeled native field: <label> + bare native <input>/<textarea> + error <p>, ad-hoc chrome, no a11y wiring; plus native-only types with no shadcn wrapper (range/date/time)",
+      "axisA": "promote",
+      "donorTarget": "NativeField (archetype I, component kind) — the labeled-field assembly (label + control + hint + error + a11y) composing Input/Textarea/Label, plus a tokenized range slider",
+      "projects": [
+        "controlling-app",
+        "my-finance-app",
+        "mistra",
+        "dashboard",
+        "brickshop-manager"
+      ],
+      "count": 5,
+      "status": "promoted",
+      "promotedAt": "2026-07-23",
+      "axisB": "on-token (rides shared field chrome + accent-primary range)",
+      "notes": "Promoted 2026-07-23 as the second Component-kind archetype (I, raw-input): NativeField. The <input\\b scan splits into already-solved gaps (file->FileField, color->ColorField, cell->CellInput), adoption debt (text/checkbox/select where a primitive exists or the repo has none), and the genuinely un-homed shape this promotes: the labeled-native-field triad with the universal fleet gap being accessibility (no label association / aria-invalid / aria-describedby), plus native-only types with no shadcn wrapper (mistra's range x4, date/time). Scoped to the standalone labeled field: booleans stay Checkbox/Switch, enums stay Select, grid cells stay CellInput. scanSignal kept as 'raw-input' so the deterministic fleet scan keeps tracking regressions."
     }
   ],
   "sanctioned": [
-    { "pattern": "matrix/pivot <table> (sticky cols + group spans)", "reason": "not a record list; structurally unique. Inline cell control still routes to CellSelect (Axis A)." },
-    { "pattern": "combobox / CommandInput search", "reason": "different widget (command palette), not a toolbar search box." },
-    { "pattern": "test-fixture raw <label>/<input>", "reason": "test fixtures, not product UI." }
+    {
+      "pattern": "matrix/pivot <table> (sticky cols + group spans)",
+      "reason": "not a record list; structurally unique. Inline cell control still routes to CellSelect (Axis A)."
+    },
+    {
+      "pattern": "combobox / CommandInput search",
+      "reason": "different widget (command palette), not a toolbar search box."
+    },
+    {
+      "pattern": "test-fixture raw <label>/<input>",
+      "reason": "test fixtures, not product UI."
+    }
   ],
   "sync": [
     {
       "item": "FormItem gap space-y-2 -> space-y-1.5",
-      "projects": ["mistra", "controlling-app", "hk-crm"],
+      "projects": [
+        "mistra",
+        "controlling-app",
+        "hk-crm"
+      ],
       "action": "re-broadcast the donor's changed form.tsx via /style-baseline; the molecule campaign added new primitives but never synced changed-existing ones."
     },
     {
       "item": "dead bricklink* Badge variants",
-      "projects": ["hk-crm"],
+      "projects": [
+        "hk-crm"
+      ],
       "action": "remove (donor already dropped them; hk-crm's are dead). brickshop legitimately keeps its own."
     }
   ]

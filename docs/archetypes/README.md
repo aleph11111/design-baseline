@@ -40,7 +40,7 @@ Archetypes apply to different surface kinds. Each kind has its own layer set.
 | **Page** | 12 layers (route config, page shell, header, toolbar, content wrapper, table/grid, states, data, types, mutations, mobile, permissions) | list-with-detail, settings-table, detail-view, domain-hub |
 | **Dialog** | 15 layers (12 adapted + mode contract + footer contract + cross-context invocation) | crud-dialog |
 | **Flow** | 13 layers (invocation contract, parameter normalization, response normalization, error taxonomy, retry/idempotency, rate limiting/concurrency, auth/credentials, side-effects, caching/invalidation, queue vs sync split, cross-consumer consistency, staleness contract, observability) — **deferred:** no baseline flow archetypes yet; layers documented per-archetype when promoted | API integration flows, batch ingestion flows |
-| **Component** | 11 layers (invocation contract, state shape, selection model, keyboard/ARIA, empty/loading states, mobile affordance, theming, render-prop surface, error surface, performance contract, accessibility contract) — **deferred:** no baseline component archetypes yet; layers documented per-archetype when promoted | item-selector |
+| **Component** | 11 layers (invocation contract, state shape, selection model, keyboard/ARIA, empty/loading states, mobile affordance, theming, render-prop surface, error surface, performance contract, accessibility contract) | skeleton-loader (Sk), raw-input (I) |
 
 The `component` kind is formalized once two projects independently build the same component-shaped archetype (rule-of-2). The `flow` kind applies to stateful multi-step operations that span network calls, side-effects, and error recovery.
 
