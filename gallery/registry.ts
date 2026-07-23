@@ -94,6 +94,10 @@ const DEMOS: Record<
     kind: "component",
     Demo: lazyDemo(() => import("@/examples/skeleton-loader-demo"), "SkeletonLoaderDemo"),
   },
+  "raw-input": {
+    kind: "component",
+    Demo: lazyDemo(() => import("@/examples/raw-input-demo"), "RawInputDemo"),
+  },
 };
 
 type ManifestArchetype = {
