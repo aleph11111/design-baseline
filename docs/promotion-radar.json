@@ -180,7 +180,7 @@
       "status": "promoted",
       "promotedAt": "2026-07-23",
       "axisB": "token parity with the shared field chrome",
-      "notes": "Promoted 2026-07-23 via archetype I (raw-input / NativeField) — the SAME molecule the 'raw-input' candidate promotes, tracked here from the complementary '<label' scan angle (a raw <label> around a Select has no bare <input>, so the raw-input scan alone would miss it). A separate 'field' promotion (Fd) was drafted from this signal and dropped as a duplicate once raw-input merged first (one archetype owns the shape). RESIDUAL: NativeField deliberately scopes OUT enum controls ('enums stay Select'), so the label+wiring assembly around a shadcn Select — the dominant raw-label shape in controlling-app's filter toolbars — is not yet covered; tracked as a follow-up to widen NativeField with a control-agnostic slot. scanSignal kept as 'raw-label' so the deterministic fleet scan keeps tracking <label> regressions."
+      "notes": "Promoted 2026-07-23 via archetype I (raw-input / NativeField) — the SAME molecule the 'raw-input' candidate promotes, tracked here from the complementary '<label' scan angle (a raw <label> around a Select has no bare <input>, so the raw-input scan alone would miss it). A separate 'field' promotion (Fd) was drafted from this signal and dropped as a duplicate once raw-input merged first (one archetype owns the shape). RESIDUAL: NativeField deliberately scopes OUT enum controls ('enums stay Select'), so the label+wiring assembly around a shadcn Select — the dominant raw-label shape in controlling-app's filter toolbars — is now covered by archetype S (raw-select / SelectField), promoted 2026-07-24 — the labeled enum-field assembly with the a11y wiring this label-side signal tracks. (Resolved as its own sibling archetype rather than a NativeField slot: SelectField owns the enum control, NativeField the native input.) scanSignal kept as 'raw-label' so the deterministic fleet scan keeps tracking <label> regressions."
     },
     {
       "id": "raw-textarea",
@@ -202,6 +202,25 @@
       "promotedAt": "2026-07-23",
       "axisB": "on-token",
       "notes": "Promoted 2026-07-23 as Component-kind archetype T (raw-textarea): TextareaField composes the shadcn Textarea + Label atoms, binding-neutral (useState or RHF), with opt-in maxLength char-counter (muted->amber->destructive) and mono/JSON variant. No auto-resize built — fleet-wide search for scrollHeight/field-sizing/auto-resize came back empty. Field composition met rule-of-2 across all 7 projects; mono variant across controlling-app + mistra; counter a repeated idiom within brickshop."
+    },
+    {
+      "id": "raw-select",
+      "scanSignal": "raw-select",
+      "pattern": "Hand-rolled labeled enum field: <label> + bare native <select> (or a re-composed shadcn <Select> trigger) + error <p>, ad-hoc chrome, no a11y wiring; options re-hand-built as markup per site",
+      "axisA": "promote",
+      "donorTarget": "SelectField (archetype S, component kind) — the labeled enum-field assembly (label + choice control + hint + error + a11y) composing the shadcn Select + Label, with options as {value,label}[] data",
+      "projects": [
+        "mistra",
+        "my-finance-app",
+        "dashboard",
+        "brickshop-manager",
+        "controlling-app"
+      ],
+      "count": 5,
+      "status": "promoted",
+      "promotedAt": "2026-07-24",
+      "axisB": "on-token (rides shared SelectTrigger chrome)",
+      "notes": "Promoted 2026-07-24 as the enum sibling of I (raw-input) and T (raw-textarea): archetype S (raw-select / SelectField). Closes the RESIDUAL the raw-label entry flagged when raw-input scoped enums OUT — the label+wiring assembly around a Select. Fleet is genuinely split native <select> (my-finance ~34 sites 100% native, mistra 11 files, dashboard 2, brickshop CellSelect) vs shadcn <Select> (controlling + brickshop all-shadcn), so the contract is control-agnostic and the baseline binds to the canonical shadcn Select. Universal gap closed: label association (aria-labelledby — Radix trigger is a button, htmlFor won't associate), aria-invalid, aria-describedby, and a standardized placeholder/none affordance (real option, not a __none__ sentinel). Options carried as {value,label}[] data — the convention no fleet project reached (all pass <option>/<SelectItem> markup per site). Scoped OUT: multiselect, combobox/cmdk, async-search, filter-bar label-less selects, and the flush grid-cell select (CellSelect sibling). scanSignal kept as 'raw-select' so the deterministic fleet scan keeps tracking regressions."
     }
   ],
   "sanctioned": [
