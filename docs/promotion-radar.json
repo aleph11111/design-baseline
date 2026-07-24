@@ -239,6 +239,22 @@
       "promotedAt": "2026-07-24",
       "axisB": "on-token (rides OVERLINE_CLASS; tones map to design tokens)",
       "notes": "Promoted 2026-07-24 as archetype O (overline-typed / Overline), a fleet synthesis. The base signature ALREADY lived in the donor (src/components/layout/overline.ts → OVERLINE_CLASS, composed by SectionHeading/SurfaceHeader/BottomNav/StatTile/BoardColumn); what the fleet kept re-inventing was (1) a component to compose instead of a bare string and (2) the semantic tone layer. mistra + hk-crm each keep a drifted copy of OVERLINE_CLASS (text-xs/0.08em vs text-[10.5px]/0.09em); my-finance-app inlines it at ~5 sites AND recolors per category via EXPENSE_TYPE_COLORS (proves the typed need); dashboard inlines a muted variant at ~7 sites. Overline wraps OVERLINE_CLASS (never re-types it) and adds a closed, token-backed tone set — muted (base), foreground (louder), primary (brand), inverted (text-primary-foreground/80, generalizing hk-crm's headerFillClasses().kicker for solid headers). Arbitrary per-category color stays a className passthrough (the one sanctioned per-site deviation), NOT a new tone. Existing donor consumers keep composing OVERLINE_CLASS directly — adopting <Overline> is drift-tracked, not forced. scanSignal kept as 'overline-typed' so the deterministic fleet scan keeps tracking regressions."
+    },
+    {
+      "id": "segmented-toggle",
+      "scanSignal": "segmented-toggle",
+      "pattern": "Compact single-choice mode/filter/view toggle: a bordered track of equal pills where one is active (Table·Cards; All·Unread·Mentions; Day·Week·Month; List·Grid·Timeline), hand-rolled as a row of <button>s toggling bg-primary, with drifted padding and no keyboard/ARIA model",
+      "axisA": "adopt-existing",
+      "donorTarget": "SegmentedControl (archetype Sg, component kind) — the donor ui/segmented-control primitive (Radix radio-group: one tab stop, arrow-key move+select, radiogroup/radio roles), now formalized as an archetype",
+      "projects": [
+        "brickshop-manager",
+        "hk-crm"
+      ],
+      "count": 2,
+      "status": "promoted",
+      "promotedAt": "2026-07-24",
+      "axisB": "on-token (bordered track + bg-primary active pill)",
+      "notes": "Promoted 2026-07-24 as component-kind archetype Sg (segmented-toggle / SegmentedControl). Axis-A adopt-existing, not a fresh build: the molecule was already consolidated into the donor ui/ layer (ui/segmented-control.tsx, backed by @radix-ui/react-radio-group, fully tested) — its own JSDoc records fixing four hand-rolled demos with drifted px-2/px-2.5/px-3 padding. Fleet rule-of-2 verified: brickshop-manager carries a bespoke plain-<button> copy with hand-rolled onKeyDown; hk-crm vendored the donor primitive verbatim (design-baseline@… vendor stamp). This promotion adds the missing archetype scaffolding around the existing atom — stack-agnostic contract, .baseline.md binding, re-export primitives dir (no duplicate), music-library gallery demo, MANIFEST entry — so downstream repos inherit the contract (when to reach for it + its keyboard/a11y model), not merely a stray component. NOTE: the promotion brief also named mistra + controlling-app as hand-rollers, but a full grep (aria-pressed, ToggleGroup, radiogroup, pill-track, Tabs, viewMode) found NO segment/toggle code in either — the verified evidence is brickshop + hk-crm + the donor itself. Scoped OUT: tab-strip navigation (Tabs), binary on/off (Switch), multi-select filter bars, and the labeled enum form field (archetype S, raw-select/SelectField — it owns a label/placeholder/error a mode toggle lacks). scanSignal kept as 'segmented-toggle' so the deterministic fleet scan keeps tracking regressions."
     }
   ],
   "sanctioned": [
