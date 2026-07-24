@@ -110,6 +110,10 @@ const DEMOS: Record<
     kind: "component",
     Demo: lazyDemo(() => import("@/examples/overline-typed-demo"), "OverlineTypedDemo"),
   },
+  "segmented-toggle": {
+    kind: "component",
+    Demo: lazyDemo(() => import("@/examples/segmented-toggle-demo"), "SegmentedToggleDemo"),
+  },
 };
 
 type ManifestArchetype = {

@@ -310,6 +310,21 @@
       "reference_impl": "docs/archetypes/overline-typed.baseline.md",
       "primitives_dir": "src/components/archetypes/overline-typed",
       "example": "src/examples/overline-typed-demo.tsx"
+    },
+    {
+      "key": "Sg",
+      "namespace": "baseline",
+      "slug": "segmented-toggle",
+      "displayName": "Segmented toggle",
+      "kind": "component",
+      "version": "1.0",
+      "promoted_from": "brickshop-manager (fleet synthesis; hk-crm vendored the donor primitive)",
+      "promoted_at": "2026-07-24",
+      "source_spec_version": "n/a (fleet synthesis — no single source spec)",
+      "spec": "docs/archetypes/segmented-toggle.md",
+      "reference_impl": "docs/archetypes/segmented-toggle.baseline.md",
+      "primitives_dir": "src/components/archetypes/segmented-toggle",
+      "example": "src/examples/segmented-toggle-demo.tsx"
     }
   ],
   "_methodology_note": "Cross-archetype methodology docs — the selection/placement/stack/adoption laws the individual archetype specs defer to. Not page shapes; no primitives or demos. `governs` lists the archetype keys each doc's rules bear on. Adopted from the hk-crm 360° audit (2026-07); see docs/adr/0002-adopt-baseline-upstream-methodology.md.",
