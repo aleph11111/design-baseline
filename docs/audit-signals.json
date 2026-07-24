@@ -12,7 +12,8 @@
     { "id": "native-color-file", "regex": "type=[\"'](color|file)[\"']", "shouldUse": "ColorField / FileField (wrap)" },
     { "id": "segmented-toggle", "regex": "rounded-md border[^\"']*p-0\\.5", "shouldUse": "SegmentedControl" },
     { "id": "entity-circle", "regex": "rounded-full[^\"']*bg-muted", "shouldUse": "IconAvatar" },
-    { "id": "overline-typed", "regex": "uppercase[^\"']*tracking-wider|tracking-wider[^\"']*uppercase", "shouldUse": "OVERLINE_CLASS" }
+    { "id": "overline-typed", "regex": "uppercase[^\"']*tracking-wider|tracking-wider[^\"']*uppercase", "shouldUse": "OVERLINE_CLASS" },
+    { "id": "media-feed", "regex": "role=[\"']feed[\"']", "shouldUse": "FeedShell / FeedItem (archetype H)" }
   ],
   "conformance": [
     { "id": "literal-color", "regex": "(bg|text|border|ring|fill|stroke)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-[0-9]{2,3}", "shouldUse": "semantic tokens (bg-muted, text-muted-foreground, Badge variant)" },

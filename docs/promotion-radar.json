@@ -91,6 +91,7 @@
     },
     {
       "id": "media-feed-adopt-feeditem",
+      "scanSignal": "media-feed",
       "pattern": "Chronological media/event <ul> feed (NOT a record list)",
       "axisA": "adopt-existing",
       "donorTarget": "FeedItem / archetype H (already in the donor)",
@@ -99,9 +100,10 @@
         "brickshop-manager"
       ],
       "count": 2,
-      "status": "candidate",
+      "status": "promoted",
+      "promotedAt": "2026-07-24",
       "axisB": "on-token",
-      "notes": "Correctly not a <Table>; but the donor already owns the feed molecule — adopt it rather than leave raw."
+      "notes": "Promoted 2026-07-24 as adopt-existing — no new donor artifact: archetype H (feed-inbox) already absorbed this candidate when H was promoted (2026-06-14). The feed-inbox contract names this candidate by id in its 'Timeline' sub-shape ('adopt the feed-item primitive with the media + body slots rather than hand-rolling a <ul>'), the baseline sibling binds <FeedItem body media>, FeedItem.tsx ships those slots (fixed rounded media holder, object-cover), and feed-inbox-demo.tsx ships a live TimelineDemo. Round-trip against the two sources confirmed the fit: both hand-roll a chronological event <ul>/<ol> feed — mistra's <ol> Agent-Log (MeetingSessionDetail.tsx) and brickshop's <ul> LotTransferHistoryTab.tsx — carrying icon/title/meta/body; media is optional (neither uses <img>). FeedItem covers them as-is, so NO extension. RESIDUAL (out of scope, future watch): both surfaces also recolor the whole row by status/error (border+bg+icon+title), which FeedItem's binary `unread` does not model — that is a distinct status/audit-log shape, a separate candidate if it trips rule-of-2 again. scanSignal = 'media-feed' (regex role=\"feed\", precision over recall: won't flood the dashboard with false feed-adoption debt from every nav/bullet <ul>; hand-rolled feeds missing the ARIA role are caught by the periodic LLM audit, not this deterministic scan)."
     },
     {
       "id": "filter-bar",
