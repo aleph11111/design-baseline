@@ -114,6 +114,10 @@ const DEMOS: Record<
     kind: "component",
     Demo: lazyDemo(() => import("@/examples/segmented-toggle-demo"), "SegmentedToggleDemo"),
   },
+  "entity-circle": {
+    kind: "component",
+    Demo: lazyDemo(() => import("@/examples/entity-circle-demo"), "EntityCircleDemo"),
+  },
 };
 
 type ManifestArchetype = {

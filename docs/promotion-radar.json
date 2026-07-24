@@ -23,7 +23,7 @@
       "status": "promoted",
       "promotedAt": "2026-06-15",
       "axisB": "tokenized already in most cases",
-      "notes": "Promoted 2026-06-15: StateView gained `title` (foreground headline) + `description` props, shared across empty + error variants. `message` retained as the back-compat alias for the single muted line. Biggest single cluster — brickshop alone deferred ~8 two-line empties. Colored-empty `tone` deliberately left out (no semantic-color evidence yet)."
+      "notes": "Promoted 2026-06-15: StateView gained `title` (foreground headline) + `description` props, shared across empty + error variants. `message` retained as the back-compat alias for the single muted line. Biggest single cluster \u2014 brickshop alone deferred ~8 two-line empties. Colored-empty `tone` deliberately left out (no semantic-color evidence yet)."
     },
     {
       "id": "skeleton-list-loader",
@@ -40,7 +40,7 @@
       "status": "promoted",
       "promotedAt": "2026-07-23",
       "axisB": "on-token",
-      "notes": "Promoted 2026-07-23 as the first Component-kind archetype (Sk, skeleton-loader): ListSkeleton (rows/columns/showHeader/avatar + role=status/aria-busy/sr-only label) composing the Skeleton atom, plus a non-breaking StateView `loadingSkeleton` override. Authored FRESH, not lifted: the 'hk-crm ready donor' premise did not hold — hk-crm deleted its hand-rolled list-skeleton (commit e2bc720) and moved to the text StateView; the real driver is brickshop's ~40 uncoordinated inline copies (5 shapes, no shared component, no a11y). Relaxed the absolute 'no skeleton screens' rule (README + list-with-detail/settings-table/grouped-list) to conditional: text is default, skeleton permitted where row shape is known."
+      "notes": "Promoted 2026-07-23 as the first Component-kind archetype (Sk, skeleton-loader): ListSkeleton (rows/columns/showHeader/avatar + role=status/aria-busy/sr-only label) composing the Skeleton atom, plus a non-breaking StateView `loadingSkeleton` override. Authored FRESH, not lifted: the 'hk-crm ready donor' premise did not hold \u2014 hk-crm deleted its hand-rolled list-skeleton (commit e2bc720) and moved to the text StateView; the real driver is brickshop's ~40 uncoordinated inline copies (5 shapes, no shared component, no a11y). Relaxed the absolute 'no skeleton screens' rule (README + list-with-detail/settings-table/grouped-list) to conditional: text is default, skeleton permitted where row shape is known."
     },
     {
       "id": "inline-cell-field",
@@ -71,7 +71,7 @@
       "status": "promoted",
       "promotedAt": "2026-06-15",
       "axisB": "on-token",
-      "notes": "Promoted 2026-06-15. SearchInput now takes inputSize (sm/default/lg), clearable (trailing X), count (counter slot), and full native-input passthrough (inputMode…). Default render unchanged. Projects adopt it instead of hand-rolling compact/mobile/clearable boxes."
+      "notes": "Promoted 2026-06-15. SearchInput now takes inputSize (sm/default/lg), clearable (trailing X), count (counter slot), and full native-input passthrough (inputMode\u2026). Default render unchanged. Projects adopt it instead of hand-rolling compact/mobile/clearable boxes."
     },
     {
       "id": "native-field-wrappers",
@@ -87,7 +87,7 @@
       "status": "promoted",
       "promotedAt": "2026-07-23",
       "axisB": "wrapper supplies tokenized chrome",
-      "notes": "Promoted 2026-07-23 as ui/color-field (ColorField) + ui/file-field (FileField). ColorField = boxed native swatch + paired editable hex Input on one value/onChange; FileField = hidden native input + button/dropzone trigger, built-in input.value='' reset, maxSizeBytes gate, and optional name+size+clear row (real drag-and-drop left out — one-off in the fleet). The only true shadcn gap — closed by wrapping, not exempting."
+      "notes": "Promoted 2026-07-23 as ui/color-field (ColorField) + ui/file-field (FileField). ColorField = boxed native swatch + paired editable hex Input on one value/onChange; FileField = hidden native input + button/dropzone trigger, built-in input.value='' reset, maxSizeBytes gate, and optional name+size+clear row (real drag-and-drop left out \u2014 one-off in the fleet). The only true shadcn gap \u2014 closed by wrapping, not exempting."
     },
     {
       "id": "media-feed-adopt-feeditem",
@@ -103,7 +103,7 @@
       "status": "promoted",
       "promotedAt": "2026-07-24",
       "axisB": "on-token",
-      "notes": "Promoted 2026-07-24 as adopt-existing — no new donor artifact: archetype H (feed-inbox) already absorbed this candidate when H was promoted (2026-06-14). The feed-inbox contract names this candidate by id in its 'Timeline' sub-shape ('adopt the feed-item primitive with the media + body slots rather than hand-rolling a <ul>'), the baseline sibling binds <FeedItem body media>, FeedItem.tsx ships those slots (fixed rounded media holder, object-cover), and feed-inbox-demo.tsx ships a live TimelineDemo. Round-trip against the two sources confirmed the fit: both hand-roll a chronological event <ul>/<ol> feed — mistra's <ol> Agent-Log (MeetingSessionDetail.tsx) and brickshop's <ul> LotTransferHistoryTab.tsx — carrying icon/title/meta/body; media is optional (neither uses <img>). FeedItem covers them as-is, so NO extension. RESIDUAL (out of scope, future watch): both surfaces also recolor the whole row by status/error (border+bg+icon+title), which FeedItem's binary `unread` does not model — that is a distinct status/audit-log shape, a separate candidate if it trips rule-of-2 again. scanSignal = 'media-feed' (regex role=\"feed\", precision over recall: won't flood the dashboard with false feed-adoption debt from every nav/bullet <ul>; hand-rolled feeds missing the ARIA role are caught by the periodic LLM audit, not this deterministic scan)."
+      "notes": "Promoted 2026-07-24 as adopt-existing \u2014 no new donor artifact: archetype H (feed-inbox) already absorbed this candidate when H was promoted (2026-06-14). The feed-inbox contract names this candidate by id in its 'Timeline' sub-shape ('adopt the feed-item primitive with the media + body slots rather than hand-rolling a <ul>'), the baseline sibling binds <FeedItem body media>, FeedItem.tsx ships those slots (fixed rounded media holder, object-cover), and feed-inbox-demo.tsx ships a live TimelineDemo. Round-trip against the two sources confirmed the fit: both hand-roll a chronological event <ul>/<ol> feed \u2014 mistra's <ol> Agent-Log (MeetingSessionDetail.tsx) and brickshop's <ul> LotTransferHistoryTab.tsx \u2014 carrying icon/title/meta/body; media is optional (neither uses <img>). FeedItem covers them as-is, so NO extension. RESIDUAL (out of scope, future watch): both surfaces also recolor the whole row by status/error (border+bg+icon+title), which FeedItem's binary `unread` does not model \u2014 that is a distinct status/audit-log shape, a separate candidate if it trips rule-of-2 again. scanSignal = 'media-feed' (regex role=\"feed\", precision over recall: won't flood the dashboard with false feed-adoption debt from every nav/bullet <ul>; hand-rolled feeds missing the ARIA role are caught by the periodic LLM audit, not this deterministic scan)."
     },
     {
       "id": "filter-bar",
@@ -150,7 +150,7 @@
       "scanSignal": "raw-input",
       "pattern": "Hand-rolled labeled native field: <label> + bare native <input>/<textarea> + error <p>, ad-hoc chrome, no a11y wiring; plus native-only types with no shadcn wrapper (range/date/time)",
       "axisA": "promote",
-      "donorTarget": "NativeField (archetype I, component kind) — the labeled-field assembly (label + control + hint + error + a11y) composing Input/Textarea/Label, plus a tokenized range slider",
+      "donorTarget": "NativeField (archetype I, component kind) \u2014 the labeled-field assembly (label + control + hint + error + a11y) composing Input/Textarea/Label, plus a tokenized range slider",
       "projects": [
         "controlling-app",
         "my-finance-app",
@@ -167,9 +167,9 @@
     {
       "id": "raw-label",
       "scanSignal": "raw-label",
-      "pattern": "Raw <label> hand-rolled + control (incl. non-native Select), no htmlFor/aria wiring — the label-side view of the un-homed labeled-field triad",
+      "pattern": "Raw <label> hand-rolled + control (incl. non-native Select), no htmlFor/aria wiring \u2014 the label-side view of the un-homed labeled-field triad",
       "axisA": "promote",
-      "donorTarget": "NativeField (archetype I, raw-input) — the labeled-field assembly closes the label-association a11y gap this signal tracks",
+      "donorTarget": "NativeField (archetype I, raw-input) \u2014 the labeled-field assembly closes the label-association a11y gap this signal tracks",
       "projects": [
         "controlling-app",
         "my-finance-app",
@@ -182,14 +182,14 @@
       "status": "promoted",
       "promotedAt": "2026-07-23",
       "axisB": "token parity with the shared field chrome",
-      "notes": "Promoted 2026-07-23 via archetype I (raw-input / NativeField) — the SAME molecule the 'raw-input' candidate promotes, tracked here from the complementary '<label' scan angle (a raw <label> around a Select has no bare <input>, so the raw-input scan alone would miss it). A separate 'field' promotion (Fd) was drafted from this signal and dropped as a duplicate once raw-input merged first (one archetype owns the shape). RESIDUAL: NativeField deliberately scopes OUT enum controls ('enums stay Select'), so the label+wiring assembly around a shadcn Select — the dominant raw-label shape in controlling-app's filter toolbars — is now covered by archetype S (raw-select / SelectField), promoted 2026-07-24 — the labeled enum-field assembly with the a11y wiring this label-side signal tracks. (Resolved as its own sibling archetype rather than a NativeField slot: SelectField owns the enum control, NativeField the native input.) scanSignal kept as 'raw-label' so the deterministic fleet scan keeps tracking <label> regressions."
+      "notes": "Promoted 2026-07-23 via archetype I (raw-input / NativeField) \u2014 the SAME molecule the 'raw-input' candidate promotes, tracked here from the complementary '<label' scan angle (a raw <label> around a Select has no bare <input>, so the raw-input scan alone would miss it). A separate 'field' promotion (Fd) was drafted from this signal and dropped as a duplicate once raw-input merged first (one archetype owns the shape). RESIDUAL: NativeField deliberately scopes OUT enum controls ('enums stay Select'), so the label+wiring assembly around a shadcn Select \u2014 the dominant raw-label shape in controlling-app's filter toolbars \u2014 is now covered by archetype S (raw-select / SelectField), promoted 2026-07-24 \u2014 the labeled enum-field assembly with the a11y wiring this label-side signal tracks. (Resolved as its own sibling archetype rather than a NativeField slot: SelectField owns the enum control, NativeField the native input.) scanSignal kept as 'raw-label' so the deterministic fleet scan keeps tracking <label> regressions."
     },
     {
       "id": "raw-textarea",
       "scanSignal": "raw-textarea",
       "pattern": "Labeled multi-line text field re-hand-composed at every call site (label + textarea + helper/error), + optional char-count and mono/JSON variant",
       "axisA": "promote",
-      "donorTarget": "TextareaField (archetype T) — Label + Textarea atom + helper/error slot + optional showCount threshold counter + mono variant",
+      "donorTarget": "TextareaField (archetype T) \u2014 Label + Textarea atom + helper/error slot + optional showCount threshold counter + mono variant",
       "projects": [
         "dashboard",
         "controlling-app",
@@ -203,14 +203,14 @@
       "status": "promoted",
       "promotedAt": "2026-07-23",
       "axisB": "on-token",
-      "notes": "Promoted 2026-07-23 as Component-kind archetype T (raw-textarea): TextareaField composes the shadcn Textarea + Label atoms, binding-neutral (useState or RHF), with opt-in maxLength char-counter (muted->amber->destructive) and mono/JSON variant. No auto-resize built — fleet-wide search for scrollHeight/field-sizing/auto-resize came back empty. Field composition met rule-of-2 across all 7 projects; mono variant across controlling-app + mistra; counter a repeated idiom within brickshop."
+      "notes": "Promoted 2026-07-23 as Component-kind archetype T (raw-textarea): TextareaField composes the shadcn Textarea + Label atoms, binding-neutral (useState or RHF), with opt-in maxLength char-counter (muted->amber->destructive) and mono/JSON variant. No auto-resize built \u2014 fleet-wide search for scrollHeight/field-sizing/auto-resize came back empty. Field composition met rule-of-2 across all 7 projects; mono variant across controlling-app + mistra; counter a repeated idiom within brickshop."
     },
     {
       "id": "raw-select",
       "scanSignal": "raw-select",
       "pattern": "Hand-rolled labeled enum field: <label> + bare native <select> (or a re-composed shadcn <Select> trigger) + error <p>, ad-hoc chrome, no a11y wiring; options re-hand-built as markup per site",
       "axisA": "promote",
-      "donorTarget": "SelectField (archetype S, component kind) — the labeled enum-field assembly (label + choice control + hint + error + a11y) composing the shadcn Select + Label, with options as {value,label}[] data",
+      "donorTarget": "SelectField (archetype S, component kind) \u2014 the labeled enum-field assembly (label + choice control + hint + error + a11y) composing the shadcn Select + Label, with options as {value,label}[] data",
       "projects": [
         "mistra",
         "my-finance-app",
@@ -222,14 +222,14 @@
       "status": "promoted",
       "promotedAt": "2026-07-24",
       "axisB": "on-token (rides shared SelectTrigger chrome)",
-      "notes": "Promoted 2026-07-24 as the enum sibling of I (raw-input) and T (raw-textarea): archetype S (raw-select / SelectField). Closes the RESIDUAL the raw-label entry flagged when raw-input scoped enums OUT — the label+wiring assembly around a Select. Fleet is genuinely split native <select> (my-finance ~34 sites 100% native, mistra 11 files, dashboard 2, brickshop CellSelect) vs shadcn <Select> (controlling + brickshop all-shadcn), so the contract is control-agnostic and the baseline binds to the canonical shadcn Select. Universal gap closed: label association (aria-labelledby — Radix trigger is a button, htmlFor won't associate), aria-invalid, aria-describedby, and a standardized placeholder/none affordance (real option, not a __none__ sentinel). Options carried as {value,label}[] data — the convention no fleet project reached (all pass <option>/<SelectItem> markup per site). Scoped OUT: multiselect, combobox/cmdk, async-search, filter-bar label-less selects, and the flush grid-cell select (CellSelect sibling). scanSignal kept as 'raw-select' so the deterministic fleet scan keeps tracking regressions."
+      "notes": "Promoted 2026-07-24 as the enum sibling of I (raw-input) and T (raw-textarea): archetype S (raw-select / SelectField). Closes the RESIDUAL the raw-label entry flagged when raw-input scoped enums OUT \u2014 the label+wiring assembly around a Select. Fleet is genuinely split native <select> (my-finance ~34 sites 100% native, mistra 11 files, dashboard 2, brickshop CellSelect) vs shadcn <Select> (controlling + brickshop all-shadcn), so the contract is control-agnostic and the baseline binds to the canonical shadcn Select. Universal gap closed: label association (aria-labelledby \u2014 Radix trigger is a button, htmlFor won't associate), aria-invalid, aria-describedby, and a standardized placeholder/none affordance (real option, not a __none__ sentinel). Options carried as {value,label}[] data \u2014 the convention no fleet project reached (all pass <option>/<SelectItem> markup per site). Scoped OUT: multiselect, combobox/cmdk, async-search, filter-bar label-less selects, and the flush grid-cell select (CellSelect sibling). scanSignal kept as 'raw-select' so the deterministic fleet scan keeps tracking regressions."
     },
     {
       "id": "overline-typed",
       "scanSignal": "overline-typed",
       "pattern": "Hand-rolled overline/eyebrow/kicker label above a heading: uppercase + tracking-* + small size + muted color, re-typed inline or copied as a class const; some sites recolor it per domain state/category (the 'typed' layer)",
       "axisA": "promote",
-      "donorTarget": "Overline (archetype O, component kind) — composes the donor's existing OVERLINE_CLASS base signature + a closed semantic tone set (muted/foreground/primary/inverted) and an `as` element choice",
+      "donorTarget": "Overline (archetype O, component kind) \u2014 composes the donor's existing OVERLINE_CLASS base signature + a closed semantic tone set (muted/foreground/primary/inverted) and an `as` element choice",
       "projects": [
         "mistra",
         "hk-crm",
@@ -240,14 +240,14 @@
       "status": "promoted",
       "promotedAt": "2026-07-24",
       "axisB": "on-token (rides OVERLINE_CLASS; tones map to design tokens)",
-      "notes": "Promoted 2026-07-24 as archetype O (overline-typed / Overline), a fleet synthesis. The base signature ALREADY lived in the donor (src/components/layout/overline.ts → OVERLINE_CLASS, composed by SectionHeading/SurfaceHeader/BottomNav/StatTile/BoardColumn); what the fleet kept re-inventing was (1) a component to compose instead of a bare string and (2) the semantic tone layer. mistra + hk-crm each keep a drifted copy of OVERLINE_CLASS (text-xs/0.08em vs text-[10.5px]/0.09em); my-finance-app inlines it at ~5 sites AND recolors per category via EXPENSE_TYPE_COLORS (proves the typed need); dashboard inlines a muted variant at ~7 sites. Overline wraps OVERLINE_CLASS (never re-types it) and adds a closed, token-backed tone set — muted (base), foreground (louder), primary (brand), inverted (text-primary-foreground/80, generalizing hk-crm's headerFillClasses().kicker for solid headers). Arbitrary per-category color stays a className passthrough (the one sanctioned per-site deviation), NOT a new tone. Existing donor consumers keep composing OVERLINE_CLASS directly — adopting <Overline> is drift-tracked, not forced. scanSignal kept as 'overline-typed' so the deterministic fleet scan keeps tracking regressions."
+      "notes": "Promoted 2026-07-24 as archetype O (overline-typed / Overline), a fleet synthesis. The base signature ALREADY lived in the donor (src/components/layout/overline.ts \u2192 OVERLINE_CLASS, composed by SectionHeading/SurfaceHeader/BottomNav/StatTile/BoardColumn); what the fleet kept re-inventing was (1) a component to compose instead of a bare string and (2) the semantic tone layer. mistra + hk-crm each keep a drifted copy of OVERLINE_CLASS (text-xs/0.08em vs text-[10.5px]/0.09em); my-finance-app inlines it at ~5 sites AND recolors per category via EXPENSE_TYPE_COLORS (proves the typed need); dashboard inlines a muted variant at ~7 sites. Overline wraps OVERLINE_CLASS (never re-types it) and adds a closed, token-backed tone set \u2014 muted (base), foreground (louder), primary (brand), inverted (text-primary-foreground/80, generalizing hk-crm's headerFillClasses().kicker for solid headers). Arbitrary per-category color stays a className passthrough (the one sanctioned per-site deviation), NOT a new tone. Existing donor consumers keep composing OVERLINE_CLASS directly \u2014 adopting <Overline> is drift-tracked, not forced. scanSignal kept as 'overline-typed' so the deterministic fleet scan keeps tracking regressions."
     },
     {
       "id": "segmented-toggle",
       "scanSignal": "segmented-toggle",
-      "pattern": "Compact single-choice mode/filter/view toggle: a bordered track of equal pills where one is active (Table·Cards; All·Unread·Mentions; Day·Week·Month; List·Grid·Timeline), hand-rolled as a row of <button>s toggling bg-primary, with drifted padding and no keyboard/ARIA model",
+      "pattern": "Compact single-choice mode/filter/view toggle: a bordered track of equal pills where one is active (Table\u00b7Cards; All\u00b7Unread\u00b7Mentions; Day\u00b7Week\u00b7Month; List\u00b7Grid\u00b7Timeline), hand-rolled as a row of <button>s toggling bg-primary, with drifted padding and no keyboard/ARIA model",
       "axisA": "adopt-existing",
-      "donorTarget": "SegmentedControl (archetype Sg, component kind) — the donor ui/segmented-control primitive (Radix radio-group: one tab stop, arrow-key move+select, radiogroup/radio roles), now formalized as an archetype",
+      "donorTarget": "SegmentedControl (archetype Sg, component kind) \u2014 the donor ui/segmented-control primitive (Radix radio-group: one tab stop, arrow-key move+select, radiogroup/radio roles), now formalized as an archetype",
       "projects": [
         "brickshop-manager",
         "hk-crm"
@@ -256,7 +256,23 @@
       "status": "promoted",
       "promotedAt": "2026-07-24",
       "axisB": "on-token (bordered track + bg-primary active pill)",
-      "notes": "Promoted 2026-07-24 as component-kind archetype Sg (segmented-toggle / SegmentedControl). Axis-A adopt-existing, not a fresh build: the molecule was already consolidated into the donor ui/ layer (ui/segmented-control.tsx, backed by @radix-ui/react-radio-group, fully tested) — its own JSDoc records fixing four hand-rolled demos with drifted px-2/px-2.5/px-3 padding. Fleet rule-of-2 verified: brickshop-manager carries a bespoke plain-<button> copy with hand-rolled onKeyDown; hk-crm vendored the donor primitive verbatim (design-baseline@… vendor stamp). This promotion adds the missing archetype scaffolding around the existing atom — stack-agnostic contract, .baseline.md binding, re-export primitives dir (no duplicate), music-library gallery demo, MANIFEST entry — so downstream repos inherit the contract (when to reach for it + its keyboard/a11y model), not merely a stray component. NOTE: the promotion brief also named mistra + controlling-app as hand-rollers, but a full grep (aria-pressed, ToggleGroup, radiogroup, pill-track, Tabs, viewMode) found NO segment/toggle code in either — the verified evidence is brickshop + hk-crm + the donor itself. Scoped OUT: tab-strip navigation (Tabs), binary on/off (Switch), multi-select filter bars, and the labeled enum form field (archetype S, raw-select/SelectField — it owns a label/placeholder/error a mode toggle lacks). scanSignal kept as 'segmented-toggle' so the deterministic fleet scan keeps tracking regressions."
+      "notes": "Promoted 2026-07-24 as component-kind archetype Sg (segmented-toggle / SegmentedControl). Axis-A adopt-existing, not a fresh build: the molecule was already consolidated into the donor ui/ layer (ui/segmented-control.tsx, backed by @radix-ui/react-radio-group, fully tested) \u2014 its own JSDoc records fixing four hand-rolled demos with drifted px-2/px-2.5/px-3 padding. Fleet rule-of-2 verified: brickshop-manager carries a bespoke plain-<button> copy with hand-rolled onKeyDown; hk-crm vendored the donor primitive verbatim (design-baseline@\u2026 vendor stamp). This promotion adds the missing archetype scaffolding around the existing atom \u2014 stack-agnostic contract, .baseline.md binding, re-export primitives dir (no duplicate), music-library gallery demo, MANIFEST entry \u2014 so downstream repos inherit the contract (when to reach for it + its keyboard/a11y model), not merely a stray component. NOTE: the promotion brief also named mistra + controlling-app as hand-rollers, but a full grep (aria-pressed, ToggleGroup, radiogroup, pill-track, Tabs, viewMode) found NO segment/toggle code in either \u2014 the verified evidence is brickshop + hk-crm + the donor itself. Scoped OUT: tab-strip navigation (Tabs), binary on/off (Switch), multi-select filter bars, and the labeled enum form field (archetype S, raw-select/SelectField \u2014 it owns a label/placeholder/error a mode toggle lacks). scanSignal kept as 'segmented-toggle' so the deterministic fleet scan keeps tracking regressions."
+    },
+    {
+      "id": "entity-circle",
+      "scanSignal": "entity-circle",
+      "pattern": "Circular avatar for a named entity: initials derived from a name, optional image with initials fallback, tinted/brand circle",
+      "axisA": "promote",
+      "donorTarget": "EntityAvatar (archetype E, component kind) \u2014 name-driven avatar: entityInitials() + optional image w/ fallback + size scale + muted/primary tone + accessible name",
+      "projects": [
+        "brickshop-manager",
+        "mistra"
+      ],
+      "count": 2,
+      "status": "promoted",
+      "promotedAt": "2026-07-24",
+      "axisB": "on-token (muted/primary token pairs; no off-token hue palette)",
+      "notes": "Promoted 2026-07-24 as Component-kind archetype E (entity-circle): EntityAvatar, the name-driven sibling of IconAvatar. Fleet synthesis distilled to rule-of-2 (brickshop user avatar: initials from full_name + fixed bg-primary + dead src=''; mistra speaker roster: initialsFrom() + positional AVATAR_TINTS + fixed size-7). Three named repos were tangents, not instances: controlling-app (numbered wizard-step circle), hk-crm (unused vendored baseline Avatar), pmo (project-color palette on text/bars + status dots). Distilled shape is name->initials + optional image w/ fallback + accessible name; entityInitials() is the shared, tested deriver both sources hand-rolled. Color deliberately conformed to look: muted (default) + primary tones only \u2014 fleet's multi-hue palettes (mistra, pmo) are off-token AND positionally buggy (same entity recolors on reorder), and baseline has no categorical hue token set to hash across; per-entity hue variety is a documented project-local extension (L7). Universal gap closed: accessible name (alt/aria-label = entity name) \u2014 every hand-rolled copy left initials unlabeled. Scoped OUT: icon holder (IconAvatar), numbered step indicator, status/tag dots, avatar stacks. scanSignal kept as 'entity-circle' so the deterministic fleet scan keeps tracking regressions."
     }
   ],
   "sanctioned": [
@@ -274,7 +290,7 @@
     },
     {
       "pattern": "<label>-wraps-control (checkbox/radio row, file dropzone with hidden input)",
-      "reason": "already associated by DOM nesting — correct as raw markup; out of scope for NativeField (archetype I)."
+      "reason": "already associated by DOM nesting \u2014 correct as raw markup; out of scope for NativeField (archetype I)."
     }
   ],
   "sync": [
