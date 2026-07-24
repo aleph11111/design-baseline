@@ -9,6 +9,13 @@ export type BoardShellProps = {
   /** `<BoardColumn>` children, laid out as a horizontally-scrolling row. */
   children: React.ReactNode;
 
+  /**
+   * Optional filter/search toolbar row, rendered below the on-surface header
+   * and above the column area (titled branch only). Same shape as
+   * `ListWithDetailShell`'s `toolbar` prop.
+   */
+  toolbar?: React.ReactNode;
+
   className?: string;
 } & SurfaceHeaderSlotProps;
 
@@ -29,6 +36,7 @@ export function BoardShell({
   title,
   headerActions,
   headerFill,
+  toolbar,
   className,
 }: BoardShellProps): React.ReactElement {
   if (title !== undefined) {
@@ -40,6 +48,7 @@ export function BoardShell({
           headerActions={headerActions}
           headerFill={headerFill}
         />
+        {toolbar && <div className="border-b px-4 py-3">{toolbar}</div>}
         <div className="flex items-start gap-4 overflow-x-auto p-4 pb-6">
           {children}
         </div>

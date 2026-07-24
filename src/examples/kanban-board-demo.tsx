@@ -12,6 +12,7 @@ import { Filter, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconAvatar } from "@/components/ui/icon-avatar";
+import { SearchInput } from "@/components/ui/search-input";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -65,6 +66,7 @@ export function KanbanBoardDemo(): React.ReactElement {
   const [cards, setCards] = React.useState<Card[]>(SEED);
   const [over, setOver] = React.useState<ColKey | null>(null);
   const [state, setState] = React.useState<"Loaded" | "Loading">("Loaded");
+  const [query, setQuery] = React.useState("");
 
   function move(id: string, to: ColKey) {
     setCards((prev) => prev.map((c) => (c.id === id ? { ...c, column: to } : c)));
@@ -96,20 +98,31 @@ export function KanbanBoardDemo(): React.ReactElement {
           kicker="Board"
           title="Delivery board"
           headerActions={
-            <>
+            <Button size="sm">
+              <Plus className="mr-1 h-4 w-4" />
+              Add card
+            </Button>
+          }
+          toolbar={
+            <div className="flex flex-wrap items-center gap-2">
+              <SearchInput
+                value={query}
+                onChange={setQuery}
+                placeholder="Search cards"
+              />
               <Button variant="outline" size="sm">
                 <Filter className="mr-1 h-4 w-4" />
                 Filter
               </Button>
-              <Button size="sm">
-                <Plus className="mr-1 h-4 w-4" />
-                Add card
-              </Button>
-            </>
+            </div>
           }
         >
           {COLUMNS.map((col) => {
-            const colCards = cards.filter((c) => c.column === col.key);
+            const colCards = cards.filter(
+              (c) =>
+                c.column === col.key &&
+                c.title.toLowerCase().includes(query.toLowerCase()),
+            );
             return (
               <BoardColumn
                 key={col.key}
