@@ -221,6 +221,24 @@
       "promotedAt": "2026-07-24",
       "axisB": "on-token (rides shared SelectTrigger chrome)",
       "notes": "Promoted 2026-07-24 as the enum sibling of I (raw-input) and T (raw-textarea): archetype S (raw-select / SelectField). Closes the RESIDUAL the raw-label entry flagged when raw-input scoped enums OUT — the label+wiring assembly around a Select. Fleet is genuinely split native <select> (my-finance ~34 sites 100% native, mistra 11 files, dashboard 2, brickshop CellSelect) vs shadcn <Select> (controlling + brickshop all-shadcn), so the contract is control-agnostic and the baseline binds to the canonical shadcn Select. Universal gap closed: label association (aria-labelledby — Radix trigger is a button, htmlFor won't associate), aria-invalid, aria-describedby, and a standardized placeholder/none affordance (real option, not a __none__ sentinel). Options carried as {value,label}[] data — the convention no fleet project reached (all pass <option>/<SelectItem> markup per site). Scoped OUT: multiselect, combobox/cmdk, async-search, filter-bar label-less selects, and the flush grid-cell select (CellSelect sibling). scanSignal kept as 'raw-select' so the deterministic fleet scan keeps tracking regressions."
+    },
+    {
+      "id": "overline-typed",
+      "scanSignal": "overline-typed",
+      "pattern": "Hand-rolled overline/eyebrow/kicker label above a heading: uppercase + tracking-* + small size + muted color, re-typed inline or copied as a class const; some sites recolor it per domain state/category (the 'typed' layer)",
+      "axisA": "promote",
+      "donorTarget": "Overline (archetype O, component kind) — composes the donor's existing OVERLINE_CLASS base signature + a closed semantic tone set (muted/foreground/primary/inverted) and an `as` element choice",
+      "projects": [
+        "mistra",
+        "hk-crm",
+        "my-finance-app",
+        "dashboard"
+      ],
+      "count": 4,
+      "status": "promoted",
+      "promotedAt": "2026-07-24",
+      "axisB": "on-token (rides OVERLINE_CLASS; tones map to design tokens)",
+      "notes": "Promoted 2026-07-24 as archetype O (overline-typed / Overline), a fleet synthesis. The base signature ALREADY lived in the donor (src/components/layout/overline.ts → OVERLINE_CLASS, composed by SectionHeading/SurfaceHeader/BottomNav/StatTile/BoardColumn); what the fleet kept re-inventing was (1) a component to compose instead of a bare string and (2) the semantic tone layer. mistra + hk-crm each keep a drifted copy of OVERLINE_CLASS (text-xs/0.08em vs text-[10.5px]/0.09em); my-finance-app inlines it at ~5 sites AND recolors per category via EXPENSE_TYPE_COLORS (proves the typed need); dashboard inlines a muted variant at ~7 sites. Overline wraps OVERLINE_CLASS (never re-types it) and adds a closed, token-backed tone set — muted (base), foreground (louder), primary (brand), inverted (text-primary-foreground/80, generalizing hk-crm's headerFillClasses().kicker for solid headers). Arbitrary per-category color stays a className passthrough (the one sanctioned per-site deviation), NOT a new tone. Existing donor consumers keep composing OVERLINE_CLASS directly — adopting <Overline> is drift-tracked, not forced. scanSignal kept as 'overline-typed' so the deterministic fleet scan keeps tracking regressions."
     }
   ],
   "sanctioned": [

@@ -106,6 +106,10 @@ const DEMOS: Record<
     kind: "component",
     Demo: lazyDemo(() => import("@/examples/raw-select-demo"), "RawSelectDemo"),
   },
+  "overline-typed": {
+    kind: "component",
+    Demo: lazyDemo(() => import("@/examples/overline-typed-demo"), "OverlineTypedDemo"),
+  },
 };
 
 type ManifestArchetype = {
