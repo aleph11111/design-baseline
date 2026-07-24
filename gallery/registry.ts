@@ -102,6 +102,10 @@ const DEMOS: Record<
     kind: "component",
     Demo: lazyDemo(() => import("@/examples/raw-textarea-demo"), "RawTextareaDemo"),
   },
+  "raw-select": {
+    kind: "component",
+    Demo: lazyDemo(() => import("@/examples/raw-select-demo"), "RawSelectDemo"),
+  },
 };
 
 type ManifestArchetype = {
