@@ -11,6 +11,7 @@ import {
   BarChart3,
   Bell,
   Box,
+  CircleUser,
   FileText,
   LayoutDashboard,
   Loader,
@@ -49,6 +50,7 @@ const ICON_BY_SLUG: Record<string, LucideIcon> = {
   "kanban-board": LayoutDashboard,
   "skeleton-loader": Loader,
   "raw-textarea": TextCursorInput,
+  "entity-circle": CircleUser,
 };
 
 function toNavItem(a: ArchetypeEntry): NavItem {

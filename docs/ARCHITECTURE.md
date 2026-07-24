@@ -34,7 +34,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `src/utils/logger.ts` | console wrapper required by `ui/error-boundary.tsx` |
 | `src/components/ui/` | 46 shadcn/ui primitives (button, dialog, table, sidebar, form, sheet, command, calendar, segmented-control, state-view, cell-input, confirmation-dialog, icon-avatar, search-input, color-field, file-field, …) |
 | `src/components/layout/` | App-shell layer: `AppShell`, `AppSidebar`/`Sidebar` (+ `NavItem`/`NavGroup` types), `AppHeader`, `PageHeader`, `SectionHeading`, `SectionCard`, `SurfaceHeader` (+ `headerFill` context/classes), `StatTile`/`StatTileRow`, `ProgressTracker`, `MetricList`, `AuthCard`, `SectionNavShell`, `BottomNav`, `ThemeToggle` |
-| `src/components/archetypes/<slug>/` | Reference primitives per shipped archetype (one dir each; 17 registered in MANIFEST — see §4). Plus a non-archetype `shared/` dir (`RowActionsMenu`, `interactiveRow`) holding primitives reused across archetypes — correctly absent from MANIFEST |
+| `src/components/archetypes/<slug>/` | Reference primitives per shipped archetype (one dir each; 21 registered in MANIFEST — see §4). Plus a non-archetype `shared/` dir (`RowActionsMenu`, `interactiveRow`) holding primitives reused across archetypes — correctly absent from MANIFEST |
 | `src/examples/<slug>-demo.tsx` | Sandbox demo per archetype — the "generic-ness contract" proving the primitive has zero domain-type leakage. Donor-dev only, **never copied** to targets |
 | `src/examples/DemoNextApp.tsx` / `DemoViteApp.tsx` | Reference wiring for Next.js 16 App Router / Vite + React Router 7 consumers |
 | `gallery/` | Donor-dev Vite app (`Gallery.tsx`, `registry.ts`, `layout-demos.tsx`) that mounts every demo behind a nav; also the buildable `gallery-dist/` surface the dashboard hub iframes per `docs/PLUGIN-CONTRACT.md` |
@@ -55,7 +55,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `docs/superpowers/specs/2026-05-22-archetype-promotion-design.md`, `docs/superpowers/plans/2026-05-22-archetype-promotion-implementation.md` | Design spec + implementation plan that originated the whole archetype layer |
 | `docs/backlog/` | Open root tickets + a `wip/` (in-flight) and `archive/` (resolved) subdir; `docs/backlog/README.md` is the ticket frontmatter schema authority `/ticket` reads (canonical `area` list, `gate` block, optional `kind`/`model` fields) |
 
-## 4. The 17 shipped archetypes (per `MANIFEST.json`)
+## 4. The 21 shipped archetypes (per `MANIFEST.json`)
 
 | Key | Slug | Kind | Promoted from |
 |---|---|---|---|
@@ -76,8 +76,12 @@ Two independent verification paths, both donor-only (never copied to targets):
 | Sk | skeleton-loader | component | brickshop-manager (fleet synthesis; hk-crm, controlling-app) |
 | I | raw-input | component | fleet synthesis (controlling-app, my-finance-app, mistra, dashboard, brickshop-manager) |
 | T | raw-textarea | component | brickshop-manager (fleet synthesis; dashboard, controlling-app, my-finance-app, mistra, hk-crm, pmo) |
+| S | raw-select | component | fleet synthesis (mistra, my-finance-app, dashboard, brickshop-manager, controlling-app) |
+| O | overline-typed | component | (see MANIFEST) |
+| Sg | segmented-toggle | component | (see MANIFEST) |
+| E | entity-circle | component | fleet synthesis (brickshop-manager, mistra) |
 
-`Sk` (skeleton-loader), `I` (raw-input), and `T` (raw-textarea) are the **component**-kind archetypes — molecules reused across page archetypes rather than page shapes of their own. The `flow` kind remains **deferred** (no baseline archetypes yet; formalized once two projects independently need the shape, per Rule of 2).
+`Sk` (skeleton-loader), `I` (raw-input), `T` (raw-textarea), `S` (raw-select), `O` (overline-typed), `Sg` (segmented-toggle), and `E` (entity-circle) are the **component**-kind archetypes — molecules reused across page archetypes rather than page shapes of their own. The `flow` kind remains **deferred** (no baseline archetypes yet; formalized once two projects independently need the shape, per Rule of 2).
 
 ## 5. The contract / reference-implementation split
 
