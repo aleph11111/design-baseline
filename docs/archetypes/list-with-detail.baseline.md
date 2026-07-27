@@ -79,7 +79,8 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 ### Layer 11 — Mobile variant
 - Table body → stays a standard `<Table>`; the content wrapper's `overflow-x-auto` scrolls it on narrow viewports.
 - Viewport-breakpoint hook → internal `useIsMobile`.
-- Mobile detail overlay → `<Sheet>` (full-screen overlay); on desktop the `detail` prop renders as a right rail.
+- Mobile detail overlay → `<Sheet>` (full-screen overlay); on desktop the `detail` prop renders as a right rail by default, or the same `<Sheet>` at every width via `detailPresentation="drawer"`.
+- Overlay dismissal → `onDetailClose?: () => void` on `<ListWithDetailShell>`, fired from the Sheet's `onOpenChange` (Esc / backdrop / close button) whenever `detail` renders as a Sheet (drawer presentation, or mobile). `<SheetContent>` also gained `showCloseButton?: boolean` (default `true`) for consumers that ship their own close affordance.
 - Header fill → the Sheet's header bar follows `HeaderFillContext` (`src/components/layout/headerFill.ts`), 3 modes (solid / tint / white).
 
 ### Layer 12 — Permissions

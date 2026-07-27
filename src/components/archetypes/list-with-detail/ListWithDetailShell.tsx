@@ -76,6 +76,13 @@ export type ListWithDetailShellProps<Row> = {
   detailTitle?: React.ReactNode;
   /** Optional right-aligned actions in the drawer header (e.g. an Edit button). */
   detailActions?: React.ReactNode;
+  /**
+   * Called when the Sheet closes — Esc, backdrop click, or the close button —
+   * whenever `detail` renders as a Sheet (`detailPresentation="drawer"`, or on
+   * mobile). The shell already tracks its own open/close state; wire this to
+   * clear the consumer's selection so it doesn't go stale once the Sheet is gone.
+   */
+  onDetailClose?: () => void;
 
   // `headerFill` (from SurfaceHeaderSlotProps below) also drives the drawer/sheet
   // header bar, not just the master on-surface header.
@@ -127,6 +134,7 @@ function ListWithDetailShellInner<Row>(
     detailPresentation = "rail",
     detailTitle,
     detailActions,
+    onDetailClose,
     headerFill,
     kicker,
     title,
@@ -218,7 +226,13 @@ function ListWithDetailShellInner<Row>(
   const detailPanel =
     detail !== undefined ? (
       asSheet ? (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <Sheet
+          open={sheetOpen}
+          onOpenChange={(open) => {
+            setSheetOpen(open);
+            if (!open) onDetailClose?.();
+          }}
+        >
           <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
             {detailTitle !== undefined ? (
               <div

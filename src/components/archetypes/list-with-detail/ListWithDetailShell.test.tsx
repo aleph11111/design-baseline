@@ -100,6 +100,26 @@ describe("ListWithDetailShell", () => {
     expect(screen.queryByRole("button", { name: "Ada Lovelace" })).toBeNull();
   });
 
+  it("drawer presentation: dismissing the Sheet (Esc) calls onDetailClose", () => {
+    const onDetailClose = vi.fn();
+    render(
+      <ListWithDetailShell
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+        onRowSelect={() => {}}
+        selectedRowId="1"
+        detail={<div>Details for Ada</div>}
+        detailPresentation="drawer"
+        onDetailClose={onDetailClose}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Ada Lovelace" }));
+    const dialog = screen.getByRole("dialog");
+    fireEvent.keyDown(dialog, { key: "Escape" });
+    expect(onDetailClose).toHaveBeenCalledTimes(1);
+  });
+
   it("forwards the ref to the root element", () => {
     const ref = createRef<HTMLDivElement>();
     render(
