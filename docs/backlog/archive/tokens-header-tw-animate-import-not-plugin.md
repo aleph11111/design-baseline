@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-07-21
-status: ready
+status: done
 model: sonnet
 model_reason: the correct directive is already proven (next build fails on @plugin, passes on @import) — a one-line comment correction against a known-good answer, no design judgment left
 gate:
