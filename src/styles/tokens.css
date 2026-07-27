@@ -18,8 +18,12 @@
  * The accordion keyframes the shadcn primitives need are already defined
  * in `@theme` below, so dropping the plugin is a no-op for the baseline.
  * If a target surface needs `animate-in` / `animate-out` utilities, install
- * `tw-animate-css` (the v4 port) and add `@plugin "tw-animate-css";` in
- * that project's tokens.css — keep the donor framework-agnostic.
+ * `tw-animate-css` (the v4 port) and add `@import "tw-animate-css";` in
+ * that project's tokens.css (right after `@import "tailwindcss";`) — keep
+ * the donor framework-agnostic. Use `@import`, not `@plugin`:
+ * `tw-animate-css@1.x` ships as a pure-CSS package (its `exports` field
+ * declares only a `style` condition, no JS entry), so `@tailwindcss/postcss@4`'s
+ * `@plugin` resolver cannot load it.
  */
 
 @import "tailwindcss";
