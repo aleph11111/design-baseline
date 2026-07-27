@@ -178,6 +178,7 @@ export function ListWithDetailDemo() {
         selectedRowId={selectedId}
         presentation={presentation}
         detailPresentation={detailMode}
+        onDetailClose={() => setSelectedId(null)}
         detailTitle={selected?.title}
         detailActions={
           <Button size="sm" variant="outline">
