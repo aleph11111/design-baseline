@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-08-03
-status: ready
+status: done
 model: sonnet
 model_reason: mechanical backfill with the authoritative side already decided by the archived detail-overview precedent; seven one-line frontmatter edits plus a green verify run, no design judgment left
 gate:
