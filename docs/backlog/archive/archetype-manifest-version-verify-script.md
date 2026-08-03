@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-08-03
-status: ready
+status: done
 model: sonnet
 model_reason: mechanical script mirroring the existing scripts/lint-design.mjs zero-dependency-scan pattern; no design judgment beyond the field-scope correction already grounded in docs/archetypes/README.md.
 gate:
