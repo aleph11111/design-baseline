@@ -5,7 +5,7 @@ kind: page
 version: 1.3
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
-source_spec_version: 1.0
+source_spec_version: 1.4
 status: locked
 ---
 
