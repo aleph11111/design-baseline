@@ -7,10 +7,12 @@
 // _adherence.NOTES.md and ADR-0003.)
 //
 // Reads `_adherence.json` (rules + target dirs) from the repo root, walks every `.tsx` file
-// under the target dirs, and reports each bare banned tag as a warning — case-sensitive, so
-// the design-system primitives `<Button>` / `<Table>` are never flagged. Warnings exit 0
-// (allowed during rollout); any `error`-severity hit exits 1. That is the ratchet: flip a
-// rule to `"severity": "error"` in _adherence.json once its violation class is clean.
+// under the target dirs, and reports each hit as a warning. A rule matches either a bare
+// banned tag (`"tag": "button"`) or an arbitrary regex (`"pattern": "focus:ring-1\\b"` — the
+// form the ported docs/audit-signals.json conformance signals use). Tag matching is
+// case-sensitive, so the design-system primitives `<Button>` / `<Table>` are never flagged.
+// Warnings exit 0 (allowed during rollout); any `error`-severity hit exits 1. That is the
+// ratchet: flip a rule to `"severity": "error"` in _adherence.json once its class is clean.
 //
 // Usage:  node scripts/lint-design.mjs
 // Config: ADHERENCE_CONFIG=path overrides the default `_adherence.json`.
@@ -51,20 +53,34 @@ function walk(dir, acc) {
 
 const files = targets.flatMap((t) => walk(join(root, t), []));
 
+// Compile each rule once. `pattern` is used verbatim; a `tag` rule matches a bare lowercase
+// element — `<tag` immediately followed by whitespace, `/`, or `>` — case-sensitive (no `i`
+// flag) so the capitalized DS primitive `<Button>` is not a hit.
+const compiled = rules.map((rule) => {
+  const source = rule.pattern ?? `<${rule.tag}(?=[\\s/>])`;
+  try {
+    return {
+      re: new RegExp(source, 'g'),
+      label: rule.tag ? `<${rule.tag}>` : rule.id,
+      severity: rule.severity === 'error' ? 'error' : 'warn',
+      message: rule.message,
+    };
+  } catch (err) {
+    console.error(`lint:design — rule ${rule.id}: bad pattern /${source}/: ${err.message}`);
+    return process.exit(2);
+  }
+});
+
 let warnings = 0;
 let errors = 0;
 for (const file of files) {
   const lines = readFileSync(file, 'utf8').split('\n');
-  for (const rule of rules) {
-    // Match a bare lowercase element: `<tag` immediately followed by whitespace, `/`, or `>`.
-    // Case-sensitive (no `i` flag) so the capitalized DS primitive `<Button>` is not a hit.
-    const re = new RegExp(`<${rule.tag}(?=[\\s/>])`, 'g');
-    const severity = rule.severity === 'error' ? 'error' : 'warn';
+  for (const { re, label, severity, message } of compiled) {
     lines.forEach((line, i) => {
       for (const m of line.matchAll(re)) {
         severity === 'error' ? errors++ : warnings++;
         console.log(
-          `${relative(root, file)}:${i + 1}:${m.index + 1}  ${severity}  <${rule.tag}>  ${rule.message}`,
+          `${relative(root, file)}:${i + 1}:${m.index + 1}  ${severity}  ${label}  ${message}`,
         );
       }
     });

@@ -395,7 +395,7 @@
       "slug": "adoption",
       "kind": "methodology",
       "displayName": "Adoption contract",
-      "version": "1.1",
+      "version": "1.2",
       "status": "locked",
       "doc": "docs/ADOPTION.md"
     }

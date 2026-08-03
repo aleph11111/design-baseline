@@ -1,7 +1,7 @@
 ---
 slug: adoption
 kind: methodology
-version: 1.1
+version: 1.2
 status: locked
 ---
 
@@ -55,7 +55,7 @@ the project's `docs/ADOPTION.md`.
 | Gate | Catches | Mechanism | When |
 |------|---------|-----------|------|
 | 1. Types | wrong props, wrong variants | vendored `.d.ts` / package types, `tsc --noEmit` | on save / CI |
-| 2. Adherence lint | raw hex/px/palette classes, raw `<button>`/`<table>`, off-contract props | `scripts/lint-design.mjs` (zero-dep scan, rules in `_adherence.json`) | pre-commit + CI |
+| 2. Adherence lint | literal Tailwind palette classes, weak focus rings, raw `<h1>`/`<table>`/`<button>`/`<input>`/`<select>`/`<textarea>` | `scripts/lint-design.mjs` (zero-dep scan, tag + regex rules in `_adherence.json`) | pre-commit + CI |
 | 3. Visual baselines | drift the linter can't see (spacing, chrome, states) | Playwright `toHaveScreenshot()` per archetype page | CI |
 | 4. Review against docs | surface choice, placement, navigation model | `SURFACES.md` + `PLACEMENT.md` + `CHOOSING-A-SURFACE.md` as the review checklist | PR review |
 
@@ -81,10 +81,8 @@ Promoted candidates from the first consumer audit (tracked in `_adherence.NOTES.
 `_adherence.json` as the scanner grows to express them):
 
 - app layout files must render `AppShell`; no raw `<main>` with padding/background classes
-- no bare `<h1>` in app page bodies — titles go through `PageHeader`
 - exactly one primary action per `PageHeader`
 - `RowActionsMenu` is the only per-row overflow menu
-- no `bg-red-50`-class ad-hoc error colors — the two canonical error treatments only
 - no local `*-skeleton` components — `StateView` owns async planes
 - vendored-file header stamp present (`@ds-version`)
 
@@ -92,6 +90,10 @@ Promoted candidates from the first consumer audit (tracked in `_adherence.NOTES.
 
 ## Revision log
 
+- **1.2** — Gate 2 grew regex rules: the three `docs/audit-signals.json` `conformance` signals
+  (`literal-color`, `weak-focus-ring`, `raw-html-control`) ship in `_adherence.json` as `pattern`
+  rules, so the fleet-scan rubric and the consumer-facing lint measure the same thing. The gate-2
+  row and the candidate list above now describe what the scanner actually catches.
 - **1.1** — Gate 2 mechanism corrected: the adherence lint ships as a zero-dep scanner
   (`scripts/lint-design.mjs` + `_adherence.json` + `_adherence.NOTES.md`), not an oxlint
   `no-restricted-syntax` config (which never ran — oxlint lacks that rule). See ADR-0003.

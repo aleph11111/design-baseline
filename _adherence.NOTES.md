@@ -13,6 +13,14 @@ rollout; flip a rule to `"severity": "error"` in `_adherence.json` as its violat
 cleaned (the ratchet). Matching is case-sensitive, so the design-system primitives `<Button>` /
 `<Table>` are never flagged — only the bare lowercase HTML elements.
 
+A rule carries either `tag` (a bare-element ban — the scanner builds the `<tag` open-tag regex)
+or `pattern` (an arbitrary JS `RegExp` source, used verbatim). The three `pattern` rules —
+`literal-color`, `weak-focus-ring`, `raw-html-control` — are ported from `docs/audit-signals.json`'s
+`conformance` array, so a consumer's `lint:design` and the dashboard's fleet scan measure the same
+violations. Keep them in sync: change one, change the other. `raw-html-control` is deliberately
+narrowed to `input|select|textarea` — `button` and `table` already have dedicated tag rules, and
+the full alternation would double-warn the same line.
+
 `targets` lists the directory roots the scanner walks for `.tsx` files. The donor ships `["src"]`;
 a consumer retargets it to its app-page directories (e.g. `["src/app/(app)"]`), since these bans
 apply to page bodies, not marketing/auth chrome or the primitive definitions themselves (the DS
@@ -25,7 +33,7 @@ apply to page bodies, not marketing/auth chrome or the primitive definitions the
 
 ## Candidate rules — still awaiting custom tooling
 
-These need AST-aware analysis a bare tag scan can't express; they live in human review (gate 4)
+These need AST-aware analysis a line scan can't express; they live in human review (gate 4)
 until the scanner grows to cover them. This is the honest ledger of what gate 2 does **not** yet
 mechanize:
 
@@ -35,9 +43,11 @@ mechanize:
   `PageHeader` subtree.
 - `RowActionsMenu` is the only per-row overflow menu — ban a raw `DropdownMenu` inside a
   list/grouped/board row render.
-- no `bg-red-50` / ad-hoc destructive color classes — scan `className` string literals; use the
-  two canonical error treatments (Alert shell / tinted box), never a raw error color.
 - no local `*-skeleton` components — StateView owns the async planes; ban project-local
   skeleton/loading component definitions.
 - vendored-file `@ds-version` header stamp present — every vendored file carries a
   `/* design-baseline@<version> — vendored <date> */` header.
+
+The ad-hoc-error-color candidate came off this ledger when `literal-color` shipped: the class ban
+(`bg-red-50` and every other palette literal) is mechanized now, but *which* of the two canonical
+error treatments a page uses (Alert shell vs. tinted box) stays a gate-4 judgment.
