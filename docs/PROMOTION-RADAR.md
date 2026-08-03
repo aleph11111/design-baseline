@@ -37,6 +37,12 @@ deferring it. Status flow: `watch → candidate → promoting → promoted` (or
 - test-fixture raw `<label>`/`<input>`.
 
 ## Sync (convergence, not promotion)
+
+Each `sync` entry in `promotion-radar.json` carries an optional `since` (`YYYY-MM-DD`,
+alongside `item`/`projects`/`action`) — the date the entry was raised, same intent as a
+candidate's `promotedAt`. Stamp it when adding a sync entry; the dashboard falls back to
+the overlay's `generated` date when it's absent.
+
 - **`FormItem` gap (`space-y-2`→`space-y-1.5`)** persists in mistra / controlling-app / hk-crm — the campaign added new primitives but never synced *changed-existing* ones. Re-broadcast the donor's `form.tsx` via `/style-baseline`. (Future syncs must cover changed-existing primitives, not just new files.)
 - **dead `bricklink*` Badge variants** in hk-crm — remove (donor dropped them; brickshop legitimately keeps its own).
 

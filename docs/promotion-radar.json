@@ -301,14 +301,16 @@
         "controlling-app",
         "hk-crm"
       ],
-      "action": "re-broadcast the donor's changed form.tsx via /style-baseline; the molecule campaign added new primitives but never synced changed-existing ones."
+      "action": "re-broadcast the donor's changed form.tsx via /style-baseline; the molecule campaign added new primitives but never synced changed-existing ones.",
+      "since": "2026-06-15"
     },
     {
       "item": "dead bricklink* Badge variants",
       "projects": [
         "hk-crm"
       ],
-      "action": "remove (donor already dropped them; hk-crm's are dead). brickshop legitimately keeps its own."
+      "action": "remove (donor already dropped them; hk-crm's are dead). brickshop legitimately keeps its own.",
+      "since": "2026-06-15"
     }
   ]
 }
