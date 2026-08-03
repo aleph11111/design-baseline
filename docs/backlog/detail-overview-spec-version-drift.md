@@ -8,7 +8,7 @@ gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
   failed: []
-  graded_at: 2026-08-03T00:00:00Z
+  graded_at: 2026-08-03T00:05:00Z
 ---
 
 # Detail-overview archetype (C) source_spec_version drift between contract frontmatter and MANIFEST
@@ -76,3 +76,11 @@ Fix the same doc-vs-MANIFEST `source_spec_version` mismatch fleet-wide (7 more
 archetypes) in this same ticket, or keep it scoped to `detail-overview` only as
 originally asked? Defaulted to scoping narrowly per the original ask — no
 answer recorded yet.
+
+## 2026-08-03 update
+
+Restated ask: "reconcile the baseline primitive and its reference impl
+against the spec's current gates, then bump source_spec_version." Same
+subject as this ticket's original filing (same day) — the What-to-do list
+above already covers both halves (gate-by-gate audit, then the frontmatter
+bump). No new scope surfaced; leaving as-is.
