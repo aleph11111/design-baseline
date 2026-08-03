@@ -84,3 +84,25 @@ against the spec's current gates, then bump source_spec_version." Same
 subject as this ticket's original filing (same day) — the What-to-do list
 above already covers both halves (gate-by-gate audit, then the frontmatter
 bump). No new scope surfaced; leaving as-is.
+
+## Gate audit (v2.1-v2.5) — 2026-08-03
+
+Formal citation pass, confirming the earlier spot-check. All gates implemented,
+no gap found — no follow-up ticket needed.
+
+- **v2.4 `badges` slot** — `DetailOverviewHeader.tsx:23` (`badges?: React.ReactNode`),
+  wired through to `<PageHeader badges={badges}>` at `DetailOverviewHeader.tsx:69`.
+- **v2.3 `surface="unified"` chrome suppression** — `DetailOverviewShell.tsx:52`
+  declares the `surface` prop; `DetailOverviewShell.tsx:86` branches on
+  `surface === "unified"`; `DetailSection.tsx:73` consumes the shell's
+  `UnifiedSurfaceContext` and passes `chrome={!unified}` to `<SectionCard>`.
+- **`layout="rail"`** — `DetailOverviewShell.tsx:97` and `:152` both branch on
+  `layout === "rail"`.
+- **v2.5 Mode A header title scale** — delegated to `<PageHeader>` as single
+  source of truth, per `detail-overview.baseline.md:88`
+  ("the title scale is `<PageHeader>`'s single source of truth").
+- **S5 tabular/mono figures** — `detail-overview.baseline.md:159`
+  ("Figures are mono (S5) → `font-mono tabular-nums`").
+
+Bumped `docs/archetypes/detail-overview.md` frontmatter `source_spec_version`
+1.0 → 1.6 to match `MANIFEST.json`. No primitive or MANIFEST `version` change.
