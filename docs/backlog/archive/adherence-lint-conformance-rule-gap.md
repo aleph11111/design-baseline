@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-08-03
-status: ready
+status: done
 model: opus
 model_reason: schema extension (tag-scan -> pattern-scan) plus a severity/scope policy call, not a mechanical port
 gate:

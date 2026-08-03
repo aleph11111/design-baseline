@@ -18,6 +18,24 @@
       "tag": "button",
       "severity": "warn",
       "message": "Use the Button primitive, not a bare <button> (ADOPTION.md gate 2)."
+    },
+    {
+      "id": "literal-color",
+      "pattern": "(bg|text|border|ring|fill|stroke)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-[0-9]{2,3}",
+      "severity": "warn",
+      "message": "Use semantic tokens (bg-muted, text-muted-foreground, Badge variant), not a literal Tailwind palette class (audit-signals: literal-color)."
+    },
+    {
+      "id": "weak-focus-ring",
+      "pattern": "focus:ring-1\\b",
+      "severity": "warn",
+      "message": "Use focus-visible:ring-2 ring-ring (audit-signals: weak-focus-ring)."
+    },
+    {
+      "id": "raw-html-control",
+      "pattern": "<(input|select|textarea)\\b",
+      "severity": "warn",
+      "message": "Use the shadcn atom — Input / Select / Textarea (audit-signals: raw-html-control)."
     }
   ]
 }
