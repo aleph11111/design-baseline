@@ -5,7 +5,7 @@ kind: dialog
 version: 1.7
 promoted_from: brickshop-manager
 promoted_at: 2026-06-13
-source_spec_version: 1.3
+source_spec_version: 1.4
 status: locked
 ---
 

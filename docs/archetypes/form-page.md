@@ -5,7 +5,7 @@ kind: page
 version: 1.3
 promoted_from: hk-crm
 promoted_at: 2026-05-24
-source_spec_version: 1.1
+source_spec_version: 1.7
 status: locked
 ---
 
