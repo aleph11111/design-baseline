@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-08-03
-status: ready
+status: done
 model: sonnet
 model_reason: mechanical skill-script edit — add one frontmatter write mirroring the existing MANIFEST write, pattern already established by three prior manual backfills
 gate:
@@ -32,13 +32,24 @@ immediately re-red the gate.
 
 ## What to do
 
-- [ ] In `~/.claude/commands/promote-archetype.md`'s update-path Python block,
+- [x] In `~/.claude/commands/promote-archetype.md`'s update-path Python block,
       after writing `a["source_spec_version"] = source_version` into
       MANIFEST, also update the matching `source_spec_version:` line in
       `docs/archetypes/<slug>.md`'s frontmatter to the same value.
-- [ ] Run `npm run verify:manifest` after the promotion write to confirm the
+- [x] Run `npm run verify:manifest` after the promotion write to confirm the
       two stay in sync, so a future mismatch fails fast at promotion time
       rather than silently landing.
+
+## Resolution
+
+The touched file (`~/.claude/commands/promote-archetype.md`) is a symlink
+into the `dashboard` repo (`claude-skills/commands/promote-archetype.md`),
+not design-baseline itself, so the fix shipped there instead of here:
+[aleph11111/dashboard#178](https://github.com/aleph11111/dashboard/pull/178)
+(merged). The update-path Python block now patches the doc frontmatter's
+`source_spec_version:` line to match MANIFEST in the same pass, then runs
+`npm run verify:manifest` in the baseline worktree. No design-baseline file
+needed changing — this ticket closes as doc-only (backlog move) here.
 
 ## Acceptance
 
