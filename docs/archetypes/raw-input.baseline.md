@@ -64,6 +64,10 @@ Only layers with a baseline-specific binding appear.
   `ml-0.5 text-destructive` `*` (`aria-hidden`).
 - wrapper → `flex flex-col gap-1.5`; hint → `text-sm text-muted-foreground`; error →
   `text-sm font-medium text-destructive`.
+- `labelClassName` / `controlClassName` → passed through via `cn()` onto the `Label` and the
+  control (`Input`/`Textarea`/the raw `range` input), for consumers running a denser chrome
+  than the fixed binding above (e.g. `text-xs text-muted-foreground` labels over `h-8 text-sm`
+  controls in a dense settings grid).
 
 ### L9 — Error surface
 - `error?: string` → renders the destructive `<p id={`${id}-error`}>` and adds

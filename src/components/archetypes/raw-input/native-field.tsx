@@ -68,6 +68,10 @@ export interface NativeFieldProps {
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   /** Applied to the wrapper. */
   className?: string;
+  /** Applied to the `Label`. */
+  labelClassName?: string;
+  /** Applied to the control. */
+  controlClassName?: string;
 }
 
 /**
@@ -92,6 +96,8 @@ export function NativeField({
   rows,
   inputMode,
   className,
+  labelClassName,
+  controlClassName,
 }: NativeFieldProps): React.ReactElement {
   const autoId = React.useId();
   const inputId = id ?? autoId;
@@ -117,7 +123,12 @@ export function NativeField({
   let control: React.ReactElement;
   if (multiline) {
     control = (
-      <Textarea {...shared} placeholder={placeholder} rows={rows} className={cn(errorRing)} />
+      <Textarea
+        {...shared}
+        placeholder={placeholder}
+        rows={rows}
+        className={cn(errorRing, controlClassName)}
+      />
     );
   } else if (type === "range") {
     // No shadcn slider primitive — tokenized native range + a live value readout,
@@ -134,7 +145,8 @@ export function NativeField({
           className={cn(
             "h-2 w-full cursor-pointer accent-primary",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
-            "disabled:cursor-not-allowed disabled:opacity-50"
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            controlClassName
           )}
         />
         <span className="w-12 shrink-0 text-right text-sm tabular-nums text-muted-foreground">
@@ -152,14 +164,14 @@ export function NativeField({
         max={max}
         step={step}
         inputMode={inputMode}
-        className={cn(errorRing)}
+        className={cn(errorRing, controlClassName)}
       />
     );
   }
 
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
-      <Label htmlFor={inputId}>
+      <Label htmlFor={inputId} className={labelClassName}>
         {label}
         {required && (
           <span className="ml-0.5 text-destructive" aria-hidden="true">
