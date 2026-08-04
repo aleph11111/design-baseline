@@ -38,6 +38,14 @@ export interface AppSidebarProps {
   brand: React.ReactNode;
   /** App name shown next to the brand mark. */
   appName: string;
+  /**
+   * Anything to render between the header and the nav — a workspace/tenant/asset
+   * switcher is the canonical case. `footer` is the wrong slot for those: it pins
+   * them to the bottom of the rail. The wrapper clips overflow so the node cannot
+   * blow out a narrow rail; rendering a compact variant under
+   * `collapsible="icon"` is the node's own job (it can read `useSidebar().state`).
+   */
+  aboveNav?: React.ReactNode;
   /** Top-level items rendered above any groups. */
   topItems?: NavItem[];
   /** Collapsible groups, rendered in order. */
@@ -113,6 +121,7 @@ function NavRow({
 export function AppSidebar({
   brand,
   appName,
+  aboveNav,
   topItems = [],
   groups = [],
   bottomItems = [],
@@ -133,6 +142,8 @@ export function AppSidebar({
           <span className="font-bold text-lg">{appName}</span>
         </div>
       </SidebarHeader>
+
+      {aboveNav && <div className="overflow-hidden border-b py-3">{aboveNav}</div>}
 
       <SidebarContent>
         {topItems.length > 0 && (
