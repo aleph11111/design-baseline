@@ -95,3 +95,46 @@ describe("useCrudDialogController discard guard", () => {
     expect(onConfirmDiscardCancel).toHaveBeenCalledTimes(1);
   });
 });
+
+/**
+ * Edit-only dialog (Layer 13 allowed variation): the entity is created outside
+ * the UI, so no createMutation is supplied. Mounted in create mode on purpose —
+ * that is the wiring bug the guard exists to catch.
+ */
+function EditOnlyHarness({ updateMutation }: { updateMutation: CrudDialogMutation<FormValues> }) {
+  const form = useForm<FormValues>({ defaultValues: { name: "" } });
+  const mode = useCrudDialogMode({
+    initialMode: "create",
+    isDirty: form.formState.isDirty,
+    onConfirmDiscard: async () => true,
+  });
+  const controller = useCrudDialogController<FormValues>({
+    form,
+    mode,
+    defaultValues: { name: "" },
+    // No createMutation — this must type-check.
+    updateMutation,
+    onClose: () => {},
+  });
+
+  return <button onClick={() => void controller.handlePrimary()}>primary</button>;
+}
+
+describe("useCrudDialogController optional mutations", () => {
+  afterEach(cleanup);
+
+  it("refuses to submit in create mode with no createMutation instead of running the update", async () => {
+    const mutateAsync = vi.fn().mockResolvedValue(undefined);
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(<EditOnlyHarness updateMutation={{ mutateAsync, isPending: false }} />);
+    await act(async () => {
+      fireEvent.click(screen.getByText("primary"));
+    });
+
+    expect(mutateAsync).not.toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(String(errorSpy.mock.calls[0]?.[0])).toContain("no createMutation");
+    errorSpy.mockRestore();
+  });
+});

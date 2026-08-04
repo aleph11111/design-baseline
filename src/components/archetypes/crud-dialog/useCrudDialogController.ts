@@ -65,8 +65,15 @@ export type UseCrudDialogControllerOptions<TValues extends FieldValues> = {
   mode: UseCrudDialogModeResult;
   /** Values handleSecondary resets to when leaving edit mode. */
   defaultValues: TValues;
-  createMutation: CrudDialogMutation<TValues>;
-  updateMutation: CrudDialogMutation<TValues>;
+  /**
+   * Omit for an edit-only dialog whose entity is created outside the UI
+   * (import, sync, matcher, provisioning) — see Layer 13's edit-only allowed
+   * variation. `handlePrimary` then refuses to submit in create mode rather
+   * than falling through to `updateMutation`.
+   */
+  createMutation?: CrudDialogMutation<TValues>;
+  /** Omit for a create-only dialog, mirroring `createMutation`. */
+  updateMutation?: CrudDialogMutation<TValues>;
   onClose: () => void;
   /**
    * When false, hides the primary action in view mode so users without write
@@ -153,8 +160,20 @@ export function useCrudDialogController<TValues extends FieldValues>(
     const valid = await form.trigger();
     if (!valid) return;
     const values = form.getValues();
+    const mutation = mode.isCreate ? createMutation : updateMutation;
+    if (!mutation) {
+      // The dialog reached a mode it declared no mutation for — a wiring bug
+      // (e.g. initialMode="create" on an edit-only dialog), not a user error.
+      // Refuse loudly: falling through to the other mutation would issue an
+      // update while the footer says "Create". Not a throw — call sites do
+      // `void handlePrimary()`, so it would surface as an unhandled rejection.
+      console.error(
+        `useCrudDialogController: no ${mode.isCreate ? "createMutation" : "updateMutation"} was supplied, but the dialog is in ${mode.isCreate ? "create" : "edit"} mode. Nothing was submitted.`,
+      );
+      return;
+    }
     try {
-      await (mode.isCreate ? createMutation : updateMutation).mutateAsync(values);
+      await mutation.mutateAsync(values);
     } catch {
       // Mutation onError (dialog-owned) surfaces the failure; stay in edit mode.
       return;
@@ -185,7 +204,7 @@ export function useCrudDialogController<TValues extends FieldValues>(
     handleClose,
     handlePrimary,
     handleSecondary,
-    isSubmitting: createMutation.isPending || updateMutation.isPending,
+    isSubmitting: Boolean(createMutation?.isPending || updateMutation?.isPending),
     primaryLabel: mode.isView ? labels.edit : mode.isCreate ? labels.create : labels.save,
     submittingLabel: mode.isCreate
       ? labels.creating ?? deriveSubmittingLabel(labels.create)
