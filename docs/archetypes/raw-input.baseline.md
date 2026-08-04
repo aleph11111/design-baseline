@@ -44,6 +44,11 @@ Only layers with a baseline-specific binding appear.
 ### L1 — Invocation contract
 - Standalone → `value: string | number` in, `onChange: (value: string) => void` out
   (raw string, like `ColorField`). Numeric callers convert with `Number(v)`.
+- Native event passthrough → `onBlur` / `onKeyDown` / `maxLength` are forwarded to the
+  control verbatim, for the two shapes an `onChange`-only surface cannot express: a field
+  that commits on blur rather than per keystroke (so a mutation is not fired on every
+  character), and Enter-to-submit. Passthroughs, not new behaviour — the field still owns
+  nothing but the assembly.
 - Inside a form-binding role → render `<NativeField>` inside the shadcn
   `FormField`/`FormItem` (`ui/form.tsx`) render body, passing `field.value` /
   `field.onChange` through. The RHF context stays the value + error owner.
@@ -68,11 +73,23 @@ Only layers with a baseline-specific binding appear.
   control (`Input`/`Textarea`/the raw `range` input), for consumers running a denser chrome
   than the fixed binding above (e.g. `text-xs text-muted-foreground` labels over `h-8 text-sm`
   controls in a dense settings grid).
+- `prefix` → a **short text** adornment inside the control's left edge (a currency code, a
+  unit, a `#`): `pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm
+  text-muted-foreground` over a `relative` wrapper, with the control's `paddingLeft` set to
+  `calc(1.25rem + {prefix.length}ch)` so the caller never guesses a `pl-*` class. Text and
+  not a node deliberately: the padding cannot be computed for arbitrary content, and a node
+  slot would open the render-prop surface L8 rules out. Ignored for `range` and `multiline`.
+  Inline style rather than a class because the width is a runtime value — a dynamic
+  `pl-[…]` string is invisible to Tailwind's scanner.
 
 ### L9 — Error surface
 - `error?: string` → renders the destructive `<p id={`${id}-error`}>` and adds
   `border-destructive focus-visible:ring-destructive` to the control.
 - `required?: boolean` → the label marker **and** the native `required` attribute.
+- `error` stays a single string — no severity variant, no `footer`/`counter` slot. A live
+  character counter, or any other graded status line, is caller-owned presentation over
+  caller state and composes as a sibling `<p>` after the field, which is the same DOM a
+  slot would produce. The field presents *the* error, nothing else.
 
 ### L11 — Accessibility contract
 - Label association → `<Label htmlFor={id}>` against the control's `id`.

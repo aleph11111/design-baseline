@@ -42,6 +42,12 @@ export interface NativeFieldProps {
   value: string | number;
   /** Fires with the control's raw string value. Convert with `Number(v)` for numeric fields. */
   onChange: (value: string) => void;
+  /** Forwarded to the control — for a field that commits on blur, not per keystroke. */
+  onBlur?: React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  /** Forwarded to the control — for Enter-to-submit and other key handling. */
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  /** Native `maxLength` on the control. */
+  maxLength?: number;
   /** Native input type. Ignored when `multiline` is set. Defaults to `"text"`. */
   type?: NativeFieldType;
   /** Render a `<Textarea>` instead of an `<input>` (for multi-line text). */
@@ -66,6 +72,12 @@ export interface NativeFieldProps {
   rows?: number;
   /** Native `inputMode` (e.g. `"decimal"` for comma-preserving numeric text). */
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  /**
+   * Short text adornment inside the control's left edge — a currency code, a unit, a `#`.
+   * Text and not a node: the field computes the control's left padding from the prefix
+   * length, which it cannot do for arbitrary content. Ignored for `range` + `multiline`.
+   */
+  prefix?: string;
   /** Applied to the wrapper. */
   className?: string;
   /** Applied to the `Label`. */
@@ -82,6 +94,9 @@ export function NativeField({
   label,
   value,
   onChange,
+  onBlur,
+  onKeyDown,
+  maxLength,
   type = "text",
   multiline = false,
   hint,
@@ -95,6 +110,7 @@ export function NativeField({
   step,
   rows,
   inputMode,
+  prefix,
   className,
   labelClassName,
   controlClassName,
@@ -114,8 +130,11 @@ export function NativeField({
     required,
     "aria-describedby": describedBy,
     "aria-invalid": invalid,
+    maxLength,
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       onChange(e.target.value),
+    onBlur,
+    onKeyDown,
   };
 
   const errorRing = error && "border-destructive focus-visible:ring-destructive";
@@ -165,8 +184,22 @@ export function NativeField({
         step={step}
         inputMode={inputMode}
         className={cn(errorRing, controlClassName)}
+        // Clears the absolute prefix: Input's own px-3 (0.75rem) + the glyphs + a 0.5rem
+        // gap. Inline because the width is a runtime value — a dynamic `pl-[…]` class
+        // string is invisible to Tailwind's scanner.
+        style={prefix ? { paddingLeft: `calc(1.25rem + ${prefix.length}ch)` } : undefined}
       />
     );
+    if (prefix) {
+      control = (
+        <div className="relative">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+            {prefix}
+          </span>
+          {control}
+        </div>
+      );
+    }
   }
 
   return (
