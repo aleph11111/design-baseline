@@ -11,7 +11,7 @@ import { deriveSubmittingLabel } from "@/components/archetypes/shared/submitting
  * controller needs. Dialogs pass their useMutation results directly.
  */
 export type CrudDialogMutation<TValues> = {
-  mutate: (values: TValues) => void;
+  mutateAsync: (values: TValues) => Promise<unknown>;
   isPending: boolean;
 };
 
@@ -86,7 +86,10 @@ export type UseCrudDialogControllerOptions<TValues extends FieldValues> = {
 export type UseCrudDialogControllerResult = {
   /** Close the dialog, prompting to discard unsaved create/edit changes. */
   handleClose: () => Promise<void>;
-  /** view → edit; create/edit → validate and dispatch the matching mutation. */
+  /**
+   * view → edit; create/edit → validate and dispatch the matching mutation.
+   * On success: create closes the dialog, edit returns to view (Layer 13).
+   */
   handlePrimary: () => Promise<void>;
   /** view/create → close; edit → back to view, resetting the form. */
   handleSecondary: () => Promise<void>;
@@ -150,11 +153,23 @@ export function useCrudDialogController<TValues extends FieldValues>(
     const valid = await form.trigger();
     if (!valid) return;
     const values = form.getValues();
-    if (mode.isCreate) {
-      createMutation.mutate(values);
-    } else {
-      updateMutation.mutate(values);
+    try {
+      await (mode.isCreate ? createMutation : updateMutation).mutateAsync(values);
+    } catch {
+      // Mutation onError (dialog-owned) surfaces the failure; stay in edit mode.
+      return;
     }
+    // Save succeeded. Reset the form to the saved values so it is no longer
+    // dirty. Layer 13 then splits the two outcomes: a create is done and the
+    // dialog closes; an edit drops back to the read-only view of the record
+    // that was just saved, so the user keeps their place. Both bypass the
+    // dirty-discard guard — it only catches *unsaved* changes.
+    form.reset(values);
+    if (mode.isCreate) {
+      onClose();
+      return;
+    }
+    await mode.setMode("view", { force: true });
   }
 
   async function handleSecondary() {

@@ -177,38 +177,45 @@ function WorkoutDialog({
   const { isView } = mode;
 
   // Simulated mutations shaped like @tanstack/react-query useMutation results
-  // ({ mutate, isPending }) — exactly the structural subset the controller
-  // consumes. On success the dialog closes (a valid CRUD pattern that also keeps
-  // the demo free of post-save edit→view dirty races).
+  // ({ mutateAsync, isPending }) — exactly the structural subset the controller
+  // consumes. The controller owns the post-save transition (Layer 13): it
+  // awaits mutateAsync, resets the form, then closes on create or returns to
+  // view on edit. The mutation itself must not close the dialog or transition
+  // the mode.
   const createMutation = React.useMemo(
     () => ({
       isPending: isSubmitting,
-      mutate: (values: WorkoutFormValues) => {
-        setIsSubmitting(true);
-        setTimeout(() => {
-          onCreate(values);
-          setIsSubmitting(false);
-          onClose();
-        }, 600);
-      },
+      mutateAsync: (values: WorkoutFormValues) =>
+        new Promise<void>((resolve) => {
+          setIsSubmitting(true);
+          setTimeout(() => {
+            onCreate(values);
+            setIsSubmitting(false);
+            resolve();
+          }, 600);
+        }),
     }),
-    [isSubmitting, onCreate, onClose],
+    [isSubmitting, onCreate],
   );
 
   const updateMutation = React.useMemo(
     () => ({
       isPending: isSubmitting,
-      mutate: (values: WorkoutFormValues) => {
-        if (!entityId) return;
-        setIsSubmitting(true);
-        setTimeout(() => {
-          onSave({ id: entityId, ...values });
-          setIsSubmitting(false);
-          onClose();
-        }, 600);
-      },
+      mutateAsync: (values: WorkoutFormValues) =>
+        new Promise<void>((resolve, reject) => {
+          if (!entityId) {
+            reject(new Error("no entityId"));
+            return;
+          }
+          setIsSubmitting(true);
+          setTimeout(() => {
+            onSave({ id: entityId, ...values });
+            setIsSubmitting(false);
+            resolve();
+          }, 600);
+        }),
     }),
-    [isSubmitting, entityId, onSave, onClose],
+    [isSubmitting, entityId, onSave],
   );
 
   // The shared controller owns the whole action flow + derived footer labels.
@@ -612,9 +619,9 @@ export function CrudDialogDemo(): React.ReactElement {
           <li>Click a date → dialog opens in VIEW mode (simulates 0.8s fetch).</li>
           <li>Click <strong>Edit</strong> in the footer → transitions to EDIT mode.</li>
           <li>Change a field (dirty), then click ✕ or Cancel → confirm-discard prompt.</li>
-          <li>Click <strong>Save</strong> → simulates 0.6s save, then closes the dialog.</li>
+          <li>Click <strong>Save</strong> → simulates 0.6s save, then returns to VIEW mode showing the saved values (edit never closes the dialog).</li>
           <li>Click <strong>Log workout</strong> → dialog opens in CREATE mode (no fetch).</li>
-          <li>Fill fields → click <strong>Create</strong> → new workout appears in list.</li>
+          <li>Fill fields → click <strong>Create</strong> → new workout appears in list, dialog closes.</li>
           <li>Open a workout → click <strong>Delete</strong> → confirm → removed from list.</li>
           <li>
             Toggle <strong>Layout</strong> to two-tab, open a workout with a

@@ -41,8 +41,13 @@ export type UseCrudDialogModeResult = {
    * (i.e. current mode is edit or create and isDirty is true), calls
    * onConfirmDiscard first and only transitions if it resolves true.
    * Returns true if the transition completed, false if it was cancelled.
+   *
+   * Pass `{ force: true }` for the edit → view transition that follows a
+   * *successful save*: nothing is discarded there, and the caller's isDirty
+   * has not re-rendered yet after form.reset, so the guard would otherwise
+   * prompt spuriously. Never force a user-initiated cancel.
    */
-  setMode: (next: CrudDialogMode) => Promise<boolean>;
+  setMode: (next: CrudDialogMode, opts?: { force?: boolean }) => Promise<boolean>;
   /**
    * The single discard-confirm guard: resolves true immediately unless the
    * current mode is edit/create, isDirty is true, and onConfirmDiscard is
@@ -92,12 +97,16 @@ export function useCrudDialogMode(
   }, [mode, isDirty, onConfirmDiscard]);
 
   const setMode = useCallback(
-    async (next: CrudDialogMode): Promise<boolean> => {
+    async (next: CrudDialogMode, opts?: { force?: boolean }): Promise<boolean> => {
       // No-op: already in the target mode.
       if (next === mode) return true;
 
-      const confirmed = await requestDiscard();
-      if (!confirmed) return false;
+      // force bypasses the dirty guard — the post-save transition, where the
+      // form was just reset to the saved values and there is nothing to discard.
+      if (!opts?.force) {
+        const confirmed = await requestDiscard();
+        if (!confirmed) return false;
+      }
 
       setModeState(next);
       return true;

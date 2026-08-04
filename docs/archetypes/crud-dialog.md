@@ -2,10 +2,10 @@
 key: J
 slug: crud-dialog
 kind: dialog
-version: 1.7
+version: 2.0
 promoted_from: brickshop-manager
-promoted_at: 2026-06-13
-source_spec_version: 1.4
+promoted_at: 2026-08-04
+source_spec_version: 1.7
 status: locked
 ---
 
@@ -241,12 +241,12 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 ## Layer 13 — Mode contract *(dialog-specific)*
 
 **Required:**
-- Use the **mode-state hook**. Returns `{ mode, setMode, isView, isEdit, isCreate }`.
+- Use the **mode-state hook**. Returns `{ mode, setMode, isView, isEdit, isCreate }`, where `setMode(next, opts?: { force?: boolean })`.
 - Use the **action-flow controller** to own the action flow on top of the mode-state hook. It is the canonical owner of `handleClose`, `handlePrimary`, and `handleSecondary` — the dialog wires these to the overlay's close, the footer primary, and the footer secondary respectively, and does not reimplement the transition logic inline. The controller composes the mode-state hook, the schema-validated form hook instance, and the create/update mutations; the dialog keeps its schema, default values, mutation bodies, and form JSX.
 - `initialMode`: pass `"create"` when `entityId` is absent; pass `"view"` or `"edit"` when `entityId` is present. Caller controls the initial mode via prop.
 - **view → edit:** Call `setMode("edit")`. Fields switch from read-only display to form inputs. No confirmation needed (no data loss on forward transition).
 - **edit → view (cancel):** Call `setMode("view")` via `onConfirmDiscard`. If `isDirty` is true and `onConfirmDiscard` is provided, the mode-state hook requests confirmation before transitioning. On confirmed: transition + reset form.
-- **edit → view (save success):** `setMode("view")` after mutation `onSuccess`. Call `invalidate<Entity>()` and show a success toast.
+- **edit → view (save success):** owned by the **action-flow controller**'s primary-action handler — it resets the form to the saved values and calls `setMode("view", { force: true })`. The dialog's update-mutation success callback only calls `invalidate<Entity>()` and shows a success toast; it must not transition the mode itself. `force` skips the dirty-discard guard: nothing is being discarded after a save, and the consumer's `isDirty` has not re-rendered yet from the form reset, so the unforced guard would prompt spuriously. Never `force` a user-initiated cancel.
 - **create → closed (success):** Call `onClose()` after mutation `onSuccess`. Call `invalidate<Entity>()` and show a success toast.
 - **any → closed (X / backdrop / Esc):** Wrap `onClose()` in a dirty-check guard. If mode is `edit` or `create` and the form is dirty, request confirmation before calling `onClose()`.
 - On form field change: keep `isDirty` in sync with the schema-validated form hook's dirty-state flag via `useEffect` or inline comparison.
@@ -259,6 +259,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 - Mode driven entirely by prop null-check (e.g. `isEdit = entity !== null`) without a runtime-switchable mode state.
 - Silently discarding unsaved changes when the X button is clicked — dirty-check on close is required in edit and create modes.
 - Mode transitions outside the mode-state hook.
+- Closing the dialog after a successful *edit* save. Only a create closes on save; an edit returns to view so the user keeps their place on the record they just saved.
 - Reimplementing `handleClose` / `handlePrimary` / `handleSecondary` inline instead of deriving them from the action-flow controller.
 
 ---
@@ -359,6 +360,7 @@ When a target project applies this archetype, it wires the generic primitives to
 - **2026-06-13 — v1.2.** Promoted the action-flow controller (shared view/edit/create action flow + derived footer labels) and the neutral-defaults strings module from mistra. Added the controller's `labels` i18n option (a neutral-language default set) so localized consumers inject their strings rather than forking the donor primitives. Layers 13–14 now name the controller as the canonical owner of `handleClose`/`handlePrimary`/`handleSecondary` and the footer label derivation. Additive, backward-compatible.
 - **2026-06-14 — v1.5.** Closed a spec-ahead-of-code gap: the v1.2 controller (action-flow controller, neutral-defaults strings module) was documented but its files had never been committed. Committed them, and migrated the reference demo to actually consume the controller with a schema-validated form hook and the shared table / status-badge / form-field molecules — it no longer reimplements `handleClose`/`handlePrimary`/`handleSecondary` inline (the spec's own anti-pattern). The demo now remounts per open, fixing stale mode/dirty state across reopens. Reconciled the frontmatter `version` (was stuck at 1.2) and `source_spec_version` (1.3) with the MANIFEST. Spec contract unchanged.
 - **2026-07-03 — v1.7.** Board-form sync: on-surface header-bar treatment, ledger title scale, single-owner molecule references.
+- **2026-08-04 — v2.0 (major).** Promoted mistra's forced mode-transition fix: the mode-state hook's `setMode` gains an optional `{ force?: boolean }` that skips the dirty-discard guard, and the action-flow controller's `handlePrimary` now awaits the save, resets the form, and splits Layer 13's two outcomes itself — create closes, edit returns to view via `setMode("view", { force: true })` — instead of leaving the post-save transition to the dialog's own `onSuccess`. `CrudDialogMutation` now requires `mutateAsync` (was a fire-and-forget `mutate`) so the controller can sequence the reset and transition after the save resolves — a breaking rename for any existing consumer's mutation shape, hence the major bump. Layer 13 documents the new bullet and adds a Forbidden entry against closing the dialog on a successful edit save. `source_spec_version` reconciled to 1.7 (mistra).
 
 ---
 
