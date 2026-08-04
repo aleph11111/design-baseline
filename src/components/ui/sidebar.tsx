@@ -648,10 +648,18 @@ const SidebarMenuSkeleton = React.forwardRef<
     showIcon?: boolean
   }
 >(({ className, showIcon = false, ...props }, ref) => {
-  // Random width between 50 to 90%.
+  // Width between 50 to 90%, varied per instance but deterministic: upstream
+  // shadcn seeds this with Math.random(), which React 19's react-hooks/purity
+  // rule rejects as an impure call during render. useId() is a stable
+  // per-instance seed, so a list of skeletons still gets varied bar widths.
+  const id = React.useId()
   const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`
-  }, [])
+    let seed = 0
+    for (let i = 0; i < id.length; i++) {
+      seed = (seed * 31 + id.charCodeAt(i)) | 0
+    }
+    return `${(Math.abs(seed) % 41) + 50}%`
+  }, [id])
 
   return (
     <div
