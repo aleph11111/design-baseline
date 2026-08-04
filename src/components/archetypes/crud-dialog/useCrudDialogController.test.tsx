@@ -7,7 +7,7 @@ import { useCrudDialogController, type CrudDialogMutation } from "./useCrudDialo
 type FormValues = { name: string };
 
 const noopMutation: CrudDialogMutation<FormValues> = {
-  mutate: () => {},
+  mutateAsync: async () => {},
   isPending: false,
 };
 
