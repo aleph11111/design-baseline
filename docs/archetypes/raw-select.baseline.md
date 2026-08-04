@@ -64,6 +64,11 @@ Only layers with a baseline-specific binding appear.
 - control → inherited from `SelectTrigger`: `flex h-10 w-full items-center justify-between
   rounded-md border border-input bg-background px-3 py-2 … focus:ring-2 focus:ring-ring
   focus:ring-offset-2`.
+- trigger density → `SelectTrigger`'s `size` prop (`selectTriggerVariants`), the same ladder
+  as `SearchInput`'s `inputSize`: `sm` = `h-8 px-2 text-xs gap-1` (compact toolbar / filter
+  row), `default` = the `h-10 px-3 py-2 text-sm` control quoted above, `lg` = `h-12 px-3
+  text-base gap-2`. A dense filter select passes `size="sm"` instead of hand-rolling
+  `className="h-8 text-xs"`; `className` still wins over the rung for one-off heights.
 - label → `Label` (`text-sm font-medium leading-none`); required marker is a `ml-0.5
   text-destructive` `*` (`aria-hidden`).
 - wrapper → `flex flex-col gap-1.5`; hint → `text-sm text-muted-foreground`; error →
