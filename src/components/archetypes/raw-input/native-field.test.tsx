@@ -62,4 +62,19 @@ describe("NativeField — labeled native field with a11y wiring", () => {
       (screen.getByLabelText("Batch name", { exact: false }) as HTMLInputElement).required,
     ).toBe(true);
   });
+
+  it("applies labelClassName and controlClassName to the label and control", () => {
+    render(
+      <NativeField
+        label="Batch name"
+        value=""
+        onChange={() => {}}
+        labelClassName="text-xs text-muted-foreground"
+        controlClassName="h-8 text-sm"
+      />,
+    );
+    const input = screen.getByLabelText("Batch name");
+    expect(input.className).toContain("h-8 text-sm");
+    expect(screen.getByText("Batch name").className).toContain("text-xs text-muted-foreground");
+  });
 });
