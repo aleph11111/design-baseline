@@ -2,7 +2,7 @@
 key: J
 slug: crud-dialog
 kind: dialog
-version: 2.0
+version: 2.1
 promoted_from: brickshop-manager
 promoted_at: 2026-08-04
 source_spec_version: 1.7
@@ -253,8 +253,10 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 
 **Allowed variation:**
 - View-only dialogs (no edit path) may initialize with `mode="view"` and never call `setMode`. The footer shows only a Close action.
+- **Edit-only dialogs** — the entity is created outside the UI (import, sync, a matcher, provisioning), so the dialog owns view/edit but never create. Omit the action-flow controller's `createMutation`; it is optional. Do **not** alias the update mutation into it or declare a stub whose body throws: the reachable modes belong in the types, not in a comment, and a stub leaves the create path silently issuing an update (or throwing unhandled) if a call site ever passes `initialMode="create"`. With the option omitted, `handlePrimary` in create mode logs an explicit console error and submits nothing. `updateMutation` is optional in the same way for a create-only dialog.
 
 **Forbidden:**
+- Passing a mutation the dialog never intends to run — the update mutation aliased as `createMutation`, or a `mutationFn` that only throws — to satisfy the controller's option shape. Omit the option instead (see the edit-only allowed variation).
 - `isEditing: boolean` local state instead of the mode-state hook.
 - Mode driven entirely by prop null-check (e.g. `isEdit = entity !== null`) without a runtime-switchable mode state.
 - Silently discarding unsaved changes when the X button is clicked — dirty-check on close is required in edit and create modes.
@@ -361,6 +363,7 @@ When a target project applies this archetype, it wires the generic primitives to
 - **2026-06-14 — v1.5.** Closed a spec-ahead-of-code gap: the v1.2 controller (action-flow controller, neutral-defaults strings module) was documented but its files had never been committed. Committed them, and migrated the reference demo to actually consume the controller with a schema-validated form hook and the shared table / status-badge / form-field molecules — it no longer reimplements `handleClose`/`handlePrimary`/`handleSecondary` inline (the spec's own anti-pattern). The demo now remounts per open, fixing stale mode/dirty state across reopens. Reconciled the frontmatter `version` (was stuck at 1.2) and `source_spec_version` (1.3) with the MANIFEST. Spec contract unchanged.
 - **2026-07-03 — v1.7.** Board-form sync: on-surface header-bar treatment, ledger title scale, single-owner molecule references.
 - **2026-08-04 — v2.0 (major).** Promoted mistra's forced mode-transition fix: the mode-state hook's `setMode` gains an optional `{ force?: boolean }` that skips the dirty-discard guard, and the action-flow controller's `handlePrimary` now awaits the save, resets the form, and splits Layer 13's two outcomes itself — create closes, edit returns to view via `setMode("view", { force: true })` — instead of leaving the post-save transition to the dialog's own `onSuccess`. `CrudDialogMutation` now requires `mutateAsync` (was a fire-and-forget `mutate`) so the controller can sequence the reset and transition after the save resolves — a breaking rename for any existing consumer's mutation shape, hence the major bump. Layer 13 documents the new bullet and adds a Forbidden entry against closing the dialog on a successful edit save. `source_spec_version` reconciled to 1.7 (mistra).
+- **2026-08-04 — v2.1.** `createMutation` and `updateMutation` are now **optional** on the action-flow controller, for dialogs whose entity has an external creation path (import, sync, matcher, provisioning) or is create-only. `handlePrimary` resolves the mutation its mode needs and, when it was not supplied, logs an explicit console error and submits nothing rather than falling through to the other mutation. It deliberately does not `throw` — call sites invoke `handlePrimary` as `void handlePrimary()`, so a throw would surface as an unhandled rejection with no toast. Layer 13 gains the edit-only allowed variation and a Forbidden entry against passing a mutation the dialog never intends to run (an aliased update mutation, or a `mutationFn` that only throws) to satisfy the option shape. Additive and backward-compatible: consumers passing both options compile unchanged.
 
 ---
 
