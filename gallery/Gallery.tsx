@@ -196,6 +196,8 @@ export function Gallery(): React.ReactElement {
               <Box className="h-6 w-6" />
             </div>
           }
+          collapsible="icon"
+          rail
           topItems={TOP_ITEMS}
           groups={NAV_GROUPS}
           pathname={pathname}
