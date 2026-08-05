@@ -106,3 +106,48 @@ export function MultipleGroupsAndBottomItems() {
     </AppShell>
   );
 }
+
+// The icon rail: `collapsible="icon"` narrows the sidebar to icons rather than
+// sliding it off-canvas, `rail` adds the click strip that toggles it, and
+// `collapseStorageKey={null}` keeps group open/closed in the tree instead of
+// localStorage — the shape an app whose shell lives in its root layout wants.
+// Every row carries a tooltip, which is its only readable name once collapsed.
+export function IconRail() {
+  const groups: NavGroup[] = [
+    {
+      label: "Workspace",
+      items: [
+        { title: "Orders", path: "/orders", icon: Box },
+        { title: "Customers", path: "/customers", icon: Users },
+      ],
+    },
+  ];
+  return (
+    <AppShell
+      defaultSidebarOpen={false}
+      sidebar={
+        <AppSidebar
+          appName="Ledger"
+          brand={
+            <div className="rounded-md bg-primary p-1 text-primary-foreground">
+              <FileText className="h-6 w-6" />
+            </div>
+          }
+          collapsible="icon"
+          rail
+          collapseStorageKey={null}
+          topItems={[{ title: "Dashboard", path: "/", icon: LayoutDashboard }]}
+          groups={groups}
+          bottomItems={[{ title: "Help", path: "/help", icon: HelpCircle }]}
+          pathname="/customers"
+          renderLink={renderLink}
+        />
+      }
+      header={<AppHeader title="Customers" />}
+    >
+      <p className="text-sm text-muted-foreground">
+        The rail is collapsed to icons — hover a row for its tooltip.
+      </p>
+    </AppShell>
+  );
+}

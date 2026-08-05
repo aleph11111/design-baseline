@@ -6,10 +6,12 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarRail,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -61,8 +63,21 @@ export interface AppSidebarProps {
    * `next/link`, `react-router-dom`'s `Link`, or a plain `<a>`.
    */
   renderLink: (item: NavItem, children: React.ReactNode) => React.ReactNode;
-  /** Persist collapsed-group state under this localStorage key. */
-  collapseStorageKey?: string;
+  /**
+   * Passed straight to the `Sidebar` primitive. `"icon"` gives the icon rail,
+   * in which nav labels collapse away and the per-item tooltip becomes each
+   * item's only accessible name.
+   */
+  collapsible?: React.ComponentProps<typeof SidebarRoot>["collapsible"];
+  /** Render the primitive's `<SidebarRail />` — the thin drag/click toggle strip. */
+  rail?: boolean;
+  /**
+   * Persist collapsed-group state under this localStorage key. Pass `null` to
+   * leave the groups uncontrolled (`defaultOpen`) instead — the right choice
+   * when the shell lives in the app's root layout, where open/closed already
+   * survives client navigation and only a hard reload resets it.
+   */
+  collapseStorageKey?: string | null;
 }
 
 function isPathActive(pathname: string, item: NavItem) {
@@ -71,9 +86,9 @@ function isPathActive(pathname: string, item: NavItem) {
   return pathname === item.path || pathname.startsWith(item.path + "/");
 }
 
-function useCollapsedState(storageKey: string) {
+function useCollapsedState(storageKey: string | null) {
   const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>(() => {
-    if (typeof window === "undefined") return {};
+    if (typeof window === "undefined" || storageKey === null) return {};
     try {
       const raw = window.localStorage.getItem(storageKey);
       return raw ? JSON.parse(raw) : {};
@@ -82,6 +97,7 @@ function useCollapsedState(storageKey: string) {
     }
   });
   React.useEffect(() => {
+    if (storageKey === null) return;
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(collapsed));
     } catch {
@@ -102,16 +118,18 @@ function NavRow({
 }) {
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton
-        asChild
-        className={cn(isActive && "bg-primary text-primary-foreground")}
-      >
+      {/* The icon and the label are direct children of the rendered link, not
+          wrapped in a positioning span: `SidebarMenuButton` already lays them
+          out, and its `[&>svg]` / `[&>span:last-child]` selectors — which drive
+          icon sizing and label truncation in the icon rail — only reach one
+          level down. */}
+      <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
         {renderLink(
           item,
-          <span className="flex items-center gap-2">
-            <item.icon className="h-5 w-5" />
+          <>
+            <item.icon className="h-4 w-4 shrink-0" />
             <span>{item.title}</span>
-          </span>,
+          </>,
         )}
       </SidebarMenuButton>
     </SidebarMenuItem>
@@ -128,18 +146,23 @@ export function AppSidebar({
   footer,
   pathname,
   renderLink,
+  collapsible,
+  rail = false,
   collapseStorageKey = "sidebar-collapsed-groups",
 }: AppSidebarProps) {
   const [collapsed, setCollapsed] = useCollapsedState(collapseStorageKey);
   const toggleGroup = (label: string) =>
     setCollapsed((prev) => ({ ...prev, [label]: !prev[label] }));
+  const persist = collapseStorageKey !== null;
 
   return (
-    <SidebarRoot className="border-r border-border">
-      <SidebarHeader className="h-16 flex items-center px-4">
-        <div className="flex items-center gap-2">
+    <SidebarRoot collapsible={collapsible} className="border-r border-border">
+      <SidebarHeader className="h-16 flex justify-center border-b px-4">
+        <div className="flex items-center gap-2 overflow-hidden">
           {brand}
-          <span className="font-bold text-lg">{appName}</span>
+          <span className="truncate font-bold text-lg group-data-[collapsible=icon]:hidden">
+            {appName}
+          </span>
         </div>
       </SidebarHeader>
 
@@ -164,26 +187,35 @@ export function AppSidebar({
         )}
 
         {groups.map((group) => {
-          const isOpen = !collapsed[group.label];
           const hasActiveChild = group.items.some((item) => isPathActive(pathname, item));
           return (
             <Collapsible
               key={group.label}
-              open={isOpen}
-              onOpenChange={() => toggleGroup(group.label)}
+              className="group/collapsible"
+              // Controlled only while persisting. With `collapseStorageKey={null}`
+              // there is no stored state to drive `open` from, so the group runs
+              // uncontrolled and open/closed lives in the Collapsible itself.
+              {...(persist
+                ? {
+                    open: !collapsed[group.label],
+                    onOpenChange: () => toggleGroup(group.label),
+                  }
+                : { defaultOpen: true })}
             >
               <SidebarGroup>
-                <CollapsibleTrigger className={cn(OVERLINE_CLASS, "flex w-full select-none items-center justify-between px-3 py-1.5 transition-colors hover:text-foreground")}>
-                  <span className={cn(hasActiveChild && !isOpen && "text-primary")}>
-                    {group.label}
-                  </span>
-                  <ChevronRight
-                    className={cn(
-                      "h-3.5 w-3.5 transition-transform duration-200",
-                      isOpen && "rotate-90",
-                    )}
-                  />
-                </CollapsibleTrigger>
+                <SidebarGroupLabel asChild>
+                  <CollapsibleTrigger className={cn(OVERLINE_CLASS, "flex w-full select-none items-center justify-between transition-colors hover:text-foreground")}>
+                    <span
+                      className={cn(
+                        hasActiveChild &&
+                          "group-data-[state=closed]/collapsible:text-primary",
+                      )}
+                    >
+                      {group.label}
+                    </span>
+                    <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  </CollapsibleTrigger>
+                </SidebarGroupLabel>
                 <CollapsibleContent>
                   <SidebarGroupContent>
                     <SidebarMenu>
@@ -221,7 +253,13 @@ export function AppSidebar({
         )}
       </SidebarContent>
 
-      {footer && <SidebarFooter className="mt-auto p-4">{footer}</SidebarFooter>}
+      {footer && (
+        <SidebarFooter className="mt-auto border-t p-4 group-data-[collapsible=icon]:hidden">
+          {footer}
+        </SidebarFooter>
+      )}
+
+      {rail && <SidebarRail />}
     </SidebarRoot>
   );
 }
