@@ -20,6 +20,18 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
+const args = process.argv.slice(2);
+const jsonMode = args.includes('--json') || args.includes('--json-output');
+const ciThresholdIdx = args.indexOf('--ci-threshold');
+let ciThreshold = null;
+if (ciThresholdIdx !== -1 && ciThresholdIdx + 1 < args.length) {
+  ciThreshold = parseInt(args[ciThresholdIdx + 1], 10);
+  if (isNaN(ciThreshold)) {
+    console.error('lint:design — --ci-threshold requires a number');
+    process.exit(2);
+  }
+}
+
 const root = process.cwd();
 const CONFIG = process.env.ADHERENCE_CONFIG || '_adherence.json';
 
@@ -71,6 +83,7 @@ const compiled = rules.map((rule) => {
   }
 });
 
+const violations = [];
 let warnings = 0;
 let errors = 0;
 for (const file of files) {
@@ -78,19 +91,39 @@ for (const file of files) {
   for (const { re, label, severity, message } of compiled) {
     lines.forEach((line, i) => {
       for (const m of line.matchAll(re)) {
-        severity === 'error' ? errors++ : warnings++;
-        console.log(
-          `${relative(root, file)}:${i + 1}:${m.index + 1}  ${severity}  ${label}  ${message}`,
-        );
+        const fileRel = relative(root, file);
+        const v = { file: fileRel, line: i + 1, rule: label, severity, message };
+        violations.push(v);
+        if (severity === 'error') errors++; else warnings++;
+        if (!jsonMode) {
+          console.log(
+            `${fileRel}:${v.line}:${m.index + 1}  ${severity}  ${label}  ${message}`,
+          );
+        }
       }
     });
   }
 }
 
-const summary = `lint:design — ${files.length} file(s) scanned, ${warnings} warning(s), ${errors} error(s)`;
-if (errors) {
-  console.error(`\n${summary}`);
+if (jsonMode) {
+  const result = {
+    violations,
+    summary: { files: files.length, warnings, errors },
+  };
+  process.stdout.write(JSON.stringify(result) + '\n');
+} else {
+  const summary = `lint:design — ${files.length} file(s) scanned, ${warnings} warning(s), ${errors} error(s)`;
+  if (errors) {
+    console.error(`\n${summary}`);
+  } else {
+    console.log(`\n${summary}`);
+  }
+}
+
+if (ciThreshold !== null && (warnings + errors) > ciThreshold) {
   process.exit(1);
 }
-console.log(`\n${summary}`);
+if (errors) {
+  process.exit(1);
+}
 process.exit(0);
