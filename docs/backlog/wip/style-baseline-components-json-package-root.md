@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-08-12
-status: ready
+status: done
 model: sonnet
 model_reason: a two-line path-resolution fix in a command file with an already-known correct target (the package root next to package.json), no design decisions left
 gate:
@@ -23,10 +23,23 @@ The correct destination is the **package root** — the directory holding `packa
 
 ## What to do
 
-- [ ] In step 4, replace `cp "$BASELINE/components.json" ./components.json` with a copy to the target's package root — derived from `$SRC` (its parent when `$SRC` ends in `/src`, else `$SRC` itself), or equivalently the nearest ancestor directory of `$SRC` containing a `package.json`.
-- [ ] Apply the same resolution to the step-3 pre-flight collision list so the `EXISTS:` check tests the path the copy will actually write, not a bare cwd-relative `components.json`.
-- [ ] Do not overwrite a `components.json` that already exists at that package root — it carries the target's per-project overrides (`rsc`, `tailwind.css`, aliases), which the step-4c/Notes curated-diff pass then has to revert by hand on every re-broadcast.
-- [ ] Update the step-9 verification checklist line "components.json at project root" (line 246) and the `$SRC`-layout note (line 179) to name the package root explicitly, so the two are no longer ambiguous about which root is meant.
+- [x] In step 4, replace `cp "$BASELINE/components.json" ./components.json` with a copy to the target's package root — derived from `$SRC` (its parent when `$SRC` ends in `/src`, else `$SRC` itself), or equivalently the nearest ancestor directory of `$SRC` containing a `package.json`.
+- [x] Apply the same resolution to the step-3 pre-flight collision list so the `EXISTS:` check tests the path the copy will actually write, not a bare cwd-relative `components.json`.
+- [x] Do not overwrite a `components.json` that already exists at that package root — it carries the target's per-project overrides (`rsc`, `tailwind.css`, aliases), which the step-4c/Notes curated-diff pass then has to revert by hand on every re-broadcast.
+- [x] Update the step-9 verification checklist line "components.json at project root" (line 246) and the `$SRC`-layout note (line 179) to name the package root explicitly, so the two are no longer ambiguous about which root is meant.
+
+## Resolution
+
+Fixed in **coding-dashboard PR #251** — `/style-baseline` is owned there
+(`~/.claude/commands/style-baseline.md` symlinks to
+`~/Documents/dev/coding-dashboard/claude-skills/commands/style-baseline.md`), so this
+design-baseline ticket carries no code change of its own.
+
+Step 2 now resolves `PKG_ROOT` (nearest ancestor of `$SRC` holding `package.json`, cwd as
+fallback); steps 3 and 4 both use it; step 4 skips the copy when the package root already has a
+`components.json`, which also drops it from the `--force` curated-diff revert list. Covered by
+`claude-skills/tests/style-baseline-components-json.test.sh` (11 checks: nested, re-broadcast over
+a customized file, flat, and no-`package.json` layouts).
 
 ## Acceptance
 
@@ -38,3 +51,4 @@ The correct destination is the **package root** — the directory holding `packa
 
 - [style-baseline-stack-aware-preflight.md](archive/style-baseline-stack-aware-preflight.md) — the earlier preflight hardening of the same command
 - mistra PR #508 (the re-broadcast that produced the stray file) and mistra PR #527 (removed it)
+- coding-dashboard PR #251 — the fix itself (command file + shell self-check)
