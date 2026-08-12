@@ -30,7 +30,7 @@ export default defineConfig({
     // docblock rather than being carved out here by glob — the docblock sits
     // next to the code that justifies it, so it can't drift as files move.
     environment: "jsdom",
-    include: ["src/**/*.test.{ts,tsx}"],
+    include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.mjs"],
     // Vitest's 5s default is not enough here. The donor runs several parallel
     // `/feat` worktrees on one machine, and this suite's cost is jsdom setup
     // and module import, not assertions — a 67-test run reports ~186s in

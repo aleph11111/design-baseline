@@ -1,6 +1,5 @@
 {
   "targets": ["src"],
-  "ciThreshold": 0,
   "rules": [
     {
       "id": "no-bare-h1",
