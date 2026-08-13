@@ -40,5 +40,5 @@ trailing slash, so the slashless form is the in-file precedent.
 
 ## Related
 
-- [archive/ops-health-orphaned-worktrees-branches.md](archive/ops-health-orphaned-worktrees-branches.md)
-- [archive/vite-config-worktree-root-climb.md](archive/vite-config-worktree-root-climb.md)
+- [archive/ops-health-orphaned-worktrees-branches.md](../archive/ops-health-orphaned-worktrees-branches.md)
+- [archive/vite-config-worktree-root-climb.md](../archive/vite-config-worktree-root-climb.md)
