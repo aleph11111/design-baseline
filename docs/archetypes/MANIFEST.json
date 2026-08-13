@@ -257,7 +257,7 @@
       "slug": "raw-input",
       "displayName": "Native field",
       "kind": "component",
-      "version": "1.0",
+      "version": "1.1",
       "promoted_from": "fleet synthesis (controlling-app, my-finance-app, mistra, dashboard, brickshop-manager)",
       "promoted_at": "2026-07-23",
       "source_spec_version": "n/a (fleet synthesis \u2014 no single source spec)",

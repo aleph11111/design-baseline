@@ -16,6 +16,7 @@ interface Batch {
   name: string;
   originalGravity: string; // kept as string — the control emits raw strings
   brewedOn: string; // date, "yyyy-mm-dd"
+  costPerLitre: string; // prefixed text adornment
   fermTemp: number; // range
   notes: string; // multiline
 }
@@ -24,6 +25,7 @@ const EMPTY: Batch = {
   name: "",
   originalGravity: "1.050",
   brewedOn: "2026-07-01",
+  costPerLitre: "1.80",
   fermTemp: 20,
   notes: "",
 };
@@ -85,6 +87,17 @@ export function RawInputDemo(): React.ReactElement {
           type="date"
           value={batch.brewedOn}
           onChange={(v) => set("brewedOn", v)}
+        />
+
+        <NativeField
+          label="Cost per litre"
+          type="number"
+          step={0.01}
+          min={0}
+          prefix="EUR"
+          value={batch.costPerLitre}
+          onChange={(v) => set("costPerLitre", v)}
+          hint="Ingredients only — the control pads itself clear of the prefix."
         />
 
         <NativeField
