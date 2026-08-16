@@ -13,7 +13,14 @@
     { "id": "segmented-toggle", "regex": "rounded-md border[^\"']*p-0\\.5", "shouldUse": "SegmentedControl" },
     { "id": "entity-circle", "regex": "rounded-full[^\"']*bg-muted", "shouldUse": "IconAvatar" },
     { "id": "overline-typed", "regex": "uppercase[^\"']*tracking-wider|tracking-wider[^\"']*uppercase", "shouldUse": "OVERLINE_CLASS" },
-    { "id": "media-feed", "regex": "role=[\"']feed[\"']", "shouldUse": "FeedShell / FeedItem (archetype H)" }
+    { "id": "media-feed", "regex": "role=[\"']feed[\"']", "shouldUse": "FeedShell / FeedItem (archetype H)" },
+    {
+      "id": "list-with-detail-outer-container-missing-space-y-6",
+      "regex": "className=\"px-6 py-6\"(?!\\s*space-y-6)",
+      "smell": "the list-with-detail (A) page outer content wrapper is `px-6 py-6` without the required `space-y-6` sibling gap — A Layer 2 mandates the exact class string `px-6 py-6 space-y-6` on the page's outer wrapper div, and a uniform outer-container class string is exactly what the adoption audit diff-checks across A pages. Exact-string signature: because the literal's closing quote sits right after `px-6 py-6`, the conformant string and the reordered `space-y-6 px-6 py-6` variant both fail to match, so this fires only on the exact drift signature — a missing gap written in reordered order is gate territory. Single-line, single-file, no `-U` slurp needed; scope to files importing `ListWithDetailShell` (the project's pages directory). Origin: mistra `SkillDatenPage.tsx` outer wrappers (:112/:128), flagged by the 2026-08-15 key-A audit run; a recurring drift class mistra already fixed on other A pages (archived outer-container padding ticket). The trailing negative lookahead is a no-op given the literal's closing quote but is kept so the rule reads as its own sentence.",
+      "shouldBe": "the exact Layer-2 string `px-6 py-6 space-y-6` on the outer content div — currently inconsequential on a single-shell page whose wrapper holds one child (no sibling needs the vertical gap yet), but the string is the signature the audit checks, so re-add the gap as sibling blocks are added rather than letting the drift become load-bearing",
+      "tier": "yellow"
+    }
   ],
   "conformance": [
     { "id": "literal-color", "regex": "(bg|text|border|ring|fill|stroke)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-[0-9]{2,3}", "shouldUse": "semantic tokens (bg-muted, text-muted-foreground, Badge variant)" },
