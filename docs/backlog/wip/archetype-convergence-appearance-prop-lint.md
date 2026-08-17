@@ -20,7 +20,7 @@ gate:
 
 ## Context
 
-Phase 1 of the [archetype-convergence roadmap](archetype-convergence.md). Prose
+Phase 1 of the [archetype-convergence roadmap](../archetype-convergence.md). Prose
 has not held this rule: eighty-nine `archetype-rollout` tickets have been filed
 and archived against hk-crm, forty-eight of them in August 2026 alone. The
 roadmap's class-level acceptance is that no further ticket of that shape *can* be
@@ -82,11 +82,11 @@ shadcn practice. The scanner needs a per-rule path filter first.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap, Phase 1
-- [archetype-convergence-phase0-appearance-locality-decision.md](archive/archetype-convergence-phase0-appearance-locality-decision.md)
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap, Phase 1
+- [archetype-convergence-phase0-appearance-locality-decision.md](../archive/archetype-convergence-phase0-appearance-locality-decision.md)
   — depends on: the rules' `message` cites hard rule 12
-- [adherence-lint-oxlint-mechanism-nonfunctional.md](archive/adherence-lint-oxlint-mechanism-nonfunctional.md)
+- [adherence-lint-oxlint-mechanism-nonfunctional.md](../archive/adherence-lint-oxlint-mechanism-nonfunctional.md)
   — why the scanner is zero-dep rather than an oxlint config
-- [adherence-lint-conformance-rule-gap.md](archive/adherence-lint-conformance-rule-gap.md)
+- [adherence-lint-conformance-rule-gap.md](../archive/adherence-lint-conformance-rule-gap.md)
   — the prior rule-coverage gap in the same config
 - ADR-0003 — adherence lint ships as a zero-dep scanner
