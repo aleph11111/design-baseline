@@ -114,7 +114,7 @@ contract reserves for the exception.
 - [archetype-convergence.md](archetype-convergence.md) — parent roadmap, Phase 1
 - [archetype-convergence-nested-heading-primitive.md](archetype-convergence-nested-heading-primitive.md)
   — depends on: the shell composes it for Mode B
-- [archetype-convergence-phase0-appearance-locality-decision.md](archetype-convergence-phase0-appearance-locality-decision.md)
+- [archetype-convergence-phase0-appearance-locality-decision.md](wip/archetype-convergence-phase0-appearance-locality-decision.md)
   — depends on: hard rule 12 is what sorts these props
 - [detail-overview-blueprint-rail-variant.md](archive/detail-overview-blueprint-rail-variant.md)
   — shipped the `layout="rail"` variant this ticket keeps

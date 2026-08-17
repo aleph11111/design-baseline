@@ -18,7 +18,7 @@ gate:
 
 ## Context
 
-Phase 0 of the [archetype-convergence roadmap](archetype-convergence.md). The
+Phase 0 of the [archetype-convergence roadmap](../archetype-convergence.md). The
 roadmap's stated rule — *a visual choice is either global or fixed in the
 component; never a per-call-site prop* — does not survive contact with the code
 in either direction, and the design spec
@@ -77,8 +77,8 @@ against it, so it lands first.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap, Phase 0
-- [decouple-archetype-contract-from-reference-impl.md](archive/decouple-archetype-contract-from-reference-impl.md)
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap, Phase 0
+- [decouple-archetype-contract-from-reference-impl.md](../archive/decouple-archetype-contract-from-reference-impl.md)
   — shipped the contract/`.baseline.md` split this rule partly retires
 - ADR-0003 — adherence lint ships as a zero-dep scanner; the mechanism rule 12 is
   enforced by

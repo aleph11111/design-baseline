@@ -72,7 +72,7 @@ layout owns the `<h1>`.
 ## Related
 
 - [archetype-convergence.md](archetype-convergence.md) — parent roadmap, Phase 1
-- [archetype-convergence-phase0-appearance-locality-decision.md](archetype-convergence-phase0-appearance-locality-decision.md)
+- [archetype-convergence-phase0-appearance-locality-decision.md](wip/archetype-convergence-phase0-appearance-locality-decision.md)
   — depends on: no-variant-prop is hard rule 12
 - [matrix-grid-page-header-inconsistency.md](archive/matrix-grid-page-header-inconsistency.md)
   — the same class of defect resolved in a contract rather than a primitive
