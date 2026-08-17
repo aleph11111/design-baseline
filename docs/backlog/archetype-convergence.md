@@ -85,11 +85,14 @@ Phase 2's work.
       byte-identical — and shadcn's copy-in model is correct for them), while
       **`src/components/archetypes/` compositions ship as a source package**,
       because every observed divergence is compositional.
-- [ ] State the governing rule in `docs/RULES.md`: *a visual choice is either
-      global — a token or context, set once per project — or fixed in the
-      component; never a per-call-site prop.* `headerFill` already models the
-      correct shape (`HeaderFillContext`, set once via `<AppShell>`);
-      `surface` is the counterexample that broke archetype C.
+- [ ] State the governing rule in `docs/RULES.md` as hard rule 12 and record
+      it as [ADR 0004](../adr/0004-appearance-locality-derived-vs-inherited.md)
+      — the ADR is the single statement of the rule; the roadmap's original
+      formulation of Phase 0 does not survive contact with the code in either
+      direction, and the design spec records why and what it is replaced by.
+      `headerFill` already models the correct shape (`HeaderFillContext`, set
+      once via `<AppShell>`); `surface` is the counterexample that broke
+      archetype C.
 
 ### Phase 1 — Close the archetype API
 

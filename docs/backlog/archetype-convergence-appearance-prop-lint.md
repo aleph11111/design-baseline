@@ -83,7 +83,7 @@ shadcn practice. The scanner needs a per-rule path filter first.
 ## Related
 
 - [archetype-convergence.md](archetype-convergence.md) — parent roadmap, Phase 1
-- [archetype-convergence-phase0-appearance-locality-decision.md](archetype-convergence-phase0-appearance-locality-decision.md)
+- [archetype-convergence-phase0-appearance-locality-decision.md](archive/archetype-convergence-phase0-appearance-locality-decision.md)
   — depends on: the rules' `message` cites hard rule 12
 - [adherence-lint-oxlint-mechanism-nonfunctional.md](archive/adherence-lint-oxlint-mechanism-nonfunctional.md)
   — why the scanner is zero-dep rather than an oxlint config
