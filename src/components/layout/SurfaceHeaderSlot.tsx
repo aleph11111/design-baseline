@@ -1,6 +1,5 @@
 import * as React from "react";
 import { SurfaceHeader } from "./SurfaceHeader";
-import { type HeaderFill } from "./headerFill";
 
 export type SurfaceHeaderSlotProps = {
   /** Overline kicker above the title (the entity/section class). */
@@ -13,8 +12,6 @@ export type SurfaceHeaderSlotProps = {
   icon?: React.ComponentType<{ className?: string }>;
   /** Right-aligned actions in the on-surface header. */
   headerActions?: React.ReactNode;
-  /** Header treatment for the on-surface header (House Style B). */
-  headerFill?: HeaderFill;
 };
 
 /**
@@ -22,6 +19,9 @@ export type SurfaceHeaderSlotProps = {
  * archetype shell mounts at the top of its bounded surface: renders a
  * `<SurfaceHeader>` when `title` is set, renders nothing otherwise. Centralizes
  * the `title !== undefined` guard so shells don't each hand-roll it.
+ *
+ * The header's treatment is read from `HeaderFillContext` (set once at
+ * `<AppShell headerFill=…>`) — there is no per-shell override prop.
  */
 export function SurfaceHeaderSlot({
   kicker,
@@ -29,7 +29,6 @@ export function SurfaceHeaderSlot({
   subtitle,
   icon,
   headerActions,
-  headerFill,
 }: SurfaceHeaderSlotProps): React.ReactElement | null {
   if (title === undefined) return null;
   return (
@@ -39,7 +38,6 @@ export function SurfaceHeaderSlot({
       subtitle={subtitle}
       icon={icon}
       actions={headerActions}
-      headerFill={headerFill}
     />
   );
 }

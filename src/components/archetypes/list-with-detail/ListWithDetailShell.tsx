@@ -84,8 +84,9 @@ export type ListWithDetailShellProps<Row> = {
    */
   onDetailClose?: () => void;
 
-  // `headerFill` (from SurfaceHeaderSlotProps below) also drives the drawer/sheet
-  // header bar, not just the master on-surface header.
+  // The drawer/sheet header bar (below) reads `HeaderFillContext` set once at
+  // `<AppShell headerFill=…>` — the same treatment as the master on-surface
+  // header; there is no per-shell override.
 
   emptyStateMessage?: string;
   filteredEmpty?: boolean;
@@ -135,7 +136,6 @@ function ListWithDetailShellInner<Row>(
     detailTitle,
     detailActions,
     onDetailClose,
-    headerFill,
     kicker,
     title,
     headerActions,
@@ -152,7 +152,7 @@ function ListWithDetailShellInner<Row>(
 ) {
   const isMobile = useIsMobile();
   const [sheetOpen, setSheetOpen] = React.useState(false);
-  const hfc = headerFillClasses(useHeaderFill(headerFill));
+  const hfc = headerFillClasses(useHeaderFill());
   // The detail presents as a Sheet on mobile always, and on desktop too when
   // `detailPresentation="drawer"` (the slide-in pattern).
   const asSheet = detailPresentation === "drawer" || isMobile;
@@ -280,7 +280,6 @@ function ListWithDetailShellInner<Row>(
         kicker={kicker}
         title={title}
         headerActions={headerActions}
-        headerFill={headerFill}
       />
       {toolbar && <div className="border-b px-4 py-3">{toolbar}</div>}
       <div className="flex">

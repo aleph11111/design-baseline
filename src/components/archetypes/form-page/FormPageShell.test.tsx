@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import { FormPageShell } from "./FormPageShell";
+import { HeaderFillContext } from "@/components/layout/headerFill";
 
 afterEach(() => {
   cleanup();
@@ -79,11 +80,13 @@ describe("FormPageShell — board form layout (title set)", () => {
     expect(header?.contains(getByText("Save"))).toBe(true);
   });
 
-  it("forwards headerFill so the bar overrides the default solid treatment", () => {
+  it("reads the header treatment from HeaderFillContext (no per-shell override)", () => {
     const { container } = render(
-      <FormPageShell title="Order #1024" headerFill="tint">
-        <p>form body</p>
-      </FormPageShell>,
+      <HeaderFillContext.Provider value="tint">
+        <FormPageShell title="Order #1024">
+          <p>form body</p>
+        </FormPageShell>
+      </HeaderFillContext.Provider>,
     );
 
     const header = container.querySelector(HEADER) as HTMLElement;

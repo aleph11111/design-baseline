@@ -1,5 +1,8 @@
-export { DetailOverviewShell, UnifiedSurfaceContext } from "./DetailOverviewShell";
-export type { DetailOverviewShellProps } from "./DetailOverviewShell";
+export { DetailOverviewShell } from "./DetailOverviewShell";
+export type {
+  DetailOverviewShellProps,
+  StatItem,
+} from "./DetailOverviewShell";
 
 export { DetailOverviewHeader } from "./DetailOverviewHeader";
 export type { DetailOverviewHeaderProps } from "./DetailOverviewHeader";

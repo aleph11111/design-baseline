@@ -103,7 +103,6 @@ function MatrixGridShellInner<Cell>({
   kicker,
   title,
   headerActions,
-  headerFill,
   toolbar,
   emptyState,
   className,
@@ -143,7 +142,6 @@ function MatrixGridShellInner<Cell>({
         kicker={kicker}
         title={title}
         headerActions={headerActions}
-        headerFill={headerFill}
       />
       {toolbar !== undefined && toolbar !== null && (
         <div className="border-b px-4 py-3">{toolbar}</div>

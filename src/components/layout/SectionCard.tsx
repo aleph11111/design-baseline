@@ -51,9 +51,9 @@ export type SectionCardProps = {
    * - `false`: chromeless — drop the border/rounding/background/shadow and keep
    *   only the ruled title bar + body padding. Used when the section renders
    *   inside an already-bounded surface that owns separation via hairline
-   *   dividers (e.g. `<DetailOverviewShell surface="unified">`). Gutters
-   *   (`px-5 py-*`) are preserved so the unified surface keeps consistent
-   *   padding; only the outer card is dropped.
+   *   dividers (e.g. a `<DetailOverviewShell>`'s rail). Gutters (`px-5 py-*`)
+   *   are preserved so the framed rail keeps consistent padding; only the
+   *   outer card is dropped.
    */
   chrome?: boolean;
   children: React.ReactNode;

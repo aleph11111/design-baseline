@@ -7,10 +7,12 @@
  * the line items carry real thumbnails.
  *
  * Exercises the full rail vocabulary (mirroring the order reference mockup):
- *   - DetailOverviewShell `layout="rail"` + `surface="unified"` — sticky,
- *     chromeless, inset-divided rail beside a carded main column. Toggle both.
- *   - DetailOverviewHeader with the `badges` slot — status lives ONCE, inline
- *     in the header (the gate's "one home for status"), next to a mono order #.
+ *   - DetailOverviewShell `layout="rail"` — one bounded, unified frame:
+ *     sticky, chromeless, inset-divided rail beside a flattened-carded main
+ *     column. Toggle Layout / Width.
+ *   - Mode B nested header via the shell's `title`/`subtitle`/`badges`/`actions`
+ *     data props — status lives ONCE, inline next to the title (the gate's
+ *     "one home for status"), rendered at a single fixed nested-page scale.
  *   - summary (rail) = status-free stack: MetricList revenue/profit readout
  *     (headline + disclosure) → customer identity → KeyValueList facts.
  *   - content (main) = ProgressTracker activity → a line-item table WITH
@@ -32,7 +34,6 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { IconAvatar } from "@/components/ui/icon-avatar";
 import {
   DetailOverviewShell,
-  DetailOverviewHeader,
   DetailSection,
   KeyValueList,
   KeyValueRow,
@@ -145,7 +146,6 @@ const ORDER: Order = {
 export function DetailOverviewDemo(): React.ReactElement {
   const o = ORDER;
   const [layout, setLayout] = React.useState<"vertical" | "rail">("rail");
-  const [surface, setSurface] = React.useState<"separated" | "unified">("unified");
   const [width, setWidth] = React.useState<"none" | "md" | "lg" | "xl">("md");
   const [editingNote, setEditingNote] = React.useState(false);
   const [note, setNote] = React.useState(ORDER.note);
@@ -157,9 +157,10 @@ export function DetailOverviewDemo(): React.ReactElement {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="max-w-prose text-sm text-muted-foreground">
           The canonical money-dense record page. Status lives once, inline in the
-          header (`badges` slot); the rail pins figures + identity; the main
+          header (`badges` data prop); the rail pins figures + identity; the main
           column stacks activity, line items with thumbnails, and the financial
-          breakdown. Toggle <strong>Layout</strong> / <strong>Surface</strong> /{" "}
+          breakdown. One bounded container model — the unified frame. Toggle{" "}
+          <strong>Layout</strong> (rail keeps the sticky identity rail) and{" "}
           <strong>Width</strong> (Width only bounds the <em>vertical</em> layout —
           the rail is sticky-full and ignores it).
         </p>
@@ -171,15 +172,6 @@ export function DetailOverviewDemo(): React.ReactElement {
             options={[
               { value: "rail", label: "Command rail", icon: PanelLeft },
               { value: "vertical", label: "Vertical", icon: Rows3 },
-            ]}
-          />
-          <SegmentedControl
-            aria-label="Detail-overview surface"
-            value={surface}
-            onValueChange={setSurface}
-            options={[
-              { value: "unified", label: "Unified" },
-              { value: "separated", label: "Separated" },
             ]}
           />
           <SegmentedControl
@@ -196,9 +188,10 @@ export function DetailOverviewDemo(): React.ReactElement {
         </div>
       </div>
 
-      {/* Muted mat — `surface="unified"` reads as one framed surface only when the
-          page behind it is muted (the app does this via AppShell's `<main>` on
-          bg-muted/30; the gallery has no AppShell, so the demo supplies it).
+      {/* Muted mat — the single unified frame reads as one bounded surface only
+          when the page behind it is muted (the app does this via AppShell's
+          `<main>` on bg-muted/30; the gallery has no AppShell, so the demo
+          supplies it).
           The blue `--primary` override is BrickShop's brand, scoped to this
           surface: the donor default stays neutral slate; each app brings its own
           accent. One token re-skins every primary action, accent figure, badge,
@@ -215,41 +208,36 @@ export function DetailOverviewDemo(): React.ReactElement {
       >
         <DetailOverviewShell
           layout={layout}
-          surface={surface}
           width={width}
-          header={
-            <DetailOverviewHeader
-              title={<span className="font-mono">{o.number}</span>}
-              subtitle={
-                <>
-                  <span>Orders</span>
-                  <span className="mx-2 text-border">·</span>
-                  <span>{o.channel}</span>
-                </>
-              }
-              badges={
-                <>
-                  <Badge variant="success">Paid</Badge>
-                  <Badge variant="warning">Packing</Badge>
-                </>
-              }
-              actions={
-                <>
-                  <Button variant="outline" size="sm">
-                    Invoice
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="px-2"
-                    aria-label="More actions"
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm">Mark as shipped</Button>
-                </>
-              }
-            />
+          title={<span className="font-mono">{o.number}</span>}
+          subtitle={
+            <>
+              <span>Orders</span>
+              <span className="mx-2 text-border">·</span>
+              <span>{o.channel}</span>
+            </>
+          }
+          badges={
+            <>
+              <Badge variant="success">Paid</Badge>
+              <Badge variant="warning">Packing</Badge>
+            </>
+          }
+          actions={
+            <>
+              <Button variant="outline" size="sm">
+                Invoice
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="px-2"
+                aria-label="More actions"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+              <Button size="sm">Mark as shipped</Button>
+            </>
           }
           summary={
             <>

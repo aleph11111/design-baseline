@@ -145,4 +145,46 @@ describe("lint-design per-rule include glob", () => {
     const { status } = runFixture([rule]);
     expect(status).toBe(0); // same live hit, warn severity → exit 0
   });
+
+  describe("per-rule exclude glob (ratchet valve)", () => {
+    it("an exclude narrower than its include does not over-reach", () => {
+      // include scopes to the archetype shell layer; exclude targets ONLY an
+      // already-closed archetype's folder (detail-overview). The fixture's
+      // archetype file is `.../foo/` — inside include but NOT inside exclude —
+      // so it is still flagged. The ui-layer file is outside include and never
+      // is. Proves `exclude` only removes the exact closed archetype, not the
+      // rest of the drain.
+      const rule = {
+        id: "appearance-noun-prop",
+        pattern: 'surface\\?\\s*:',
+        severity: "error",
+        message: "m",
+        include: "src/components/archetypes/**",
+        exclude: "src/components/archetypes/detail-overview/**",
+      };
+      const { stdout, status } = runFixture([rule], "--json");
+      const files = filesOf(stdout);
+      expect(files).toContain(NOUN); // inside include, not inside exclude
+      expect(files).not.toContain(UI); // outside include → untouched
+      expect(status).toBe(1); // the non-excluded archetype still errors
+    });
+
+    it("an exclude matching an in-include file closes the valve (exit 0)", () => {
+      // exclude targets the fixture's archetype folder (`.../foo/`): the file is
+      // in include BUT excluded → no live hit → an error rule exits 0. This is
+      // the engaged ratchet: the class is closed, so the scan stays green.
+      const rule = {
+        id: "appearance-noun-prop",
+        pattern: 'surface\\?\\s*:',
+        severity: "error",
+        message: "m",
+        include: "src/components/archetypes/**",
+        exclude: "src/components/archetypes/foo/**",
+      };
+      const { stdout, status } = runFixture([rule], "--json");
+      const files = filesOf(stdout);
+      expect(files).not.toContain(NOUN); // in include but excluded → no violation
+      expect(status).toBe(0); // no error hits remain → exit 0
+    });
+  });
 });

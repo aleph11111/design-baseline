@@ -75,7 +75,6 @@ export function SettingsPageShell({
   className,
   kicker,
   headerActions,
-  headerFill,
   ...header
 }: SettingsPageShellProps): React.ReactElement {
   const boardForm = kicker !== undefined || headerActions !== undefined;
@@ -91,7 +90,6 @@ export function SettingsPageShell({
               kicker={kicker}
               title={header.title}
               headerActions={headerActions}
-              headerFill={headerFill}
             />
             <div className="p-5">{children}</div>
           </div>

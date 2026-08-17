@@ -59,7 +59,6 @@ export function ReportShell({
   headerActions,
   children,
   width = "md",
-  headerFill,
   className,
 }: ReportShellProps): React.ReactElement {
   return (
@@ -74,7 +73,6 @@ export function ReportShell({
         kicker={kicker}
         title={title}
         headerActions={headerActions}
-        headerFill={headerFill}
       />
       <div className="p-6">{children}</div>
     </div>

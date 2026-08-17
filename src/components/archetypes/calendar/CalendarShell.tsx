@@ -106,7 +106,6 @@ export function CalendarShell({
   headerActions,
   days,
   emptyDayLabel,
-  headerFill,
   className,
 }: CalendarShellProps): React.ReactElement {
   return (
@@ -120,7 +119,6 @@ export function CalendarShell({
         kicker={kicker}
         title={title}
         headerActions={headerActions}
-        headerFill={headerFill}
       />
 
       {/* Grid — scrolls horizontally on narrow viewports. */}

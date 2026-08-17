@@ -23,6 +23,12 @@
 // `src/components/archetypes/` without firing on `src/components/ui/` leaves, where
 // `variant` / `size` props are correct shadcn practice.
 //
+// A rule may also carry an optional `exclude` glob that removes matching files from the
+// rule (in addition to `include`, when both are set). That is the per-archetype ratchet
+// valve: once an archetype's class is closed, its folder is excluded from the shared
+// `warn` drain rules, and a per-folder `error` rule (the engaged ratchet) is added for the
+// closed API — so the scanner no longer counts a closed archetype as an open one.
+//
 // Usage:  node scripts/lint-design.mjs
 // Config: ADHERENCE_CONFIG=path overrides the default `_adherence.json`.
 
@@ -108,7 +114,11 @@ function globToRegExp(glob) {
 // Compile each rule once. `pattern` is used verbatim; a `tag` rule matches a bare lowercase
 // element — `<tag` immediately followed by whitespace, `/`, or `>` — case-sensitive (no `i`
 // flag) so the capitalized DS primitive `<Button>` is not a hit. An `include` glob, when
-// present, restricts the rule to walked files whose repo-root-relative path matches it.
+// present, restricts the rule to walked files whose repo-root-relative path matches it; an
+// `exclude` glob, when present, removes such files from the rule. A rule with both applies only
+// inside `include` and outside `exclude`. That is what lets a shared drain rule (e.g. the
+// appearance-prop noun/union ban over `src/components/archetypes/**`) drop an already-closed
+// archetype out of the `warn` drain while a per-archetype `error` rule stays scoped to it.
 const compiled = rules.map((rule) => {
   const source = rule.pattern ?? `<${rule.tag}(?=[\\s/>])`;
   try {
@@ -118,6 +128,7 @@ const compiled = rules.map((rule) => {
       severity: rule.severity === 'error' ? 'error' : 'warn',
       message: rule.message,
       include: rule.include ? globToRegExp(rule.include) : null,
+      exclude: rule.exclude ? globToRegExp(rule.exclude) : null,
     };
   } catch (err) {
     console.error(`lint:design — rule ${rule.id}: bad pattern /${source}/: ${err.message}`);
@@ -131,8 +142,9 @@ let errors = 0;
 for (const file of files) {
   const fileRel = relative(root, file);
   const lines = readFileSync(file, 'utf8').split('\n');
-  for (const { re, label, severity, message, include } of compiled) {
+  for (const { re, label, severity, message, include, exclude } of compiled) {
     if (include && !include.test(fileRel)) continue; // rule not scoped to this path
+    if (exclude && exclude.test(fileRel)) continue; // rule excluded for this path
     lines.forEach((line, i) => {
       for (const m of line.matchAll(re)) {
         const v = { file: fileRel, line: i + 1, rule: label, severity, message };

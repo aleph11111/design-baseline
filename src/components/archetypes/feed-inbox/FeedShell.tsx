@@ -41,7 +41,6 @@ export function FeedShell({
   kicker,
   title,
   headerActions,
-  headerFill,
   className,
 }: FeedShellProps): React.ReactElement {
   return (
@@ -56,7 +55,6 @@ export function FeedShell({
         kicker={kicker}
         title={title}
         headerActions={headerActions}
-        headerFill={headerFill}
       />
       <div className={cn(title !== undefined && "p-5 space-y-5")}>
         {(filters || actions) && (

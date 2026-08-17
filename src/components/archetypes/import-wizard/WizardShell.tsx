@@ -55,7 +55,6 @@ export function WizardShell({
   children,
   kicker,
   title,
-  headerFill,
   className,
 }: WizardShellProps): React.ReactElement {
   const isLast = current >= steps.length - 1;
@@ -95,7 +94,6 @@ export function WizardShell({
         <SurfaceHeaderSlot
           kicker={kicker}
           title={title}
-          headerFill={headerFill}
         />
         <div className="p-5">{body}</div>
       </div>

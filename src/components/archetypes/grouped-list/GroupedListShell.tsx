@@ -45,7 +45,6 @@ export function GroupedListShell({
   kicker,
   title,
   headerActions,
-  headerFill,
   className,
 }: GroupedListShellProps): React.ReactElement {
   const listState = resolveListState({ isLoading, error, isEmpty: isEmpty === true });
@@ -60,7 +59,6 @@ export function GroupedListShell({
         kicker={kicker}
         title={title}
         headerActions={headerActions}
-        headerFill={headerFill}
       />
 
       {/* Page-level toolbar: a bare flex row (no card chrome) — the same

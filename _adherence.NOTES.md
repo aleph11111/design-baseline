@@ -26,6 +26,12 @@ set — `**` spans any run of directory segments, `*` matches within one. This i
 target a single layer of the tree without firing on the rest: the `src`-wide `targets` would
 otherwise flag `src/components/ui/`, where `variant` and `size` are correct shadcn practice.
 
+A rule may also carry an optional `exclude` glob, which removes a matching path from the rule
+(in addition to `include`, when both are set). That is the per-archetype **ratchet valve**: once an
+archetype's class is closed, its folder is excluded from the shared `warn` drain rules and a set of
+per-folder `error` rules is added for the closed API, so the scanner no longer counts a closed
+archetype as an open one (the `detail-overview-*` rules below are the first to use it).
+
 `targets` lists the directory roots the scanner walks for `.tsx` files. The donor ships `["src"]`;
 a consumer retargets it to its app-page directories (e.g. `["src/app/(app)"]`), since these bans
 apply to page bodies, not marketing/auth chrome or the primitive definitions themselves (the DS
@@ -53,6 +59,34 @@ check landed.
 | `archetype-look-union-prop` | a prop typed as an inline string-literal union of look-names | `src/components/archetypes/**` |
 | `archetype-shell-class-name` | `className` declared on a `*Shell` component | `src/components/archetypes/**/*Shell.tsx` |
 | `archetype-appearance-slot` | an appearance-bearing `ReactNode` slot (`header`, `stats`) | `src/components/archetypes/**` |
+
+Each drain rule also carries `exclude: src/components/archetypes/detail-overview/**` — once an
+archetype's class is closed it drops out of the `warn` drain and is gated by its own
+`error`-tier rules instead (the ratchet, per the `exclude` glob above). `detail-overview` is
+the first: the close-API ticket removed `surface`, `rhythm`, `className`, `headerFill`, and the
+`header`/`stats` `ReactNode` slots (and corrected the `width` default), so the four drain rules
+no longer fire on it.
+
+### The `detail-overview-*` error rules (ratchet engaged for the closed API)
+
+`severity: error`, `include`-scoped to `src/components/archetypes/detail-overview/`. Any hit
+exits 1, so re-adding a retired axis (or an appearance-bearing slot) breaks the lint immediately.
+The ratchet stays engaged across future changes; the drain no longer re-flags the closed file.
+
+| id | shape caught | include |
+|---|---|---|
+| `detail-overview-surface-prop` | a `surface` prop declaration (any type) | `src/components/archetypes/detail-overview/**` |
+| `detail-overview-rhythm-prop` | a `rhythm` prop declaration | `src/components/archetypes/detail-overview/**` |
+| `detail-overview-shell-class-name` | `className?: string` declared on the shell | `…/detail-overview/DetailOverviewShell.tsx` |
+| `detail-overview-appearance-slot` | a `header`/`stats` `ReactNode` slot | `src/components/archetypes/detail-overview/**` |
+| `detail-overview-headerfill-prop` | a `headerFill` prop declaration | `src/components/archetypes/detail-overview/**` |
+
+These are deliberately *narrower* than the four drain rules — they name the specific retired
+axes, not the whole appearance-noun / look-union class. `layout` and `width` (kept, contract-derived)
+and `DetailSection`'s `tone` (kept, a graded-section data prop) remain legal even though they are
+string-literal-union props, so the generic drain rules would over-fire on them; excluding the whole
+folder and re-gating the retired axes by name keeps the lint both precise and ratcheted. That split
+is the reason the ratchet needed the `exclude` glob at all.
 
 Two deliberate boundary choices:
 

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { OVERLINE_CLASS } from "./overline";
-import { useHeaderFill, headerFillClasses, type HeaderFill } from "./headerFill";
+import { useHeaderFill, headerFillClasses } from "./headerFill";
 
 export type SurfaceHeaderProps = {
   /** Overline kicker above the title (the entity/section class — "Orders",
@@ -23,9 +23,6 @@ export type SurfaceHeaderProps = {
   /** Right-aligned actions row — `<Button>`s (size="sm"): secondary =
    *  `variant="outline"`, primary = default. They invert on a solid header. */
   actions?: React.ReactNode;
-  /** Header treatment (House Style B). Defaults to the project's
-   *  `HeaderFillContext` ("solid" unless overridden). */
-  headerFill?: HeaderFill;
   className?: string;
 };
 
@@ -46,10 +43,9 @@ export function SurfaceHeader({
   subtitle,
   icon: Icon,
   actions,
-  headerFill,
   className,
 }: SurfaceHeaderProps): React.ReactElement {
-  const hfc = headerFillClasses(useHeaderFill(headerFill));
+  const hfc = headerFillClasses(useHeaderFill());
   return (
     <div
       data-slot="surface-header"

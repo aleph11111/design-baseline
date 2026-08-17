@@ -20,13 +20,16 @@ export type HeaderFill = "solid" | "tint" | "white";
 /**
  * Default is "solid". A project sets its house treatment once — via
  * `<AppShell headerFill="…">` (which provides this context) — and every framed
- * header inherits it. A single shell may still override with a `headerFill` prop.
+ * header inherits it. There is NO per-shell / per-header override prop: the
+ * header-fill axis is a closed project context (hard rule 12), and an override
+ * next to it is the escape hatch that lets one page quietly split from the
+ * fleet's look.
  */
 export const HeaderFillContext = React.createContext<HeaderFill>("solid");
 
-export function useHeaderFill(override?: HeaderFill): HeaderFill {
-  const ctx = React.useContext(HeaderFillContext);
-  return override ?? ctx;
+/** Read the project's header treatment (the closed context set, hard rule 12). */
+export function useHeaderFill(): HeaderFill {
+  return React.useContext(HeaderFillContext);
 }
 
 export type HeaderFillClasses = {
@@ -54,7 +57,7 @@ const SOLID_INVERT =
   "[&_:is(button,a)]:text-primary-foreground " +
   "[&_:is(button,a).border-input]:border-primary-foreground/40 [&_:is(button,a).border-input]:bg-transparent [&_:is(button,a).border-input]:hover:bg-primary-foreground/10 " +
   "[&_:is(button,a).bg-primary]:bg-primary-foreground [&_:is(button,a).bg-primary]:text-primary [&_:is(button,a).bg-primary]:hover:bg-primary-foreground/90 [&_:is(button,a).bg-primary]:hover:text-primary " +
-  "[&_h1]:text-primary-foreground [&_p]:text-primary-foreground/70";
+  "[&_h1,h2]:text-primary-foreground [&_p]:text-primary-foreground/70";
 
 export function headerFillClasses(fill: HeaderFill): HeaderFillClasses {
   switch (fill) {

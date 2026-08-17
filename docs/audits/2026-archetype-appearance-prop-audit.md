@@ -66,13 +66,27 @@ One line per distinct flagged prop declaration. `rules` are the matched `archety
 | `overline-typed` | [`overline-typed/overline.tsx`](../../src/components/archetypes/overline-typed/overline.tsx)#L43 | `tone?: OverlineTone;` | appearance-noun-prop |
 | `entity-circle` | [`entity-circle/EntityAvatar.tsx`](../../src/components/archetypes/entity-circle/EntityAvatar.tsx)#L16 | `tone?: EntityAvatarTone;` | appearance-noun-prop |
 
+> **Update (detail-overview closed, 2026-08-17).** `detail-overview` has since been
+> closed ([archetype-convergence-detail-overview-close-api](../backlog/archive/
+> archetype-convergence-detail-overview-close-api.md)): `surface`, `rhythm`, `className`,
+> `headerFill`, and the `header`/`stats` `ReactNode` slots are removed from the shell, and the
+> `width` default is corrected to `md`. The eight `detail-overview` rows above no longer
+> fire — the four drain rules carry `exclude: src/components/archetypes/detail-overview/**`,
+> and a set of `error`-tier `detail-overview-*` rules (the ratchet, engaged) now gates the
+> closed API instead. See `_adherence.NOTES.md` for the `exclude` mechanism and the rule set.
+
 ## Rules in this scan
 
 | Rule id | Pattern (abridged) | Scope |
 |---|---|---|
-| `archetype-appearance-noun-prop` | prop name in the appearance-noun list (`surface`, `variant`, `tone`, `density`, `appearance`, `rhythm`, `fill`, `framed`, `bordered`, `compact`, `padded`) | `src/components/archetypes/**` |
-| `archetype-look-union-prop` | prop typed as an inline string-literal union | `src/components/archetypes/**` |
-| `archetype-shell-class-name` | `className` declared on a `*Shell` | `src/components/archetypes/**/*Shell.tsx` |
-| `archetype-appearance-slot` | appearance-bearing `ReactNode` slot (`header`, `stats`) | `src/components/archetypes/**` |
+| `archetype-appearance-noun-prop` | prop name in the appearance-noun list (`surface`, `variant`, `tone`, `density`, `appearance`, `rhythm`, `fill`, `framed`, `bordered`, `compact`, `padded`) | `src/components/archetypes/**` (excluding `detail-overview/**`) |
+| `archetype-look-union-prop` | prop typed as an inline string-literal union | `src/components/archetypes/**` (excluding `detail-overview/**`) |
+| `archetype-shell-class-name` | `className` declared on a `*Shell` | `src/components/archetypes/**/*Shell.tsx` (excluding `detail-overview/**`) |
+| `archetype-appearance-slot` | appearance-bearing `ReactNode` slot (`header`, `stats`) | `src/components/archetypes/**` (excluding `detail-overview/**`) |
+| `detail-overview-surface-prop` | `surface` prop (any type) — ratchet error | `src/components/archetypes/detail-overview/**` |
+| `detail-overview-rhythm-prop` | `rhythm` prop — ratchet error | `src/components/archetypes/detail-overview/**` |
+| `detail-overview-shell-class-name` | `className?: string` on the shell — ratchet error | `…/detail-overview/DetailOverviewShell.tsx` |
+| `detail-overview-appearance-slot` | `header`/`stats` `ReactNode` slot — ratchet error | `src/components/archetypes/detail-overview/**` |
+| `detail-overview-headerfill-prop` | `headerFill` prop — ratchet error | `src/components/archetypes/detail-overview/**` |
 
 An *inherited-default* check (a prop whose default the contract does not state — the `width` contradiction) is deliberately **not** in this scan: it requires reading the contract prose against the code and is not expressible as a line pattern. It stays a review step in the contract-close work.

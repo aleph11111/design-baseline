@@ -1,10 +1,9 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import {
-  useHeaderFill,
-  headerFillClasses,
-  type HeaderFill,
-} from "@/components/layout/headerFill";
+import { useHeaderFill, headerFillClasses } from "@/components/layout/headerFill";
+import { NestedPageHeading } from "@/components/layout/NestedPageHeading";
+import { StatTile } from "@/components/layout/StatTile";
+import { StatTileRow } from "@/components/layout/StatTileRow";
 
 const WIDTH_MAP: Record<"none" | "md" | "lg" | "xl", string> = {
   none: "",
@@ -13,189 +12,207 @@ const WIDTH_MAP: Record<"none" | "md" | "lg" | "xl", string> = {
   xl: "max-w-6xl",
 };
 
-const RHYTHM_MAP: Record<"compact" | "default", string> = {
-  compact: "space-y-4",
-  default: "space-y-5",
-};
-
 /**
- * Read by `<DetailSection>` (and any titled section primitive) to render
- * chromeless inside a `surface="unified"` shell — dropping its own
- * border/shadow/rounding so the one bounded surface owns all separation via
- * hairline dividers. Default `false` = today's separated behaviour.
+ * Read by `<DetailSection>` to render chromeless inside the unified rail —
+ * dropping its own border/shadow/rounding so the one bounded surface owns all
+ * separation via hairline dividers. Provided by `<DetailOverviewShell>` scoped
+ * to the rail subtree only; `false` everywhere else (the main column keeps its
+ * flattened cards). INTERNAL — not part of the shell's public API.
  */
 export const UnifiedSurfaceContext = React.createContext(false);
 
-export type DetailOverviewShellProps = {
-  header?: React.ReactNode;
-  summary?: React.ReactNode;
-  stats?: React.ReactNode;
-  content?: React.ReactNode;
-  references?: React.ReactNode;
-  rhythm?: "compact" | "default";
-  width?: "none" | "md" | "lg" | "xl";
-  layout?: "vertical" | "rail";
-  /**
-   * Container model (Amendment v2.3 — the unified-surface variant; hybrid).
-   * - "separated" (default): each slot's `<DetailSection>`s are individually
-   *   bordered `SectionCard`s with gaps between — the v2.0/v2.1 look. Zero churn.
-   * - "unified": ONE bounded outer frame holds header + rail + main. The **rail**
-   *   renders chromeless and hairline-divided (its `<DetailSection>`s drop card
-   *   chrome via a `UnifiedSurfaceContext` scoped to the rail); the **main** keeps
-   *   carded `<DetailSection>`/`<StatTileRow>` BUT flattened (no shadow, softer
-   *   border, tighter gap) so they read as fitted panels inside the frame, not
-   *   floating cards. Cohesion comes from the frame — recommended dense pairing:
-   *   `layout="rail" surface="unified"`. NOTE: unified relies on the page behind
-   *   the frame being a muted surface (e.g. AppShell `<main>` on `bg-muted/30`);
-   *   a white frame on a white page has no contrast and the effect collapses.
-   */
-  surface?: "separated" | "unified";
-  /**
-   * Header treatment for the `surface="unified"` framed header (House Style B).
-   * Defaults to the project's `HeaderFillContext` ("solid" unless overridden).
-   * Only applies in unified mode (the separated header is a bare PageHeader).
-   */
-  headerFill?: HeaderFill;
-  className?: string;
+/**
+ * One cell of the shell's aggregate strip. Mirrors the stat-tile's data fields
+ * minus its `className` (the shell derives all appearance from this data — a
+ * cell's classes are owned by the tile primitive, never the call site). The
+ * tile renders pre-formatted values as-is; the tile never formats.
+ */
+export type StatItem = {
+  label: React.ReactNode;
+  value: React.ReactNode;
+  hint?: React.ReactNode;
 };
 
+export type DetailOverviewShellProps = {
+  /**
+   * Mode B — nested page title. When set, the shell renders its on-surface
+   * header as the canonical nested page heading (an `<h2>` at a single fixed
+   * scale) instead of the page's own top-level page title (Mode A — use the
+   * standalone detail-overview header above the shell). The scale/weight are
+   * fixed in that primitive; no prop re-picks them.
+   */
+  title?: React.ReactNode;
+  /** Secondary line under the nested title (e.g. a parent-entity link). */
+  subtitle?: React.ReactNode;
+  /** Read-only status badges, inline next to the nested title — the page's
+   *  one home for status. */
+  badges?: React.ReactNode;
+  /** Right-aligned actions row (link/buttons). Never mixed into the title. */
+  actions?: React.ReactNode;
+  /**
+   * Structure, keyed to the entity by the contract (Amendment v2.1).
+   * - "vertical" (default): the canonical single column.
+   * - "rail": a sticky left identity rail beside a scrolling main column on
+   *   wide viewports, collapsing to vertical on narrow. Dense/transactional
+   *   entities (orders, deals, invoices) use the rail.
+   */
+  layout?: "vertical" | "rail";
+  /**
+   * Contained column width. Keyed to the entity by the contract (Layer 2):
+   * "md" (a contained column) is the record-page default — ruled rows and the
+   * stat strip read best contained. Use "none" only for pages carrying wide
+   * embedded tables. Ignored under `layout="rail"` (the rail manages widths).
+   */
+  width?: "none" | "md" | "lg" | "xl";
+  /** Master data (rail). Composed section primitives — structure, not appearance. */
+  summary?: React.ReactNode;
+  /**
+   * Aggregates (main top). Typed data — the shell renders the strip and
+   * derives its column count from `stats.length`, so a metric count is
+   * computed rather than a hand-matched prop. Omit to surface the metrics in
+   * `summary` instead (recommended in the rail variant).
+   */
+  stats?: StatItem[];
+  /** Transactional data (main). Composed section primitives. */
+  content?: React.ReactNode;
+  /** Cross-entity references (rail foot / page end). Composed section primitives. */
+  references?: React.ReactNode;
+};
+
+/**
+ * DetailOverviewShell — the C (detail-overview) archetype container.
+ *
+ * ONE bounded outer frame holds header + (rail layout) a chromeless,
+ * hairline-divided, tinted identity rail beside a main column of carded
+ * sections flattened to sit as fitted panels in the frame. Cohesion comes from
+ * the frame; there is no separate container model and no per-call-site axis
+ * that picks one over the other. Appearance is either global (the page's
+ * header-fill context, set once at `<AppShell>`) or fixed in the primitives —
+ * the shell exposes `layout` (keyed to entity density) and `width` (keyed to
+ * wide tables) as the only structure/data props, plus typed header + stats
+ * data (`title`/`subtitle`/`badges`/`actions`, `stats: StatItem[]`) and
+ * ReactNode slots for the composed master-data / transactional / reference
+ * sections (composing documented section primitives is structure, not
+ * appearance).
+ *
+ * Notes: the unified frame relies on the page behind the frame being a muted
+ * surface (e.g. AppShell's `<main>` on bg-muted/30) — a white frame on a white
+ * page has no contrast and the effect collapses.
+ */
 export function DetailOverviewShell({
-  header,
+  title,
+  subtitle,
+  badges,
+  actions,
+  layout = "vertical",
+  width = "md",
   summary,
   stats,
   content,
   references,
-  rhythm = "default",
-  width = "none",
-  layout = "vertical",
-  surface = "separated",
-  headerFill,
-  className,
 }: DetailOverviewShellProps): React.ReactElement {
-  // House header treatment (only used by the unified framed header below).
-  const hfc = headerFillClasses(useHeaderFill(headerFill));
-  // -------------------------------------------------------------------------
-  // UNIFIED — the HYBRID model (Amendment v2.3). Cohesion comes from the OUTER
-  // FRAME, not from stripping every card:
-  //   - outer frame: one bounded card wrapping header + rail + main.
-  //   - RAIL (aside): chromeless, flush, hairline-divided, LIGHTLY tinted
-  //     (bg-muted/20 — a whisper, not a second panel). Context scoped here only.
-  //   - MAIN: keeps carded sections, but FLATTENED — shadow-none + softer border
-  //     + tighter gap — so they sit as fitted panels in the frame, not floaters.
-  // -------------------------------------------------------------------------
-  if (surface === "unified") {
-    // flatten the carded children in the main column so they don't "float"
-    const mainFlatten = "[&_section]:shadow-none [&_section]:border-border/70";
-    // Rail section dividers: an INSET hairline between sibling sections (a faint
-    // pseudo-element aligned to the 20px content gutter), NOT a full-bleed
-    // `divide-y` rule striking edge-to-edge across the rail. `*+*` targets every
-    // section after the first; `inset-x-5` matches the sections' px-5 content.
-    const railDividers =
-      "[&>*+*]:relative [&>*+*]:before:absolute [&>*+*]:before:inset-x-5 " +
-      "[&>*+*]:before:top-0 [&>*+*]:before:h-px [&>*+*]:before:bg-border/60";
-    const body =
-      layout === "rail" ? (
-        <div className="lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
-          <UnifiedSurfaceContext.Provider value={true}>
-            {/* Slot children render DIRECTLY into the rail container so a
-                multi-section `summary` (status · figures · partner · facts) gets
-                an inset hairline between each section (see `railDividers`). */}
-            <div
-              className={cn(
-                "bg-muted/20 lg:border-r lg:border-border/60 lg:sticky lg:top-0 lg:self-start",
-                railDividers,
-              )}
-            >
-              {summary}
-              {references}
-            </div>
-          </UnifiedSurfaceContext.Provider>
-          <div
-            className={cn(
-              "border-t border-border/60 p-5 lg:border-t-0 space-y-4",
-              mainFlatten,
-            )}
-          >
-            {stats && <div>{stats}</div>}
-            {content}
-          </div>
-        </div>
-      ) : (
-        <div>
-          <UnifiedSurfaceContext.Provider value={true}>
-            <div className={cn("bg-muted/20", railDividers)}>{summary}</div>
-          </UnifiedSurfaceContext.Provider>
-          <div className={cn("border-t border-border/60 p-5 space-y-4", mainFlatten)}>
-            {stats && <div>{stats}</div>}
-            {content}
-            {references && <div>{references}</div>}
-          </div>
-        </div>
-      );
+  // House header treatment, set ONCE per project at `<AppShell headerFill=…>`
+  // (HeaderFillContext) — there is no per-shell or per-header override.
+  const hfc = headerFillClasses(useHeaderFill());
 
-    return (
+  // The aggregate strip is rendered from typed data; the strip's column count
+  // follows the data, so no call site passes a hand-matched `columns`.
+  const statStrip =
+    stats && stats.length > 0 ? (
+      <StatTileRow
+        columns={Math.min(Math.max(stats.length, 2), 4) as 2 | 3 | 4}
+      >
+        {stats.map((s, i) => (
+          <StatTile key={i} label={s.label} value={s.value} hint={s.hint} />
+        ))}
+      </StatTileRow>
+    ) : null;
+
+  const header =
+    title !== undefined ? (
+      <div className={cn("px-5 py-4", hfc.bar)}>
+        <NestedPageHeading
+          title={title}
+          subtitle={subtitle}
+          badges={badges}
+          actions={actions}
+        />
+      </div>
+    ) : null;
+
+  // flatten the carded children in the main column so they sit as panels, not floaters
+  const mainFlatten = "[&_section]:shadow-none [&_section]:border-border/70";
+  // Rail section dividers: an INSET hairline between sibling sections (a faint
+  // pseudo-element aligned to the 20px content gutter), NOT a full-bleed
+  // `divide-y` rule striking edge-to-edge across the rail. `*+*` targets every
+  // section after the first; `inset-x-5` matches the sections' px-5 content.
+  const railDividers =
+    "[&>*+*]:relative [&>*+*]:before:absolute [&>*+*]:before:inset-x-5 " +
+    "[&>*+*]:before:top-0 [&>*+*]:before:h-px [&>*+*]:before:bg-border/60";
+
+  const rail = (
+    <UnifiedSurfaceContext.Provider value={true}>
+      {/* Slot children render DIRECTLY into the rail container so a
+          multi-section `summary` gets an inset hairline between sections. */}
       <div
         className={cn(
-          "overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm",
-          layout !== "rail" && WIDTH_MAP[width],
-          className,
+          "bg-muted/20 lg:border-r lg:border-border/60 lg:sticky lg:top-0 lg:self-start",
+          railDividers,
         )}
       >
-        {header && (
-          <div className={cn("px-5 py-4", hfc.bar)}>{header}</div>
-        )}
-        {body}
+        {summary}
+        {references}
       </div>
-    );
-  }
+    </UnifiedSurfaceContext.Provider>
+  );
 
-  if (layout === "rail") {
-    return (
-      <div
-        className={cn(
-          RHYTHM_MAP[rhythm],
-          "lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-x-6 lg:gap-y-5 lg:space-y-0 lg:items-start",
-          className,
-        )}
-      >
-        {header && (
-          <div className="lg:col-span-2 lg:col-start-1 lg:row-start-1">
-            {header}
-          </div>
-        )}
-        {summary && (
-          <div className="lg:col-start-1 lg:row-start-2 lg:row-span-2 lg:sticky lg:top-6 lg:self-start">
-            {summary}
-          </div>
-        )}
-        {stats && (
-          <div className="lg:col-start-2 lg:row-start-2">{stats}</div>
-        )}
-        {content && (
-          <div className={cn("lg:col-start-2 lg:row-start-3", RHYTHM_MAP[rhythm])}>
-            {content}
-          </div>
-        )}
-        {references && (
-          <div className="lg:col-start-1 lg:row-start-4">{references}</div>
-        )}
+  const main = (
+    <div
+      className={cn(
+        "border-t border-border/60 p-5 lg:border-t-0 space-y-4",
+        mainFlatten,
+      )}
+    >
+      {statStrip && <div>{statStrip}</div>}
+      {content}
+    </div>
+  );
+
+  const body =
+    layout === "rail" ? (
+      <div className="lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
+        {rail}
+        {main}
+      </div>
+    ) : (
+      // vertical: the identity rail holds `summary` only (chromeless);
+      // references falls into the MAIN column, carded (no chrome suppression).
+      <div>
+        <UnifiedSurfaceContext.Provider value={true}>
+          <div className={cn("bg-muted/20", railDividers)}>{summary}</div>
+        </UnifiedSurfaceContext.Provider>
+        <div
+          className={cn(
+            "border-t border-border/60 p-5 space-y-4",
+            mainFlatten,
+          )}
+        >
+          {statStrip && <div>{statStrip}</div>}
+          {content}
+          {references && <div>{references}</div>}
+        </div>
       </div>
     );
-  }
 
   return (
     <div
       className={cn(
-        RHYTHM_MAP[rhythm],
-        WIDTH_MAP[width],
-        className,
+        "overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm",
+        layout !== "rail" && WIDTH_MAP[width],
       )}
     >
       {header}
-      {summary}
-      {stats}
-      {content}
-      {references}
+      {body}
     </div>
   );
 }

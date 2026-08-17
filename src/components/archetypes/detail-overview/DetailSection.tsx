@@ -60,9 +60,10 @@ export function DetailSection({
   children,
   className,
 }: DetailSectionProps): React.ReactElement {
-  // Inside a `<DetailOverviewShell surface="unified">`, sections render
-  // chromeless — the shell's one bounded surface + hairline dividers own all
-  // separation. Outside it (the default), this is the bordered card as before.
+  // Inside a `<DetailOverviewShell>`'s rail, sections render chromeless —
+  // the shell's one bounded frame + hairline dividers own all separation.
+  // Outside the rail (or outside the shell entirely), this is the bordered
+  // card.
   const unified = React.useContext(UnifiedSurfaceContext);
   return (
     <SectionCard

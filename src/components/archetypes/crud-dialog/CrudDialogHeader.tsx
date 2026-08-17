@@ -2,11 +2,7 @@ import * as React from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SheetDescription, SheetTitle } from "@/components/ui/sheet";
-import {
-  useHeaderFill,
-  headerFillClasses,
-  type HeaderFill,
-} from "@/components/layout/headerFill";
+import { useHeaderFill, headerFillClasses } from "@/components/layout/headerFill";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -35,13 +31,6 @@ export type CrudDialogHeaderProps = {
    * when a labeled close button is required by the design.
    */
   onClose?: () => void;
-  /**
-   * Header treatment (House Style B 2-token contract). The dialog header is the
-   * `.card`'s first band, so it inherits `--header-fill` like every framed
-   * surface — solid by default (accent-filled with white title + inverted
-   * actions). Defaults to the project's `HeaderFillContext`.
-   */
-  headerFill?: HeaderFill;
   className?: string;
 };
 
@@ -66,10 +55,9 @@ export function CrudDialogHeader({
   subtitle,
   actions,
   onClose,
-  headerFill,
   className,
 }: CrudDialogHeaderProps): React.ReactElement {
-  const hfc = headerFillClasses(useHeaderFill(headerFill));
+  const hfc = headerFillClasses(useHeaderFill());
   return (
     <div
       className={cn(
