@@ -21,7 +21,7 @@ gate:
 
 ## Context
 
-Phase 1 of the [archetype-convergence roadmap](archetype-convergence.md), and its
+Phase 1 of the [archetype-convergence roadmap](../archetype-convergence.md), and its
 proof case. hk-crm's vendored detail-overview primitives are byte-identical to
 this donor's — the only difference is a `"use client"` line and a stamp comment —
 and the page is still wrong, because every divergence lives in how twelve route
@@ -111,12 +111,12 @@ contract reserves for the exception.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap, Phase 1
-- [archetype-convergence-nested-heading-primitive.md](archive/archetype-convergence-nested-heading-primitive.md)
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap, Phase 1
+- [archetype-convergence-nested-heading-primitive.md](../archive/archetype-convergence-nested-heading-primitive.md)
   — depends on: the shell composes it for Mode B
-- [archetype-convergence-phase0-appearance-locality-decision.md](archive/archetype-convergence-phase0-appearance-locality-decision.md)
+- [archetype-convergence-phase0-appearance-locality-decision.md](../archive/archetype-convergence-phase0-appearance-locality-decision.md)
   — depends on: hard rule 12 is what sorts these props
-- [detail-overview-blueprint-rail-variant.md](archive/detail-overview-blueprint-rail-variant.md)
+- [detail-overview-blueprint-rail-variant.md](../archive/detail-overview-blueprint-rail-variant.md)
   — shipped the `layout="rail"` variant this ticket keeps
-- [list-with-detail-shell-presentation-split.md](archive/list-with-detail-shell-presentation-split.md)
+- [list-with-detail-shell-presentation-split.md](../archive/list-with-detail-shell-presentation-split.md)
   — the sibling shell's presentation split, same class of change
