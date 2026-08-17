@@ -10,6 +10,7 @@ import {
   AuthCard,
   MetricList,
   MetricRow,
+  NestedPageHeading,
   PageHeader,
   ProgressTracker,
   SectionCard,
@@ -77,6 +78,53 @@ function PageHeaderDemo() {
       </Variant>
       <Variant label="With back link">
         <PageHeader title="New contact" backHref="#" backLabel="Back to contacts" />
+      </Variant>
+    </div>
+  );
+}
+
+/**
+ * The Mode B nested page heading — the run in the heading ladder that sits
+ * between PageHeader (h1) and SectionHeading (the overline h2). A tabbed
+ * sub-route whose parent owns the <h1> titles its own sub-area with this, at a
+ * single fixed scale (no size/weight prop).
+ */
+function NestedPageHeadingDemo() {
+  return (
+    <div className="space-y-8">
+      <Variant label="Title only">
+        <NestedPageHeading title="Devices" />
+      </Variant>
+      <Variant label="Title + subtitle">
+        <NestedPageHeading title="Devices" subtitle="12 connected · 2 offline" />
+      </Variant>
+      <Variant label="Title + badges + actions">
+        <NestedPageHeading
+          title="Devices"
+          badges={<Badge variant="secondary">2 offline</Badge>}
+          actions={<Button variant="ghost" size="sm" className="-my-1.5 h-7 text-xs">Manage</Button>}
+        />
+      </Variant>
+    </div>
+  );
+}
+
+/**
+ * The heading-scale ladder, end to end, so the scale relationship between the
+ * three rungs is visible at a glance: page title (h1) > nested page title (h2)
+ * > section overline (h2).
+ */
+function HeadingLadderDemo() {
+  return (
+    <div className="max-w-2xl space-y-8">
+      <Variant label="Rung 1 · PageHeader — page title (h1)">
+        <PageHeader title="Order #1042" subtitle="Acme Corp · 8 Nov 2024" />
+      </Variant>
+      <Variant label="Rung 2 · NestedPageHeading — nested page title (h2)">
+        <NestedPageHeading title="Devices" />
+      </Variant>
+      <Variant label="Rung 3 · SectionHeading — section overline (h2)">
+        <SectionHeading title="Details" />
       </Variant>
     </div>
   );
@@ -590,6 +638,8 @@ function SurfaceHeaderDemo() {
 export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "surface-header", displayName: "SurfaceHeader / header fill", Demo: SurfaceHeaderDemo },
   { slug: "page-header", displayName: "PageHeader", Demo: PageHeaderDemo },
+  { slug: "nested-page-heading", displayName: "NestedPageHeading", Demo: NestedPageHeadingDemo },
+  { slug: "heading-ladder", displayName: "Heading ladder (page · nested · section)", Demo: HeadingLadderDemo },
   { slug: "section-heading", displayName: "SectionHeading", Demo: SectionHeadingDemo },
   { slug: "section-card", displayName: "SectionCard", Demo: SectionCardDemo },
   { slug: "stat-tiles", displayName: "StatTileRow / StatTile", Demo: StatTilesDemo },

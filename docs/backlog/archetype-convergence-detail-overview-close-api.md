@@ -112,7 +112,7 @@ contract reserves for the exception.
 ## Related
 
 - [archetype-convergence.md](archetype-convergence.md) — parent roadmap, Phase 1
-- [archetype-convergence-nested-heading-primitive.md](archetype-convergence-nested-heading-primitive.md)
+- [archetype-convergence-nested-heading-primitive.md](archive/archetype-convergence-nested-heading-primitive.md)
   — depends on: the shell composes it for Mode B
 - [archetype-convergence-phase0-appearance-locality-decision.md](archive/archetype-convergence-phase0-appearance-locality-decision.md)
   — depends on: hard rule 12 is what sorts these props
