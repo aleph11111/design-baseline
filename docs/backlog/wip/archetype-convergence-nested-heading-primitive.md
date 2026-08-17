@@ -20,7 +20,7 @@ gate:
 
 ## Context
 
-Phase 1 of the [archetype-convergence roadmap](archetype-convergence.md). The
+Phase 1 of the [archetype-convergence roadmap](../archetype-convergence.md). The
 detail-overview contract declares two first-class header modes, and Mode B is
 unimplemented. `docs/archetypes/detail-overview.md:351` says a nested page
 *"**may** introduce a section-level `<h2>`"* with no scale and no weight
@@ -71,10 +71,10 @@ layout owns the `<h1>`.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap, Phase 1
-- [archetype-convergence-phase0-appearance-locality-decision.md](archive/archetype-convergence-phase0-appearance-locality-decision.md)
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap, Phase 1
+- [archetype-convergence-phase0-appearance-locality-decision.md](../archive/archetype-convergence-phase0-appearance-locality-decision.md)
   — depends on: no-variant-prop is hard rule 12
-- [matrix-grid-page-header-inconsistency.md](archive/matrix-grid-page-header-inconsistency.md)
+- [matrix-grid-page-header-inconsistency.md](../archive/matrix-grid-page-header-inconsistency.md)
   — the same class of defect resolved in a contract rather than a primitive
-- [test-gap-page-header-no-tests.md](archive/test-gap-page-header-no-tests.md)
+- [test-gap-page-header-no-tests.md](../archive/test-gap-page-header-no-tests.md)
   — the sibling primitive's test convention
