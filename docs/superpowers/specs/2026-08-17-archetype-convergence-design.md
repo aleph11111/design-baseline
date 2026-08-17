@@ -1,4 +1,5 @@
 ---
+ticket: archetype-convergence
 title: Archetype convergence — close the archetype API, then distribute it as a package
 date: 2026-08-17
 status: locked
