@@ -14,6 +14,15 @@
 // Warnings exit 0 (allowed during rollout); any `error`-severity hit exits 1. That is the
 // ratchet: flip a rule to `"severity": "error"` in _adherence.json once its class is clean.
 //
+// A rule may carry an optional `include` glob (repo-root-relative, e.g.
+// `"src/components/archetypes/**"` or `"src/components/archetypes/**/*Shell.tsx"`) that
+// restricts it to that path set — checked against each walked file's path relative to the
+// repo root (`**` spans any run of directory segments, `*` matches within one). Rules
+// without an `include` match every walked file, as before. That is what lets an
+// archetype-layer rule (e.g. an appearance-prop ban) scope to
+// `src/components/archetypes/` without firing on `src/components/ui/` leaves, where
+// `variant` / `size` props are correct shadcn practice.
+//
 // Usage:  node scripts/lint-design.mjs
 // Config: ADHERENCE_CONFIG=path overrides the default `_adherence.json`.
 
@@ -65,9 +74,41 @@ function walk(dir, acc) {
 
 const files = targets.flatMap((t) => walk(join(root, t), []));
 
+// Translate a repo-root-relative path glob into an anchored RegExp. `**` spans any run of
+// directory segments (including none); `*` matches within a single segment. Only the two
+// wildcards the rule shape needs — a full glob engine would be dead weight for a zero-dep
+// scanner.
+function globToRegExp(glob) {
+  const parts = glob.split('/');
+  // A `**` part matches zero or more whole path segments; a `*` matches within one
+  // segment. Only the two wildcards the rule shape needs — a full glob engine would be
+  // dead weight for a zero-dep scanner. Encoded per position: a leading `**` becomes
+  // `(?:seg/)*` (units trail their separator); a `**` elsewhere becomes `(?:/seg)*`
+  // (units lead with theirs, so the concrete part's own slash still applies).
+  if (parts.length === 1 && parts[0] === '**') return new RegExp('^(.*)$');
+  const esc = (s) => s.replace(/[.*+?^${}()[]\\]/g, '\\$&');
+  let re = '';
+  for (let i = 0; i < parts.length; i++) {
+    const p = parts[i];
+    if (p === '**') {
+      re += i === 0 ? '(?:[^/]+/)*' : '(?:/[^/]+)*';
+      continue;
+    }
+    // A concrete part takes a leading `/` (unless first). One exception: right after a
+    // *leading* `**`, whose `(?:seg/)*` units already carry the trailing slash when
+    // non-empty — a second slash would be wrong. (After a *non-leading* `**`, the slash
+    // is required: when `**` matches zero segments it is the only separator. `a/**/b`
+    // must still match `a/b`.)
+    if (i > 0 && !(i === 1 && parts[0] === '**')) re += '/';
+    re += p.split('*').map(esc).join('[^/]*');
+  }
+  return new RegExp('^' + re + '$');
+}
+
 // Compile each rule once. `pattern` is used verbatim; a `tag` rule matches a bare lowercase
 // element — `<tag` immediately followed by whitespace, `/`, or `>` — case-sensitive (no `i`
-// flag) so the capitalized DS primitive `<Button>` is not a hit.
+// flag) so the capitalized DS primitive `<Button>` is not a hit. An `include` glob, when
+// present, restricts the rule to walked files whose repo-root-relative path matches it.
 const compiled = rules.map((rule) => {
   const source = rule.pattern ?? `<${rule.tag}(?=[\\s/>])`;
   try {
@@ -76,6 +117,7 @@ const compiled = rules.map((rule) => {
       label: rule.tag ? `<${rule.tag}>` : rule.id,
       severity: rule.severity === 'error' ? 'error' : 'warn',
       message: rule.message,
+      include: rule.include ? globToRegExp(rule.include) : null,
     };
   } catch (err) {
     console.error(`lint:design — rule ${rule.id}: bad pattern /${source}/: ${err.message}`);
@@ -87,11 +129,12 @@ const violations = [];
 let warnings = 0;
 let errors = 0;
 for (const file of files) {
+  const fileRel = relative(root, file);
   const lines = readFileSync(file, 'utf8').split('\n');
-  for (const { re, label, severity, message } of compiled) {
+  for (const { re, label, severity, message, include } of compiled) {
+    if (include && !include.test(fileRel)) continue; // rule not scoped to this path
     lines.forEach((line, i) => {
       for (const m of line.matchAll(re)) {
-        const fileRel = relative(root, file);
         const v = { file: fileRel, line: i + 1, rule: label, severity, message };
         violations.push(v);
         if (severity === 'error') errors++; else warnings++;

@@ -21,6 +21,11 @@ violations. Keep them in sync: change one, change the other. `raw-html-control` 
 narrowed to `input|select|textarea` — `button` and `table` already have dedicated tag rules, and
 the full alternation would double-warn the same line.
 
+A rule may also carry an optional `include` glob (repo-root-relative), restricting it to that path
+set — `**` spans any run of directory segments, `*` matches within one. This is what lets a rule
+target a single layer of the tree without firing on the rest: the `src`-wide `targets` would
+otherwise flag `src/components/ui/`, where `variant` and `size` are correct shadcn practice.
+
 `targets` lists the directory roots the scanner walks for `.tsx` files. The donor ships `["src"]`;
 a consumer retargets it to its app-page directories (e.g. `["src/app/(app)"]`), since these bans
 apply to page bodies, not marketing/auth chrome or the primitive definitions themselves (the DS
@@ -30,6 +35,47 @@ apply to page bodies, not marketing/auth chrome or the primitive definitions the
 > does not implement (`Rule 'no-restricted-syntax' not found`), and carried `_`-prefixed comment
 > keys oxlint rejects as `unknown field` — so it loaded nothing and enforced nothing. Replaced by
 > this zero-dep scanner (ADR-0003).
+
+## The `archetype-*` appearance-prop rules (enforcing hard rule 12)
+
+These four ship at `severity: warn` in the archetype-convergence Phase 1
+(`docs/backlog/archetype-convergence.md`) and are `include`-scoped to
+`src/components/archetypes/` so the shadcn leaf layer (`src/components/ui/`) is never flagged.
+Their `message` cites `docs/RULES.md` hard rule 12 — an appearance is either global (a token, or
+one of the closed project contexts set once at `<AppShell>`) or fixed in the component; a
+per-call-site prop is legal only if the contract derives it. They exist because prose has not held
+the rule: eighty-nine `archetype-rollout` tickets were filed against hk-crm before the mechanical
+check landed.
+
+| id | shape caught | include |
+|---|---|---|
+| `archetype-appearance-noun-prop` | a prop named from the appearance-noun list (`surface`, `variant`, `tone`, `density`, `appearance`, `rhythm`, `fill`, `framed`, `bordered`, `compact`, `padded`) | `src/components/archetypes/**` |
+| `archetype-look-union-prop` | a prop typed as an inline string-literal union of look-names | `src/components/archetypes/**` |
+| `archetype-shell-class-name` | `className` declared on a `*Shell` component | `src/components/archetypes/**/*Shell.tsx` |
+| `archetype-appearance-slot` | an appearance-bearing `ReactNode` slot (`header`, `stats`) | `src/components/archetypes/**` |
+
+Two deliberate boundary choices:
+
+- **`shell-class-name` matches the declaration, not the usage.** The pattern anchors on the
+  `className\??: string` type-annotation form (leading whitespace, then the prop name, `?:`, and
+  the `string` type), so it catches a top-level *and* an indented prop declaration but not a
+  bare use of a prop named `className`. The consequence: line-only matching cannot tell the
+  shell's own escape hatch from a nested declaration that happens to read the same —
+  `MatrixGridShell`'s per-cell `cellStyle` return type `{ className?: string }` is flagged
+  alongside the shell's real one, and `SettingsPageShell`'s (extended into the shell props) is
+  flagged too. That conservative over-match is acceptable for a `warn`-tier audit hit: each
+  flagged line is triaged when the archetype's class drains.
+- **No inherited-default rule.** Catching a prop whose default the contract does not state requires
+  reading contract prose against code and is not expressible as a line pattern. It stays a review
+  step in the contract-close work; the `width` finding in the design spec stands as the evidence a
+  human catches what the scanner cannot.
+
+The first run's `warn` hits are recorded as
+[`docs/audits/2026-archetype-appearance-prop-audit.md`](docs/audits/2026-archetype-appearance-prop-audit.md)
+(the companion `.json` carries the structured list). That list *is* the roadmap's `?`-marked
+"audit the remaining twenty archetypes in MANIFEST order": the decompose loop files against a list
+with a known length (16 archetypes flagged on first run) rather than a prediction. As each archetype
+closes its class, flip its rules to `severity: error` — the ratchet above does the rest.
 
 ## Candidate rules — still awaiting custom tooling
 
