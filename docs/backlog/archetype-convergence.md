@@ -3,8 +3,14 @@ area: archetypes
 opened: '2026-08-17'
 status: active
 kind: roadmap
+spec: docs/superpowers/specs/2026-08-17-archetype-convergence-design.md
 scope:
   - archetype-convergence-*
+tickets:
+  - archetype-convergence-phase0-appearance-locality-decision
+  - archetype-convergence-nested-heading-primitive
+  - archetype-convergence-detail-overview-close-api
+  - archetype-convergence-appearance-prop-lint
 ---
 
 # Archetype convergence — close the archetype API, then distribute it as a package
