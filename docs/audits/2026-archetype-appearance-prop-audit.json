@@ -1,0 +1,321 @@
+{
+  "date": "2026-08-17",
+  "source": "node scripts/lint-design.mjs --json",
+  "rules_matched": {
+    "archetype-appearance-noun-prop": 6,
+    "archetype-look-union-prop": 13,
+    "archetype-shell-class-name": 14,
+    "archetype-appearance-slot": 2
+  },
+  "by_archetype": {
+    "list-with-detail": 4,
+    "form-page": 2,
+    "detail-overview": 8,
+    "settings-table": 2,
+    "crud-dialog": 2,
+    "grouped-list": 1,
+    "matrix-grid": 2,
+    "tabbed-settings": 1,
+    "analytics-dashboard": 1,
+    "import-wizard": 1,
+    "feed-inbox": 1,
+    "kanban-board": 1,
+    "report": 2,
+    "calendar": 2,
+    "overline-typed": 1,
+    "entity-circle": 1
+  },
+  "flagged_props": [
+    {
+      "archetype": "list-with-detail",
+      "file": "src/components/archetypes/list-with-detail/ListWithDetailShell.tsx",
+      "line": 44,
+      "prop": "align?: \"left\" | \"right\" | \"center\";",
+      "rules": [
+        "look-union-prop"
+      ]
+    },
+    {
+      "archetype": "list-with-detail",
+      "file": "src/components/archetypes/list-with-detail/ListWithDetailShell.tsx",
+      "line": 71,
+      "prop": "detailPresentation?: \"rail\" | \"drawer\";",
+      "rules": [
+        "look-union-prop"
+      ]
+    },
+    {
+      "archetype": "list-with-detail",
+      "file": "src/components/archetypes/list-with-detail/ListWithDetailShell.tsx",
+      "line": 106,
+      "prop": "presentation?: \"table\" | \"card-grid\" | \"action-row\";",
+      "rules": [
+        "look-union-prop"
+      ]
+    },
+    {
+      "archetype": "list-with-detail",
+      "file": "src/components/archetypes/list-with-detail/ListWithDetailShell.tsx",
+      "line": 114,
+      "prop": "className?: string;",
+      "rules": [
+        "shell-class-name"
+      ]
+    },
+    {
+      "archetype": "form-page",
+      "file": "src/components/archetypes/form-page/FormPageShell.tsx",
+      "line": 29,
+      "prop": "width?: \"sm\" | \"md\" | \"lg\" | \"xl\";",
+      "rules": [
+        "look-union-prop"
+      ]
+    },
+    {
+      "archetype": "form-page",
+      "file": "src/components/archetypes/form-page/FormPageShell.tsx",
+      "line": 31,
+      "prop": "className?: string;",
+      "rules": [
+        "shell-class-name"
+      ]
+    },
+    {
+      "archetype": "detail-overview",
+      "file": "src/components/archetypes/detail-overview/DetailOverviewShell.tsx",
+      "line": 30,
+      "prop": "header?: React.ReactNode;",
+      "rules": [
+        "appearance-slot"
+      ]
+    },
+    {
+      "archetype": "detail-overview",
+      "file": "src/components/archetypes/detail-overview/DetailOverviewShell.tsx",
+      "line": 32,
+      "prop": "stats?: React.ReactNode;",
+      "rules": [
+        "appearance-slot"
+      ]
+    },
+    {
+      "archetype": "detail-overview",
+      "file": "src/components/archetypes/detail-overview/DetailOverviewShell.tsx",
+      "line": 35,
+      "prop": "rhythm?: \"compact\" | \"default\";",
+      "rules": [
+        "appearance-noun-prop",
+        "look-union-prop"
+      ]
+    },
+    {
+      "archetype": "detail-overview",
+      "file": "src/components/archetypes/detail-overview/DetailOverviewShell.tsx",
+      "line": 36,
+      "prop": "width?: \"none\" | \"md\" | \"lg\" | \"xl\";",
+      "rules": [
+        "look-union-prop"
+      ]
+    },
+    {
+      "archetype": "detail-overview",
+      "file": "src/components/archetypes/detail-overview/DetailOverviewShell.tsx",
+      "line": 37,
+      "prop": "layout?: \"vertical\" | \"rail\";",
+      "rules": [
+        "look-union-prop"
+      ]
+    },
+    {
+      "archetype": "detail-overview",
+      "file": "src/components/archetypes/detail-overview/DetailOverviewShell.tsx",
+      "line": 52,
+      "prop": "surface?: \"separated\" | \"unified\";",
+      "rules": [
+        "appearance-noun-prop",
+        "look-union-prop"
+      ]
+    },
+    {
+      "archetype": "detail-overview",
+      "file": "src/components/archetypes/detail-overview/DetailOverviewShell.tsx",
+      "line": 59,
+      "prop": "className?: string;",
+      "rules": [
+        "shell-class-name"
+      ]
+    },
+    {
+      "archetype": "detail-overview",
+      "file": "src/components/archetypes/detail-overview/DetailSection.tsx",
+      "line": 36,
+      "prop": "tone?: \"default\" | \"muted\";",
+      "rules": [
+        "appearance-noun-prop",
+        "look-union-prop"
+      ]
+    },
+    {
+      "archetype": "settings-table",
+      "file": "src/components/archetypes/settings-table/SettingsTableShell.tsx",
+      "line": 37,
+      "prop": "align?: \"left\" | \"right\" | \"center\";",
+      "rules": [
+        "look-union-prop"
+      ]
+    },
+    {
+      "archetype": "settings-table",
+      "file": "src/components/archetypes/settings-table/SettingsTableShell.tsx",
+      "line": 101,
+      "prop": "className?: string;",
+      "rules": [
+        "shell-class-name"
+      ]
+    },
+    {
+      "archetype": "crud-dialog",
+      "file": "src/components/archetypes/crud-dialog/CrudDialogBody.tsx",
+      "line": 27,
+      "prop": "layout?: \"flat\" | \"two-column\";",
+      "rules": [
+        "look-union-prop"
+      ]
+    },
+    {
+      "archetype": "crud-dialog",
+      "file": "src/components/archetypes/crud-dialog/CrudDialogSheet.tsx",
+      "line": 27,
+      "prop": "width?: \"sm\" | \"md\" | \"lg\";",
+      "rules": [
+        "look-union-prop"
+      ]
+    },
+    {
+      "archetype": "grouped-list",
+      "file": "src/components/archetypes/grouped-list/GroupedListShell.tsx",
+      "line": 26,
+      "prop": "className?: string;",
+      "rules": [
+        "shell-class-name"
+      ]
+    },
+    {
+      "archetype": "matrix-grid",
+      "file": "src/components/archetypes/matrix-grid/MatrixGridShell.tsx",
+      "line": 62,
+      "prop": "className?: string;",
+      "rules": [
+        "shell-class-name"
+      ]
+    },
+    {
+      "archetype": "matrix-grid",
+      "file": "src/components/archetypes/matrix-grid/MatrixGridShell.tsx",
+      "line": 83,
+      "prop": "className?: string;",
+      "rules": [
+        "shell-class-name"
+      ]
+    },
+    {
+      "archetype": "tabbed-settings",
+      "file": "src/components/archetypes/tabbed-settings/SettingsPageShell.tsx",
+      "line": 45,
+      "prop": "className?: string;",
+      "rules": [
+        "shell-class-name"
+      ]
+    },
+    {
+      "archetype": "analytics-dashboard",
+      "file": "src/components/archetypes/analytics-dashboard/DashboardShell.tsx",
+      "line": 18,
+      "prop": "className?: string;",
+      "rules": [
+        "shell-class-name"
+      ]
+    },
+    {
+      "archetype": "import-wizard",
+      "file": "src/components/archetypes/import-wizard/WizardShell.tsx",
+      "line": 31,
+      "prop": "className?: string;",
+      "rules": [
+        "shell-class-name"
+      ]
+    },
+    {
+      "archetype": "feed-inbox",
+      "file": "src/components/archetypes/feed-inbox/FeedShell.tsx",
+      "line": 24,
+      "prop": "className?: string;",
+      "rules": [
+        "shell-class-name"
+      ]
+    },
+    {
+      "archetype": "kanban-board",
+      "file": "src/components/archetypes/kanban-board/BoardShell.tsx",
+      "line": 19,
+      "prop": "className?: string;",
+      "rules": [
+        "shell-class-name"
+      ]
+    },
+    {
+      "archetype": "report",
+      "file": "src/components/archetypes/report/ReportShell.tsx",
+      "line": 27,
+      "prop": "width?: \"sm\" | \"md\" | \"lg\";",
+      "rules": [
+        "look-union-prop"
+      ]
+    },
+    {
+      "archetype": "report",
+      "file": "src/components/archetypes/report/ReportShell.tsx",
+      "line": 28,
+      "prop": "className?: string;",
+      "rules": [
+        "shell-class-name"
+      ]
+    },
+    {
+      "archetype": "calendar",
+      "file": "src/components/archetypes/calendar/CalendarShell.tsx",
+      "line": 30,
+      "prop": "tone?: CalendarEventTone;",
+      "rules": [
+        "appearance-noun-prop"
+      ]
+    },
+    {
+      "archetype": "calendar",
+      "file": "src/components/archetypes/calendar/CalendarShell.tsx",
+      "line": 56,
+      "prop": "className?: string;",
+      "rules": [
+        "shell-class-name"
+      ]
+    },
+    {
+      "archetype": "overline-typed",
+      "file": "src/components/archetypes/overline-typed/overline.tsx",
+      "line": 43,
+      "prop": "tone?: OverlineTone;",
+      "rules": [
+        "appearance-noun-prop"
+      ]
+    },
+    {
+      "archetype": "entity-circle",
+      "file": "src/components/archetypes/entity-circle/EntityAvatar.tsx",
+      "line": 16,
+      "prop": "tone?: EntityAvatarTone;",
+      "rules": [
+        "appearance-noun-prop"
+      ]
+    }
+  ]
+}

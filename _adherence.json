@@ -36,6 +36,34 @@
       "pattern": "<(input|select|textarea)\\b",
       "severity": "warn",
       "message": "Use the shadcn atom — Input / Select / Textarea (audit-signals: raw-html-control)."
+    },
+    {
+      "id": "archetype-appearance-noun-prop",
+      "pattern": "^\\s*(surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded)\\?\\s*:",
+      "severity": "warn",
+      "include": "src/components/archetypes/**",
+      "message": "A prop named from the appearance-noun list is a per-call-site appearance the contract does not derive (RULES.md hard rule 12)."
+    },
+    {
+      "id": "archetype-look-union-prop",
+      "pattern": "^\\s*\\w+\\??:\\s*\"[^\"]+\"\\s*\\|\\s*\"[^\"]+\"",
+      "severity": "warn",
+      "include": "src/components/archetypes/**",
+      "message": "A prop typed as an inline string-literal union of look-names is a design space two projects can fill differently (RULES.md hard rule 12)."
+    },
+    {
+      "id": "archetype-shell-class-name",
+      "pattern": "^\\s*className\\?\\s*:\\s*string",
+      "severity": "warn",
+      "include": "src/components/archetypes/**/*Shell.tsx",
+      "message": "`className` is an unenumerable superset escape hatch on a *Shell — fork the component instead (RULES.md hard rule 12)."
+    },
+    {
+      "id": "archetype-appearance-slot",
+      "pattern": "^\\s*(header|stats)\\?\\s*:\\s*(React\\.)?ReactNode",
+      "severity": "warn",
+      "include": "src/components/archetypes/**",
+      "message": "An appearance-bearing `ReactNode` slot (`header`, `stats`) is a per-call-site appearance prop by another name (RULES.md hard rule 12)."
     }
   ]
 }
