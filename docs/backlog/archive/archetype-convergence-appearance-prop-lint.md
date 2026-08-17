@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-08-17
-status: ready
+status: done
 value: high
 roadmap: archetype-convergence
 spec: docs/superpowers/specs/2026-08-17-archetype-convergence-design.md
