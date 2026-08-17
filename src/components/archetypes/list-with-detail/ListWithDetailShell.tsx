@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { useHeaderFill, headerFillClasses } from "@/components/layout/headerFill";
 import {
   SurfaceHeaderSlot,
@@ -241,14 +241,25 @@ function ListWithDetailShellInner<Row>(
                   hfc.bar,
                 )}
               >
-                <div className={cn("min-w-0 truncate text-lg font-semibold", hfc.title)}>
+                {/* SheetTitle so Radix Dialog gets an accessible name (aria-labelledby).
+                    SheetDescription is screen-reader-only fallback so Content never
+                    renders without a description — matching the J archetype fix. */}
+                <SheetTitle className={cn("min-w-0 truncate text-lg font-semibold leading-tight", hfc.title)}>
                   {detailTitle}
-                </div>
+                </SheetTitle>
                 {detailActions ? (
                   <div className="flex shrink-0 items-center gap-2 pr-8">{detailActions}</div>
                 ) : null}
+                <SheetDescription className="sr-only" />
               </div>
-            ) : null}
+            ) : (
+              <>
+                {/* No title — inject sr-only SheetTitle + SheetDescription so
+                     Radix doesn't warn about a missing accessible name or description. */}
+                <SheetTitle className="sr-only" />
+                <SheetDescription className="sr-only" />
+              </>
+            )}
             <div className="min-h-0 flex-1 overflow-y-auto">{detail}</div>
           </SheetContent>
         </Sheet>
