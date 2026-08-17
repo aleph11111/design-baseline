@@ -136,7 +136,6 @@ export function SettingsTableShell<Row>({
   kicker,
   title,
   headerActions,
-  headerFill,
   className,
 }: SettingsTableShellProps<Row>): React.ReactElement {
   const hasActions =
@@ -330,7 +329,6 @@ export function SettingsTableShell<Row>({
         kicker={kicker}
         title={title}
         headerActions={headerActions}
-        headerFill={headerFill}
       />
       {toolbarRow}
       <div className="overflow-x-auto">

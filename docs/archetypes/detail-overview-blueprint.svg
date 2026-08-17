@@ -186,7 +186,7 @@
   <!-- ==================================================================== -->
   <text x="40" y="1056" class="title">Command Rail variant — layout="rail" · lg+ placement</text>
   <text x="40" y="1078" class="sub">The SAME ordered slots placed in 2D: sticky identity rail (summary + references) beside a scrolling main column (stats + content).</text>
-  <text x="40" y="1094" class="sub">Recommended pairing: surface="unified" — one bounded frame on the muted page mat.</text>
+  <text x="40" y="1094" class="sub">One bounded frame on the muted page mat — the shell's single container model.</text>
 
   <!-- unified outer frame -->
   <rect x="40" y="1100" width="640" height="490" class="frame" rx="10"/>
@@ -276,7 +276,7 @@
   <g>
     <line x1="656" y1="1150" x2="730" y2="1150" class="lead"/>
     <text x="738" y="1134" class="noteB">1 · header — full-width across the frame</text>
-    <text x="738" y="1152" class="note">Spans rail + main. In surface="unified" this bar follows the</text>
+    <text x="738" y="1152" class="note">Spans rail + main. The frame's header bar follows the</text>
     <text x="738" y="1168" class="note">--header-fill contract (solid default: accent fill, inverted</text>
     <text x="738" y="1184" class="note">actions; tint / white are the quieter steps).</text>
 
@@ -306,6 +306,6 @@
   <g>
     <text x="40" y="1648" class="noteB">Rail rules:</text>
     <text x="128" y="1648" class="note">sanctioned two-column layout ONLY via layout="rail" — ad-hoc sidebars and hand-rolled columns stay forbidden · use for dense transactional</text>
-    <text x="128" y="1666" class="note">records (orders, deals, invoices); otherwise stay vertical · recommended pairing: layout="rail" surface="unified".</text>
+    <text x="128" y="1666" class="note">records (orders, deals, invoices); otherwise stay vertical · canonical pairing: layout="rail".</text>
   </g>
 </svg>

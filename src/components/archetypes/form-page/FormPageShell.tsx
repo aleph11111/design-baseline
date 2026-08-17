@@ -72,7 +72,6 @@ export function FormPageShell({
   kicker,
   title,
   headerActions,
-  headerFill,
   className,
 }: FormPageShellProps): React.ReactElement {
   if (title !== undefined) {
@@ -88,7 +87,6 @@ export function FormPageShell({
           kicker={kicker}
           title={title}
           headerActions={headerActions}
-          headerFill={headerFill}
         />
         <div className="p-5 space-y-5">{children}</div>
       </div>

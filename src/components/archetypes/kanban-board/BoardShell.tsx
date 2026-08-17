@@ -35,7 +35,6 @@ export function BoardShell({
   kicker,
   title,
   headerActions,
-  headerFill,
   toolbar,
   className,
 }: BoardShellProps): React.ReactElement {
@@ -46,7 +45,6 @@ export function BoardShell({
           kicker={kicker}
           title={title}
           headerActions={headerActions}
-          headerFill={headerFill}
         />
         {toolbar && <div className="border-b px-4 py-3">{toolbar}</div>}
         <div className="flex items-start gap-4 overflow-x-auto p-4 pb-6">

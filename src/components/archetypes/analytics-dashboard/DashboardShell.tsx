@@ -37,7 +37,6 @@ export function DashboardShell({
   kicker,
   title,
   headerActions,
-  headerFill,
   children,
   className,
 }: DashboardShellProps): React.ReactElement {
@@ -52,7 +51,6 @@ export function DashboardShell({
         kicker={kicker}
         title={title}
         headerActions={headerActions}
-        headerFill={headerFill}
       />
       <div className="px-5 py-4">{children}</div>
     </div>

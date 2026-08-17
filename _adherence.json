@@ -42,28 +42,67 @@
       "pattern": "^\\s*(surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded)\\?\\s*:",
       "severity": "warn",
       "include": "src/components/archetypes/**",
-      "message": "A prop named from the appearance-noun list is a per-call-site appearance the contract does not derive (RULES.md hard rule 12)."
+      "exclude": "src/components/archetypes/detail-overview/**",
+      "message": "A prop named from the appearance-noun list is a per-call-site appearance the contract does not derive (RULES.md hard rule 12). detail-overview is closed and gated by its own `detail-overview-*` error rules."
     },
     {
       "id": "archetype-look-union-prop",
       "pattern": "^\\s*\\w+\\??:\\s*\"[^\"]+\"\\s*\\|\\s*\"[^\"]+\"",
       "severity": "warn",
       "include": "src/components/archetypes/**",
-      "message": "A prop typed as an inline string-literal union of look-names is a design space two projects can fill differently (RULES.md hard rule 12)."
+      "exclude": "src/components/archetypes/detail-overview/**",
+      "message": "A prop typed as an inline string-literal union of look-names is a design space two projects can fill differently (RULES.md hard rule 12). detail-overview is closed and gated by its own `detail-overview-*` error rules."
     },
     {
       "id": "archetype-shell-class-name",
       "pattern": "^\\s*className\\?\\s*:\\s*string",
       "severity": "warn",
       "include": "src/components/archetypes/**/*Shell.tsx",
-      "message": "`className` is an unenumerable superset escape hatch on a *Shell — fork the component instead (RULES.md hard rule 12)."
+      "exclude": "src/components/archetypes/detail-overview/**",
+      "message": "`className` is an unenumerable superset escape hatch on a *Shell — fork the component instead (RULES.md hard rule 12). detail-overview is closed and gated by its own `detail-overview-*` error rules."
     },
     {
       "id": "archetype-appearance-slot",
       "pattern": "^\\s*(header|stats)\\?\\s*:\\s*(React\\.)?ReactNode",
       "severity": "warn",
       "include": "src/components/archetypes/**",
-      "message": "An appearance-bearing `ReactNode` slot (`header`, `stats`) is a per-call-site appearance prop by another name (RULES.md hard rule 12)."
+      "exclude": "src/components/archetypes/detail-overview/**",
+      "message": "An appearance-bearing `ReactNode` slot (`header`, `stats`) is a per-call-site appearance prop by another name (RULES.md hard rule 12). detail-overview is closed and gated by its own `detail-overview-*` error rules."
+    },
+    {
+      "id": "detail-overview-surface-prop",
+      "pattern": "^\\s*surface\\?\\s*:",
+      "severity": "error",
+      "include": "src/components/archetypes/detail-overview/**",
+      "message": "detail-overview's `surface` axis is deleted — `unified` is the only container model (archetype-convergence detail-overview close-API). Re-adding it reopens the inherited-default defect (RULES.md hard rule 12)."
+    },
+    {
+      "id": "detail-overview-rhythm-prop",
+      "pattern": "^\\s*rhythm\\?\\s*:",
+      "severity": "error",
+      "include": "src/components/archetypes/detail-overview/**",
+      "message": "detail-overview's `rhythm` prop is deleted — the contract sets no 'short' threshold, so nobody derives the same value (RULES.md hard rule 12)."
+    },
+    {
+      "id": "detail-overview-shell-class-name",
+      "pattern": "^\\s*className\\?\\s*:\\s*string",
+      "severity": "error",
+      "include": "src/components/archetypes/detail-overview/DetailOverviewShell.tsx",
+      "message": "`className` is an unenumerable superset escape hatch on the detail-overview shell — `className=\"border-0 shadow-none\"` reconstitutes the deleted `surface=\"separated\"` (RULES.md hard rule 12)."
+    },
+    {
+      "id": "detail-overview-appearance-slot",
+      "pattern": "^\\s*(header|stats)\\?\\s*:\\s*(React\\.)?ReactNode",
+      "severity": "error",
+      "include": "src/components/archetypes/detail-overview/**",
+      "message": "detail-overview's `header` / `stats` are typed data (`title`/`subtitle`/`badges`/`actions`, `stats: StatItem[]`), not appearance-bearing `ReactNode` slots (RULES.md hard rule 12)."
+    },
+    {
+      "id": "detail-overview-headerfill-prop",
+      "pattern": "^\\s*headerFill\\?\\s*:",
+      "severity": "error",
+      "include": "src/components/archetypes/detail-overview/**",
+      "message": "detail-overview accepts no `headerFill` override — it is a closed project context set once at `<AppShell>`; an override next to it is the escape-hatch defect this roadmap removes (RULES.md hard rule 12)."
     }
   ]
 }
