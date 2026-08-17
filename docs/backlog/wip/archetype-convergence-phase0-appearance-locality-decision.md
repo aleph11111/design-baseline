@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-08-17
-status: ready
+status: done
 value: high
 roadmap: archetype-convergence
 spec: docs/superpowers/specs/2026-08-17-archetype-convergence-design.md
@@ -40,10 +40,10 @@ against it, so it lands first.
 
 ## What to do
 
-- [ ] Write `docs/adr/0004-<slug>.md` adopting the derived-vs-inherited rule, and
+- [x] Write `docs/adr/0004-<slug>.md` adopting the derived-vs-inherited rule, and
       add its row to `docs/adr/INDEX.md` (per the file's own "Add a row here when
       you add an ADR" instruction).
-- [ ] Record the distribution split the roadmap's Phase 0 asks for:
+- [x] Record the distribution split the roadmap's Phase 0 asks for:
       `src/components/ui/` primitives stay vendored (leaves, byte-identical
       across the fleet, shadcn's copy-in model is right for them);
       `src/components/archetypes/` compositions ship as a source package,
@@ -53,25 +53,25 @@ against it, so it lands first.
       shipping no compiled CSS has no skew, because the consumer's own Tailwind 4
       build compiles every class. ADR-0030's other objection (no publishable
       artifact exists) is not refuted here; it is Phase 2's work.
-- [ ] Add hard rule 12 to `docs/RULES.md` in the existing numbered format with a
+- [x] Add hard rule 12 to `docs/RULES.md` in the existing numbered format with a
       "Why:" clause, matching rules 1-11: the three tiers (token / context /
       fixed in component), the derived-vs-inherited test for a legal
       per-call-site prop, the disqualifying backwards-compatible default, and
       that an appearance-bearing `ReactNode` slot is governed identically.
-- [ ] Name the closed context set explicitly in the rule: after Phase 1 it has
+- [x] Name the closed context set explicitly in the rule: after Phase 1 it has
       exactly one member, `headerFill`, and context axes carry no override prop.
 
 ## Acceptance
 
-- [ ] `docs/adr/INDEX.md` lists ADR-0004 with status Accepted, and the ADR body
+- [x] `docs/adr/INDEX.md` lists ADR-0004 with status Accepted, and the ADR body
       names hk-crm ADR-0030 and scopes the supersession to its skew argument.
-- [ ] `docs/RULES.md` hard rule 12 states the derived-vs-inherited test and
+- [x] `docs/RULES.md` hard rule 12 states the derived-vs-inherited test and
       names `headerFill` as the closed context set's only member.
-- [ ] Applying rule 12 to `DetailOverviewShellProps` as written today classifies
+- [x] Applying rule 12 to `DetailOverviewShellProps` as written today classifies
       `surface` and `rhythm` as illegal and `layout` and `width` as legal — the
       rule is specific enough to sort every existing prop, not only the one that
       prompted it.
-- [ ] No ticket in the `archetype-convergence-*` scope is left citing the
+- [x] No ticket in the `archetype-convergence-*` scope is left citing the
       roadmap's original "never a per-call-site prop" phrasing; the ADR is the
       single statement of the rule.
 

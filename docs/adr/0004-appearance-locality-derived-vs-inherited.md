@@ -1,0 +1,62 @@
+# 0004 — Appearance locality: global or fixed in the component; per-call-site only when derived
+
+- **Status:** Accepted
+- **Date:** 2026-08-17
+- **Supersedes:** hk-crm's `docs/adr/0030-vendor-stamp-design-baseline.md` (vendor-stamp-not-package), **on its compiled-CSS skew argument only** — see the Supersession section below.
+
+## Context
+
+The [archetype-convergence roadmap](../backlog/archetype-convergence.md) stated its governing rule as: *a visual choice is either global — a token or context, set once per project — or fixed in the component; never a per-call-site prop.* Contact with the code showed that formulation fails in both directions, and the design spec ([`docs/superpowers/specs/2026-08-17-archetype-convergence-design.md`](../superpowers/specs/2026-08-17-archetype-convergence-design.md)) reformulated it before this ADR recorded it:
+
+- **Too loose.** `headerFill` — the roadmap's own exemplar of the correct shape — shipped a per-instance override prop next to `HeaderFillContext` on `SurfaceHeader`, `SurfaceHeaderSlot`, and `DetailOverviewShell`. A rule whose own exemplar carries the escape hatch it forbids cannot be enforced, and an escape hatch that exists gets used: that is exactly how `surface` broke archetype C.
+- **Too strict.** `layout="rail" | "vertical"` is per-call-site, yet the archetype contract carries a decision table keying it to entity profile (dense/transactional/financial entities get the rail, light/early-stage entities stay vertical). An order renders `rail` in hk-crm and `rail` in controlling-app. The literal rule condemns a prop that is not a divergence channel.
+
+The discriminator is not *where the value is passed* but *whether it was derived or inherited*:
+
+| axis | keying rule | outcome |
+|---|---|---|
+| `surface` | none. Default annotated in-source as *"the v2.0/v2.1 look. Zero churn."* | nobody derived it; nobody chose it — twelve tabs inherited it |
+| `layout` | contract decision table keyed to entity profile | two engineers with the same entity derive the same value |
+
+## Decision
+
+**The governing rule is *derived, not inherited*.** This ADR is the single statement of the rule; `docs/RULES.md` hard rule 12 restates it as the enforceable form.
+
+> A visual choice is either **global** — a token, or one of a closed set of project contexts declared once at `<AppShell>` — or **fixed in the component**.
+>
+> A per-call-site prop is legal **only** if the archetype contract carries a decision rule that determines its value from the entity or its data, such that two engineers holding the same entity derive the same value, and its values are exhaustively enumerated there.
+>
+> A backwards-compatible default is disqualifying on its own. It means the value was inherited rather than derived, and inheritance is how a whole fleet ends up on a look nobody chose.
+>
+> An appearance-bearing `ReactNode` slot is a per-call-site appearance prop by another name, and is governed identically.
+
+Three tiers, and the closed context set after Phase 1 has exactly one member:
+
+- **token** — brand: colour, font binding, radius. Declared once per project in `src/styles/tokens.css`.
+- **context** — a closed, enumerated set of project-wide axes, set once at `<AppShell>`, with **no override prop**. Membership: `headerFill`.
+- **fixed in the component** — everything else.
+
+Context axes carry no override prop. The per-instance `headerFill` overrides on `SurfaceHeader`, `SurfaceHeaderSlot`, and `DetailOverviewShell` are deleted in Phase 1; `<AppShell headerFill=…>` is the only entry point.
+
+**`surface` is deleted rather than promoted to a context.** A container model is structure, not brand: the roadmap's "Done when" requires two projects to differ only by declared brand tokens, and a project-level `surface` context would keep the fleet bimodal one level up. hk-crm never chose `separated` — it inherited the default across all twelve tabs, and only one call site passes `unified`. Deleting the mode removes an unchosen default, not a decision.
+
+**The distribution split:**
+
+- `src/components/ui/` primitives **stay vendored** (shadcn's copy-in model). They are leaves, they do not drift — the fleet's copies are byte-identical — and copy-in is correct for them.
+- `src/components/archetypes/` compositions **ship as a source package**, because every observed divergence is compositional: hk-crm's vendored detail-overview primitives are byte-identical to this donor's, and the page is still wrong, because every divergence lives in how twelve route files fill the slots.
+
+## Supersession of hk-crm ADR-0030
+
+hk-crm's `docs/adr/0030-vendor-stamp-design-baseline.md` (2026-07) rejected package consumption of this donor on two grounds:
+
+1. **No publishable artifact exists here.** Not refuted by this ADR — there is in fact no `exports` map and `package.json` is still `private: true`. That objection is discharged by Phase 2's work (the `exports` map over `src/components/archetypes/`, `private: true` dropped, no publish infrastructure needed for a git dependency against a tag), not by a decision recorded here.
+2. **A compiled-CSS package is wrong in principle** — the consumer's compiled bundle and the donor's `tokens.css` drift into version skew.
+
+This ADR supersedes ADR-0030 **on ground 2 only**. The skew argument holds for a package shipping *compiled CSS*, and is void for a source-distributed package shipping none: its `exports` point at `.tsx`, and the consumer's own Tailwind 4 build scans it via `@source` and compiles every class itself. No compiled artifact exists on either side, so nothing can skew. What changes on a version bump is source the consumer was already recompiling — not a prebuilt bundle going stale against a new token sheet.
+
+## Consequences
+
+- `docs/RULES.md` gains hard rule 12 (the enforceable restatement of this rule, including the closed context set).
+- Every other `archetype-convergence-*` ticket is graded against this ADR; the roadmap's original "never a per-call-site prop" phrasing is retired in its favour.
+- Enforcement reuses the ADR-0003 zero-dep scanner: the appearance-prop rules land at `severity: "warn"` and each archetype flips them to `error` as it closes. The *inherited-default* check (a prop whose default the contract does not state) is deliberately not expressible as a rule in that scanner and stays a contract-close review step.
+- Supersession of hk-crm ADR-0030 is partial and named: its skew argument is dead, its no-artifact objection lives until Phase 2.
