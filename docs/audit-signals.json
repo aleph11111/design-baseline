@@ -49,6 +49,13 @@
       "smell": "a kanban board card renders the assignee as bare truncated text instead of the archetype P (kanban-board) IconAvatar chip",
       "shouldBe": "wrap the owner name in the shared IconAvatar primitive (src/components/ui/icon-avatar.tsx), matching src/components/archetypes/feed-inbox/FeedItem.tsx",
       "tier": "yellow"
+    },
+    {
+      "id": "settings-table-binary-toggle-raw-glyph",
+      "regex": "\\?\\s*['\"][^'\"]{1,4}['\"]\\s*:\\s*['\"]—['\"]",
+      "smell": "a table cell renders a boolean column as a raw Unicode-glyph ternary — a short (≤4-char) glyph string literal against a literal em-dash fallback ('✓' : '—', '🔒' : '—', '🚧' : '—') — instead of the shared dot primitive + label its archetype specifies (settings-table D2 Layer 6: brand-primary dot on / muted dot off + label text, token-pure, no glyph literal at the call site). Line-scoped, single-file, no -U window: every hit sits on one line, so it fits molecule (whose regexes are deliberately line-based), not adoptionQuality. Self-discriminating — the em-dash false-branch plus a short-glyph true-branch keeps out the plain-lookup cells (row.x ?? '—'), date ternaries (row.x ? fmtDate(row.x) : '—') and ordinary string ternaries (? 'a' : 'b') alike. Origin: hk-crm archetype-rollout signal proposal filed from the 2026-08-14 settings-table audit (hk-crm ticket archetype-rollout-signal-settings-table-binary-toggle-glyph) — the three named D2 cells (catalog_client aktiv, lookup_settings active/protected, projekt_phasen isGate) were being re-found by hand on every ritual pass; the deterministic scan additionally catches services-list-client.tsx aktiv (the same D2 shape the audit missed) and the two contacts isPrimary cells (a list-shell surface, same renderer class). Verified 2026-08-17, scanner-style rg -l --pcre2 over hk-crm src/: exactly the six expected files, zero false positives",
+      "shouldBe": "render the boolean through a shared dot primitive + label text — settings-table Layer 6's brand-primary dot (on) / muted dot (off) + label, token-pure — so the on/off state survives theming and reads as a state, not a symbol. On non-D2 table surfaces (the contacts isPrimary cells) apply the project's equivalent state indicator at the call site; the follow-up fix ticket names each call site",
+      "tier": "yellow"
     }
   ],
   "conformance": [
