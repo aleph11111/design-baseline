@@ -5,7 +5,6 @@ import {
   SurfaceHeaderSlot,
   type SurfaceHeaderSlotProps,
 } from "@/components/layout/SurfaceHeaderSlot";
-import { cn } from "@/lib/utils";
 
 export type GroupedListShellProps = {
   /** Page-level toolbar slot. Rendered as a bare flex row above the sections region. */
@@ -22,8 +21,6 @@ export type GroupedListShellProps = {
   emptyMessage?: string;
   /** `<GroupedListSection>` instances. */
   children?: React.ReactNode;
-
-  className?: string;
 } & SurfaceHeaderSlotProps;
 
 /**
@@ -45,7 +42,6 @@ export function GroupedListShell({
   kicker,
   title,
   headerActions,
-  className,
 }: GroupedListShellProps): React.ReactElement {
   const listState = resolveListState({ isLoading, error, isEmpty: isEmpty === true });
   const showLoading = listState === "loading";
@@ -54,7 +50,7 @@ export function GroupedListShell({
   const showSections = listState === "content";
 
   return (
-    <div className={cn("space-y-5", className)}>
+    <div className="space-y-5">
       <SurfaceHeaderSlot
         kicker={kicker}
         title={title}

@@ -61,14 +61,10 @@
     },
     {
       "id": "archetype-shell-class-name",
-      "pattern": "^\\s*className\\?\\s*:\\s*string",
-      "severity": "warn",
+      "pattern": "^\\s{0,2}className\\?\\s*:\\s*string",
+      "severity": "error",
       "include": "src/components/archetypes/**/*Shell.tsx",
-      "exclude": [
-        "src/components/archetypes/detail-overview/**",
-        "src/components/archetypes/form-page/**"
-      ],
-      "message": "`className` is an unenumerable superset escape hatch on a *Shell — fork the component instead (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page) are gated by their own `*-` error rules."
+      "message": "`className` is an unenumerable superset escape hatch on a *Shell's outer wrapper — fork the component instead (RULES.md hard rule 12). Scoped to top-level props (indent ≤2) so a nested leaf descriptor (the matrix-grid per-cell `cellStyle` field — styling data, not shell appearance) is not flagged."
     },
     {
       "id": "archetype-appearance-slot",

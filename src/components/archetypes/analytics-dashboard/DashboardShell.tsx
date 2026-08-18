@@ -3,7 +3,6 @@ import {
   SurfaceHeaderSlot,
   type SurfaceHeaderSlotProps,
 } from "@/components/layout/SurfaceHeaderSlot";
-import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -15,7 +14,6 @@ export type DashboardShellProps = {
    * Rendered with `px-5 py-4` padding below the header bar.
    */
   children: React.ReactNode;
-  className?: string;
 } & SurfaceHeaderSlotProps;
 
 // ---------------------------------------------------------------------------
@@ -38,15 +36,9 @@ export function DashboardShell({
   title,
   headerActions,
   children,
-  className,
 }: DashboardShellProps): React.ReactElement {
   return (
-    <div
-      className={cn(
-        "rounded-lg border bg-card overflow-hidden",
-        className,
-      )}
-    >
+    <div className="rounded-lg border bg-card overflow-hidden">
       <SurfaceHeaderSlot
         kicker={kicker}
         title={title}

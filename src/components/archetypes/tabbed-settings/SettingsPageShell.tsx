@@ -1,5 +1,4 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import {
   SurfaceHeaderSlot,
@@ -37,12 +36,6 @@ export type SettingsPageShellProps = SettingsPageHeaderProps &
      *   - settings table   (D2): pass a settings-table shell
      */
     children: React.ReactNode;
-    /**
-     * Extra classes for the inner container. Use on a standalone page (one not
-     * nested under a settings layout) to add the outer padding the layout would
-     * otherwise supply, e.g. `className="container mx-auto px-6 py-6"`.
-     */
-    className?: string;
   };
 
 // ---------------------------------------------------------------------------
@@ -60,9 +53,8 @@ export type SettingsPageShellProps = SettingsPageHeaderProps &
  *   - <SettingsPageHeader> (title + optional subtitle / icon / actions)
  *   - a `space-y-5` body container with no outer padding
  *
- * The outer container intentionally omits padding — a settings layout route is
- * expected to supply the page inset. A standalone page (rendered outside such a
- * layout) should pass `className` to add its own padding wrapper.
+ * The outer container intentionally omits padding — `<AppShell>`'s `<main>`
+ * supplies the page inset (docs/STYLE.md); adding it here would double-inset.
  *
  * Consumer shapes:
  *   F2 tabbed settings: <SettingsPageShell title="…"><Tabs>…</Tabs></SettingsPageShell>
@@ -72,7 +64,6 @@ export type SettingsPageShellProps = SettingsPageHeaderProps &
 export function SettingsPageShell({
   breadcrumbs,
   children,
-  className,
   kicker,
   headerActions,
   ...header
@@ -81,7 +72,7 @@ export function SettingsPageShell({
 
   return (
     <ErrorBoundary>
-      <div className={cn("space-y-5", className)}>
+      <div className="space-y-5">
         {breadcrumbs}
         {boardForm ? (
           // Board form: SurfaceHeader on the bounded card; SettingsPageHeader suppressed.

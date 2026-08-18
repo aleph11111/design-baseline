@@ -3,7 +3,6 @@ import {
   SurfaceHeaderSlot,
   type SurfaceHeaderSlotProps,
 } from "@/components/layout/SurfaceHeaderSlot";
-import { cn } from "@/lib/utils";
 
 export type BoardShellProps = {
   /** `<BoardColumn>` children, laid out as a horizontally-scrolling row. */
@@ -15,8 +14,6 @@ export type BoardShellProps = {
    * `ListWithDetailShell`'s `toolbar` prop.
    */
   toolbar?: React.ReactNode;
-
-  className?: string;
 } & SurfaceHeaderSlotProps;
 
 /**
@@ -36,11 +33,10 @@ export function BoardShell({
   title,
   headerActions,
   toolbar,
-  className,
 }: BoardShellProps): React.ReactElement {
   if (title !== undefined) {
     return (
-      <div className={cn("rounded-lg border bg-card overflow-hidden", className)}>
+      <div className="rounded-lg border bg-card overflow-hidden">
         <SurfaceHeaderSlot
           kicker={kicker}
           title={title}
@@ -55,7 +51,7 @@ export function BoardShell({
   }
 
   return (
-    <div className={cn("flex items-start gap-4 overflow-x-auto pb-2", className)}>
+    <div className="flex items-start gap-4 overflow-x-auto pb-2">
       {children}
     </div>
   );

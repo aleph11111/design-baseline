@@ -25,7 +25,6 @@ export type ReportShellProps = Omit<SurfaceHeaderSlotProps, "title"> & {
    * - `"lg"`: `max-w-4xl` — a wide statement with many columns.
    */
   width?: "sm" | "md" | "lg";
-  className?: string;
 };
 
 const WIDTH: Record<NonNullable<ReportShellProps["width"]>, string> = {
@@ -59,16 +58,9 @@ export function ReportShell({
   headerActions,
   children,
   width = "md",
-  className,
 }: ReportShellProps): React.ReactElement {
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-lg border bg-card",
-        WIDTH[width],
-        className,
-      )}
-    >
+    <div className={cn("overflow-hidden rounded-lg border bg-card", WIDTH[width])}>
       <SurfaceHeaderSlot
         kicker={kicker}
         title={title}
