@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-08-18
-status: ready
+status: done
 value: high
 roadmap: archetype-convergence
 depends_on:
