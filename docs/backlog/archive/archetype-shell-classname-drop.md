@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-08-18
-status: ready
+status: done
 roadmap: archetype-convergence
 value: normal
 model: sonnet
