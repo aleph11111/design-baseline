@@ -17,7 +17,7 @@ gate:
 
 ## Context
 
-Phase 1 of the [archetype-convergence roadmap](archetype-convergence.md) (spec
+Phase 1 of the [archetype-convergence roadmap](../archetype-convergence.md) (spec
 `docs/superpowers/specs/2026-08-17-archetype-convergence-design.md`) closed
 `DetailOverviewShell`'s API and landed the appearance-prop adherence rules in
 `_adherence.json` at `severity: "warn"` with a `detail-overview` exclude (rule
@@ -77,11 +77,11 @@ Twelve `*Shell.tsx` files still declare an outer-wrapper `className?: string`:
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap, Phase 1.
-- [archetype-convergence-detail-overview-close-api.md](archive/archetype-convergence-detail-overview-close-api.md)
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap, Phase 1.
+- [archetype-convergence-detail-overview-close-api.md](../archive/archetype-convergence-detail-overview-close-api.md)
   — closed detail-overview's API first; this ticket drains the same pattern
   across the remaining twelve.
-- [archetype-convergence-appearance-prop-lint.md](archive/archetype-convergence-appearance-prop-lint.md)
+- [archetype-convergence-appearance-prop-lint.md](../archive/archetype-convergence-appearance-prop-lint.md)
   — landed `archetype-shell-class-name` at `warn`; this ticket flips it to
   `error`.
 - ADR-0004 — appearance locality: global or fixed in the component, never a
