@@ -5,6 +5,12 @@ import {
   type RowAction,
   type SortDirection,
 } from "../list-with-detail";
+// The shell's chromeless mode is an internal context supplied by the composing
+// archetype — the analogue of detail-overview's `UnifiedSurfaceContext`.
+// `GroupedListSection` owns the surrounding `<SectionCard flush>` and declares
+// that its inner delegated list renders flush (no double-card), rather than
+// exposing a per-page `unstyled` prop on the shell.
+import { ListChromeContext } from "../list-with-detail/ListWithDetailShell";
 import { SectionCard } from "@/components/layout/SectionCard";
 import { Badge } from "@/components/ui/badge";
 
@@ -81,20 +87,21 @@ function GroupedListSectionInner<Row>({
       flush
       className={className}
     >
-      <ListWithDetailShell<Row>
-        unstyled
-        rows={rows}
-        columns={columns}
-        getRowId={getRowId}
-        onRowSelect={onRowSelect}
-        selectedRowId={selectedRowId}
-        rowActions={rowActions}
-        emptyStateMessage={emptyStateMessage}
-        filteredEmpty={filteredEmpty}
-        sortBy={sortBy}
-        sortDirection={sortDirection}
-        onSortChange={onSortChange}
-      />
+      <ListChromeContext.Provider value>
+        <ListWithDetailShell<Row>
+          rows={rows}
+          columns={columns}
+          getRowId={getRowId}
+          onRowSelect={onRowSelect}
+          selectedRowId={selectedRowId}
+          rowActions={rowActions}
+          emptyStateMessage={emptyStateMessage}
+          filteredEmpty={filteredEmpty}
+          sortBy={sortBy}
+          sortDirection={sortDirection}
+          onSortChange={onSortChange}
+        />
+      </ListChromeContext.Provider>
     </SectionCard>
   );
 }
@@ -102,10 +109,11 @@ function GroupedListSectionInner<Row>({
 /**
  * One group within a grouped-list page. Renders as a `<SectionCard>` bounded
  * block: the group title sits in a ruled overline title bar (with a row-count
- * badge) and the group's table renders flush inside the same card via an
- * `unstyled` `<ListWithDetailShell>`. The heading is bound to its content as
- * one block — the same titled-section shape as detail-overview's
- * `<DetailSection>`. Multiple sections share the same `Row` type per page.
+ * badge) and the group's table renders flush inside the same card — the
+ * section supplies the surrounding surface, so the inner `<ListWithDetailShell>`
+ * drops its own chrome via `ListChromeContext` (the analogue of
+ * detail-overview's `UnifiedSurfaceContext`). The heading is bound to its
+ * content as one block. Multiple sections share the same `Row` type per page.
  */
 export const GroupedListSection = GroupedListSectionInner as <Row>(
   props: GroupedListSectionProps<Row>,

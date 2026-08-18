@@ -2,7 +2,7 @@
 key: A
 slug: list-with-detail
 kind: page
-version: 1.4
+version: 2.0
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.9
@@ -10,6 +10,29 @@ status: locked
 ---
 
 # Archetype A — List-with-detail
+
+> **v2.0 (2026-08-18) — the shell API closes (archetype-convergence Phase 1).**
+> The per-call-site appearance props are deleted or keyed; the shell's chrome is
+> no longer a per-page choice. The `detailPresentation` prop
+> (`"rail" | "drawer"`) is deleted — on desktop `detail` renders as the
+> right rail beside the list, and the mobile overlay (Sheet) is always on
+> (a responsive-structure decision, not a page choice); the discretionary
+> "slide-in on every width" mode had no data-derived key. The `unstyled`
+> prop is deleted — the shell's own card chrome is suppressed by the
+> *composing* archetype when it owns the surrounding surface (grouped-list's
+> section card), not by a per-page flag. The `className` escape hatch is
+> deleted (it reconstitutes any look and is invisible to the lint). The
+> per-shell `headerFill` override described here is gone — `headerFill` is a
+> closed project context set once at the top-level app shell; the detail
+> surface's header bar reads that context with no per-shell override.
+> Kept and now keyed: the `presentation` axis
+> (`"table" | "card-grid" | "action-row"`) is the archetype's variant axis,
+> keyed to the row's data shape (a decision table — see Layer 6); the
+> `align` axis on each column (`"left" | "right" | "center"`) is keyed to
+> the column's value kind (see Layer 6).
+> `detailTitle` / `detailActions` / `onDetailClose` are data, not appearance.
+> Deliberate breaking change; see Layer 6 (presentation + align
+> decision tables) and Layer 8 (flush-surface composition).
 
 ## Purpose
 
@@ -63,7 +86,6 @@ The page header does not float above the shell as a separate page-header primiti
 **Allowed variation:**
 - **`kicker`** — optional overline above the title (the entity class, e.g. "Podcasts", "Records"), in the **canonical overline/kicker style**. Use in place of the old subtitle when the title alone doesn't convey scope.
 - **`headerActions`** — optional right-aligned small buttons: a secondary-style button for secondary actions (e.g. "Import"), the default/primary style for the primary creation action (e.g. "New show"). At most one primary action.
-- **`headerFill`** — a single shell instance may override the project's house header-fill mode.
 
 **Forbidden:**
 - Inline `<h1>` or hand-rolled header markup — always the shell's `kicker`/`title`/`headerActions` props.
@@ -122,9 +144,26 @@ The page header does not float above the shell as a separate page-header primiti
 - **Primary identifier cell** is clickable, in the **monospace identifier style** rendered in the **brand/primary color with a hover underline** so it reads as interactive before hover. If a dedicated detail route exists, clicking navigates to it; if no detail route exists, clicking opens an edit modal or side panel.
 
 **Allowed variation:**
-- **Presentation variant** — `presentation="table | card-grid | action-row"` (default `table`). Same `rows`/`columns`/row-interaction; only the rendering differs. `card-grid` renders each row as a card (identifier as title, other columns as label/value pairs) in a responsive grid — for browse-y, summary-led lists. `action-row` renders full-width stacked rows (identifier + up to two secondary fields + chevron) — the mobile / pick-an-item shape. This is the archetype's variant axis (see `docs/CHOOSING-A-SURFACE.md`): a card grid is **not** drift from "the table archetype" — it's a conformant variant. Sortable headers are table-only; in the other presentations drive sort from the toolbar. **`detail-target`** (route vs dialog vs none) is a consumer choice expressed via `onRowSelect` (navigate, open a dialog, or omit), not a separate prop.
+- **Presentation variant** — `presentation="table | card-grid | action-row"`. Same `rows`/`columns`/row-interaction; only the rendering differs. This is the archetype's variant axis (see `docs/CHOOSING-A-SURFACE.md`): a card grid is **not** drift from "the table archetype" — it's a conformant variant. **Choose by the row's data shape** (count of non-identifier data columns the row exposes in `columns` / `rows`):
+
+  | Row data shape | Presentation |
+  |---|---|
+  | **4+ data columns** | **`presentation="table"`** — the sortable data table; sortable headers are table-only. |
+  | **2–3 data columns** | **`presentation="card-grid"`** — rows as cards (identifier as title, other columns as label/value pairs) in a responsive grid; for browse-y, summary-led, image-led lists. |
+  | **1 data column** | **`presentation="action-row"`** — full-width stacked rows (identifier + the one field + chevron); the mobile / pick-an-item shape. |
+
+  Rule of thumb: one identifier plus at most three data fields reads better as a card than a table; just one identifier plus a summary line is a stacked action row; four or more data fields is dense enough for the sortable table. Two engineers holding the same `columns` config derive the same presentation. **`detail-target`** (route vs dialog vs none) is a consumer choice expressed via `onRowSelect` (navigate, open a dialog, or omit), not a separate prop.
 - **Multi-line cells** — a primary line plus a muted extra-small supporting line is allowed when information density genuinely helps (e.g. an ID row that also shows a short reference). Use sparingly.
 - **Sortable headers** — optional. Sort is a consumer-owned feature. To opt in, declare `sortable?: boolean` and an optional `sortFn` per column in the `columns` config. The primitive renders a sort affordance (arrow icon + click handler) in the header cell when `sortable: true`. Sort state — which column and direction — is owned by the consumer via `sortBy?: string`, `sortDirection?: "asc" | "desc"`, and `onSortChange?: (sortBy: string, sortDirection: "asc" | "desc") => void`. The primitive does NOT sort the `rows` array; the consumer pre-sorts before passing.
+- **Column alignment** — `align="left | right | center"` on a column. **Choose by the column's value kind** (what `columns[i].cell` renders):
+
+  | Column value kind | Alignment |
+  |---|---|
+  | **Numerical / monetary / date / count figure** | **`align="right"`** (tabular figures align on units; right-aligns in the table; label/value pairs right-align in the card grid by default). |
+  | **Status / category / toggle / identifier / categorical badge** (short token) | **`align="center"`**. |
+  | **Everything else** (names, descriptions, free text) | **`align="left"`** (default). |
+
+  Two engineers holding the same `columns` config derive the same alignment. It is a per-column *data* prop (it describes the value the column holds), not a choice of the shell's own appearance, and it does not change the shell's surface.
 - **Status indicators:**
   - **Categorical status** (draft / active / archived / paid / …) — use a shared **status-badge** variant. Color map lives in a shared file, not duplicated per page.
   - **Binary toggle** (enabled/disabled, monitored/paused, …) — a **brand-primary dot** (on) / **muted dot** (off) plus label text. Token-pure — never a literal palette color at the call site; semantic raw-color mappings live only inside the owning primitives (status-badge, calendar tones).
@@ -164,7 +203,8 @@ The primitive does not wire data. It expects consumer-provided props. No assumpt
 - `isLoading: boolean` — true while the initial fetch is in flight.
 - `error: unknown | null` — any fetch error; `null` when healthy.
 - `onRetry?: () => void` — called by the error panel's "Try again" button.
-- `unstyled?: boolean` — drop the shell's own card chrome (border, shadow, rounding) so the table renders flush inside a surface the caller already provides. Used by grouped-list, which wraps each group's table in a flush section-card. Defaults to `false` (standalone list pages keep the card).
+
+**Flush-surface composition (chrome is not a per-page choice).** A standalone list-with-detail page always renders the shell's card chrome (the canonical card: border + surface). A *composing* archetype (e.g. grouped-list's section card) owns an already-bounded surface and declares that its inner list renders **flush** (no second card), via a chrome-suppression context the composing shell provides — the analogue of detail-overview's `UnifiedSurfaceContext`. The decision is made by the archetype doing the composing, not by a per-page flag on the shell.
 
 **Contract for the consumer's query hook:**
 - Use a dedicated query hook; avoid manual `useState` + `useEffect` + imperative refetch combinations.
@@ -214,9 +254,9 @@ Mutations are out of the primitive's scope. The consumer's row-click handler or 
 **Required:**
 - No dedicated `/mobile/...` route for list-with-detail pages. The same route serves all viewports.
 - **Table body** — stays the base table primitive on all viewport widths. The primitive's content wrapper provides horizontal scroll so the table scrolls on narrow viewports rather than overflowing. Consumers do not add their own scroll wrapper.
-- **Detail panel slot** — the primitive uses an internal **viewport-breakpoint hook** to swap the presentation of whatever element the consumer passes as the `detail` prop. On desktop, `detail` renders as a right rail alongside the list by default; a **detail-presentation** choice (rail vs. a slide-in overlay at every width) lets a consumer opt into the overlay on desktop too. On mobile, the same `detail` element always renders inside a full-screen **overlay surface** (sheet), regardless of that choice. Consumers pass one `detail` element; the primitive handles the swap automatically.
-- **Overlay dismissal** — whenever `detail` renders as the overlay surface (desktop overlay choice, or mobile), dismissing it (Esc, backdrop click, close button) is reported back to the consumer via a dismissal callback. Required whenever a consumer relies on the overlay to reflect a cleared selection — otherwise the consumer's own selection state can go stale after the surface closes.
-- **Header fill** — when `detailTitle` is provided, the overlay's header bar follows the same **header-fill contract** as the master surface header (three modes — brand-filled / muted tint / hairline); pass `headerFill` on the shell to override it per instance.
+- **Detail panel slot** — the primitive uses an internal **viewport-breakpoint hook** to swap the presentation of whatever element the consumer passes as the `detail` prop. On desktop, `detail` renders as a right rail alongside the list. On mobile, the same `detail` element always renders inside a full-screen **overlay surface** (sheet). Consumers pass one `detail` element; the primitive handles the swap automatically. The mobile overlay is a responsive-structure decision (the mobile container of detail content), not a page-facing appearance axis — there is no prop that lets a page opt into the overlay on desktop.
+- **Overlay dismissal** — when `detail` renders as the overlay surface (mobile — the only place the overlay ships), dismissing it (Esc, backdrop click, close button) is reported back to the consumer via a dismissal callback. Required whenever a consumer relies on the overlay to reflect a cleared selection — otherwise the consumer's own selection state can go stale after the surface closes.
+- **Header fill** — when `detailTitle` is provided, the overlay's header bar follows the same **header-fill contract** as the master surface header (three modes — brand-filled / muted tint / hairline). It is a closed project context, set once at the top-level app shell; there is no per-shell override — the overlay's header bar reads the context, the same as the master on-surface header.
 
 **Extension points (not shipped in baseline; consumer may add):**
 - **Card-collapse for the table body** — replacing the table with a stacked card layout on narrow viewports. Would be consumer-owned; the primitive does not provide this.

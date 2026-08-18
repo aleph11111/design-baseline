@@ -22,6 +22,16 @@ import { resolveListState, type RowAction } from "../shared";
 // import `RowAction` from this archetype.
 export type { RowAction };
 
+// The shell draws its own bounded-card chrome (border + surface) by default.
+// A composing archetype that already supplies the surrounding surface (e.g.
+// grouped-list's section card) declares chrome-suppression with this context;
+// the shell then drops its own card chrome and renders flush. This is the
+// list-with-detail analogue of detail-overview's `UnifiedSurfaceContext` — an
+// internal context the *composing* shell supplies, not a per-page appearance
+// prop. Exported from this module (not the barrel) so a composing archetype can
+// import it without it becoming documented per-page API.
+export const ListChromeContext = React.createContext(false);
+
 // ---------------------------------------------------------------------------
 // Public types
 // ---------------------------------------------------------------------------
@@ -62,25 +72,19 @@ export type ListWithDetailShellProps<Row> = {
   toolbar?: React.ReactNode;
   detail?: React.ReactNode;
   /**
-   * How the `detail` surface presents on desktop:
-   * - `"rail"` (default): a right rail beside the list (collapses to a Sheet on
-   *   mobile, as always).
-   * - `"drawer"`: a slide-in Sheet from the right at every width — the
-   *   "slide-in details" pattern. The drawer header follows `headerFill`.
-   */
-  detailPresentation?: "rail" | "drawer";
-  /**
-   * Optional title for the drawer/sheet header bar (rendered with the house
-   * `headerFill` treatment). When omitted, the Sheet renders only `detail`.
+   * Optional title for the detail surface's header bar (rendered with the house
+   * `headerFill` treatment). When omitted, the detail surface renders only
+   * `detail`.
    */
   detailTitle?: React.ReactNode;
-  /** Optional right-aligned actions in the drawer header (e.g. an Edit button). */
+  /** Optional right-aligned actions in the detail surface's header (e.g. an Edit button). */
   detailActions?: React.ReactNode;
   /**
-   * Called when the Sheet closes — Esc, backdrop click, or the close button —
-   * whenever `detail` renders as a Sheet (`detailPresentation="drawer"`, or on
-   * mobile). The shell already tracks its own open/close state; wire this to
-   * clear the consumer's selection so it doesn't go stale once the Sheet is gone.
+   * Called when the detail surface renders as the overlay (the Sheet, which is
+   * always the case on mobile) and that Sheet closes — Esc, backdrop click, or
+   * the close button. The shell already tracks its own open/close state; wire
+   * this to clear the consumer's selection so it doesn't go stale once the
+   * Sheet is gone.
    */
   onDetailClose?: () => void;
 
@@ -94,24 +98,18 @@ export type ListWithDetailShellProps<Row> = {
   sortDirection?: SortDirection;
   onSortChange?: (sortBy: string, sortDirection: SortDirection) => void;
   /**
-   * Body presentation — the A archetype's variant axis (see
-   * docs/CHOOSING-A-SURFACE.md). Same data + columns + row interaction; only the
-   * rendering differs:
-   * - `"table"` (default): the sortable data table.
+   * Body presentation — the A archetype's variant axis, keyed to the row's data
+   * shape (see the contract's decision table). Same rows + columns + row
+   * interaction; only the rendering differs:
+   * - `"table"`: the sortable data table. Dense, multi-column rows.
    * - `"card-grid"`: rows as cards in a responsive grid (identifier as title,
    *   remaining columns as label/value pairs). For browse-y, image/summary-led
-   *   lists. Sorting headers are table-only; drive sort from the toolbar here.
+   *   lists with 2–3 data columns. Sorting headers are table-only; drive sort
+   *   from the toolbar here.
    * - `"action-row"`: full-width stacked rows (identifier + a couple of fields +
-   *   chevron) — the mobile / pick-an-item shape.
+   *   chevron) — the mobile / pick-an-item shape for single-data-column rows.
    */
   presentation?: "table" | "card-grid" | "action-row";
-  /**
-   * When true, drop the shell's own card chrome (border, shadow, rounding) so
-   * the table renders flush inside a surface the caller already provides — e.g.
-   * a `<SectionCard flush>` in a grouped-list group. Defaults to false (the
-   * shell draws its own card).
-   */
-  unstyled?: boolean;
 } & SurfaceHeaderSlotProps;
 
 // ---------------------------------------------------------------------------
@@ -131,7 +129,6 @@ function ListWithDetailShellInner<Row>(
     rowActions,
     toolbar,
     detail,
-    detailPresentation = "rail",
     detailTitle,
     detailActions,
     onDetailClose,
@@ -144,16 +141,19 @@ function ListWithDetailShellInner<Row>(
     sortDirection,
     onSortChange,
     presentation = "table",
-    unstyled,
   }: ListWithDetailShellProps<Row>,
   ref: React.Ref<HTMLDivElement>,
 ) {
   const isMobile = useIsMobile();
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const hfc = headerFillClasses(useHeaderFill());
-  // The detail presents as a Sheet on mobile always, and on desktop too when
-  // `detailPresentation="drawer"` (the slide-in pattern).
-  const asSheet = detailPresentation === "drawer" || isMobile;
+  // A composing archetype (grouped-list's section card) declares chrome-suppression
+  // through `ListChromeContext` so the shell renders flush inside an already-bounded
+  // surface; the chrome decision belongs to the compose-into archetype, not to the
+  // per-page caller.
+  const chromeless = React.useContext(ListChromeContext);
+  // The detail presents as a Sheet on mobile always; rail on desktop.
+  const asSheet = isMobile;
 
   // Sync sheet visibility with selectedRowId: if the consumer clears the selection
   // (e.g. after a delete) while on mobile, close the sheet so stale detail is not shown.
@@ -219,8 +219,9 @@ function ListWithDetailShellInner<Row>(
     />
   );
 
-  // Detail panel: rail on desktop (default), or a slide-in Sheet (drawer mode,
-  // and always on mobile). The drawer header bar follows the house `headerFill`.
+  // Detail panel: rail on desktop, always a Sheet on mobile (the overlay is
+  // the shared mobile detail container — a responsive-structure decision, not a
+  // per-page appearance choice). The Sheet's header bar reads `HeaderFillContext`.
   const detailPanel =
     detail !== undefined ? (
       asSheet ? (
@@ -269,7 +270,7 @@ function ListWithDetailShellInner<Row>(
   return (
     <div
       ref={ref}
-      className={cn(!unstyled && "rounded-lg border bg-card overflow-hidden")}
+      className={cn(!chromeless && "rounded-lg border bg-card overflow-hidden")}
     >
       <SurfaceHeaderSlot
         kicker={kicker}
