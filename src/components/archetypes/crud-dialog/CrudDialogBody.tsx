@@ -25,7 +25,6 @@ export type CrudDialogBodyProps = {
    *   the consumer structures the layout itself.
    */
   layout?: "flat" | "two-column";
-  className?: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -98,10 +97,9 @@ export function CrudDialogBody({
   children,
   isLoading = false,
   layout,
-  className,
 }: CrudDialogBodyProps): React.ReactElement {
   return (
-    <ScrollArea className={cn("flex-1 overflow-hidden", className)}>
+    <ScrollArea className="flex-1 overflow-hidden">
       {isLoading ? (
         <BodySkeleton />
       ) : (

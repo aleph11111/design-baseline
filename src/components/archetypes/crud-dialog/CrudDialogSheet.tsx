@@ -26,7 +26,6 @@ export type CrudDialogSheetProps = {
    */
   width?: "sm" | "md" | "lg";
   children: React.ReactNode;
-  className?: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -50,7 +49,6 @@ export function CrudDialogSheet({
   onOpenChange,
   width = "md",
   children,
-  className,
 }: CrudDialogSheetProps): React.ReactElement {
   const isMobile = useIsMobile();
 
@@ -68,7 +66,6 @@ export function CrudDialogSheet({
           "flex flex-col p-0",
           // Override the default sm:max-w-sm that ships with the sheet variant.
           isMobile ? "w-full" : "sm:max-w-none",
-          className,
         )}
       >
         {children}

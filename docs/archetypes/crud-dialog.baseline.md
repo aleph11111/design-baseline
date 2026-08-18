@@ -32,7 +32,8 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 - Overlay-surface primitive → the Sheet's `onOpenChange`.
 
 ### Layer 2 — Dialog shell
-- CRUD-dialog shell → `<CrudDialogSheet>` from `src/components/archetypes/crud-dialog/`.
+- CRUD-dialog shell → `<CrudDialogSheet>` from `src/components/archetypes/crud-dialog/`. **No `className` prop** — the shell's outer `<SheetContent>` wrapper is styled inline via `useIsMobile` (full-viewport on mobile; `WIDTH_MAP` inline width on desktop). The v3.0 convergence close removed the per-call-site `className` escape hatch from the shell and its header / body / footer (the same `*Shell` / `*Sheet` ratchet the sibling closed archetypes engage); the lint rule `crud-dialog-shell-class-name` enforces it at the archetype-folder scope, and the generic `archetype-shell-class-name` rule's `include` array now covers `*Sheet.tsx`-named overlay shells.
+- Width step binding — `CrudDialogSheet`'s `width: "sm" | "md" | "lg"` prop maps through the in-code `WIDTH_MAP` to `22rem` (sm), `30rem` (md), `40rem` (lg). The v3.0 keying rule in the contract's Layer 2 derives the step from the body's shape: a two-tab or multi-section body → `lg` (`40rem`); a 5+ field single-section form → `md` (`30rem`); a 3–4 field minimal form → `sm` (`22rem`). The demo's `deriveDialogWidth({ tabs, fieldCount })` is the reference-binding for that derivation — it reads `tabs` and `fieldCount` from the body JSX, not from a toggle.
 - Overlay-surface primitive (modal variant, forbidden here) → shadcn `<Dialog>`.
 - Forbidden width override → manual `max-w-*` or viewport-relative `w-[…]` classes on the Sheet content.
 - Forbidden scroll override → custom `max-h-[90vh] overflow-y-auto` on the shell.

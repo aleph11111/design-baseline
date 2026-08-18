@@ -2,7 +2,7 @@
 key: J
 slug: crud-dialog
 kind: dialog
-version: 2.1
+version: 3.0
 promoted_from: brickshop-manager
 promoted_at: 2026-08-04
 source_spec_version: 1.7
@@ -10,6 +10,25 @@ status: locked
 ---
 
 # Archetype J — Entity CRUD Dialog
+
+> **v3.0 (2026-08-18) — the shell API closes (archetype-convergence Phase 1,
+> archetype J).** The per-call-site appearance props are deleted or derived;
+> the shell's chrome is no longer a per-consumer choice. The `className`
+> escape hatch is deleted from the CRUD-dialog shell and its header / body /
+> footer — an unenumerable superset, re-adding it reopens every appearance
+> axis the convergence roadmap is retiring and it is invisible to the lint
+> (ADR-0004 / RULES.md hard rule 12). The `width` axis is **kept but no longer
+> a free choice**: an exhaustive keying rule (Layer 2) keys every step to the
+> body's tab count and field count, and the "Width variant choice per consumer"
+> line that re-opened the step the Required section had just closed is
+> deleted. The `layout` axis was already keyed to the body's field shape
+> (Layer 6) and is carried through unchanged — no default-contradiction
+> defect. Deliberate breaking change; the lint ratchet for this class is
+> engaged in the same pass, including widening the generic `*Shell`-scoped
+> `className` rule to also catch `*Sheet.tsx`-named overlay shells (the
+> CRUD-dialog shell is not named `*Shell.tsx` — the gap this close exposed),
+> plus a per-folder `crud-dialog-shell-class-name` `error` rule. See
+> `_adherence.NOTES.md`.
 
 ## Purpose
 
@@ -46,12 +65,12 @@ J is the first non-page archetype in the baseline. It extends the twelve-layer p
 
 **Required:**
 - Use the **CRUD-dialog shell** — the single primitive that owns this archetype's chrome (the overlay wrapper with mobile-adaptive width).
-- Pass `open`, `onOpenChange` (wrapping `onClose`), and optionally `width` (`"sm" | "md" | "lg"`).
-- Default width `"md"` (~480 px). Use `"lg"` for tabbed or complex entities. Use `"sm"` for minimal forms (3–4 fields only).
-- Desktop: right-side slide-in at the chosen width. Mobile: full-viewport (handled automatically by the CRUD-dialog shell via the **viewport-breakpoint hook**).
-
-**Allowed variation:**
-- Width variant choice per consumer.
+- Pass `open`, `onOpenChange` (wrapping `onClose`), and `width` (`"sm" | "md" | "lg"`). `width` is **derived from the rendered body's shape** — not chosen per call site:
+  - `"sm"` — minimal entity form: 3–4 form fields, no tabs.
+  - `"md"` — standard entity form: 5+ form fields, single section (no tabs).
+  - `"lg"` — tabbed or complex entity: a two-tab body (Tab 1 + Tab 2 per Layer 6) or an entity whose form spans multiple logically distinct sections.
+- Derive the width from the body's **tab count** (two-tab body → `"lg"`) and **field count** (3–4 fields → `"sm"`; 5+ fields → `"md"`), not from a per-consumer preference. The call site that owns the entity knows its shape; pass the derived value.
+- Desktop: right-side slide-in at the derived width. Mobile: full-viewport (handled automatically by the CRUD-dialog shell via the **viewport-breakpoint hook**).
 
 **Forbidden:**
 - Using the overlay-surface primitive's modal variant directly for J dialogs — all J dialogs use the CRUD-dialog shell (its sheet variant).
@@ -364,6 +383,7 @@ When a target project applies this archetype, it wires the generic primitives to
 - **2026-07-03 — v1.7.** Board-form sync: on-surface header-bar treatment, ledger title scale, single-owner molecule references.
 - **2026-08-04 — v2.0 (major).** Promoted mistra's forced mode-transition fix: the mode-state hook's `setMode` gains an optional `{ force?: boolean }` that skips the dirty-discard guard, and the action-flow controller's `handlePrimary` now awaits the save, resets the form, and splits Layer 13's two outcomes itself — create closes, edit returns to view via `setMode("view", { force: true })` — instead of leaving the post-save transition to the dialog's own `onSuccess`. `CrudDialogMutation` now requires `mutateAsync` (was a fire-and-forget `mutate`) so the controller can sequence the reset and transition after the save resolves — a breaking rename for any existing consumer's mutation shape, hence the major bump. Layer 13 documents the new bullet and adds a Forbidden entry against closing the dialog on a successful edit save. `source_spec_version` reconciled to 1.7 (mistra).
 - **2026-08-04 — v2.1.** `createMutation` and `updateMutation` are now **optional** on the action-flow controller, for dialogs whose entity has an external creation path (import, sync, matcher, provisioning) or is create-only. `handlePrimary` resolves the mutation its mode needs and, when it was not supplied, logs an explicit console error and submits nothing rather than falling through to the other mutation. It deliberately does not `throw` — call sites invoke `handlePrimary` as `void handlePrimary()`, so a throw would surface as an unhandled rejection with no toast. Layer 13 gains the edit-only allowed variation and a Forbidden entry against passing a mutation the dialog never intends to run (an aliased update mutation, or a `mutationFn` that only throws) to satisfy the option shape. Additive and backward-compatible: consumers passing both options compile unchanged.
+- **2026-08-18 — v3.0 (major).** The shell API closes — archetype-convergence Phase 1 (archetype J), applying ADR-0004 / RULES.md hard rule 12 to every per-call-site appearance prop on the shell. The `className` prop is **deleted** from the CRUD-dialog shell, the dialog-header primitive, the dialog-body primitive, and the dialog-footer primitive — the same unenumerable superset escape hatch the `detail-overview` / `form-page` / `list-with-detail` close-API tickets removed, and the `*Sheet.tsx`-named overlay shell this archetype uses was the one the prior `*Shell`-only gate had missed. The `width` axis is **kept but no longer a free choice**: Layer 2 now carries an exhaustive keying rule that derives the step from the rendered body's tab count and field count (two-tab body → `lg`; 3–4 fields minimal form → `sm`; 5+ fields standard form → `md`), and the Layer 2 Allowed-variation bullet "Width variant choice per consumer" that re-opened the step the Required section just closed is deleted. The reference demo (`src/examples/crud-dialog-demo.tsx`) reworks the free-choice `width` toggle into a `deriveDialogWidth({ tabs, fieldCount })` helper computed from the body JSX — the body layout picker is kept because it still demonstrates all three body shapes. The lint ratchet for this class is engaged in the same pass: the generic `archetype-shell-class-name` rule's `include` is widened to an array covering `*Shell.tsx` **and** `*Sheet.tsx` (a shell not named `*Shell` no longer slips the gate), the `archetype-look-union-prop` drain now excludes `crud-dialog/**` (the kept `width` / `layout` union props are contract-derived), and a folder-scoped `crud-dialog-shell-class-name` `error` rule re-gates the deleted `className` axis across the whole archetype directory. Deliberate breaking change — the deleted `className` props were the contract's documented escape hatch (ADR-0004 / RULES.md hard rule 12), and a consumer passing a hand-typed width or a `className` now fails `tsc --noEmit` / `lint-design.mjs`.
 
 ---
 

@@ -74,6 +74,26 @@ import { PageHeader } from "@/components/layout";
 type DialogWidth = "sm" | "md" | "lg";
 type DialogBodyLayout = "flat" | "two-column" | "two-tab";
 
+/**
+ * Derive the shell `width` step from the rendered body's shape — the Layer 2
+ * keying rule, not a per-consumer choice: a two-tab (or otherwise tabbed) body
+ * is the complex-entity case → `lg`; a 3–4-field minimal single-section form →
+ * `sm`; a 5+ field standard form → `md`. `tabs` and `fieldCount` are read off
+ * the body the dialog is actually rendering, so the step tracks the entity's
+ * depth, not a toggle.
+ */
+function deriveDialogWidth({
+  tabs,
+  fieldCount,
+}: {
+  tabs: number;
+  fieldCount: number;
+}): DialogWidth {
+  if (tabs > 1) return "lg";
+  if (fieldCount <= 4) return "sm";
+  return "md";
+}
+
 // ---------------------------------------------------------------------------
 // Domain type
 // ---------------------------------------------------------------------------
@@ -134,8 +154,6 @@ type WorkoutDialogProps = {
   onSave: (updated: Workout) => void;
   onCreate: (created: Omit<Workout, "id">) => void;
   onDelete: (id: string) => void;
-  /** Drives `<CrudDialogSheet width>`. */
-  width: DialogWidth;
   /** Drives `<CrudDialogBody layout>` — "two-tab" composes shadcn `<Tabs>` manually. */
   bodyLayout: DialogBodyLayout;
 };
@@ -148,9 +166,15 @@ function WorkoutDialog({
   onSave,
   onCreate,
   onDelete,
-  width,
   bodyLayout,
 }: WorkoutDialogProps): React.ReactElement {
+  // Derive the shell width from the body shape (Layer 2 keying rule): a two-tab
+  // body is the complex-entity case → lg; the flat / two-column shapes are the
+  // 4-field minimal form → sm. `tabs` and `fieldCount` are computed here, not
+  // supplied by the caller.
+  const tabs = bodyLayout === "two-tab" ? 2 : 0;
+  const fieldCount = 4; // date, kind, duration, notes — the demo workout schema
+  const width = deriveDialogWidth({ tabs, fieldCount });
   // Simulate a fetch delay when opening an existing workout in view mode.
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -482,7 +506,6 @@ export function CrudDialogDemo(): React.ReactElement {
   // Bumped on every open so the dialog (and its form/mode hooks) remounts fresh
   // each time — no stale mode/dirty state leaking across opens.
   const [openSeq, setOpenSeq] = React.useState(0);
-  const [width, setWidth] = React.useState<DialogWidth>("md");
   const [bodyLayout, setBodyLayout] = React.useState<DialogBodyLayout>("flat");
 
   function openView(id: string) {
@@ -531,31 +554,20 @@ export function CrudDialogDemo(): React.ReactElement {
         <p className="max-w-prose text-sm text-muted-foreground">
           The dialog body's graded richness axis — <strong>Layout</strong>{" "}
           (flat stack / two-column grid / two-tab with a read-only History
-          tab) — and the slide-in <strong>Width</strong>. Open a workout to
-          see them applied.
+          tab). The slide-in <strong>Width</strong> is derived from the layout
+          (two-tab → wide; other shapes → narrower) and is not a free choice.
+          Open a workout to see them applied.
         </p>
-        <div className="flex flex-wrap items-center gap-3">
-          <SegmentedControl
-            aria-label="Dialog body layout"
-            value={bodyLayout}
-            onValueChange={setBodyLayout}
-            options={[
-              { value: "flat", label: "Flat" },
-              { value: "two-column", label: "Two-column" },
-              { value: "two-tab", label: "Two-tab" },
-            ]}
-          />
-          <SegmentedControl
-            aria-label="Dialog width"
-            value={width}
-            onValueChange={setWidth}
-            options={[
-              { value: "sm", label: "Sm" },
-              { value: "md", label: "Md" },
-              { value: "lg", label: "Lg" },
-            ]}
-          />
-        </div>
+        <SegmentedControl
+          aria-label="Dialog body layout"
+          value={bodyLayout}
+          onValueChange={setBodyLayout}
+          options={[
+            { value: "flat", label: "Flat" },
+            { value: "two-column", label: "Two-column" },
+            { value: "two-tab", label: "Two-tab" },
+          ]}
+        />
       </div>
 
       {lastAction && (
@@ -626,7 +638,9 @@ export function CrudDialogDemo(): React.ReactElement {
           <li>
             Toggle <strong>Layout</strong> to two-tab, open a workout with a
             sibling of the same type in the list → its <strong>History</strong>{" "}
-            tab lists it; otherwise it shows the empty state.
+            tab lists it; otherwise it shows the empty state. The sheet's
+            <strong>Width</strong> follows the layout — two-tab opens wide, the
+            flat / two-column shapes open narrow; it is derived, not toggled.
           </li>
         </ol>
       </div>
@@ -641,7 +655,6 @@ export function CrudDialogDemo(): React.ReactElement {
         onSave={handleSave}
         onCreate={handleCreate}
         onDelete={handleDelete}
-        width={width}
         bodyLayout={bodyLayout}
       />
     </div>

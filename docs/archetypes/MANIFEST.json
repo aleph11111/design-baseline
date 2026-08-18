@@ -101,7 +101,7 @@
       "namespace": "baseline",
       "slug": "crud-dialog",
       "displayName": "CRUD dialog",
-      "version": "2.1",
+      "version": "3.0",
       "promoted_from": "brickshop-manager",
       "promoted_at": "2026-08-04",
       "source_spec_version": "1.7",
