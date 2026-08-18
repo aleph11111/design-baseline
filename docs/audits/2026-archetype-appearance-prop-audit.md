@@ -75,6 +75,14 @@ One line per distinct flagged prop declaration. `rules` are the matched `archety
 > and a set of `error`-tier `detail-overview-*` rules (the ratchet, engaged) now gates the
 > closed API instead. See `_adherence.NOTES.md` for the `exclude` mechanism and the rule set.
 
+> **Update (form-page closed, 2026-08-18).** `form-page` has since been closed
+> (`archetype-convergence-form-page-width-prop`): the shell's `className` escape hatch is deleted
+> and `width` is keyed exhaustively to field count / column layout in the contract (the axis is
+> kept, derived). The two `form-page` rows above no longer fire — the four drain rules carry an
+> `exclude` array with one glob per closed archetype (`detail-overview/**`, `form-page/**`),
+> and the `error`-tier `form-page-shell-class-name` ratchet rule now gates the deleted `className`
+> axis. See `_adherence.NOTES.md` for the array-exclude mechanism and the rule set.
+
 ## Rules in this scan
 
 | Rule id | Pattern (abridged) | Scope |
@@ -88,5 +96,6 @@ One line per distinct flagged prop declaration. `rules` are the matched `archety
 | `detail-overview-shell-class-name` | `className?: string` on the shell — ratchet error | `…/detail-overview/DetailOverviewShell.tsx` |
 | `detail-overview-appearance-slot` | `header`/`stats` `ReactNode` slot — ratchet error | `src/components/archetypes/detail-overview/**` |
 | `detail-overview-headerfill-prop` | `headerFill` prop — ratchet error | `src/components/archetypes/detail-overview/**` |
+| `form-page-shell-class-name` | `className?: string` on the form-page shell — ratchet error | `…/form-page/FormPageShell.tsx` |
 
 An *inherited-default* check (a prop whose default the contract does not state — the `width` contradiction) is deliberately **not** in this scan: it requires reading the contract prose against the code and is not expressible as a line pattern. It stays a review step in the contract-close work.

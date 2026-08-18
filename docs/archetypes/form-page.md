@@ -2,7 +2,7 @@
 key: B
 slug: form-page
 kind: page
-version: 1.3
+version: 2.0
 promoted_from: hk-crm
 promoted_at: 2026-05-24
 source_spec_version: 1.7
@@ -10,6 +10,20 @@ status: locked
 ---
 
 # Archetype B — Form Page
+
+> **v2.0 (2026-08-18) — width and className API closes (archetype-convergence
+> Phase 1, archetype B).** The shell's `className` prop is deleted — an
+> unenumerable superset escape hatch on a `*Shell`, re-adding it reopens the
+> inherited-look defect (ADR-0004 / RULES.md hard rule 12). The `width` axis is
+> **kept but no longer a free choice**: an exhaustive keying rule (Layer 2)
+> keys every step to the form's field count and body column layout, and the
+> two-column body clause is corrected to read as a *consequence* of the keying
+> step rather than an independent permission. The stale per-instance
+> `headerFill`-override language is deleted from Layer 3 — the shell carries no
+> such prop; `<AppShell>`'s header-fill context is the only entry point (the
+> shipped default was already contract-conformant and is untouched). Deliberate
+> breaking change; the lint ratchet for this class is engaged in the same pass
+> (see `_adherence.NOTES.md`).
 
 ## Purpose
 
@@ -60,7 +74,13 @@ B is **not** the right choice for:
 
 - The page renders inside the project's **top-level app shell** — the outer layout frame that mounts global providers, nav/sidebar, and the main content region. The shell does not re-mount providers.
 - Outer container: the **form-page shell** — the archetype's content-shell primitive. The shell provides:
-  - Single-column max-width, left-aligned. Overridable via a `width` prop with `"sm"` / `"md"` (default) / `"lg"` / `"xl"` size steps (`"xl"` for wide multi-column layouts).
+  - Single-column max-width, left-aligned. The `width` prop selects the size step; its value is **keyed to the form's field count and body column layout** by the rule below (v2.0), not the call site's taste. There is no free choice: the step follows from the form's shape.
+    - **Width keying rule** (exhaustive — every step named, every trigger keyed to the entity or its data):
+      - `"sm"` — a **narrow form of 3–4 fields** in a single column. The whole field set fits at reading-column width; nothing else qualifies.
+      - `"md"` — the **default** for a **standard single-column entity form** (any field count that is *not* the 3–4-field narrow case). This is the shell's own default; a page whose field count falls here passes no `width` at all.
+      - `"lg"` — a **wider single-column form** (longer field labels / description slots that read too cramped at `md` width), **or** a form body laid out as a **two-column field grid** — the paired-short-field shape (firstName + lastName, city + zip) that collapses to single-column on narrow viewports.
+      - `"xl"` — a **wide multi-column layout**: a form body using a **3+ column field grid**, or **multiple two-column sections** stacked (each section a two-column grid, several of them) such that the combined body no longer reads at `lg` width.
+    - The key reads **field count / column layout → step**, one direction only. The column layout is a *consequence* of the step the rule assigns, never an independent permission to widen.
   - The **canonical vertical rhythm** between header and form body.
   - **No page inset** — the app shell's main region supplies it; the shell adds none (re-insetting here would double-inset).
 - A **render-error boundary** (or framework equivalent) wraps the page content at the page-component level.
@@ -68,7 +88,7 @@ B is **not** the right choice for:
 **Allowed variation:**
 
 - A **card-surface** chrome wrapper around the form body when visual emphasis is desired (e.g. tenant-onboarding forms). Default is no card; form sits directly inside the shell.
-- Two-column layout inside the form body — only with the `"lg"` or `"xl"` width step. Sections collapse to single-column on narrow viewports.
+- A **two-column field grid** inside the form body — permitted *because* the width keying rule assigns such a form the `"lg"` (or `"xl"`) step, never independently. Sections collapse to single-column on narrow viewports.
 
 **Forbidden:**
 
@@ -86,7 +106,7 @@ The form-page header is **purely informational** — title, optional subtitle, o
 
 - **Title on the surface.** Pass `title` (and optionally `kicker`, `headerActions`) to the form-page shell and it renders the shared **on-surface header bar** (the title bar that sits ON the content surface, driven by shell props) at the top of its bounded card — a `kicker` overline (the entity class, e.g. "Recipes") over the `title`, in the project's **canonical page-title type style**; embed an entity identifier in the **monospace identifier style**, e.g. `"Edit Recipe — Sunday Carbonara"`. This is the same on-surface header every framed archetype shell mounts; there is no separate floating page header above the card.
 - `headerActions` — optional right-aligned secondary actions in the bar. The form's Save/Cancel/Delete stay in the **actions-footer primitive** (the sticky-or-inline footer owning the destructive/secondary/primary write actions) at the footer regardless of what's in `headerActions`.
-- The bar follows the **header-fill contract** (three modes: brand-filled/default, muted tint, and hairline-border-only); override per instance via the form-page shell's `headerFill` prop.
+- **Header fill.** The bar renders per the shared **header-fill contract** — three modes: brand-filled (default), muted tint, and hairline-border-only — set once per project via the top-level app shell's header-fill setting. It is a **closed context: there is no per-page or per-shell override.**
 
 **Allowed variation:**
 

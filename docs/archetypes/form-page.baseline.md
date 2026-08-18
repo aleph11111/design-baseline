@@ -27,18 +27,18 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 ### Layer 2 — Page shell
 - Top-level app shell → `<AppShell>` from `src/components/layout/` (or the project's top-level layout primitive).
 - Content-shell primitive → `<FormPageShell>` from `src/components/archetypes/form-page/`.
-- Single-column max-width → default `max-w-xl` (~36rem), left-aligned. `width` prop: `"sm"` (`max-w-md`), `"md"` (`max-w-xl`, default), `"lg"` (`max-w-2xl`), `"xl"` (`max-w-4xl`).
+- Single-column max-width → default `max-w-xl` (~36rem), left-aligned. `width` prop steps: `"sm"` (`max-w-md`), `"md"` (`max-w-xl`, default), `"lg"` (`max-w-2xl`), `"xl"` (`max-w-4xl`). The step is **derived, not chosen**: the contract's width keying rule (form-page.md Layer 2) reads field count / body column layout → step — `sm` = a narrow 3–4-field single-column form; `md` = any other single-column entity form (the shell's own default); `lg` = a wider single-column form or a 2-column field-grid body; `xl` = a wide multi-column layout (3+ column grid / multiple stacked 2-column sections). The 2-column body is a *consequence* of the assigned step, never an independent permission.
 - Canonical vertical rhythm → `space-y-6` between header and form body.
 - Canonical page inset → not re-added at this layer; `AppShell`'s `<main>` supplies `px-6 py-6`.
 - Render-error boundary → `<ErrorBoundary>` (or framework equivalent).
 - Card-surface wrapper (optional) → `<Card>`.
-- Two-column layout → `grid grid-cols-1 lg:grid-cols-2 gap-6`, only with `width="lg"` or `width="xl"`.
+- Two-column field grid → `grid grid-cols-1 lg:grid-cols-2 gap-6`. Permitted because the width keying rule assigns a 2-column form body the `width="lg"` (or `"xl"`) step — the layout follows the rule, not the reverse (form-page.md Layer 2, v2.0).
 - Hand-rolled wrapper (forbidden) → `<div className="max-w-xl px-6 py-6">…`; centering via `mx-auto`.
 
 ### Layer 3 — Page header
 - On-surface header bar → the shared `<SurfaceHeader>` (`@/components/layout/SurfaceHeader`), mounted by `<FormPageShell>` at the top of its bounded card.
 - Canonical page-title type style → `text-lg font-semibold`. Monospace identifier style → `font-mono` at the call site (e.g. `"Edit Recipe — Sunday Carbonara"`).
-- Header-fill contract → `HeaderFillContext` (`@/components/layout/headerFill`) — `solid` (default) / `tint` / `white`; override per instance via `<FormPageShell headerFill="…">`.
+- Header-fill contract → `HeaderFillContext` (`@/components/layout/headerFill`) — `solid` (default) / `tint` / `white`; set once per project via `<AppShell headerFill="…">`. It is a **closed context: there is no per-shell override** (`<FormPageShell>` accepts no `headerFill` prop — `SurfaceHeaderSlot` reads the context directly).
 - Floating page-header treatment → `<FormPageHeader>`, a thin wrapper over the baseline `<PageHeader>`, same `text-lg font-semibold` title treatment.
 - Muted extra-small supporting-text style (subtitle) → `text-xs text-muted-foreground`.
 - Icon → `h-6 w-6`, placed inside `<FormPageHeader>` before the title.

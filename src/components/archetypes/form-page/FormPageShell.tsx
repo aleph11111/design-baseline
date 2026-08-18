@@ -23,12 +23,16 @@ const WIDTH_MAP: Record<"sm" | "md" | "lg" | "xl", string> = {
 export type FormPageShellProps = {
   children: React.ReactNode;
   /**
-   * Max-width preset for the form container.
+   * Max-width preset for the form container. Derived per the contract's width
+   * keying rule (docs/archetypes/form-page.md, Layer 2) from the form's field
+   * count / column layout — not a free choice:
+   *   "sm" — narrow single-column form (~3–4 fields)
+   *   "md" — default; standard single-column entity form
+   *   "lg" — wider single-column form or a 2-column field-grid body
+   *   "xl" — wide multi-column layout (3+ column grid / multiple 2-column sections)
    * Defaults to "md" (~36rem / max-w-xl).
    */
   width?: "sm" | "md" | "lg" | "xl";
-
-  className?: string;
 } & SurfaceHeaderSlotProps;
 
 // ---------------------------------------------------------------------------
@@ -72,7 +76,6 @@ export function FormPageShell({
   kicker,
   title,
   headerActions,
-  className,
 }: FormPageShellProps): React.ReactElement {
   if (title !== undefined) {
     return (
@@ -80,7 +83,6 @@ export function FormPageShell({
         className={cn(
           "rounded-lg border bg-card overflow-hidden",
           WIDTH_MAP[width],
-          className,
         )}
       >
         <SurfaceHeaderSlot
@@ -94,15 +96,7 @@ export function FormPageShell({
   }
 
   return (
-    <div
-      className={cn(
-        "space-y-5",
-        WIDTH_MAP[width],
-        className,
-      )}
-    >
-      {children}
-    </div>
+    <div className={cn("space-y-5", WIDTH_MAP[width])}>{children}</div>
   );
 }
 
