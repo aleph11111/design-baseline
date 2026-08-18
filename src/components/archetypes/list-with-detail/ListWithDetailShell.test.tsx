@@ -1,7 +1,12 @@
 import { createRef } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { ListWithDetailShell, type ListColumn } from "./ListWithDetailShell";
+import {
+  ListWithDetailShell,
+  ListChromeContext,
+  type ListColumn,
+  type ListWithDetailShellProps,
+} from "./ListWithDetailShell";
 
 // jsdom has no matchMedia; ListWithDetailShell reads it (via useIsMobile) on
 // every mount to decide rail vs. sheet presentation.
@@ -17,9 +22,13 @@ if (!window.matchMedia) {
     dispatchEvent: () => false,
   })) as unknown as typeof window.matchMedia;
 }
+// useIsMobile keys on window.innerWidth < 768, not matchMedia.matches; keep a
+// stable desktop width unless a test asserts the mobile overlay path.
+window.innerWidth = 1024;
 
 afterEach(() => {
   cleanup();
+  window.innerWidth = 1024;
 });
 
 type Row = { id: string; name: string };
@@ -100,7 +109,10 @@ describe("ListWithDetailShell", () => {
     expect(screen.queryByRole("button", { name: "Ada Lovelace" })).toBeNull();
   });
 
-  it("drawer presentation: dismissing the Sheet (Esc) calls onDetailClose", () => {
+  it("mobile: the detail renders as the overlay (Sheet) and dismissing it (Esc) calls onDetailClose", () => {
+    // On narrow viewports the detail surface is the mobile overlay (Sheet);
+    // there is no desktop opt-in axis for it.
+    window.innerWidth = 375;
     const onDetailClose = vi.fn();
     render(
       <ListWithDetailShell
@@ -110,7 +122,6 @@ describe("ListWithDetailShell", () => {
         onRowSelect={() => {}}
         selectedRowId="1"
         detail={<div>Details for Ada</div>}
-        detailPresentation="drawer"
         onDetailClose={onDetailClose}
       />,
     );
@@ -118,6 +129,26 @@ describe("ListWithDetailShell", () => {
     const dialog = screen.getByRole("dialog");
     fireEvent.keyDown(dialog, { key: "Escape" });
     expect(onDetailClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("draws its own card chrome by default, and renders flush under ListChromeContext", () => {
+    const chrome = "rounded-lg border bg-card overflow-hidden";
+
+    const { container: standalone } =
+      render(
+        <ListWithDetailShell rows={rows} columns={columns} getRowId={(row) => row.id} />,
+      );
+    expect((standalone.firstElementChild as HTMLElement).className).toContain(chrome);
+    cleanup();
+
+    const { container: flush } = render(
+      <ListChromeContext.Provider value>
+        <ListWithDetailShell rows={rows} columns={columns} getRowId={(row) => row.id} />
+      </ListChromeContext.Provider>,
+    );
+    expect(
+      (flush.firstElementChild as HTMLElement).className,
+    ).not.toContain(chrome);
   });
 
   it("forwards the ref to the root element", () => {
@@ -128,3 +159,27 @@ describe("ListWithDetailShell", () => {
     expect(ref.current).toBeInstanceOf(HTMLDivElement);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Type-level regression guard (checked by `tsc`, not the runtime).
+//
+// The acceptance for closing this API is that `ListWithDetailShellProps`
+// declares none of `detailPresentation` / `unstyled` / `className` — the three
+// axes deleted in the archetype-convergence close-API. If any retired axis
+// leaks back into the props type, one of the `_Guard` entries collapses to
+// `never` and the assignment below fails to compile — the break is caught at
+// typecheck time. `presentation` and `align` stay legal (contract-keyed).
+// ---------------------------------------------------------------------------
+type Key<T, K extends PropertyKey> = K extends keyof T ? "present" : "absent";
+type Absent<T, K extends PropertyKey> = Key<T, K> extends "absent" ? true : never;
+
+type _ClosedAxesGuard = [
+  Absent<ListWithDetailShellProps<Row>, "detailPresentation">,
+  Absent<ListWithDetailShellProps<Row>, "unstyled">,
+  Absent<ListWithDetailShellProps<Row>, "className">,
+] extends [true, true, true]
+  ? true
+  : never;
+
+const closedPropGuard: _ClosedAxesGuard = true;
+expect(closedPropGuard).toBe(true);

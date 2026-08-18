@@ -57,7 +57,8 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 - Monospace identifier style → `font-mono text-sm font-medium`.
 - Clickable primary identifier cell → `font-mono text-sm font-medium text-primary hover:underline` (rendered `text-primary` at rest).
 - Multi-line supporting line → `text-xs text-muted-foreground`.
-- Presentation variant → `<ListWithDetailShell presentation="table | card-grid | action-row">` (default `table`).
+- Presentation variant → `<ListWithDetailShell presentation="table | card-grid | action-row">` (keyed by the row's data shape — see the contract's decision table in Layer 6).
+- Column alignment → `align` on a `ListColumn`; `align="right"` for numerical / monetary / date / count columns, `align="center"` for status / category / token columns, `align="left"` (default) for anything else.
 - Categorical status → a shared `<Badge>` variant (color map in a shared file).
 - Binary toggle dot → `bg-primary` (on) / `bg-muted-foreground` (off); never a literal palette color (`bg-green-500`) at the call site — semantic raw-color mappings live only inside owning primitives (`badge.tsx`, calendar tones).
 
@@ -67,7 +68,7 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 - Empty-state icon → optional decoration, `h-12 w-12`, centered above the empty text.
 
 ### Layer 8 — Data fetching
-- `unstyled` flush surface → grouped-list wraps each group's table in a `<SectionCard flush>`.
+- Flush-surface composition → the shell's own chrome is unconditional for a standalone page. A composing archetype that owns an already-bounded surface (e.g. `<SectionCard flush>` in a grouped-list group) wraps the inner `<ListWithDetailShell>` in `ListChromeContext.Provider value={true}` (the internal chrome-suppression context mirroring detail-overview's `UnifiedSurfaceContext`). The page never passes a flush flag.
 
 ### Layer 9 — Type shapes
 - Generic shell → `ListWithDetailShell<Row extends object>`.
@@ -79,8 +80,8 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 ### Layer 11 — Mobile variant
 - Table body → stays a standard `<Table>`; the content wrapper's `overflow-x-auto` scrolls it on narrow viewports.
 - Viewport-breakpoint hook → internal `useIsMobile`.
-- Mobile detail overlay → `<Sheet>` (full-screen overlay); on desktop the `detail` prop renders as a right rail by default, or the same `<Sheet>` at every width via `detailPresentation="drawer"`.
-- Overlay dismissal → `onDetailClose?: () => void` on `<ListWithDetailShell>`, fired from the Sheet's `onOpenChange` (Esc / backdrop / close button) whenever `detail` renders as a Sheet (drawer presentation, or mobile). `<SheetContent>` also gained `showCloseButton?: boolean` (default `true`) for consumers that ship their own close affordance.
+- Mobile detail overlay → `<Sheet>` (full-screen overlay) on mobile — the `detail` prop renders as a right rail on desktop, always a `<Sheet>` on mobile. There is no page-facing axis to opt into the desktop overlay.
+- Overlay dismissal → `onDetailClose?: () => void` on `<ListWithDetailShell>`, fired from the Sheet's `onOpenChange` (Esc / backdrop / close button) when `detail` renders as a Sheet (mobile). `<SheetContent>` also gained `showCloseButton?: boolean` (default `true`) for consumers that ship their own close affordance.
 - Header fill → the Sheet's header bar follows `HeaderFillContext` (`src/components/layout/headerFill.ts`), 3 modes (solid / tint / white).
 
 ### Layer 12 — Permissions

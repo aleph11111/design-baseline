@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-08-18
-status: ready
+status: done
 value: high
 roadmap: archetype-convergence
 spec: docs/superpowers/specs/2026-08-17-archetype-convergence-design.md
@@ -18,7 +18,7 @@ gate:
 
 ## Context
 
-Phase 1 of the [archetype-convergence roadmap](archetype-convergence.md)'s
+Phase 1 of the [archetype-convergence roadmap](../archetype-convergence.md)'s
 "audit the remaining twenty archetypes for the same class of prop and close
 them, in MANIFEST order" — `list-with-detail` is MANIFEST key `A`, version
 `1.18`, the first entry and the largest remaining offender.
@@ -31,7 +31,7 @@ three the lint-line citation named, since `align` also trips the union-prop
 rule and `className` trips the sibling shell-escape-hatch rule the closed
 `detail-overview` deleted the same way.
 
-Applying [ADR-0004](../adr/0004-appearance-locality-derived-vs-inherited.md)'s
+Applying [ADR-0004](../../adr/0004-appearance-locality-derived-vs-inherited.md)'s
 derived-vs-inherited test (a per-call-site prop is legal only if the contract
 carries a decision rule that determines its value from the entity/row data,
 exhaustively enumerated, with two engineers deriving the same value — a
@@ -142,18 +142,18 @@ only entry point), regardless of what happens to the four axes above.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap,
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap,
   Phase 1.
-- [archetype-convergence-detail-overview-close-api.md](archive/archetype-convergence-detail-overview-close-api.md)
+- [archetype-convergence-detail-overview-close-api.md](../archive/archetype-convergence-detail-overview-close-api.md)
   — the sibling closure this ticket mirrors (`surface`/`rhythm`/`headerFill`/
   `className` deletions, `layout`'s decision-table precedent for a surviving
   axis, the `width` default-contradiction finding this ticket's `headerFill`
   finding is the same class of).
-- [archetype-convergence-phase0-appearance-locality-decision.md](archive/archetype-convergence-phase0-appearance-locality-decision.md)
+- [archetype-convergence-phase0-appearance-locality-decision.md](../archive/archetype-convergence-phase0-appearance-locality-decision.md)
   — ADR-0004, the rule every prop above is graded against.
-- [list-with-detail-shell-presentation-split.md](archive/list-with-detail-shell-presentation-split.md)
+- [list-with-detail-shell-presentation-split.md](../archive/list-with-detail-shell-presentation-split.md)
   — split the three presentation bodies into modules; evidence all three are
   real, actively-vendored infrastructure, relevant to the delete-vs-key-it call
   on `presentation`.
-- [decouple-archetype-contract-from-reference-impl.md](archive/decouple-archetype-contract-from-reference-impl.md)
+- [decouple-archetype-contract-from-reference-impl.md](../archive/decouple-archetype-contract-from-reference-impl.md)
   — the contract/`.baseline.md` split both docs updates must preserve.

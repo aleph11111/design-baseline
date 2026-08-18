@@ -62,14 +62,20 @@ check landed.
 | `archetype-shell-class-name` | `className` declared on a `*Shell` component | `src/components/archetypes/**/*Shell.tsx` |
 | `archetype-appearance-slot` | an appearance-bearing `ReactNode` slot (`header`, `stats`) | `src/components/archetypes/**` |
 
-Each drain rule also carries an `exclude` array with one glob per closed archetype (both
-`detail-overview/**` and `form-page/**` as of this update) — once an archetype's class is closed
-it drops out of the `warn` drain and is gated by its own `error`-tier rules instead (the ratchet,
-per the `exclude` above). `detail-overview` was the first: the close-API ticket removed `surface`,
-`rhythm`, `className`, `headerFill`, and the `header`/`stats` `ReactNode` slots (and corrected the
-`width` default), so the drain rules no longer fire on it. `form-page` is the second: its close
-removed the `className` escape hatch and keyed `width` exhaustively to field count / column
-layout in the contract, so the `form-page-shell-class-name` ratchet rule gates the closed API.
+Each drain rule also carries an `exclude` array with one glob per closed archetype (
+`detail-overview/**`, `form-page/**`, and `list-with-detail/**` as of this update) — once an
+archetype's class is closed it drops out of the `warn` drain and is gated by its own
+`error`-tier rules instead (the ratchet, per the `exclude` above). `detail-overview` was the
+first: the close-API ticket removed `surface`, `rhythm`, `className`, `headerFill`, and the
+`header`/`stats` `ReactNode` slots (and corrected the `width` default), so the drain rules no
+longer fire on it. `form-page` is the second: its close removed the `className` escape hatch and
+keyed `width` exhaustively to field count / column layout in the contract, so the
+`form-page-shell-class-name` ratchet rule gates the closed API. `list-with-detail` is the third:
+the close-API ticket removed `detailPresentation`, `unstyled`, and the shell's `className` (and
+deleted the per-shell `headerFill` override from the contract doc), while `presentation` and
+`align` remain legal — contract-derived — so the whole folder is excluded from the shared drain
+rather than flipped to `error` per rule; the `list-with-detail-*` rules below gate the retired
+axes.
 
 ### The `detail-overview-*` error rules (ratchet engaged for the closed API)
 
@@ -119,6 +125,26 @@ Two deliberate boundary choices:
   reading contract prose against code and is not expressible as a line pattern. It stays a review
   step in the contract-close work; the `width` finding in the design spec stands as the evidence a
   human catches what the scanner cannot.
+
+### The `list-with-detail-*` error rules (ratchet engaged for the closed API)
+
+`severity: error`, `include`-scoped to `src/components/archetypes/list-with-detail/`. Same shape as
+the `detail-overview-*` rules above — the per-folder `error` tier is the ratchet, and the shared
+drain no longer flags the closed folder. The close-API ticket deleted the three axes below;
+`presentation` and `align` remain legal (contract-derived) even though they are
+string-literal-union typed, so the folder is excluded from the shared drain and only the retired
+axes are re-gated by name.
+
+| id | shape caught | include |
+|---|---|---|
+| `list-with-detail-detail-presentation` | a `detailPresentation` prop declaration | `src/components/archetypes/list-with-detail/**` |
+| `list-with-detail-unstyled-prop` | an `unstyled` prop declaration | `src/components/archetypes/list-with-detail/**` |
+| `list-with-detail-shell-class-name` | `className?: string` declared on the shell | `…/list-with-detail/ListWithDetailShell.tsx` |
+
+The `unstyled` prop is replaced by the internal `ListChromeContext` (the analogue of detail-overview's
+`UnifiedSurfaceContext`). A composing archetype that owns the surrounding surface sets the context
+to `flush`; the shell then drops its own card chrome. The prop itself is no longer part of the
+per-page API, and re-adding one reopens the escape-hatch defect (RULES.md hard rule 12).
 
 The first run's `warn` hits are recorded as
 [`docs/audits/2026-archetype-appearance-prop-audit.md`](docs/audits/2026-archetype-appearance-prop-audit.md)
