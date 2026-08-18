@@ -23,11 +23,14 @@
 // `src/components/archetypes/` without firing on `src/components/ui/` leaves, where
 // `variant` / `size` props are correct shadcn practice.
 //
-// A rule may also carry an optional `exclude` glob that removes matching files from the
-// rule (in addition to `include`, when both are set). That is the per-archetype ratchet
-// valve: once an archetype's class is closed, its folder is excluded from the shared
-// `warn` drain rules, and a per-folder `error` rule (the engaged ratchet) is added for the
-// closed API — so the scanner no longer counts a closed archetype as an open one.
+// A rule may also carry an optional `exclude` that removes matching files from the
+// rule (in addition to `include`, when both are set). `exclude` is a glob, or an
+// array of globs — the file is skipped when ANY of them matches. That is the
+// per-archetype ratchet valve: once an archetype's class is closed, its folder is
+// excluded from the shared `warn` drain rules, and a per-folder `error` rule (the
+// engaged ratchet) is added for the closed API — so the scanner no longer counts a
+// closed archetype as an open one. As more archetypes close, the drain rules
+// accumulate one exclude glob per closed folder (the array form).
 //
 // Usage:  node scripts/lint-design.mjs
 // Config: ADHERENCE_CONFIG=path overrides the default `_adherence.json`.
@@ -115,12 +118,26 @@ function globToRegExp(glob) {
 // element — `<tag` immediately followed by whitespace, `/`, or `>` — case-sensitive (no `i`
 // flag) so the capitalized DS primitive `<Button>` is not a hit. An `include` glob, when
 // present, restricts the rule to walked files whose repo-root-relative path matches it; an
-// `exclude` glob, when present, removes such files from the rule. A rule with both applies only
-// inside `include` and outside `exclude`. That is what lets a shared drain rule (e.g. the
-// appearance-prop noun/union ban over `src/components/archetypes/**`) drop an already-closed
-// archetype out of the `warn` drain while a per-archetype `error` rule stays scoped to it.
+// `exclude`, when present, removes such files from the rule. `include` is a single glob;
+// `exclude` is a glob or an array of globs (the file is skipped when ANY exclude matches —
+// one closed archetype is one array entry). A rule with both applies only inside `include`
+// and outside every `exclude`. That is what lets a shared drain rule (e.g. the appearance-prop
+// noun/union ban over `src/components/archetypes/**`) drop each already-closed archetype out
+// of the `warn` drain while a per-archetype `error` rule stays scoped to it.
 const compiled = rules.map((rule) => {
   const source = rule.pattern ?? `<${rule.tag}(?=[\\s/>])`;
+  // `exclude` may be a single glob string or an array of them; normalize to an array of
+  // compiled RegExp (empty when the rule carries no exclude).
+  const excludes = (rule.exclude === undefined || rule.exclude === null)
+    ? []
+    : (Array.isArray(rule.exclude) ? rule.exclude : [rule.exclude]).map((glob) => {
+        try {
+          return globToRegExp(glob);
+        } catch (err) {
+          console.error(`lint:design — rule ${rule.id}: bad exclude glob "${glob}": ${err.message}`);
+          return process.exit(2);
+        }
+      });
   try {
     return {
       re: new RegExp(source, 'g'),
@@ -128,7 +145,7 @@ const compiled = rules.map((rule) => {
       severity: rule.severity === 'error' ? 'error' : 'warn',
       message: rule.message,
       include: rule.include ? globToRegExp(rule.include) : null,
-      exclude: rule.exclude ? globToRegExp(rule.exclude) : null,
+      excludes,
     };
   } catch (err) {
     console.error(`lint:design — rule ${rule.id}: bad pattern /${source}/: ${err.message}`);
@@ -142,9 +159,9 @@ let errors = 0;
 for (const file of files) {
   const fileRel = relative(root, file);
   const lines = readFileSync(file, 'utf8').split('\n');
-  for (const { re, label, severity, message, include, exclude } of compiled) {
+  for (const { re, label, severity, message, include, excludes } of compiled) {
     if (include && !include.test(fileRel)) continue; // rule not scoped to this path
-    if (exclude && exclude.test(fileRel)) continue; // rule excluded for this path
+    if (excludes.some((ex) => ex.test(fileRel))) continue; // excluded closed archetype
     lines.forEach((line, i) => {
       for (const m of line.matchAll(re)) {
         const v = { file: fileRel, line: i + 1, rule: label, severity, message };

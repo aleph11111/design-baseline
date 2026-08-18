@@ -11,6 +11,11 @@
  *   - Submit lifecycle (beginSubmit → simulated 800ms server call → endSubmit).
  *   - Dirty-guarded cancel via `useFormPageState.requestDiscard`.
  *   - Mode-aware footer (Create has no destructive button; Edit does).
+ *   - Derived width (form-page contract Layer 2, v2.0): the shell's `width`
+ *     step is NOT a free choice — it follows from the field count / body
+ *     column layout (the "Body layout" toggle switches columns; `width`
+ *     derives per the contract's keying rule, and a compact 4-field form
+ *     derives the `sm` step).
  *
  * NOTE: This demo uses window.confirm for the discard-confirmation dialog.
  * Real consumers should use shadcn <AlertDialog> for an accessible UX. The
@@ -61,6 +66,18 @@ import {
 
 type FormWidth = "sm" | "md" | "lg" | "xl";
 type FormChrome = "board" | "classic";
+/** Body layout — the demo's single user-facing choice. The shell's `width`
+ * step is DERIVED from this (contract Layer 2, v2.0): a 1-column body of 3–4
+ * fields → `sm`, a 1-column body of 5+ fields → `md`, a 2-column body →
+ * `lg`, a 3-column body → `xl` (wide multi-column layout). */
+type FormLayout = "sm-narrow" | "md-1col" | "lg-2col" | "xl-3col";
+
+const LAYOUT_WIDTH: Record<FormLayout, FormWidth> = {
+  "sm-narrow": "sm",
+  "md-1col": "md",
+  "lg-2col": "lg",
+  "xl-3col": "xl",
+};
 
 // ---------------------------------------------------------------------------
 // Domain
@@ -185,8 +202,13 @@ function buildPayload(values: FormValues) {
 // ---------------------------------------------------------------------------
 
 type RecipeFormCommonProps = {
-  /** Drives `<FormPageShell width>` — the demo's Width toggle. */
-  width: FormWidth;
+  /**
+   * The body layout the demo renders (field count / column arrangement) —
+   * the demo's single user-facing choice. The shell's `width` step DERIVES
+   * from it via the contract's keying rule (docs/archetypes/form-page.md
+   * Layer 2, v2.0) — it is never passed through as a free choice.
+   */
+  layout: FormLayout;
   /**
    * "board" = the on-surface header (title on FormPageShell, current default).
    * "classic" = the classic floating `<FormPageHeader>` + the documented
@@ -216,7 +238,11 @@ type RecipeFormProps = RecipeFormCommonProps &
   );
 
 function RecipeForm(props: RecipeFormProps): React.ReactElement {
-  const { mode, width, chrome, simulateError } = props;
+  const { mode, layout, chrome, simulateError } = props;
+  // Contract Layer 2, v2.0 — the shell's `width` step is a CONSEQUENCE of the
+  // body layout (field count / column arrangement) the demo renders, never a
+  // free choice.
+  const width: FormWidth = LAYOUT_WIDTH[layout];
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -295,197 +321,246 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
   const title =
     mode === "edit" ? `Edit Recipe — ${props.initial.title}` : "New Recipe";
 
+  // ---------------------------------------------------------------------------
+  // Field renderers — reused across layouts. shadcn `<Select>` is a
+  // Radix-controlled component (value/onChange via onValueChange), so it
+  // wraps RHF through `form.setValue` + a `Controller`-free value read from
+  // `form.watch` — the same contract-compliant RHF wiring the demo always
+  // had, factored out so each layout renders from one field set.
+  // ---------------------------------------------------------------------------
+
+  function renderField(
+    name: keyof FormValues,
+    label: string,
+    control: React.ReactNode,
+    description?: string,
+  ): React.ReactElement {
+    return (
+      <FormField
+        control={form.control}
+        name={name}
+        render={() => (
+          <FormItem>
+            <FormLabel>{label}</FormLabel>
+            <FormControl>{control}</FormControl>
+            {description && <FormDescription>{description}</FormDescription>}
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    );
+  }
+
+  const fields: Record<keyof FormValues, React.ReactNode> = {
+    title: renderField(
+      "title",
+      "Title",
+      <Input
+        placeholder="Sunday Carbonara"
+        value={form.watch("title")}
+        onChange={(e) => form.setValue("title", e.target.value)}
+      />,
+    ),
+    cuisine: renderField(
+      "cuisine",
+      "Cuisine",
+      <Select
+        onValueChange={(v) => form.setValue("cuisine", v as Cuisine)}
+        value={form.watch("cuisine")}
+      >
+        <FormControl>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          {CUISINES.map((c) => (
+            <SelectItem key={c} value={c}>
+              {CUISINE_LABELS[c]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>,
+    ),
+    serves: renderField(
+      "serves",
+      "Serves",
+      <Input
+        type="number"
+        min={1}
+        value={form.watch("serves")}
+        onChange={(e) => form.setValue("serves", e.target.value)}
+      />,
+    ),
+    difficulty: renderField(
+      "difficulty",
+      "Difficulty",
+      <Select
+        onValueChange={(v) => form.setValue("difficulty", v as Difficulty)}
+        value={form.watch("difficulty")}
+      >
+        <FormControl>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          {DIFFICULTIES.map((d) => (
+            <SelectItem key={d} value={d}>
+              {DIFFICULTY_LABELS[d]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>,
+    ),
+    prepMinutes: renderField(
+      "prepMinutes",
+      "Prep (min)",
+      <Input
+        type="number"
+        min={1}
+        value={form.watch("prepMinutes")}
+        onChange={(e) => form.setValue("prepMinutes", e.target.value)}
+      />,
+    ),
+    cookMinutes: renderField(
+      "cookMinutes",
+      "Cook (min)",
+      <Input
+        type="number"
+        min={1}
+        value={form.watch("cookMinutes")}
+        onChange={(e) => form.setValue("cookMinutes", e.target.value)}
+      />,
+    ),
+    ingredients: renderField(
+      "ingredients",
+      "Ingredients",
+      <Textarea
+        rows={3}
+        placeholder="One per line…"
+        value={form.watch("ingredients")}
+        onChange={(e) => form.setValue("ingredients", e.target.value)}
+      />,
+    ),
+    tag: renderField(
+      "tag",
+      "Tag",
+      <Input
+        placeholder="weeknight-classic"
+        value={form.watch("tag")}
+        onChange={(e) => form.setValue("tag", e.target.value)}
+      />,
+      "A single kebab-case label. Optional.",
+    ),
+    visibility: renderField(
+      "visibility",
+      "Visibility",
+      <Select
+        onValueChange={(v) => form.setValue("visibility", v as Visibility)}
+        value={form.watch("visibility")}
+      >
+        <FormControl>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          {VISIBILITIES.map((v) => (
+            <SelectItem key={v} value={v}>
+              {VISIBILITY_LABELS[v]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>,
+    ),
+    notes: renderField(
+      "notes",
+      "Notes",
+      <Textarea
+        rows={3}
+        value={form.watch("notes")}
+        onChange={(e) => form.setValue("notes", e.target.value)}
+      />,
+    ),
+  };
+
+  // The body layout — the demo's only user-facing choice. The shell's `width`
+  // step is a CONSEQUENCE of this layout via the contract's keying rule
+  // (docs/archetypes/form-page.md Layer 2, v2.0):
+  //   "sm-narrow" → narrow 3–4-field single column → width "sm"
+  //   "md-1col"   → standard single-column entity form → width "md"
+  //   "lg-2col"   → 2-column field-grid body → width "lg"
+  //   "xl-3col"   → wide multi-column (3-column) body → width "xl"
+  const gridCols =
+    layout === "lg-2col" ? "sm:grid-cols-2" : layout === "xl-3col" ? "sm:grid-cols-3" : null;
+
+  let body: React.ReactNode;
+  if (layout === "sm-narrow") {
+    // Narrow 4-field form (title / cuisine / serves / tag) in one column —
+    // the keying rule's `sm` step. No SectionCards: a 3-group floor is not
+    // reached, so the body stays flat (form-page Layer 5).
+    body = (
+      <div className="space-y-4">
+        {fields.title}
+        {fields.cuisine}
+        {fields.serves}
+        {fields.tag}
+      </div>
+    );
+  } else if (layout === "md-1col") {
+    // All ten fields, standard single-column entity form — the keying
+    // rule's `md` step. 3+ logical groups → SectionCards (form-page Layer 5).
+    body = (
+      <div className="space-y-5">
+        <SectionCard title="Basics">
+          <div className="space-y-4">
+            {fields.title}
+            {fields.cuisine}
+            {fields.serves}
+            {fields.difficulty}
+          </div>
+        </SectionCard>
+        <SectionCard title="Details">
+          <div className="space-y-4">
+            {fields.prepMinutes}
+            {fields.cookMinutes}
+            {fields.ingredients}
+          </div>
+        </SectionCard>
+        <SectionCard title="Publishing">
+          <div className="space-y-4">
+            {fields.tag}
+            {fields.visibility}
+            {fields.notes}
+          </div>
+        </SectionCard>
+      </div>
+    );
+  } else {
+    // 2-column or 3-column field grid — the keying rule's `lg` / `xl` steps.
+    // Paired fields keep adjacent ordering per row; the last field of an
+    // odd group fills its row alone.
+    body = (
+      <div className={`grid grid-cols-1 gap-4 ${gridCols}`}>
+        {fields.title}
+        {fields.cuisine}
+        {fields.serves}
+        {fields.difficulty}
+        {fields.prepMinutes}
+        {fields.cookMinutes}
+        {fields.ingredients}
+        {fields.tag}
+        {fields.visibility}
+        {fields.notes}
+      </div>
+    );
+  }
+
   const formBody = (
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-          {/* 3+ logical groups → each wrapped in a SectionCard (form-page spec
-              Layer 5). The field weight is what makes this a page, not a dialog. */}
-          <SectionCard title="Basics">
-            <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Sunday Carbonara" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <FormField
-                  control={form.control}
-                  name="cuisine"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cuisine</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {CUISINES.map((c) => (
-                            <SelectItem key={c} value={c}>
-                              {CUISINE_LABELS[c]}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="serves"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Serves</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={1} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="difficulty"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Difficulty</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {DIFFICULTIES.map((d) => (
-                            <SelectItem key={d} value={d}>
-                              {DIFFICULTY_LABELS[d]}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-          </SectionCard>
-
-          <SectionCard title="Details">
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="prepMinutes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Prep (min)</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={1} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="cookMinutes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cook (min)</FormLabel>
-                      <FormControl>
-                        <Input type="number" min={1} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={form.control}
-                name="ingredients"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ingredients</FormLabel>
-                    <FormControl>
-                      <Textarea rows={4} placeholder="One per line…" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </SectionCard>
-
-          <SectionCard title="Publishing">
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="tag"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tag</FormLabel>
-                      <FormControl>
-                        <Input placeholder="weeknight-classic" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        A single kebab-case label. Optional.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="visibility"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Visibility</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {VISIBILITIES.map((v) => (
-                            <SelectItem key={v} value={v}>
-                              {VISIBILITY_LABELS[v]}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Notes</FormLabel>
-                    <FormControl>
-                      <Textarea rows={3} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </SectionCard>
+          {body}
 
           {/* Form-level (root) error. The canonical treatment for a form or
               dialog inline error is the compact tinted box — NOT the full
@@ -549,7 +624,9 @@ export function FormPageDemo(): React.ReactElement {
   // multi-section form) rather than the list scaffold used to reach it.
   const [mode, setMode] = React.useState<DemoMode>({ kind: "create" });
   const [lastAction, setLastAction] = React.useState<string | null>(null);
-  const [width, setWidth] = React.useState<FormWidth>("md");
+  // The demo's only width-adjacent choice is the BODY layout; the shell's
+  // `width` step derives from it (contract Layer 2, v2.0) — no `width` state.
+  const [layout, setLayout] = React.useState<FormLayout>("md-1col");
   const [chrome, setChrome] = React.useState<FormChrome>("board");
   const [simulateError, setSimulateError] = React.useState(false);
 
@@ -573,26 +650,31 @@ export function FormPageDemo(): React.ReactElement {
     setMode({ kind: "list" });
   }
 
-  // Toggle row shared by the create/edit form views — drives FormPageShell's
-  // width, board-vs-classic chrome, and a deterministic root-error trigger.
+  // Toggle row shared by the create/edit form views — drives the body layout
+  // (the shell's `width` step follows from it), board-vs-classic chrome, and
+  // a deterministic root-error trigger.
   const controls = (
     <div className="flex flex-wrap items-center justify-between gap-4">
       <p className="max-w-prose text-sm text-muted-foreground">
-        Toggle <strong>Width</strong>, <strong>Chrome</strong> (on-surface
-        board header vs. the classic floating header + Card wrapper), and{" "}
-        <strong>Simulate server error</strong> to surface the root-level
-        error banner on submit.
+        Toggle <strong>Body layout</strong> — the field count / column
+        arrangement the form renders. The shell's <strong>width</strong> step
+        <em> derives</em> from it (contract Layer 2, v2.0): narrow 4-field
+        single column → sm, standard single-column form → md, 2-column field
+        grid → lg, 3-column body → xl. Also toggle <strong>Chrome</strong>{" "}
+        (on-surface board header vs. the classic floating header + Card
+        wrapper) and <strong>Simulate server error</strong> to surface the
+        root-level error banner on submit.
       </p>
       <div className="flex flex-wrap items-center gap-3">
         <SegmentedControl
-          aria-label="Form width"
-          value={width}
-          onValueChange={setWidth}
+          aria-label="Form body layout (derives the shell width)"
+          value={layout}
+          onValueChange={setLayout}
           options={[
-            { value: "sm", label: "Sm" },
-            { value: "md", label: "Md" },
-            { value: "lg", label: "Lg" },
-            { value: "xl", label: "Xl" },
+            { value: "sm-narrow", label: "Narrow (sm)" },
+            { value: "md-1col", label: "1-column (md)" },
+            { value: "lg-2col", label: "2-column (lg)" },
+            { value: "xl-3col", label: "3-column (xl)" },
           ]}
         />
         <SegmentedControl
@@ -618,7 +700,7 @@ export function FormPageDemo(): React.ReactElement {
         {controls}
         <RecipeForm
           mode="create"
-          width={width}
+          layout={layout}
           chrome={chrome}
           simulateError={simulateError}
           onSubmitSuccess={handleCreated}
@@ -644,7 +726,7 @@ export function FormPageDemo(): React.ReactElement {
           mode="edit"
           id={recipe.id}
           initial={recipe}
-          width={width}
+          layout={layout}
           chrome={chrome}
           simulateError={simulateError}
           onSubmitSuccess={handleSaved}
@@ -744,6 +826,12 @@ export function FormPageDemo(): React.ReactElement {
             Open <strong>New recipe</strong> or edit a recipe, flip{" "}
             <strong>Simulate server error</strong>, then submit → the
             root-level error box renders above the footer.
+          </li>
+          <li>
+            Switch <strong>Body layout</strong> — the shell's width step
+            <em> derives</em> from the field count / column arrangement (no
+            free-choice width control): narrow 4-field → sm, 1-column → md,
+            2-column grid → lg, 3-column body → xl.
           </li>
         </ol>
       </div>

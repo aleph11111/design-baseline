@@ -27,7 +27,7 @@ describe("FormPageShell — classic layout (no title)", () => {
 
   it("ignores kicker / headerActions when title is absent", () => {
     const { container, queryByText } = render(
-      <FormPageShell kicker="Orders" headerActions={<button>Save</button>}>
+      <FormPageShell kicker="Orders" headerActions={<span>Save</span>}>
         <p>form body</p>
       </FormPageShell>,
     );
@@ -68,7 +68,7 @@ describe("FormPageShell — board form layout (title set)", () => {
       <FormPageShell
         kicker="Orders"
         title="Order #1024"
-        headerActions={<button>Save</button>}
+        headerActions={<span>Save</span>}
       >
         <p>form body</p>
       </FormPageShell>,

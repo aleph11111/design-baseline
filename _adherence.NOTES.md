@@ -26,11 +26,13 @@ set — `**` spans any run of directory segments, `*` matches within one. This i
 target a single layer of the tree without firing on the rest: the `src`-wide `targets` would
 otherwise flag `src/components/ui/`, where `variant` and `size` are correct shadcn practice.
 
-A rule may also carry an optional `exclude` glob, which removes a matching path from the rule
-(in addition to `include`, when both are set). That is the per-archetype **ratchet valve**: once an
+A rule may also carry an optional `exclude`, which removes a matching path from the rule
+(in addition to `include`, when both are set). `exclude` is a glob, or an array of globs —
+the file is skipped when ANY entry matches. That is the per-archetype **ratchet valve**: once an
 archetype's class is closed, its folder is excluded from the shared `warn` drain rules and a set of
 per-folder `error` rules is added for the closed API, so the scanner no longer counts a closed
-archetype as an open one (the `detail-overview-*` rules below are the first to use it).
+archetype as an open one (the `detail-overview-*` rules below are the first to use it; the
+`form-page-shell-class-name` rule is the second closed archetype's ratchet).
 
 `targets` lists the directory roots the scanner walks for `.tsx` files. The donor ships `["src"]`;
 a consumer retargets it to its app-page directories (e.g. `["src/app/(app)"]`), since these bans
@@ -60,12 +62,14 @@ check landed.
 | `archetype-shell-class-name` | `className` declared on a `*Shell` component | `src/components/archetypes/**/*Shell.tsx` |
 | `archetype-appearance-slot` | an appearance-bearing `ReactNode` slot (`header`, `stats`) | `src/components/archetypes/**` |
 
-Each drain rule also carries `exclude: src/components/archetypes/detail-overview/**` — once an
-archetype's class is closed it drops out of the `warn` drain and is gated by its own
-`error`-tier rules instead (the ratchet, per the `exclude` glob above). `detail-overview` is
-the first: the close-API ticket removed `surface`, `rhythm`, `className`, `headerFill`, and the
-`header`/`stats` `ReactNode` slots (and corrected the `width` default), so the four drain rules
-no longer fire on it.
+Each drain rule also carries an `exclude` array with one glob per closed archetype (both
+`detail-overview/**` and `form-page/**` as of this update) — once an archetype's class is closed
+it drops out of the `warn` drain and is gated by its own `error`-tier rules instead (the ratchet,
+per the `exclude` above). `detail-overview` was the first: the close-API ticket removed `surface`,
+`rhythm`, `className`, `headerFill`, and the `header`/`stats` `ReactNode` slots (and corrected the
+`width` default), so the drain rules no longer fire on it. `form-page` is the second: its close
+removed the `className` escape hatch and keyed `width` exhaustively to field count / column
+layout in the contract, so the `form-page-shell-class-name` ratchet rule gates the closed API.
 
 ### The `detail-overview-*` error rules (ratchet engaged for the closed API)
 
@@ -87,6 +91,18 @@ and `DetailSection`'s `tone` (kept, a graded-section data prop) remain legal eve
 string-literal-union props, so the generic drain rules would over-fire on them; excluding the whole
 folder and re-gating the retired axes by name keeps the lint both precise and ratcheted. That split
 is the reason the ratchet needed the `exclude` glob at all.
+
+### The `form-page` ratchet rule (second closed archetype)
+
+| id | shape caught | include |
+|---|---|---|
+| `form-page-shell-class-name` | `className?: string` declared on the shell | `…/form-page/FormPageShell.tsx` |
+
+The form-page close kept the `width` axis (keyed exhaustively to field count / column layout in the
+contract — the same keep as detail-overview's derived `layout`/`width`), so the folder drops out of
+the drain and the retired axis is re-gated by name, scoped to the shell file: a folder-wide
+`include` would fire on `FormPageHeader`'s pass-through `className` (a non-`*Shell` wrapper — the
+kept axis), which the `*Shell.tsx`-and-file scoping avoids.
 
 Two deliberate boundary choices:
 

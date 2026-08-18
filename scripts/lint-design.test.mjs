@@ -186,5 +186,63 @@ describe("lint-design per-rule include glob", () => {
       expect(files).not.toContain(NOUN); // in include but excluded → no violation
       expect(status).toBe(0); // no error hits remain → exit 0
     });
+
+    describe("array-form exclude (multiple closed archetypes)", () => {
+      it("closes the valve when ANY array entry matches the file", () => {
+        // The drain now carries one exclude glob per closed archetype. The
+        // second entry names a folder with no fixture file; the first entry
+        // matches `.../foo/` → the file is excluded → the error rule exits 0.
+        const rule = {
+          id: "appearance-noun-prop",
+          pattern: 'surface\\?\\s*:',
+          severity: "error",
+          message: "m",
+          include: "src/components/archetypes/**",
+          exclude: [
+            "src/components/archetypes/detail-overview/**",
+            "src/components/archetypes/foo/**",
+          ],
+        };
+        const { stdout, status } = runFixture([rule], "--json");
+        const files = filesOf(stdout);
+        expect(files).not.toContain(NOUN); // matched by the second entry
+        expect(status).toBe(0);
+      });
+
+      it("does not over-reach when no entry matches (the open archetype is still flagged)", () => {
+        // Neither entry names `.../foo/` — the valve closes only for the two
+        // listed folders. The fixture file stays live → exit 1.
+        const rule = {
+          id: "appearance-noun-prop",
+          pattern: 'surface\\?\\s*:',
+          severity: "error",
+          message: "m",
+          include: "src/components/archetypes/**",
+          exclude: [
+            "src/components/archetypes/detail-overview/**",
+            "src/components/archetypes/bar/**",
+          ],
+        };
+        const { stdout, status } = runFixture([rule], "--json");
+        const files = filesOf(stdout);
+        expect(files).toContain(NOUN); // no entry matches → still flagged
+        expect(status).toBe(1);
+      });
+
+      it("still accepts a single-string exclude alongside new array rules", () => {
+        // Backwards compatibility: the string form keeps working unchanged, so
+        // a drain rule not yet extended to an array still compiles.
+        const rule = {
+          id: "appearance-noun-prop",
+          pattern: 'surface\\?\\s*:',
+          severity: "error",
+          message: "m",
+          include: "src/components/archetypes/**",
+          exclude: "src/components/archetypes/foo/**",
+        };
+        const { status } = runFixture([rule]);
+        expect(status).toBe(0);
+      });
+    });
   });
 });
