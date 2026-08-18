@@ -2,7 +2,7 @@
 key: D2
 slug: settings-table
 kind: page
-version: 1.3
+version: 2.0
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -10,6 +10,22 @@ status: locked
 ---
 
 # Archetype D2 — Settings table
+
+> **v2.0 (2026-08-18) — the shell API closes (archetype-convergence Phase 1).**
+> Per-shell appearance choice is no longer a per-page decision. The shell carries
+> no `className` prop (it never shipped one — confirmed by reading the type), and
+> the per-shell `headerFill` override described in the v1.x header section is
+> gone — the header's treatment is a closed project context set once at the
+> top-level app shell (`<AppShell headerFill=…>` is the only entry point; the
+> surface header bar reads that context). Kept and now keyed: the `align` axis on
+> each column (`"left" | "right" | "center"`) is keyed to the column's value kind
+> (a decision table — see Layer 6), and the identifier column's monospace
+> treatment is keyed to the identifier's character style, now stated as a rule in
+> Layer 6 rather than offered as an optional variation. `toolbar` / `bulkActions`
+> / `headerActions` remain `ReactNode` composition slots — they compose the
+> contract's documented toolbar and header primitives, so they vary only content,
+> never the shell's look (spec D5; RULES.md hard rule 12). Deliberate spec-rule
+> change; see Layer 6 (table / grid) for the two keying rules.
 
 ## Purpose
 
@@ -67,7 +83,6 @@ The page header no longer floats above the shell as a separate page-header primi
 **Allowed variation:**
 - **`kicker`** — optional overline above the title (e.g. "Settings", "Catalog"), in the **canonical overline/kicker style**.
 - **`headerActions`** — optional right-aligned small buttons (e.g. "Import", "Add {entity}"): a secondary-style button for secondary actions, the default/primary style for the primary action. At most one primary action.
-- **`headerFill`** — a single shell instance may override the project's house header-fill mode.
 - **Sync / refresh action** — some D2 pages back their data from an external system and expose a "Sync" action. When present, place it in the toolbar (Layer 4) as an async action button.
 
 **Forbidden:**
@@ -124,7 +139,16 @@ The page header no longer floats above the shell as a separate page-header primi
 - The project's **base table primitive**.
 - **Number formatting** — monetary values routed through a consumer-provided formatter. No raw currency symbols or `.toFixed(2)` in cells.
 - **Date formatting** — every date cell renders through a consumer-provided formatter (e.g. `formatDate(value)`). No raw ISO strings in the UI.
-- **Identifier columns** — in the **monospace identifier style** for alphanumeric codes or slugs; omit the monospace style for human-readable name identifiers.
+- **Identifier columns** — in the **monospace identifier style** when the identifier is an alphanumeric code or slug; the monospace style is **omitted** when the identifier is a human-readable name. The keying is mechanical — two engineers holding the same column config derive the same treatment from the identifier's character style.
+- **Column alignment** — `align="left | right | center"` on a column. **Choose by the column's value kind** (what the column's `cell` renders):
+
+  | Column value kind | Alignment |
+  |---|---|
+  | **Numerical / monetary / date / count figure** | **`align="right"`** — tabular figures align on units. |
+  | **Status / category / toggle / identifier / categorical badge** (short token) | **`align="center"`**. |
+  | **Everything else** (names, descriptions, free text) | **`align="left"`** (default). |
+
+  Two engineers holding the same `columns` config derive the same alignment. It is a per-column *data* prop (it describes the value the column holds), not a choice of the shell's own appearance.
 - **Primary identifier cell** — rendered in the **brand/primary color with a hover underline**, with a pointer cursor. Clicking it calls `onRowEdit(row)` — the consumer opens the edit dialog. This is D2's core click contract: **row click → edit dialog, never a detail route or a detail panel**.
 
 **Allowed variation:**
@@ -134,7 +158,6 @@ The page header no longer floats above the shell as a separate page-header primi
   - Binary toggle (active / archived) — a **brand-primary dot** (on) / **muted dot** (off) + label text. Token-pure — never a literal palette color at the call site.
 - **Per-row dropdown menu** — optional for secondary actions (Delete, Duplicate, Deactivate), via the shared **row-actions overflow menu** — the single owner of the row-level `⋯` overflow trigger, shared byte-for-byte with list-with-detail. Do **not** include "Edit" in the menu — identifier-cell click is the only edit trigger.
 - **Row checkbox column** — when `bulkSelectable` is true, a leading checkbox column appears. Selecting all rows checks a header checkbox.
-- **Identifier without the monospace style** — when the identifier is a human-readable name (e.g. a category name, a tag label), the monospace style may be omitted. The **brand/primary color + hover underline** still applies.
 
 **Forbidden:**
 - Explicit "Edit" icon column — identifier-cell click is the only edit trigger.

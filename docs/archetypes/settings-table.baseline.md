@@ -16,6 +16,8 @@ contract: docs/archetypes/settings-table.md
 
 `<SettingsTableShell>` in `src/components/archetypes/settings-table/`. Provides card chrome, toolbar slot, table with optional bulk-select column, row-actions dropdown, and inline loading / empty / error states. The edit dialog and "add new" dialog are consumer-owned (the primitive exposes callbacks); the J (`crud-dialog`) archetype supplies the composable dialog shell once promoted.
 
+**v2.0 convergence close (2026-08-18).** The shell carries no `className` prop (it never shipped one) and no `headerFill` override — the surface header bar reads `HeaderFillContext`, set once at `<AppShell headerFill=…>`. `toolbar` / `bulkActions` / `headerActions` are `ReactNode` composition slots (content, not appearance). The `align` and the identifier monospace-style axes are **kept, keyed**: both are per-column data props whose value the contract's Layer 6 derives from the column's data, so the closed-and-kept precedent (`detail-overview` `layout` / `width`, `list-with-detail` `align`) applies and no `settings-table-*` error rule was added. `src/components/archetypes/settings-table/**` is in the `exclude` array of the generic `archetype-appearance-noun-prop`, `archetype-look-union-prop` and `archetype-appearance-slot` rules in `_adherence.json`, matching the closed-archetype pattern.
+
 ## Role → primitive map
 
 Layer by layer, the concrete primitives and class strings that realize each contract role. Only layers with a baseline-specific binding appear.
@@ -55,7 +57,8 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 
 ### Layer 6 — Table / grid
 - Base table primitive → shadcn/ui `<Table>` (`src/components/ui/table`).
-- Monospace identifier style → `font-mono text-sm font-medium`.
+- Column alignment → `align` on a `SettingsColumn`; `align="right"` for numerical / monetary / date / count columns, `align="center"` for status / category / token columns, `align="left"` (default) for anything else (the contract's Layer 6 keying rule — two engineers holding the same column config derive the same alignment).
+- Monospace identifier style → `font-mono text-sm font-medium` for alphanumeric-code identifiers; omitted for human-readable name identifiers (the contract's Layer 6 keying rule).
 - Clickable primary identifier cell → `text-primary hover:underline cursor-pointer`.
 - Categorical status → a shared `<Badge>` variant.
 - Binary toggle dot → `bg-primary` (on) / `bg-muted-foreground` (off); never a literal palette color at the call site.
