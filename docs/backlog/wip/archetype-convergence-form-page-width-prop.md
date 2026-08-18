@@ -21,14 +21,14 @@ gate:
 ## Context
 
 Phase 1 of the [archetype-convergence roadmap](../archetype-convergence.md) continues in
-MANIFEST order after [detail-overview closed](archive/archetype-convergence-detail-overview-close-api.md)
+MANIFEST order after [detail-overview closed](../archive/archetype-convergence-detail-overview-close-api.md)
 as archetype C. `form-page` is MANIFEST #2. Running `node scripts/lint-design.mjs` directly
 shows **two** warn hits under `src/components/archetypes/form-page/`, not the one originally
 reported: `archetype-look-union-prop` on `FormPageShell.tsx:29` (`width?: "sm" | "md" | "lg" |
 "xl"`) and `archetype-shell-class-name` on `FormPageShell.tsx:31` (`className?: string`). Both
 must clear for a "no rule hit under form-page/" close.
 
-Per RULES.md hard rule 12 / [ADR-0004](../adr/0004-appearance-locality-derived-vs-inherited.md),
+Per RULES.md hard rule 12 / [ADR-0004](../../adr/0004-appearance-locality-derived-vs-inherited.md),
 a per-call-site prop survives only if the contract carries an exhaustive decision rule keying
 its value to the entity or its data. `docs/archetypes/form-page.md:63` states the width column
 is merely "Overridable via a `width` prop" with size steps and no keying rule, and `:71` ties
@@ -110,9 +110,9 @@ requires the script to accept more than one exclude glob per rule.
 ## Related
 
 - [archetype-convergence.md](../archetype-convergence.md) — parent roadmap, Phase 1
-- [archetype-convergence-detail-overview-close-api.md](archive/archetype-convergence-detail-overview-close-api.md)
+- [archetype-convergence-detail-overview-close-api.md](../archive/archetype-convergence-detail-overview-close-api.md)
   — same class of change: width-default check, `className` deletion, demo rework, and the
   spec/MANIFEST major-version pairing all precedent this ticket
-- [archetype-convergence-phase0-appearance-locality-decision.md](archive/archetype-convergence-phase0-appearance-locality-decision.md)
+- [archetype-convergence-phase0-appearance-locality-decision.md](../archive/archetype-convergence-phase0-appearance-locality-decision.md)
   — depends on: ADR-0004/hard rule 12 is what sorts this prop
 - ADR-0004 — the rule this ticket applies
