@@ -20,8 +20,6 @@ export type FeedShellProps = {
   children: React.ReactNode;
   /** Shown (centered, muted) when there are no items — pass for the empty state. */
   empty?: React.ReactNode;
-
-  className?: string;
 } & SurfaceHeaderSlotProps;
 
 /**
@@ -41,14 +39,12 @@ export function FeedShell({
   kicker,
   title,
   headerActions,
-  className,
 }: FeedShellProps): React.ReactElement {
   return (
     <div
       className={cn(
         title !== undefined && "rounded-lg border bg-card overflow-hidden",
         title === undefined && "space-y-5",
-        className,
       )}
     >
       <SurfaceHeaderSlot

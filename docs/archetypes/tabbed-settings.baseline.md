@@ -41,7 +41,6 @@ type SettingsPageHeaderProps = {
 type SettingsPageShellProps = SettingsPageHeaderProps & {
   breadcrumbs?: ReactNode;   // slot — derivation is project-specific
   children: ReactNode;       // F2: <Tabs>; D1: <form>; D2: settings-table shell
-  className?: string;        // standalone pages add their own padding here
 };
 ```
 
@@ -50,8 +49,8 @@ type SettingsPageShellProps = SettingsPageHeaderProps & {
 - The `actions` slot is always empty for tabbed-settings pages (no page-level
   actions). A settings-form (D1) page may use it for a Save button. A
   settings-table (D2) page leaves it empty (its toolbar handles actions).
-- The outer container omits padding — the settings layout supplies the inset.
-  Standalone pages must add their own padding via `className`.
+- The outer container intentionally omits padding — the page inset is owned by
+  `<AppShell>`'s `<main>` (docs/STYLE.md); the shell never adds its own.
 - `<SettingsPageHeader>` is a thin wrapper over the baseline `<PageHeader>`
   layout primitive (`@/components/layout`) — it narrows the surface to the
   settings contract while title layout and typography live in one place.
@@ -65,7 +64,7 @@ contract role. Only layers with a baseline-specific binding appear.
 - Content-shell primitive → `<SettingsPageShell>` (`src/components/archetypes/tabbed-settings/`).
 - Canonical vertical rhythm → `space-y-6` stack wrapping breadcrumbs + header + body.
 - Render-error boundary → `<ErrorBoundary>` (provided by `<SettingsPageShell>`).
-- Page inset (standalone pages) → `className="container mx-auto px-6 py-6"`.
+- Page inset → `<AppShell>`'s `<main>` supplies it — the shell adds none.
 - Forbidden page inset → `p-6`, `px-6 py-6` on the page's own outer container.
 - Page-header treatment → `<SettingsPageHeader>` exclusively (no inline `<h1>`/`<h2>`).
 

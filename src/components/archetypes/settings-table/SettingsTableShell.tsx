@@ -97,8 +97,6 @@ export type SettingsTableShellProps<Row> = {
    * After calling this callback the primitive clears the selection automatically.
    */
   onBulkDelete?: (rows: Row[]) => void;
-
-  className?: string;
 } & SurfaceHeaderSlotProps;
 
 // ---------------------------------------------------------------------------
@@ -136,7 +134,6 @@ export function SettingsTableShell<Row>({
   kicker,
   title,
   headerActions,
-  className,
 }: SettingsTableShellProps<Row>): React.ReactElement {
   const hasActions =
     rowActions !== undefined && rowActions.length > 0;
@@ -319,12 +316,7 @@ export function SettingsTableShell<Row>({
   ) : null;
 
   return (
-    <div
-      className={cn(
-        "rounded-lg border bg-card overflow-hidden",
-        className,
-      )}
-    >
+    <div className="rounded-lg border bg-card overflow-hidden">
       <SurfaceHeaderSlot
         kicker={kicker}
         title={title}

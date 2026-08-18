@@ -112,7 +112,6 @@ export type ListWithDetailShellProps<Row> = {
    * shell draws its own card).
    */
   unstyled?: boolean;
-  className?: string;
 } & SurfaceHeaderSlotProps;
 
 // ---------------------------------------------------------------------------
@@ -146,7 +145,6 @@ function ListWithDetailShellInner<Row>(
     onSortChange,
     presentation = "table",
     unstyled,
-    className,
   }: ListWithDetailShellProps<Row>,
   ref: React.Ref<HTMLDivElement>,
 ) {
@@ -271,10 +269,7 @@ function ListWithDetailShellInner<Row>(
   return (
     <div
       ref={ref}
-      className={cn(
-        !unstyled && "rounded-lg border bg-card overflow-hidden",
-        className,
-      )}
+      className={cn(!unstyled && "rounded-lg border bg-card overflow-hidden")}
     >
       <SurfaceHeaderSlot
         kicker={kicker}

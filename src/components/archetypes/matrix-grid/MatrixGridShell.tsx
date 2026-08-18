@@ -78,9 +78,6 @@ export type MatrixGridShellProps<Cell> = {
    * show (e.g. an as-of control remains usable when the current date has no rows).
    */
   emptyState?: React.ReactNode;
-
-  /** Outer wrapper className override. */
-  className?: string;
 } & SurfaceHeaderSlotProps;
 
 // ---------------------------------------------------------------------------
@@ -105,7 +102,6 @@ function MatrixGridShellInner<Cell>({
   headerActions,
   toolbar,
   emptyState,
-  className,
 }: MatrixGridShellProps<Cell>) {
   const isFilledFn = isFilled ?? defaultIsFilled;
   const rowIdOf = getRowId ?? ((r: MatrixRow<Cell>) => r.id);
@@ -132,12 +128,7 @@ function MatrixGridShellInner<Cell>({
   }
 
   return (
-    <div
-      className={cn(
-        "overflow-x-auto rounded-lg border bg-card",
-        className,
-      )}
-    >
+    <div className="overflow-x-auto rounded-lg border bg-card">
       <SurfaceHeaderSlot
         kicker={kicker}
         title={title}

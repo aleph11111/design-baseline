@@ -5,7 +5,6 @@ import {
   SurfaceHeaderSlot,
   type SurfaceHeaderSlotProps,
 } from "@/components/layout/SurfaceHeaderSlot";
-import { cn } from "@/lib/utils";
 import { WizardStepper, type WizardStep } from "./WizardStepper";
 
 export type WizardShellProps = {
@@ -27,8 +26,6 @@ export type WizardShellProps = {
   commitLabel?: string;
   /** The current step's body. */
   children: React.ReactNode;
-
-  className?: string;
 } & Omit<SurfaceHeaderSlotProps, "headerActions">;
 
 /**
@@ -55,7 +52,6 @@ export function WizardShell({
   children,
   kicker,
   title,
-  className,
 }: WizardShellProps): React.ReactElement {
   const isLast = current >= steps.length - 1;
   const isFirst = current <= 0;
@@ -90,7 +86,7 @@ export function WizardShell({
 
   if (title !== undefined) {
     return (
-      <div className={cn("rounded-lg border bg-card overflow-hidden", className)}>
+      <div className="rounded-lg border bg-card overflow-hidden">
         <SurfaceHeaderSlot
           kicker={kicker}
           title={title}
@@ -100,7 +96,7 @@ export function WizardShell({
     );
   }
 
-  return <div className={cn("space-y-5", className)}>{body}</div>;
+  return <div className="space-y-5">{body}</div>;
 }
 
 WizardShell.displayName = "WizardShell";

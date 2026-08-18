@@ -52,8 +52,6 @@ export type CalendarShellProps = Omit<SurfaceHeaderSlotProps, "title"> & {
   days: CalendarDay[];
   /** Empty-column copy, centred faintly when a day has no events. Default: none. */
   emptyDayLabel?: React.ReactNode;
-  /** Outer card className override. */
-  className?: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -106,15 +104,9 @@ export function CalendarShell({
   headerActions,
   days,
   emptyDayLabel,
-  className,
 }: CalendarShellProps): React.ReactElement {
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-lg border bg-card",
-        className,
-      )}
-    >
+    <div className="overflow-hidden rounded-lg border bg-card">
       <SurfaceHeaderSlot
         kicker={kicker}
         title={title}
