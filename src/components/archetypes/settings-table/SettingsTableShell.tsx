@@ -34,6 +34,13 @@ export type SettingsColumn<Row> = {
   key: string;
   header: React.ReactNode;
   cell: (row: Row) => React.ReactNode;
+  /**
+   * Cell alignment. NOT a free look choice: D2's contract Layer 6 keys the
+   * value to the column's value kind — numeric / monetary / date / count
+   * figures `right`, short tokens (status / category / badge) `center`,
+   * everything else `left` (default). Both readers of the same column
+   * config derive the same value.
+   */
   align?: "left" | "right" | "center";
   /**
    * Marks the identifier cell. Gets `text-primary hover:underline cursor-pointer`
@@ -42,8 +49,9 @@ export type SettingsColumn<Row> = {
   isIdentifier?: boolean;
   /**
    * Style the identifier cell with `font-mono text-sm font-medium`.
-   * Defaults to false — settings entities are typically human-readable names.
-   * Set to true for code-based identifiers (slugs, IDs, keys).
+   * Keyed to the identifier's character style (D2 contract Layer 6):
+   * true for alphanumeric codes or slugs, false (default) for
+   * human-readable name identifiers.
    */
   identifierMono?: boolean;
 };

@@ -45,9 +45,10 @@
       "exclude": [
         "src/components/archetypes/detail-overview/**",
         "src/components/archetypes/form-page/**",
-        "src/components/archetypes/list-with-detail/**"
+        "src/components/archetypes/list-with-detail/**",
+        "src/components/archetypes/settings-table/**"
       ],
-      "message": "A prop named from the appearance-noun list is a per-call-site appearance the contract does not derive (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail) are gated by their own `*-` error rules."
+      "message": "A prop named from the appearance-noun list is a per-call-site appearance the contract does not derive (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, settings-table) are gated by their own `*-` error rules."
     },
     {
       "id": "archetype-look-union-prop",
@@ -58,9 +59,10 @@
         "src/components/archetypes/detail-overview/**",
         "src/components/archetypes/form-page/**",
         "src/components/archetypes/list-with-detail/**",
-        "src/components/archetypes/crud-dialog/**"
+        "src/components/archetypes/crud-dialog/**",
+        "src/components/archetypes/settings-table/**"
       ],
-      "message": "A prop typed as an inline string-literal union of look-names is a design space two projects can fill differently (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, crud-dialog) are gated by their own `*-` error rules."
+      "message": "A prop typed as an inline string-literal union of look-names is a design space two projects can fill differently (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, crud-dialog, settings-table) are gated by their own `*-` error rules."
     },
     {
       "id": "archetype-shell-class-name",
@@ -80,9 +82,10 @@
       "exclude": [
         "src/components/archetypes/detail-overview/**",
         "src/components/archetypes/form-page/**",
-        "src/components/archetypes/list-with-detail/**"
+        "src/components/archetypes/list-with-detail/**",
+        "src/components/archetypes/settings-table/**"
       ],
-      "message": "An appearance-bearing `ReactNode` slot (`header`, `stats`) is a per-call-site appearance prop by another name (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail) are gated by their own `*-` error rules."
+      "message": "An appearance-bearing `ReactNode` slot (`header`, `stats`) is a per-call-site appearance prop by another name (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, settings-table) are gated by their own `*-` error rules."
     },
     {
       "id": "detail-overview-surface-prop",
