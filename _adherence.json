@@ -57,16 +57,20 @@
       "exclude": [
         "src/components/archetypes/detail-overview/**",
         "src/components/archetypes/form-page/**",
-        "src/components/archetypes/list-with-detail/**"
+        "src/components/archetypes/list-with-detail/**",
+        "src/components/archetypes/crud-dialog/**"
       ],
-      "message": "A prop typed as an inline string-literal union of look-names is a design space two projects can fill differently (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail) are gated by their own `*-` error rules."
+      "message": "A prop typed as an inline string-literal union of look-names is a design space two projects can fill differently (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, crud-dialog) are gated by their own `*-` error rules."
     },
     {
       "id": "archetype-shell-class-name",
       "pattern": "^\\s{0,2}className\\?\\s*:\\s*string",
       "severity": "error",
-      "include": "src/components/archetypes/**/*Shell.tsx",
-      "message": "`className` is an unenumerable superset escape hatch on a *Shell's outer wrapper — fork the component instead (RULES.md hard rule 12). Scoped to top-level props (indent ≤2) so a nested leaf descriptor (the matrix-grid per-cell `cellStyle` field — styling data, not shell appearance) is not flagged."
+      "include": [
+        "src/components/archetypes/**/*Shell.tsx",
+        "src/components/archetypes/**/*Sheet.tsx"
+      ],
+      "message": "`className` is an unenumerable superset escape hatch on a shell's outer wrapper — fork the component instead (RULES.md hard rule 12). Scoped to top-level props (indent ≤2) so a nested leaf descriptor (the matrix-grid per-cell `cellStyle` field — styling data, not shell appearance) is not flagged. The `include` is an array so it catches both the `*Shell.tsx`-named page shells and the `*Sheet.tsx`-named overlay shells (e.g. crud-dialog's `CrudDialogSheet`) — a shell not named `*Shell.tsx` would otherwise slip the gate."
     },
     {
       "id": "archetype-appearance-slot",
@@ -142,6 +146,13 @@
       "severity": "error",
       "include": "src/components/archetypes/list-with-detail/ListWithDetailShell.tsx",
       "message": "`className` is an unenumerable superset escape hatch on the list-with-detail shell — fork the component instead (archetype-convergence list-with-detail close-API; RULES.md hard rule 12)."
+    },
+    {
+      "id": "crud-dialog-shell-class-name",
+      "pattern": "^\\s{0,2}className\\?\\s*:\\s*string",
+      "severity": "error",
+      "include": "src/components/archetypes/crud-dialog/**",
+      "message": "`className` is an unenumerable superset escape hatch on the crud-dialog shell — the CRUD-dialog shell (`CrudDialogSheet`) is the archetype's outer wrapper and is not named `*Shell.tsx`, so the generic `*Shell`-scope alone never reaches it (archetype-convergence crud-dialog close-API; RULES.md hard rule 12). Scoped to indent ≤2 top-level props, folder-wide, so re-adding `className` to the sheet or body/header/footer reopens the deleted axis."
     }
   ]
 }

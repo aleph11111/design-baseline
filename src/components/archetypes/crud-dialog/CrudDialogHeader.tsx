@@ -31,7 +31,6 @@ export type CrudDialogHeaderProps = {
    * when a labeled close button is required by the design.
    */
   onClose?: () => void;
-  className?: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -55,7 +54,6 @@ export function CrudDialogHeader({
   subtitle,
   actions,
   onClose,
-  className,
 }: CrudDialogHeaderProps): React.ReactElement {
   const hfc = headerFillClasses(useHeaderFill());
   return (
@@ -63,7 +61,6 @@ export function CrudDialogHeader({
       className={cn(
         "flex items-start justify-between gap-4 px-6 py-4 shrink-0",
         hfc.bar,
-        className,
       )}
     >
       {/* Title + subtitle — rendered via SheetTitle/SheetDescription so the

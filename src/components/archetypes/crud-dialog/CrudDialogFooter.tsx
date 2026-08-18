@@ -1,6 +1,5 @@
 import * as React from "react";
 import { ActionFooterBar } from "@/components/archetypes/shared/ActionFooterBar";
-import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -49,8 +48,6 @@ export type CrudDialogFooterProps = {
    * destructive button.
    */
   overflowMenu?: React.ReactNode;
-
-  className?: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -95,7 +92,6 @@ export function CrudDialogFooter({
   destructiveLabel,
   onDestructive,
   overflowMenu,
-  className,
 }: CrudDialogFooterProps): React.ReactElement {
   // Thin wrapper over the shared ActionFooterBar core: J's distinct surface is
   // just the bordered `px-6 py-4` container. Destructive gating is the plain
@@ -104,7 +100,7 @@ export function CrudDialogFooter({
   // actions enabled — so `formAware`/`disableActionsWhileDeleting` stay off.
   return (
     <ActionFooterBar
-      className={cn("border-t px-6 py-4 shrink-0", className)}
+      className="border-t px-6 py-4 shrink-0"
       primaryLabel={primaryLabel}
       onPrimary={onPrimary}
       primaryDisabled={primaryDisabled}

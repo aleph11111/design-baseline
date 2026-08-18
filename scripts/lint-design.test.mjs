@@ -39,8 +39,15 @@ function runFixture(rules, ...args) {
   try {
     mkdirSync(archDir, { recursive: true });
     mkdirSync(uiDir, { recursive: true });
-    const props = 'export type P = {\n  surface?: "a" | "b";\n};\n';
+    // Both a look-union `surface` prop and a top-level `className` escape hatch, so a
+    // `surface`-pattern rule and a `className`-pattern rule can each be scoped off path
+    // alone. Three archetype-layer files share the same two declarations — one named
+    // `*Shell.tsx`, one `*Sheet.tsx` (the overlay-shell suffix that is NOT `*Shell`), and
+    // one `*Panel.tsx` (a leaf, NOT a shell) — plus a ui-layer control. Only paths differ.
+    const props = 'export type P = {\n  surface?: "a" | "b";\n  className?: string;\n};\n';
     writeFileSync(join(archDir, "FooShell.tsx"), props);
+    writeFileSync(join(archDir, "FooSheet.tsx"), props);
+    writeFileSync(join(archDir, "FooPanel.tsx"), props);
     writeFileSync(join(uiDir, "button.tsx"), props);
     writeFileSync(join(dir, "_adherence.json"), JSON.stringify({ targets: ["src"], rules }));
     let r;
@@ -89,6 +96,8 @@ describe("lint-design per-rule include glob", () => {
   // Fixture files share one line: `surface?: "a" | "b";` — an appearance-noun
   // prop and an inline union both on the same declaration. Only the paths differ.
   const NOUN = "src/components/archetypes/foo/FooShell.tsx";
+  const SHEET = "src/components/archetypes/foo/FooSheet.tsx";
+  const PANEL = "src/components/archetypes/foo/FooPanel.tsx";
   const UI = "src/components/ui/button.tsx";
   const filesOf = (stdout) =>
     new Set(JSON.parse(stdout).violations.map((v) => v.file));
@@ -144,6 +153,71 @@ describe("lint-design per-rule include glob", () => {
     };
     const { status } = runFixture([rule]);
     expect(status).toBe(0); // same live hit, warn severity → exit 0
+  });
+
+  describe("array-form include (multi-suffix shell scope)", () => {
+    // The shell-class-name rule's `include` is an array so it covers both the
+    // `*Shell.tsx`-named and the `*Sheet.tsx`-named shell files (the gap the
+    // crud-dialog shell — not named `*Shell` — exposed). These tests mirror the
+    // single-glob include behaviour and the exclude block below.
+    const TWO_SUFFIX_INCLUDE = [
+      "src/components/archetypes/**/*Shell.tsx",
+      "src/components/archetypes/**/*Sheet.tsx",
+    ];
+
+    it("matches any entry — a `*Sheet.tsx`-named shell is in scope", () => {
+      // FooSheet.tsx is NOT `*Shell.tsx`; a single `*Shell.tsx` include would miss it.
+      // The array-form include catches it (ANY entry matches) — the general shell
+      // case, not only `*Shell`-named files.
+      const rule = {
+        id: "shell-class-name",
+        pattern: 'className\\?\\s*:\\s*string',
+        severity: "warn",
+        message: "m",
+        include: TWO_SUFFIX_INCLUDE,
+      };
+      const { stdout, status } = runFixture([rule], "--json");
+      const files = filesOf(stdout);
+      expect(files).toContain(NOUN); // matches the *Shell.tsx entry
+      expect(files).toContain(SHEET); // matches the *Sheet.tsx entry (the widened case)
+      expect(files).not.toContain(PANEL); // leaf, matches neither entry
+      expect(files).not.toContain(UI); // outside include entirely
+      expect(status).toBe(0); // warn severity, no threshold
+    });
+
+    it("does not over-reach to non-shell leaves (a `*Panel` is untouched)", () => {
+      // With the same error-severity pattern the widened glob must NOT pull a
+      // non-shell leaf into the ratchet — only the two shell suffixes are in scope.
+      const rule = {
+        id: "shell-class-name",
+        pattern: 'surface\\?\\s*:',
+        severity: "error",
+        message: "m",
+        include: TWO_SUFFIX_INCLUDE,
+      };
+      const { stdout, status } = runFixture([rule], "--json");
+      const files = filesOf(stdout);
+      expect(files).toContain(NOUN); // shell
+      expect(files).toContain(SHEET); // sheet
+      expect(files).not.toContain(PANEL); // leaf not matched → stays out of the error set
+      expect(status).toBe(1); // at least one error hit (NOUN + SHEET)
+    });
+
+    it("still accepts a single-string `include` alongside array rules", () => {
+      // Backwards compatibility: a rule that keeps the string-form `include`
+      // (only `*Shell.tsx`) still compiles and matches only that entry.
+      const rule = {
+        id: "shell-class-name",
+        pattern: 'surface\\?\\s*:',
+        severity: "warn",
+        message: "m",
+        include: "src/components/archetypes/**/*Shell.tsx",
+      };
+      const { stdout } = runFixture([rule], "--json");
+      const files = filesOf(stdout);
+      expect(files).toContain(NOUN); // the single entry still matches
+      expect(files).not.toContain(SHEET); // not in the single-glob scope
+    });
   });
 
   describe("per-rule exclude glob (ratchet valve)", () => {

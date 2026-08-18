@@ -116,35 +116,43 @@ function globToRegExp(glob) {
 
 // Compile each rule once. `pattern` is used verbatim; a `tag` rule matches a bare lowercase
 // element — `<tag` immediately followed by whitespace, `/`, or `>` — case-sensitive (no `i`
-// flag) so the capitalized DS primitive `<Button>` is not a hit. An `include` glob, when
+// flag) so the capitalized DS primitive `<Button>` is not a hit. An `include`, when
 // present, restricts the rule to walked files whose repo-root-relative path matches it; an
-// `exclude`, when present, removes such files from the rule. `include` is a single glob;
-// `exclude` is a glob or an array of globs (the file is skipped when ANY exclude matches —
-// one closed archetype is one array entry). A rule with both applies only inside `include`
-// and outside every `exclude`. That is what lets a shared drain rule (e.g. the appearance-prop
+// `exclude`, when present, removes such files from the rule. Both `include` and `exclude`
+// are a glob or an array of globs: a file is in scope when ANY `include` glob matches it —
+// e.g. `["**/*Shell.tsx", "**/*Sheet.tsx"]` scopes a shell rule to both the `*Shell.tsx`-
+// named and the `*Sheet.tsx`-named overlay shells, the two suffix forms a shell may take —
+// and is excluded when ANY `exclude` matches (one closed archetype is one array entry). A
+// rule with both applies only inside `include` and outside every `exclude`.
+// That is what lets a shared drain rule (e.g. the appearance-prop
 // noun/union ban over `src/components/archetypes/**`) drop each already-closed archetype out
 // of the `warn` drain while a per-archetype `error` rule stays scoped to it.
+// `compileGlobs` normalizes either form (single glob or array) to an array of compiled
+// RegExp so the scope check below stays one `includes.some(...)` / `excludes.some(...)`.
+function compileGlobs(rule, key) {
+  const value = rule[key];
+  if (value === undefined || value === null) return [];
+  return (Array.isArray(value) ? value : [value]).map((glob) => {
+    try {
+      return globToRegExp(glob);
+    } catch (err) {
+      console.error(`lint:design — rule ${rule.id}: bad ${key} glob "${glob}": ${err.message}`);
+      return process.exit(2);
+    }
+  });
+}
+
 const compiled = rules.map((rule) => {
   const source = rule.pattern ?? `<${rule.tag}(?=[\\s/>])`;
-  // `exclude` may be a single glob string or an array of them; normalize to an array of
-  // compiled RegExp (empty when the rule carries no exclude).
-  const excludes = (rule.exclude === undefined || rule.exclude === null)
-    ? []
-    : (Array.isArray(rule.exclude) ? rule.exclude : [rule.exclude]).map((glob) => {
-        try {
-          return globToRegExp(glob);
-        } catch (err) {
-          console.error(`lint:design — rule ${rule.id}: bad exclude glob "${glob}": ${err.message}`);
-          return process.exit(2);
-        }
-      });
+  const includes = compileGlobs(rule, 'include');
+  const excludes = compileGlobs(rule, 'exclude');
   try {
     return {
       re: new RegExp(source, 'g'),
       label: rule.tag ? `<${rule.tag}>` : rule.id,
       severity: rule.severity === 'error' ? 'error' : 'warn',
       message: rule.message,
-      include: rule.include ? globToRegExp(rule.include) : null,
+      includes,
       excludes,
     };
   } catch (err) {
@@ -159,8 +167,10 @@ let errors = 0;
 for (const file of files) {
   const fileRel = relative(root, file);
   const lines = readFileSync(file, 'utf8').split('\n');
-  for (const { re, label, severity, message, include, excludes } of compiled) {
-    if (include && !include.test(fileRel)) continue; // rule not scoped to this path
+  for (const { re, label, severity, message, includes, excludes } of compiled) {
+    // No `include` (or a rule whose `include` list is empty) matches every walked file;
+    // with one or more `include` globs the rule applies only when ANY of them matches.
+    if (includes.length && !includes.some((inc) => inc.test(fileRel))) continue;
     if (excludes.some((ex) => ex.test(fileRel))) continue; // excluded closed archetype
     lines.forEach((line, i) => {
       for (const m of line.matchAll(re)) {
