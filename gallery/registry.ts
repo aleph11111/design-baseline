@@ -86,6 +86,13 @@ const DEMOS: Record<
     kind: "page",
     Demo: lazyDemo(() => import("@/examples/report-demo"), "ReportDemo"),
   },
+  "statement-with-filters": {
+    kind: "page",
+    Demo: lazyDemo(
+      () => import("@/examples/statement-with-filters-demo"),
+      "StatementWithFiltersDemo",
+    ),
+  },
   "calendar": {
     kind: "page",
     Demo: lazyDemo(() => import("@/examples/calendar-demo"), "CalendarDemo"),
