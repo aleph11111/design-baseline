@@ -223,6 +223,21 @@
       "example": "src/examples/report-demo.tsx"
     },
     {
+      "key": "F",
+      "namespace": "baseline",
+      "slug": "statement-with-filters",
+      "displayName": "Statement with filters",
+      "kind": "page",
+      "version": "1.0",
+      "promoted_from": "controlling-app",
+      "promoted_at": "2026-08-19",
+      "source_spec_version": "1.0",
+      "spec": "docs/archetypes/statement-with-filters.md",
+      "reference_impl": "docs/archetypes/statement-with-filters.baseline.md",
+      "primitives_dir": "src/components/archetypes/statement-with-filters",
+      "example": "src/examples/statement-with-filters-demo.tsx"
+    },
+    {
       "key": "Cal",
       "namespace": "baseline",
       "slug": "calendar",
