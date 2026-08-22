@@ -41,6 +41,17 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      size === "icon" &&
+      !props["aria-label"] &&
+      !props["aria-labelledby"] &&
+      !props.title
+    ) {
+      console.warn(
+        'Button size="icon" has no aria-label, aria-labelledby, or title — screen readers will announce it as an unlabeled button. Add an aria-label describing the action.'
+      )
+    }
     const Comp = asChild ? Slot : "button"
     return (
       <Comp

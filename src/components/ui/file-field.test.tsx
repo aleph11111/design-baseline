@@ -60,3 +60,38 @@ describe("FileField — size gate + reset", () => {
     expect(onClear).toHaveBeenCalled();
   });
 });
+
+describe("FileField — onFilesDrop drag-and-drop (dropzone only)", () => {
+  it("delivers dropped files via onFilesDrop when opted in", () => {
+    const onFilesDrop = vi.fn();
+    const { container } = render(
+      <FileField
+        variant="dropzone"
+        multiple
+        triggerLabel="Drop files"
+        onSelect={() => {}}
+        onFilesDrop={onFilesDrop}
+      />
+    );
+    const dropzone = container.querySelector('[role="button"]')!;
+    const files = [file("a.csv", 10), file("b.csv", 20)];
+    fireEvent.dragOver(dropzone);
+    fireEvent.drop(dropzone, {
+      dataTransfer: { files } as unknown as DataTransfer,
+    });
+    expect(onFilesDrop).toHaveBeenCalledTimes(1);
+    expect(onFilesDrop).toHaveBeenLastCalledWith(files);
+  });
+
+  it("does not attach drop handlers without the onFilesDrop opt-in", () => {
+    const { container } = render(
+      <FileField variant="dropzone" triggerLabel="Drop files" onSelect={() => {}} />
+    );
+    const dropzone = container.querySelector('[role="button"]')!;
+    // No onDrop wired when the prop is absent — dropping is a no-op.
+    fireEvent.drop(dropzone, {
+      dataTransfer: { files: [file("a.csv", 10)] } as unknown as DataTransfer,
+    });
+    expect(screen.getByText("Drop files")).toBeTruthy();
+  });
+});
