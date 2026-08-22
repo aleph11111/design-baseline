@@ -10,10 +10,11 @@ import { cn } from "@/lib/utils";
 // shadcn has no file primitive, so every project hid a bare `<input type="file">`
 // and re-invented the trigger, the `input.value = ""` reset-after-read, the
 // selected-file row, and the same `if (size > N)` gate. This wraps the native
-// control so it is shared AND on-token: a Button trigger (or a dashed dropzone
-// that is still click-to-pick — real drag-and-drop was one-off, kept out), an
-// optional selected-file row (name + size + clear), and a built-in size gate.
-// Fire-and-forget: file state stays with the caller via `onSelect`.
+// control so it is shared AND on-token: a Button trigger, a dashed dropzone
+// that is click-to-pick by default and can opt into native drag-and-drop via
+// `onFilesDrop`, an optional selected-file row (name + size + clear), and a
+// built-in size gate. Fire-and-forget: file state stays with the caller via
+// `onSelect`.
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -33,7 +34,7 @@ export interface FileFieldProps {
   disabled?: boolean;
   /** Show a spinner and disable the trigger while an upload is in flight. */
   busy?: boolean;
-  /** `"button"` (default) or a dashed `"dropzone"` box — both are click-to-pick. */
+  /** `"button"` (default) or a dashed `"dropzone"` box. */
   variant?: "button" | "dropzone";
   /** Field label rendered above the trigger. */
   label?: string;
@@ -49,6 +50,8 @@ export interface FileFieldProps {
   selected?: File[] | null;
   /** Called when the clear-X on the selected row is pressed. */
   onClear?: () => void;
+  /** Dropzone variant only: enable native drag-and-drop file delivery alongside click-to-pick. */
+  onFilesDrop?: (files: File[]) => void;
   /** Applied to the wrapper. */
   className?: string;
 }
@@ -71,6 +74,7 @@ export function FileField({
   onSizeError,
   selected,
   onClear,
+  onFilesDrop,
   className,
 }: FileFieldProps): React.ReactElement {
   const ref = React.useRef<HTMLInputElement>(null);
@@ -132,6 +136,15 @@ export function FileField({
               open();
             }
           }}
+          onDragOver={onFilesDrop ? (e) => e.preventDefault() : undefined}
+          onDrop={
+            onFilesDrop
+              ? (e) => {
+                  e.preventDefault();
+                  onFilesDrop(Array.from(e.dataTransfer.files));
+                }
+              : undefined
+          }
           className={cn(
             "flex flex-col items-center gap-2 rounded-lg border-2 border-dashed border-input p-8 text-center text-sm text-muted-foreground transition-colors",
             "hover:border-ring/50 hover:bg-accent",
