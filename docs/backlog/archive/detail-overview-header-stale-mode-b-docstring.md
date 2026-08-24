@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: 2026-08-24
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "comment-only rewrite following an established sibling pattern (PageHeader/SectionHeading JSDoc) with the exact replacement text fixed by the shipped v3.0 contract"
@@ -61,9 +61,9 @@ projects, the stale text re-opens the drift the primitive shipped to close.
 
 ## Related
 
-- [archetype-convergence roadmap](archetype-convergence.md) — Phase 1 shipped
+- [archetype-convergence roadmap](../archetype-convergence.md) — Phase 1 shipped
   the `NestedPageHeading` primitive and closed this exact freedom.
-- [archive/archetype-convergence-nested-heading-primitive.md](archive/archetype-convergence-nested-heading-primitive.md)
+- [archive/archetype-convergence-nested-heading-primitive.md](../archive/archetype-convergence-nested-heading-primitive.md)
   — ships the primitive this docstring must now point to.
-- [archive/archetype-convergence-detail-overview-close-api.md](archive/archetype-convergence-detail-overview-close-api.md)
+- [archive/archetype-convergence-detail-overview-close-api.md](../archive/archetype-convergence-detail-overview-close-api.md)
   — closed the shell's derived-prop API in the same phase.

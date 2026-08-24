@@ -36,13 +36,16 @@ export type DetailOverviewHeaderProps = {
  * DetailOverviewHeader — standalone header for a C (detail-overview) archetype
  * instance.
  *
- * Use this in **Mode A — standalone**: the page renders its own header because
- * no parent layout owns it (typical for top-level entity routes like
- * `/:resource/[id]`).
+ * Use this in **Mode A — standalone**: call this header above the
+ * `<DetailOverviewShell>` because no parent layout owns the title (typical for
+ * top-level entity routes like `/:resource/[id]`). It renders the canonical
+ * `<h1>` through `PageHeader`.
  *
  * For **Mode B — nested** (the parent route layout already renders the entity
- * title and any tab nav), omit this header entirely. Optionally introduce a
- * section-level `<h2>` if the parent's tab label is insufficient context.
+ * title and any tab nav), do not call this header. Pass `title` / `subtitle` /
+ * `badges` / `actions` to `<DetailOverviewShell>`, which renders the
+ * fixed-scale nested `<h2>` itself via `NestedPageHeading` — no per-call-site
+ * heading choice.
  *
  * Layout:
  *   [title]                                                  [actions]
