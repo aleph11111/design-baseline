@@ -27,6 +27,6 @@ gate:
 
 ## Related
 
-- [docs/ADOPTION-QUALITY.md](../ADOPTION-QUALITY.md)
-- [docs/FLEET-AUDIT.md](../FLEET-AUDIT.md)
-- [docs/PROMOTION-RADAR.md](../PROMOTION-RADAR.md)
+- [docs/ADOPTION-QUALITY.md](../../ADOPTION-QUALITY.md)
+- [docs/FLEET-AUDIT.md](../../FLEET-AUDIT.md)
+- [docs/PROMOTION-RADAR.md](../../PROMOTION-RADAR.md)
