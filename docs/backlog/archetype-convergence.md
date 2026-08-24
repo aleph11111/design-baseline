@@ -1,8 +1,8 @@
 ---
 area: archetypes
+kind: roadmap
 opened: '2026-08-17'
 status: active
-kind: roadmap
 spec: docs/superpowers/specs/2026-08-17-archetype-convergence-design.md
 scope:
   - archetype-convergence-*
@@ -11,6 +11,55 @@ tickets:
   - archetype-convergence-nested-heading-primitive
   - archetype-convergence-detail-overview-close-api
   - archetype-convergence-appearance-prop-lint
+phases:
+  - name: p0
+    title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
+    tickets:
+      - archetype-convergence-phase0-appearance-locality-decision
+    open: false
+    spec_anchor: '## The governing rule'
+  - name: p1
+    title: Close detail-overview API + Mode B nested-heading primitive
+    tickets:
+      - archetype-convergence-nested-heading-primitive
+      - archetype-convergence-detail-overview-close-api
+    open: false
+    spec_anchor: '## Closing detail-overview'
+  - name: lint
+    title: Appearance-prop adherence rules scoped to the archetype layer
+    tickets:
+      - archetype-convergence-appearance-prop-lint
+    open: false
+    spec_anchor: '## Enforcement'
+  - name: warn-drain
+    title: Drain the warn-level hits across the remaining archetype shells
+    tickets:
+      - archetype-convergence-crud-dialog-close-api
+      - archetype-convergence-form-page-width-prop
+      - archetype-convergence-list-with-detail-close-api
+      - archetype-convergence-settings-table-close-api
+      - archetype-shell-classname-drop
+    open: false
+  - name: pkg
+    title: Consumable source package — exports map, no compiled CSS
+    tickets: []
+    open: true
+    spec_anchor: '## Phases 2–5 — design level only'
+  - name: token-split
+    title: Split tokens.css into package-owned base and project-owned brand layers
+    tickets: []
+    open: true
+    spec_anchor: '## Phases 2–5 — design level only'
+  - name: consumer-migration
+    title: Migrate hk-crm /companies/[id] onto the packaged archetype
+    tickets: []
+    open: true
+    spec_anchor: '## Phases 2–5 — design level only'
+  - name: drop-drift-machinery
+    title: Delete the copy-comparison drift and adoption machinery
+    tickets: []
+    open: true
+    spec_anchor: '## Phases 2–5 — design level only'
 ---
 
 # Archetype convergence — close the archetype API, then distribute it as a package
