@@ -314,6 +314,7 @@ consolidation pass, after an audit found each hand-rolled in 3–4 places):
 | Entity circle (icon / initials) | `IconAvatar` (`ui/icon-avatar`) | a `<span className="rounded-full bg-muted">` |
 | Status / category chip | `<Badge>` (`ui/badge`) | a `<span className="rounded-full border px-2.5 py-0.5">` |
 | Positive / caution status color | `--success` / `--warning` tokens (`styles/tokens.css`) | `bg-green-500`, `text-emerald-600`, `bg-amber-50`, or a second tone→class map beside `<Badge>`'s |
+| Quality / affordance marker (e.g. rating stars) | `--rating` token (`styles/tokens.css`) — no `-foreground` pair, drawn onto the surface | `text-amber-500`, hard-coded hex star ink, or `--warning` for the star (it is a quality signal, not an alert) |
 | Uppercase overline label | `OVERLINE_CLASS` (`layout/overline`), via `SectionHeading`/`StatTile` | a re-typed `text-xs uppercase tracking-*` string |
 | Editable control flush in a table/grid cell | `CellInput` / `CellSelect` (`ui/cell-input`) | a bare native `<input>`/`<select>` in a `<td>` |
 | Native colour picker (swatch + hex) | `ColorField` (`ui/color-field`) | a bare boxed `<input type="color">`, with or without a paired hex `<Input>` |
@@ -387,6 +388,10 @@ When applying the baseline to a new project with its own brand:
    - Leave `--success` / `--warning` alone unless the brand genuinely redefines
      them — they are semantic, not brand, and the donor defaults are already
      contrast-checked in both themes.
+   - `--rating` is the quality/affordance ink (e.g. rating stars) — it lightens
+     in `.dark` for on-surface legibility but carries no `-foreground` pair;
+     override the donor default only if the brand's rating marker genuinely
+     needs a different hue.
    - Tweak `--sidebar-*` for a contrasting sidebar surface if desired.
 2. Set the brand font in the project entry (Next: `next/font/google`; Vite: `<link>` in `index.html`).
 3. Replace the `brand` and `appName` props on `<AppSidebar>` with real values.

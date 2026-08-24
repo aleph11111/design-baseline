@@ -63,6 +63,8 @@
   --color-warning: hsl(var(--warning));
   --color-warning-foreground: hsl(var(--warning-foreground));
 
+  --color-rating: hsl(var(--rating));
+
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
 
@@ -156,6 +158,13 @@
     --warning: 26 90.5% 37.1%;
     --warning-foreground: 0 0% 100%;
 
+    /* Quality/affordance marker (e.g. rating stars) — deliberately NOT
+       --warning: a star is a quality signal, not an alert, and coupling it
+       to the warning hue would drag it every time that hue moves. No
+       -foreground pair: drawn straight onto the surface (`bg-rating` /
+       `text-rating`), like a chart step, not paired text-on-chip. */
+    --rating: 38 92% 45%;
+
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
@@ -202,6 +211,8 @@
 
     --warning: 43 96% 56%;
     --warning-foreground: 26 90% 10%;
+
+    --rating: 43 96% 56%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;

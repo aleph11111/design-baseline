@@ -17,8 +17,8 @@ Consumer repo `mistra` (`aleph11111/mistra`) tokenized its model star-rating ink
 
 ## What to do
 
-- [ ] Ship a rating/affordance semantic token pair in `src/styles/tokens.css`, following the existing `--success`/`--warning` lightness-flip convention (dark base + light text in `:root`, light base + dark text in `.dark`) and the matching `--color-*` Tailwind bridge — mistra's shipped values (`--rating: 38 92% 45%` light, `43 96% 56%` dark) are a usable starting point, not a hard requirement.
-- [ ] Add the new token to the semantic-token list wherever `--success`/`--warning` are documented today (`docs/STACK.md` / `docs/STYLE.md`) so it isn't a silent addition.
+- [x] Ship a rating/affordance semantic token pair in `src/styles/tokens.css`, following the existing `--success`/`--warning` lightness-flip convention (dark base + light text in `:root`, light base + dark text in `.dark`) and the matching `--color-*` Tailwind bridge — mistra's shipped values (`--rating: 38 92% 45%` light, `43 96% 56%` dark) are a usable starting point, not a hard requirement.
+- [x] Add the new token to the semantic-token list wherever `--success`/`--warning` are documented today (`docs/STACK.md` / `docs/STYLE.md`) so it isn't a silent addition.
 
 ## Acceptance
 
