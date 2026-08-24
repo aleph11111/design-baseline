@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: 2026-08-24
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "comment-only rewrite following an established sibling pattern (PageHeader/SectionHeading JSDoc) with the exact replacement text fixed by the shipped v3.0 contract"
