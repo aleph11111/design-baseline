@@ -1,7 +1,7 @@
 ---
 slug: adoption
 kind: methodology
-version: 1.2
+version: 1.3
 status: locked
 ---
 
@@ -23,7 +23,8 @@ versions.
 ## The adoption contract (checklist)
 
 A project is *adopted* when all nine hold. Keep this checklist, checked, at the top of
-the project's `docs/ADOPTION.md`.
+the project's own `docs/ADOPTION-STATUS.md` (this contract stays vendored at
+`docs/ADOPTION.md`; the two paths must not collide — the record is a separate file).
 
 1. **Frame adopted** — the app layout uses `AppShell` for sidebar/header/desk; no hand-rolled
    `<main>` frame. (The desk — `bg-muted/30 p-4 md:p-6` — is part of the house style; a custom
@@ -40,7 +41,7 @@ the project's `docs/ADOPTION.md`.
    the project adds no competing placement rules, only documented yellows.
 6. **Versions stamped** — every vendored file carries a header line
    (`/* design-baseline@<version> — vendored <date> */`); the adopted baseline version and
-   Tailwind version are recorded in `docs/ADOPTION.md`.
+   Tailwind version are recorded in `docs/ADOPTION-STATUS.md`.
 7. **State law honored** — async states go through `StateView` (or its archetype adapters);
    no project-local skeleton/loading/error inventions.
 8. **Visual baselines captured** — one Playwright screenshot test per archetype in use,
@@ -90,6 +91,11 @@ Promoted candidates from the first consumer audit (tracked in `_adherence.NOTES.
 
 ## Revision log
 
+- **1.3** — Split the vendored contract from the consumer's own record: the checklist
+  (points 1–9) and the adopted-version stamp (point 6) now live in the project's
+  `docs/ADOPTION-STATUS.md`, not `docs/ADOPTION.md` — that path is the vendored contract
+  copy only. Two different documents sharing one path meant whichever wrote last (contract
+  distribution or record scaffold) silently won. `/adopt-baseline` writes both paths now.
 - **1.2** — Gate 2 grew regex rules: the three `docs/audit-signals.json` `conformance` signals
   (`literal-color`, `weak-focus-ring`, `raw-html-control`) ship in `_adherence.json` as `pattern`
   rules, so the fleet-scan rubric and the consumer-facing lint measure the same thing. The gate-2
