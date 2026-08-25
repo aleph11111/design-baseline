@@ -1,6 +1,6 @@
 {
   "artifact": "audit-signals",
-  "note": "Donor-owned executable rubric for the deterministic fleet scan. ripgrep (PCRE) regexes, run over *.ts/*.tsx (excluding tests/node_modules). The dashboard moleculeAudit scanner reads this from the connected baseline; promotion-radar.json candidates reference a molecule signal id via `scanSignal`. Novel-pattern discovery is NOT here — that stays the periodic LLM audit.",
+  "note": "Donor-owned executable rubric for the deterministic fleet scan. ripgrep (PCRE) regexes, run over *.ts/*.tsx (excluding tests/node_modules). The dashboard moleculeAudit scanner reads this from the connected baseline; the adoptionQuality (Axis-C) tripwires are walked by the donor's zero-dep scripts/scan-adoption-quality.mjs (the recurring per-signal hit-count radar, not a verdict — see ADR-0005), which also runs them under V8's RegExp and rewrites the PCRE \\A/\\Z anchors accordingly; entries must stay V8-compilable (lookaheads and \\1 backreferences are safe, PCRE-only constructs fail loud as `uncompiled`). promotion-radar.json candidates reference a molecule signal id via `scanSignal`. Novel-pattern discovery is NOT here — that stays the periodic LLM audit.",
   "globs": ["*.tsx", "*.ts"],
   "exclude": ["node_modules", "__tests__", ".test.", ".spec.", "dist", ".next", "gallery-dist"],
   "molecule": [

@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-08-24
-status: ready
+status: done
 gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
@@ -17,8 +17,8 @@ gate:
 
 ## What to do
 
-- [ ] Ship a recurring discovery scan over the `adoptionQuality` array — the same "discovery radar, not gate" treatment `moleculeAudit.ts` already gives `molecule`/`conformance` — producing per-signal hit counts for every connected repo, still respecting each entry's `coOccursWith` gate and its candidate-not-verdict semantics.
-- [ ] Give it its own scan path rather than extending `moleculeAudit.ts`'s existing read — `rituals-prompts.ts:117` documents that file as deliberately blind to `adoptionQuality` today, so this is a new function/module a dashboard or CLI can call the same way `moleculeAudit.ts` is called for the other two families.
+- [x] Ship a recurring discovery scan over the `adoptionQuality` array — the same "discovery radar, not gate" treatment `moleculeAudit.ts` already gives `molecule`/`conformance` — producing per-signal hit counts for every connected repo, still respecting each entry's `coOccursWith` gate and its candidate-not-verdict semantics. (Landed as `scripts/scan-adoption-quality.mjs` + `npm run scan:adoption-quality`, ADR-0005; one hit per signal per file — the counting unit is the candidate surface, matching the `rg -l` fleet convention; a red hit still exits 0.)
+- [x] Give it its own scan path rather than extending `moleculeAudit.ts`'s existing read — `rituals-prompts.ts:117` documents that file as deliberately blind to `adoptionQuality` today, so this is a new function/module a dashboard or CLI can call the same way `moleculeAudit.ts` is called for the other two families. (Own path: a standalone donor script — `node scripts/scan-adoption-quality.mjs --root <repo> --json` — callable by any CLI/CI job; `moleculeAudit.ts` stays untouched, as documented.)
 
 ## Acceptance
 
@@ -27,6 +27,6 @@ gate:
 
 ## Related
 
-- [docs/ADOPTION-QUALITY.md](../ADOPTION-QUALITY.md)
-- [docs/FLEET-AUDIT.md](../FLEET-AUDIT.md)
-- [docs/PROMOTION-RADAR.md](../PROMOTION-RADAR.md)
+- [docs/ADOPTION-QUALITY.md](../../ADOPTION-QUALITY.md)
+- [docs/FLEET-AUDIT.md](../../FLEET-AUDIT.md)
+- [docs/PROMOTION-RADAR.md](../../PROMOTION-RADAR.md)
