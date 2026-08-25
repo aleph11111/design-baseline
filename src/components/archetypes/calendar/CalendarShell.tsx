@@ -1,6 +1,7 @@
 import * as React from "react";
 import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
 import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
+import { COL_HEADER_CLASS } from "@/components/layout/overline";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -118,7 +119,7 @@ export function CalendarShell({
                 day.today && "bg-muted",
               )}
             >
-              <div className="text-[9.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground">
+              <div className={COL_HEADER_CLASS}>
                 {day.dow}
               </div>
               <div

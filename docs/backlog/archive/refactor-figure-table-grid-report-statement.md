@@ -1,7 +1,8 @@
 ---
 area: refactor
 opened: '2026-08-25'
-status: ready
+status: done
+completed: '2026-08-25'
 gate:
   score: 5
   passed:

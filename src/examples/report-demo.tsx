@@ -21,6 +21,8 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { COL_HEADER_CLASS } from "@/components/layout/overline";
+import { cn } from "@/lib/utils";
 import {
   ReportShell,
   ReportLineTable,
@@ -215,7 +217,7 @@ function PartyBlock({
 }): React.ReactElement {
   return (
     <div className="text-[13px] leading-relaxed text-muted-foreground">
-      <div className="mb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground">
+      <div className={cn(COL_HEADER_CLASS, "mb-1.5")}>
         {label}
       </div>
       <div className="font-semibold text-foreground">{party.name}</div>

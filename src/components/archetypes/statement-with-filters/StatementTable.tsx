@@ -1,23 +1,10 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-
-/**
- * The governed statement's column grid. The label column is fluid; numeric
- * columns are right-aligned, fixed 5.5rem. Derived once from the column count
- * so the header row and every data row always share a layout.
- */
-function statementGrid(columnCount: number) {
-  return cn(
-    "grid items-baseline gap-x-3",
-    "grid-cols-[minmax(0,1fr)_repeat(" +
-      columnCount +
-      ",5.5rem)]",
-  );
-}
-
-/** The tiny table-column-header overline (9.5px, per house style B). */
-const COL_HEAD =
-  "text-[9.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground";
+import {
+  FigureTable,
+  FigureRow,
+  statementGridClass,
+} from "@/components/archetypes/shared";
 
 export type StatementTableProps = {
   /**
@@ -33,9 +20,14 @@ export type StatementTableProps = {
 
 /**
  * StatementTable — the read-only governed statement inside a
- * `StatementWithFiltersShell` body. Owns the column grid, the 9.5px
- * column-header overlines, and the hairline row dividers so every statement
- * (BWA/GuV, cashflow, liquidity, variance) shares one table signature.
+ * `StatementWithFiltersShell` body. Thin wrapper over the shared figure-table
+ * (`FigureTable`): the statement owns the derived N-column grid (label column
+ * fluid; numeric columns right-aligned, fixed 5.5rem — the static
+ * `statementGridClass` lookup, derived once from the column count so the
+ * header row and every data row always share a layout), while the 9.5px
+ * column-header overlines and the hairline row dividers are the shared
+ * signature, so every statement (BWA/GuV, cashflow, liquidity, variance)
+ * shares one table signature.
  *
  * Rows are caller-composed `<StatementRow>`s (a tree of group → children is
  * expressed as indented rows, not expandable ones — the statement is
@@ -47,18 +39,11 @@ export function StatementTable({
   className,
 }: StatementTableProps): React.ReactElement {
   // `columns` is label-first: the numeric grid count is the rest.
-  const grid = statementGrid(columns.length - 1);
+  const grid = statementGridClass(columns.length - 1);
   return (
-    <div className={className}>
-      <div className={cn(grid, "border-b border-border py-2", COL_HEAD)}>
-        {columns.map((col, i) => (
-          <div key={col} className={cn(i > 0 && "text-right")}>
-            {col}
-          </div>
-        ))}
-      </div>
-      <div className="divide-y divide-border/70">{children}</div>
-    </div>
+    <FigureTable grid={grid} columns={columns} className={className}>
+      {children}
+    </FigureTable>
   );
 }
 
@@ -82,9 +67,9 @@ export type StatementRowProps = {
 /**
  * StatementRow — one hairline-divided row in a `<StatementTable>`. Numeric
  * cells are `font-mono tabular-nums`, right-aligned per house style B (the
- * terminal column is `font-semibold`); the label stays sans. `section` rows
- * render a spanning muted overline label (group/section header of a tree
- * statement) with no figures.
+ * terminal column is `font-semibold`) via the shared `FigureRow`; the label
+ * stays sans. `section` rows render a spanning muted overline label (a
+ * group/section header of a tree statement) with no figures.
  */
 export function StatementRow({
   label,
@@ -108,32 +93,18 @@ export function StatementRow({
       </div>
     );
   }
-  const grid = statementGrid(cells.length);
   return (
-    <div className={cn(grid, "py-2.5", className)}>
-      <div
-        className={cn(
-          "min-w-0 truncate text-[13px] text-foreground",
-          indent > 0 && "pl-4",
-          indent === 2 && "border-l border-border/40",
-        )}
-      >
-        {label}
-      </div>
-      {cells.map((cell, i) => (
-        <div
-          key={i}
-          className={cn(
-            "text-right font-mono text-[13px] tabular-nums",
-            "text-muted-foreground",
-            // Terminal column carries the per-row headline figure.
-            i === cells.length - 1 && "font-semibold text-foreground",
-          )}
-        >
-          {cell}
-        </div>
-      ))}
-    </div>
+    <FigureRow
+      grid={statementGridClass(cells.length)}
+      label={label}
+      labelClassName={cn(
+        "truncate text-[13px] text-foreground",
+        indent > 0 && "pl-4",
+        indent === 2 && "border-l border-border/40",
+      )}
+      cells={cells}
+      className={className}
+    />
   );
 }
 
@@ -151,34 +122,22 @@ export type StatementTotalRowProps = {
  * StatementTotalRow — a tinted totals row pinned at the statement's foot.
  * Same grid as a data row; the row background gets the muted tint and every
  * numeric cell is semibold foreground so the totals read as the statement's
- * summary line.
+ * summary line (the `FigureRow` "strong" emphasis across all cells).
  */
 export function StatementTotalRow({
   label,
   cells,
   className,
 }: StatementTotalRowProps): React.ReactElement {
-  const grid = statementGrid(cells.length);
   return (
-    <div
-      className={cn(
-        grid,
-        "bg-muted/40 py-2.5 border-t border-border",
-        className,
-      )}
-    >
-      <div className="min-w-0 truncate text-[13px] font-semibold text-foreground">
-        {label}
-      </div>
-      {cells.map((cell, i) => (
-        <div
-          key={i}
-          className="text-right font-mono text-[13px] font-semibold tabular-nums text-foreground"
-        >
-          {cell}
-        </div>
-      ))}
-    </div>
+    <FigureRow
+      grid={statementGridClass(cells.length)}
+      label={label}
+      labelClassName="truncate text-[13px] font-semibold text-foreground"
+      cells={cells}
+      emphasis={cells.map(() => "strong" as const)}
+      className={cn("bg-muted/40 border-t border-border", className)}
+    />
   );
 }
 

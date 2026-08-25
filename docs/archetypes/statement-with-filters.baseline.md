@@ -24,17 +24,23 @@ contract: docs/archetypes/statement-with-filters.md
   appearance — so the shell never prescribes how many or what kind of
   selectors a page scoping band carries. `headerActions` may additionally carry
   one page-level action button (the allowed-variation freeze/publish kind).
-- **`<StatementTable columns>`** — the hairline-divided governed table. Owns
-  the column-header row (canonical *table-column-header overline* style:
-  `text-[9.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground`),
-  hairline row dividers, and the canonical **mono tabular figure** style on
-  numeric cells (`font-mono tabular-nums`, right-aligned; the last column
-  `font-semibold text-foreground`). Row grouping/indentation and any totals
-  rows are composed by the caller with the same primitives (`<StatementRow>`,
-  `<StatementTotalRow>`). **Rendered read-only by construction** — the
-  primitive exposes no cell-editing props (the read-only rule is a structural
-  boundary, not a convention). A tree of rows (group → children) is rendered
-  by indentation + repeated rows, not by expandable rows.
+- **`<StatementTable columns>`** — the hairline-divided governed table: a
+  thin wrapper over the shared figure-table (shared `FigureTable` /
+  `FigureRow`, `src/components/archetypes/shared/`) that owns the
+  column-header row (canonical *table-column-header overline* — shared
+  `COL_HEADER_CLASS` from `@/components/layout/overline`:
+  `text-[9.5px] font-semibold uppercase tracking-[0.09em]
+  text-muted-foreground`), the `divide-y divide-border/70` hairline row
+  dividers, and the canonical **mono tabular figure** style on numeric cells
+  (`font-mono tabular-nums`, right-aligned; the terminal column `font-semibold
+  text-foreground`). The statement supplies its derived N-column grid (label
+  column fluid; numeric columns fixed 5.5rem, via the shared static
+  `statementGridClass` lookup) plus row-level `indent` tiers and `section`
+  rows; `<StatementTotalRow>` is the tinted, fully-emphasized totals row.
+  **Rendered read-only by construction** — the primitive exposes no
+  cell-editing props (the read-only rule is a structural boundary, not a
+  convention). A tree of rows (group → children) is rendered by indentation +
+  repeated rows, not by expandable rows.
 
 - **Reused:** `<SurfaceHeader>` (header bar), `<ErrorBoundary>` (Layer 2),
   `<StatTileRow>` (headline-number allowed variation), `Select` /
@@ -77,10 +83,18 @@ contract role. Only layers with a baseline-specific binding appear.
 
 ### Layer 6 — Table / grid
 - Governing table primitive → `<StatementTable columns={[…]}>` with
-  `<StatementRow>` / (`<StatementTotalRow>`).
-- Column-header overline → built into `<StatementTable>` (`text-[9.5px]
-  font-semibold uppercase tracking-[0.09em] text-muted-foreground`, bottom
-  hairline).
+  `<StatementRow>` / (`<StatementTotalRow>`) — thin wrappers over the shared
+  `FigureTable` / `FigureRow` (`src/components/archetypes/shared/`), so the
+  table signature is one edit to change and is shared with the report
+  archetype's table.
+- Column grid → the shared static `statementGridClass(count)` lookup (label
+  column fluid, numeric columns fixed 5.5rem) — no runtime class
+  composition; every emitted template is scanner-visible.
+- Column-header overline → shared `COL_HEADER_CLASS`
+  (`@/components/layout/overline`, `text-[9.5px] font-semibold uppercase
+  tracking-[0.09em] text-muted-foreground`) composed in the shared
+  `FigureTable`'s header row (bottom hairline) — never re-typed at a call
+  site.
 - Numeric figure → the built-in mono tabular class set on value cells
   (`font-mono tabular-nums text-right`; `text-muted-foreground` for the
   middle columns, `font-semibold text-foreground` for the terminal column).
