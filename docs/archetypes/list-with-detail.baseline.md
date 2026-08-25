@@ -46,8 +46,8 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 
 ### Layer 5 — Content wrapper
 - Content shell → `<ListWithDetailShell>` from `src/components/archetypes/list-with-detail/`, providing:
-  - Card chrome: `rounded-lg border bg-card shadow-sm overflow-hidden`
-  - Toolbar slot with `border-b px-4 py-3` separator
+  - Bounded card → the canonical `<SurfaceFrame>` chrome (`overflow-hidden rounded-lg border bg-card` — flat, no shadow; owned by `SurfaceFrame`, never spelled by a shell)
+  - Toolbar slot, rendered by the frame as the ruled `border-b px-4 py-3` band
   - Body with `overflow-x-auto`
   - Loading, empty, and error slots (handled by `<ListWithDetailEmptyState>`)
   - Row-level `hover:bg-muted/50`

@@ -1,9 +1,6 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
-import {
-  SurfaceHeaderSlot,
-  type SurfaceHeaderSlotProps,
-} from "@/components/layout/SurfaceHeaderSlot";
+import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
 
 export type StatementWithFiltersShellProps = Omit<
   SurfaceHeaderSlotProps,
@@ -49,10 +46,11 @@ export type StatementWithFiltersShellProps = Omit<
  *   │ (padded read-only statement table, scrolls)      │
  *   └──────────────────────────────────────────────┘
  *
- * House style B: flat bounded card (`rounded-lg border bg-card`, no shadow),
+ * House style B: flat bounded card (no shadow) — the canonical `<SurfaceFrame>`
+ * chrome, owned there so the statement frame never drifts between pages —
  * token-pure. The body is caller-composed (a `StatementTable` of
  * `StatementRow`s, optionally a totals row); the shell owns only the header +
- * bounded-statement contract so the scoping band never drifts between pages.
+ * bounded-statement contract so the scoping band never drifts.
  */
 export function StatementWithFiltersShell({
   kicker,
@@ -62,14 +60,13 @@ export function StatementWithFiltersShell({
   children,
 }: StatementWithFiltersShellProps): React.ReactElement {
   return (
-    <div className={cn("overflow-hidden rounded-lg border bg-card")}>
-      <SurfaceHeaderSlot
-        kicker={kicker}
-        title={title}
-        headerActions={headerActions ?? actions}
-      />
+    <SurfaceFrame
+      kicker={kicker}
+      title={title}
+      headerActions={headerActions ?? actions}
+    >
       <div className="overflow-x-auto p-4">{children}</div>
-    </div>
+    </SurfaceFrame>
   );
 }
 

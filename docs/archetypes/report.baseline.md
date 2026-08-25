@@ -39,7 +39,7 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 - Total-row primitive → `<ReportTotalRow>`; muted-tint background on the grand-total row → `bg-muted/50`, larger mono figure.
 
 ### House style
-- Flat bounded-card surface → `overflow-hidden rounded-lg border bg-card`, no shadow.
+- Flat bounded-card surface → the canonical `<SurfaceFrame>` chrome: `overflow-hidden rounded-lg border bg-card`, no shadow (owned by `SurfaceFrame`, never spelled by a shell).
 - Faint hairline border (header separator) → `border-b border-border`.
 - Hairline-divided table rows → `divide-border/70`.
 - Canonical overline/kicker style → shared `OVERLINE_CLASS` (`@/components/layout/overline`, 10.5px).

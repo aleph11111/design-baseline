@@ -45,7 +45,7 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 
 ### Layer 5 — Content wrapper
 - Matrix-grid shell → `<MatrixGridShell>` from `src/components/archetypes/matrix-grid/`, providing:
-  - Outer wrapper: `rounded-lg border bg-card overflow-x-auto`
+  - Outer wrapper → the canonical `<SurfaceFrame>` chrome in its named `overflow="auto"` structural mode (the frame is the horizontal scroll container so the sticky first column pins while the table scrolls)
   - Table chrome: `<table className="text-sm border-collapse">`
   - Sticky first column: `sticky left-0 z-10 bg-card` on the row-label `<th>`/`<td>`
   - Optional column-group band as a second `<tr>` in `<thead>` above the per-column header

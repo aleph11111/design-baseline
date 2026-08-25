@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { useHeaderFill, headerFillClasses } from "@/components/layout/headerFill";
+import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
 import { NestedPageHeading } from "@/components/layout/NestedPageHeading";
 import { StatTile } from "@/components/layout/StatTile";
 import { StatTileRow } from "@/components/layout/StatTileRow";
@@ -204,16 +205,19 @@ export function DetailOverviewShell({
       </div>
     );
 
+  // One bounded frame (the canonical `<SurfaceFrame>` chrome — flat, no shadow:
+  // the lone `shadow-sm` here was copy drift, not a documented mode). Mode B's
+  // nested page heading replaces the frame's on-surface header slot (the slot
+  // renders nothing when the shell carries no `title`).
   return (
-    <div
+    <SurfaceFrame
       className={cn(
-        "overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm",
         layout !== "rail" && WIDTH_MAP[width],
       )}
     >
       {header}
       {body}
-    </div>
+    </SurfaceFrame>
   );
 }
 

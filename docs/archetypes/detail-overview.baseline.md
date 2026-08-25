@@ -89,7 +89,7 @@ contract role. Only layers with a baseline-specific binding appear.
 - Propagation mechanism → layout tweaks to `<DetailOverviewShell>` / `<DetailSection>` propagate baseline-wide via `/style-archetypes --update`.
 
 ### Layer 2 — Page shell
-- Outer container → `<DetailOverviewShell>` (the frame: `rounded-lg border bg-card shadow-sm` + the `WIDTH_MAP` contained width in vertical layout).
+- Outer container → `<DetailOverviewShell>` (the canonical `<SurfaceFrame>` chrome — flat, no shadow — + the `WIDTH_MAP` contained width in vertical layout).
 - Section stack spacing → `space-y-4` inside both the main column and the rail, fixed in the shell — no per-page rhythm prop (see the contract's v3.0 note).
 - Contained column width → `width="md"` → `max-w-3xl` (the shell's default); `lg` → `max-w-4xl`, `xl` → `max-w-6xl`, `none` → no constraint. Ignored under `layout="rail"`.
 
@@ -167,7 +167,7 @@ contract role. Only layers with a baseline-specific binding appear.
 - Content stacked, not tabbed → `<DetailSection>`s; a tab-group primitive → `<TabsList>`.
 - Primary records visible without interaction → rendered directly in a `<DetailSection>`.
 - Shell owns the inset → page adds no outer `p-*`/`px-*`/`py-*`; the shell's `WIDTH_MAP` (`max-w-3xl` default in vertical) is the only width a page may pass; `<AppShell>`'s `<main>` is the sole inset owner.
-- One outer frame, not a card scatter → EVERY page renders inside the shell's frame (`rounded-lg border bg-card shadow-sm`); the rail is the chromeless `bg-muted/20` aside, the main's carded `<DetailSection>`s/strip sit flattened inside it; the "scatter" drift is loose `<SectionCard>`s on the bare page background (i.e. content rendered beside or instead of the shell).
+- One outer frame, not a card scatter → EVERY page renders inside the shell's frame (the canonical `<SurfaceFrame>` chrome — flat, no shadow); the rail is the chromeless `bg-muted/20` aside, the main's carded `<DetailSection>`s/strip sit flattened inside it; the "scatter" drift is loose `<SectionCard>`s on the bare page background (i.e. content rendered beside or instead of the shell).
 - Headline figures disclosure → the metric-list primitive is `MetricList`/`MetricRow`.
 - Figures are mono (S5) → `font-mono tabular-nums`.
 - Brand primary (S6) → the `--primary` token, with the target's token override applied.

@@ -1,8 +1,6 @@
 import * as React from "react";
-import {
-  SurfaceHeaderSlot,
-  type SurfaceHeaderSlotProps,
-} from "@/components/layout/SurfaceHeaderSlot";
+import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -38,14 +36,13 @@ export function DashboardShell({
   children,
 }: DashboardShellProps): React.ReactElement {
   return (
-    <div className="rounded-lg border bg-card overflow-hidden">
-      <SurfaceHeaderSlot
-        kicker={kicker}
-        title={title}
-        headerActions={headerActions}
-      />
+    <SurfaceFrame
+      kicker={kicker}
+      title={title}
+      headerActions={headerActions}
+    >
       <div className="px-5 py-4">{children}</div>
-    </div>
+    </SurfaceFrame>
   );
 }
 

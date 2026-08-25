@@ -1,10 +1,8 @@
 import * as React from "react";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { useHeaderFill, headerFillClasses } from "@/components/layout/headerFill";
-import {
-  SurfaceHeaderSlot,
-  type SurfaceHeaderSlotProps,
-} from "@/components/layout/SurfaceHeaderSlot";
+import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import {
@@ -148,9 +146,9 @@ function ListWithDetailShellInner<Row>(
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const hfc = headerFillClasses(useHeaderFill());
   // A composing archetype (grouped-list's section card) declares chrome-suppression
-  // through `ListChromeContext` so the shell renders flush inside an already-bounded
-  // surface; the chrome decision belongs to the compose-into archetype, not to the
-  // per-page caller.
+  // through `ListChromeContext` so the frame renders chromeless (`chrome={false}`)
+  // flush inside an already-bounded surface; the chrome decision belongs to the
+  // compose-into archetype, not to the per-page caller.
   const chromeless = React.useContext(ListChromeContext);
   // The detail presents as a Sheet on mobile always; rail on desktop.
   const asSheet = isMobile;
@@ -268,21 +266,19 @@ function ListWithDetailShellInner<Row>(
     ) : null;
 
   return (
-    <div
+    <SurfaceFrame
       ref={ref}
-      className={cn(!chromeless && "rounded-lg border bg-card overflow-hidden")}
+      kicker={kicker}
+      title={title}
+      headerActions={headerActions}
+      toolbar={toolbar}
+      chrome={!chromeless}
     >
-      <SurfaceHeaderSlot
-        kicker={kicker}
-        title={title}
-        headerActions={headerActions}
-      />
-      {toolbar && <div className="border-b px-4 py-3">{toolbar}</div>}
       <div className="flex">
         <div className="min-w-0 flex-1 overflow-x-auto">{bodyContent}</div>
         {detailPanel}
       </div>
-    </div>
+    </SurfaceFrame>
   );
 }
 

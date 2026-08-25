@@ -131,14 +131,20 @@ describe("ListWithDetailShell", () => {
     expect(onDetailClose).toHaveBeenCalledTimes(1);
   });
 
-  it("draws its own card chrome by default, and renders flush under ListChromeContext", () => {
-    const chrome = "rounded-lg border bg-card overflow-hidden";
+  it("draws the bounded card by default, and renders flush under ListChromeContext", () => {
+    // The bounded-card chrome is owned by <SurfaceFrame> (the frame slot the
+    // shell composes) — asserted here per-token so a shell re-spelling its own
+    // frame is caught by this test, not by string match.
+    const frameChrome = ["rounded-lg", "border", "bg-card", "overflow-hidden"];
 
     const { container: standalone } =
       render(
         <ListWithDetailShell rows={rows} columns={columns} getRowId={(row) => row.id} />,
       );
-    expect((standalone.firstElementChild as HTMLElement).className).toContain(chrome);
+    const standaloneRoot = standalone.firstElementChild as HTMLElement;
+    for (const token of frameChrome) {
+      expect(standaloneRoot.className).toContain(token);
+    }
     cleanup();
 
     const { container: flush } = render(
@@ -146,9 +152,10 @@ describe("ListWithDetailShell", () => {
         <ListWithDetailShell rows={rows} columns={columns} getRowId={(row) => row.id} />
       </ListChromeContext.Provider>,
     );
-    expect(
-      (flush.firstElementChild as HTMLElement).className,
-    ).not.toContain(chrome);
+    const flushRoot = flush.firstElementChild as HTMLElement;
+    for (const token of frameChrome) {
+      expect(flushRoot.className).not.toContain(token);
+    }
   });
 
   it("forwards the ref to the root element", () => {

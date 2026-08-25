@@ -1,9 +1,6 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
-import {
-  SurfaceHeaderSlot,
-  type SurfaceHeaderSlotProps,
-} from "@/components/layout/SurfaceHeaderSlot";
+import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
 
 export type ReportShellProps = Omit<SurfaceHeaderSlotProps, "title"> & {
   /**
@@ -45,12 +42,12 @@ const WIDTH: Record<NonNullable<ReportShellProps["width"]>, string> = {
  *   │ (padded body — parties · line items · totals) │
  *   └─────────────────────────────────────────────┘
  *
- * House style B: flat bounded card (`rounded-lg border bg-card`, no shadow),
+ * House style B: flat bounded card (no shadow) — the canonical `<SurfaceFrame>`
+ * chrome, owned there so the document frame never drifts between apps — with a
  * faint internal hairline under the header. Token-pure — the document carries
  * no literal colors; the accent stays the donor neutral default. The body is
  * caller-composed (parties row, `ReportLineTable`-shaped grid, totals stack);
- * the shell owns only the surface + header bar contract so the document frame
- * never drifts between apps.
+ * the shell owns only the surface + header bar contract.
  */
 export function ReportShell({
   kicker,
@@ -60,14 +57,14 @@ export function ReportShell({
   width = "md",
 }: ReportShellProps): React.ReactElement {
   return (
-    <div className={cn("overflow-hidden rounded-lg border bg-card", WIDTH[width])}>
-      <SurfaceHeaderSlot
-        kicker={kicker}
-        title={title}
-        headerActions={headerActions}
-      />
+    <SurfaceFrame
+      kicker={kicker}
+      title={title}
+      headerActions={headerActions}
+      className={WIDTH[width]}
+    >
       <div className="p-6">{children}</div>
-    </div>
+    </SurfaceFrame>
   );
 }
 

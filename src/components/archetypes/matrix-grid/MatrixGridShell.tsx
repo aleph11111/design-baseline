@@ -4,10 +4,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  SurfaceHeaderSlot,
-  type SurfaceHeaderSlotProps,
-} from "@/components/layout/SurfaceHeaderSlot";
+import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
 import { cn } from "@/lib/utils";
 import { getInteractiveRowProps, interactiveRowFocusRing } from "../shared";
 
@@ -66,10 +64,11 @@ export type MatrixGridShellProps<Cell> = {
   onCellClick?: (ctx: MatrixCellContext<Cell>) => void;
 
   /**
-   * Optional toolbar rendered as a ruled band directly under the on-surface
-   * header — the home for controls that drive the grid (an as-of date, filters,
-   * a scope toggle). Mirrors `ListWithDetailShell`'s `toolbar` slot so a
-   * data-driving matrix keeps its controls on the surface, not floating above it.
+   * Optional toolbar rendered by the `<SurfaceFrame>` as a ruled band directly
+   * under the on-surface header — the home for controls that drive the grid
+   * (an as-of date, filters, a scope toggle). Mirrors `ListWithDetailShell`'s
+   * `toolbar` slot so a data-driving matrix keeps its controls on the
+   * surface, not floating above it.
    */
   toolbar?: React.ReactNode;
   /**
@@ -127,16 +126,17 @@ function MatrixGridShellInner<Cell>({
     }
   }
 
+  // The frame is the horizontal scroll container (`overflow="auto"`, the frame's
+  // named structural mode): the sticky first column pins only while its scroll
+  // container is the frame, and the header band + toolbar + table scroll together.
   return (
-    <div className="overflow-x-auto rounded-lg border bg-card">
-      <SurfaceHeaderSlot
-        kicker={kicker}
-        title={title}
-        headerActions={headerActions}
-      />
-      {toolbar !== undefined && toolbar !== null && (
-        <div className="border-b px-4 py-3">{toolbar}</div>
-      )}
+    <SurfaceFrame
+      kicker={kicker}
+      title={title}
+      headerActions={headerActions}
+      overflow="auto"
+      toolbar={toolbar}
+    >
       {emptyState !== undefined && emptyState !== null ? (
         emptyState
       ) : (
@@ -264,7 +264,7 @@ function MatrixGridShellInner<Cell>({
         </tbody>
       </table>
       )}
-    </div>
+    </SurfaceFrame>
   );
 }
 

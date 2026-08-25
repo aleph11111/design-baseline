@@ -1,8 +1,6 @@
 import * as React from "react";
-import {
-  SurfaceHeaderSlot,
-  type SurfaceHeaderSlotProps,
-} from "@/components/layout/SurfaceHeaderSlot";
+import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -79,19 +77,14 @@ export function FormPageShell({
 }: FormPageShellProps): React.ReactElement {
   if (title !== undefined) {
     return (
-      <div
-        className={cn(
-          "rounded-lg border bg-card overflow-hidden",
-          WIDTH_MAP[width],
-        )}
+      <SurfaceFrame
+        kicker={kicker}
+        title={title}
+        headerActions={headerActions}
+        className={WIDTH_MAP[width]}
       >
-        <SurfaceHeaderSlot
-          kicker={kicker}
-          title={title}
-          headerActions={headerActions}
-        />
         <div className="p-5 space-y-5">{children}</div>
-      </div>
+      </SurfaceFrame>
     );
   }
 
