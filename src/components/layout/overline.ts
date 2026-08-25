@@ -9,3 +9,13 @@
  */
 export const OVERLINE_CLASS =
   "text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground";
+
+/**
+ * The smaller table/ruler-column-header rung of the overline scale (9.5px) —
+ * the `text-` size is the only thing that differs from `OVERLINE_CLASS`,
+ * weight/tracking/case/color stay shared so the two rungs can't drift apart.
+ * Owners of the figure-table and calendar column signatures (shared
+ * `FigureTable`, `CalendarShell`) compose it; never re-type the string.
+ */
+export const COL_HEADER_CLASS =
+  "text-[9.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground";

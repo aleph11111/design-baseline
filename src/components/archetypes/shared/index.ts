@@ -14,3 +14,11 @@ export { resolveListState, type ListStatePhase, type ResolveListStateInput } fro
 export { ActionFooterBar, type ActionFooterBarProps } from "./ActionFooterBar";
 
 export { deriveSubmittingLabel, resolveSubmittingLabel } from "./submittingLabel";
+
+export {
+  FigureTable,
+  FigureRow,
+  statementGridClass,
+  type FigureTableProps,
+  type FigureRowProps,
+} from "./FigureTable";
