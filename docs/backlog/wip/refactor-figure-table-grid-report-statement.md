@@ -56,7 +56,7 @@ The genuine difference is narrow: report's grid is fixed (`1fr_3rem_5.5rem_6rem`
 
 ## Related
 
-- [refactor-mode-aware-footer-core-duplication.md](archive/refactor-mode-aware-footer-core-duplication.md) — the precedent for extracting a shared core behind two archetypes' near-identical primitives and keeping thin per-archetype wrappers.
-- [surface-header-compose-not-copy.md](archive/surface-header-compose-not-copy.md) — the same "the primitive's JSDoc claims it is canonical, the code says otherwise" finding, for the header bar of these same two shells.
-- [plex-ledger-primitive-doc-drift.md](archive/plex-ledger-primitive-doc-drift.md) — prior reconciliation of house-style-B figure treatments against their docs.
+- [refactor-mode-aware-footer-core-duplication.md](../archive/refactor-mode-aware-footer-core-duplication.md) — the precedent for extracting a shared core behind two archetypes' near-identical primitives and keeping thin per-archetype wrappers.
+- [surface-header-compose-not-copy.md](../archive/surface-header-compose-not-copy.md) — the same "the primitive's JSDoc claims it is canonical, the code says otherwise" finding, for the header bar of these same two shells.
+- [plex-ledger-primitive-doc-drift.md](../archive/plex-ledger-primitive-doc-drift.md) — prior reconciliation of house-style-B figure treatments against their docs.
 - [src/components/layout/overline.ts](../../src/components/layout/overline.ts) — the existing shared owner of the overline scale the duplicated `COL_HEAD` should join.
