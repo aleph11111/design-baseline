@@ -16,10 +16,8 @@ import {
   resolveListState,
   type RowAction,
 } from "@/components/archetypes/shared";
-import {
-  SurfaceHeaderSlot,
-  type SurfaceHeaderSlotProps,
-} from "@/components/layout/SurfaceHeaderSlot";
+import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
 import { cn } from "@/lib/utils";
 
 // The row overflow menu + its action shape are shared with list-with-detail.
@@ -188,45 +186,44 @@ export function SettingsTableShell<Row>({
   const showTable = listState === "content";
   const showEmpty = listState === "empty";
 
-  // Toolbar bar — rendered above the table (below the separator)
+  // Toolbar row content — the ruled band chrome is owned by the <SurfaceFrame>
+  // `toolbar` slot below; the shell composes only the row's INNER layout.
+  // Top row: custom slot + bulk actions (when active) + Add new.
+  // gap-3 matches the toolbar gap used by list-with-detail / feed.
   const toolbarRow = (
-    <div className="border-b px-4 py-3">
-      {/* Top row: custom slot + bulk actions (when active) + Add new.
-          gap-3 matches the toolbar gap used by list-with-detail / feed. */}
-      <div className="flex items-center gap-3">
-        {hasBulkSelection && (bulkActions || onBulkDelete) ? (
-          // Bulk mode: show bulk actions, suppress regular toolbar
-          <div className="flex flex-1 items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              {selectedIds.length} selected
-            </span>
-            {bulkActions}
-            {onBulkDelete && (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleBulkDelete}
-              >
-                Delete {selectedIds.length} selected
-              </Button>
-            )}
-          </div>
-        ) : (
-          // Normal mode: show consumer toolbar slot
-          <div className="flex flex-1 items-center gap-2">{toolbar}</div>
-        )}
-        {onAddNew && (
-          <Button
-            variant="default"
-            size="sm"
-            onClick={onAddNew}
-            className="shrink-0"
-          >
-            <Plus className="mr-1 h-4 w-4" />
-            {addNewLabel}
-          </Button>
-        )}
-      </div>
+    <div className="flex items-center gap-3">
+      {hasBulkSelection && (bulkActions || onBulkDelete) ? (
+        // Bulk mode: show bulk actions, suppress regular toolbar
+        <div className="flex flex-1 items-center gap-2">
+          <span className="text-sm text-muted-foreground">
+            {selectedIds.length} selected
+          </span>
+          {bulkActions}
+          {onBulkDelete && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleBulkDelete}
+            >
+              Delete {selectedIds.length} selected
+            </Button>
+          )}
+        </div>
+      ) : (
+        // Normal mode: show consumer toolbar slot
+        <div className="flex flex-1 items-center gap-2">{toolbar}</div>
+      )}
+      {onAddNew && (
+        <Button
+          variant="default"
+          size="sm"
+          onClick={onAddNew}
+          className="shrink-0"
+        >
+          <Plus className="mr-1 h-4 w-4" />
+          {addNewLabel}
+        </Button>
+      )}
     </div>
   );
 
@@ -324,20 +321,21 @@ export function SettingsTableShell<Row>({
   ) : null;
 
   return (
-    <div className="rounded-lg border bg-card overflow-hidden">
-      <SurfaceHeaderSlot
-        kicker={kicker}
-        title={title}
-        headerActions={headerActions}
-      />
-      {toolbarRow}
+    <SurfaceFrame
+      kicker={kicker}
+      title={title}
+      headerActions={headerActions}
+      toolbar={toolbarRow}
+    >
+      {/* The table scroll region sits INSIDE the (clipped) frame so the table
+          scrolls beneath a fixed header + toolbar band, not the surface itself. */}
       <div className="overflow-x-auto">
         {showLoading && loadingState}
         {showError && errorState}
         {showEmpty && emptyState}
         {tableContent}
       </div>
-    </div>
+    </SurfaceFrame>
   );
 }
 

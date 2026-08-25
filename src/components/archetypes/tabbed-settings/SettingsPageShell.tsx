@@ -1,9 +1,7 @@
 import * as React from "react";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
-import {
-  SurfaceHeaderSlot,
-  type SurfaceHeaderSlotProps,
-} from "@/components/layout/SurfaceHeaderSlot";
+import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
 import {
   SettingsPageHeader,
   type SettingsPageHeaderProps,
@@ -76,14 +74,13 @@ export function SettingsPageShell({
         {breadcrumbs}
         {boardForm ? (
           // Board form: SurfaceHeader on the bounded card; SettingsPageHeader suppressed.
-          <div className="rounded-lg border bg-card overflow-hidden">
-            <SurfaceHeaderSlot
-              kicker={kicker}
-              title={header.title}
-              headerActions={headerActions}
-            />
+          <SurfaceFrame
+            kicker={kicker}
+            title={header.title}
+            headerActions={headerActions}
+          >
             <div className="p-5">{children}</div>
-          </div>
+          </SurfaceFrame>
         ) : (
           <>
             <SettingsPageHeader {...header} />

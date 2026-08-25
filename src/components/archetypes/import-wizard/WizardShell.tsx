@@ -1,10 +1,8 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/layout/SectionCard";
-import {
-  SurfaceHeaderSlot,
-  type SurfaceHeaderSlotProps,
-} from "@/components/layout/SurfaceHeaderSlot";
+import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
 import { WizardStepper, type WizardStep } from "./WizardStepper";
 
 export type WizardShellProps = {
@@ -86,13 +84,9 @@ export function WizardShell({
 
   if (title !== undefined) {
     return (
-      <div className="rounded-lg border bg-card overflow-hidden">
-        <SurfaceHeaderSlot
-          kicker={kicker}
-          title={title}
-        />
+      <SurfaceFrame kicker={kicker} title={title}>
         <div className="p-5">{body}</div>
-      </div>
+      </SurfaceFrame>
     );
   }
 

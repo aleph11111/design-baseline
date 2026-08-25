@@ -1,8 +1,6 @@
 import * as React from "react";
-import {
-  SurfaceHeaderSlot,
-  type SurfaceHeaderSlotProps,
-} from "@/components/layout/SurfaceHeaderSlot";
+import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -106,12 +104,7 @@ export function CalendarShell({
   emptyDayLabel,
 }: CalendarShellProps): React.ReactElement {
   return (
-    <div className="overflow-hidden rounded-lg border bg-card">
-      <SurfaceHeaderSlot
-        kicker={kicker}
-        title={title}
-        headerActions={headerActions}
-      />
+    <SurfaceFrame kicker={kicker} title={title} headerActions={headerActions}>
 
       {/* Grid — scrolls horizontally on narrow viewports. */}
       <div className="overflow-x-auto">
@@ -180,7 +173,7 @@ export function CalendarShell({
           ))}
         </div>
       </div>
-    </div>
+    </SurfaceFrame>
   );
 }
 

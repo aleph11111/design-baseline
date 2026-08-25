@@ -1,7 +1,7 @@
 ---
 area: refactor
 opened: '2026-08-25'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -56,7 +56,7 @@ The same shells then repeat the frame's *ruled toolbar band* — `<div className
 
 ## Related
 
-- [refactor-shell-surface-header-slot-duplication.md](archive/refactor-shell-surface-header-slot-duplication.md) — the same eleven-shell prop/render duplication, already extracted into `SurfaceHeaderSlot`; this ticket is the frame that slot sits in.
-- [archetype-convergence.md](archetype-convergence.md) — Phase 1's "close the archetype API" work; a shell that no longer spells its own chrome cannot drift from its siblings.
-- [docs/adr/0004-appearance-locality-derived-vs-inherited.md](../adr/0004-appearance-locality-derived-vs-inherited.md) — appearance is global or fixed in the component; four spellings of one frame is neither.
+- [refactor-shell-surface-header-slot-duplication.md](../archive/refactor-shell-surface-header-slot-duplication.md) — the same eleven-shell prop/render duplication, already extracted into `SurfaceHeaderSlot`; this ticket is the frame that slot sits in.
+- [archetype-convergence.md](../archetype-convergence.md) — Phase 1's "close the archetype API" work; a shell that no longer spells its own chrome cannot drift from its siblings.
+- [docs/adr/0004-appearance-locality-derived-vs-inherited.md](../../adr/0004-appearance-locality-derived-vs-inherited.md) — appearance is global or fixed in the component; four spellings of one frame is neither.
 - [src/components/layout/SectionCard.tsx](../../src/components/layout/SectionCard.tsx) — the section-level bounded surface whose `chrome` / `tone` / `flush` shape the frame should mirror.

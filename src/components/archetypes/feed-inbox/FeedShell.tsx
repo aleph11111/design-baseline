@@ -1,8 +1,6 @@
 import * as React from "react";
-import {
-  SurfaceHeaderSlot,
-  type SurfaceHeaderSlotProps,
-} from "@/components/layout/SurfaceHeaderSlot";
+import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
 import { cn } from "@/lib/utils";
 
 export type FeedShellProps = {
@@ -40,28 +38,24 @@ export function FeedShell({
   title,
   headerActions,
 }: FeedShellProps): React.ReactElement {
-  return (
-    <div
-      className={cn(
-        title !== undefined && "rounded-lg border bg-card overflow-hidden",
-        title === undefined && "space-y-5",
+  const body = (
+    <div className={cn(title !== undefined && "p-5 space-y-5")}>
+      {(filters || actions) && (
+        <div className="flex flex-wrap items-center gap-3">
+          {filters}
+          {actions && <div className="ml-auto">{actions}</div>}
+        </div>
       )}
-    >
-      <SurfaceHeaderSlot
-        kicker={kicker}
-        title={title}
-        headerActions={headerActions}
-      />
-      <div className={cn(title !== undefined && "p-5 space-y-5")}>
-        {(filters || actions) && (
-          <div className="flex flex-wrap items-center gap-3">
-            {filters}
-            {actions && <div className="ml-auto">{actions}</div>}
-          </div>
-        )}
-        {empty ?? children}
-      </div>
+      {empty ?? children}
     </div>
+  );
+
+  if (title === undefined) return <div className="space-y-5">{body}</div>;
+
+  return (
+    <SurfaceFrame kicker={kicker} title={title} headerActions={headerActions}>
+      {body}
+    </SurfaceFrame>
   );
 }
 

@@ -1,8 +1,6 @@
 import * as React from "react";
-import {
-  SurfaceHeaderSlot,
-  type SurfaceHeaderSlotProps,
-} from "@/components/layout/SurfaceHeaderSlot";
+import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
 
 export type BoardShellProps = {
   /** `<BoardColumn>` children, laid out as a horizontally-scrolling row. */
@@ -36,17 +34,16 @@ export function BoardShell({
 }: BoardShellProps): React.ReactElement {
   if (title !== undefined) {
     return (
-      <div className="rounded-lg border bg-card overflow-hidden">
-        <SurfaceHeaderSlot
-          kicker={kicker}
-          title={title}
-          headerActions={headerActions}
-        />
-        {toolbar && <div className="border-b px-4 py-3">{toolbar}</div>}
+      <SurfaceFrame
+        kicker={kicker}
+        title={title}
+        headerActions={headerActions}
+        toolbar={toolbar}
+      >
         <div className="flex items-start gap-4 overflow-x-auto p-4 pb-6">
           {children}
         </div>
-      </div>
+      </SurfaceFrame>
     );
   }
 

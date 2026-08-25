@@ -18,7 +18,7 @@ contract: docs/archetypes/statement-with-filters.md
 - **`<StatementWithFiltersShell>`** in `src/components/archetypes/statement-with-filters/`
   — the one primitive that owns this archetype's chrome: the page header (via
   `<SurfaceHeader>` — kicker + title + `headerActions` band) over a single flat
-  bounded card (`rounded-lg border bg-card`, no shadow) that holds the
+  bounded card — the canonical `<SurfaceFrame>` chrome (`overflow-hidden rounded-lg border bg-card`, no shadow, owned by `SurfaceFrame`) — that holds the
   governed statement. `title` adopts the canonical page-title style; the
   **toolbar** is a `ReactNode` composition slot (`actions`) — content, not
   appearance — so the shell never prescribes how many or what kind of

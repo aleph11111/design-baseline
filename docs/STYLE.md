@@ -324,11 +324,18 @@ One **deliberate** non-molecule (don't force it onto the owners above): the
 matrix-grid pivot `<table>` (sticky columns + group spans — not a record list). Its
 inline-cell control is no longer a carve-out — that's now the `CellSelect` molecule
 (`ui/cell-input`), the shared owner of any editable control sitting flush in a cell. Standalone page toolbars (grouped-list,
-feed) are a bare `flex gap-3` row; toolbars *inside* a table card (list, settings)
-use `border-b px-4 py-3` — same gap, different chrome by context.
+feed) are a bare `flex gap-3` row; toolbars *inside* a bounded surface (list,
+settings, kanban, matrix) are rendered by the `<SurfaceFrame>` `toolbar` slot as
+the ruled `border-b px-4 py-3` band — same gap, different chrome by context.
+The band's chrome is owned by the frame; a shell never spells the band itself.
 
 This is the same discipline as the page frame (one inset owner) and headings (one
-`PageHeader`): consistency by construction. A reviewer's test in the gallery: two
+`PageHeader`): consistency by construction. The bounded surface has one owner
+too — `<SurfaceFrame>` (`layout/SurfaceFrame`): the flat `rounded-lg border bg-card`
+frame (House style B — no shadow) every framed archetype shell mounts. Shells
+compose it with the on-surface header + an optional `toolbar` slot; the four
+independent spellings the copy used to allow (`shadow-sm` in one shell,
+`overflow-x-auto` in another) are its named modes, not separate frames. A reviewer's test in the gallery: two
 tables, two fields, or two of any molecule above, in *different* archetypes must be
 visually indistinguishable.
 
