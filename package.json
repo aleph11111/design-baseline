@@ -9,6 +9,7 @@
     "gallery:preview": "vite preview --configLoader runner",
     "gallery:view": "vite build --configLoader runner && vite preview --configLoader runner --port 5173",
     "verify:manifest": "node scripts/verify-manifest-versions.mjs",
+    "scan:adoption-quality": "node scripts/scan-adoption-quality.mjs",
     "pretest": "npm run verify:manifest",
     "test": "vitest run --configLoader runner"
   },

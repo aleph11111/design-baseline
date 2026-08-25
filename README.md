@@ -12,7 +12,8 @@ design-baseline/
 ├── _adherence.json                 # adherence-lint rules; consumers wire `lint:design` -> scripts/lint-design.mjs (ADOPTION.md gate 2)
 ├── package.json                    # reference dep list + typecheck devDependencies
 ├── scripts/
-│   └── lint-design.mjs             # zero-dep adherence-lint runner for `lint:design` (reads _adherence.json)
+│   ├── lint-design.mjs             # zero-dep adherence-lint runner for `lint:design` (reads _adherence.json)
+│   └── scan-adoption-quality.mjs   # zero-dep Axis-C (adoptionQuality) discovery radar — per-signal hit counts over docs/audit-signals.json (ADR-0005)
 ├── docs/
 │   ├── STYLE.md                    # tokens, components, conventions, re-skin checklist
 │   ├── CHOOSING-A-SURFACE.md       # methodology — which surface/archetype for which job

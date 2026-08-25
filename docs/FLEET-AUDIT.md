@@ -158,7 +158,13 @@ old. The full rationale, scan model, and rollout loop live in
 1. **Deterministic tripwires** — `audit-signals.json → adoptionQuality`. Each is gated
    by `coOccursWith` (the archetype's shell import names) so it ONLY fires on a file
    that actually adopts that archetype. A tripwire is a **candidate, never a verdict**
-   (`tier: red|yellow`); it flags a route for stage 2.
+   (`tier: red|yellow`); it flags a route for stage 2. The recurring machine half of
+   this stage — the per-signal hit count over any connected repo, every entry in the
+   array measured (hitless ones report zero, not "absent"), and the scan exiting
+   clean even on red hits — is the donor's zero-dep `scripts/scan-adoption-quality.mjs`
+   ([ADR-0005](adr/0005-adoption-quality-scan-zero-dep-donor-script.md)), called the
+   same way `moleculeAudit` is called for the other two families; the per-page
+   acceptance-gate walk (stage 2) stays the LLM decision layer.
 2. **Per-page acceptance gate** — for every route the page-level pass marks `adopted`
    (and every tripwire-flagged route), walk the archetype's **`## Acceptance gate`**
    (the canonical checklist in `docs/archetypes/<slug>.md`, restating Axis A/B via the
@@ -313,6 +319,15 @@ plus every Axis-C-flagged route — the per-page **acceptance-gate** pass that t
 tripwire candidates into `adoptionQuality` verdicts. It changes nothing — every action
 is a proposal a human schedules (a `/ticket`, a donor iteration session, a
 `/style-archetypes --update`; for wrapper adoptions, the teardown ritual).
+
+The Axis-C grep stage has a recurring, per-repo machine half the fan-out can lean on
+between audits: the donor's zero-dep `scripts/scan-adoption-quality.mjs`
+(`node scripts/scan-adoption-quality.mjs --root <repo> --json`,
+[ADR-0005](adr/0005-adoption-quality-scan-zero-dep-donor-script.md)) reports the
+per-signal `adoptionQuality` hit counts for any connected repo that vendors
+`docs/audit-signals.json` — the same "discovery radar, not gate" treatment the
+dashboard's `moleculeAudit` gives `molecule`/`conformance`, on its own scan path.
+It measures; it never gates, and it replaces no step of the gate walk.
 
 This is the runner the dashboard hub eventually hosts (Phase 3); until then it runs
 as an on-demand workflow.

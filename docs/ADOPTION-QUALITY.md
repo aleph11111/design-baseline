@@ -52,6 +52,12 @@ audit" split:
    (tab-as-primary-nav); a `*Status` selector band in a detail page; 5+ sibling
    `<Button>`s; page-level `p-6 space-y-*` (double inset); a loose multi-`<Badge>`
    cluster. These are candidates, never verdicts — they flag a route for stage 2.
+   The recurring machine half of this stage — the per-signal hit count over any
+   connected repo — is the donor's zero-dep `scripts/scan-adoption-quality.mjs`
+   (`npm run scan:adoption-quality`, [ADR-0005](adr/0005-adoption-quality-scan-zero-dep-donor-script.md));
+   it measures every entry in the array, hitless ones included, and — like the
+   tripwires themselves — it never gates: a red hit still exits clean, and the
+   stage-2 walk below remains the decision layer.
 
 2. **Per-page conformance pass** (LLM audit): for each flagged route — and every route
    the page-level pass marks `adopted` for a shell archetype — run the archetype's
