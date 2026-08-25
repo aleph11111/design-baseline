@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: 2026-08-24
-status: ready
+status: done
 gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
