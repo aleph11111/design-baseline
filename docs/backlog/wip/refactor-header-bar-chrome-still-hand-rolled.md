@@ -52,7 +52,7 @@ This is the unshipped half of a fix already made once. `surface-header-compose-n
 
 ## Related
 
-- [surface-header-compose-not-copy.md](archive/surface-header-compose-not-copy.md) — the predecessor; it shipped report/calendar and left this extraction as its own deferred third bullet.
-- [refactor-shell-surface-header-slot-duplication.md](archive/refactor-shell-surface-header-slot-duplication.md) — the eleven-shell slot extraction; these three are the shells that could not use the slot and so kept their own bars.
-- [header-fill-anchor-button-invert.md](archive/header-fill-anchor-button-invert.md) — a header-fill contract fix that had to be reasoned about per bar; with one bar it is one edit.
+- [surface-header-compose-not-copy.md](../archive/surface-header-compose-not-copy.md) — the predecessor; it shipped report/calendar and left this extraction as its own deferred third bullet.
+- [refactor-shell-surface-header-slot-duplication.md](../archive/refactor-shell-surface-header-slot-duplication.md) — the eleven-shell slot extraction; these three are the shells that could not use the slot and so kept their own bars.
+- [header-fill-anchor-button-invert.md](../archive/header-fill-anchor-button-invert.md) — a header-fill contract fix that had to be reasoned about per bar; with one bar it is one edit.
 - [src/components/layout/headerFill.ts](../../src/components/layout/headerFill.ts) — the class table whose four independent callers this ticket reduces to one.
