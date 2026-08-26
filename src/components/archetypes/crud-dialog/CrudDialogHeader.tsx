@@ -2,8 +2,7 @@ import * as React from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SheetDescription, SheetTitle } from "@/components/ui/sheet";
-import { useHeaderFill, headerFillClasses } from "@/components/layout/headerFill";
-import { cn } from "@/lib/utils";
+import { SurfaceHeaderBar } from "@/components/layout/SurfaceHeaderBar";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -43,6 +42,15 @@ export type CrudDialogHeaderProps = {
  * Layout:
  *   [title + subtitle] ... [actions slot] [close button (optional)]
  *
+ * The band chrome (padding + header-fill) is the shared on-surface bar
+ * (`<SurfaceHeaderBar>`) — the same one implementation every framed shell
+ * mounts. The title + subtitle are `SheetTitle` / `SheetDescription` because
+ * the Sheet (Radix Dialog.Content) needs a real accessible name + description:
+ * without a `Title` descendant Radix logs an error and exposes no
+ * aria-labelledby. On a solid header the bar's fill inverts both (its
+ * `[&_h1,h2]` / `[&_p]` descendant selectors reach the Radix `h2` / `p`), so
+ * this header reads no header-fill classes of its own.
+ *
  * The Sheet's built-in X close button (from SheetContent) is always in the
  * tree at position absolute top-4 right-4. If `onClose` is also provided here,
  * an additional explicit X button is rendered inside this header — use only
@@ -55,13 +63,27 @@ export function CrudDialogHeader({
   actions,
   onClose,
 }: CrudDialogHeaderProps): React.ReactElement {
-  const hfc = headerFillClasses(useHeaderFill());
   return (
-    <div
-      className={cn(
-        "flex items-start justify-between gap-4 px-6 py-4 shrink-0",
-        hfc.bar,
-      )}
+    <SurfaceHeaderBar
+      className="shrink-0"
+      actions={
+        actions !== undefined || onClose !== undefined ? (
+          <div className="flex shrink-0 items-center gap-1">
+            {actions}
+            {onClose && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={onClose}
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        ) : undefined
+      }
     >
       {/* Title + subtitle — rendered via SheetTitle/SheetDescription so the
           Sheet (Radix Dialog.Content) gets a real accessible name + description.
@@ -70,36 +92,14 @@ export function CrudDialogHeader({
           empty, screen-reader-only SheetDescription so Content's
           aria-describedby never dangles (Radix's missing-description warning). */}
       <div className="min-w-0 flex-1">
-        <SheetTitle className={cn("leading-tight truncate", hfc.title)}>
-          {title}
-        </SheetTitle>
+        <SheetTitle className="leading-tight truncate">{title}</SheetTitle>
         {subtitle ? (
-          <SheetDescription className={cn("mt-0.5 truncate", hfc.kicker)}>
-            {subtitle}
-          </SheetDescription>
+          <SheetDescription className="mt-0.5 truncate">{subtitle}</SheetDescription>
         ) : (
           <SheetDescription className="sr-only" />
         )}
       </div>
-
-      {/* Right-side slot: actions + optional explicit close */}
-      {(actions || onClose) && (
-        <div className="flex shrink-0 items-center gap-1">
-          {actions}
-          {onClose && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={onClose}
-              aria-label="Close"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      )}
-    </div>
+    </SurfaceHeaderBar>
   );
 }
 

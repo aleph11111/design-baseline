@@ -2,6 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { OVERLINE_CLASS } from "./overline";
 import { useHeaderFill, headerFillClasses } from "./headerFill";
+import { SurfaceHeaderBar } from "./SurfaceHeaderBar";
 
 export type SurfaceHeaderProps = {
   /** Overline kicker above the title (the entity/section class — "Orders",
@@ -45,48 +46,39 @@ export function SurfaceHeader({
   actions,
   className,
 }: SurfaceHeaderProps): React.ReactElement {
+  // The bar's padding + `hfc.bar` fill live in `<SurfaceHeaderBar>` (one
+  // implementation for every framed shell); this component keeps only its
+  // slot-specific overrides — kicker/title/subtitle element treatments.
   const hfc = headerFillClasses(useHeaderFill());
   return (
-    <div
-      data-slot="surface-header"
-      className={cn(
-        "flex items-start justify-between gap-5 px-5 py-4",
-        hfc.bar,
-        className,
-      )}
-    >
-      <div className="min-w-0">
-        {kicker ? (
-          <div className={cn(OVERLINE_CLASS, "mb-1", hfc.kicker)}>{kicker}</div>
-        ) : null}
-        <div className="flex items-center gap-2">
-          {Icon ? (
-            <Icon className={cn("h-6 w-6 shrink-0", hfc.title)} />
-          ) : null}
-          <div
-            className={cn(
-              "text-lg font-semibold leading-tight text-foreground",
-              hfc.title,
-            )}
-          >
-            {title}
-          </div>
-        </div>
-        {subtitle ? (
-          <p
-            className={cn(
-              "mt-0.5 text-xs text-muted-foreground",
-              hfc.subtitle,
-            )}
-          >
-            {subtitle}
-          </p>
-        ) : null}
-      </div>
-      {actions ? (
-        <div className="flex shrink-0 items-center gap-2">{actions}</div>
+    <SurfaceHeaderBar className={className} actions={actions}>
+      {kicker ? (
+        <div className={cn(OVERLINE_CLASS, "mb-1", hfc.kicker)}>{kicker}</div>
       ) : null}
-    </div>
+      <div className="flex items-center gap-2">
+        {Icon ? (
+          <Icon className={cn("h-6 w-6 shrink-0", hfc.title)} />
+        ) : null}
+        <div
+          className={cn(
+            "text-lg font-semibold leading-tight text-foreground",
+            hfc.title,
+          )}
+        >
+          {title}
+        </div>
+      </div>
+      {subtitle ? (
+        <p
+          className={cn(
+            "mt-0.5 text-xs text-muted-foreground",
+            hfc.subtitle,
+          )}
+        >
+          {subtitle}
+        </p>
+      ) : null}
+    </SurfaceHeaderBar>
   );
 }
 

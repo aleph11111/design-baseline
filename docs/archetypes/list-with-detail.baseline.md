@@ -82,7 +82,7 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 - Viewport-breakpoint hook → internal `useIsMobile`.
 - Mobile detail overlay → `<Sheet>` (full-screen overlay) on mobile — the `detail` prop renders as a right rail on desktop, always a `<Sheet>` on mobile. There is no page-facing axis to opt into the desktop overlay.
 - Overlay dismissal → `onDetailClose?: () => void` on `<ListWithDetailShell>`, fired from the Sheet's `onOpenChange` (Esc / backdrop / close button) when `detail` renders as a Sheet (mobile). `<SheetContent>` also gained `showCloseButton?: boolean` (default `true`) for consumers that ship their own close affordance.
-- Header fill → the Sheet's header bar follows `HeaderFillContext` (`src/components/layout/headerFill.ts`), 3 modes (solid / tint / white).
+- Header fill → the Sheet's header bar is the shared `<SurfaceHeaderBar>` (canonical `px-5 py-4`, the `hfc.bar` fill) following `HeaderFillContext` (`src/components/layout/headerFill.ts`), 3 modes (solid / tint / white); the `SheetTitle` renders inside its left block so the bar's `[&_h1,h2]` inversion reaches it. The actions row clears the Sheet's built-in close button (a structural `pr-8` on the bar's actions row).
 
 ### Layer 12 — Permissions
 - Route-level auth guard → `<ProtectedRoute>`.

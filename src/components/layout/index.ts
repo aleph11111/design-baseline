@@ -37,3 +37,4 @@ export {
   type HeaderFill,
 } from "./headerFill";
 export { SurfaceHeader, type SurfaceHeaderProps } from "./SurfaceHeader";
+export { SurfaceHeaderBar, type SurfaceHeaderBarProps } from "./SurfaceHeaderBar";
