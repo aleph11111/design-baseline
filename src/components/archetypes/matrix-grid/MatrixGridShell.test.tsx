@@ -56,6 +56,51 @@ describe("MatrixGridShell", () => {
   });
 });
 
+const groupedColumns: MatrixColumn[] = [
+  { key: "a1", label: "A1", group: "Alpha" },
+  { key: "a2", label: "A2", group: "Alpha" },
+  { key: "b1", label: "B1" },
+  { key: "c1", label: "C1", group: "Gamma" },
+  { key: "c2", label: "C2", group: "Gamma" },
+  { key: "c3", label: "C3", group: "Gamma" },
+];
+
+describe("banded header group merge", () => {
+  it("merges adjacent same-group columns into one colSpan, leaves ungrouped columns alone", () => {
+    const groupedRows: MatrixRow<string>[] = [
+      { id: "1", label: "Ada", cells: { a1: "x" } },
+    ];
+    render(
+      <MatrixGridShell
+        columns={groupedColumns}
+        rows={groupedRows}
+        renderCell={(ctx) => ctx.cell}
+      />,
+    );
+
+    const bandedRow = document.querySelectorAll("thead tr")[0]!;
+    // First th is the empty sticky anchor, then one merged span per group run.
+    const groupCells = Array.from(bandedRow.querySelectorAll("th")).slice(1);
+    expect(groupCells).toHaveLength(3);
+    expect(Array.from(groupCells).map((th) => th.textContent)).toEqual(["Alpha", "", "Gamma"]);
+    expect(Array.from(groupCells).map((th) => th.getAttribute("colspan"))).toEqual(["2", "1", "3"]);
+
+    const perColumnRow = document.querySelectorAll("thead tr")[1]!;
+    expect(perColumnRow.querySelectorAll("th")).toHaveLength(7); // anchor + 6 columns
+  });
+
+  it("suppresses the banded row entirely when no column has a group", () => {
+    render(
+      <MatrixGridShell
+        columns={columns}
+        rows={rows}
+        renderCell={(ctx) => ctx.cell}
+      />,
+    );
+    expect(document.querySelectorAll("thead tr")).toHaveLength(1);
+  });
+});
+
 // A dense matrix, well beyond what a single visible tooltip could justify —
 // stands in for the ticket's "50x20 gradebook" scenario.
 const ROWS_N = 20;
