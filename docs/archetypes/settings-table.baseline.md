@@ -58,8 +58,8 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 ### Layer 6 — Table / grid
 - Base table primitive → shadcn/ui `<Table>` (`src/components/ui/table`).
 - Column alignment → `align` on a `SettingsColumn`; `align="right"` for numerical / monetary / date / count columns, `align="center"` for status / category / token columns, `align="left"` (default) for anything else (the contract's Layer 6 keying rule — two engineers holding the same column config derive the same alignment).
-- Monospace identifier style → `font-mono text-sm font-medium` for alphanumeric-code identifiers; omitted for human-readable name identifiers (the contract's Layer 6 keying rule).
-- Clickable primary identifier cell → `text-primary hover:underline cursor-pointer`.
+- Monospace identifier style → `font-mono text-sm font-medium` for alphanumeric-code / slug identifiers via `identifierMono: true`; **off by default**, omitted for human-readable name identifiers (the contract's Layer 6 keying rule).
+- Clickable primary identifier cell → `text-primary hover:underline` (plus `font-mono text-sm font-medium` when the identifier is an alphanumeric code), `cursor-pointer` + `focus-ring` only when `onRowEdit` is wired. Keyboard-operable since v2.3: with `onRowEdit` set the cell is `role="button"` + `tabIndex=0` and fires `onRowEdit` on Enter/Space — the recipe is shared with list-with-detail through `archetypes/shared` (`TableColumn` / `identifierCell`), so the two archetypes' identifier cells can no longer drift.
 - Categorical status → a shared `<Badge>` variant.
 - Binary toggle dot → `bg-primary` (on) / `bg-muted-foreground` (off); never a literal palette color at the call site.
 - Row-actions overflow menu → `<RowActionsMenu>` (`archetypes/shared`), the single owner of the row-level `⋯` overflow trigger, shared byte-for-byte with list-with-detail.

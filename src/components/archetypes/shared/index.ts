@@ -9,6 +9,12 @@ export {
 
 export { getInteractiveRowProps, interactiveRowFocusRing } from "./interactiveRow";
 
+export {
+  alignClass,
+  identifierCell,
+  type TableColumn,
+} from "./tableColumn";
+
 export { resolveListState, type ListStatePhase, type ResolveListStateInput } from "./resolveListState";
 
 export { ActionFooterBar, type ActionFooterBarProps } from "./ActionFooterBar";

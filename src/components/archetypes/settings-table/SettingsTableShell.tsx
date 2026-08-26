@@ -13,8 +13,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { StateView } from "@/components/ui/state-view";
 import {
   RowActionsMenu,
+  alignClass,
+  identifierCell,
   resolveListState,
   type RowAction,
+  type TableColumn,
 } from "@/components/archetypes/shared";
 import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
 import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
@@ -28,31 +31,10 @@ export type SettingsRowAction<Row> = RowAction<Row>;
 // Public types
 // ---------------------------------------------------------------------------
 
-export type SettingsColumn<Row> = {
-  key: string;
-  header: React.ReactNode;
-  cell: (row: Row) => React.ReactNode;
-  /**
-   * Cell alignment. NOT a free look choice: D2's contract Layer 6 keys the
-   * value to the column's value kind — numeric / monetary / date / count
-   * figures `right`, short tokens (status / category / badge) `center`,
-   * everything else `left` (default). Both readers of the same column
-   * config derive the same value.
-   */
-  align?: "left" | "right" | "center";
-  /**
-   * Marks the identifier cell. Gets `text-primary hover:underline cursor-pointer`
-   * and calls `onRowEdit` on click. This is D2's core click contract.
-   */
-  isIdentifier?: boolean;
-  /**
-   * Style the identifier cell with `font-mono text-sm font-medium`.
-   * Keyed to the identifier's character style (D2 contract Layer 6):
-   * true for alphanumeric codes or slugs, false (default) for
-   * human-readable name identifiers.
-   */
-  identifierMono?: boolean;
-};
+// The shared column-descriptor fields (incl. the identifier-cell recipe and
+// the Layer-6 align keying rule) are owned by `TableColumn` under
+// `archetypes/shared`; D2 adds no extensions on top of the base.
+export type SettingsColumn<Row> = TableColumn<Row>;
 
 export type SettingsTableShellProps<Row> = {
   /** The current (possibly filtered) rows to display. */
@@ -104,16 +86,6 @@ export type SettingsTableShellProps<Row> = {
    */
   onBulkDelete?: (rows: Row[]) => void;
 } & SurfaceHeaderSlotProps;
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function alignClass(align: SettingsColumn<unknown>["align"]): string {
-  if (align === "right") return "text-right";
-  if (align === "center") return "text-center";
-  return "text-left";
-}
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -288,21 +260,18 @@ export function SettingsTableShell<Row>({
               )}
               {columns.map((col) => {
                 const isIdentifier = col.isIdentifier === true;
-                const useMono = isIdentifier && col.identifierMono === true;
+                const cellProps =
+                  isIdentifier && onRowEdit
+                    ? identifierCell(col, () => onRowEdit(row))
+                    : null;
                 return (
                   <TableCell
                     key={col.key}
                     className={cn(
                       alignClass(col.align),
-                      isIdentifier &&
-                        "text-primary hover:underline cursor-pointer font-medium",
-                      useMono && "font-mono text-sm",
+                      cellProps?.className,
                     )}
-                    onClick={
-                      isIdentifier && onRowEdit
-                        ? () => onRowEdit(row)
-                        : undefined
-                    }
+                    {...cellProps}
                   >
                     {col.cell(row)}
                   </TableCell>

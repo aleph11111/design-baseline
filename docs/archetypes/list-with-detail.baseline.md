@@ -54,8 +54,8 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 
 ### Layer 6 — Table / grid
 - Base table primitive → shadcn/ui `<Table>` (`src/components/ui/table`).
-- Monospace identifier style → `font-mono text-sm font-medium`.
-- Clickable primary identifier cell → `font-mono text-sm font-medium text-primary hover:underline` (rendered `text-primary` at rest).
+- Monospace identifier style → `font-mono text-sm font-medium` via `identifierMono: true`; **off by default** — set it only for alphanumeric-code / slug identifiers, omit it for human-readable name identifiers (the sandbox demo passes explicit `identifierMono: false` for its name ledger).
+- Clickable primary identifier cell → `text-primary hover:underline` (plus `font-mono text-sm font-medium` when `identifierMono`), `cursor-pointer` + `focus-ring`, keyboard-operable (`role="button"` + `tabIndex=0`, Enter/Space fire the row-select handler) — rendered `text-primary` at rest. The recipe is shared with settings-table through `archetypes/shared` (`TableColumn` / `identifierCell`), so the two archetypes' identifier cells render the same mono scale (`text-sm`) and honour the same `identifierMono` default.
 - Multi-line supporting line → `text-xs text-muted-foreground`.
 - Presentation variant → `<ListWithDetailShell presentation="table | card-grid | action-row">` (keyed by the row's data shape — see the contract's decision table in Layer 6).
 - Column alignment → `align` on a `ListColumn`; `align="right"` for numerical / monetary / date / count columns, `align="center"` for status / category / token columns, `align="left"` (default) for anything else.

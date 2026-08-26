@@ -57,6 +57,40 @@ describe("SettingsTableShell selection membership", () => {
     }
   });
 
+  it("identifier cell is a focusable button-role that activates onRowEdit on Enter/Space", () => {
+    const onRowEdit = vi.fn();
+    const rows = makeRows(1);
+
+    render(
+      <SettingsTableShell
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+        onRowEdit={onRowEdit}
+      />,
+    );
+
+    const cell = screen.getByRole("button", { name: "Row 0" });
+    expect(cell.getAttribute("tabindex")).toBe("0");
+
+    fireEvent.keyDown(cell, { key: "Enter" });
+    expect(onRowEdit).toHaveBeenCalledWith(rows[0]);
+
+    fireEvent.keyDown(cell, { key: " " });
+    expect(onRowEdit).toHaveBeenCalledTimes(2);
+  });
+
+  it("no onRowEdit: the identifier cell is not a tab stop", () => {
+    render(
+      <SettingsTableShell
+        rows={makeRows(1)}
+        columns={columns}
+        getRowId={(row) => row.id}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "Row 0" })).toBeNull();
+  });
+
   it("still resolves the correct rows on bulk delete", () => {
     const rows = makeRows(5);
     const selectedIds = ["row-1", "row-3"];
