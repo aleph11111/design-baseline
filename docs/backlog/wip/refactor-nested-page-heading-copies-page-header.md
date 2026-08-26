@@ -56,7 +56,7 @@ This matters more than a normal copy because the heading ladder is what the arch
 
 ## Related
 
-- [archetype-convergence-nested-heading-primitive.md](archive/archetype-convergence-nested-heading-primitive.md) — the ticket that shipped `NestedPageHeading`; this is the layout duplication it left behind.
-- [surface-header-compose-not-copy.md](archive/surface-header-compose-not-copy.md) — the same "canonical primitive, copied markup" finding for the surface header bar.
-- [test-gap-page-header-no-tests.md](archive/test-gap-page-header-no-tests.md) — added the `PageHeader` coverage this extraction extends.
-- [docs/adr/0004-appearance-locality-derived-vs-inherited.md](../adr/0004-appearance-locality-derived-vs-inherited.md) — the rule that fixes the heading scale in the component; the layout around it deserves the same single owner.
+- [archetype-convergence-nested-heading-primitive.md](../archive/archetype-convergence-nested-heading-primitive.md) — the ticket that shipped `NestedPageHeading`; this is the layout duplication it left behind.
+- [surface-header-compose-not-copy.md](../archive/surface-header-compose-not-copy.md) — the same "canonical primitive, copied markup" finding for the surface header bar.
+- [test-gap-page-header-no-tests.md](../archive/test-gap-page-header-no-tests.md) — added the `PageHeader` coverage this extraction extends.
+- [docs/adr/0004-appearance-locality-derived-vs-inherited.md](../../adr/0004-appearance-locality-derived-vs-inherited.md) — the rule that fixes the heading scale in the component; the layout around it deserves the same single owner.
