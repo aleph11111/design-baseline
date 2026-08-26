@@ -65,10 +65,14 @@ Only layers with a baseline-specific binding appear.
 - range → `h-2 w-full cursor-pointer accent-primary` + the shared
   `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`, paired
   with a `w-12 text-right text-sm tabular-nums text-muted-foreground` value readout.
-- label → `Label` (`text-sm font-medium leading-none`); required marker is a
-  `ml-0.5 text-destructive` `*` (`aria-hidden`).
-- wrapper → `flex flex-col gap-1.5`; hint → `text-sm text-muted-foreground`; error →
-  `text-sm font-medium text-destructive`.
+- label + wrapper + hint + error → the **shared field frame** (`src/components/archetypes/shared/fieldFrame.tsx`,
+  re-exported from `shared/index.ts`): `FieldLabel` owns the `ml-0.5 text-destructive` `*`
+  required marker (`aria-hidden`), `FieldFrame` owns the `flex flex-col gap-1.5` wrapper,
+  `FieldHint` is `text-sm text-muted-foreground`, `FieldError` is
+  `text-sm font-medium text-destructive`, and `useFieldIds` owns the
+  `${id}-hint` / `${id}-error` scheme + the `aria-describedby` join. SelectField (S),
+  TextareaField (T), `ColorField` and `FileField` compose the same frame — the
+  frame's copy is the only one that exists; NativeField owns only its control body.
 - `labelClassName` / `controlClassName` → passed through via `cn()` onto the `Label` and the
   control (`Input`/`Textarea`/the raw `range` input), for consumers running a denser chrome
   than the fixed binding above (e.g. `text-xs text-muted-foreground` labels over `h-8 text-sm`
@@ -83,9 +87,12 @@ Only layers with a baseline-specific binding appear.
   `pl-[…]` string is invisible to Tailwind's scanner.
 
 ### L9 — Error surface
-- `error?: string` → renders the destructive `<p id={`${id}-error`}>` and adds
-  `border-destructive focus-visible:ring-destructive` to the control.
-- `required?: boolean` → the label marker **and** the native `required` attribute.
+- `error?: string` → renders the frame's `FieldError` (the destructive
+  `<p id={`${id}-error`}>`) and adds `border-destructive focus-visible:ring-destructive`
+  to the control. It renders **alongside** a `hint` — the frame's coexistence rule
+  is the same for every field; the error never suppresses the hint.
+- `required?: boolean` → the label marker (the frame's) **and** the native `required`
+  attribute.
 - `error` stays a single string — no severity variant, no `footer`/`counter` slot. A live
   character counter, or any other graded status line, is caller-owned presentation over
   caller state and composes as a sibling `<p>` after the field, which is the same DOM a

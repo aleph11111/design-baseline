@@ -2,7 +2,7 @@
 key: T
 slug: raw-textarea
 kind: component
-version: 1.0
+version: 1.1
 promoted_from: brickshop-manager (fleet synthesis; dashboard, controlling-app, my-finance-app, mistra, hk-crm, pmo)
 promoted_at: 2026-07-23
 source_spec_version: n/a (fleet synthesis — no single source spec)
@@ -104,10 +104,12 @@ directly.
 ### L9 — Error surface
 **Required (when an error is supplied).** The field owns its inline error: the
 message renders on the line below the area in the destructive tone, the field is
-marked invalid for assistive tech, and the error is associated with the field. An
-error **supersedes** the helper line (they never show at once). Absent an error, the
-optional helper line occupies that slot. Validation itself is the caller's job — the
-molecule only renders the outcome.
+marked invalid for assistive tech, and the error is associated with the field. The
+optional helper line renders **alongside** the error, and both lines are associated
+with the field — the coexistence rule is the one the shared labeled-field frame
+owns, and is the same for every labeled field. A required field renders a required
+marker by the label and sets the control's native required state. Validation itself
+is the caller's job — the molecule only renders the outcome.
 
 ### L10 — Performance contract
 Pure controlled render — no effects, no layout measurement. The counter derives its

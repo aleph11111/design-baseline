@@ -106,10 +106,12 @@ label + hint + error assembly, not by extending this molecule.
 ### L9 — Error surface
 **Owned here.** When the caller supplies an error, the field: renders the message
 below the control in the destructive role; marks the control invalid; and associates
-the message with the control (see L11). A required field renders a required marker
-by the label and sets the control's native required state. The field does not decide
-*whether* a value is invalid — that judgment stays with the caller; the field only
-presents it.
+the message with the control (see L11). A hint, when also present, renders
+**alongside** the error — the coexistence rule is owned by the shared labeled-field
+frame every labeled field composes, so both lines are associated with the control.
+A required field renders a required marker by the label and sets the control's
+native required state. The field does not decide *whether* a value is invalid —
+that judgment stays with the caller; the field only presents it.
 
 ### L10 — Performance contract
 Pure controlled render — no effects, no timers, no internal state beyond the

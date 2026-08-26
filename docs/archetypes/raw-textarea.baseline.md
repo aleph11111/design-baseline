@@ -15,19 +15,24 @@ contract: docs/archetypes/raw-textarea.md
 ## Primitive binding
 
 `<TextareaField>` in `src/components/archetypes/raw-textarea/`. It composes the
-shadcn `Textarea` atom (`src/components/ui/textarea.tsx`) and the `Label` atom
-(`src/components/ui/label.tsx`) — it adds no new field chrome; the atom owns the
-border/surface/focus-ring, and this molecule only wires the label, the helper/error
-slot, the counter, and the mono variant around it. It forwards its ref to the
-underlying textarea and spreads native `TextareaHTMLAttributes`, so it drops into a
-`useState` value or a react-hook-form `register()` / `field` spread unchanged.
+shadcn `Textarea` atom (`src/components/ui/textarea.tsx`) and the **shared field
+frame** (`src/components/archetypes/shared/fieldFrame.tsx`, re-exported from
+`shared/index.ts`) — the same `FieldLabel`/`FieldFrame`/`FieldHint`/`FieldError`
++ `useFieldIds` that NativeField (I) and SelectField (S) compose — so the
+label, hint and error slots, the `${id}-hint` / `${id}-error` scheme and the
+`aria-invalid` / `aria-describedby` wiring are the frame's, not this molecule's.
+It adds no new field chrome; the atom owns the border/surface/focus-ring. It
+forwards its ref to the underlying textarea and spreads native
+`TextareaHTMLAttributes`, so it drops into a `useState` value or a react-hook-form
+`register()` / `field` spread unchanged.
 
 ```tsx
 import { TextareaField } from "@/components/archetypes/raw-textarea";
 
-<TextareaField label="Notes" helperText="Markdown is fine." rows={4} />
+<TextareaField label="Notes" hint="Markdown is fine." rows={4} />
 <TextareaField label="Review" showCount maxLength={280} />
 <TextareaField label="Config" mono error={jsonError} rows={5} />
+<TextareaField label="Signature" required rows={2} />
 ```
 
 ## Role → primitive map
@@ -42,8 +47,8 @@ caller's `onChange`.
 
 ### L4 — Keyboard / focus
 `id` is auto-generated with `React.useId()` when not supplied and linked to the
-`<Label htmlFor>`, so a label click focuses the field. Native textarea key handling
-is untouched.
+frame's `FieldLabel htmlFor`, so a label click focuses the field. Native textarea
+key handling is untouched.
 
 ### L5 — Counter (allowed variation)
 `showCount` + `maxLength` render a `{length}/{maxLength}` span with `tabular-nums`.
@@ -58,17 +63,29 @@ from `defaultValue`. Tone scale:
 ### L7 — Theming
 - **mono** → `font-mono text-xs` on the textarea + `spellCheck={false}`.
 - **error tone** → `border-destructive focus-visible:ring-destructive` on the
-  textarea; the message renders in `text-destructive`.
-- helper line + counter-neutral → `text-muted-foreground`. The helper/error row is
-  a `flex items-start justify-between gap-2 text-xs` under the field.
+  textarea; the message renders via the frame's `FieldError`
+  (`text-sm font-medium text-destructive`).
+- hint line → the frame's `FieldHint` (`text-sm text-muted-foreground`) — the same
+  scale as every other field's hint, replacing the pre-frame `text-xs` helper row.
+- counter-neutral → `text-sm tabular-nums text-muted-foreground` (right-aligned
+  under the textarea); the counter's tone tokens are unchanged.
 
 ### L9 — Error surface
-`error` (any node) renders in the helper slot as `text-destructive`, sets
-`aria-invalid` on the textarea, and tints its border/ring destructive. When `error`
-is set, `helperText` is not rendered (error supersedes helper).
+`error` (any node) renders via the frame's `FieldError`, sets `aria-invalid` on
+the textarea (via the frame's `useFieldIds`), and tints the border/ring destructive.
+A `hint` prop (any node; the deprecated alias is `helperText`) renders via the
+frame's `FieldHint` **alongside** the error — the frame's coexistence rule is the
+same for every field.
 
 ### L11 — Accessibility contract
-`<Label htmlFor={fieldId}>` associates the caption. The helper/error span
-(`id={fieldId}-help`) and the counter span (`id={fieldId}-count`) are joined into
-the textarea's `aria-describedby` (alongside any caller-supplied `aria-describedby`),
-so assistive tech announces them with the field. `error` also drives `aria-invalid`.
+The frame's `FieldLabel` (`htmlFor={fieldId}`) associates the caption. The frame's
+`useFieldIds` joins the hint id (`id={fieldId}-hint`) and the error id
+(`id={fieldId}-error`) — whichever are present — into the textarea's
+`aria-describedby`, alongside any caller-supplied `aria-describedby` and the
+counter span (`id={fieldId}-count`), so assistive tech announces them with the
+field. `error` also drives `aria-invalid` (frame-derived).
+
+### Required marker
+`required` → the frame's `FieldLabel` marker (`ml-0.5 text-destructive` `*`,
+`aria-hidden`) plus the native `required` attribute on the textarea. Pre-frame,
+TextareaField had no required affordance; the frame supplies it.

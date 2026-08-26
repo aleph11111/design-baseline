@@ -69,16 +69,24 @@ Only layers with a baseline-specific binding appear.
   row), `default` = the `h-10 px-3 py-2 text-sm` control quoted above, `lg` = `h-12 px-3
   text-base gap-2`. A dense filter select passes `size="sm"` instead of hand-rolling
   `className="h-8 text-xs"`; `className` still wins over the rung for one-off heights.
-- label → `Label` (`text-sm font-medium leading-none`); required marker is a `ml-0.5
-  text-destructive` `*` (`aria-hidden`).
-- wrapper → `flex flex-col gap-1.5`; hint → `text-sm text-muted-foreground`; error →
-  `text-sm font-medium text-destructive`.
+- label + wrapper + hint + error → the **shared field frame**
+  (`src/components/archetypes/shared/fieldFrame.tsx`, re-exported from
+  `shared/index.ts`): `FieldLabel` owns the `ml-0.5 text-destructive` `*` required
+  marker (`aria-hidden`); `FieldLabel`'s `id` is the `aria-labelledby` target; the
+  `flex flex-col gap-1.5` wrapper (`FieldFrame`), `text-sm text-muted-foreground`
+  hint (`FieldHint`) and `text-sm font-medium text-destructive` error
+  (`FieldError`) come from the frame too, along with `useFieldIds`'
+  `${id}-hint` / `${id}-error` scheme + `aria-describedby` join. NativeField (I),
+  TextareaField (T), `ColorField` and `FileField` compose the same frame — the
+  frame's copy is the only one that exists.
 
 ### L9 — Error surface
-- `error?: string` → renders the destructive `<p id={`${id}-error`}>` and adds
-  `border-destructive focus:ring-destructive` to the trigger.
-- `required?: boolean` → the label marker **and** the Radix `required` prop on `Select`
-  (surfaced as `aria-required` on the trigger).
+- `error?: string` → renders the frame's `FieldError` (the destructive
+  `<p id={`${id}-error`}>`), which renders **alongside** a `hint` (the frame's
+  coexistence rule — same for every field), and adds
+  `border-destructive focus-visible:ring-destructive` to the trigger.
+- `required?: boolean` → the label marker (the frame's) **and** the Radix `required`
+  prop on `Select` (surfaced as `aria-required` on the trigger).
 
 ### L11 — Accessibility contract
 - Label association → the Radix trigger is a `<button>`, so association is via

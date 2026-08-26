@@ -61,6 +61,50 @@ describe("FileField — size gate + reset", () => {
   });
 });
 
+describe("FileField — labeled field frame (the shared label/hint/error a11y)", () => {
+  it("associates the trigger with its label (aria-labelledby, like Radix Select's trigger)", () => {
+    render(
+      <FileField
+        label="Receipt"
+        hint="CSV or XLSX."
+        onSelect={() => {}}
+      />,
+    );
+    const trigger = screen.getByLabelText("Receipt");
+    expect(trigger.getAttribute("aria-describedby")).toBeTruthy();
+    // The hint node the trigger describes — button variant: the frame's hint slot.
+    const ids = trigger.getAttribute("aria-describedby")!.split(" ");
+    expect(document.getElementById(ids[0]!)?.textContent).toBe("CSV or XLSX.");
+  });
+
+  it("given an error, marks the trigger invalid and links the error node", () => {
+    render(
+      <FileField label="Receipt" error="No such file." onSelect={() => {}} />,
+    );
+    const trigger = screen.getByLabelText("Receipt");
+    expect(trigger.getAttribute("aria-invalid")).toBe("true");
+    const ids = trigger.getAttribute("aria-describedby")!.split(" ");
+    expect(document.getElementById(ids[ids.length - 1]!)?.textContent).toBe(
+      "No such file.",
+    );
+  });
+
+  it("the dropzone variant keeps the hint inside the box but still describes it", () => {
+    render(
+      <FileField
+        label="Receipt"
+        variant="dropzone"
+        hint="CSV or XLSX."
+        onSelect={() => {}}
+      />,
+    );
+    const dropzone = screen.getByLabelText("Receipt");
+    const ids = dropzone.getAttribute("aria-describedby")!.split(" ");
+    // Dropzone hint: the in-box carry node carries the frame's hint id.
+    expect(document.getElementById(ids[0]!)?.textContent).toBe("CSV or XLSX.");
+  });
+});
+
 describe("FileField — onFilesDrop drag-and-drop (dropzone only)", () => {
   it("delivers dropped files via onFilesDrop when opted in", () => {
     const onFilesDrop = vi.fn();

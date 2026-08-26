@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { NativeField } from "./native-field";
+import {
+  expectFieldError,
+  expectFieldHintOnly,
+  expectLabelAssociated,
+  expectRequired,
+} from "../shared/fieldFrame.test-utils";
 
 afterEach(() => {
   cleanup();
@@ -10,6 +16,7 @@ describe("NativeField — labeled native field with a11y wiring", () => {
   it("associates the label with the control", () => {
     render(<NativeField label="Batch name" value="Saison" onChange={() => {}} />);
     // getByLabelText resolves only if htmlFor/id are wired.
+    expectLabelAssociated("Batch name");
     const input = screen.getByLabelText("Batch name") as HTMLInputElement;
     expect(input.value).toBe("Saison");
   });
@@ -25,19 +32,33 @@ describe("NativeField — labeled native field with a11y wiring", () => {
     render(
       <NativeField label="Batch name" value="" onChange={() => {}} error="Required." />,
     );
-    const input = screen.getByLabelText("Batch name");
-    expect(input.getAttribute("aria-invalid")).toBe("true");
-    const describedBy = input.getAttribute("aria-describedby");
-    expect(describedBy).toBeTruthy();
-    const errorEl = document.getElementById(describedBy!.split(" ").pop()!);
-    expect(errorEl?.textContent).toBe("Required.");
+    expectFieldError(screen.getByLabelText("Batch name"), "Required.");
   });
 
   it("associates a hint with the control", () => {
     render(<NativeField label="Gravity" value="1.05" onChange={() => {}} hint="Pre-ferment." />);
-    const input = screen.getByLabelText("Gravity");
-    const describedBy = input.getAttribute("aria-describedby")!;
-    expect(document.getElementById(describedBy)?.textContent).toBe("Pre-ferment.");
+    expectFieldHintOnly(
+      screen.getByLabelText("Gravity"),
+      "Pre-ferment.",
+    );
+  });
+
+  it("co-renders the hint with the error — both named by aria-describedby", () => {
+    render(
+      <NativeField
+        label="Batch name"
+        value=""
+        onChange={() => {}}
+        hint="Shown on the fermenter tag."
+        error="Required."
+      />,
+    );
+    const input = screen.getByLabelText("Batch name");
+    // The frame's contract: same coexistence rule as SelectField/TextareaField —
+    // the error never suppresses the hint, and both nodes are described.
+    expect(screen.getByText("Shown on the fermenter tag.")).toBeTruthy();
+    expect(screen.getByText("Required.")).toBeTruthy();
+    expectFieldError(input, "Required.", "Shown on the fermenter tag.");
   });
 
   it("renders a textarea when multiline is set", () => {
@@ -92,10 +113,10 @@ describe("NativeField — labeled native field with a11y wiring", () => {
 
   it("sets native required alongside the visual marker", () => {
     render(<NativeField label="Batch name" required value="" onChange={() => {}} />);
-    // Required renders a "*" marker, so the label textContent is "Batch name*".
-    expect(
-      (screen.getByLabelText("Batch name", { exact: false }) as HTMLInputElement).required,
-    ).toBe(true);
+    // The marker is naively joined into the label's textContent (real browsers
+    // honor aria-hidden), so match by substring here.
+    expectLabelAssociated(/Batch name/, { required: true });
+    expectRequired(screen.getByLabelText(/Batch name/), { native: true });
   });
 
   it("applies labelClassName and controlClassName to the label and control", () => {

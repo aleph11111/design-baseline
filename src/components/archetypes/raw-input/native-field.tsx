@@ -1,8 +1,14 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import {
+  FieldError,
+  FieldFrame,
+  FieldHint,
+  FieldLabel,
+  useFieldIds,
+} from "../shared/fieldFrame";
 
 // The shared owner of a **labeled native form field** — the triad the fleet
 // hand-rolls everywhere: `<label>` + a bare native `<input>` (or `<textarea>`) +
@@ -115,12 +121,15 @@ export function NativeField({
   labelClassName,
   controlClassName,
 }: NativeFieldProps): React.ReactElement {
-  const autoId = React.useId();
-  const inputId = id ?? autoId;
-  const hintId = hint ? `${inputId}-hint` : undefined;
-  const errorId = error ? `${inputId}-error` : undefined;
-  const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
-  const invalid = error ? true : undefined;
+  // Frame wiring (id scheme, the aria-describedby join, aria-invalid) — the
+  // label + hint + error assembly is the shared fieldFrame, composed below.
+  const {
+    fieldId: inputId,
+    hintId,
+    errorId,
+    describedBy,
+    invalid,
+  } = useFieldIds({ id, hint, error });
   const stringValue = String(value);
 
   const shared = {
@@ -203,27 +212,14 @@ export function NativeField({
   }
 
   return (
-    <div className={cn("flex flex-col gap-1.5", className)}>
-      <Label htmlFor={inputId} className={labelClassName}>
+    <FieldFrame className={className}>
+      <FieldLabel htmlFor={inputId} className={labelClassName} required={required}>
         {label}
-        {required && (
-          <span className="ml-0.5 text-destructive" aria-hidden="true">
-            *
-          </span>
-        )}
-      </Label>
+      </FieldLabel>
       {control}
-      {hint && (
-        <p id={hintId} className="text-sm text-muted-foreground">
-          {hint}
-        </p>
-      )}
-      {error && (
-        <p id={errorId} className="text-sm font-medium text-destructive">
-          {error}
-        </p>
-      )}
-    </div>
+      {hint && <FieldHint id={hintId}>{hint}</FieldHint>}
+      {error && <FieldError id={errorId}>{error}</FieldError>}
+    </FieldFrame>
   );
 }
 
