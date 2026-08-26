@@ -9,19 +9,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { RowActionsMenu, getInteractiveRowProps, interactiveRowFocusRing } from "../../shared";
+import { RowActionsMenu, alignClass, identifierCell } from "../../shared";
 import type { RowAction } from "../../shared";
 import type { ListColumn, SortDirection } from "../ListWithDetailShell";
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-function alignClass(align: ListColumn<unknown>["align"]): string {
-  if (align === "right") return "text-right";
-  if (align === "center") return "text-center";
-  return "text-left";
-}
 
 function SortIcon({
   columnKey,
@@ -142,24 +136,19 @@ export function TableBody<Row>({
               data-state={isSelected ? "selected" : undefined}
             >
               {columns.map((col) => {
-                const isIdentifier = col.isIdentifier === true;
-                const useMono = isIdentifier && col.identifierMono !== false;
                 const activate =
-                  isIdentifier && onRowSelect !== undefined
+                  col.isIdentifier === true && onRowSelect !== undefined
                     ? () => onRowSelect(row)
                     : undefined;
+                const cellProps = activate ? identifierCell(col, activate) : null;
                 return (
                   <TableCell
                     key={col.key}
                     className={cn(
                       alignClass(col.align),
-                      isIdentifier && "text-primary hover:underline",
-                      activate && "cursor-pointer",
-                      activate && interactiveRowFocusRing,
-                      useMono && "font-mono text-[13px] font-medium",
+                      cellProps?.className,
                     )}
-                    onClick={activate}
-                    {...getInteractiveRowProps(activate)}
+                    {...cellProps}
                   >
                     {col.cell(row)}
                   </TableCell>

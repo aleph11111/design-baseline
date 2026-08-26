@@ -11,7 +11,7 @@ import {
 import { TableBody } from "./presentations/TableBody";
 import { CardGridBody } from "./presentations/CardGridBody";
 import { ActionRowBody } from "./presentations/ActionRowBody";
-import { resolveListState, type RowAction } from "../shared";
+import { resolveListState, type RowAction, type TableColumn } from "../shared";
 
 // The per-row overflow menu and its action shape are owned by the shared
 // primitive (../shared/RowActionsMenu) so list-with-detail and settings-table
@@ -33,22 +33,11 @@ export const ListChromeContext = React.createContext(false);
 // Public types
 // ---------------------------------------------------------------------------
 
-export type ListColumn<Row> = {
-  key: string;
-  header: React.ReactNode;
-  cell: (row: Row) => React.ReactNode;
-  /**
-   * Use text-primary + hover:underline automatically for the cell that
-   * uniquely identifies the row.
-   */
-  isIdentifier?: boolean;
-  /**
-   * Style the identifier cell with font-mono — omit only for human-readable
-   * name identifiers.
-   */
-  identifierMono?: boolean;
+// The six shared column-descriptor fields (incl. the identifier-cell recipe and
+// the align keying rule) are owned by `TableColumn` under `../shared` so A and D2
+// derive one identical identifier cell; A adds its sort/width extensions on top.
+export type ListColumn<Row> = TableColumn<Row> & {
   width?: string | number;
-  align?: "left" | "right" | "center";
   sortable?: boolean;
   /** Primitive does NOT call this; pass through to consumer. */
   sortFn?: (a: Row, b: Row) => number;
