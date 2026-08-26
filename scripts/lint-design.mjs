@@ -32,56 +32,17 @@
 // closed archetype as an open one. As more archetypes close, the drain rules
 // accumulate one exclude glob per closed folder (the array form).
 //
-// Usage:  node scripts/lint-design.mjs
+// Usage:  node scripts/lint-design.mjs [--json] [--ci-threshold <n>]
 // Config: ADHERENCE_CONFIG=path overrides the default `_adherence.json`.
+//
+// The module is importable: `globToRegExp`, `compileGlobs`, `compileRules` and `scanFile`
+// are pure and exported (see scripts/lint-design.test.mjs). Only `main()` touches argv,
+// the filesystem, stdout and the exit code, and it runs only when the file is the entry
+// point — importing it scans nothing.
 
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
-
-const args = process.argv.slice(2);
-const jsonMode = args.includes('--json') || args.includes('--json-output');
-const ciThresholdIdx = args.indexOf('--ci-threshold');
-let ciThreshold = null;
-if (ciThresholdIdx !== -1 && ciThresholdIdx + 1 < args.length) {
-  ciThreshold = parseInt(args[ciThresholdIdx + 1], 10);
-  if (isNaN(ciThreshold)) {
-    console.error('lint:design — --ci-threshold requires a number');
-    process.exit(2);
-  }
-}
-
-const root = process.cwd();
-const CONFIG = process.env.ADHERENCE_CONFIG || '_adherence.json';
-
-let config;
-try {
-  config = JSON.parse(readFileSync(join(root, CONFIG), 'utf8'));
-} catch (err) {
-  console.error(`lint:design — cannot read ${CONFIG}: ${err.message}`);
-  process.exit(2);
-}
-
-const targets = config.targets?.length ? config.targets : ['src'];
-const rules = config.rules ?? [];
-
-// Collect every .tsx file under a directory root, skipping node_modules and dotfiles.
-function walk(dir, acc) {
-  let entries;
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return acc; // missing target dir — skip silently (a consumer may not have every root)
-  }
-  for (const e of entries) {
-    if (e.name === 'node_modules' || e.name.startsWith('.')) continue;
-    const p = join(dir, e.name);
-    if (e.isDirectory()) walk(p, acc);
-    else if (e.name.endsWith('.tsx')) acc.push(p);
-  }
-  return acc;
-}
-
-const files = targets.flatMap((t) => walk(join(root, t), []));
+import { pathToFileURL } from 'node:url';
 
 // Translate a repo-root-relative path glob into an anchored RegExp. `**` spans any run of
 // directory segments (including none); `*` matches within a single segment. Only the two
@@ -95,7 +56,10 @@ function globToRegExp(glob) {
   // `(?:seg/)*` (units trail their separator); a `**` elsewhere becomes `(?:/seg)*`
   // (units lead with theirs, so the concrete part's own slash still applies).
   if (parts.length === 1 && parts[0] === '**') return new RegExp('^(.*)$');
-  const esc = (s) => s.replace(/[.*+?^${}()[]\\]/g, '\\$&');
+  // Escape every RegExp metacharacter the wildcard split can't own (the caller handles
+  // `*`; `**` is consumed whole). The class closes after the escaped `\`, so `]` is
+  // reached as a literal class member, not a closer.
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   let re = '';
   for (let i = 0; i < parts.length; i++) {
     const p = parts[i];
@@ -114,21 +78,19 @@ function globToRegExp(glob) {
   return new RegExp('^' + re + '$');
 }
 
-// Compile each rule once. `pattern` is used verbatim; a `tag` rule matches a bare lowercase
-// element — `<tag` immediately followed by whitespace, `/`, or `>` — case-sensitive (no `i`
-// flag) so the capitalized DS primitive `<Button>` is not a hit. An `include`, when
-// present, restricts the rule to walked files whose repo-root-relative path matches it; an
-// `exclude`, when present, removes such files from the rule. Both `include` and `exclude`
-// are a glob or an array of globs: a file is in scope when ANY `include` glob matches it —
-// e.g. `["**/*Shell.tsx", "**/*Sheet.tsx"]` scopes a shell rule to both the `*Shell.tsx`-
-// named and the `*Sheet.tsx`-named overlay shells, the two suffix forms a shell may take —
-// and is excluded when ANY `exclude` matches (one closed archetype is one array entry). A
-// rule with both applies only inside `include` and outside every `exclude`.
-// That is what lets a shared drain rule (e.g. the appearance-prop
-// noun/union ban over `src/components/archetypes/**`) drop each already-closed archetype out
-// of the `warn` drain while a per-archetype `error` rule stays scoped to it.
-// `compileGlobs` normalizes either form (single glob or array) to an array of compiled
-// RegExp so the scope check below stays one `includes.some(...)` / `excludes.some(...)`.
+// A rule failed to compile (bad `pattern` / `include` / `exclude` glob or pattern). Carries
+// the already-formatted diagnostic `main()` prints; it is thrown instead of exiting so the
+// compilers stay pure functions — the exit lives in the CLI, not the compiler.
+class CompileError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'CompileError';
+  }
+}
+
+// Compile one rule's `include` / `exclude` (glob or array of globs, or absent) into an
+// array of compiled RegExps so the scope check in `scanFile` stays one
+// `includes.some(...)` / `excludes.some(...)`. Throws `CompileError` on a bad glob.
 function compileGlobs(rule, key) {
   const value = rule[key];
   if (value === undefined || value === null) return [];
@@ -136,76 +98,158 @@ function compileGlobs(rule, key) {
     try {
       return globToRegExp(glob);
     } catch (err) {
-      console.error(`lint:design — rule ${rule.id}: bad ${key} glob "${glob}": ${err.message}`);
-      return process.exit(2);
+      throw new CompileError(`lint:design — rule ${rule.id}: bad ${key} glob "${glob}": ${err.message}`);
     }
   });
 }
 
-const compiled = rules.map((rule) => {
-  const source = rule.pattern ?? `<${rule.tag}(?=[\\s/>])`;
-  const includes = compileGlobs(rule, 'include');
-  const excludes = compileGlobs(rule, 'exclude');
-  try {
+// Compile every rule once. `pattern` is used verbatim; a `tag` rule matches a bare lowercase
+// element — `<tag` immediately followed by whitespace, `/`, or `>` — case-sensitive (no `i`
+// flag) so the capitalized DS primitive `<Button>` is not a hit.
+// Throws `CompileError` on a bad pattern or glob.
+function compileRules(rules) {
+  return rules.map((rule) => {
+    const source = rule.pattern ?? `<${rule.tag}(?=[\\s/>])`;
+    let re;
+    try {
+      re = new RegExp(source, 'g');
+    } catch (err) {
+      throw new CompileError(`lint:design — rule ${rule.id}: bad pattern /${source}/: ${err.message}`);
+    }
     return {
-      re: new RegExp(source, 'g'),
+      re,
       label: rule.tag ? `<${rule.tag}>` : rule.id,
       severity: rule.severity === 'error' ? 'error' : 'warn',
       message: rule.message,
-      includes,
-      excludes,
+      includes: compileGlobs(rule, 'include'),
+      excludes: compileGlobs(rule, 'exclude'),
     };
-  } catch (err) {
-    console.error(`lint:design — rule ${rule.id}: bad pattern /${source}/: ${err.message}`);
-    return process.exit(2);
-  }
-});
+  });
+}
 
-const violations = [];
-let warnings = 0;
-let errors = 0;
-for (const file of files) {
-  const fileRel = relative(root, file);
-  const lines = readFileSync(file, 'utf8').split('\n');
+// Run the compiled rules against one file's text and return its violations (an empty list
+// when every rule is out of scope or finds nothing). `fileRel` must be repo-root-relative,
+// as the include/exclude globs are. One violation per per-line per-match hit:
+// `{ file, line, col, rule, severity, message }`. The scan lives here so the CLI stays a
+// thin caller and the core is unit-testable without a repo tree.
+function scanFile(fileRel, text, compiled) {
+  const violations = [];
+  const lines = text.split('\n');
   for (const { re, label, severity, message, includes, excludes } of compiled) {
     // No `include` (or a rule whose `include` list is empty) matches every walked file;
     // with one or more `include` globs the rule applies only when ANY of them matches.
     if (includes.length && !includes.some((inc) => inc.test(fileRel))) continue;
     if (excludes.some((ex) => ex.test(fileRel))) continue; // excluded closed archetype
+    re.lastIndex = 0; // the `g` flag makes `matchAll` index-sensitive — don't leak state
     lines.forEach((line, i) => {
       for (const m of line.matchAll(re)) {
-        const v = { file: fileRel, line: i + 1, rule: label, severity, message };
-        violations.push(v);
-        if (severity === 'error') errors++; else warnings++;
-        if (!jsonMode) {
-          console.log(
-            `${fileRel}:${v.line}:${m.index + 1}  ${severity}  ${label}  ${message}`,
-          );
-        }
+        violations.push({
+          file: fileRel,
+          line: i + 1,
+          col: m.index + 1,
+          rule: label,
+          severity,
+          message,
+        });
       }
     });
   }
+  return violations;
 }
 
-if (jsonMode) {
-  const result = {
-    violations,
-    summary: { files: files.length, warnings, errors },
-  };
-  process.stdout.write(JSON.stringify(result) + '\n');
-} else {
-  const summary = `lint:design — ${files.length} file(s) scanned, ${warnings} warning(s), ${errors} error(s)`;
-  if (errors) {
-    console.error(`\n${summary}`);
-  } else {
-    console.log(`\n${summary}`);
+// Collect every .tsx file under a directory root, skipping node_modules and dotfiles.
+function walk(dir, acc) {
+  let entries;
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return acc; // missing target dir — skip silently (a consumer may not have every root)
   }
+  for (const e of entries) {
+    if (e.name === 'node_modules' || e.name.startsWith('.')) continue;
+    const p = join(dir, e.name);
+    if (e.isDirectory()) walk(p, acc);
+    else if (e.name.endsWith('.tsx')) acc.push(p);
+  }
+  return acc;
 }
 
-if (ciThreshold !== null && (warnings + errors) > ciThreshold) {
-  process.exit(1);
+function main() {
+  const args = process.argv.slice(2);
+  const jsonMode = args.includes('--json') || args.includes('--json-output');
+  const ciThresholdIdx = args.indexOf('--ci-threshold');
+  let ciThreshold = null;
+  if (ciThresholdIdx !== -1 && ciThresholdIdx + 1 < args.length) {
+    ciThreshold = parseInt(args[ciThresholdIdx + 1], 10);
+    if (isNaN(ciThreshold)) {
+      console.error('lint:design — --ci-threshold requires a number');
+      process.exit(2);
+    }
+  }
+
+  const root = process.cwd();
+  const CONFIG = process.env.ADHERENCE_CONFIG || '_adherence.json';
+
+  let config;
+  try {
+    config = JSON.parse(readFileSync(join(root, CONFIG), 'utf8'));
+  } catch (err) {
+    console.error(`lint:design — cannot read ${CONFIG}: ${err.message}`);
+    process.exit(2);
+  }
+
+  const targets = config.targets?.length ? config.targets : ['src'];
+  const rules = config.rules ?? [];
+
+  let compiled;
+  try {
+    compiled = compileRules(rules);
+  } catch (err) {
+    console.error(err.message);
+    process.exit(2);
+  }
+
+  const files = targets.flatMap((t) => walk(join(root, t), []));
+
+  const allViolations = files.map((file) => ({
+    fileRel: relative(root, file),
+    violations: scanFile(relative(root, file), readFileSync(file, 'utf8'), compiled),
+  }));
+  const violations = allViolations.flatMap(({ violations }) => violations);
+  const warnings = violations.filter((v) => v.severity === 'warn').length;
+  const errors = violations.filter((v) => v.severity === 'error').length;
+
+  if (jsonMode) {
+    const result = {
+      violations,
+      summary: { files: files.length, warnings, errors },
+    };
+    process.stdout.write(JSON.stringify(result) + '\n');
+  } else {
+    for (const { fileRel, violations: fileViolations } of allViolations) {
+      for (const v of fileViolations) {
+        console.log(`${fileRel}:${v.line}:${v.col}  ${v.severity}  ${v.rule}  ${v.message}`);
+      }
+    }
+    const summary = `lint:design — ${files.length} file(s) scanned, ${warnings} warning(s), ${errors} error(s)`;
+    if (errors) {
+      console.error(`\n${summary}`);
+    } else {
+      console.log(`\n${summary}`);
+    }
+  }
+
+  if (ciThreshold !== null && (warnings + errors) > ciThreshold) {
+    process.exit(1);
+  }
+  if (errors) {
+    process.exit(1);
+  }
+  process.exit(0);
 }
-if (errors) {
-  process.exit(1);
+
+if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
+  main();
 }
-process.exit(0);
+
+export { globToRegExp, compileGlobs, compileRules, scanFile, CompileError, walk };
