@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-08-26'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -101,4 +101,4 @@ matter.
 - [`refactor-gallery-demo-registry-derive-from-manifest.md`](wip/refactor-gallery-demo-registry-derive-from-manifest.md) — surfaced this while probing the tsconfig surface (deliberately reverted out of that ticket).
 - `docs/superpowers/specs/2026-08-17-archetype-convergence-design.md` — decision D2: the `headerFill` override prop is deleted; `HeaderFillContext` is the only channel.
 - `docs/RULES.md` — hard rule 12 (appearance locality): a context axis carries no override prop.
-- [`archetype-convergence-appearance-prop-lint.md`](archive/archetype-convergence-appearance-prop-lint.md) — sibling drift finding: a lint that polices exactly the escape-hatch a `headerFill` prop would create.
+- [`archetype-convergence-appearance-prop-lint.md`](../archive/archetype-convergence-appearance-prop-lint.md) — sibling drift finding: a lint that polices exactly the escape-hatch a `headerFill` prop would create.

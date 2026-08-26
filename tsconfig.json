@@ -19,7 +19,7 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "gallery/**/*", "vite.config.ts", "vitest.config.ts"],
   "exclude": [
     "src/examples/DemoNextApp.tsx",
     "src/examples/DemoViteApp.tsx",
