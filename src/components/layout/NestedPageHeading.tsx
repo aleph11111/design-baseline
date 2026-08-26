@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { HeadingRow } from "./HeadingRow";
 
 // ---------------------------------------------------------------------------
 // Fixed scale
@@ -71,8 +71,9 @@ export type NestedPageHeadingProps = {
  * re-pick the weight is precisely what split the fleet's sub-tab headings.
  *
  * Prop shape matches the `PageHeader` page-title family (title / subtitle /
- * badges / actions) minus its standalone-page concerns (icon, back link), so
- * the three ladder rungs read as one family.
+ * badges / actions) minus its standalone-page concerns (icon, back link), and
+ * row layout comes from the same `HeadingRow` the h1 rung composes — that is
+ * what makes the three ladder rungs read as one family.
  *
  * Layout:
  *   [title]                                         [actions (optional)]
@@ -89,22 +90,13 @@ export function NestedPageHeading({
   className,
 }: NestedPageHeadingProps): React.ReactElement {
   return (
-    <div className={cn("space-y-1.5", className)}>
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0 space-y-1">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <h2 className={NESTED_HEADING_CLASS}>{title}</h2>
-            {badges && (
-              <div className="flex flex-wrap items-center gap-1.5">{badges}</div>
-            )}
-          </div>
-          {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
-        </div>
-        {actions && (
-          <div className="flex shrink-0 items-center gap-3">{actions}</div>
-        )}
-      </div>
-    </div>
+    <HeadingRow
+      heading={<h2 className={NESTED_HEADING_CLASS}>{title}</h2>}
+      subtitle={subtitle}
+      badges={badges}
+      actions={actions}
+      className={className}
+    />
   );
 }
 

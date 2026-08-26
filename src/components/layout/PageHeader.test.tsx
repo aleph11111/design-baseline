@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render } from "@testing-library/react";
+import { HEADING_ROW_CLASSES } from "./HeadingRow";
 import { PageHeader } from "./PageHeader";
 
 afterEach(() => {
@@ -108,5 +109,46 @@ describe("PageHeader", () => {
     const { container } = render(<PageHeader title="Orders" />);
 
     expect(container.querySelector("h1")?.textContent).toBe("Orders");
+  });
+
+  it("renders badges, subtitle and actions through the shared HeadingRow structure", () => {
+    // Paired structural guarantee (paired with the assertion of the same
+    // name in NestedPageHeading.test.tsx): the row layout — outer wrapper,
+    // row, title block, title/badges row, badges wrapper, subtitle scale and
+    // actions wrapper — is pinned to HEADING_ROW_CLASSES, the single source
+    // both ladder rungs compose. Any drift in one rung's row classes fails
+    // here. The h1 scale is NOT part of the shared row — it is fixed in this
+    // component, alongside the h2's NESTED_HEADING_CLASS (ADR-0004).
+    const { getByRole, getByTestId, getByText } = render(
+      <PageHeader
+        title="Orders"
+        subtitle="Updated just now"
+        badges={<span data-testid="badge">Paid</span>}
+        actions={<button data-testid="action">Export</button>}
+      />,
+    );
+
+    const heading = getByRole("heading", { level: 1 });
+    const headingRow = heading.parentElement!;
+    const titleBlock = headingRow.parentElement!;
+    const row = titleBlock.parentElement!;
+    const outer = row.parentElement!;
+
+    expect(outer.className).toBe(HEADING_ROW_CLASSES.outer);
+    expect(row.className).toBe(HEADING_ROW_CLASSES.row);
+    expect(titleBlock.className).toBe(HEADING_ROW_CLASSES.titleBlock);
+    expect(headingRow.className).toBe(HEADING_ROW_CLASSES.titleBadges);
+    expect(getByTestId("badge").parentElement!.className).toBe(
+      HEADING_ROW_CLASSES.badges,
+    );
+    expect(getByText("Updated just now").className).toBe(
+      HEADING_ROW_CLASSES.subtitle,
+    );
+    expect(getByTestId("action").parentElement!.className).toBe(
+      HEADING_ROW_CLASSES.actions,
+    );
+    expect(heading.className).toBe(
+      "text-lg font-semibold leading-tight tracking-tight text-foreground",
+    );
   });
 });
