@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ChevronLeft } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { HeadingRow } from "./HeadingRow";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -63,11 +63,13 @@ export type PageHeaderProps = {
 /**
  * PageHeader — the canonical page title block for the baseline.
  *
- * This is the single source of truth for page-level header layout and
- * typography. Archetype-specific headers (`FormPageHeader`,
- * `SettingsPageHeader`, `DetailOverviewHeader`) are thin wrappers over this
- * primitive that narrow the prop surface to their contract; the markup and
- * type scale live here so iterating the header is one edit, baseline-wide.
+ * This is the single source of truth for page-level header typography. The
+ * h1 rung owns its element and its scale; the shared row layout comes from
+ * `HeadingRow` — the one place the page-title family's layout markup lives,
+ * so iterating the header is one edit, baseline-wide.
+ * Archetype-specific headers (`FormPageHeader`, `SettingsPageHeader`,
+ * `DetailOverviewHeader`) are thin wrappers over this primitive that narrow
+ * the prop surface to their contract.
  *
  * Layout:
  *   [back link (optional)]
@@ -103,30 +105,21 @@ export function PageHeader({
     : null;
 
   return (
-    <div className={cn("space-y-1.5", className)}>
-      {backLink && <div>{backLink}</div>}
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0 space-y-1">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            {Icon && (
-              <Icon className="h-6 w-6 shrink-0 text-muted-foreground" />
-            )}
-            <h1 className="text-lg font-semibold leading-tight tracking-tight text-foreground">
-              {title}
-            </h1>
-            {badges && (
-              <div className="flex flex-wrap items-center gap-1.5">{badges}</div>
-            )}
-          </div>
-          {subtitle && (
-            <p className="text-xs text-muted-foreground">{subtitle}</p>
-          )}
-        </div>
-        {actions && (
-          <div className="flex shrink-0 items-center gap-3">{actions}</div>
-        )}
-      </div>
-    </div>
+    <HeadingRow
+      heading={
+        <h1 className="text-lg font-semibold leading-tight tracking-tight text-foreground">
+          {title}
+        </h1>
+      }
+      beforeRow={backLink}
+      beforeHeading={
+        Icon ? <Icon className="h-6 w-6 shrink-0 text-muted-foreground" /> : undefined
+      }
+      subtitle={subtitle}
+      badges={badges}
+      actions={actions}
+      className={className}
+    />
   );
 }
 

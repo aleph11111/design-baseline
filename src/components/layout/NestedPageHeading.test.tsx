@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
+import { HEADING_ROW_CLASSES } from "./HeadingRow";
 import { NestedPageHeading, NESTED_HEADING_CLASS } from "./NestedPageHeading";
 import { OVERLINE_CLASS } from "./overline";
 
@@ -50,5 +51,44 @@ describe("NestedPageHeading", () => {
     );
     expect(full.container.querySelector("[data-testid='badge']")).not.toBeNull();
     expect(full.container.querySelector("button")).not.toBeNull();
+  });
+
+  it("renders badges, subtitle and actions through the shared HeadingRow structure", () => {
+    // Paired structural guarantee (paired with the assertion of the same
+    // name in PageHeader.test.tsx): the row layout — outer wrapper, row,
+    // title block, title/badges row, badges wrapper, subtitle scale and
+    // actions wrapper — is pinned to HEADING_ROW_CLASSES, the single source
+    // both ladder rungs compose. Any drift in this rung's row classes fails
+    // here. The h2 scale is NOT part of the shared row — NESTED_HEADING_CLASS
+    // is fixed in this component, alongside the h1's scale (ADR-0004).
+    const { getByRole, getByTestId, getByText } = render(
+      <NestedPageHeading
+        title="Devices"
+        subtitle="12 connected · 2 offline"
+        badges={<span data-testid="badge">Active</span>}
+        actions={<button data-testid="action" type="button">Manage</button>}
+      />,
+    );
+
+    const heading = getByRole("heading", { level: 2 });
+    const headingRow = heading.parentElement!;
+    const titleBlock = headingRow.parentElement!;
+    const row = titleBlock.parentElement!;
+    const outer = row.parentElement!;
+
+    expect(outer.className).toBe(HEADING_ROW_CLASSES.outer);
+    expect(row.className).toBe(HEADING_ROW_CLASSES.row);
+    expect(titleBlock.className).toBe(HEADING_ROW_CLASSES.titleBlock);
+    expect(headingRow.className).toBe(HEADING_ROW_CLASSES.titleBadges);
+    expect(getByTestId("badge").parentElement!.className).toBe(
+      HEADING_ROW_CLASSES.badges,
+    );
+    expect(getByText("12 connected · 2 offline").className).toBe(
+      HEADING_ROW_CLASSES.subtitle,
+    );
+    expect(getByTestId("action").parentElement!.className).toBe(
+      HEADING_ROW_CLASSES.actions,
+    );
+    expect(heading.className).toBe(NESTED_HEADING_CLASS);
   });
 });
