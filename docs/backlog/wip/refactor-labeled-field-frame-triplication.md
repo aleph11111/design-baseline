@@ -66,7 +66,7 @@ The accessibility wiring is the one part these archetypes' own JSDoc calls "the 
 
 ## Related
 
-- [refactor-mode-aware-footer-core-duplication.md](archive/refactor-mode-aware-footer-core-duplication.md) — the same shape of finding one layer up (two footers, one core), and the precedent for landing the extraction under `src/components/archetypes/shared/`.
-- [use-form-field-provider-guard.md](archive/use-form-field-provider-guard.md) — prior work on the form-field accessibility contract these assemblies sit under.
-- [docs/adr/0004-appearance-locality-derived-vs-inherited.md](../adr/0004-appearance-locality-derived-vs-inherited.md) — a hint rendered at `text-sm` in two fields and `text-xs` in a third is exactly the inherited-not-derived appearance the rule forbids.
+- [refactor-mode-aware-footer-core-duplication.md](../archive/refactor-mode-aware-footer-core-duplication.md) — the same shape of finding one layer up (two footers, one core), and the precedent for landing the extraction under `src/components/archetypes/shared/`.
+- [use-form-field-provider-guard.md](../archive/use-form-field-provider-guard.md) — prior work on the form-field accessibility contract these assemblies sit under.
+- [docs/adr/0004-appearance-locality-derived-vs-inherited.md](../../adr/0004-appearance-locality-derived-vs-inherited.md) — a hint rendered at `text-sm` in two fields and `text-xs` in a third is exactly the inherited-not-derived appearance the rule forbids.
 - [src/components/ui/color-field.tsx](../../src/components/ui/color-field.tsx) — the field assembly with no error slot at all, which the shared frame fixes for free.
