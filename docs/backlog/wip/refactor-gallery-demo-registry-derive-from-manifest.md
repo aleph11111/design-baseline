@@ -52,7 +52,7 @@ The drift is silent in the direction that matters. `ARCHETYPES` is built by `man
 
 ## Related
 
-- [archetype-dir-manifest-count-drift.md](archive/archetype-dir-manifest-count-drift.md) — the same class of finding: a second place counting archetypes drifting from the MANIFEST.
-- [archetype-manifest-version-verify-script.md](archive/archetype-manifest-version-verify-script.md) — prior work making the MANIFEST the checked source of truth rather than one of several.
-- [docs/PLUGIN-CONTRACT.md](../PLUGIN-CONTRACT.md) — the gallery is the hub-mounted surface, which is why a silently missing archetype matters.
+- [archetype-dir-manifest-count-drift.md](../archive/archetype-dir-manifest-count-drift.md) — the same class of finding: a second place counting archetypes drifting from the MANIFEST.
+- [archetype-manifest-version-verify-script.md](../archive/archetype-manifest-version-verify-script.md) — prior work making the MANIFEST the checked source of truth rather than one of several.
+- [docs/PLUGIN-CONTRACT.md](../../PLUGIN-CONTRACT.md) — the gallery is the hub-mounted surface, which is why a silently missing archetype matters.
 - [gallery/registry.ts](../../gallery/registry.ts) — the file whose 100-line map this ticket deletes.
