@@ -62,7 +62,7 @@ The `align` divergence is contract-level too: `SettingsColumn.align`'s JSDoc spe
 
 ## Related
 
-- [clickable-rows-keyboard-operability.md](archive/clickable-rows-keyboard-operability.md) — shipped `getInteractiveRowProps` / `interactiveRowFocusRing`; it reached the list-with-detail copy of the identifier cell and not the settings-table one, which is the cost this extraction removes.
-- [refactor-list-state-resolution-helper.md](archive/refactor-list-state-resolution-helper.md) — the same two shells, the same class of copy-paste, already resolved for the loading/error/empty derivation.
-- [list-with-detail-column-filter-hoist.md](archive/list-with-detail-column-filter-hoist.md) — prior work on `ListColumn`'s surface.
+- [clickable-rows-keyboard-operability.md](../archive/clickable-rows-keyboard-operability.md) — shipped `getInteractiveRowProps` / `interactiveRowFocusRing`; it reached the list-with-detail copy of the identifier cell and not the settings-table one, which is the cost this extraction removes.
+- [refactor-list-state-resolution-helper.md](../archive/refactor-list-state-resolution-helper.md) — the same two shells, the same class of copy-paste, already resolved for the loading/error/empty derivation.
+- [list-with-detail-column-filter-hoist.md](../archive/list-with-detail-column-filter-hoist.md) — prior work on `ListColumn`'s surface.
 - [src/components/archetypes/shared/interactiveRow.ts](../../src/components/archetypes/shared/interactiveRow.ts) — the keyboard contract the shared builder must apply to both archetypes.
