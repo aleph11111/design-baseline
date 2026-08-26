@@ -95,9 +95,12 @@ export function CrudDialogFooter({
 }: CrudDialogFooterProps): React.ReactElement {
   // Thin wrapper over the shared ActionFooterBar core: J's distinct surface is
   // just the bordered `px-6 py-4` container. Destructive gating is the plain
-  // "label + handler present" check (no mode), buttons carry no form `type`
-  // (dialog, not a form), and a delete in flight leaves the secondary/primary
-  // actions enabled — so `formAware`/`disableActionsWhileDeleting` stay off.
+  // "label + handler present" check (no mode), and a delete in flight leaves
+  // the secondary/primary actions enabled — so `disableActionsWhileDeleting`
+  // stays off. The core renders destructive and secondary as `type="button"`
+  // (safe whether or not the dialog wraps a <form>); the primary only
+  // submits a native form when it is `type="submit"`, which it is only when
+  // no `onPrimary` is passed — and a dialog primary is always wired to one.
   return (
     <ActionFooterBar
       className="border-t px-6 py-4 shrink-0"

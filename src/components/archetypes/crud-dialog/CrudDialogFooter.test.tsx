@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { CrudDialogFooter } from "./CrudDialogFooter";
 
 afterEach(() => {
@@ -83,5 +83,55 @@ describe("CrudDialogFooter", () => {
     render(<CrudDialogFooter primaryLabel="Save" isSubmitting />);
 
     expect(screen.getByRole("button", { name: "Saving…" })).toBeDefined();
+  });
+});
+
+describe("CrudDialogFooter — button `type` attributes", () => {
+  it("renders destructive and secondary as type=\"button\" and the primary as type=\"button\" when onPrimary is supplied", () => {
+    render(
+      <CrudDialogFooter
+        primaryLabel="Save"
+        onPrimary={vi.fn()}
+        secondaryLabel="Cancel"
+        onSecondary={vi.fn()}
+        destructiveLabel="Delete"
+        onDestructive={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", { name: "Delete" }).type,
+    ).toBe("button");
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", { name: "Cancel" }).type,
+    ).toBe("button");
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", { name: "Save" }).type,
+    ).toBe("button");
+  });
+
+  it("does not submit the surrounding <form> when the destructive button is clicked", () => {
+    const onSubmit = vi.fn((e: { preventDefault: () => void }) =>
+      e.preventDefault(),
+    );
+
+    render(
+      <form onSubmit={onSubmit}>
+        <CrudDialogFooter
+          primaryLabel="Save"
+          onPrimary={vi.fn()}
+          secondaryLabel="Cancel"
+          onSecondary={vi.fn()}
+          destructiveLabel="Delete"
+          onDestructive={vi.fn()}
+        />
+      </form>,
+    );
+
+    fireEvent.click(
+      screen.getByRole<HTMLButtonElement>("button", { name: "Delete" }),
+    );
+
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 });

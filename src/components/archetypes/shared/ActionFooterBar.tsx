@@ -53,15 +53,6 @@ export type ActionFooterBarProps = {
    */
   disableActionsWhileDeleting?: boolean;
 
-  /**
-   * When true, buttons carry explicit HTML `type` attributes: the destructive
-   * and secondary buttons are `type="button"` and the primary button is
-   * `type="submit"` unless `onPrimary` is provided (form-page lives inside a
-   * native `<form>`). When false, no `type` attribute is set (crud-dialog
-   * lives in a dialog, not a form). Defaults to false.
-   */
-  formAware?: boolean;
-
   /** Extra container classes appended to the shared flex layout. */
   className?: string;
 };
@@ -80,9 +71,9 @@ export type ActionFooterBarProps = {
  *
  * the destructive-button styling, the `<Loader2>` spinner treatment on the
  * destructive/primary buttons, and the resolved submitting label. Per-archetype
- * surface (container class, mode/canDelete gating, form vs dialog button types)
- * stays in the thin wrapper and is threaded in via props/flags — see
- * `showDestructive`, `formAware`, and `disableActionsWhileDeleting`.
+ * surface (container class, mode/canDelete gating) stays in the thin wrapper
+ * and is threaded in via props/flags — see `showDestructive` and
+ * `disableActionsWhileDeleting`.
  *
  * This is a primitive, not a public archetype export: consumers use
  * `CrudDialogFooter` / `FormPageActions`, whose prop contracts are documented
@@ -102,7 +93,6 @@ export function ActionFooterBar({
   showDestructive = true,
   overflowMenu,
   disableActionsWhileDeleting = false,
-  formAware = false,
   className,
 }: ActionFooterBarProps): React.ReactElement {
   const hasPrimary = primaryLabel !== undefined;
@@ -132,7 +122,7 @@ export function ActionFooterBar({
       <div className="flex items-center">
         {hasDestructive && (
           <Button
-            type={formAware ? "button" : undefined}
+            type="button"
             variant="outline"
             className="text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
             onClick={onDestructive}
@@ -152,7 +142,7 @@ export function ActionFooterBar({
 
         {hasSecondary && (
           <Button
-            type={formAware ? "button" : undefined}
+            type="button"
             variant="outline"
             onClick={onSecondary}
             disabled={isSubmitting || deletingBlocks}
@@ -163,7 +153,7 @@ export function ActionFooterBar({
 
         {hasPrimary && (
           <Button
-            type={formAware ? (onPrimary ? "button" : "submit") : undefined}
+            type={onPrimary ? "button" : "submit"}
             variant="default"
             onClick={onPrimary}
             disabled={primaryDisabled || isSubmitting || deletingBlocks}

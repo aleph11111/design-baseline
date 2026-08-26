@@ -126,9 +126,9 @@ export function FormPageActions({
 }: FormPageActionsProps): React.ReactElement {
   // Thin wrapper over the shared ActionFooterBar core. B's distinct surface:
   // the sticky-on-mobile container, `mode`/`canDelete` gating of the
-  // destructive button, form-aware button `type`s (the footer lives in a
-  // native <form>), and freezing every action while a delete is in flight —
-  // hence `formAware` and `disableActionsWhileDeleting`.
+  // destructive button, and freezing every action while a delete is in
+  // flight — hence `disableActionsWhileDeleting`. Omitting `onPrimary` keeps
+  // the primary `type="submit"` so it submits the surrounding native <form>.
   return (
     <ActionFooterBar
       className={cn(
@@ -149,7 +149,6 @@ export function FormPageActions({
       onDestructive={onDestructive}
       showDestructive={mode === "edit" && canDelete}
       overflowMenu={overflowMenu}
-      formAware
       disableActionsWhileDeleting
     />
   );
