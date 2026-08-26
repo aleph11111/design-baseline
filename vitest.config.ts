@@ -29,8 +29,11 @@ export default defineConfig({
     // DOM-free files opt out per-file with a `// @vitest-environment node`
     // docblock rather than being carved out here by glob — the docblock sits
     // next to the code that justifies it, so it can't drift as files move.
+    // (gallery/registry.test.tsx is included here — the registry is the
+    // MANIFEST-join the gallery surface depends on. It renders via
+    // react-dom/server, so the jsdom default environment is fine with it.)
     environment: "jsdom",
-    include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.mjs"],
+    include: ["src/**/*.test.{ts,tsx}", "gallery/**/*.test.tsx", "scripts/**/*.test.mjs"],
     // Vitest's 5s default is not enough here. The donor runs several parallel
     // `/feat` worktrees on one machine, and this suite's cost is jsdom setup
     // and module import, not assertions — a 67-test run reports ~186s in

@@ -60,6 +60,11 @@ function toNavItem(a: ArchetypeEntry): NavItem {
 const PAGES = ARCHETYPES.filter((a) => a.kind === "page");
 const DIALOGS = ARCHETYPES.filter((a) => a.kind === "dialog");
 const COMPONENTS = ARCHETYPES.filter((a) => a.kind === "component");
+// Anything the MANIFEST labels with a kind the shell doesn't know about gets
+// its own group instead of vanishing from the navigation.
+const OTHER = ARCHETYPES.filter(
+  (a) => a.kind !== "page" && a.kind !== "dialog" && a.kind !== "component",
+);
 
 const NAV_GROUPS: NavGroup[] = [
   { label: "Page archetypes", items: PAGES.map(toNavItem) },
@@ -69,6 +74,7 @@ const NAV_GROUPS: NavGroup[] = [
   ...(COMPONENTS.length
     ? [{ label: "Component archetypes", items: COMPONENTS.map(toNavItem) }]
     : []),
+  ...(OTHER.length ? [{ label: "Other archetypes", items: OTHER.map(toNavItem) }] : []),
   {
     label: "Layout & molecules",
     items: LAYOUT_PRIMS.map((p) => ({
@@ -164,7 +170,10 @@ function Overview() {
               <span className="text-sm font-medium text-foreground">
                 {a.displayName}
               </span>
-              <Badge variant="secondary">{a.key}</Badge>
+              <span className="flex items-center gap-1.5">
+                {a.broken && <Badge variant="destructive">demo missing</Badge>}
+                <Badge variant="secondary">{a.key}</Badge>
+              </span>
             </div>
             <div className="mt-1 text-xs text-muted-foreground">
               {a.kind} · v{a.version}
