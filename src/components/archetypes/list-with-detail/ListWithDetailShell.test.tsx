@@ -109,6 +109,47 @@ describe("ListWithDetailShell", () => {
     expect(screen.queryByRole("button", { name: "Ada Lovelace" })).toBeNull();
   });
 
+  it("mobile detail Sheet: the Sheet's bar is the shared surface bar and inverts on solid", () => {
+    // On narrow viewports the detail surface is the mobile overlay (Sheet);
+    // its header bar must be the one shared implementation (`data-slot=
+    // surface-header`) — not a hand-rolled padding + header-fill wrapper.
+    window.innerWidth = 375;
+    render(
+      <ListWithDetailShell
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+        onRowSelect={() => {}}
+        selectedRowId="1"
+        detail={<div>Details for Ada</div>}
+        detailTitle="Ada Lovelace"
+        detailActions={<button type="button">Edit</button>}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Ada Lovelace" }));
+
+    const sheetTitle = screen.getByRole("heading", { name: "Ada Lovelace" });
+    const bar = sheetTitle.closest(
+      '[data-slot="surface-header"]',
+    ) as HTMLElement;
+    expect(bar).not.toBeNull();
+    // the bar owns the canonical padding; the shell re-types no header-fill or
+    // title-scale classes — the title carries only the primitive's defaults
+    // plus its structural truncate
+    expect(bar.className).toContain("px-5");
+    expect(bar.className).toContain("py-4");
+    expect(sheetTitle.className).toContain("truncate");
+    expect(sheetTitle.className).not.toContain("leading-tight");
+    // default fill is solid: the accent fill + h2/p inversions reach the Radix
+    // title + the sr-only description through the bar's fill
+    expect(bar.className).toContain("bg-primary");
+    expect(bar.className).toContain("[&_h1,h2]:text-primary-foreground");
+    expect(bar.className).toContain("[&_p]:text-primary-foreground/70");
+    // the actions row clears the Sheet's built-in close button (structural)
+    const actionsRow = bar.querySelector(".pr-8") as HTMLElement;
+    expect(actionsRow.textContent).toContain("Edit");
+  });
+
   it("mobile: the detail renders as the overlay (Sheet) and dismissing it (Esc) calls onDetailClose", () => {
     // On narrow viewports the detail surface is the mobile overlay (Sheet);
     // there is no desktop opt-in axis for it.

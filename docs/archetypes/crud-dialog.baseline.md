@@ -44,6 +44,7 @@ Layer by layer, the concrete primitives and class strings that realize each cont
 - Dialog-header primitive → `<CrudDialogHeader>` from `src/components/archetypes/crud-dialog/`.
 - Overlay-surface primitive's title/description elements → Radix `Dialog.Title` (via shadcn `<SheetTitle>`) / Radix `Dialog.Description` (via shadcn `<SheetDescription>`); overlay content region → `<SheetContent>` (Radix `Dialog.Content`). Radix logs a development error when `Dialog.Content` has no `Dialog.Title` descendant, and a warning when `aria-describedby` references a missing node — the required `<SheetTitle>`/`<SheetDescription>` binding guarantees neither fires.
 - Header-fill contract → `HeaderFillContext` (`src/components/layout/headerFill.ts`): `"solid"` (default) fills the bar with the brand accent and inverts title/subtitle/`actions` to white; `"tint"` is a quieter `bg-muted` step; `"white"` is hairline-border-only.
+- Header band chrome → the shared `<SurfaceHeaderBar>` (`src/components/layout/SurfaceHeaderBar.tsx`): the canonical `px-5 py-4` padding + the `hfc.bar` fill are the bar's (with `shrink-0` for the dialog's sticky band), and the `SheetTitle` / `SheetDescription` render in the bar's left block so the bar's solid inversions (`[&_h1,h2]` / `[&_p]`) reach them directly — the header reads no header-fill classes of its own.
 - Status-badge primitive → `<Badge>`, never inverted in `actions`.
 
 ### Layer 5 — Body wrapper

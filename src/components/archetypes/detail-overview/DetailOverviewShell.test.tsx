@@ -105,16 +105,17 @@ describe("DetailOverviewShell — Mode B nested heading (data props)", () => {
     const heading = getByRole("heading", { level: 2, name: "Devices" });
     expect(heading).toBeTruthy();
     expect(container.querySelector("h1")).toBeNull();
-    // The full Mode B bar (its `.px-5.py-4` ancestor) carries all four
-    // data props: title + subtitle + badges + actions, in one framed header.
-    const bar = heading.closest(".px-5.py-4") as HTMLElement;
+    // The full Mode B bar is the shared surface bar (`data-slot=surface-header`,
+    // the marker every framed shell mounts) and carries all four data props:
+    // title + subtitle + badges + actions.
+    const bar = heading.closest('[data-slot="surface-header"]') as HTMLElement;
     expect(bar).not.toBeNull();
     expect(bar.textContent).toContain("Parent entity");
     expect(bar.textContent).toContain("badge");
     expect(bar.textContent).toContain("action");
   });
 
-  it("fills the framed header bar from the project headerFill context (no override prop)", () => {
+  it("fills the shared bar from the project headerFill context (no override prop)", () => {
     const { container } = render(
       <HeaderFillContext.Provider value="tint">
         <DetailOverviewShell title="Devices" content={<div>body</div>} />
@@ -122,10 +123,25 @@ describe("DetailOverviewShell — Mode B nested heading (data props)", () => {
     );
 
     const h2 = container.querySelector("h2") as HTMLElement;
-    const bar = h2.closest(".px-5.py-4") as HTMLElement;
+    const bar = h2.closest('[data-slot="surface-header"]') as HTMLElement;
     expect(bar).not.toBeNull();
     expect(bar.className).toContain("bg-muted");
     expect(bar.textContent).toContain("Devices");
+  });
+
+  it("inverts the nested title on a solid header via the bar's fill", () => {
+    const { getByRole } = render(
+      <HeaderFillContext.Provider value="solid">
+        <DetailOverviewShell title="Devices" content={<div>body</div>} />
+      </HeaderFillContext.Provider>,
+    );
+
+    const heading = getByRole("heading", { level: 2, name: "Devices" });
+    const bar = heading.closest('[data-slot="surface-header"]') as HTMLElement;
+    expect(bar.className).toContain("bg-primary");
+    // the solid bar's h2 inversion reaches the fixed-scale nested heading
+    expect(bar.className).toContain("[&_h1,h2]:text-primary-foreground");
+    expect(heading.className).toContain("text-foreground");
   });
 
   it("omits the framed header when no title is given", () => {
@@ -133,7 +149,7 @@ describe("DetailOverviewShell — Mode B nested heading (data props)", () => {
       <DetailOverviewShell content={<div>body</div>} />,
     );
 
-    expect(container.querySelector(".px-5.py-4")).toBeNull();
+    expect(container.querySelector('[data-slot="surface-header"]')).toBeNull();
     expect(container.querySelector("h2")).toBeNull();
   });
 });

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { useHeaderFill, headerFillClasses } from "@/components/layout/headerFill";
 import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
+import { SurfaceHeaderBar } from "@/components/layout/SurfaceHeaderBar";
 import { NestedPageHeading } from "@/components/layout/NestedPageHeading";
 import { StatTile } from "@/components/layout/StatTile";
 import { StatTileRow } from "@/components/layout/StatTileRow";
@@ -112,10 +112,6 @@ export function DetailOverviewShell({
   content,
   references,
 }: DetailOverviewShellProps): React.ReactElement {
-  // House header treatment, set ONCE per project at `<AppShell headerFill=…>`
-  // (HeaderFillContext) — there is no per-shell or per-header override.
-  const hfc = headerFillClasses(useHeaderFill());
-
   // The aggregate strip is rendered from typed data; the strip's column count
   // follows the data, so no call site passes a hand-matched `columns`.
   const statStrip =
@@ -129,16 +125,19 @@ export function DetailOverviewShell({
       </StatTileRow>
     ) : null;
 
+  // Mode B: the shared bar chrome (padding + header-fill) with the fixed-scale
+  // <NestedPageHeading> as its title block — the shell never reads the
+  // header-fill class table itself.
   const header =
     title !== undefined ? (
-      <div className={cn("px-5 py-4", hfc.bar)}>
+      <SurfaceHeaderBar>
         <NestedPageHeading
           title={title}
           subtitle={subtitle}
           badges={badges}
           actions={actions}
         />
-      </div>
+      </SurfaceHeaderBar>
     ) : null;
 
   // flatten the carded children in the main column so they sit as panels, not floaters

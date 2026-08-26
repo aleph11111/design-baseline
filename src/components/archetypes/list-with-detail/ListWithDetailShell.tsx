@@ -1,10 +1,9 @@
 import * as React from "react";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
-import { useHeaderFill, headerFillClasses } from "@/components/layout/headerFill";
 import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
+import { SurfaceHeaderBar } from "@/components/layout/SurfaceHeaderBar";
 import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
 import {
   ListWithDetailEmptyState,
   type ListEmptyMode,
@@ -144,7 +143,6 @@ function ListWithDetailShellInner<Row>(
 ) {
   const isMobile = useIsMobile();
   const [sheetOpen, setSheetOpen] = React.useState(false);
-  const hfc = headerFillClasses(useHeaderFill());
   // A composing archetype (grouped-list's section card) declares chrome-suppression
   // through `ListChromeContext` so the frame renders chromeless (`chrome={false}`)
   // flush inside an already-bounded surface; the chrome decision belongs to the
@@ -232,23 +230,26 @@ function ListWithDetailShellInner<Row>(
         >
           <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
             {detailTitle !== undefined ? (
-              <div
-                className={cn(
-                  "flex shrink-0 items-center justify-between gap-3 px-5 py-4",
-                  hfc.bar,
-                )}
+              // The shared bar chrome (padding + header-fill) with the Radix
+              // SheetTitle as its title element. The built-in Sheet close button
+              // (absolute, top-4 right-4) floats over the bar's right edge, so
+              // the actions row clears it (structural, not appearance).
+              <SurfaceHeaderBar
+                actionsClassName="pr-8"
+                actions={
+                  detailActions ? (
+                    <div className="flex shrink-0 items-center gap-2">{detailActions}</div>
+                  ) : undefined
+                }
               >
                 {/* SheetTitle so Radix Dialog gets an accessible name (aria-labelledby).
                     SheetDescription is screen-reader-only fallback so Content never
                     renders without a description — matching the J archetype fix. */}
-                <SheetTitle className={cn("min-w-0 truncate text-lg font-semibold leading-tight", hfc.title)}>
-                  {detailTitle}
-                </SheetTitle>
-                {detailActions ? (
-                  <div className="flex shrink-0 items-center gap-2 pr-8">{detailActions}</div>
-                ) : null}
-                <SheetDescription className="sr-only" />
-              </div>
+                <div className="min-w-0 flex-1">
+                  <SheetTitle className="truncate">{detailTitle}</SheetTitle>
+                  <SheetDescription className="sr-only" />
+                </div>
+              </SurfaceHeaderBar>
             ) : (
               <>
                 {/* No title — inject sr-only SheetTitle + SheetDescription so
