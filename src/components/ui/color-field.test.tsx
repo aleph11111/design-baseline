@@ -34,4 +34,35 @@ describe("ColorField — swatch + hex share one value", () => {
     render(<ColorField label="Brand" value="#ffffff" onChange={() => {}} hideHex />);
     expect(screen.queryByLabelText("Brand hex value")).toBeNull();
   });
+
+  it("given an error, sets aria-invalid and links the error node via aria-describedby", () => {
+    render(
+      <ColorField
+        label="Brand"
+        value="#ab"
+        onChange={() => {}}
+        hint="Hex only."
+        error="Use the brand palette."
+      />,
+    );
+    const swatch = screen.getByLabelText("Brand") as HTMLInputElement;
+    expect(swatch.getAttribute("aria-invalid")).toBe("true");
+    const describedBy = swatch.getAttribute("aria-describedby")!;
+    // Frame order: hint id first, error id last — both names present.
+    const ids = describedBy.split(" ");
+    expect(document.getElementById(ids[0]!)?.textContent).toBe("Hex only.");
+    expect(document.getElementById(ids[ids.length - 1]!)?.textContent).toBe(
+      "Use the brand palette.",
+    );
+    // The hex input shares the frame's error state too.
+    const hex = screen.getByLabelText("Brand hex value");
+    expect(hex.getAttribute("aria-invalid")).toBe("true");
+    expect(hex.getAttribute("aria-describedby")).toBe(describedBy);
+  });
+
+  it("renders a required marker when required is set", () => {
+    render(<ColorField label="Brand" value="#ffffff" onChange={() => {}} required />);
+    // The marker is an aria-hidden span inside the label.
+    expect(screen.getByText("*")).toBeTruthy();
+  });
 });

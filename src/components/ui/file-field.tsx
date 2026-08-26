@@ -1,8 +1,14 @@
 import * as React from "react";
 import { FileText, Loader2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import {
+  FieldError,
+  FieldFrame,
+  FieldHint,
+  FieldLabel,
+  useFieldIds,
+} from "@/components/archetypes/shared/fieldFrame";
 
 // The shared owner of a **native file input** — the other shadcn gap the fleet
 // kept hand-rolling (brickshop photo/invoice/logo pickers, controlling-app
@@ -36,12 +42,16 @@ export interface FileFieldProps {
   busy?: boolean;
   /** `"button"` (default) or a dashed `"dropzone"` box. */
   variant?: "button" | "dropzone";
-  /** Field label rendered above the trigger. */
+  /** Field label rendered above the trigger, associated with it via `aria-labelledby`. */
   label?: string;
   /** Trigger text (button label / dropzone primary line). Defaults to "Choose file…". */
   triggerLabel?: string;
-  /** Secondary helper line under the dropzone prompt (e.g. accepted types). */
+  /** Secondary helper line under the dropzone prompt (e.g. accepted types); linked via `aria-describedby`. */
   hint?: string;
+  /** Error message; renders below and marks the trigger invalid with a destructive ring. */
+  error?: string;
+  /** Show a required marker by the label. */
+  required?: boolean;
   /** Reject files larger than this many bytes; rejected files go to `onSizeError`. */
   maxSizeBytes?: number;
   /** Called once per file that exceeds `maxSizeBytes`. */
@@ -70,6 +80,8 @@ export function FileField({
   label,
   triggerLabel = "Choose file…",
   hint,
+  error,
+  required,
   maxSizeBytes,
   onSizeError,
   selected,
@@ -79,6 +91,21 @@ export function FileField({
 }: FileFieldProps): React.ReactElement {
   const ref = React.useRef<HTMLInputElement>(null);
   const isDisabled = disabled || busy;
+  // Frame wiring — the label associates with the visible trigger (not the
+  // hidden input) via aria-labelledby, exactly as Radix Select's trigger does.
+  const {
+    labelId,
+    hintId,
+    errorId,
+    describedBy,
+    invalid,
+  } = useFieldIds({ hint, error });
+  const triggerAria = {
+    "aria-labelledby": labelId,
+    "aria-describedby": describedBy,
+    "aria-invalid": invalid,
+  };
+  const errorRing = error && "border-destructive focus-visible:ring-destructive";
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
@@ -121,8 +148,12 @@ export function FileField({
   );
 
   return (
-    <div className={cn("flex flex-col gap-1.5", className)}>
-      {label && <Label>{label}</Label>}
+    <FieldFrame className={className}>
+      {label && (
+        <FieldLabel id={labelId} required={required}>
+          {label}
+        </FieldLabel>
+      )}
 
       {variant === "dropzone" ? (
         <div
@@ -149,12 +180,16 @@ export function FileField({
             "flex flex-col items-center gap-2 rounded-lg border-2 border-dashed border-input p-8 text-center text-sm text-muted-foreground transition-colors",
             "hover:border-ring/50 hover:bg-accent",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
-            isDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+            isDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
+            errorRing
           )}
+          {...triggerAria}
         >
           {icon}
           <span className="font-medium text-foreground">{triggerLabel}</span>
-          {hint && <span className="text-xs">{hint}</span>}
+          {/* The dropzone shows its hint inside the box — that node carries the
+              frame's hint id, so aria-describedby still lands on it. */}
+          {hint && <span id={hintId} className="text-xs">{hint}</span>}
           {hiddenInput}
         </div>
       ) : (
@@ -164,7 +199,8 @@ export function FileField({
             variant="outline"
             disabled={isDisabled}
             onClick={open}
-            className="gap-2"
+            className={cn("gap-2", errorRing)}
+            {...triggerAria}
           >
             {icon}
             {triggerLabel}
@@ -199,7 +235,10 @@ export function FileField({
           ))}
         </ul>
       )}
-    </div>
+
+      {variant === "button" && hint && <FieldHint id={hintId}>{hint}</FieldHint>}
+      {error && <FieldError id={errorId}>{error}</FieldError>}
+    </FieldFrame>
   );
 }
 

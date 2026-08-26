@@ -1,31 +1,47 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { TextareaField } from "./TextareaField";
+import {
+  expectFieldError,
+  expectFieldHintOnly,
+  expectLabelAssociated,
+  expectRequired,
+} from "../shared/fieldFrame.test-utils";
 
 afterEach(() => {
   cleanup();
 });
 
 describe("TextareaField", () => {
-  it("associates the label and describes the field with the helper line", () => {
-    render(<TextareaField label="Notes" helperText="Markdown is fine." />);
-    const field = screen.getByLabelText("Notes");
-    const describedBy = field.getAttribute("aria-describedby") ?? "";
-    expect(describedBy).not.toBe("");
-    // the helper text lives at the described-by id
-    expect(
-      document.getElementById(describedBy.split(" ")[0]!)?.textContent
-    ).toBe("Markdown is fine.");
+  it("associates the label and describes the field with the hint", () => {
+    render(<TextareaField label="Notes" hint="Markdown is fine." />);
+    expectLabelAssociated("Notes");
+    expectFieldHintOnly(screen.getByLabelText("Notes"), "Markdown is fine.");
   });
 
-  it("error supersedes the helper line and marks the field invalid", () => {
+  it("accepts the deprecated helperText alias for hint", () => {
     render(
-      <TextareaField label="Config" helperText="stored raw" error="bad JSON" />
+      <TextareaField label="Notes" helperText="Markdown is fine." />,
+    );
+    expectFieldHintOnly(
+      screen.getByLabelText("Notes"),
+      "Markdown is fine.",
+    );
+  });
+
+  it("co-renders the hint with the error — both named by aria-describedby, and marks the field invalid", () => {
+    render(
+      <TextareaField
+        label="Config"
+        hint="stored raw"
+        error="bad JSON"
+      />
     );
     const field = screen.getByLabelText("Config");
-    expect(field.getAttribute("aria-invalid")).toBe("true");
-    expect(screen.getByText("bad JSON")).toBeTruthy();
-    expect(screen.queryByText("stored raw")).toBeNull();
+    // Same coexistence rule as every other field: the error no longer
+    // suppresses the hint, and both nodes are described.
+    expect(screen.getByText("stored raw")).toBeTruthy();
+    expectFieldError(field, "bad JSON", "stored raw");
   });
 
   it("counter colors muted → amber → destructive by fill against maxLength", () => {
@@ -53,5 +69,14 @@ describe("TextareaField", () => {
   it("mono disables spellcheck", () => {
     render(<TextareaField label="Config" mono />);
     expect(screen.getByLabelText("Config").getAttribute("spellcheck")).toBe("false");
+  });
+
+  it("renders the required marker (frame affordance) and the native attribute", () => {
+    render(<TextareaField label="Notes" required />);
+    // TextareaField previously had no required affordance — the frame provides it.
+    // The marker is naively joined into the label's textContent (real browsers
+    // honor aria-hidden), so match by substring + the "*" here.
+    expectLabelAssociated(/Notes/, { required: true });
+    expectRequired(screen.getByLabelText(/Notes/), { native: true });
   });
 });

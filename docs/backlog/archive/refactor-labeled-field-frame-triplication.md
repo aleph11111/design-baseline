@@ -1,7 +1,7 @@
 ---
 area: refactor
 opened: '2026-08-25'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -46,14 +46,16 @@ The accessibility wiring is the one part these archetypes' own JSDoc calls "the 
 
 ## What to do
 
-- [ ] Add a shared field frame under `src/components/layout/` or `src/components/archetypes/shared/` — a `FieldFrame` component (wrapper + `Label` + required marker + hint + error) plus a `useFieldIds({ id, hint, error })` helper returning `{ fieldId, describedBy, invalid }`, so the id scheme and `aria-describedby` join exist once.
-- [ ] Pick one prop vocabulary and one type scale for hint/error across all field assemblies; migrate `TextareaField`'s `helperText` / `wrapperClassName` to it, keeping deprecated aliases only if a consumer contract requires them.
-- [ ] Fix `SelectField`'s `focus:ring-destructive` to the baseline's `focus-visible:` form as part of moving the error ring into the shared frame.
-- [ ] Give `TextareaField` the `required` marker it currently lacks, for free, by composing the frame.
-- [ ] Refactor `NativeField`, `SelectField` and `TextareaField` to compose the frame and keep only their control-specific bodies (the range slider + prefix logic, the Radix `aria-labelledby` trigger wiring, the char counter + mono variant).
-- [ ] Extend `ColorField` and `FileField` to compose the same frame so they gain the hint/error slots and `aria-describedby` wiring.
-- [ ] Extend the existing `native-field.test.tsx`, `select-field.test.tsx` and `TextareaField.test.tsx` with a shared assertion set: label association, `aria-invalid` on error, and `aria-describedby` naming both the hint and the error node.
-- [ ] Bump the `raw-input`, `raw-select` and `raw-textarea` `version`s in `docs/archetypes/MANIFEST.json`.
+_(unattended session 2026-08-26: all boxes implemented + verified — see PR body for recorded assumptions.)_
+
+- [x] Add a shared field frame under `src/components/layout/` or `src/components/archetypes/shared/` — a `FieldFrame` component (wrapper + `Label` + required marker + hint + error) plus a `useFieldIds({ id, hint, error })` helper returning `{ fieldId, describedBy, invalid }`, so the id scheme and `aria-describedby` join exist once.
+- [x] Pick one prop vocabulary and one type scale for hint/error across all field assemblies; migrate `TextareaField`'s `helperText` / `wrapperClassName` to it, keeping deprecated aliases only if a consumer contract requires them.
+- [x] Fix `SelectField`'s `focus:ring-destructive` to the baseline's `focus-visible:` form as part of moving the error ring into the shared frame.
+- [x] Give `TextareaField` the `required` marker it currently lacks, for free, by composing the frame.
+- [x] Refactor `NativeField`, `SelectField` and `TextareaField` to compose the frame and keep only their control-specific bodies (the range slider + prefix logic, the Radix `aria-labelledby` trigger wiring, the char counter + mono variant).
+- [x] Extend `ColorField` and `FileField` to compose the same frame so they gain the hint/error slots and `aria-describedby` wiring.
+- [x] Extend the existing `native-field.test.tsx`, `select-field.test.tsx` and `TextareaField.test.tsx` with a shared assertion set: label association, `aria-invalid` on error, and `aria-describedby` naming both the hint and the error node.
+- [x] Bump the `raw-input`, `raw-select` and `raw-textarea` `version`s in `docs/archetypes/MANIFEST.json`.
 
 ## Acceptance
 
@@ -66,7 +68,7 @@ The accessibility wiring is the one part these archetypes' own JSDoc calls "the 
 
 ## Related
 
-- [refactor-mode-aware-footer-core-duplication.md](archive/refactor-mode-aware-footer-core-duplication.md) — the same shape of finding one layer up (two footers, one core), and the precedent for landing the extraction under `src/components/archetypes/shared/`.
-- [use-form-field-provider-guard.md](archive/use-form-field-provider-guard.md) — prior work on the form-field accessibility contract these assemblies sit under.
-- [docs/adr/0004-appearance-locality-derived-vs-inherited.md](../adr/0004-appearance-locality-derived-vs-inherited.md) — a hint rendered at `text-sm` in two fields and `text-xs` in a third is exactly the inherited-not-derived appearance the rule forbids.
+- [refactor-mode-aware-footer-core-duplication.md](../archive/refactor-mode-aware-footer-core-duplication.md) — the same shape of finding one layer up (two footers, one core), and the precedent for landing the extraction under `src/components/archetypes/shared/`.
+- [use-form-field-provider-guard.md](../archive/use-form-field-provider-guard.md) — prior work on the form-field accessibility contract these assemblies sit under.
+- [docs/adr/0004-appearance-locality-derived-vs-inherited.md](../../adr/0004-appearance-locality-derived-vs-inherited.md) — a hint rendered at `text-sm` in two fields and `text-xs` in a third is exactly the inherited-not-derived appearance the rule forbids.
 - [src/components/ui/color-field.tsx](../../src/components/ui/color-field.tsx) — the field assembly with no error slot at all, which the shared frame fixes for free.

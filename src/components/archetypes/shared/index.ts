@@ -28,3 +28,15 @@ export {
   type FigureTableProps,
   type FigureRowProps,
 } from "./FigureTable";
+
+export {
+  FieldFrame,
+  FieldLabel,
+  FieldHint,
+  FieldError,
+  useFieldIds,
+  type FieldFrameProps,
+  type FieldLabelProps,
+  type FieldHintProps,
+  type FieldErrorProps,
+} from "./fieldFrame";

@@ -1,7 +1,13 @@
 import * as React from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import {
+  FieldError,
+  FieldFrame,
+  FieldHint,
+  FieldLabel,
+  useFieldIds,
+} from "../shared/fieldFrame";
 
 // The shared owner of a **labeled multi-line text field** — the convergence
 // target for a pattern the whole fleet re-hand-composes. Every project pairs a
@@ -21,15 +27,23 @@ export interface TextareaFieldProps
   extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   /** Field label rendered above the textarea; auto-linked to it via id/htmlFor. */
   label?: React.ReactNode;
-  /** Muted helper line below the textarea. Suppressed while `error` is set. */
+  /** Muted helper line below the textarea. Renders alongside `error` — same frame slot as every other field. */
+  hint?: React.ReactNode;
+  /** Muted helper line below the textarea. Renders alongside `error`. @deprecated use `hint`. */
   helperText?: React.ReactNode;
-  /** Error message below the textarea. Overrides `helperText` and wires `aria-invalid`. */
+  /** Error message below the textarea. Wires `aria-invalid`. */
   error?: React.ReactNode;
+  /** Show the required marker by the label and set the native `required` attribute. */
+  required?: boolean;
   /** Monospace + `spellCheck={false}` — the code / JSON-config variant. */
   mono?: boolean;
   /** Show a `{len}/{maxLength}` counter (requires `maxLength`); colors muted → amber → destructive. */
   showCount?: boolean;
-  /** Applied to the wrapper `<div>`, not the textarea (use `className` for that). */
+  /**
+   * Applied to the wrapper `<div>`, not the textarea (this field spreads the
+   * native `TextareaHTMLAttributes`, so `className` belongs to the textarea
+   * here — the one field where the wrapper key differs from the others').
+   */
   wrapperClassName?: string;
 }
 
@@ -43,8 +57,10 @@ export const TextareaField = React.forwardRef<
 >(function TextareaField(
   {
     label,
+    hint,
     helperText,
     error,
+    required,
     mono = false,
     showCount = false,
     id,
@@ -59,9 +75,17 @@ export const TextareaField = React.forwardRef<
   },
   ref
 ) {
-  const autoId = React.useId();
-  const fieldId = id ?? autoId;
-  const helpId = `${fieldId}-help`;
+  // `helperText` is the pre-frame alias for `hint`.
+  const helper = hint ?? helperText;
+  // Frame wiring (id scheme + the aria-describedby join + aria-invalid) shared
+  // with NativeField and SelectField; the counter id is this field's own.
+  const {
+    fieldId,
+    hintId,
+    errorId,
+    describedBy: frameDescribedBy,
+    invalid,
+  } = useFieldIds({ id, hint: helper, error });
   const countId = `${fieldId}-count`;
 
   // Track length for the counter without forcing the field to be controlled:
@@ -82,21 +106,26 @@ export const TextareaField = React.forwardRef<
   const atLimit = hasCount && length >= maxLength!;
 
   const describedBy =
-    [ariaDescribedBy, error || helperText ? helpId : null, hasCount ? countId : null]
+    [ariaDescribedBy, frameDescribedBy, hasCount ? countId : null]
       .filter(Boolean)
       .join(" ") || undefined;
 
   return (
-    <div className={cn("flex flex-col gap-1.5", wrapperClassName)}>
-      {label && <Label htmlFor={fieldId}>{label}</Label>}
+    <FieldFrame className={wrapperClassName}>
+      {label && (
+        <FieldLabel htmlFor={fieldId} required={required}>
+          {label}
+        </FieldLabel>
+      )}
       <Textarea
         ref={ref}
         id={fieldId}
         value={value}
         defaultValue={defaultValue}
         maxLength={maxLength}
+        required={required}
         onChange={handleChange}
-        aria-invalid={error ? true : undefined}
+        aria-invalid={invalid}
         aria-describedby={describedBy}
         spellCheck={mono ? false : undefined}
         className={cn(
@@ -106,32 +135,25 @@ export const TextareaField = React.forwardRef<
         )}
         {...props}
       />
-      {(error || helperText || hasCount) && (
-        <div className="flex items-start justify-between gap-2 text-xs">
+      {helper && <FieldHint id={hintId}>{helper}</FieldHint>}
+      {error && <FieldError id={errorId}>{error}</FieldError>}
+      {hasCount && (
+        <p className="text-right text-sm tabular-nums text-muted-foreground">
           <span
-            id={error || helperText ? helpId : undefined}
-            className={cn(error ? "text-destructive" : "text-muted-foreground")}
+            id={countId}
+            className={cn(
+              atLimit
+                ? "text-destructive"
+                : near
+                  ? "text-amber-600 dark:text-amber-500"
+                  : "text-muted-foreground"
+            )}
           >
-            {error || helperText}
+            {length}/{maxLength}
           </span>
-          {hasCount && (
-            <span
-              id={countId}
-              className={cn(
-                "shrink-0 tabular-nums",
-                atLimit
-                  ? "text-destructive"
-                  : near
-                    ? "text-amber-600 dark:text-amber-500"
-                    : "text-muted-foreground"
-              )}
-            >
-              {length}/{maxLength}
-            </span>
-          )}
-        </div>
+        </p>
       )}
-    </div>
+    </FieldFrame>
   );
 });
 

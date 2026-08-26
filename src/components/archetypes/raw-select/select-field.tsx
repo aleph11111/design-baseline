@@ -6,8 +6,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import {
+  FieldError,
+  FieldFrame,
+  FieldHint,
+  FieldLabel,
+  useFieldIds,
+} from "../shared/fieldFrame";
 
 // The shared owner of a **labeled enum form field** — the triad the fleet hand-rolls
 // everywhere: `<label>` + a bare native `<select>` (or a re-composed `<Select>`
@@ -80,33 +86,32 @@ export function SelectField({
   id,
   className,
 }: SelectFieldProps): React.ReactElement {
-  const autoId = React.useId();
-  const controlId = id ?? autoId;
-  const labelId = `${controlId}-label`;
-  const hintId = hint ? `${controlId}-hint` : undefined;
-  const errorId = error ? `${controlId}-error` : undefined;
-  const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
-  const invalid = error ? true : undefined;
+  // Frame wiring (id scheme, the aria-describedby join, aria-invalid) — shared
+  // with NativeField and TextareaField; the Radix trigger keeps its own
+  // aria-labelledby association below.
+  const {
+    fieldId: controlId,
+    labelId,
+    hintId,
+    errorId,
+    describedBy,
+    invalid,
+  } = useFieldIds({ id, hint, error });
 
   return (
-    <div className={cn("flex flex-col gap-1.5", className)}>
+    <FieldFrame className={className}>
       {/* Radix's trigger is a button, so the label associates via aria-labelledby
           (not htmlFor) — id on the Label, aria-labelledby on the trigger. */}
-      <Label id={labelId}>
+      <FieldLabel id={labelId} required={required}>
         {label}
-        {required && (
-          <span className="ml-0.5 text-destructive" aria-hidden="true">
-            *
-          </span>
-        )}
-      </Label>
+      </FieldLabel>
       <Select value={value} onValueChange={onChange} disabled={disabled} required={required}>
         <SelectTrigger
           id={controlId}
           aria-labelledby={labelId}
           aria-describedby={describedBy}
           aria-invalid={invalid}
-          className={cn(error && "border-destructive focus:ring-destructive")}
+          className={cn(error && "border-destructive focus-visible:ring-destructive")}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
@@ -118,17 +123,9 @@ export function SelectField({
           ))}
         </SelectContent>
       </Select>
-      {hint && (
-        <p id={hintId} className="text-sm text-muted-foreground">
-          {hint}
-        </p>
-      )}
-      {error && (
-        <p id={errorId} className="text-sm font-medium text-destructive">
-          {error}
-        </p>
-      )}
-    </div>
+      {hint && <FieldHint id={hintId}>{hint}</FieldHint>}
+      {error && <FieldError id={errorId}>{error}</FieldError>}
+    </FieldFrame>
   );
 }
 
