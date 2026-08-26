@@ -55,7 +55,7 @@ The repo already has the shape for this fix: `src/components/archetypes/list-wit
 
 ## Related
 
-- [list-with-detail-shell-presentation-split.md](archive/list-with-detail-shell-presentation-split.md) — the precedent: the same shell-routes-to-presentation split, already applied to archetype A.
-- [matrix-grid-per-cell-tooltip-perf.md](archive/matrix-grid-per-cell-tooltip-perf.md) — the ticket that introduced the shared-Tooltip + hover-key design this split must preserve.
-- [ship-stranded-matrix-grid-tooltip-branch.md](archive/ship-stranded-matrix-grid-tooltip-branch.md) — the stranded branch from that work; a tested cell component is what keeps the next attempt landable.
+- [list-with-detail-shell-presentation-split.md](../archive/list-with-detail-shell-presentation-split.md) — the precedent: the same shell-routes-to-presentation split, already applied to archetype A.
+- [matrix-grid-per-cell-tooltip-perf.md](../archive/matrix-grid-per-cell-tooltip-perf.md) — the ticket that introduced the shared-Tooltip + hover-key design this split must preserve.
+- [ship-stranded-matrix-grid-tooltip-branch.md](../archive/ship-stranded-matrix-grid-tooltip-branch.md) — the stranded branch from that work; a tested cell component is what keeps the next attempt landable.
 - [src/components/archetypes/list-with-detail/presentations/TableBody.tsx](../../src/components/archetypes/list-with-detail/presentations/TableBody.tsx) — the file layout to mirror.
