@@ -8,6 +8,7 @@ import * as React from "react";
 import { Bell, Box, CreditCard, Inbox, Plus, Settings, User } from "lucide-react";
 import {
   AuthCard,
+  HeaderFillContext,
   MetricList,
   MetricRow,
   NestedPageHeading,
@@ -576,44 +577,52 @@ function SurfaceHeaderDemo() {
     <div className="max-w-3xl space-y-8">
       <Variant label='--header-fill: solid (the per-project default — accent bar, inverted actions; the semantic Badge and the asChild link both keep their contract)'>
         <div className="overflow-hidden rounded-lg border bg-card">
-          <SurfaceHeader kicker="Aufträge" title="Order #1042" actions={actions} headerFill="solid" />
+          <HeaderFillContext.Provider value="solid">
+            <SurfaceHeader kicker="Aufträge" title="Order #1042" actions={actions} />
+          </HeaderFillContext.Provider>
           {body}
         </div>
       </Variant>
       <Variant label="--header-fill: tint (soft bg-muted bar, normal text)">
         <div className="overflow-hidden rounded-lg border bg-card">
-          <SurfaceHeader kicker="Aufträge" title="Order #1042" actions={actions} headerFill="tint" />
+          <HeaderFillContext.Provider value="tint">
+            <SurfaceHeader kicker="Aufträge" title="Order #1042" actions={actions} />
+          </HeaderFillContext.Provider>
           {body}
         </div>
       </Variant>
       <Variant label="--header-fill: white (hairline border only — the quietest)">
         <div className="overflow-hidden rounded-lg border bg-card">
-          <SurfaceHeader kicker="Aufträge" title="Order #1042" actions={actions} headerFill="white" />
+          <HeaderFillContext.Provider value="white">
+            <SurfaceHeader kicker="Aufträge" title="Order #1042" actions={actions} />
+          </HeaderFillContext.Provider>
           {body}
         </div>
       </Variant>
       <Variant label="subtitle + icon (compact metadata at text-xs, matching PageHeader — dimmed automatically on a solid fill)">
         <div className="space-y-3">
           <div className="overflow-hidden rounded-lg border bg-card">
-            <SurfaceHeader
-              kicker="Einstellungen"
-              title="Abrechnung"
-              subtitle="Zuletzt geändert vor 2 Tagen"
-              icon={CreditCard}
-              actions={actions}
-              headerFill="solid"
-            />
+            <HeaderFillContext.Provider value="solid">
+              <SurfaceHeader
+                kicker="Einstellungen"
+                title="Abrechnung"
+                subtitle="Zuletzt geändert vor 2 Tagen"
+                icon={CreditCard}
+                actions={actions}
+              />
+            </HeaderFillContext.Provider>
             {body}
           </div>
           <div className="overflow-hidden rounded-lg border bg-card">
-            <SurfaceHeader
-              kicker="Einstellungen"
-              title="Abrechnung"
-              subtitle="Zuletzt geändert vor 2 Tagen"
-              icon={CreditCard}
-              actions={actions}
-              headerFill="white"
-            />
+            <HeaderFillContext.Provider value="white">
+              <SurfaceHeader
+                kicker="Einstellungen"
+                title="Abrechnung"
+                subtitle="Zuletzt geändert vor 2 Tagen"
+                icon={CreditCard}
+                actions={actions}
+              />
+            </HeaderFillContext.Provider>
             {body}
           </div>
         </div>

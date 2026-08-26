@@ -32,8 +32,6 @@ import { Badge } from "@/components/ui/badge";
 import { ARCHETYPES, findArchetype, type ArchetypeEntry } from "./registry";
 import { LAYOUT_PRIMS, findLayoutPrim, type LayoutPrim } from "./layout-demos";
 
-const REPO = "https://_/"; // spec links are repo-relative; shown as text, not navigated
-
 // Safe lucide icons (all proven to resolve via the existing demos).
 const ICON_BY_SLUG: Record<string, LucideIcon> = {
   "list-with-detail": FileText,
