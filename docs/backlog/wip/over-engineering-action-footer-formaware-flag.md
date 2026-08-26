@@ -56,6 +56,6 @@ Deliberately out of scope: the sibling flag `disableActionsWhileDeleting`. That 
 
 ## Related
 
-- [archive/refactor-mode-aware-footer-core-duplication.md](archive/refactor-mode-aware-footer-core-duplication.md) — the extraction that created `ActionFooterBar` and introduced the flag as the seam between the two archetypes.
-- [archive/crud-dialog-delete-in-flight-state.md](archive/crud-dialog-delete-in-flight-state.md) — the work behind the sibling flag `disableActionsWhileDeleting`, which this ticket deliberately keeps.
+- [archive/refactor-mode-aware-footer-core-duplication.md](../archive/refactor-mode-aware-footer-core-duplication.md) — the extraction that created `ActionFooterBar` and introduced the flag as the seam between the two archetypes.
+- [archive/crud-dialog-delete-in-flight-state.md](../archive/crud-dialog-delete-in-flight-state.md) — the work behind the sibling flag `disableActionsWhileDeleting`, which this ticket deliberately keeps.
 - [src/components/archetypes/shared/ActionFooterBar.tsx](../../src/components/archetypes/shared/ActionFooterBar.tsx) — the primitive carrying the flag.
