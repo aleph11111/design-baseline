@@ -79,6 +79,26 @@ demo — that's how a reviewer confirms the existing API actually produces the
 claimed shape. Bump the archetype's `version` in `MANIFEST.json` when the demo
 changes (the demo is part of the shipped deliverable).
 
+**Demo file and export naming convention (gallery registry is derived).** The
+donor-dev gallery (`gallery/registry.ts`) lists its archetype routes **off the
+MANIFEST plus two conventions — it contains no per-archetype literal**:
+
+1. **File** — `src/examples/<slug>-demo.tsx` (recorded on the MANIFEST entry as
+   `example`; the registry resolves it against the glob of that directory).
+2. **Export** — `PascalCase(slug) + "Demo"` (`form-page` → `FormPageDemo`,
+   `statement-with-filters` → `StatementWithFiltersDemo`), named (not default).
+
+So a new promotion (`/promote-archetype`) needs **no gallery edit**: write the
+demo at the conventional path with the conventional export, add the MANIFEST
+entry, and the archetype appears in the gallery. Deviating from the convention
+is surfaced, not silent — a MANIFEST entry whose demo file or export is missing
+logs a `console.error` and renders a visible broken-demo card on its route and
+in the overview grid instead of vanishing from the gallery. `kind` is a
+MANIFEST field (`"page" | "dialog" | "component"`); the gallery never assigns
+it locally. Demo files not claimed by a MANIFEST entry (e.g.
+`section-nav-demo.tsx`, a layout demo shown under *Layout & molecules*) stay
+out of the archetype list by the join itself — there is no name-based filter.
+
 ### Layer 7 — canonical state treatments
 
 The three planes of Layer 7 have one canonical look each; vary the *copy*, never the *chrome*:
