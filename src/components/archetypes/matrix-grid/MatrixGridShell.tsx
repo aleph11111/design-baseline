@@ -1,13 +1,9 @@
 import * as React from "react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
 import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
 import { cn } from "@/lib/utils";
-import { getInteractiveRowProps, interactiveRowFocusRing } from "../shared";
+import { MatrixCell } from "./MatrixCell";
+import { MatrixGridHead } from "./MatrixGridHead";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -106,86 +102,27 @@ function MatrixGridShellInner<Cell>({
   const rowIdOf = getRowId ?? ((r: MatrixRow<Cell>) => r.id);
   const clickable = onCellClick !== undefined;
 
-  // A dense R×C matrix must not mount one Tooltip Root per cell (heavy mount
-  // cost, memory, re-render surface for a feature that only ever shows one
-  // tooltip at a time). Plain-text tooltips skip Radix entirely via the native
-  // `title` attribute; rich content shares a single Tooltip, mounted only for
-  // the currently-hovered cell.
+  // One shared rich-tooltip key across the whole matrix (see MatrixCell for
+  // why the matrix must not mount a Tooltip Root per cell).
   const [hoveredCellKey, setHoveredCellKey] = React.useState<string | null>(null);
 
-  // Merge adjacent columns by group. Empty group => standalone header (no banded row 1).
-  const hasAnyGroup = columns.some((c) => c.group !== undefined && c.group !== "");
-  const groupSpans: { group: string | undefined; span: number; startIdx: number }[] = [];
-  for (let i = 0; i < columns.length; i++) {
-    const col = columns[i]!;
-    const last = groupSpans[groupSpans.length - 1];
-    if (last && last.group === col.group) {
-      last.span += 1;
-    } else {
-      groupSpans.push({ group: col.group, span: 1, startIdx: i });
-    }
-  }
+  const frameProps = { kicker, title, headerActions, toolbar } as const;
 
   // The frame is the horizontal scroll container (`overflow="auto"`, the frame's
   // named structural mode): the sticky first column pins only while its scroll
   // container is the frame, and the header band + toolbar + table scroll together.
+  if (emptyState !== undefined && emptyState !== null) {
+    return (
+      <SurfaceFrame {...frameProps} overflow="auto">
+        {emptyState}
+      </SurfaceFrame>
+    );
+  }
+
   return (
-    <SurfaceFrame
-      kicker={kicker}
-      title={title}
-      headerActions={headerActions}
-      overflow="auto"
-      toolbar={toolbar}
-    >
-      {emptyState !== undefined && emptyState !== null ? (
-        emptyState
-      ) : (
+    <SurfaceFrame {...frameProps} overflow="auto">
       <table className="text-[13px] border-collapse">
-        <thead>
-          {hasAnyGroup && (
-            <tr className="bg-muted/50 border-b border-border">
-              <th
-                className={cn(
-                  "sticky left-0 z-10 bg-muted/50 border-r border-border min-w-[180px]",
-                  "px-4 py-2",
-                )}
-              />
-              {groupSpans.map(({ group, span, startIdx }) => (
-                <th
-                  key={`group-${startIdx}`}
-                  colSpan={span}
-                  className={cn(
-                    "px-2 py-2 text-center font-semibold text-foreground/80",
-                    "border-r border-border whitespace-nowrap",
-                  )}
-                >
-                  {group ?? ""}
-                </th>
-              ))}
-            </tr>
-          )}
-          <tr className="bg-muted/30 border-b border-border">
-            <th
-              className={cn(
-                "sticky left-0 z-10 bg-muted/30 border-r border-border",
-                "px-4 py-2 text-left font-medium text-muted-foreground whitespace-nowrap",
-              )}
-            >
-              {rowHeaderLabel}
-            </th>
-            {columns.map((col) => (
-              <th
-                key={col.key}
-                className={cn(
-                  "px-2 py-2 text-center font-medium text-muted-foreground",
-                  "border-r border-border whitespace-nowrap min-w-[80px]",
-                )}
-              >
-                {col.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
+        <MatrixGridHead columns={columns} rowHeaderLabel={rowHeaderLabel} />
         <tbody>
           {rows.map((row) => {
             const rowKey = rowIdOf(row);
@@ -203,67 +140,31 @@ function MatrixGridShellInner<Cell>({
                 </th>
                 {columns.map((col) => {
                   const cell = row.cells[col.key];
-                  const filled = isFilledFn(cell);
                   const ctx: MatrixCellContext<Cell> = {
                     row,
                     column: col,
                     cell,
-                    isFilled: filled,
+                    isFilled: isFilledFn(cell),
                   };
                   const style = cellStyle ? cellStyle(ctx) : undefined;
-                  const content = filled && renderCell ? renderCell(ctx) : null;
-                  const activate = clickable ? () => onCellClick!(ctx) : undefined;
-
-                  const tooltip = style?.tooltip;
-                  const hasTooltip = tooltip !== undefined && tooltip !== null;
-                  const isPlainTextTooltip =
-                    typeof tooltip === "string" || typeof tooltip === "number";
-                  const isRichTooltip = hasTooltip && !isPlainTextTooltip;
-                  const cellKey = `${rowKey}::${col.key}`;
-
-                  const td = (
-                    <td
+                  return (
+                    <MatrixCell
                       key={col.key}
-                      data-filled={filled ? "" : undefined}
-                      className={cn(
-                        "px-2 py-2 text-center border-r border-border/60",
-                        clickable && "cursor-pointer select-none touch-manipulation",
-                        clickable && interactiveRowFocusRing,
-                        style?.className,
-                      )}
-                      title={isPlainTextTooltip ? String(tooltip) : undefined}
-                      onClick={activate}
-                      onMouseEnter={
-                        isRichTooltip ? () => setHoveredCellKey(cellKey) : undefined
-                      }
-                      onMouseLeave={
-                        isRichTooltip
-                          ? () => setHoveredCellKey((k) => (k === cellKey ? null : k))
-                          : undefined
-                      }
-                      {...getInteractiveRowProps(activate)}
-                    >
-                      {content}
-                    </td>
+                      ctx={ctx}
+                      content={ctx.isFilled && renderCell ? renderCell(ctx) : null}
+                      style={style}
+                      activate={clickable ? () => onCellClick!(ctx) : undefined}
+                      cellKey={`${rowKey}::${col.key}`}
+                      hoveredCellKey={hoveredCellKey}
+                      setHoveredCellKey={setHoveredCellKey}
+                    />
                   );
-
-                  if (isRichTooltip && hoveredCellKey === cellKey) {
-                    return (
-                      <Tooltip key={col.key} defaultOpen>
-                        <TooltipTrigger asChild>{td}</TooltipTrigger>
-                        <TooltipContent>{tooltip}</TooltipContent>
-                      </Tooltip>
-                    );
-                  }
-
-                  return td;
                 })}
               </tr>
             );
           })}
         </tbody>
       </table>
-      )}
     </SurfaceFrame>
   );
 }
