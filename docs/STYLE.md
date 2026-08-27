@@ -167,7 +167,7 @@ These ship alongside `components/ui/` because the shadcn primitives import them 
 
 ## Utils (`src/utils/`)
 
-- `logger` — minimal console logger: `error` (used by `components/ui/error-boundary.tsx`) and `debug` (gated on `process.env.NODE_ENV !== "production"` — the `import.meta.env.DEV` variant broke under Next builds, so the `process` guard is deliberate; see the comment in `src/utils/logger.ts`). Swap for a real logger (Sentry, pino) in projects that need one — keep the same surface so the import doesn't churn.
+- `logger` — console logger with the four standard levels: `debug` (gated on `process.env.NODE_ENV !== "production"` — the `import.meta.env.DEV` variant broke under Next builds, so the `process` guard is deliberate; see the comment in `src/utils/logger.ts`), plus `info`/`warn`/`error` pass-throughs. Only `error` has a donor call site (`components/ui/error-boundary.tsx`); the other three exist for downstream consumers, because `/style-baseline` overwrites a target's copy of this file and a narrower donor surface breaks their call sites (see "Donor file scope" below). Swap for a real logger (Sentry, pino) in projects that need one — keep the same surface so the import doesn't churn.
 
 ## Archetypes (`src/components/archetypes/` + `docs/archetypes/`)
 
@@ -259,6 +259,12 @@ Not every file the donor ships is meant to stay byte-identical in targets. There
 - `src/lib/utils.ts`
 - `src/hooks/use-mobile.ts`
 - `src/utils/logger.ts` (kept framework-agnostic via `typeof process !== "undefined"` guard — do not "improve" by Vite-only or Next-only references)
+
+Because these are copied **over** a target's existing file, the donor's exported surface for one
+must stay a **superset** of what the fleet already calls. Narrowing it (dropping a method with no
+donor call site) does not deprecate a downstream caller — it breaks that caller's typecheck on the
+next `/style-baseline --force`. Check the fleet before trimming an export here, and widen rather
+than cut when a consumer is found. See `docs/ARCHITECTURE.md` §3a.
 
 **Merged barrels** — donor owns the file but it is *not* clobbered wholesale:
 
