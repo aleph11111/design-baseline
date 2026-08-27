@@ -6,7 +6,7 @@
 // about codes and shape, never the warning count, which moves every time a
 // primitive lands.
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath, URL } from "node:url";
@@ -71,6 +71,70 @@ describe("lint-design CLI", () => {
     const report = JSON.parse(stdout);
     expect(report.summary.files).toBeGreaterThan(0);
     expect(report.violations).toHaveLength(report.summary.warnings + report.summary.errors);
+  });
+
+  it("--json reports a live scope per rule so a silently-emptied include is inspectable", () => {
+    // ruleScopes: one entry per rule carrying the number of WALKED files its scope
+    // (include minus exclude) actually applies to. A scoped rule reporting 0 is not an
+    // error (its layer may simply not be installed yet) but it must be visible, not a
+    // silent skip. Unscoped rules report every file.
+    const { stdout } = run("--json");
+    const { summary, ruleScopes } = JSON.parse(stdout);
+    expect(ruleScopes).toHaveLength(
+      JSON.parse(readFileSync(join(root, "_adherence.json"), "utf8")).rules.length,
+    );
+    for (const scope of ruleScopes) {
+      expect(typeof scope.rule).toBe("string");
+      expect(scope.files).toBeGreaterThanOrEqual(0);
+      // Every scoped rule's live scope can never exceed the walked file count.
+      expect(scope.files).toBeLessThanOrEqual(summary.files);
+    }
+  });
+
+  it("exits 2 with a `CompileError` when a rule's `include` globs are all unreachable under the targets", () => {
+    // The ratchet's forbidden failure mode no longer fails open: an include that omits
+    // the configured `targets` prefix (here a `src/...`-shaped glob under the fixture's
+    // `app` target — the same class of typo the donor's `src` target would carry in
+    // reverse shape) matches nothing and would be skipped without firing, so the
+    // compiler rejects it instead of reporting a clean run.
+    const dir = mkdtempSync(join(tmpdir(), "lint-design-unreachable-"));
+    try {
+      const srcDir = join(dir, "app");
+      mkdirSync(srcDir, { recursive: true });
+      writeFileSync(join(srcDir, "page.tsx"), 'export const x = 1;\n');
+      // targets: ["app"] but the include is scoped to a sibling root the walk never visits.
+      writeFileSync(
+        join(dir, "_adherence.json"),
+        JSON.stringify({
+          targets: ["app"],
+          rules: [
+            {
+              id: "bad-include",
+              pattern: "x",
+              severity: "error",
+              include: "lib/components/**",
+            },
+          ],
+        }),
+      );
+      let r;
+      try {
+        r = {
+          status: 0,
+          stdout: execFileSync("node", [join(root, script)], { cwd: dir, encoding: "utf8" }),
+        };
+      } catch (err) {
+        r = { status: err.status, stderr: err.stderr ?? "", stdout: err.stdout ?? "" };
+      }
+      expect(r.status).toBe(2);
+      const diagnostic = (r.stderr ?? "") + (r.stdout ?? "");
+      expect(diagnostic).toContain("rule bad-include");
+      expect(diagnostic).toContain("unreachable include glob");
+      expect(diagnostic).toContain("lib/components/**");
+      expect(diagnostic).toContain('["app"]');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("exits 0 when findings are at or under --ci-threshold", () => {

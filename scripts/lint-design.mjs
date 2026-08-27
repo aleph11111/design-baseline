@@ -24,6 +24,17 @@
 // `src/components/archetypes/` without firing on `src/components/ui/` leaves, where
 // `variant` / `size` props are correct shadcn practice.
 //
+// `include` and `targets` share that repo-root-relative namespace, so an `include` that
+// omits the configured `targets` prefix (a `"src/..."` glob under
+// `targets: ["frontend/src"]`) matches no walked path and its rule would be skipped
+// without firing once — a ratchet silently disarmed, indistinguishable from a clean scan.
+// `compileRules` therefore rejects a rule whose every `include` is unreachable under the
+// configured targets with a `CompileError` (the diagnostic names the rule, the glob(s)
+// and the targets). Reachability is structural — *can* any path under a target match —
+// not existence (does such a file exist right now), so a rule scoped to an uninstalled
+// layer still compiles; `--json` reports its live scope as `ruleScopes` (matched-file
+// count per rule) so a silently-emptied scope is inspectable.
+//
 // A rule may also carry an optional `exclude` that removes matching files from the
 // rule (in addition to `include`, when both are set). `exclude` is a glob, or an
 // array of globs — the file is skipped when ANY of them matches. That is the
@@ -36,20 +47,23 @@
 // Usage:  node scripts/lint-design.mjs [--json] [--ci-threshold <n>]
 // Config: ADHERENCE_CONFIG=path overrides the default `_adherence.json`.
 //
-// The module is importable: `compileGlobs`, `compileRules` and `scanFile`
-// are pure and exported (see scripts/lint-design.test.mjs). Only `main()` touches argv,
-// the filesystem, stdout and the exit code, and it runs only when the file is the entry
-// point — importing it scans nothing.
+// The module is importable: `compileGlobs`, `compileRules`, `scanFile` and
+// `includeReachableUnder` are pure and exported (see scripts/lint-design.test.mjs and
+// scripts/lint-design-core.test.mjs). Only `main()` touches argv, the filesystem, stdout
+// and the exit code, and it runs only when the file is the entry point — importing it
+// scans nothing.
 
 import { globSync, readFileSync } from 'node:fs';
 import { join, matchesGlob, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-// A rule failed to compile (a bad `pattern`). Carries the already-formatted
+// A rule failed to compile (a bad `pattern`, or a rule whose `include` globs are all
+// unreachable under the configured targets). Carries the already-formatted
 // diagnostic `main()` prints; it is thrown instead of exiting so the compiler
 // stays a pure function — the exit lives in the CLI, not the compiler. Globs
-// never fail here: `node:path`'s `matchesGlob` (stdlib since v22) matches them
-// at scan time, so there is nothing to compile.
+// never fail here as globs: `node:path`'s `matchesGlob` (stdlib since v22) matches
+// them at scan time, so there is nothing to compile — but an `include` set that can
+// never intersect a walked path does fail, at compile time.
 class CompileError extends Error {
   constructor(message) {
     super(message);
@@ -67,12 +81,46 @@ function compileGlobs(rule, key) {
   return Array.isArray(value) ? value : [value];
 }
 
+// Structural reachability (compile-time guard). Can `glob` — repo-root-relative, the same
+// namespace `targets` live in — match ANY path `walk` produces from `targets`: a target
+// root (file or dir) named at its top level plus any run of segments beneath? Structural
+// means *shape only*: the filesystem is never consulted, so a rule scoped to a
+// not-yet-installed layer is reachable (and compiles); the live matched-file count is
+// what `--json` reports as `ruleScopes`.
+//
+// `path.matchesGlob` owns the actual matching (scan time); the guard only asks whether
+// a match is *possible*. A glob part is a `**` (spans zero or more whole segments — its
+// shape language is every path, so it never disqualifies the glob) or a plain part,
+// whose language is one real segment (a non-`*` part is one or more characters; a
+// `*`-part matches only if it is non-empty — an empty part would leave a bare `/` and
+// not occur in the walked form). Collapse the `**` parts away; the remainder is a
+// segment prefix that has to be satisfied by the target's own named segments (then an
+// arbitrary tail), and the check is pure string shape: the collapsed glob is reachable
+// under a target when it equals the target or sits strictly beneath it.
+function includeReachableUnder(glob, targets) {
+  const collapsed = glob
+    .split('/')
+    .filter((part) => part !== '**' && part !== '')
+    .join('/');
+  if (collapsed === '') return targets.length > 0; // a pure `**` (or `//**`) spans any walked path
+  return targets.some((t) => collapsed === t || collapsed.startsWith(`${t}/`));
+}
+
 // Compile every rule once. `pattern` is used verbatim; a `tag` rule matches a bare lowercase
 // element — `<tag` immediately followed by whitespace, `/`, or `>` — case-sensitive (no `i`
 // flag) so the capitalized DS primitive `<Button>` is not a hit.
 // `include` / `exclude` are carried through as plain glob strings (`matchesGlob` owns
 // matching at scan time). Throws `CompileError` on a bad pattern.
-function compileRules(rules) {
+//
+// `targets` (the config's `targets` list, repo-root-relative path roots) enables the
+// reachability guard: every `include` glob must be structurally reachable under at least
+// one configured target, or the rule can match nothing and the ratchet is silently
+// disarmed. `scanFile` applies the rule when ANY include matches, so one reachable entry
+// is enough and a partially reachable array still compiles. `exclude` is never guarded —
+// a no-match `exclude` just removes nothing. When `targets` is omitted the guard is
+// skipped — core-level tests of the compile/scan semantics carry no target context; the
+// CLI always passes the config's `targets`.
+function compileRules(rules, targets) {
   return rules.map((rule) => {
     const source = rule.pattern ?? `<${rule.tag}(?=[\\s/>])`;
     let re;
@@ -81,12 +129,22 @@ function compileRules(rules) {
     } catch (err) {
       throw new CompileError(`lint:design — rule ${rule.id}: bad pattern /${source}/: ${err.message}`);
     }
+    const includes = compileGlobs(rule, 'include');
+    if (targets && includes.length && !includes.some((glob) => includeReachableUnder(glob, targets))) {
+      throw new CompileError(
+        `lint:design — rule ${rule.id}: unreachable include glob(s) ${includes.join(', ')} — ` +
+          `no path under targets ${JSON.stringify(targets)} can match; the rule would be skipped ` +
+          `without firing, reading as a clean scan. Prefix the glob with the target root ` +
+          `(e.g. a "src/..." glob under targets: ["frontend/src"]) or scope it to a ` +
+          `configured target.`,
+      );
+    }
     return {
       re,
       label: rule.tag ? `<${rule.tag}>` : rule.id,
       severity: rule.severity === 'error' ? 'error' : 'warn',
       message: rule.message,
-      includes: compileGlobs(rule, 'include'),
+      includes,
       excludes: compileGlobs(rule, 'exclude'),
     };
   });
@@ -154,7 +212,7 @@ function main() {
 
   let compiled;
   try {
-    compiled = compileRules(rules);
+    compiled = compileRules(rules, targets);
   } catch (err) {
     console.error(err.message);
     process.exit(2);
@@ -185,10 +243,26 @@ function main() {
   const warnings = violations.filter((v) => v.severity === 'warn').length;
   const errors = violations.filter((v) => v.severity === 'error').length;
 
+  // Per-rule live scope: how many walked files each rule actually applies to (include
+  // matched, excluding `exclude`-matched files; an unscoped rule's scope is every file).
+  // A scoped rule reporting 0 sits at a layer that is not installed right now — the
+  // reachability guard keeps the config honest at compile time; this keeps the live tree
+  // honest at scan time.
+  const fileRels = [...new Set(allViolations.map(({ fileRel }) => fileRel))];
+  const ruleScopes = compiled.map(({ label, includes, excludes }) => ({
+    rule: label,
+    files: fileRels.filter(
+      (r) =>
+        (!includes.length || includes.some((inc) => matchesGlob(r, inc))) &&
+        !excludes.some((ex) => matchesGlob(r, ex)),
+    ).length,
+  }));
+
   if (jsonMode) {
     const result = {
       violations,
       summary: { files: files.length, warnings, errors },
+      ruleScopes,
     };
     process.stdout.write(JSON.stringify(result) + '\n');
   } else {
@@ -218,4 +292,4 @@ if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) 
   main();
 }
 
-export { compileGlobs, compileRules, scanFile, CompileError };
+export { compileGlobs, compileRules, scanFile, includeReachableUnder, CompileError };
