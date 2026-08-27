@@ -94,8 +94,8 @@ for (const m of modules) {
 
 // ── 3. barrel.ts — bundle entry. `export *` puts every export (incl. subparts)
 //      on the global; the explicit primary re-exports AFTER it win over any
-//      ambiguous star collision (e.g. Toaster exported by both sonner+toaster),
-//      guaranteeing every carded primary resolves on window.DesignBaseline. ───
+//      ambiguous star collision, guaranteeing every carded primary resolves on
+//      window.DesignBaseline. ───────────────────────────────────────────────────
 const atAlias = (rel) => JSON.stringify(rel.replace('./components', '@/components'));
 writeFileSync(
   join(PKG, 'barrel.ts'),

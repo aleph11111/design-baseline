@@ -1,7 +1,7 @@
 ---
 area: over-engineering
 opened: '2026-08-26'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -50,7 +50,7 @@ The deletable surface is `src/hooks/use-toast.ts` (189 lines), `src/hooks/use-to
 
 ## Related
 
-- [docs/STACK.md](../STACK.md) — the contract row pinning `sonner` and the rule forbidding a second toast library without an ADR.
-- [archive/donor-deps-violate-stack-contract.md](archive/donor-deps-violate-stack-contract.md) — the prior instance of `package.json` diverging from the STACK.md contract, and the precedent for fixing the manifest here rather than downstream.
-- [archive/use-toast-listener-subscription-deps.md](archive/use-toast-listener-subscription-deps.md) — a bug fixed *inside* the stack this ticket deletes; that maintenance cost is the argument for removing it.
+- [docs/STACK.md](../../STACK.md) — the contract row pinning `sonner` and the rule forbidding a second toast library without an ADR.
+- [archive/donor-deps-violate-stack-contract.md](../archive/donor-deps-violate-stack-contract.md) — the prior instance of `package.json` diverging from the STACK.md contract, and the precedent for fixing the manifest here rather than downstream.
+- [archive/use-toast-listener-subscription-deps.md](../archive/use-toast-listener-subscription-deps.md) — a bug fixed *inside* the stack this ticket deletes; that maintenance cost is the argument for removing it.
 - [src/components/layout/AppShell.tsx](../../src/components/layout/AppShell.tsx) — the double mount.

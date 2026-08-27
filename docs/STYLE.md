@@ -6,11 +6,11 @@ The design-baseline defines a small, opinionated foundation: **shadcn/ui + Tailw
 
 | Layer        | Choice                                                |
 |--------------|-------------------------------------------------------|
-| UI primitives | shadcn/ui (Radix + Tailwind), 36 components          |
+| UI primitives | shadcn/ui (Radix + Tailwind), 34 components          |
 | Styling      | Tailwind CSS 4 (CSS-first config, no `tailwind.config.ts`) |
 | Icons        | `lucide-react`                                        |
 | Forms        | `react-hook-form` + `zod` (via shadcn `<Form>`)       |
-| Toasts       | `sonner` + shadcn `<Toaster>` (both mounted)          |
+| Toasts       | `sonner` (the only toast runtime)                     |
 | Dark mode    | `.dark` class on `<html>` (use `next-themes` to drive)|
 | Variants     | `class-variance-authority` (CVA) + `cn()`             |
 
@@ -149,13 +149,12 @@ a `headerFill` prop. See `src/components/layout/headerFill.ts`.
 
 Standard shadcn/ui set:
 
-`accordion`, `alert`, `alert-dialog`, `avatar`, `badge`, `button`, `calendar`, `card`, `checkbox`, `collapsible`, `command`, `dialog`, `dropdown-menu`, `form`, `input`, `label`, `pagination`, `popover`, `progress`, `radio-group`, `scroll-area`, `select`, `separator`, `sheet`, `sidebar`, `skeleton`, `sonner`, `switch`, `table`, `tabs`, `textarea`, `toast`, `toaster`, `tooltip`
+`accordion`, `alert`, `alert-dialog`, `avatar`, `badge`, `button`, `calendar`, `card`, `checkbox`, `collapsible`, `command`, `dialog`, `dropdown-menu`, `form`, `input`, `label`, `pagination`, `popover`, `progress`, `radio-group`, `scroll-area`, `select`, `separator`, `sheet`, `sidebar`, `skeleton`, `sonner`, `switch`, `table`, `tabs`, `textarea`, `tooltip`
 
 Plus:
 
 - `confirmation-dialog` — opinionated wrapper around `AlertDialog` for "Are you sure?" prompts.
 - `error-boundary` — React `ErrorBoundary` class component (depends on `@/utils/logger`).
-- `use-toast` — re-export shim that points at `@/hooks/use-toast` so legacy callers keep working.
 - `segmented-control`, `search-input`, `state-view`, `icon-avatar`, `cell-input`, `color-field`, `file-field` — shared content molecules (see "Shared content molecules" below). These are the single owners of the pill-toggle, toolbar search, async-plane, entity-circle, inline-cell-field, native-colour-picker, and native-file-picker patterns; compose them rather than hand-rolling.
 
 Don't modify these files directly. To extend or recolor a component, wrap it. To upgrade, regenerate with `npx shadcn add <name>` after copying.
@@ -165,7 +164,6 @@ Don't modify these files directly. To extend or recolor a component, wrap it. To
 These ship alongside `components/ui/` because the shadcn primitives import them directly. They must be copied with the rest of the tree.
 
 - `use-mobile` — `useIsMobile()` matchMedia hook. Imported by `components/ui/sidebar.tsx` for the mobile sheet fallback.
-- `use-toast` — canonical shadcn reducer-based toast hook. Imported by `components/ui/toaster.tsx` and re-exported from `components/ui/use-toast.ts`.
 
 ## Utils (`src/utils/`)
 
@@ -183,7 +181,7 @@ Archetypes are optional — projects that don't want the page-shape vocabulary c
 
 | Component     | Responsibility                                                 |
 |---------------|----------------------------------------------------------------|
-| `AppShell`    | Top-level composition — mounts `TooltipProvider`, `SidebarProvider`, `<Toaster>`, `<Sonner>`. Slots: `sidebar`, `header`, `children`. |
+| `AppShell`    | Top-level composition — mounts `TooltipProvider`, `SidebarProvider`, and the toast viewport (`<Sonner>`). Slots: `sidebar`, `header`, `children`. |
 | `AppSidebar`  | Brand + collapsible nav groups + footer. Takes `navItems`/`groups` + a `renderLink` prop so it stays router-agnostic. Persists collapsed groups to `localStorage` — pass `collapseStorageKey={null}` to run them uncontrolled (`defaultOpen`) instead, which is what an app whose shell sits in its root layout wants. `collapsible="icon"` + `rail` opt into the `ui/sidebar` icon rail; every nav row carries the primitive's `tooltip`, which is its only readable name once collapsed. An `aboveNav` slot sits between the header and the nav for a project's own workspace/tenant/asset switcher — `footer` would pin it to the bottom of the rail instead. |
 | `AppHeader`   | Title + center slot (search) + right slot (actions, user menu). Sidebar trigger on mobile. |
 | `PageHeader`  | Canonical **page** title block (distinct from the app `AppHeader`): title + optional subtitle / icon / actions / back-link. The single source of page-title typography — `text-lg font-semibold tracking-tight`. The archetype headers (`FormPageHeader`, `SettingsPageHeader`, `DetailOverviewHeader`) are thin wrappers that narrow its prop surface to their contract. Router-agnostic via `renderBackLink`. A `badges` slot renders read-only status `<Badge>`s inline next to the title (the detail-overview "one home for status"). |
@@ -259,7 +257,7 @@ Not every file the donor ships is meant to stay byte-identical in targets. There
 - `src/components/ui/*.tsx` (shadcn primitives — regenerated by the donor, never per-project)
 - `src/components/layout/Sidebar.tsx`, `Header.tsx`, `AppShell.tsx`, `SectionNav.tsx` (only when the target uses them straight; brickshop-manager wraps them in its own `AppSidebar.tsx` / `MainLayout.tsx` and is the exception, not the rule)
 - `src/lib/utils.ts`
-- `src/hooks/use-mobile.ts`, `use-toast.ts`
+- `src/hooks/use-mobile.ts`
 - `src/utils/logger.ts` (kept framework-agnostic via `typeof process !== "undefined"` guard — do not "improve" by Vite-only or Next-only references)
 
 **Merged barrels** — donor owns the file but it is *not* clobbered wholesale:
@@ -382,7 +380,7 @@ radar** surfaces it as an Axis-A candidate to absorb into the baseline.
 - **Class composition**: always use `cn()` from `@/lib/utils` — `clsx` + `tailwind-merge` so conflicting utilities are resolved deterministically.
 - **Variants**: when a component needs sizes or visual variants, reach for CVA (see `button.tsx`).
 - **Forms**: `react-hook-form` + `zod` schema + shadcn `<Form>`. No `<form>` without RHF.
-- **Toasts**: prefer `sonner` (`import { toast } from "sonner"`) for new code; the shadcn `<Toaster>` is mounted for legacy `use-toast` callers.
+- **Toasts**: `sonner` is the only toast runtime (`import { toast } from "sonner"`); `AppShell` mounts its `<Toaster>` viewport.
 - **Server vs client components** (Next.js): the layout primitives and most shadcn components are interactive — mark the files that import them with `"use client"`. The `/style-baseline` skill does this for you when scaffolding into a Next project.
 
 ## Re-skin checklist
