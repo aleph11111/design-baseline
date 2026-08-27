@@ -27,8 +27,7 @@ design-baseline/
     ├── lib/
     │   └── utils.ts                # cn()
     ├── hooks/
-    │   ├── use-mobile.ts           # useIsMobile() — required by ui/sidebar.tsx
-    │   └── use-toast.ts            # canonical shadcn toast hook — required by ui/toaster.tsx
+    │   └── use-mobile.ts           # useIsMobile() — required by ui/sidebar.tsx
     ├── utils/
     │   └── logger.ts               # console wrapper — required by ui/error-boundary.tsx
     ├── components/

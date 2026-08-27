@@ -1,7 +1,6 @@
 import * as React from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { HeaderFillContext, type HeaderFill } from "./headerFill";
 
@@ -42,7 +41,6 @@ export function AppShell({
         </div>
       </SidebarProvider>
       </HeaderFillContext.Provider>
-      <Toaster />
       <Sonner />
     </TooltipProvider>
   );

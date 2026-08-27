@@ -9,9 +9,8 @@ Repo-specific gotchas a future re-sync must know. Committed alongside config.jso
   `.design-sync/.cache/pkg/` (gitignored) and points the converter at it via `cfg.entry`:
   - `barrel.ts` — bundle entry. `export *` from every ui/layout/archetype module (so ALL 225 exports,
     incl. shadcn subparts like CardHeader/DialogContent, reach `window.DesignBaseline`), then explicit
-    `export { primaries }` lines that **win over ambiguous `export *` collisions** (e.g. `Toaster` is
-    exported by BOTH `ui/sonner.tsx` and `ui/toaster.tsx` → without the explicit re-export it drops to
-    undefined → `[BUNDLE_EXPORT]`). We card sonner's `Toaster`.
+    `export { primaries }` lines that **win over ambiguous `export *` collisions** (an un-re-exported
+    name colliding across modules would drop to undefined → `[BUNDLE_EXPORT]`).
   - `types/**` — real `.d.ts` via `tsc --emitDeclarationOnly` + `tsc-alias` (rewrites `@/` → relative so
     ts-morph resolves them). `types/index.d.ts` is the **carded** barrel: PRIMARIES only.
   - `tsconfig.json`, `styles.css`, `fonts/`, `package.json`, `src`→symlink to repo `src/`.
@@ -85,8 +84,7 @@ Repo-specific gotchas a future re-sync must know. Committed alongside config.jso
   loop self-corrects (a dead class shows broken in the sheet → regrade), but subtle spacing can slip.
 - **Toaster ships a FLOOR CARD** (same class as BottomNav): `Toaster` is sonner-based, and the bundle embeds its
   own `sonner` instance — a preview firing `toast()` from a separate `sonner` import doesn't share state, so the
-  capture stays empty. `Toast` (radix) DOES render if you neutralize its `fixed` `ToastViewport` with
-  `className="static"`. `ScrollArea`/`ScrollBar` need `type="always"` (default `hover` hides the thumb in a
+  capture stays empty. `ScrollArea`/`ScrollBar` need `type="always"` (default `hover` hides the thumb in a
   static capture). `RadioGroupItem` (and other subparts) aren't in `types/index.d.ts` but ARE on the bundle
   global — import them from `"design-baseline"` and they resolve (by design).
 - **Wide/full-page shells → `{cardMode:"column"}`**: DetailOverviewShell, BoardShell, ListWithDetailShell,

@@ -39,8 +39,7 @@
     "DropdownMenu": { "cardMode": "single", "viewport": "380x320", "primaryStory": "Open" },
     "Command": { "cardMode": "single", "viewport": "560x400", "primaryStory": "Open" },
     "Tooltip": { "cardMode": "single", "viewport": "380x240", "primaryStory": "Open" },
-    "Pagination": { "cardMode": "column" },
-    "Toast": { "cardMode": "single", "viewport": "480x260", "primaryStory": "Default" }
+    "Pagination": { "cardMode": "column" }
   },
   "buildCmd": "node .design-sync/build-pkg.mjs && npm run gallery:build && cp gallery-dist/assets/index-*.css .design-sync/.cache/pkg/styles.css"
 }
