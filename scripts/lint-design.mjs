@@ -16,9 +16,10 @@
 //
 // A rule may carry an optional `include` glob (repo-root-relative, e.g.
 // `"src/components/archetypes/**"` or `"src/components/archetypes/**/*Shell.tsx"`) that
-// restricts it to that path set — checked against each walked file's path relative to the
-// repo root (`**` spans any run of directory segments, `*` matches within one). Rules
-// without an `include` match every walked file, as before. That is what lets an
+// restricts it to that path set — matched against each walked file's path relative to the
+// repo root by stdlib `path.matchesGlob` (Node >= 22): `**` spans any run of directory
+// segments, `*` matches within one. Rules without an `include` match every walked file,
+// as before. That is what lets an
 // archetype-layer rule (e.g. an appearance-prop ban) scope to
 // `src/components/archetypes/` without firing on `src/components/ui/` leaves, where
 // `variant` / `size` props are correct shadcn practice.
@@ -35,52 +36,20 @@
 // Usage:  node scripts/lint-design.mjs [--json] [--ci-threshold <n>]
 // Config: ADHERENCE_CONFIG=path overrides the default `_adherence.json`.
 //
-// The module is importable: `globToRegExp`, `compileGlobs`, `compileRules` and `scanFile`
+// The module is importable: `compileGlobs`, `compileRules` and `scanFile`
 // are pure and exported (see scripts/lint-design.test.mjs). Only `main()` touches argv,
 // the filesystem, stdout and the exit code, and it runs only when the file is the entry
 // point — importing it scans nothing.
 
 import { readFileSync, readdirSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, matchesGlob, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-// Translate a repo-root-relative path glob into an anchored RegExp. `**` spans any run of
-// directory segments (including none); `*` matches within a single segment. Only the two
-// wildcards the rule shape needs — a full glob engine would be dead weight for a zero-dep
-// scanner.
-function globToRegExp(glob) {
-  const parts = glob.split('/');
-  // A `**` part matches zero or more whole path segments; a `*` matches within one
-  // segment. Only the two wildcards the rule shape needs — a full glob engine would be
-  // dead weight for a zero-dep scanner. Encoded per position: a leading `**` becomes
-  // `(?:seg/)*` (units trail their separator); a `**` elsewhere becomes `(?:/seg)*`
-  // (units lead with theirs, so the concrete part's own slash still applies).
-  if (parts.length === 1 && parts[0] === '**') return new RegExp('^(.*)$');
-  // Escape every RegExp metacharacter the wildcard split can't own (the caller handles
-  // `*`; `**` is consumed whole). The class closes after the escaped `\`, so `]` is
-  // reached as a literal class member, not a closer.
-  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  let re = '';
-  for (let i = 0; i < parts.length; i++) {
-    const p = parts[i];
-    if (p === '**') {
-      re += i === 0 ? '(?:[^/]+/)*' : '(?:/[^/]+)*';
-      continue;
-    }
-    // A concrete part takes a leading `/` (unless first). One exception: right after a
-    // *leading* `**`, whose `(?:seg/)*` units already carry the trailing slash when
-    // non-empty — a second slash would be wrong. (After a *non-leading* `**`, the slash
-    // is required: when `**` matches zero segments it is the only separator. `a/**/b`
-    // must still match `a/b`.)
-    if (i > 0 && !(i === 1 && parts[0] === '**')) re += '/';
-    re += p.split('*').map(esc).join('[^/]*');
-  }
-  return new RegExp('^' + re + '$');
-}
-
-// A rule failed to compile (bad `pattern` / `include` / `exclude` glob or pattern). Carries
-// the already-formatted diagnostic `main()` prints; it is thrown instead of exiting so the
-// compilers stay pure functions — the exit lives in the CLI, not the compiler.
+// A rule failed to compile (a bad `pattern`). Carries the already-formatted
+// diagnostic `main()` prints; it is thrown instead of exiting so the compiler
+// stays a pure function — the exit lives in the CLI, not the compiler. Globs
+// never fail here: `node:path`'s `matchesGlob` (stdlib since v22) matches them
+// at scan time, so there is nothing to compile.
 class CompileError extends Error {
   constructor(message) {
     super(message);
@@ -88,25 +57,21 @@ class CompileError extends Error {
   }
 }
 
-// Compile one rule's `include` / `exclude` (glob or array of globs, or absent) into an
-// array of compiled RegExps so the scope check in `scanFile` stays one
-// `includes.some(...)` / `excludes.some(...)`. Throws `CompileError` on a bad glob.
+// Normalize a rule's `include` / `exclude` (glob or array of globs, or absent)
+// to a string array so the scope check in `scanFile` stays one
+// `includes.some(...)` / `excludes.some(...)` against `path.matchesGlob`. The
+// globs are matched, not compiled.
 function compileGlobs(rule, key) {
   const value = rule[key];
   if (value === undefined || value === null) return [];
-  return (Array.isArray(value) ? value : [value]).map((glob) => {
-    try {
-      return globToRegExp(glob);
-    } catch (err) {
-      throw new CompileError(`lint:design — rule ${rule.id}: bad ${key} glob "${glob}": ${err.message}`);
-    }
-  });
+  return Array.isArray(value) ? value : [value];
 }
 
 // Compile every rule once. `pattern` is used verbatim; a `tag` rule matches a bare lowercase
 // element — `<tag` immediately followed by whitespace, `/`, or `>` — case-sensitive (no `i`
 // flag) so the capitalized DS primitive `<Button>` is not a hit.
-// Throws `CompileError` on a bad pattern or glob.
+// `include` / `exclude` are carried through as plain glob strings (`matchesGlob` owns
+// matching at scan time). Throws `CompileError` on a bad pattern.
 function compileRules(rules) {
   return rules.map((rule) => {
     const source = rule.pattern ?? `<${rule.tag}(?=[\\s/>])`;
@@ -138,8 +103,11 @@ function scanFile(fileRel, text, compiled) {
   for (const { re, label, severity, message, includes, excludes } of compiled) {
     // No `include` (or a rule whose `include` list is empty) matches every walked file;
     // with one or more `include` globs the rule applies only when ANY of them matches.
-    if (includes.length && !includes.some((inc) => inc.test(fileRel))) continue;
-    if (excludes.some((ex) => ex.test(fileRel))) continue; // excluded closed archetype
+    // The scope globs are matched by `path.matchesGlob` (stdlib since v22) — `**` spans
+    // any run of segments (including none), `*` matches within one, and a `.` is
+    // a literal.
+    if (includes.length && !includes.some((inc) => matchesGlob(fileRel, inc))) continue;
+    if (excludes.some((ex) => matchesGlob(fileRel, ex))) continue; // excluded closed archetype
     re.lastIndex = 0; // the `g` flag makes `matchAll` index-sensitive — don't leak state
     lines.forEach((line, i) => {
       for (const m of line.matchAll(re)) {
@@ -252,4 +220,4 @@ if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) 
   main();
 }
 
-export { globToRegExp, compileGlobs, compileRules, scanFile, CompileError, walk };
+export { compileGlobs, compileRules, scanFile, CompileError, walk };

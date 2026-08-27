@@ -2,6 +2,9 @@
   "name": "design-baseline",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "description": "Design-baseline donor. Typecheck-only as a library (npx tsc --noEmit), with donor-owned component tests (npm test); ships an optional donor-dev gallery (npm run gallery) that renders the archetype demos. Neither the test harness nor the gallery is part of the baseline broadcast — see STYLE.md.",
   "scripts": {
     "gallery": "vite --configLoader runner",
