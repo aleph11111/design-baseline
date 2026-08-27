@@ -1,7 +1,7 @@
 ---
 area: over-engineering
 opened: '2026-08-26'
-status: ready
+status: done
 gate:
   score: 5
   passed:
