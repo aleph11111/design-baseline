@@ -26,7 +26,7 @@ indistinguishable from a clean scan. The scanner's `--json` output carries no
 per-rule scope either, so the dead rule is not inspectable.
 
 This matters more since the archetype-layer scoping landed
-([archetype-convergence-appearance-prop-lint](archive/archetype-convergence-appearance-prop-lint.md)):
+([archetype-convergence-appearance-prop-lint](../archive/archetype-convergence-appearance-prop-lint.md)):
 those rules exist precisely to be narrow, and ADR-0003's warn→error ratchet reads
 a zero-hit rule as a class that is clean and ready to flip.
 
@@ -35,7 +35,7 @@ working implementation — `globIntersectsTarget`, `includeReachableUnder`, a
 `CompileError` naming the rule/glob/targets, `--json` per-rule scope, and 54
 passing tests. It is built on a hand-rolled glob engine, which is what #166/#169
 deleted and what
-[over-engineering-hand-rolled-glob-engine-duplicated](archive/over-engineering-hand-rolled-glob-engine-duplicated.md)
+[over-engineering-hand-rolled-glob-engine-duplicated](../archive/over-engineering-hand-rolled-glob-engine-duplicated.md)
 closed out. Port the guard, not the branch.
 
 ## What to do
@@ -80,11 +80,11 @@ closed out. Port the guard, not the branch.
 
 ## Related
 
-- [archetype-convergence-appearance-prop-lint.md](archive/archetype-convergence-appearance-prop-lint.md)
+- [archetype-convergence-appearance-prop-lint.md](../archive/archetype-convergence-appearance-prop-lint.md)
   — shipped the archetype-layer `include` scoping the guard protects
-- [over-engineering-hand-rolled-glob-engine-duplicated.md](archive/over-engineering-hand-rolled-glob-engine-duplicated.md)
+- [over-engineering-hand-rolled-glob-engine-duplicated.md](../archive/over-engineering-hand-rolled-glob-engine-duplicated.md)
   — why the port must not revive a glob engine
-- [adherence-lint-conformance-rule-gap.md](archive/adherence-lint-conformance-rule-gap.md)
+- [adherence-lint-conformance-rule-gap.md](../archive/adherence-lint-conformance-rule-gap.md)
   — a prior rule-coverage gap in the same config
 - ADR-0003 — adherence lint ships as a zero-dep scanner; its warn→error ratchet
   is what a silently dead rule corrupts
