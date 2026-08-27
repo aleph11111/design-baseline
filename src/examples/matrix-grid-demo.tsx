@@ -262,6 +262,11 @@ export function MatrixGridDemo() {
         columns={columns}
         rows={visibleRows}
         rowHeaderLabel="Student"
+        // Pass `isFilled` explicitly so the prop's contract is exercised here
+        // (a tightened shell that drops or retypes it breaks this typecheck).
+        // A present `GradeEntry` means the cell is filled; missing cells are
+        // `undefined` — identical to the shell's default, so render is unchanged.
+        isFilled={(cell) => cell !== undefined}
         renderCell={(ctx) =>
           mode === "inline" && ctx.isFilled ? (
             <select
