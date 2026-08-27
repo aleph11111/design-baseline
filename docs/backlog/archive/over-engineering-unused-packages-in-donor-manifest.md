@@ -1,7 +1,7 @@
 ---
 area: over-engineering
 opened: '2026-08-26'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -48,6 +48,6 @@ Neither package is large, but the donor's whole job is to be copied: an unused r
 
 ## Related
 
-- [archive/donor-deps-violate-stack-contract.md](archive/donor-deps-violate-stack-contract.md) — the precedent: manifest-vs-contract drift in this same file, fixed here rather than downstream, and the source of the `vaul` entry this ticket deliberately leaves alone.
-- [docs/STACK.md](../STACK.md) — the pinned contract table; neither package appears in it.
+- [archive/donor-deps-violate-stack-contract.md](../archive/donor-deps-violate-stack-contract.md) — the precedent: manifest-vs-contract drift in this same file, fixed here rather than downstream, and the source of the `vaul` entry this ticket deliberately leaves alone.
+- [docs/STACK.md](../../STACK.md) — the pinned contract table; neither package appears in it.
 - [src/styles/tokens.css](../../src/styles/tokens.css) — the in-source comment stating the typography plugin is not loaded.

@@ -11,12 +11,15 @@
  *   @tailwindcss/postcss     ^4    (Next.js)  -or-
  *   @tailwindcss/vite        ^4    (Vite)
  *
- * NOT loaded here: `tailwindcss-animate` and `@tailwindcss/typography`.
+ * NOT loaded here: `tailwindcss-animate` and the Tailwind typography plugin.
  * `tailwindcss-animate@1.x` is a Tailwind 3 plugin and
  * `@tailwindcss/postcss@4` cannot resolve it via the v4 `@plugin` directive
  * — loading it here broke Next.js builds in real targets (see hk-crm).
  * The accordion keyframes the shadcn primitives need are already defined
  * in `@theme` below, so dropping the plugin is a no-op for the baseline.
+ * The typography plugin was similarly evaluated and left unloaded — the
+ * baseline ships no `prose`-class typography; a target that needs it should
+ * load the plugin itself.
  * If a target surface needs `animate-in` / `animate-out` utilities, install
  * `tw-animate-css` (the v4 port) and add `@import "tw-animate-css";` in
  * that project's tokens.css (right after `@import "tailwindcss";`) — keep
