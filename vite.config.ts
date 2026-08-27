@@ -48,7 +48,6 @@ export default defineConfig({
       "react-hook-form",
       "@hookform/resolvers/zod",
       "zod",
-      "date-fns",
       "cmdk",
       "sonner",
     ],
