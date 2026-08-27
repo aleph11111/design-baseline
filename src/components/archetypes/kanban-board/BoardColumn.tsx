@@ -9,6 +9,8 @@ export type BoardColumnProps = React.HTMLAttributes<HTMLDivElement> & {
   count?: number;
   /** Optional trailing controls in the column header (an add-card button, a menu). */
   actions?: React.ReactNode;
+  /** Forwards to the root div (DnD consumers attach the droppable here). */
+  ref?: React.Ref<HTMLDivElement>;
 };
 
 /**
@@ -17,8 +19,16 @@ export type BoardColumnProps = React.HTMLAttributes<HTMLDivElement> & {
  * div forwards its ref and spreads `...rest`, so the consumer attaches its DnD
  * droppable (`ref`, `onDragOver`/`onDrop`, dnd-kit listeners) here.
  */
-export const BoardColumn = React.forwardRef<HTMLDivElement, BoardColumnProps>(
-  ({ title, count, actions, children, className, ...rest }, ref) => (
+export function BoardColumn({
+  title,
+  count,
+  actions,
+  children,
+  className,
+  ref,
+  ...rest
+}: BoardColumnProps) {
+  return (
     <div
       ref={ref}
       className={cn(
@@ -36,7 +46,7 @@ export const BoardColumn = React.forwardRef<HTMLDivElement, BoardColumnProps>(
       </div>
       <div className="flex flex-1 flex-col gap-2 p-2">{children}</div>
     </div>
-  ),
-);
+  );
+}
 
 BoardColumn.displayName = "BoardColumn";

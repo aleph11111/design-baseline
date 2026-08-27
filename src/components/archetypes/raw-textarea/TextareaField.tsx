@@ -45,36 +45,33 @@ export interface TextareaFieldProps
    * here — the one field where the wrapper key differs from the others').
    */
   wrapperClassName?: string;
+  /** Forwards to the `<Textarea>` atom. */
+  ref?: React.Ref<HTMLTextAreaElement>;
 }
 
 /**
  * TextareaField — Label + Textarea atom + optional helper/error line, with an
  * opt-in char counter and a mono variant. Composes the baseline `Textarea`.
  */
-export const TextareaField = React.forwardRef<
-  HTMLTextAreaElement,
-  TextareaFieldProps
->(function TextareaField(
-  {
-    label,
-    hint,
-    helperText,
-    error,
-    required,
-    mono = false,
-    showCount = false,
-    id,
-    value,
-    defaultValue,
-    maxLength,
-    className,
-    wrapperClassName,
-    onChange,
-    "aria-describedby": ariaDescribedBy,
-    ...props
-  },
-  ref
-) {
+export function TextareaField({
+  label,
+  hint,
+  helperText,
+  error,
+  required,
+  mono = false,
+  showCount = false,
+  id,
+  value,
+  defaultValue,
+  maxLength,
+  className,
+  wrapperClassName,
+  onChange,
+  "aria-describedby": ariaDescribedBy,
+  ref,
+  ...props
+}: TextareaFieldProps) {
   // `helperText` is the pre-frame alias for `hint`.
   const helper = hint ?? helperText;
   // Frame wiring (id scheme + the aria-describedby join + aria-invalid) shared
@@ -155,6 +152,6 @@ export const TextareaField = React.forwardRef<
       )}
     </FieldFrame>
   );
-});
+}
 
 TextareaField.displayName = "TextareaField";

@@ -1,7 +1,10 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export type BoardCardProps = React.HTMLAttributes<HTMLDivElement>;
+export type BoardCardProps = React.HTMLAttributes<HTMLDivElement> & {
+  /** Forwards to the root div (DnD consumers attach the draggable here). */
+  ref?: React.Ref<HTMLDivElement>;
+};
 
 /**
  * BoardCard — one draggable card in a `<BoardColumn>`. Presentational chrome
@@ -9,8 +12,8 @@ export type BoardCardProps = React.HTMLAttributes<HTMLDivElement>;
  * DnD draggable (`draggable`, `onDragStart`, or dnd-kit `attributes`/`listeners`
  * + `ref`). The card never moves itself — moves are the consumer's state change.
  */
-export const BoardCard = React.forwardRef<HTMLDivElement, BoardCardProps>(
-  ({ className, children, ...rest }, ref) => (
+export function BoardCard({ className, children, ref, ...rest }: BoardCardProps) {
+  return (
     <div
       ref={ref}
       className={cn(
@@ -23,7 +26,7 @@ export const BoardCard = React.forwardRef<HTMLDivElement, BoardCardProps>(
     >
       {children}
     </div>
-  ),
-);
+  );
+}
 
 BoardCard.displayName = "BoardCard";

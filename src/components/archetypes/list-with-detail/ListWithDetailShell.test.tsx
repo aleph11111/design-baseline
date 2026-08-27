@@ -231,3 +231,19 @@ type _ClosedAxesGuard = [
 
 const closedPropGuard: _ClosedAxesGuard = true;
 expect(closedPropGuard).toBe(true);
+
+// ---------------------------------------------------------------------------
+// Export-contract tripwire (checked by `tsc`, not the runtime).
+//
+// The export is the generic function itself — no wrapper and no
+// hand-written `as <Row>(…)` re-declaration (the wrapper + cast let the export
+// signature drift from `ListWithDetailShellProps`, so a wrong-arity `rows`
+// typechecked against the hand-written signature). If the export ever stops
+// accepting `ListWithDetailShellProps<Row>` again (a reintroduced wrapper, a
+// dropped generic, a prop the public type doesn't declare), this spread fails
+// to compile against the component's own JSX contract.
+// ---------------------------------------------------------------------------
+function _exportContractTripwire(props: ListWithDetailShellProps<Row>) {
+  return <ListWithDetailShell {...props} />;
+}
+void _exportContractTripwire;
