@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-08-27'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "the guard's semantics are already worked out on a parked branch; the work is porting them onto path.matchesGlob with tests"
