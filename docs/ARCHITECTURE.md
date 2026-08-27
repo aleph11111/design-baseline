@@ -38,7 +38,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `src/examples/<slug>-demo.tsx` | Sandbox demo per archetype — the "generic-ness contract" proving the primitive has zero domain-type leakage. Donor-dev only, **never copied** to targets |
 | `src/examples/DemoNextApp.tsx` / `DemoViteApp.tsx` | Reference wiring for Next.js 16 App Router / Vite + React Router 7 consumers |
 | `gallery/` | Donor-dev Vite app (`Gallery.tsx`, `registry.ts`, `layout-demos.tsx`) that mounts every demo behind a nav; also the buildable `gallery-dist/` surface the dashboard hub iframes per `docs/PLUGIN-CONTRACT.md` |
-| `docs/archetypes/MANIFEST.json` | Versioned registry: `plugin` block (hub-binding metadata + declared actions), `namespaces`, the `archetypes` array (key, slug, version, promoted_from/promoted_at, source_spec_version, spec, reference_impl, primitives_dir, example), and the `methodology` array (the four cross-archetype methodology docs: slug, version, status, doc, governs) |
+| `docs/archetypes/MANIFEST.json` | Versioned registry: `plugin` block (hub-binding metadata + declared actions), `namespaces`, the `archetypes` array (key, slug, version, promoted_from/promoted_at, source_spec_version, spec, reference_impl, primitives_dir, example), and the `methodology` array (the cross-archetype methodology docs: slug, version, status, doc, governs) |
 | `docs/archetypes/<slug>.md` | Stack-agnostic **contract** per archetype (see §5) |
 | `docs/archetypes/<slug>.baseline.md` | Baseline-stack **reference implementation** binding per archetype (see §5) |
 | `docs/archetypes/README.md` | The methodology: layer sets, phases, Rule of 2, promotion contract, versioning rules |
