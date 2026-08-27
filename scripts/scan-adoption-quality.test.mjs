@@ -254,6 +254,18 @@ describe("scan-adoption-quality fixture (controlled content)", () => {
     }
   });
 
+  it("skips a target dir that does not exist — exit 0, only the existing target's files scanned", () => {
+    // A consumer legitimately may not have every target root: a missing
+    // `--targets` entry contributes zero files instead of breaking the scan.
+    const { stdout, status } = run(dir, "--json", "--signals", join(dir, "signals.json"), "--targets", "app,ghost");
+    expect(status).toBe(0); // missing dir is skipped silently, not fatal
+    const byId = Object.fromEntries(parse(stdout).signals.map((s) => [s.id, s]));
+    // The existing target is still walked — the gate + exclusion behaviour is intact.
+    expect(byId["detail-tabbed-primary-nav"].hits).toEqual([{ file: "app/detail.tsx", line: 3 }]);
+    const allFiles = new Set(byId["detail-tabbed-primary-nav"].hits.map((h) => h.file));
+    expect([...allFiles].every((f) => f.startsWith("app/"))).toBe(true); // nothing from the missing dir
+  });
+
   it("exits 2 on an unresolvable signals file", () => {
     expect(run(dir, "--signals", join(dir, "does-not-exist.json"), "--targets", "app").status).toBe(2);
   });
