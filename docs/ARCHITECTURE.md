@@ -31,7 +31,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `src/styles/tokens.css` | Tailwind 4 entry point + HSL design tokens (light + dark), re-skin surface |
 | `src/lib/utils.ts` | `cn()` |
 | `src/hooks/` | `use-mobile.ts` (`useIsMobile`, required by `ui/sidebar.tsx`) |
-| `src/utils/logger.ts` | minimal console logger — `logger.error` (required by `ui/error-boundary.tsx`) + `logger.debug` (gated on `NODE_ENV !== "production"`); framework-agnostic |
+| `src/utils/logger.ts` | console logger — `logger.debug` (gated on `NODE_ENV !== "production"`) + `info`/`warn`/`error` pass-throughs; framework-agnostic. Not an archetype and carries no per-file version: it is plain copy-source, and the invariant that governs it is **the donor surface must be a superset of what the fleet calls** (see §3a) |
 | `src/components/ui/` | 44 shadcn/ui primitives (button, dialog, table, sidebar, form, sheet, command, calendar, segmented-control, state-view, cell-input, confirmation-dialog, icon-avatar, search-input, color-field, file-field, …) |
 | `src/components/layout/` | App-shell layer: `AppShell`, `AppSidebar`/`Sidebar` (+ `NavItem`/`NavGroup` types), `AppHeader`, `PageHeader`, `SectionHeading`, `SectionCard`, `SurfaceHeader` (+ `headerFill` context/classes), `StatTile`/`StatTileRow`, `ProgressTracker`, `MetricList`, `AuthCard`, `SectionNavShell`, `BottomNav`, `ThemeToggle` |
 | `src/components/archetypes/<slug>/` | Reference primitives per shipped archetype (one dir each; 21 registered in MANIFEST — see §4). Plus a non-archetype `shared/` dir (`RowActionsMenu`, `interactiveRow`) holding primitives reused across archetypes — correctly absent from MANIFEST |
@@ -54,6 +54,25 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `.design-sync/` | Appears to sync component previews + fonts for a `claude.ai/design` integration (`config.json`, `previews/*.tsx`, `fetch-fonts.mjs`, `build-pkg.mjs`). **Uncertain** — not fully explored; distinct from the gallery/hub plugin path |
 | `docs/superpowers/specs/2026-05-22-archetype-promotion-design.md`, `docs/superpowers/plans/2026-05-22-archetype-promotion-implementation.md` | Design spec + implementation plan that originated the whole archetype layer |
 | `docs/backlog/` | Open root tickets + a `wip/` (in-flight) and `archive/` (resolved) subdir; `docs/backlog/README.md` is the ticket frontmatter schema authority `/ticket` reads (canonical `area` list, `gate` block, optional `kind`/`model` fields) |
+
+### 3a. How leaf utils version (they don't — they carry a superset invariant instead)
+
+`src/utils/` and `src/lib/` hold framework-agnostic leaf files with no gallery demo and no
+page-shape contract. They are **not** archetypes: no MANIFEST entry, no `<slug>.md` /
+`<slug>.baseline.md` pair, no per-file version. `MANIFEST.plugin.version` is not their version
+either — per `docs/PLUGIN-CONTRACT.md` it versions the *hub contract shape*, not shipped content.
+
+What governs them instead is a one-line invariant, because `/style-baseline` step 4 copies these
+files over a target's existing copy unconditionally (`cp "$BASELINE/src/utils/logger.ts" …`):
+
+> **The donor's exported surface for a copy-source util must be a superset of what the fleet
+> already calls.** Narrowing it doesn't deprecate a downstream call site — it breaks it on the
+> next `/style-baseline --force`.
+
+That is why `logger` carries `info`/`warn` despite having no donor call site: `brickshop-manager`
+does (14 `logger.info` + 5 `logger.warn` as of 2026-08-27), and the donor is the file's owner.
+Widening a leaf util is cheap; a downstream typecheck break is not. See
+`docs/backlog/archive/promote-logger-to-archetype.md` for the decision record.
 
 ## 4. The 21 shipped archetypes (per `MANIFEST.json`)
 
