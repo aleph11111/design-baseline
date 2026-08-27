@@ -1,3 +1,10 @@
+---
+slug: adoption-quality
+kind: methodology
+version: 1.0
+status: locked
+---
+
 # Adoption quality — the third audit axis (Axis C)
 
 > **Integration points.** This axis is wired into the fleet machinery, not standalone:

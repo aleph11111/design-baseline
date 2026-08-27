@@ -8,7 +8,7 @@
   "plugin": {
     "kind": "design",
     "name": "design-baseline",
-    "version": "0.10.0",
+    "version": "0.10.1",
     "taxonomy": "docs/TAXONOMY.md",
     "surface": {
       "type": "vite-app",
@@ -427,6 +427,22 @@
       "version": "1.2",
       "status": "locked",
       "doc": "docs/ADOPTION.md"
+    },
+    {
+      "slug": "adoption-quality",
+      "kind": "methodology",
+      "displayName": "Adoption quality (Axis C)",
+      "version": "1.0",
+      "status": "locked",
+      "doc": "docs/ADOPTION-QUALITY.md"
+    },
+    {
+      "slug": "detail-page-teardown-playbook",
+      "kind": "methodology",
+      "displayName": "Detail-page teardown-first playbook",
+      "version": "1.0",
+      "status": "locked",
+      "doc": "docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md"
     }
   ]
 }

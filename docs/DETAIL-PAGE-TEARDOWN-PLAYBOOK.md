@@ -1,3 +1,10 @@
+---
+slug: detail-page-teardown-playbook
+kind: methodology
+version: 1.0
+status: locked
+---
+
 # Detail-Page Teardown-First Adoption Playbook (stack- & entity-agnostic)
 
 > Drop this into any target (hk-crm, BrickShop, …) for any record detail page
