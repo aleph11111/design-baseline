@@ -46,7 +46,7 @@ Concretely, it is 88 lines of dead-by-design code whose failure mode is misleadi
 
 ## Related
 
-- [docs/RULES.md](../RULES.md) — hard rules 6 and 7: the sandbox demo, with domain-far nouns, is the sanctioned genericness proof this file duplicates weakly.
-- [archive/refactor-matrix-grid-cell-and-head-extraction.md](archive/refactor-matrix-grid-cell-and-head-extraction.md) — the most recent change to `MatrixGridShell`'s internals, the contract this file claims to guard.
-- [archive/layout-primitives-hardcoded-german.md](archive/layout-primitives-hardcoded-german.md) — the prior sweep for source-project German strings in the donor; this file still carries one.
+- [docs/RULES.md](../../RULES.md) — hard rules 6 and 7: the sandbox demo, with domain-far nouns, is the sanctioned genericness proof this file duplicates weakly.
+- [archive/refactor-matrix-grid-cell-and-head-extraction.md](../archive/refactor-matrix-grid-cell-and-head-extraction.md) — the most recent change to `MatrixGridShell`'s internals, the contract this file claims to guard.
+- [archive/layout-primitives-hardcoded-german.md](../archive/layout-primitives-hardcoded-german.md) — the prior sweep for source-project German strings in the donor; this file still carries one.
 - [src/examples/matrix-grid-donor-fit.ts](../../src/examples/matrix-grid-donor-fit.ts) — the file to delete.
