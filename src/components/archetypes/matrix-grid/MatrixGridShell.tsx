@@ -83,7 +83,7 @@ function defaultIsFilled<Cell>(cell: Cell | undefined): boolean {
   return cell !== undefined && cell !== null;
 }
 
-function MatrixGridShellInner<Cell>({
+export function MatrixGridShell<Cell>({
   columns,
   rows,
   rowHeaderLabel,
@@ -169,9 +169,4 @@ function MatrixGridShellInner<Cell>({
   );
 }
 
-// Preserve generic across forwardRef wrapping (same pattern as ListWithDetailShell).
-export const MatrixGridShell = MatrixGridShellInner as <Cell>(
-  props: MatrixGridShellProps<Cell>,
-) => React.ReactElement | null;
-
-(MatrixGridShell as { displayName?: string }).displayName = "MatrixGridShell";
+MatrixGridShell.displayName = "MatrixGridShell";

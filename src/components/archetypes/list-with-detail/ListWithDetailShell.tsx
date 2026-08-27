@@ -96,13 +96,15 @@ export type ListWithDetailShellProps<Row> = {
    *   chevron) — the mobile / pick-an-item shape for single-data-column rows.
    */
   presentation?: "table" | "card-grid" | "action-row";
+  /** Forwards to the root `<SurfaceFrame>` div. */
+  ref?: React.Ref<HTMLDivElement>;
 } & SurfaceHeaderSlotProps;
 
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
-function ListWithDetailShellInner<Row>(
+export function ListWithDetailShell<Row>(
   {
     rows,
     columns,
@@ -127,8 +129,8 @@ function ListWithDetailShellInner<Row>(
     sortDirection,
     onSortChange,
     presentation = "table",
+    ref,
   }: ListWithDetailShellProps<Row>,
-  ref: React.Ref<HTMLDivElement>,
 ) {
   const isMobile = useIsMobile();
   const [sheetOpen, setSheetOpen] = React.useState(false);
@@ -272,16 +274,4 @@ function ListWithDetailShellInner<Row>(
   );
 }
 
-// ---------------------------------------------------------------------------
-// Export — use forwardRef wrapper to preserve generic while satisfying
-// forwardRef's constraint that the component have a stable identity.
-// ---------------------------------------------------------------------------
-
-export const ListWithDetailShell = React.forwardRef(
-  ListWithDetailShellInner,
-) as <Row>(
-  props: ListWithDetailShellProps<Row> & { ref?: React.Ref<HTMLDivElement> },
-) => React.ReactElement | null;
-
-(ListWithDetailShell as { displayName?: string }).displayName =
-  "ListWithDetailShell";
+ListWithDetailShell.displayName = "ListWithDetailShell";

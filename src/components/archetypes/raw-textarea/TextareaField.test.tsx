@@ -1,3 +1,4 @@
+import { createRef } from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { TextareaField } from "./TextareaField";
@@ -78,5 +79,11 @@ describe("TextareaField", () => {
     // honor aria-hidden), so match by substring + the "*" here.
     expectLabelAssociated(/Notes/, { required: true });
     expectRequired(screen.getByLabelText(/Notes/), { native: true });
+  });
+
+  it("forwards the ref to the underlying textarea element", () => {
+    const ref = createRef<HTMLTextAreaElement>();
+    render(<TextareaField label="Notes" ref={ref} />);
+    expect(ref.current).toBeInstanceOf(HTMLTextAreaElement);
   });
 });
