@@ -13,10 +13,70 @@ import { describe, expect, it } from "vitest";
 import {
   CompileError,
   compileRules,
+  includeReachableUnder,
   scanFile,
 } from "./lint-design.mjs";
 
-describe("compileRules", () => {
+describe("includeReachableUnder (structural include-vs-targets reachability)", () => {
+  // The failure mode the guard closes: `targets` and `include` share the repo-root-relative
+  // namespace, so an include authored without the target prefix matches no walked path and
+  // the rule is skipped without firing — the ratchet silently disarmed.
+
+  it("an include that omits the target prefix is unreachable", () => {
+    // A `"src/..."` glob under `targets: ["frontend/src"]` — the exact typo this guard exists for.
+    expect(includeReachableUnder("src/components/archetypes/**", ["frontend/src"])).toBe(false);
+    // The corrected prefix is reachable.
+    expect(
+      includeReachableUnder("frontend/src/components/archetypes/**", ["frontend/src"]),
+    ).toBe(true);
+    // A named single-file include suffers the same prefix problem.
+    expect(
+      includeReachableUnder(
+        "src/components/archetypes/detail-overview/DetailOverviewShell.tsx",
+        ["frontend/src"],
+      ),
+    ).toBe(false);
+    expect(
+      includeReachableUnder(
+        "frontend/src/components/archetypes/detail-overview/DetailOverviewShell.tsx",
+        ["frontend/src"],
+      ),
+    ).toBe(true);
+  });
+
+  it("a glob aligned with the target is reachable — the donor's own case", () => {
+    // `targets: ["src"]` with `src/components/archetypes/**` globs — the donor config.
+    expect(includeReachableUnder("src/components/archetypes/**", ["src"])).toBe(true);
+    // A named file under the aligned target tree.
+    expect(
+      includeReachableUnder("src/components/archetypes/form-page/FormPageShell.tsx", ["src"]),
+    ).toBe(true);
+    // A `*`-wildcard file-name part aligns too (the shell-class-name rules' include).
+    expect(includeReachableUnder("src/components/archetypes/**/*Shell.tsx", ["src"])).toBe(
+      true,
+    );
+  });
+
+  it("a zero-prefix `**` include is reachable under any target", () => {
+    // `**` alone matches any path — always reachable.
+    expect(includeReachableUnder("**", ["frontend/src"])).toBe(true);
+    // No configured targets means no walked paths at all — even `**` has nothing to
+    // match. (The CLI never reaches the compiler with an empty list: `main()` defaults
+    // a missing/empty `targets` to `["src"]`.)
+    expect(includeReachableUnder("**", [])).toBe(false);
+  });
+
+  it("is structural, not an existence check — an unmatched empty layer is still reachable", () => {
+    // A consumer whose archetype layer is not yet installed: the include is structurally
+    // reachable even though no file under it exists. Existence is not the guard's job;
+    // the live scope is reported separately by the `--json` scan.
+    expect(
+      includeReachableUnder("frontend/src/components/archetypes/**", ["frontend/src"]),
+    ).toBe(true);
+  });
+});
+
+describe("compileRules (no targets context)", () => {
   it("derives a `tag` rule's source as a case-sensitive lookahead so `<Button>` is not a hit", () => {
     const [r] = compileRules([{ id: "no-bare-button", tag: "button" }]);
     expect(r.label).toBe("<button>");
@@ -70,6 +130,97 @@ describe("compileRules", () => {
     expect(() => compileRules([{ id: "bad", pattern: "[(unclosed" }])).toThrow(
       'rule bad: bad pattern /[(unclosed/',
     );
+  });
+});
+
+describe("compileRules — include reachability guard", () => {
+  const unreachableRule = {
+    id: "detail-overview-surface-prop",
+    pattern: "surface\\?",
+    severity: "error",
+    include: "src/components/archetypes/detail-overview/**",
+  };
+
+  it("throws a `CompileError` naming the rule, glob and targets when every include is unreachable", () => {
+    // The diagnostic names the rule id, the unreachable glob, and the targets — the fix is
+    // a one-line prefix, so the error message carries everything the author needs.
+    let caught = null;
+    try {
+      compileRules([unreachableRule], ["frontend/src"]);
+    } catch (err) {
+      caught = err;
+    }
+    expect(caught).toBeInstanceOf(CompileError);
+    expect(caught.message).toContain("rule detail-overview-surface-prop");
+    expect(caught.message).toContain("unreachable include glob");
+    expect(caught.message).toContain("src/components/archetypes/detail-overview/**");
+    expect(caught.message).toContain('["frontend/src"]');
+  });
+
+  it("the same rule compiles once re-prefixed to the target root", () => {
+    expect(() =>
+      compileRules(
+        [
+          {
+            id: "detail-overview-surface-prop",
+            pattern: "surface\\?",
+            severity: "error",
+            include: "frontend/src/components/archetypes/detail-overview/**",
+          },
+        ],
+        ["frontend/src"],
+      ),
+    ).not.toThrow();
+  });
+
+  it("a partially reachable include array still compiles (ANY entry is a live path)", () => {
+    // `scanFile` applies the rule when ANY include matches — one dead glob among live ones
+    // is not an unscoped rule, and flagging it would reject reachable rules.
+    expect(() =>
+      compileRules(
+        [
+          {
+            id: "shell-class-name",
+            pattern: "className\\?",
+            include: [
+              "src/components/archetypes/**/*Shell.tsx", // dead under this target
+              "frontend/src/components/archetypes/**/*Shell.tsx", // live
+            ],
+          },
+        ],
+        ["frontend/src"],
+      ),
+    ).not.toThrow();
+  });
+
+  it("without a `targets` context the guard is skipped — pure compile semantics", () => {
+    // The CLI always passes the config's `targets`; core callers testing raw glob
+    // semantics must not require a target context.
+    expect(() =>
+      compileRules([{ id: "r", pattern: "x", include: "src/components/archetypes/**" }]),
+    ).not.toThrow();
+  });
+
+  it("an `exclude` outside the reached set is not guarded — only `include` can disarm", () => {
+    // `exclude` narrows a rule; a no-match `exclude` just removes nothing. Only `include`
+    // gates whether the rule applies at all, so the guard scopes to `include`.
+    expect(() =>
+      compileRules(
+        [
+          {
+            id: "r",
+            pattern: "x",
+            include: "frontend/src/components/archetypes/**",
+            exclude: "src/elsewhere/**",
+          },
+        ],
+        ["frontend/src"],
+      ),
+    ).not.toThrow();
+  });
+
+  it("a rule with no `include` is unscoped and never trips the guard", () => {
+    expect(() => compileRules([{ id: "r", tag: "button" }], ["frontend/src"])).not.toThrow();
   });
 });
 
