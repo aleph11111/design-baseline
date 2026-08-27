@@ -41,7 +41,7 @@ So the question this deferred is not "does the donor use it" (it does not — `u
 
 ## Related
 
-- [over-engineering-logger-passthrough-facade](wip/over-engineering-logger-passthrough-facade.md) — the donor cut this defers to; its `## Fleet grep results` table is the evidence this ticket decides against.
+- [over-engineering-logger-passthrough-facade](archive/over-engineering-logger-passthrough-facade.md) — the donor cut this defers to; its `## Fleet grep results` table is the evidence this ticket decides against.
 - [src/utils/logger.ts](../../src/utils/logger.ts) — the copy-source util in question.
 - [src/components/ui/error-boundary.tsx](../../src/components/ui/error-boundary.tsx) — the sole donor importer, on `logger.error`.
 
