@@ -50,7 +50,7 @@
 // Exit: 0 on a completed scan (regardless of findings — radar, not gate);
 //       2 on usage or config errors (unresolvable signals file, unparseable JSON).
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { globSync, readFileSync } from 'node:fs';
 import { join, matchesGlob, relative, resolve } from 'node:path';
 
 function fail(message) {
@@ -102,6 +102,13 @@ const excludeNames = excludes.filter((e) => !e.includes('*'));
 // Same minimal glob semantics as scripts/lint-design.mjs: wildcard-bearing
 // excludes are matched by stdlib `path.matchesGlob` (Node >= 22) — `**` spans
 // whole segments, a `*` matches within one; a `.` in a glob is a literal.
+//
+// The post-walk `isExcluded` check stays even though the dir descent is now
+// `fs.globSync`'s: a bare-segment name like `dist` or `node_modules` translates
+// to the dir exclusion `**/<name>/**`, but a name fragment like `.test.` or
+// `.spec.` sits in FILE names, not directory segments — no dir exclude covers
+// it, so the per-path filter remains the owner of those entries (and of any
+// entry in the header whose convention is a fragment rather than a segment).
 
 function isExcluded(relPath) {
   const segments = relPath.split(/[\\/]/);
@@ -115,26 +122,27 @@ function isExcluded(relPath) {
 }
 
 // --- walk --------------------------------------------------------------------
-function walk(dir, acc) {
-  let entries;
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return acc; // missing target dir — skip silently (a consumer may not have every root)
-  }
-  for (const e of entries) {
-    if (e.name === 'node_modules' || e.name.startsWith('.')) continue;
-    const p = join(dir, e.name);
-    if (e.isDirectory()) walk(p, acc);
-    else if (fileSuffixes.some((s) => e.name.endsWith(s))) {
-      const rel = relative(rootResolved, p).split(/[\\/]/).join('/');
-      if (!isExcluded(rel)) acc.push({ rel, abs: p });
-    }
-  }
-  return acc;
-}
+// One globSync per target. The header globs select the file names (each is
+// descended from the target root, so `**` prefixes every one); the excludes
+// carry dot-directories plus every header entry that names a whole directory
+// segment. A target naming a missing dir yields [] rather than throwing
+// (globSync skips non-matching patterns), so a consumer missing any target
+// root is skipped silently — the contract `walk`'s `catch` provided. Dotfiles
+// are still pruned: the `**/.*/**` exclude mirrors the walk's dot-skip (glob
+// patterns match hidden files by default), so a `.next`/`.git` build tree is
+// never descended.
+const WALK_EXCLUDES = ['**/.*/**', ...excludeNames.map((n) => `**/${n}/**`)];
+const WALK_PATTERNS = fileSuffixes.map((s) => `**/*${s}`);
 
-const files = targets.flatMap((t) => walk(join(rootResolved, t), [])).sort((a, b) => a.rel.localeCompare(b.rel));
+const files = targets
+  .flatMap((t) =>
+    globSync(WALK_PATTERNS, { cwd: join(rootResolved, t), exclude: WALK_EXCLUDES }).map((rel) => ({
+      rel: join(t, rel).split(/[\\/]/).join('/'),
+      abs: join(rootResolved, t, rel),
+    })),
+  )
+  .filter(({ rel }) => !isExcluded(rel))
+  .sort((a, b) => a.rel.localeCompare(b.rel));
 
 // --- PCRE2 → V8 compatibility ------------------------------------------------
 // Rewrites PCRE string anchors to their V8 equivalents. `\A`/`\Z` occur OUTSIDE

@@ -92,6 +92,41 @@ describe("lint-design CLI", () => {
   });
 });
 
+describe("lint-design missing target dir", () => {
+  it("skips a target dir that does not exist — zero files from it, exit 0, remaining targets still scanned", () => {
+    // A consumer legitimately may not have every target root (`targets`
+    // defaults to `["src"]`, but a consumer can list `app` / `components`):
+    // the missing dir contributes zero files instead of throwing, and the
+    // scan completes over the targets that exist.
+    const dir = mkdtempSync(join(tmpdir(), "lint-design-missing-target-"));
+    try {
+      const src = join(dir, "src");
+      mkdirSync(src, { recursive: true });
+      writeFileSync(join(src, "Page.tsx"), 'export function P() { return "<button>"; }\n');
+      writeFileSync(
+        join(dir, "_adherence.json"),
+        JSON.stringify({
+          targets: ["src", "components"],
+          rules: [{ id: "no-bare-button", tag: "button", severity: "warn" }],
+        }),
+      );
+      let r;
+      try {
+        r = { status: 0, stdout: execFileSync("node", [join(root, script), "--json"], { cwd: dir, encoding: "utf8" }) };
+      } catch (err) {
+        r = { status: err.status, stdout: err.stdout ?? "" };
+      }
+      expect(r.status).toBe(0); // missing target is skipped silently, not fatal
+      const report = JSON.parse(r.stdout);
+      expect(report.summary.files).toBe(1); // only the `src` file — `components` contributes zero
+      expect(report.violations).toHaveLength(1);
+      expect(report.violations[0].file).toBe("src/Page.tsx");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("lint-design per-rule include glob", () => {
   // Fixture files share one line: `surface?: "a" | "b";` — an appearance-noun
   // prop and an inline union both on the same declaration. Only the paths differ.

@@ -41,7 +41,7 @@
 // the filesystem, stdout and the exit code, and it runs only when the file is the entry
 // point — importing it scans nothing.
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { globSync, readFileSync } from 'node:fs';
 import { join, matchesGlob, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -125,23 +125,6 @@ function scanFile(fileRel, text, compiled) {
   return violations;
 }
 
-// Collect every .tsx file under a directory root, skipping node_modules and dotfiles.
-function walk(dir, acc) {
-  let entries;
-  try {
-    entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
-    return acc; // missing target dir — skip silently (a consumer may not have every root)
-  }
-  for (const e of entries) {
-    if (e.name === 'node_modules' || e.name.startsWith('.')) continue;
-    const p = join(dir, e.name);
-    if (e.isDirectory()) walk(p, acc);
-    else if (e.name.endsWith('.tsx')) acc.push(p);
-  }
-  return acc;
-}
-
 function main() {
   const args = process.argv.slice(2);
   const jsonMode = args.includes('--json') || args.includes('--json-output');
@@ -177,7 +160,22 @@ function main() {
     process.exit(2);
   }
 
-  const files = targets.flatMap((t) => walk(join(root, t), []));
+  // One globSync per target: `**` descends, the excludes replace the walk's
+  // `node_modules`/dotfile skips. globSync returns target-dir-relative paths —
+  // joined absolute under root, the form `walk` produced; the `relative(root,
+  // file)` below renders each the root-relative form `scanFile`'s include/
+  // exclude globs expect. A target naming a missing dir yields [] rather than
+  // throwing (globSync skips non-matching patterns), so a consumer missing any
+  // target root is skipped silently; the sort keeps the file list (and the
+  // per-file scan order below) deterministic across filesystems — the walk's
+  // order was an accident of readdir(3) on each tree.
+  const files = targets
+    .flatMap((t) =>
+      globSync('**/*.tsx', { cwd: join(root, t), exclude: ['**/node_modules/**', '**/.*/**'] }).map((rel) =>
+        join(root, t, rel),
+      ),
+    )
+    .sort((a, b) => a.localeCompare(b));
 
   const allViolations = files.map((file) => ({
     fileRel: relative(root, file),
@@ -220,4 +218,4 @@ if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) 
   main();
 }
 
-export { compileGlobs, compileRules, scanFile, CompileError, walk };
+export { compileGlobs, compileRules, scanFile, CompileError };
