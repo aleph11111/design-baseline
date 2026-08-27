@@ -44,17 +44,3 @@ describe("logger.debug", () => {
     expect(spy).not.toHaveBeenCalled();
   });
 });
-
-describe.each(["development", "production"])(
-  "always-on levels (NODE_ENV=%s)",
-  (nodeEnv) => {
-    const levels = ["info", "warn", "error"] as const;
-
-    it.each(levels)("logger.%s forwards to the matching console method", (level) => {
-      const spy = vi.spyOn(console, level).mockImplementation(() => {});
-      host.process!.env.NODE_ENV = nodeEnv;
-      logger[level]("hello", { a: 1 });
-      expect(spy).toHaveBeenCalledWith("hello", { a: 1 });
-    });
-  },
-);

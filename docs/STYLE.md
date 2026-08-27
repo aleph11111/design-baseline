@@ -169,7 +169,7 @@ These ship alongside `components/ui/` because the shadcn primitives import them 
 
 ## Utils (`src/utils/`)
 
-- `logger` — thin `console.{debug,info,warn,error}` wrapper, with `debug` gated on `import.meta.env.DEV`. Imported by `components/ui/error-boundary.tsx`. Swap for a real logger (Sentry, pino) in projects that need one — keep the same surface so the import doesn't churn.
+- `logger` — minimal console logger: `error` (used by `components/ui/error-boundary.tsx`) and `debug` (gated on `process.env.NODE_ENV !== "production"` — the `import.meta.env.DEV` variant broke under Next builds, so the `process` guard is deliberate; see the comment in `src/utils/logger.ts`). Swap for a real logger (Sentry, pino) in projects that need one — keep the same surface so the import doesn't churn.
 
 ## Archetypes (`src/components/archetypes/` + `docs/archetypes/`)
 
