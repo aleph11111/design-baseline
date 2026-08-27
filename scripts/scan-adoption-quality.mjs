@@ -51,7 +51,7 @@
 //       2 on usage or config errors (unresolvable signals file, unparseable JSON).
 
 import { readFileSync, readdirSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { join, matchesGlob, relative, resolve } from 'node:path';
 
 function fail(message) {
   console.error(`scan:adoption-quality — ${message}`);
@@ -99,26 +99,9 @@ const excludes = signalsDoc.exclude ?? [];
 const excludeGlobs = excludes.filter((e) => e.includes('*'));
 const excludeNames = excludes.filter((e) => !e.includes('*'));
 
-// Same minimal glob engine as scripts/lint-design.mjs — a `**` spans whole
-// segments, a `*` matches within one (only the two wildcards a scope rule
-// needs; a full glob engine would be dead weight for a zero-dep scanner).
-function globToRegExp(glob) {
-  const parts = glob.split('/');
-  if (parts.length === 1 && parts[0] === '**') return new RegExp('^(.*)$');
-  const esc = (s) => s.replace(/[.*+?^${}()[]\\]/g, '\\$&');
-  let re = '';
-  for (let i = 0; i < parts.length; i++) {
-    const p = parts[i];
-    if (p === '**') {
-      re += i === 0 ? '(?:[^/]+/)*' : '(?:/[^/]+)*';
-      continue;
-    }
-    if (i > 0 && !(i === 1 && parts[0] === '**')) re += '/';
-    re += p.split('*').map(esc).join('[^/]*');
-  }
-  return new RegExp('^' + re + '$');
-}
-const excludeRe = excludeGlobs.map(globToRegExp);
+// Same minimal glob semantics as scripts/lint-design.mjs: wildcard-bearing
+// excludes are matched by stdlib `path.matchesGlob` (Node >= 22) — `**` spans
+// whole segments, a `*` matches within one; a `.` in a glob is a literal.
 
 function isExcluded(relPath) {
   const segments = relPath.split(/[\\/]/);
@@ -128,7 +111,7 @@ function isExcluded(relPath) {
   // (`.next`) never reach here — the walk skips dot-directories outright.
   if (excludeNames.some((name) => segments.some((seg) => seg === name || (name.includes('.') && seg.includes(name)))))
     return true;
-  return excludeRe.some((re) => re.test(relPath));
+  return excludeGlobs.some((glob) => matchesGlob(relPath, glob));
 }
 
 // --- walk --------------------------------------------------------------------

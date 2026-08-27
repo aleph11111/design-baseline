@@ -22,7 +22,8 @@ narrowed to `input|select|textarea` — `button` and `table` already have dedica
 the full alternation would double-warn the same line.
 
 A rule may also carry an optional `include` glob (repo-root-relative), restricting it to that path
-set — `**` spans any run of directory segments, `*` matches within one. This is what lets a rule
+set — matched by stdlib `path.matchesGlob` (Node >= 22): `**` spans any run of directory segments,
+`*` matches within one. This is what lets a rule
 target a single layer of the tree without firing on the rest: the `src`-wide `targets` would
 otherwise flag `src/components/ui/`, where `variant` and `size` are correct shadcn practice.
 

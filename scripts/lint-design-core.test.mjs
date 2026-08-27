@@ -1,111 +1,20 @@
 // @vitest-environment node
 //
 // Unit tests for the PURE CORE of `scripts/lint-design.mjs` — the exported
-// `globToRegExp`, `compileGlobs`, `compileRules`, `scanFile` seam. Sits
-// alongside the CLI-surface tests in `lint-design.test.mjs` (exit codes,
-// `--json` shape, subprocess behaviour) and asserts the shapes its header
-// comments claim, which the subprocess tests cannot reach without a repo tree.
+// `compileRules` and `scanFile` seam. The include/exclude glob semantics are
+// owned by stdlib `path.matchesGlob` (Node >= 22); covered here at behaviour
+// level: a `.` in a glob stays a literal, a `**/*Shell.tsx` include scopes to
+// real shells only, and a closed-folder `exclude` closes the ratchet valve.
+// Sits alongside the CLI-surface tests in `lint-design.test.mjs` (exit codes,
+// `--json` shape, fixture-tree include/exclude behaviour) and asserts the
+// shapes its header comments claim, which the subprocess tests cannot reach
+// without a repo tree.
 import { describe, expect, it } from "vitest";
 import {
   CompileError,
-  compileGlobs,
   compileRules,
-  globToRegExp,
   scanFile,
 } from "./lint-design.mjs";
-
-describe("globToRegExp", () => {
-  it("`**` alone matches any path", () => {
-    const re = globToRegExp("**");
-    expect(re.test("a/b/c.tsx")).toBe(true);
-    expect(re.test("src")).toBe(true);
-  });
-
-  it("a leading `**/x` matches `x` directly and nested", () => {
-    const re = globToRegExp("**/*Shell.tsx");
-    expect(re.test("SomeShell.tsx")).toBe(true);
-    expect(re.test("src/components/x/SomeShell.tsx")).toBe(true);
-  });
-
-  it("`a/**/b` still matches `a/b` (zero-segment `**` keeps the separator)", () => {
-    const re = globToRegExp("src/**/index.tsx");
-    expect(re.test("src/index.tsx")).toBe(true);
-    expect(re.test("src/deep/nested/index.tsx")).toBe(true);
-    expect(re.test("src/other.tsx")).toBe(false);
-  });
-
-  it("`*` matches within one segment only — a `/` never crosses it", () => {
-    const re = globToRegExp("src/*");
-    expect(re.test("src/a.tsx")).toBe(true);
-    expect(re.test("src/a/b.tsx")).toBe(false);
-  });
-
-  it("escapes every RegExp metacharacter the wildcard split can't leave literal", () => {
-    // The pre-fix helper (`s.replace(/[.*+?^${}()[]\\]/g, ...)` — the class closed
-    // at the early `]`, leaving nothing to match) left every metacharacter alone,
-    // so `**/*Shell.tsx`'s `.` meant "any character". Assert the whole set escapes:
-    // accepting the `.` that motivated the fix while leaving `(` / `{` / `[`
-    // unescaped would pass the AShellXtsx test below and silently widen other globs.
-    // `*` is absent on purpose: the caller owns it via `split('*')` (the
-    // single-segment wildcard), so it must NOT be escaped.
-    // Each concrete segment `x<c>` must carry a literal backslash before c in the
-    // compiled source (for `c === \` that is two backslashes, so `\` + c = `\\`).
-    for (const c of ".+?^${}()[]|\\") {
-      expect(
-        globToRegExp("x" + c).source,
-        `metachar ${JSON.stringify(c)} must be escaped in the compiled pattern`,
-      ).toContain("\\" + c);
-    }
-  });
-
-  it("`**/*Shell.tsx` no longer matches `src/AShellXtsx` (the unescaped `.` did)", () => {
-    const re = globToRegExp("**/*Shell.tsx");
-    expect(re.test("src/AShellXtsx")).toBe(false);
-    expect(re.test("src/XSHELLtsx.tsx")).toBe(false); // `.` is literal, not a wildcard
-  });
-
-  it("a glob with a `(` or `{` compiles to the intended pattern instead of throwing", () => {
-    // A metacharacter that is not escaped can make `new RegExp` throw (the old
-    // code would then take the `process.exit(2)` path from inside the compiler);
-    // a glob that IS a literal must match its literal path.
-    const p = globToRegExp("**/a(b).tsx");
-    expect(p.test("src/a(b).tsx")).toBe(true);
-    expect(p.test("src/axb.tsx")).toBe(false);
-    const br = globToRegExp("**/a{b,c}.tsx");
-    expect(br.test("src/a{b,c}.tsx")).toBe(true);
-    expect(br.test("src/ab,c.tsx")).toBe(false);
-  });
-});
-
-describe("compileGlobs", () => {
-  it("returns [] for an absent or null key", () => {
-    const rule = { id: "r" };
-    expect(compileGlobs(rule, "include")).toEqual([]);
-    expect(compileGlobs({ id: "r", exclude: null }, "exclude")).toEqual([]);
-  });
-
-  it("normalizes a single glob and an array of globs to an equal array of RegExp", () => {
-    expect(compileGlobs({ id: "r", include: "src/**" }, "include")).toHaveLength(1);
-    expect(
-      compileGlobs({ id: "r", include: ["src/**", "out/**"] }, "include"),
-    ).toHaveLength(2);
-  });
-
-  it("compiles a glob with parentheses as a literal — no throw, no exit", () => {
-    // The pre-fix escape left `(` / `)` unescaped, so a glob naming a parenthesized path
-    // segment could build a malformed group and take the `process.exit(2)` path from
-    // inside `.map()`. With the fixed escape, every non-wildcard metacharacter is a
-    // literal: the glob compiles cleanly and matches its literal path.
-    expect(() =>
-      compileGlobs({ id: "ok", include: "src/(arch)/x.tsx" }, "include"),
-    ).not.toThrow();
-    expect(
-      compileGlobs({ id: "ok", include: "src/(arch)/x.tsx" }, "include")[0].test(
-        "src/(arch)/x.tsx",
-      ),
-    ).toBe(true);
-  });
-});
 
 describe("compileRules", () => {
   it("derives a `tag` rule's source as a case-sensitive lookahead so `<Button>` is not a hit", () => {
@@ -140,6 +49,18 @@ describe("compileRules", () => {
     expect(r.severity).toBe("warn");
   });
 
+  it("carries `include` / `exclude` through as plain glob strings (matched by `path.matchesGlob` at scan time)", () => {
+    const [{ includes, excludes }] = compileRules([
+      { id: "scoped", pattern: "x", include: "a/**", exclude: ["b/**", "c/**"] },
+    ]);
+    expect(includes).toEqual(["a/**"]);
+    expect(excludes).toEqual(["b/**", "c/**"]);
+    // Absent / null normalize to an empty scope list — every walked file.
+    const { includes: inc, excludes: exc } = compileRules([{ id: "bare", pattern: "x" }])[0];
+    expect(inc).toEqual([]);
+    expect(exc).toEqual([]);
+  });
+
   it("throws a `CompileError` on a bad `pattern` — the compiler never exits", () => {
     // The pre-fix code called `return process.exit(2)` from inside `.map()`,
     // making the compiler impure and the control flow only visible from the CLI.
@@ -172,8 +93,8 @@ describe("scanFile", () => {
   });
 
   it("honors a `**/*Shell.tsx` include — only a real `.tsx` shell is in scope", () => {
-    // The AShellXtsx case at scan level: a file path the pre-fix unescaped `.`
-    // would have admitted to a `**/*Shell.tsx` include must NOT be.
+    // `path.matchesGlob` keeps a `.` literal: the path `src/AShellXtsx` must
+    // NOT be admitted to a `**/*Shell.tsx` include.
     const [shellComp] = compileRules([
       { id: "shell", pattern: "<input\\b", include: ["**/*Shell.tsx", "**/*Sheet.tsx"] },
     ]);
@@ -181,6 +102,15 @@ describe("scanFile", () => {
     const aShell = scanFile("src/FooShell.tsx", text, [shellComp]);
     expect(notShell).toHaveLength(0);
     expect(aShell).toHaveLength(3);
+  });
+
+  it("a zero-segment `**` still matches (`src/**/x` admits `src/x`)", () => {
+    const [compX] = compileRules([
+      { id: "nested", pattern: "<input\\b", include: "src/**/x" },
+    ]);
+    expect(scanFile("src/x", text, [compX])).toHaveLength(3);
+    expect(scanFile("src/deep/nested/x", text, [compX])).toHaveLength(3);
+    expect(scanFile("src/other", text, [compX])).toHaveLength(0);
   });
 
   it("an `exclude` narrower than an `include` removes only the exact files it names", () => {
