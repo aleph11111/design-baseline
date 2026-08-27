@@ -31,7 +31,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `src/styles/tokens.css` | Tailwind 4 entry point + HSL design tokens (light + dark), re-skin surface |
 | `src/lib/utils.ts` | `cn()` |
 | `src/hooks/` | `use-mobile.ts` (`useIsMobile`, required by `ui/sidebar.tsx`), `use-toast.ts` (canonical shadcn toast hook) |
-| `src/utils/logger.ts` | console wrapper required by `ui/error-boundary.tsx` |
+| `src/utils/logger.ts` | minimal console logger — `logger.error` (required by `ui/error-boundary.tsx`) + `logger.debug` (gated on `NODE_ENV !== "production"`); framework-agnostic |
 | `src/components/ui/` | 46 shadcn/ui primitives (button, dialog, table, sidebar, form, sheet, command, calendar, segmented-control, state-view, cell-input, confirmation-dialog, icon-avatar, search-input, color-field, file-field, …) |
 | `src/components/layout/` | App-shell layer: `AppShell`, `AppSidebar`/`Sidebar` (+ `NavItem`/`NavGroup` types), `AppHeader`, `PageHeader`, `SectionHeading`, `SectionCard`, `SurfaceHeader` (+ `headerFill` context/classes), `StatTile`/`StatTileRow`, `ProgressTracker`, `MetricList`, `AuthCard`, `SectionNavShell`, `BottomNav`, `ThemeToggle` |
 | `src/components/archetypes/<slug>/` | Reference primitives per shipped archetype (one dir each; 21 registered in MANIFEST — see §4). Plus a non-archetype `shared/` dir (`RowActionsMenu`, `interactiveRow`) holding primitives reused across archetypes — correctly absent from MANIFEST |
