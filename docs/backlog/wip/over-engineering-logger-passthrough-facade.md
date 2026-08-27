@@ -40,12 +40,30 @@ The one real consideration is that this file is **copy-source**: `/style-baselin
 
 ## What to do
 
-- [ ] Grep the fleet (`hk-crm`, `controlling-app`, `mistra`, `brickshop-manager`, `my-finance-app`, `pmo`, `dashboard`) read-only for `logger.info`, `logger.warn` and `logger.debug` call sites, and record the counts in this ticket before cutting.
-- [ ] Delete `info`, `warn` and — if the grep finds no consumer — `debug` from `src/utils/logger.ts`, leaving `error` as the single exported method that `ui/error-boundary.tsx` needs.
-- [ ] If `debug` survives the grep, keep it plus its ambient `process` declaration and the comment explaining why `import.meta.env.DEV` was rejected — that is the one method with real logic.
-- [ ] Trim `src/utils/logger.test.ts` to the surviving methods, dropping the `it.each(levels)` delegation block, which asserts nothing beyond `console` itself.
-- [ ] Update the `src/utils/logger.ts` row in `docs/ARCHITECTURE.md` §3 and the `src/utils/` line in `docs/STYLE.md` to describe the reduced surface.
-- [ ] ? If the grep shows the fleet genuinely wants a logging facade, file a follow-up to promote it as a real archetype rather than leaving it as an un-versioned util — do not widen it back here.
+- [x] Grep the fleet (`hk-crm`, `controlling-app`, `mistra`, `brickshop-manager`, `my-finance-app`, `pmo`, `dashboard`) read-only for `logger.info`, `logger.warn` and `logger.debug` call sites, and record the counts in this ticket before cutting. (Counts below.)
+- [x] Delete `info`, `warn` and — if the grep finds no consumer — `debug` from `src/utils/logger.ts`, leaving `error` as the single exported method that `ui/error-boundary.tsx` needs. (`debug` does have consumers — see below — so the reduced surface is `error` + `debug`, per the next bullet.)
+- [x] If `debug` survives the grep, keep it plus its ambient `process` declaration and the comment explaining why `import.meta.env.DEV` was rejected — that is the one method with real logic.
+- [x] Trim `src/utils/logger.test.ts` to the surviving methods, dropping the `it.each(levels)` delegation block, which asserts nothing beyond `console` itself.
+- [x] Update the `src/utils/logger.ts` row in `docs/ARCHITECTURE.md` §3 and the `src/utils/` line in `docs/STYLE.md` to describe the reduced surface. (`docs/STYLE.md` also had a stale claim that `debug` was gated on `import.meta.env.DEV` — corrected to the `process.env.NODE_ENV` guard the code actually uses.)
+- [x] ? If the grep shows the fleet genuinely wants a logging facade, file a follow-up to promote it as a real archetype rather than leaving it as an un-versioned util — do not widen it back here. (Filed: `promote-logger-to-archetype`.)
+
+## Fleet grep results (2026-08-27, read-only, pre-cut)
+
+Method: scan keyed on `import { logger } from .../utils/logger` (the `/style-baseline` copy location) so only actual *copied-facade* consumers are counted — not unrelated pino/winston `logger` variables in the same repos. `node_modules` and dot-directories (`.worktrees/` mirrors, `.captures/` snapshots) pruned.
+
+| repo | facade copy | importer files | `.debug` | `.error` | `.info` | `.warn` |
+|---|---|---|---|---|---|---|
+| `brickshop-manager` | yes — `src/utils/logger.ts` (original four-method copy) | 44 | 158 | 21 | 9 | 2 |
+| `controlling-app` | yes — `frontend/src/utils/logger.ts` | 0 (copy is orphaned) | 0 | 0 | 0 | 0 |
+| `hk-crm` | no | 0 | 0 | 0 | 0 | 0 |
+| `mistra` | no | 0 | 0 | 0 | 0 | 0 |
+| `my-finance-app` | no | 0 | 0 | 0 | 0 | 0 |
+| `pmo` | no | 0 | 0 | 0 | 0 | 0 |
+| `coding-dashboard` (the ticket's `dashboard`; `~/.claude/dashboard` does not exist on this host) | no | 0 | 0 | 0 | 0 | 0 |
+
+Raw `logger.info|warn|debug` substring hits in `hk-crm` (13 files), `controlling-app` (44) and `mistra` (9) are unrelated loggers (own/pino), none of them the copied facade — they do not count.
+
+Verdict: `debug` **survives** the grep (brickshop-manager, 158 call sites — the dominant level in practice). `error` has the donor's own `ui/error-boundary.tsx` call site. `info`/`warn` are cut from the donor; the 9/2 downstream brickshop call sites keep working against the copy they already have, and if brickshop wants those levels re-supplied from baseline that is what the promotion follow-up exists for — the donor does not widen back.
 
 ## Acceptance
 
