@@ -47,6 +47,6 @@ The one thing that must not regress is the silent-skip behaviour: `walk`'s `catc
 
 ## Related
 
-- [over-engineering-hand-rolled-glob-engine-duplicated.md](archive/over-engineering-hand-rolled-glob-engine-duplicated.md) — the sibling stdlib swap in the same two files.
-- [docs/adr/0003-adherence-lint-zero-dep-scanner.md](../adr/0003-adherence-lint-zero-dep-scanner.md) — the zero-dependency constraint; `node:fs` is stdlib, so it holds.
+- [over-engineering-hand-rolled-glob-engine-duplicated.md](../archive/over-engineering-hand-rolled-glob-engine-duplicated.md) — the sibling stdlib swap in the same two files.
+- [docs/adr/0003-adherence-lint-zero-dep-scanner.md](../../adr/0003-adherence-lint-zero-dep-scanner.md) — the zero-dependency constraint; `node:fs` is stdlib, so it holds.
 - [scripts/scan-adoption-quality.mjs](../../scripts/scan-adoption-quality.mjs) — the second copy of the walk.

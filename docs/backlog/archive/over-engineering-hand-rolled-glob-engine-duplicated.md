@@ -51,5 +51,5 @@ Deleting the function also deletes the tests written to cover it — `scripts/li
 
 - [docs/adr/0003-adherence-lint-zero-dep-scanner.md](../../adr/0003-adherence-lint-zero-dep-scanner.md) — the zero-dependency constraint this change keeps (stdlib is not a dependency).
 - [docs/adr/0005-adoption-quality-scan-zero-dep-donor-script.md](../../adr/0005-adoption-quality-scan-zero-dep-donor-script.md) — the second scanner that carries the duplicate copy.
-- [over-engineering-hand-rolled-recursive-dir-walk.md](../over-engineering-hand-rolled-recursive-dir-walk.md) — the sibling stdlib swap in the same two files; do them in one pass if convenient.
+- [over-engineering-hand-rolled-recursive-dir-walk.md](../wip/over-engineering-hand-rolled-recursive-dir-walk.md) — the sibling stdlib swap in the same two files; do them in one pass if convenient.
 - [archive/adherence-lint-oxlint-mechanism-nonfunctional.md](../archive/adherence-lint-oxlint-mechanism-nonfunctional.md) — why the scanner is hand-written at all, and the scope it was given.
