@@ -1,0 +1,136 @@
+/*
+ * Design baseline — Tailwind 4 token layer. The DONOR-OWNED half of the
+ * tokens stack: the `@import "tailwindcss"` entry, `@theme` config (colour /
+ * font / radius / motion roles and keyframes), `@custom-variant`, the utility
+ * definitions, the layer base. `/style-baseline` overwrites this file on
+ * re-apply (with a `DRIFT:` report and an in-place keep-aid when a target had
+ * diverged), so a donor-side fix — a changed keyframe, an `@plugin`/`@import`
+ * directive, a new `@theme` role, a new utility — reaches every target with
+ * no manual merge.
+ *
+ * The brand half lives in `tokens.css` beside this file — the ONLY file a
+ * target may diverge from the donor. It holds the `:root` / `.dark` HSL
+ * values (the brand palette; everything downstream consumes them as CSS
+ * variables, so a single edit re-skins the whole app) and imports this
+ * layer. Never carry brand values in this file — a re-apply replaces them.
+ *
+ * Required peer plugins (install in target project):
+ *   tailwindcss              ^4
+ *   @tailwindcss/postcss     ^4    (Next.js)  -or-
+ *   @tailwindcss/vite        ^4    (Vite)
+ *
+ * NOT loaded here: `tailwindcss-animate` and the Tailwind typography plugin.
+ * `tailwindcss-animate@1.x` is a Tailwind 3 plugin and
+ * `@tailwindcss/postcss@4` cannot resolve it via the v4 `@plugin` directive
+ * — loading it here broke Next.js builds in real targets (see hk-crm).
+ * The accordion keyframes the shadcn primitives need are already defined
+ * in `@theme` below, so dropping the plugin is a no-op for the baseline.
+ * The typography plugin was similarly evaluated and left unloaded — the
+ * baseline ships no `prose`-class typography; a target that needs it should
+ * load the plugin itself.
+ * If a target surface needs `animate-in` / `animate-out` utilities, install
+ * `tw-animate-css` (the v4 port) and add `@import "tw-animate-css";` to its
+ * TOKENS LAYER (this file in the donor; `tokens.layer.css` in a target, right
+ * after `@import "tailwindcss";`) — keep the donor framework-agnostic. Use
+ * `@import`, not `@plugin`: `tw-animate-css@1.x` ships as a pure-CSS package
+ * (its `exports` field declares only a `style` condition, no JS entry), so
+ * `@tailwindcss/postcss@4`'s `@plugin` resolver cannot load it.
+ */
+
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+  @media (width >= --theme(--breakpoint-sm)) {
+    max-width: none;
+  }
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}
+
+@theme {
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+
+  --color-rating: hsl(var(--rating));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to   { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to   { height: 0; }
+  }
+}
+
+/* Tailwind 4 dropped the implicit `border-color: gray-200` default.
+   Restore it so existing component classes don't suddenly render with
+   `currentcolor` borders. */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+}

@@ -246,7 +246,7 @@ If you find yourself patching `components/layout/Sidebar.tsx` or `components/ui/
 
 ### Donor file scope — immutable primitives vs. starter files
 
-Not every file the donor ships is meant to stay byte-identical in targets. There are two categories, and `/style-baseline --force` treats them the same way (overwrites both), so the operator running the broadcast is responsible for reviewing the diff before accepting it.
+Not every file the donor ships is meant to stay byte-identical in targets. There are two categories, and `/style-baseline --force` treats them **differently**: it overwrites the immutable primitives (with a `DRIFT:` report and an in-place keep-aid whenever a target had diverged) but **never overwrites a starter file** — an existing brand `tokens.css` and `components.json` are kept byte-identical, so a re-broadcast can never blast a target's brand palette away.
 
 > **Donor-dev gallery is never broadcast.** The `gallery/` app, `vite.config.ts`, `gallery-dist/`, and the gallery-only dev deps (`vite`, `@vitejs/plugin-react`, `@tailwindcss/vite`, `react-router-dom`) exist only so the baseline can be browsed visually (`npm run gallery`) and mounted as a "design plugin" in the dashboard hub. They are **not** part of the baseline — `/style-baseline` and `/style-archetypes` copy `src/...`, never the harness. Don't copy them into a target. Vocabulary for all of this is pinned in [`docs/TAXONOMY.md`](./TAXONOMY.md).
 
@@ -259,20 +259,36 @@ Not every file the donor ships is meant to stay byte-identical in targets. There
 - `src/lib/utils.ts`
 - `src/hooks/use-mobile.ts`
 - `src/utils/logger.ts` (kept framework-agnostic via `typeof process !== "undefined"` guard — do not "improve" by Vite-only or Next-only references)
+- `src/styles/tokens.layer.css` — the donor-owned half of the tokens stack: `@import "tailwindcss"` entry, `@theme` config (colour/font/radius/motion roles + keyframes), `@custom-variant`, the utility definitions, layer base. It is the only tokens file the donor owns — the brand half below it is the only tokens file a target owns.
 
-Because these are copied **over** a target's existing file, the donor's exported surface for one
-must stay a **superset** of what the fleet already calls. Narrowing it (dropping a method with no
-donor call site) does not deprecate a downstream caller — it breaks that caller's typecheck on the
-next `/style-baseline --force`. Check the fleet before trimming an export here, and widen rather
-than cut when a consumer is found. See `docs/ARCHITECTURE.md` §3a.
+Because these are copied **over** a target's existing file, the donor's exported surface for the
+`.ts`/`.tsx` ones must stay a **superset** of what the fleet already calls. Narrowing it (dropping
+a method with no donor call site) does not deprecate a downstream caller — it breaks that
+caller's typecheck on the next `/style-baseline --force`. Check the fleet before trimming an
+export here, and widen rather than cut when a consumer is found. See `docs/ARCHITECTURE.md` §3a.
+(For the `tokens.layer.css` there is no export surface to keep a superset of — the contract is
+that a target's copy of its brand file imports it by relative path, so the layer may freely gain
+`@theme` roles, keyframes and directives; a donor-side fix then reaches every target on the next
+re-apply, with a `DRIFT:` line in the `/style-baseline` report naming the layer if the target's
+copy had drifted.)
 
 **Merged barrels** — donor owns the file but it is *not* clobbered wholesale:
 
 - `src/components/{ui,layout}/index.ts` — the donor's export lines are the source of truth and overwrite the target's, **but** `/style-baseline` step 4b re-merges any project-local `export … from "./X"` line whose target module the donor doesn't ship. A naive `cp -R` would replace the barrel and silently forget local-only primitives that still exist on disk (e.g. mistra's `Breadcrumbs`/`PageHeader`), breaking every `@/components/layout` import on the next `tsc`. Convention for a product-local primitive that sits on top of the donor (per the consuming project's archetype layer): drop it in as `components/layout/<Name>.tsx` and add an `export … from "./<Name>"` line to `index.ts`. Because the donor ships no `<Name>` module, that line is preserved across every re-apply — no separate barrel, no import-site churn. Do **not** upstream such primitives into the donor merely to survive a re-apply; the merge is what makes them survivable while staying project-local.
 
-**Starter files** — donor ships defaults, targets expected to diverge:
+**Starter files** — donor ships defaults, targets expected to diverge; `/style-baseline`
+**keeps** an existing one (never clobbered, with or without `--force`):
 
-- `src/styles/tokens.css` HSL values inside `:root` and `.dark` (the Re-skin checklist below documents which to override — re-broadcasting blasts brand colors away). The rest of the file (theme config, keyframes, `@plugin` directives, layer base) is donor-owned.
+- `src/styles/tokens.css` — the **brand token file**: `@import "./tokens.layer.css"` plus the
+  `:root` and `.dark` HSL blocks (the Re-skin checklist below documents which values to
+  override — re-broadcasting would blast brand colors away, which is precisely why it is the
+  tokens file that is protected). Its whole content is the brand half; the donor-owned half
+  (theme config, keyframes, `@plugin`/`@import` directives, layer base) lives in
+  `tokens.layer.css` next to it and refreshes from the donor on every re-apply. A target that
+  has been on the old merged single-file `tokens.css` is migrated on its next
+  `/style-baseline --force`: the `:root`/`.dark` blocks are extracted verbatim into a kept
+  brand file and the donor's layer lands beside it — brand values are then protected, and the
+  donor half propagates again.
 - `components.json` `style`/`rsc` flags (the `rsc` flag specifically must match the target's framework: `true` for Next App Router, `false` for Vite)
 
 **Project-only files** — donor does not ship these; targets add as needed; broadcast must not delete:
@@ -280,7 +296,7 @@ than cut when a consumer is found. See `docs/ARCHITECTURE.md` §3a.
 - Project-specific layout additions (e.g. `BottomNav.tsx`, `ThemeToggle.tsx`, brickshop's customized `Header.tsx`). **Note:** the donor now ships a canonical `PageHeader.tsx` (see the layout table above) — a pre-existing project-local `page-header.tsx` (lowercase) is a *different* file and survives the barrel merge, but new projects should prefer the baseline `PageHeader` and migrate local title blocks onto it.
 - Project-specific layout wrappers (brickshop's `AppSidebar.tsx`, `MainLayout.tsx`)
 
-**Operating rule for `/style-baseline --force`**: review `git diff --stat` after the cp pass and revert any change to a Starter file unless you explicitly want to reset to donor defaults. Project-only `.tsx`/`.ts` files survive automatically (cp -R never deletes; it overlays), and their barrel export lines are re-merged by step 4b (so a clobbered `index.ts` no longer forgets local-only primitives). The two real re-broadcasts of this kind to date (mistra PR #126, hk-crm PR #44) each needed a manual revert pass — that's the expected workflow, not a defect.
+**Operating rule for `/style-baseline --force`**: review `git diff --stat` after the cp pass. Starter files never appear in it — they are kept byte-identical. The diff carries the immutable primitives, and step 4 prints a `DRIFT:` line naming every one that differed (prior version kept beside it as `<name>.local.<ext>`), so a narrowed donor surface is visible before the next typecheck instead of surfacing as a silent break. Reset a drifted starter only by deleting it and re-running (the donor's default comes back); project-only `.tsx`/`.ts` files survive automatically (cp -R never deletes; it overlays), and their barrel export lines are re-merged by step 4b (so a clobbered `index.ts` no longer forgets local-only primitives). The two real re-broadcasts of this kind to date (mistra PR #126, hk-crm PR #44) each needed a manual revert pass; with the keep-starters + `DRIFT:` report the revert pass is gone, and the curated diff review is the remaining step.
 
 ## Shared content molecules — same mental model, identical render
 

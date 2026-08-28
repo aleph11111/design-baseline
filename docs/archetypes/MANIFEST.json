@@ -8,7 +8,7 @@
   "plugin": {
     "kind": "design",
     "name": "design-baseline",
-    "version": "0.10.1",
+    "version": "0.10.2",
     "taxonomy": "docs/TAXONOMY.md",
     "surface": {
       "type": "vite-app",
