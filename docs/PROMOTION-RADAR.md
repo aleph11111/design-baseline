@@ -12,16 +12,31 @@ candidate is promoted into the donor, the next adoption cycle absorbs it instead
 deferring it. Status flow: `watch → candidate → promoting → promoted` (or
 `sanctioned` for the rare genuine one-off).
 
+**Keeping this table in sync:** the JSON is authoritative — when it and this
+prose table disagree, the JSON wins. The table is a curated projection of
+`candidates[]`: update the matching row's status + `promotedAt` (and add any
+new row) at each promotion close-out. This is the second divergence: the
+`skeleton-list-loader` and `media-feed-adopt-feeditem` rows lingered as
+`candidate` here after `promotion-radar.json` advanced past #73. The sync
+step belongs to the close-out, not "someday".
+
 ## Candidates (rule-of-2 met → promote/wrap/adopt)
 
 | Pattern | Axis A | Donor target | Projects | Status |
 |---|---|---|---|---|
 | Rich empty/error plane (title+description, action-less error) | promote | extend `StateView` (title + description props) | brickshop, controlling-app | **promoted 2026-06-15** |
-| Skeleton list loader | promote | `ListSkeleton` (from hk-crm) + Skeleton loading variant | hk-crm, brickshop, controlling-app | candidate |
+| Skeleton list loader | promote | `ListSkeleton` (archetype Sk) + StateView `loadingSkeleton` override | hk-crm, brickshop, controlling-app | **promoted 2026-07-23** |
 | Inline-cell editor | promote | `CellInput` / `CellSelect` (`ui/cell-input`) | brickshop, controlling-app, hk-crm | **promoted 2026-06-15** |
 | Compact/clearable/mobile search | promote | extend `SearchInput` (`inputSize`, `clearable`, `count`, native passthrough) | controlling-app, brickshop | **promoted 2026-06-15** |
 | Native color/file input | wrap | `ColorField` / `FileField` | controlling-app, brickshop | **promoted 2026-07-23** |
-| Chronological media feed | adopt-existing | `FeedItem` (archetype H, already shipped) | mistra, brickshop | candidate |
+| Chronological media feed | adopt-existing | `FeedItem` (archetype H, no new donor artifact) | mistra, brickshop | **promoted 2026-07-24** |
+| Labeled native field triad (label + bare control + no a11y wiring) | promote | `NativeField` (archetype I) | controlling-app, my-finance-app, mistra, dashboard, brickshop | **promoted 2026-07-23** |
+| Raw `<label>` + control, no htmlFor/aria wiring | promote | `NativeField` (archetype I, label-side scan) | controlling-app, my-finance-app, dashboard, pmo, mistra, hk-crm | **promoted 2026-07-23** |
+| Labeled multi-line text field re-composed per site | promote | `TextareaField` (archetype T) | dashboard, controlling-app, my-finance-app, brickshop, mistra, hk-crm, pmo | **promoted 2026-07-23** |
+| Labeled enum field (`<label>` + `<select>`/`<Select>`, no a11y wiring) | promote | `SelectField` (archetype S) | mistra, my-finance-app, dashboard, brickshop, controlling-app | **promoted 2026-07-24** |
+| Overline/eyebrow/kicker label re-typed inline | promote | `Overline` (archetype O, composes `OVERLINE_CLASS` + closed tone set) | mistra, hk-crm, my-finance-app, dashboard | **promoted 2026-07-24** |
+| Single-choice mode/filter toggle hand-rolled as button row | adopt-existing | `SegmentedControl` (archetype Sg, Radix radio-group) | brickshop, hk-crm | **promoted 2026-07-24** |
+| Initials avatar for a named entity (image fallback, tone) | promote | `EntityAvatar` (archetype E, `entityInitials()`) | brickshop, mistra | **promoted 2026-07-24** |
 
 ## Watch (1 project so far — confirm a 2nd before promoting)
 
@@ -35,6 +50,7 @@ deferring it. Status flow: `watch → candidate → promoting → promoted` (or
 - matrix/pivot `<table>` (sticky cols + group spans) — its inline cell control still routes to `CellSelect`.
 - combobox / `CommandInput` search — different widget.
 - test-fixture raw `<label>`/`<input>`.
+- `<label>`-wraps-control (checkbox/radio row, file dropzone with hidden input) — already associated by DOM nesting.
 
 ## Sync (convergence, not promotion)
 
@@ -47,6 +63,6 @@ the overlay's `generated` date when it's absent.
 - **dead `bricklink*` Badge variants** in hk-crm — remove (donor dropped them; brickshop legitimately keeps its own).
 
 ## Next actions
-1. Promote the six **candidate** rows into the donor (each: primitive/variant + gallery demo + MANIFEST/version touch).
+1. No **candidate** rows remain — all resolved candidates in `promotion-radar.json` are `promoted`. The live queue is the three **watch** rows in the Watch section (promote once rule-of-2 re-trips).
 2. Re-broadcast changed primitives (incl. `FormItem`) via a `/style-baseline` sync pass per project.
 3. Re-run the fleet audit → candidates become adoptable (promoted) or are confirmed sanctioned; conformance count and drift trend toward zero. That re-audit is the proof the loop closed.
