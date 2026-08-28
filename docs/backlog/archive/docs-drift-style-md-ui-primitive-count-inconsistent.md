@@ -1,7 +1,7 @@
 ---
 area: docs-drift
 opened: '2026-08-27'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -36,5 +36,5 @@ An operator skimming just the stack table (without reading down to the itemized 
 
 ## Related
 
-- [docs/STYLE.md](../STYLE.md) — the "Component inventory" section this ticket brings the stack-table line in line with.
-- [docs-drift-readme-stale-component-archetype-counts.md](archive/docs-drift-readme-stale-component-archetype-counts.md) — the prior, already-resolved instance of the same "fixed count drifts as primitives ship" failure mode in `README.md`.
+- [docs/STYLE.md](../../STYLE.md) — the "Component inventory" section this ticket brings the stack-table line in line with.
+- [docs-drift-readme-stale-component-archetype-counts.md](../archive/docs-drift-readme-stale-component-archetype-counts.md) — the prior, already-resolved instance of the same "fixed count drifts as primitives ship" failure mode in `README.md`.
