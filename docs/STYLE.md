@@ -6,7 +6,7 @@ The design-baseline defines a small, opinionated foundation: **shadcn/ui + Tailw
 
 | Layer        | Choice                                                |
 |--------------|-------------------------------------------------------|
-| UI primitives | shadcn/ui (Radix + Tailwind), 34 components          |
+| UI primitives | shadcn/ui (Radix + Tailwind) — see "Component inventory" below for the current count |
 | Styling      | Tailwind CSS 4 (CSS-first config, no `tailwind.config.ts`) |
 | Icons        | `lucide-react`                                        |
 | Forms        | `react-hook-form` + `zod` (via shadcn `<Form>`)       |
