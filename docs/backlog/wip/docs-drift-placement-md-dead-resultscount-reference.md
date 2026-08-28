@@ -1,7 +1,7 @@
 ---
 area: docs-drift
 opened: '2026-08-27'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -31,8 +31,12 @@ An operator following `docs/PLACEMENT.md`'s "green/yellow/red" placement grid to
 
 ## What to do
 
-- [ ] Either build the `ResultsCount` primitive (and wire it into `ListWithDetailToolbar` and any other toolbar that needs a result-count slot) so the doc's rule has a real component behind it, or remove/rewrite the `ResultsCount` references in `docs/PLACEMENT.md` to name whatever the actual owning treatment is (plain text? a different existing molecule?) until one is promoted.
-- [ ] Confirm no other archetype's toolbar (settings-table, grouped-list, etc.) already renders a result count some other way, and reconcile the doc with whatever that pattern actually is.
+- [x] Either build the `ResultsCount` primitive (and wire it into `ListWithDetailToolbar` and any other toolbar that needs a result-count slot) so the doc's rule has a real component behind it, or remove/rewrite the `ResultsCount` references in `docs/PLACEMENT.md` to name whatever the actual owning treatment is (plain text? a different existing molecule?) until one is promoted. **Chosen: rewrite.** The four list-family contracts (list-with-detail Layer 4, settings-table, grouped-list, matrix-grid) all define the count as the canonical muted small-text treatment (`text-sm text-muted-foreground`, `{n} results`) — building a component would contradict the contracts; none of the donor's own demos nor any toolbar primitive renders a count component today.
+- [x] Confirm no other archetype's toolbar (settings-table, grouped-list, etc.) already renders a result count some other way, and reconcile the doc with whatever that pattern actually is. **Confirmed.** No count component exists anywhere in `src/`; the pattern across all list-family archetypes is the styled-text treatment rendered by the consumer through the toolbar's `pageActions` slot (A's own `list-with-detail-toolbar-discarded-count` signal describes the conforming render as plain `{count}` interpolation). Reconciled: `docs/PLACEMENT.md` v1.3 table row + paragraph + red line + revision log 1.0 owner list now name the treatment instead of the dead component.
+
+## Outcome
+
+Resolved 2026-08-28 by rewriting `docs/PLACEMENT.md` (v1.2 → v1.3): the result-count slot now names the canonical muted small-text treatment (`text-sm text-muted-foreground`, contract-declared format, via the toolbar's `pageActions` slot) — the treatment every list-family archetype contract already declares — and the red anti-pattern targets the concrete drift (count outside the canonical styling or the toolbar) instead of a ghost component. A 5th occurrence found during the fix — the `list-shell-missing-toolbar` `shouldBe` prose in `docs/audit-signals.json` — was reconciled in the same pass. Acceptance verified: `grep -rn "ResultsCount" docs/PLACEMENT.md src/` → zero hits; `audit-signals.json` parses; donor gates green (vitest 341/341; the `npx tsc --noEmit` red is a pre-existing `@types/node` resolution failure in the shared primary-checkout node_modules — `@types/node` is absent there and the identical 3 errors occur in the primary checkout on a file this diff does not touch; unaffected by this docs-only change, tracked elsewhere). A future real result-count primitive can re-enter the PLACEMENT.md slot's Owner column when/if promoted — the revision log says so.
 
 ## Acceptance
 

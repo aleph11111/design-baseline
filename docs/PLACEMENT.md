@@ -1,7 +1,7 @@
 ---
 slug: placement
 kind: methodology
-version: 1.2
+version: 1.3
 status: locked
 governs: [A, B, C, J, K, D2, F2, M, P, G, R, H]
 ---
@@ -85,11 +85,15 @@ control in the header. Header = identity + the one main action. Toolbar = queryi
 |------|------|-------|
 | **Search** | leftmost | `SearchInput` — the single owner of the toolbar search box |
 | **Filters / mode** | right of search | `SegmentedControl` for 2–3 modes; `Select`/`Popover` for more |
-| **Result count** | right side | `ResultsCount` |
+| **Result count** | right side, with the action buttons | the count is a **treatment, not a component** — canonical muted small text (`text-sm text-muted-foreground`), format per the page archetype contract (`{n} results`; matrix-grid's own format). Rendered by the consumer through the toolbar's `pageActions` slot. |
 | **View / density toggles** | far right | after the count |
 
-Search is always left. A count is always a `ResultsCount`, never free text. The toolbar
-never carries the create action.
+Search is always left. The count is always the canonical muted small-text treatment —
+`text-sm text-muted-foreground`, in the page archetype's declared format (`{n} results`) —
+never a bare unstyled figure and never in its own bespoke styling. There is no dedicated
+result-count component in the baseline; the owning treatment is the one the page archetype
+declares (list-with-detail / settings-table / grouped-list are all the same string). The
+toolbar never carries the create action.
 
 ---
 
@@ -185,7 +189,9 @@ primitive), **yellow** (a documented essential variation), or **red** (drift).
 - A hand-rolled app frame — any `<main>` with its own padding/background instead of `AppShell`’s desk.
 - A page title as a bare `<h1>`/`<div>` instead of `PageHeader`.
 - More than one primary action in a `PageHeader`, or a create action living in the toolbar.
-- Search anywhere but the toolbar's left; a count as free text instead of `ResultsCount`.
+- Search anywhere but the toolbar's left; a count that skips the canonical treatment (not
+  `text-sm text-muted-foreground`, or a non-contract format) or leaves the toolbar (rendered
+  in the header or the page body instead).
 - A per-row `DropdownMenu` that isn't `RowActionsMenu`; inline action buttons scattered per row.
 - A dialog/form with the primary button left of secondary, or Delete on the right.
 - CRUD buttons in a dialog header or body instead of the footer.
@@ -218,13 +224,23 @@ When the same placement mistake lands twice in a consuming project, promote it: 
 
 ## Revision log
 
+- **1.3** — Removed the dead component reference from the result-count slot: the slot named a
+  primitive that does not exist anywhere in the donor (`src/` carries no such component — the
+  rule pointed an operator at a never-shipped component). The slot now names the owning
+  **treatment** every list-family archetype already declares — canonical muted small text
+  (`text-sm text-muted-foreground`), `{n} results` format, rendered by the consumer through the
+  toolbar's `pageActions` slot — and the red line targets the concrete drift (a count outside
+  the canonical styling or outside the toolbar), not a ghost component. A real result-count
+  primitive, if one is ever built and promoted, re-enters here as the slot's Owner. Dead name
+  and full context: the donor's docs-drift ticket
+  `docs-drift-placement-md-dead-resultscount-reference` (2026-08-27, archived with this fix).
 - **1.2** — Added the app-frame slot: `AppShell` owns the desk; hand-rolled `<main>` frames are red (scar origin: hk-crm iframe-feel, 2026-07).
 - **1.1** — Promoted to the Design Baseline; enforcement wording generalized from the
   originating project (hk-crm) to any consumer.
 
 - **1.0** — First draft. Names the single owning primitive for each recurring slot
-  (`PageHeader`, `ListWithDetailToolbar` / `SearchInput` / `SegmentedControl` /
-  `ResultsCount`, `RowActionsMenu`, `SectionHeading` / `SectionCard`, `CrudDialogFooter` /
+  (`PageHeader`, `ListWithDetailToolbar` / `SearchInput` / `SegmentedControl`,
+  `RowActionsMenu`, `SectionHeading` / `SectionCard`, `CrudDialogFooter` /
   `FormPageActions`, `StatTileRow`, `KeyValueList`, `StateView`) and the green/yellow/red
   enforcement grid, extracted from the placement rules previously scattered across the
   individual archetype specs.
