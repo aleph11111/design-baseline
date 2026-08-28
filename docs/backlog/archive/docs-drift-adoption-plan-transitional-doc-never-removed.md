@@ -1,7 +1,7 @@
 ---
 area: docs-drift
 opened: '2026-08-27'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -44,5 +44,5 @@ Both point to the same root cause: this "transitional" doc was never revisited a
 
 ## Related
 
-- [docs/backlog/README.md](../backlog/README.md) — the schema-authority doc whose existence contradicts the plan's "Risk notes" claim.
-- [docs-drift-promotion-radar-md-stale-candidate-status.md](docs-drift-promotion-radar-md-stale-candidate-status.md) — another instance in this same ritual of an operator doc that stopped being updated after the milestone it tracked passed.
+- [docs/backlog/README.md](../../backlog/README.md) — the schema-authority doc whose existence contradicts the plan's "Risk notes" claim.
+- [docs-drift-promotion-radar-md-stale-candidate-status.md](../docs-drift-promotion-radar-md-stale-candidate-status.md) — another instance in this same ritual of an operator doc that stopped being updated after the milestone it tracked passed.
