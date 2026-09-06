@@ -13,6 +13,7 @@ tickets:
   - archetype-convergence-appearance-prop-lint
   - adherence-lint-union-prop-blind-spot
   - analytics-dashboard-column-span-props-unclosed
+  - entity-circle-size-prop-appearance-locality-gap
 phases:
   - name: p0
     title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
@@ -43,6 +44,7 @@ phases:
       - archetype-shell-classname-drop
       - adherence-lint-union-prop-blind-spot
       - analytics-dashboard-column-span-props-unclosed
+      - entity-circle-size-prop-appearance-locality-gap
     open: false
   - name: pkg
     title: Consumable source package — exports map, no compiled CSS
