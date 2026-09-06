@@ -1,14 +1,20 @@
 ---
 area: tooling
-opened: 2026-09-06
+opened: '2026-09-06'
 status: ready
 gate:
   score: 5
-  passed: [title, context, what-to-do, acceptance, related]
+  passed:
+    - title
+    - context
+    - what-to-do
+    - acceptance
+    - related
   failed: []
-  graded_at: 2026-09-06T00:00:00Z
+  graded_at: '2026-09-06T00:00:00.000Z'
 model: sonnet
 model_reason: pattern-following one-line regex fix with an explicit acceptance test already specified
+roadmap: archetype-convergence
 ---
 
 # Adherence lint alias rule misses `size` noun, double-owns entity-circle prop
