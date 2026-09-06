@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-06'
-status: wip
+status: done
 value: high
 roadmap: archetype-convergence
 depends_on:
