@@ -119,19 +119,31 @@ function includeReachableUnder(glob, targets) {
 const ALIAS_TOKEN = '{{unionAliases}}';
 
 // Harvest the union type-alias NAMES one file declares — the pre-pass that lets a rule reach
-// a prop typed `size?: EntityAvatarSize` instead of an inline `"xs" | "sm"`. Line-level, not
-// a parser (ADR-0003): a declaration matches when the alias's FIRST member is a string or
-// numeric literal and is followed by a `|` on the same line, which is what makes it a union
-// rather than an object/function/mapped type. A union written across several lines
-// (`type X =\n  | "a"\n  | "b"`) is therefore not harvested — the tree carries none today, and
-// catching it would mean tracking state across lines, which is the parser this scanner is not.
+// a prop typed `size?: EntityAvatarSize` instead of an inline `"xs" | "sm"`. Two shapes, both
+// recognised by "the alias's FIRST member is a string or numeric literal in union position",
+// which is what makes it a union rather than an object/function/mapped type:
+//   - inline:     `type X = "a" | "b"` — literal then `|`, same line.
+//   - wrapped:    `type X =` alone on its line, first `| "a"` on the NEXT line (what prettier
+//                 produces once the members no longer fit).
+// Still line-level, not a parser (ADR-0003) — one line of lookahead, no cross-line state. The
+// ceiling that remains: a first member sitting TWO or more lines below the `=` (a blank line
+// or a comment in between) is not harvested; following that means tracking state across lines,
+// which is the parser this scanner is not.
 // Names are `\w+`, so they are safe to splice into a regex alternation unescaped.
 function harvestUnionAliases(text) {
-  const decl = /^\s*(?:export\s+)?type\s+(\w+)\s*=\s*(?:"[^"]*"|'[^']*'|[0-9]+)\s*\|/;
+  const inlineDecl = /^\s*(?:export\s+)?type\s+(\w+)\s*=\s*(?:"[^"]*"|'[^']*'|[0-9]+)\s*\|/;
+  const openDecl = /^\s*(?:export\s+)?type\s+(\w+)\s*=\s*$/;
+  const firstMember = /^\s*\|\s*("[^"]*"|'[^']*'|[0-9]+)/;
   const names = new Set();
-  for (const line of text.split('\n')) {
-    const m = decl.exec(line);
-    if (m) names.add(m[1]);
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const inline = inlineDecl.exec(lines[i]);
+    if (inline) {
+      names.add(inline[1]);
+      continue;
+    }
+    const open = openDecl.exec(lines[i]);
+    if (open && firstMember.test(lines[i + 1] ?? '')) names.add(open[1]);
   }
   return [...names];
 }
