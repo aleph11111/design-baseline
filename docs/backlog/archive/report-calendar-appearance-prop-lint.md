@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-09-06
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "exhaustive keying-rule verification plus a message-carrying lint-exclude change is design judgment, not pattern-following (mirrors archetype-convergence-form-page-width-prop's model_reason)"
@@ -44,10 +44,10 @@ gate:
 
 ## Related
 
-- [archetype-convergence-form-page-width-prop.md](archive/archetype-convergence-form-page-width-prop.md) — the precedent this ticket mirrors: kept-but-keyed width prop, message-carrying `_adherence.json` exclude, spec+MANIFEST version pairing.
-- [archetype-convergence-appearance-prop-lint.md](archive/archetype-convergence-appearance-prop-lint.md) — added the path-scoping capability to `scripts/lint-design.mjs`'s exclude handling this ticket reuses.
-- [archetype-shell-classname-drop.md](archive/archetype-shell-classname-drop.md) — sibling precedent for a `*Shell.tsx` appearance-prop cleanup on already-shipped archetypes.
+- [archetype-convergence-form-page-width-prop.md](../archive/archetype-convergence-form-page-width-prop.md) — the precedent this ticket mirrors: kept-but-keyed width prop, message-carrying `_adherence.json` exclude, spec+MANIFEST version pairing.
+- [archetype-convergence-appearance-prop-lint.md](../archive/archetype-convergence-appearance-prop-lint.md) — added the path-scoping capability to `scripts/lint-design.mjs`'s exclude handling this ticket reuses.
+- [archetype-shell-classname-drop.md](../archive/archetype-shell-classname-drop.md) — sibling precedent for a `*Shell.tsx` appearance-prop cleanup on already-shipped archetypes.
 - ADR-0004 (`docs/adr/0004-appearance-locality-derived-vs-inherited.md`) — the derived-vs-inherited rule this ticket applies.
 - ADR-0001 (`docs/adr/0001-grandfather-authored-report-calendar.md`) — governs why report/calendar are `authored` rather than `promoted_from`, and that their `authored_reason` must stay intact.
-- [archetype-convergence.md](archetype-convergence.md) — the roadmap that established this appearance-locality enforcement pattern (report/calendar are not in its `scope`, but this ticket applies the same rule set).
+- [archetype-convergence.md](../archetype-convergence.md) — the roadmap that established this appearance-locality enforcement pattern (report/calendar are not in its `scope`, but this ticket applies the same rule set).
 </content>

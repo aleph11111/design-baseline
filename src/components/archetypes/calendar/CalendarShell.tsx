@@ -25,7 +25,17 @@ export type CalendarEvent = {
   time: React.ReactNode;
   /** Event title (sans, semibold). */
   title: React.ReactNode;
-  /** Accent-bar + tint tone. Defaults to `default`. */
+  /**
+   * Accent-bar + tint tone. Derived per the contract's status -> tone keying
+   * rule (docs/archetypes/calendar.md, Layer 7) from the event's own domain
+   * status — not the page author's taste:
+   *   warning  — the domain marks the event failed / blocked / overdue
+   *   success  — the domain marks the event completed / confirmed
+   *   info     — the domain marks the event noteworthy / externally driven
+   *   default  — the event carries no such domain status
+   * Omitted `tone` resolves to `default` — the rule's own answer for a bare
+   * scheduled item, so a no-status event simply passes no `tone`.
+   */
   tone?: CalendarEventTone;
 };
 

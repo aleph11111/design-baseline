@@ -2,7 +2,7 @@
 key: R
 slug: report
 kind: page
-version: 1.1
+version: 1.2
 ---
 
 # Archetype R — Report
@@ -23,7 +23,24 @@ R is **read-first**: the document is the content. Actions (export, send) live in
 
 ## Structure
 
-A report is a single bounded card. It has exactly two zones, in document order:
+A report is a single bounded card. It has exactly two zones, in document order.
+
+**Width keying rule.** The document column is bounded, and the bound is selected
+from the document's shape by this exhaustive rule (derived, not inherited —
+ADR-0004): the step follows from what the document is, never from the call
+site's taste.
+
+- **`sm`** — a **compact receipt / short Beleg**: a one- or few-line document
+  with a minimal or absent totals stack that reads as a short bounded
+  column.
+- **`md`** — a **standard document**: the reading-column width for the
+  canonical line-item table (the fixed name · qty · unit · sum rows). This is
+  the shell's own default; a document whose shape falls here passes no width
+  at all.
+- **`lg`** — a **wide statement**: a document whose body needs more than the
+  canonical column — a statement detail grid or a line-item row extended with
+  per-row fields beyond name · qty · unit · sum — and no longer reads at the
+  standard column width.
 
 **1 — Header bar** (the report shell's header region, with a hairline bottom border)
 - A `kicker` overline (the document class — "Beleg", "Invoice", "Quote") over a `title` (the document's human ID — e.g. "Rechnung RE-2025-0417"; embed the ID figure using the **canonical monospace identifier style**).
@@ -94,4 +111,6 @@ There is no toolbar, no detail panel, no rail. The document is the only surface.
 **SHOULD** (yellow, not red)
 
 - [ ] Dates rendered through a consumer-provided formatter (no raw ISO strings).
-- [ ] `width` matched to the document's column count (`md` default; `lg` for wide statements).
+- [ ] `width` follows the Structure section's width keying rule
+      (`sm` compact receipt · `md` standard document column · `lg` wide
+      statement) — not a free choice.

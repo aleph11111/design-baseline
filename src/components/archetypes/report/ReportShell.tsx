@@ -16,10 +16,14 @@ export type ReportShellProps = Omit<SurfaceHeaderSlotProps, "title"> & {
    */
   children: React.ReactNode;
   /**
-   * Surface width. A formal document is bounded, never full-bleed.
-   * - `"md"` (default): `max-w-3xl` (~the canonical ~700px document column).
-   * - `"sm"`: `max-w-xl` — a compact receipt / short Beleg.
-   * - `"lg"`: `max-w-4xl` — a wide statement with many columns.
+   * Surface width. A formal document is bounded, never full-bleed. Derived
+   * per the contract's width keying rule (docs/archetypes/report.md,
+   * Structure section) from the document's shape — not a free choice:
+   *   "sm" — a compact receipt / short Beleg
+   *   "md" — the standard document column (default; the canonical line-item
+   *          table reads at this width)
+   *   "lg" — a wide statement with many columns
+   * Defaults to "md".
    */
   width?: "sm" | "md" | "lg";
 };

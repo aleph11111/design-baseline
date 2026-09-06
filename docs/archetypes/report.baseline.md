@@ -16,7 +16,7 @@ contract: docs/archetypes/report.md
 
 `<ReportShell>` + `<ReportLineTable>` / `<ReportLineRow>` + `<ReportTotalRow>` in `src/components/archetypes/report/`.
 
-- **`<ReportShell>`** owns the bounded document surface: a `kicker` + `title` header bar (with a right-aligned `actions` slot) over a padded `children` body. `width` bounds the column (`sm` / `md` / `lg`).
+- **`<ReportShell>`** owns the bounded document surface: a `kicker` + `title` header bar (with a right-aligned `actions` slot) over a padded `children` body. `width` bounds the column — `sm` = `max-w-xl` (compact receipt / short Beleg), `md` = `max-w-3xl` (the default standard-document column), `lg` = `max-w-4xl` (a wide statement with many columns) — keyed to the document's shape by the contract's width keying rule (Structure section), not a free choice.
 - **`<ReportLineTable>` + `<ReportLineRow>`** are thin wrappers over the shared figure-table (shared `FigureTable` / `FigureRow`, `src/components/archetypes/shared/`) that owns the hairline-divided table signature — the 9.5px column-header overline (`COL_HEADER_CLASS`, `@/components/layout/overline`) and the `divide-y divide-border/70` row dividers. The report supplies its fixed 4-column grid (name · qty · unit · sum) and the row-level `items-center` + `meta` sub-line, so the table signature never drifts between documents (and shares one owner with the statement-with-filters archetype's table).
 - **`<ReportTotalRow>`** is one row in the right-aligned totals stack; `total` tints and enlarges the grand-total row.
 

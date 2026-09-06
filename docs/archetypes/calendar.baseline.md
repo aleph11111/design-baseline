@@ -71,7 +71,12 @@ contract role. Only layers with a baseline-specific binding appear.
   foreground; `success` / `info` / `warning` resolve to the semantic CSS tokens
   (`--success` / `--primary` / `--warning`) as a `/10` chip tint, a solid
   `border-l-*` accent, and a `text-*` time label. No literal palette classes and
-  no `dark:` overrides — the tokens flip with the theme themselves.
+  no `dark:` overrides — the tokens flip with the theme themselves. The status
+  → tone mapping itself (which domain state yields which tone) is contract-owned
+  per the keying rule in the contract's Layer 7 — the consumer maps its domain
+  status onto `tone`; this binding owns only the tone → token translation, and
+  the shell resolves an omitted `tone` to `default` (the contract's rule for
+  "no domain status").
 - Status-badge primitive → `<Badge>`.
 
 ## Acceptance gate (baseline tells)
