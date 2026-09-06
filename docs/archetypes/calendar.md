@@ -2,7 +2,7 @@
 key: Cal
 slug: calendar
 kind: page
-version: 1.1
+version: 1.2
 status: locked
 ---
 
@@ -183,10 +183,28 @@ type CalendarDay = {
 - Consumers map their domain event type onto `CalendarEvent`
   (`{ id, time, title, tone? }`) and their day type onto `CalendarDay`. Event
   types should derive from the project's authoritative source.
-- `tone` is the `CalendarEventTone` union — the consumer maps its domain status
-  onto a tone; the shell owns the tone → token translation.
+- `tone` is the `CalendarEventTone` union — derived from the event's own
+  domain status, never the page author's taste (ADR-0004: two consumers of the
+  same domain derive the same value for the same event). The shell owns the
+  tone → token translation; the consumer owns only the status → tone mapping,
+  fixed by this exhaustive rule:
+  - **`warning`** — the domain marks the event **failed, blocked, or overdue**:
+    a state the user must act on (a failed event, a missed deadline, a
+    cancelled commitment).
+  - **`success`** — the domain marks the event **completed or confirmed**: a
+    state the user must do nothing about (a delivered invoice, a closed
+    review, a settled payment).
+  - **`info`** — the domain marks the event **noteworthy or externally
+    driven**: a state that is neither action-required nor outcome-final
+    (an external appointment, a shared-team ritual, a system-side task).
+  - **`default`** — the event carries **no such status in the domain**: a bare
+    scheduled item with no domain-marked state. The shell resolves an omitted
+    `tone` to `default`, so a consumer maps nothing to it and simply passes
+    no `tone`.
 
 **Forbidden:**
+- A tone chosen per page instance instead of per domain status
+  (the inherited-default defect — ADR-0004).
 - Hand-written event types that duplicate a machine-generated schema.
 
 ---

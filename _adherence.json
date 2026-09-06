@@ -47,9 +47,10 @@
         "src/components/archetypes/form-page/**",
         "src/components/archetypes/list-with-detail/**",
         "src/components/archetypes/settings-table/**",
-        "src/components/archetypes/entity-circle/**"
+        "src/components/archetypes/entity-circle/**",
+        "src/components/archetypes/calendar/**"
       ],
-      "message": "A prop named from the appearance-noun list is a per-call-site appearance the contract does not derive (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, settings-table) are gated by their own `*-` error rules. Excluded: entity-circle — its `tone` is contract-keyed to the entity's identity role (entity-circle.md L7: brand tone reserved for the signed-in identity; every other entity is neutral), so ADR-0004's derived test passes and the prop is legal."
+      "message": "A prop named from the appearance-noun list is a per-call-site appearance the contract does not derive (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, settings-table) are gated by their own `*-` error rules. Excluded: entity-circle — its `tone` is contract-keyed to the entity's identity role (entity-circle.md L7: brand tone reserved for the signed-in identity; every other entity is neutral), so ADR-0004's derived test passes and the prop is legal. Excluded: calendar — its `tone` is contract-keyed to the event's domain status (calendar.md Layer 7: failed/blocked/overdue -> warning, completed/confirmed -> success, noteworthy/externally-driven -> info, no domain status -> default, and the shell resolves an omitted tone to default — the rule's answer for no status, so the optional prop is legal)."
     },
     {
       "id": "archetype-look-union-prop",
@@ -61,9 +62,10 @@
         "src/components/archetypes/form-page/**",
         "src/components/archetypes/list-with-detail/**",
         "src/components/archetypes/crud-dialog/**",
-        "src/components/archetypes/settings-table/**"
+        "src/components/archetypes/settings-table/**",
+        "src/components/archetypes/report/**"
       ],
-      "message": "A prop typed as an inline string-literal union of look-names is a design space two projects can fill differently (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, crud-dialog, settings-table) are gated by their own `*-` error rules."
+      "message": "A prop typed as an inline string-literal union of look-names is a design space two projects can fill differently (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, crud-dialog, settings-table) are gated by their own `*-` error rules. Excluded: report — its `width` union is contract-keyed to the document's shape (report.md Structure, width keying rule: compact receipt / short Beleg -> sm, standard document column -> md, wide statement with many columns -> lg), so ADR-0004's derived test passes and the prop is legal."
     },
     {
       "id": "archetype-shell-class-name",
