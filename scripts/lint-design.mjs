@@ -44,6 +44,14 @@
 // closed archetype as an open one. As more archetypes close, the drain rules
 // accumulate one exclude glob per closed folder (the array form).
 //
+// A rule's `pattern` may carry the placeholder `{{unionAliases}}`. Before scanning a file
+// the scanner harvests that file's single-line union type-alias NAMES (`type X = "a" | "b"`,
+// `type X = 1 | 2`) and substitutes them as an alternation, so a rule can catch a prop typed
+// against a local union alias (`size?: EntityAvatarSize`) — the shape a literal-union pattern
+// misses entirely. Resolution is deliberately SAME-FILE only: `scanFile` sees one file's text
+// and no module graph, which keeps the scanner the zero-dep, no-type-resolution heuristic
+// ADR-0003 requires. A file declaring no union alias is skipped by such a rule.
+//
 // Usage:  node scripts/lint-design.mjs [--json] [--ci-threshold <n>]
 // Config: ADHERENCE_CONFIG=path overrides the default `_adherence.json`.
 //
@@ -106,6 +114,28 @@ function includeReachableUnder(glob, targets) {
   return targets.some((t) => collapsed === t || collapsed.startsWith(`${t}/`));
 }
 
+// The placeholder a rule's `pattern` may carry to mean "any union type alias declared in
+// THIS file" (see `harvestUnionAliases`). Substituted per scanned file in `scanFile`.
+const ALIAS_TOKEN = '{{unionAliases}}';
+
+// Harvest the union type-alias NAMES one file declares — the pre-pass that lets a rule reach
+// a prop typed `size?: EntityAvatarSize` instead of an inline `"xs" | "sm"`. Line-level, not
+// a parser (ADR-0003): a declaration matches when the alias's FIRST member is a string or
+// numeric literal and is followed by a `|` on the same line, which is what makes it a union
+// rather than an object/function/mapped type. A union written across several lines
+// (`type X =\n  | "a"\n  | "b"`) is therefore not harvested — the tree carries none today, and
+// catching it would mean tracking state across lines, which is the parser this scanner is not.
+// Names are `\w+`, so they are safe to splice into a regex alternation unescaped.
+function harvestUnionAliases(text) {
+  const decl = /^\s*(?:export\s+)?type\s+(\w+)\s*=\s*(?:"[^"]*"|'[^']*'|[0-9]+)\s*\|/;
+  const names = new Set();
+  for (const line of text.split('\n')) {
+    const m = decl.exec(line);
+    if (m) names.add(m[1]);
+  }
+  return [...names];
+}
+
 // Compile every rule once. `pattern` is used verbatim; a `tag` rule matches a bare lowercase
 // element — `<tag` immediately followed by whitespace, `/`, or `>` — case-sensitive (no `i`
 // flag) so the capitalized DS primitive `<Button>` is not a hit.
@@ -123,9 +153,13 @@ function includeReachableUnder(glob, targets) {
 function compileRules(rules, targets) {
   return rules.map((rule) => {
     const source = rule.pattern ?? `<${rule.tag}(?=[\\s/>])`;
+    // A `{{unionAliases}}` pattern cannot be compiled once — its alternation is per-file — so
+    // it is carried as `aliasSource` and compiled in `scanFile`. Validate it here anyway (with
+    // a stand-in name) so a bad pattern still fails at compile time, like every other rule.
+    const aliasSource = source.includes(ALIAS_TOKEN) ? source : null;
     let re;
     try {
-      re = new RegExp(source, 'g');
+      re = new RegExp(aliasSource ? aliasSource.replaceAll(ALIAS_TOKEN, 'A') : source, 'g');
     } catch (err) {
       throw new CompileError(`lint:design — rule ${rule.id}: bad pattern /${source}/: ${err.message}`);
     }
@@ -141,6 +175,7 @@ function compileRules(rules, targets) {
     }
     return {
       re,
+      aliasSource,
       label: rule.tag ? `<${rule.tag}>` : rule.id,
       severity: rule.severity === 'error' ? 'error' : 'warn',
       message: rule.message,
@@ -158,7 +193,10 @@ function compileRules(rules, targets) {
 function scanFile(fileRel, text, compiled) {
   const violations = [];
   const lines = text.split('\n');
-  for (const { re, label, severity, message, includes, excludes } of compiled) {
+  // The union-type-alias pre-pass: harvested once per file, and only when some rule asks for
+  // it (`{{unionAliases}}`), so a config without such a rule pays nothing.
+  const aliases = compiled.some((c) => c.aliasSource) ? harvestUnionAliases(text) : [];
+  for (const { re: compiledRe, aliasSource, label, severity, message, includes, excludes } of compiled) {
     // No `include` (or a rule whose `include` list is empty) matches every walked file;
     // with one or more `include` globs the rule applies only when ANY of them matches.
     // The scope globs are matched by `path.matchesGlob` (stdlib since v22) — `**` spans
@@ -166,6 +204,10 @@ function scanFile(fileRel, text, compiled) {
     // a literal.
     if (includes.length && !includes.some((inc) => matchesGlob(fileRel, inc))) continue;
     if (excludes.some((ex) => matchesGlob(fileRel, ex))) continue; // excluded closed archetype
+    // A `{{unionAliases}}` rule is compiled here, against THIS file's harvested alias names.
+    // No union alias in the file means the rule can match nothing — skip it.
+    if (aliasSource && !aliases.length) continue;
+    const re = aliasSource ? new RegExp(aliasSource.replaceAll(ALIAS_TOKEN, aliases.join('|')), 'g') : compiledRe;
     re.lastIndex = 0; // the `g` flag makes `matchAll` index-sensitive — don't leak state
     lines.forEach((line, i) => {
       for (const m of line.matchAll(re)) {
@@ -292,4 +334,4 @@ if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) 
   main();
 }
 
-export { compileGlobs, compileRules, scanFile, includeReachableUnder, CompileError };
+export { compileGlobs, compileRules, scanFile, harvestUnionAliases, includeReachableUnder, CompileError };

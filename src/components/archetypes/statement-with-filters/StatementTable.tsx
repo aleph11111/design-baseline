@@ -55,8 +55,12 @@ export type StatementRowProps = {
   /** Value cells, one per numeric column. Pre-formatted by the caller. */
   cells: Array<React.ReactNode>;
   /**
-   * Indent level for a tree statement (0 = top level). Each level adds one
-   * tier of horizontal padding to the label only.
+   * Indent step for a tree statement. Each step adds one tier of horizontal
+   * padding to the label only. Not a per-call-site choice: it is keyed to the
+   * row's own depth in the statement's `group -> children` data, capped at 2
+   * (statement-with-filters.md Layer 6, indent keying rule) — `0` a top-level
+   * row (no parent group), `1` a child of a top-level group, `2` a grandchild
+   * or deeper (the terminal step; depth >= 2 stops indenting).
    */
   indent?: 0 | 1 | 2;
   /** Group/section rows render this muted, non-figure label instead of cells. */

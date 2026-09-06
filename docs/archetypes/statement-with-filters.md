@@ -2,7 +2,7 @@
 key: F
 slug: statement-with-filters
 kind: page
-version: 1.0
+version: 1.1
 promoted_from: controlling-app
 promoted_at: 2026-08-19
 source_spec_version: 1.0
@@ -170,9 +170,22 @@ The toolbar is the archetype's signature layer.
 - The statement component owns column headers, grouping/indentation, totals
   rows, and horizontal scrolling of the table body.
 
+**Indent keying rule.** A row's indent step is **the row's own depth in the
+statement's `group → children` data**, capped at 2 — derived, not inherited
+(ADR-0004): it follows from where the row sits in the computed statement's tree,
+never from the call site's taste. The mapping is exhaustive:
+
+- **`0`** — a **top-level row**: a row with no parent group (a flat statement's
+  every row, and a tree statement's outermost group and its sibling rows).
+- **`1`** — a **child of a top-level group**: the first nested tier.
+- **`2`** — a **grandchild or deeper**: the terminal step. A statement nested
+  deeper than three tiers does not keep indenting — depth ≥ 2 renders at `2`, so
+  the label column stays readable and the step set stays closed.
+
 **Allowed variation:**
 - A tree of statement rows (group → children) is permitted where the statement
-  type is hierarchical (a cashflow statement); the table stays read-only.
+  type is hierarchical (a cashflow statement); the table stays read-only. Its
+  rows take their indent from the indent keying rule above, not per row.
 
 **Forbidden:**
 - Inline cell editing of any figure.
