@@ -24,9 +24,9 @@ roadmap: archetype-convergence
 
 ## Context
 
-`src/components/archetypes/entity-circle/EntityAvatar.tsx:14` ships `size?: EntityAvatarSize` (`"xs" | "sm" | "md"` at `EntityAvatar.tsx:5`), defaulting to `"sm"`. The contract `docs/archetypes/entity-circle.md` L84 (Layer 6 — Mobile affordance) says only "Size is chosen by the caller from a small discrete scale (L7), not by the viewport" — and L7 (Theming) enumerates the `tone` rule, not a size rule. Per `docs/RULES.md` hard rule 12 / [ADR-0004](../adr/0004-appearance-locality-derived-vs-inherited.md), a per-call-site prop with a backwards-compatible default is disqualifying on its own — the value was inherited, not derived. `size` survives today only because `_adherence.json`'s `archetype-look-union-prop` regex matches an inline string-literal union and does not see through the `EntityAvatarSize` type alias.
+`src/components/archetypes/entity-circle/EntityAvatar.tsx:14` ships `size?: EntityAvatarSize` (`"xs" | "sm" | "md"` at `EntityAvatar.tsx:5`), defaulting to `"sm"`. The contract `docs/archetypes/entity-circle.md` L84 (Layer 6 — Mobile affordance) says only "Size is chosen by the caller from a small discrete scale (L7), not by the viewport" — and L7 (Theming) enumerates the `tone` rule, not a size rule. Per `docs/RULES.md` hard rule 12 / [ADR-0004](../../adr/0004-appearance-locality-derived-vs-inherited.md), a per-call-site prop with a backwards-compatible default is disqualifying on its own — the value was inherited, not derived. `size` survives today only because `_adherence.json`'s `archetype-look-union-prop` regex matches an inline string-literal union and does not see through the `EntityAvatarSize` type alias.
 
-The sibling prop `tone` on the same component already went through this exact test: [entity-circle-component-kind-appearance-gap](archive/archetype-convergence-component-kind-appearance-gap.md) (shipped 2026-09-06) keyed `tone` to the entity's identity role (`entity-circle.md` L91–98) and `_adherence.json`'s `archetype-look-union-prop` exclusion quotes that keying rule. That ticket's own scope named only `entity-circle`'s `tone` and `overline-typed`'s `tone` — it did not cover `size`, leaving this gap.
+The sibling prop `tone` on the same component already went through this exact test: [entity-circle-component-kind-appearance-gap](../archive/archetype-convergence-component-kind-appearance-gap.md) (shipped 2026-09-06) keyed `tone` to the entity's identity role (`entity-circle.md` L91–98) and `_adherence.json`'s `archetype-look-union-prop` exclusion quotes that keying rule. That ticket's own scope named only `entity-circle`'s `tone` and `overline-typed`'s `tone` — it did not cover `size`, leaving this gap.
 
 `src/examples/entity-circle-demo.tsx` uses all three sizes (`xs`/`sm`/`md` at lines 51, 64–66, 76, 80, 89) but as a scale showcase, not evidence of three real placements — the demo predates and is orthogonal to whatever the real fleet call sites (brickshop-manager, mistra — outside this donor repo) actually need.
 
@@ -46,6 +46,6 @@ The sibling prop `tone` on the same component already went through this exact te
 
 ## Related
 
-- [archetype-convergence-component-kind-appearance-gap](archive/archetype-convergence-component-kind-appearance-gap.md) — the sibling ticket that closed the identical gap for `tone` on this same component and for `overline-typed`'s `tone`; this ticket is its missed scope.
+- [archetype-convergence-component-kind-appearance-gap](../archive/archetype-convergence-component-kind-appearance-gap.md) — the sibling ticket that closed the identical gap for `tone` on this same component and for `overline-typed`'s `tone`; this ticket is its missed scope.
 - ADR-0004 — Appearance locality: global or fixed in the component; per-call-site only when derived (amendment 2026-09-06 on `kind: "component"` governance).
 - `docs/RULES.md` hard rule 12.
