@@ -492,16 +492,18 @@ describe("numeric-literal union props (the shape a quoted-string pattern never r
 describe("union type-alias pre-pass (`{{unionAliases}}`)", () => {
   // `archetype-alias-union-prop`'s live pattern, verbatim — lookahead included.
   const ALIAS =
-    "^\\s*(?!(?:surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded)\\?\\s*:)" +
+    "^\\s*(?!(?:surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded|size)\\?\\s*:)" +
     "\\w+\\??:\\s*(?:{{unionAliases}})\\b";
   const aliasRule = (extra = {}) => ({ id: "alias-union", pattern: ALIAS, severity: "warn", message: "m", ...extra });
 
   it("flags a prop typed against a union alias declared in the same file", () => {
     // The EntityAvatar shape: the union is named once at the top of the file, so the
-    // prop declaration itself carries no literals for a literal pattern to match.
+    // prop declaration itself carries no literals for a literal pattern to match. The
+    // prop is named `circleSize?:` rather than `size?:` because a bare `size?:` is an
+    // appearance noun the lookahead skips — see the ownership test below.
     const files = {
       "src/components/archetypes/e/EntityAvatar.tsx":
-        'export type EntityAvatarSize = "xs" | "sm" | "md";\nexport type P = {\n  size?: EntityAvatarSize;\n};\n',
+        'export type EntityAvatarSize = "xs" | "sm" | "md";\nexport type P = {\n  circleSize?: EntityAvatarSize;\n};\n',
     };
     const { stdout } = runFilesFixture([aliasRule()], files, "--json");
     expect(hitsOf(stdout)).toEqual(["src/components/archetypes/e/EntityAvatar.tsx:3"]);
@@ -522,9 +524,9 @@ describe("union type-alias pre-pass (`{{unionAliases}}`)", () => {
     // flag every identifier that happens to share a name with some union somewhere.
     const files = {
       "src/components/archetypes/e/EntityAvatar.tsx":
-        'export type EntityAvatarSize = "xs" | "sm";\nexport type P = {\n  size?: EntityAvatarSize;\n};\n',
+        'export type EntityAvatarSize = "xs" | "sm";\nexport type P = {\n  circleSize?: EntityAvatarSize;\n};\n',
       "src/components/archetypes/e/Consumer.tsx":
-        'import type { EntityAvatarSize } from "./EntityAvatar";\nexport type Q = {\n  size?: EntityAvatarSize;\n};\n',
+        'import type { EntityAvatarSize } from "./EntityAvatar";\nexport type Q = {\n  circleSize?: EntityAvatarSize;\n};\n',
     };
     const { stdout } = runFilesFixture([aliasRule()], files, "--json");
     expect(hitsOf(stdout)).toEqual(["src/components/archetypes/e/EntityAvatar.tsx:3"]);
@@ -545,12 +547,15 @@ describe("union type-alias pre-pass (`{{unionAliases}}`)", () => {
   it("leaves an aliased appearance-noun prop to the rule that already owns it", () => {
     // `tone?:` is `archetype-appearance-noun-prop`'s, whatever it is typed as — and that
     // rule carries the per-archetype triage for it. The lookahead keeps one defect from
-    // being reported twice under two different messages.
+    // being reported twice under two different messages. `size?:` is on that owned-noun
+    // list too (the noun rule triages entity-circle's contract-keyed `size` there), so
+    // the lookahead's alternation must carry every name the noun rule's does — only a
+    // prefixed name like `circleSize?:` is this rule's to report.
     const files = {
       "src/components/archetypes/c/CalendarShell.tsx":
-        'export type Tone = "default" | "success";\nexport type P = {\n  tone?: Tone;\n  size?: Tone;\n};\n',
+        'export type Tone = "default" | "success";\nexport type P = {\n  tone?: Tone;\n  size?: Tone;\n  circleSize?: Tone;\n};\n',
     };
     const { stdout } = runFilesFixture([aliasRule()], files, "--json");
-    expect(hitsOf(stdout)).toEqual(["src/components/archetypes/c/CalendarShell.tsx:4"]); // size, not tone
+    expect(hitsOf(stdout)).toEqual(["src/components/archetypes/c/CalendarShell.tsx:5"]); // circleSize only
   });
 });
