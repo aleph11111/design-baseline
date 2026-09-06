@@ -2,14 +2,23 @@
 area: archetypes
 opened: '2026-09-06'
 status: ready
-value: normal
-model: opus
-model_reason: "extending a regex scanner's type-alias pre-pass plus a contract-promotion-and-exclude triage is design judgment, not pattern-following (mirrors report-calendar-appearance-prop-lint's model_reason)"
 gate:
   score: 5
-  passed: [title, context, what-to-do, acceptance, related]
+  passed:
+    - title
+    - context
+    - what-to-do
+    - acceptance
+    - related
   failed: []
   graded_at: '2026-09-06T00:00:00Z'
+value: normal
+model: opus
+model_reason: >-
+  extending a regex scanner's type-alias pre-pass plus a contract-promotion-and-exclude triage is
+  design judgment, not pattern-following (mirrors report-calendar-appearance-prop-lint's
+  model_reason)
+roadmap: archetype-convergence
 ---
 
 # Widen appearance-prop adherence lint past inline quoted-string unions
