@@ -2,13 +2,21 @@
 area: archetypes
 opened: '2026-09-06'
 status: needs-enrichment
-value: normal
 gate:
   score: 4
-  passed: [title, context, what-to-do, acceptance, related]
+  passed:
+    - title
+    - context
+    - what-to-do
+    - acceptance
+    - related
   failed:
-    - open_question: "two prop forks (delete vs keep-with-rule) auto-resolved to Recommended default — confirm before /feat"
+    - open_question: >-
+        two prop forks (delete vs keep-with-rule) auto-resolved to Recommended default — confirm
+        before /feat
   graded_at: '2026-09-06T00:00:00Z'
+value: normal
+roadmap: archetype-convergence
 ---
 
 # Close analytics-dashboard's three unkeyed column/span props under RULES rule 12
