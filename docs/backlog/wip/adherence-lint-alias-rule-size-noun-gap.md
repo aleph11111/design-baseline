@@ -37,8 +37,8 @@ roadmap: archetype-convergence
 
 ## Related
 
-- [entity-circle-size-prop-appearance-locality-gap.md](archive/entity-circle-size-prop-appearance-locality-gap.md)
-- [adherence-lint-union-prop-blind-spot.md](archive/adherence-lint-union-prop-blind-spot.md)
-- [adherence-lint-multiline-union-alias-gap.md](archive/adherence-lint-multiline-union-alias-gap.md)
+- [entity-circle-size-prop-appearance-locality-gap.md](../archive/entity-circle-size-prop-appearance-locality-gap.md)
+- [adherence-lint-union-prop-blind-spot.md](../archive/adherence-lint-union-prop-blind-spot.md)
+- [adherence-lint-multiline-union-alias-gap.md](../archive/adherence-lint-multiline-union-alias-gap.md)
 - ADR-0003 — Adherence lint ships as a zero-dep scanner, not an oxlint config
 - ADR-0004 — Appearance locality: global or fixed in the component; per-call-site only when derived
