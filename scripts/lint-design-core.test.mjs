@@ -313,11 +313,23 @@ describe("harvestUnionAliases (the same-file union-alias pre-pass)", () => {
     expect(harvestUnionAliases(text)).toEqual([]);
   });
 
-  it("does not follow a union split across lines — the scanner is line-level, not a parser", () => {
-    // A documented ceiling (ADR-0003): catching this shape means carrying state across
-    // lines. The tree carries no multi-line union alias today; if one lands, this is the
-    // test that says why it is not flagged.
-    const text = 'export type X =\n  | "a"\n  | "b";';
+  it("follows a union whose first member wraps onto the next line", () => {
+    // What prettier produces once the members no longer fit on the declaration line — the
+    // shape `src/components/archetypes/raw-input/native-field.tsx` carries. One line of
+    // lookahead, no cross-line state, so it stays inside ADR-0003.
+    const text = [
+      "export type NativeFieldType =",
+      '  | "text"',
+      '  | "number"',
+      '  | "range";',
+    ].join("\n");
+    expect(harvestUnionAliases(text)).toEqual(["NativeFieldType"]);
+  });
+
+  it("does not follow a first member more than one line below the `=`", () => {
+    // The ceiling that remains (ADR-0003): reaching past one line of lookahead means
+    // carrying state across lines, which is the parser this scanner is not.
+    const text = 'export type X =\n  // the members\n  | "a"\n  | "b";';
     expect(harvestUnionAliases(text)).toEqual([]);
   });
 

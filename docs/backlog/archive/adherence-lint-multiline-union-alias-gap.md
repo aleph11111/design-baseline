@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-06'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -26,7 +26,7 @@ roadmap: archetype-convergence
 ## Context
 
 `harvestUnionAliases` in `scripts/lint-design.mjs` — the per-file pre-pass added by
-[adherence-lint-union-prop-blind-spot](archive/adherence-lint-union-prop-blind-spot.md) that
+[adherence-lint-union-prop-blind-spot](../archive/adherence-lint-union-prop-blind-spot.md) that
 arms `_adherence.json`'s `archetype-alias-union-prop` rule — is line-level: it harvests
 `type X = "a" | "b"` only when the alias name, its first member, and the following `|` all
 sit on **one** line. A union alias written across several lines is invisible to it.
@@ -85,9 +85,9 @@ lookahead, not cross-line state.
 
 ## Related
 
-- [adherence-lint-union-prop-blind-spot.md](archive/adherence-lint-union-prop-blind-spot.md) — added `harvestUnionAliases` and `archetype-alias-union-prop`; this ticket lifts the line-level ceiling it documented.
-- [archetype-convergence-appearance-prop-lint.md](archive/archetype-convergence-appearance-prop-lint.md) — the original appearance-prop drain rule and its `include`/`exclude` scoping mechanism.
-- [report-calendar-appearance-prop-lint.md](archive/report-calendar-appearance-prop-lint.md) — the exclude-with-contract-citation pattern the raw-input triage follows.
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap; Phase 1's mechanical archetype sweep is what the scanner's coverage gates.
+- [adherence-lint-union-prop-blind-spot.md](../archive/adherence-lint-union-prop-blind-spot.md) — added `harvestUnionAliases` and `archetype-alias-union-prop`; this ticket lifts the line-level ceiling it documented.
+- [archetype-convergence-appearance-prop-lint.md](../archive/archetype-convergence-appearance-prop-lint.md) — the original appearance-prop drain rule and its `include`/`exclude` scoping mechanism.
+- [report-calendar-appearance-prop-lint.md](../archive/report-calendar-appearance-prop-lint.md) — the exclude-with-contract-citation pattern the raw-input triage follows.
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap; Phase 1's mechanical archetype sweep is what the scanner's coverage gates.
 - ADR-0003 — adherence lint ships as a zero-dep scanner; the lookahead stays inside that constraint.
 - ADR-0004 — appearance locality: derived vs inherited, the rule the drain enforces.
