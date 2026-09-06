@@ -70,6 +70,18 @@ phases:
     tickets: []
     open: true
     spec_anchor: '## Phases 2–5 — design level only'
+  - name: docs-retire
+    title: 'Retire World A docs in each migrated consumer: eight methodology docs, adoption-plan, three JSON configs, docs/archetypes/, vendor stamps, design:/patterns: Doc Paths keys; keep _adherence lint'
+    tickets: []
+    open: true
+  - name: donor-docs
+    title: Collapse donor spec + .baseline.md pairs into one doc per closed archetype; rewrite ADOPTION.md for package consumption; point PLUGIN-CONTRACT actions at the package install; retire FLEET-AUDIT.md and the audit reports into promotion-radar.json
+    tickets: []
+    open: true
+  - name: fleet-commands
+    title: Delete /adopt-baseline, /style-baseline, /style-archetypes from ~/.claude/commands and fleet/commands; keep /promote-archetype
+    tickets: []
+    open: true
 ---
 
 # Archetype convergence — close the archetype API, then distribute it as a package
@@ -221,6 +233,38 @@ Phase 2's work.
       genuine job — *this page does something no archetype covers, should it be
       one?*
 
+### Phase 6 — Retire consumer docs
+
+- [ ] Delete the eight vendored methodology docs, the adoption-plan doc, and
+      the three JSON configs from each migrated consumer. After a package
+      install, "adopted" is a version in `package.json`, so the nine-point
+      ADOPTION-STATUS checklist, `SURFACES.md`, and the six vendored contracts
+      have no reader left.
+- [ ] Delete each consumer's `docs/archetypes/` corpus and its `MANIFEST.json`
+      fork.
+- [ ] Delete the per-file vendor stamps.
+- [ ] Remove the `design:`/`patterns:` `## Doc Paths` keys once nothing reads
+      them; keep the `_adherence` lint.
+- [ ] `brickshop-manager`'s `docs/archetypes/` is a pre-donor lineage (its own
+      ADR-0030, April 2026) — archive it to `docs/archive/archetypes-2026/` on
+      its migration, not delete it.
+
+### Phase 7 — Donor docs
+
+- [ ] Collapse each closed archetype's donor spec + `.baseline.md` pair into
+      one doc.
+- [ ] Rewrite `ADOPTION.md` for package consumption.
+- [ ] Point `PLUGIN-CONTRACT` actions at the package install.
+- [ ] Retire `FLEET-AUDIT.md` and the audit reports into
+      `promotion-radar.json`.
+
+### Phase 8 — Fleet commands
+
+- [ ] Delete `/adopt-baseline` from `~/.claude/commands` and `fleet/commands`.
+- [ ] Delete `/style-baseline` from `~/.claude/commands` and `fleet/commands`.
+- [ ] Delete `/style-archetypes` from `~/.claude/commands` and `fleet/commands`.
+- [ ] Keep `/promote-archetype`.
+
 ## Done when
 
 - Two projects rendering the same archetype are visually identical apart from
@@ -234,6 +278,8 @@ Phase 2's work.
   been filed and archived against that repo, forty-eight of them in August 2026
   alone, and the class-level acceptance is that no further ticket of that shape
   can be filed for any archetype whose API is closed.
+- No consumer repo carries a vendored methodology doc or an archetypes/
+  folder; the donor's docs/ is under 250 KB.
 
 ## Related
 
@@ -248,3 +294,5 @@ Phase 2's work.
 - ADR-0003 — adherence lint ships as a zero-dep scanner; the lint Phase 5 keeps.
 - hk-crm ADR-0030 — vendor-stamp-not-package; superseded on its skew argument by
   Phase 0.
+- The coding-dashboard child for Phase 5 deletions is filed as
+  `dashboard-drop-drift-machinery` in coding-dashboard's backlog.
