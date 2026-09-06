@@ -42,7 +42,7 @@
     {
       "id": "archetype-appearance-noun-prop",
       "pattern": "^\\s*(surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded|size)\\?\\s*:",
-      "severity": "warn",
+      "severity": "error",
       "include": "src/components/archetypes/**",
       "exclude": [
         "src/components/archetypes/detail-overview/**",
@@ -57,7 +57,7 @@
     {
       "id": "archetype-look-union-prop",
       "pattern": "^\\s*\\w+\\??:\\s*\"[^\"]+\"\\s*\\|\\s*\"[^\"]+\"",
-      "severity": "warn",
+      "severity": "error",
       "include": "src/components/archetypes/**",
       "exclude": [
         "src/components/archetypes/detail-overview/**",
@@ -72,7 +72,7 @@
     {
       "id": "archetype-numeric-union-prop",
       "pattern": "^\\s*\\w+\\??:\\s*[0-9]+\\s*\\|\\s*[0-9]+",
-      "severity": "warn",
+      "severity": "error",
       "include": [
         "src/components/archetypes/**",
         "src/components/layout/**"
@@ -91,8 +91,8 @@
     },
     {
       "id": "archetype-alias-union-prop",
-      "pattern": "^\\s*(?!(?:surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded)\\?\\s*:)\\w+\\??:\\s*(?:{{unionAliases}})\\b",
-      "severity": "warn",
+      "pattern": "^\\s*(?!(?:surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded|size)\\?\\s*:)\\w+\\??:\\s*(?:{{unionAliases}})\\b",
+      "severity": "error",
       "include": [
         "src/components/archetypes/**",
         "src/components/layout/**"
@@ -122,7 +122,7 @@
     {
       "id": "archetype-appearance-slot",
       "pattern": "^\\s*(header|stats)\\?\\s*:\\s*(React\\.)?ReactNode",
-      "severity": "warn",
+      "severity": "error",
       "include": "src/components/archetypes/**",
       "exclude": [
         "src/components/archetypes/detail-overview/**",
