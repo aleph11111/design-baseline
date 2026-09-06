@@ -64,10 +64,10 @@ check landed.
 | `archetype-appearance-slot` | an appearance-bearing `ReactNode` slot (`header`, `stats`) | `src/components/archetypes/**` |
 
 Each drain rule also carries an `exclude` array with one glob per closed archetype (
-`detail-overview/**`, `form-page/**`, and `list-with-detail/**` as of this update) — once an
-archetype's class is closed it drops out of the `warn` drain and is gated by its own
-`error`-tier rules instead (the ratchet, per the `exclude` above). `detail-overview` was the
-first: the close-API ticket removed `surface`, `rhythm`, `className`, `headerFill`, and the
+`detail-overview/**`, `form-page/**`, `list-with-detail/**`, and `settings-table/**` as of this
+update) — once an archetype's class is closed it drops out of the `warn` drain and is gated by
+its own `error`-tier rules instead (the ratchet, per the `exclude` above). `detail-overview` was
+the first: the close-API ticket removed `surface`, `rhythm`, `className`, `headerFill`, and the
 `header`/`stats` `ReactNode` slots (and corrected the `width` default), so the drain rules no
 longer fire on it. `form-page` is the second: its close removed the `className` escape hatch and
 keyed `width` exhaustively to field count / column layout in the contract, so the
@@ -77,6 +77,33 @@ deleted the per-shell `headerFill` override from the contract doc), while `prese
 `align` remain legal — contract-derived — so the whole folder is excluded from the shared drain
 rather than flipped to `error` per rule; the `list-with-detail-*` rules below gate the retired
 axes.
+
+### The component_kind archetypes — the ADR-0004 amendment (2026-09-06)
+
+`entity-circle` and `overline-typed` are the two `kind: "component"` MANIFEST entries the
+appearance-prop audit flagged, and the amendment to the [ADR-0004 decision](docs/adr/0004-appearance-locality-derived-vs-inherited.md)
+sorts the category: a component_kind archetype is **governed, not an exempt leaf** — the
+`src/components/ui/` leaf exemption is directory-scoped (vendored, byte-identical, never
+ships), while a component_kind archetype ships, so its props are API and the same
+derived-vs-inherited test runs prop-by-prop on it. Applied to the two audited props:
+
+- `entity-circle`'s `tone` **passes** — the contract's L7 keys it to the entity's identity
+  role (the brand tone is reserved for the signed-in entity in the account/identity
+  context; every other entity is neutral). It stays legal, so the folder is excluded
+  from the `archetype-appearance-noun-prop` drain with the rule's `message` citing the
+  keying clause (the keep-with-keying shape, like list-with-detail's kept `presentation`
+  / `align`). The folder has no retired axes to re-gate by name, so no per-folder
+  `error` rule is added — the exclusion is the whole disposition.
+- `overline-typed`'s `tone` **fails** — its contract states the label conveys *emphasis,
+  not meaning*, which no rule can derive from the entity or its data, and the closed
+  set sat behind a backwards-compatible default (the inherited-default defect itself).
+  The prop is deleted from the component (major version bump); the drain rule no
+  longer fires because the prop no longer exists — no exclude entry needed. The
+  accent-surface recolor routes to the surface contract's context/binding
+  (`headerFillClasses().kicker`) and the one-off per-site color to the `className`
+  passthrough, which the `*Shell`/`*Sheet`-scoped `archetype-shell-class-name` ban
+  never reaches (it is a documented leaf exemption, recorded in the contract's L7 —
+  not a contradiction of the ban, which keeps its `error` severity and its scope).
 
 ### The `detail-overview-*` error rules (ratchet engaged for the closed API)
 

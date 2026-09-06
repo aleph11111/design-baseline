@@ -67,11 +67,19 @@ export function EntityCircleDemo(): React.ReactElement {
         </div>
       </Panel>
 
-      {/* Tone — neutral default vs the brand fill (e.g. the signed-in user). */}
-      <Panel title="Tone (muted · primary)">
+      {/* Tone is keyed to the entity's identity role (contract L7): every roster
+          entity is neutral; the brand fill is reserved for the signed-in entity —
+          the same person, different role, same derived value. */}
+      <Panel title="Tone (keyed to identity role)">
         <div className="flex items-center gap-4">
-          <EntityAvatar name="Cannonball Adderley" tone="muted" size="md" />
-          <EntityAvatar name="Cannonball Adderley" tone="primary" size="md" />
+          <div className="flex items-center gap-2">
+            <EntityAvatar name="Cannonball Adderley" size="md" />
+            <span className="text-xs text-muted-foreground">roster member — neutral</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <EntityAvatar name="Cannonball Adderley" tone="primary" size="md" />
+            <span className="text-xs text-muted-foreground">signed-in identity — brand fill</span>
+          </div>
         </div>
       </Panel>
 

@@ -2,7 +2,7 @@
 key: E
 slug: entity-circle
 kind: component
-version: 1.0
+version: 1.1
 promoted_from: fleet synthesis (brickshop-manager, mistra)
 promoted_at: 2026-07-24
 source_spec_version: n/a (fleet synthesis — no single source spec)
@@ -87,6 +87,18 @@ the viewport.
 ### L7 — Theming
 Rides the shared token set. The initials fill is one of the **sanctioned tones**:
 a neutral tone (default) and a brand tone. It carries **no bespoke colors**.
+
+**Tone is keyed to the entity's identity role, not chosen per call site.** The
+brand tone is reserved for the entity that *is* the app's identity — the
+signed-in user rendered in the account/identity context — and the neutral tone
+is every other entity: a roster member, an assignee, a contact, a speaker. Two
+engineers holding the same entity derive the same tone: the entity they render
+is either the signed-in identity or it is not. The brand tone exists because a
+fleet project (the app's own account menu) renders the signed-in user with the
+brand fill, while the same shape in a roster is neutral — the choice follows the
+entity's role, not the page's taste. A page that wants its *whole* roster in the
+brand tone has a different problem (a per-project categorical decision) that the
+component's class passthrough or a local fork answers, not this prop.
 
 **Per-entity hue variety is intentionally excluded.** Two fleet repos color the
 circle from a multi-hue palette *indexed by list position* — which both (a) uses

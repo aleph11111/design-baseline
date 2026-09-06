@@ -1,40 +1,26 @@
 import * as React from "react";
-import { Overline, type OverlineTone } from "@/components/archetypes/overline-typed";
+import { Overline } from "@/components/archetypes/overline-typed";
 
 /**
  * overline-typed demo — a podcast episode shelf (domain deliberately far from any
- * source project: no finance/CRM/transcription/dashboard nouns). Types are defined
- * here FIRST, then fed to <Overline>; the primitive never sees a domain type, only its
- * generic children / tone / as props.
+ * source project: no finance/CRM/transcription/dashboard nouns).
  *
- * Each card shows the two roles the fleet hand-rolls: a section kicker above a title,
- * and a status eyebrow whose tone is keyed off domain state — exactly the "typed" layer
- * my-finance-app and hk-crm re-invented.
+ * v2: `<Overline>` carries the base signature — color included — and has no
+ * `tone` prop. The demo shows the fixed look (default), a layout-only className
+ * (spacing), and the contract's one-off channel: a single `text-*` color class at
+ * a single site. On the accent surface below the recolor is a `text-primary-foreground`
+ * one-off at the site, exactly the shape a surface contract's binding takes —
+ * the molecule itself stays on the base signature.
  */
 
 interface Episode {
   season: string;
   title: string;
-  state: "new" | "playing" | "archived";
+  state: "new" | "archived";
 }
-
-// Domain state → a baseline tone. This mapping lives in the DEMO, not the primitive —
-// the primitive only knows the closed tone set, not what "archived" means.
-const STATE_TONE: Record<Episode["state"], OverlineTone> = {
-  new: "primary",
-  playing: "foreground",
-  archived: "muted",
-};
-
-const STATE_LABEL: Record<Episode["state"], string> = {
-  new: "New drop",
-  playing: "Now playing",
-  archived: "Archived",
-};
 
 const EPISODES: Episode[] = [
   { season: "Season 3 · Ep 7", title: "The Cartographers' Dispute", state: "new" },
-  { season: "Season 3 · Ep 6", title: "A Field Guide to Silence", state: "playing" },
   { season: "Season 2 · Ep 12", title: "Letters from the Lighthouse", state: "archived" },
 ];
 
@@ -42,11 +28,12 @@ export function OverlineTypedDemo(): React.ReactElement {
   return (
     <div className="mx-auto max-w-md space-y-6 px-6 py-8">
       <div className="space-y-1">
-        {/* Overline as a heading kicker (as="h2"), muted base tone. */}
+        {/* Overline as a heading kicker (as="h2"): the fixed base signature. */}
         <Overline as="h2">Latest episodes</Overline>
         <p className="text-sm text-muted-foreground">
-          Each card's season kicker and status eyebrow are one <code>{"<Overline>"}</code>{" "}
-          — the tone is chosen by the demo, not hand-typed as a class string.
+          Every kicker below is one <code>{"<Overline>"}</code> on the fixed base
+          signature — the color is part of the signature, so there is nothing per-site
+          to choose (L7, v2).
         </p>
       </div>
 
@@ -56,23 +43,30 @@ export function OverlineTypedDemo(): React.ReactElement {
             key={ep.title}
             className="rounded-lg border bg-card p-4 shadow-sm"
           >
-            {/* Section kicker: the season, quiet muted base. */}
+            {/* Section kicker: spacing rides the className passthrough; the color does not. */}
             <Overline className="mb-1">{ep.season}</Overline>
             <h3 className="text-base font-semibold tracking-tight">{ep.title}</h3>
-            {/* Status eyebrow: tone keyed off domain state (the "typed" layer). */}
-            <Overline tone={STATE_TONE[ep.state]} className="mt-2">
-              {STATE_LABEL[ep.state]}
-            </Overline>
           </li>
         ))}
       </ul>
 
-      {/* An inverted overline for an accent-filled surface (the hk-crm solid-header case). */}
+      {/* The one-off channel: a single site recolors the eyebrow to a brand color. */}
+      <div className="rounded-lg border bg-card p-4 shadow-sm">
+        <Overline className="mb-1 text-primary">New drop</Overline>
+        <p className="text-sm text-muted-foreground">
+          A *single* site that needs a color the base signature does not cover passes one{" "}
+          <code>text-*</code> class through the passthrough — a per-category set of
+          recolors belongs to a badge or a local fork, not to this label.
+        </p>
+      </div>
+
+      {/* On an accent-filled surface the recolor is the surface's job, not the
+          molecule's: the site passes the surface's own color class. */}
       <div className="rounded-lg bg-primary p-4">
-        <Overline tone="inverted">Bonus feed</Overline>
+        <Overline className="text-primary-foreground/80">Bonus feed</Overline>
         <p className="text-sm text-primary-foreground/80">
-          On a solid accent surface, the muted base would vanish — <code>tone="inverted"</code>{" "}
-          keeps the eyebrow legible.
+          On a solid accent surface the neutrals vanish — the site supplies the surface's
+          own color class, the shape a surface contract's binding takes.
         </p>
       </div>
     </div>

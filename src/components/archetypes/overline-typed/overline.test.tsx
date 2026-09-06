@@ -15,12 +15,11 @@ describe("Overline — typed overline label", () => {
     expect(el.className).toContain("text-muted-foreground");
   });
 
-  it("lets a tone override the muted color (tailwind-merge wins)", () => {
-    render(<Overline tone="primary">Featured</Overline>);
+  it("exposes no tone prop — the color is fixed in the base signature (L7, v2)", () => {
+    render(<Overline>Featured</Overline>);
     const cls = screen.getByText("Featured").className;
-    expect(cls).toContain("text-primary");
-    // the muted base must be dropped by twMerge, not left to conflict
-    expect(cls).not.toContain("text-muted-foreground");
+    // the fixed muted color comes from OVERLINE_CLASS; no per-call-site recolor exists
+    expect(cls).toContain("text-muted-foreground");
   });
 
   it("renders as the requested element", () => {
