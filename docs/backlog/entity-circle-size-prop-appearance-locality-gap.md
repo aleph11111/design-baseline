@@ -2,14 +2,22 @@
 area: archetypes
 opened: '2026-09-06'
 status: ready
-value: normal
-model: opus
-model_reason: "the core deliverable is a design decision (keep-and-key vs delete the prop) that requires investigating real fleet placements, not a mechanical pattern-follow"
 gate:
   score: 5
-  passed: [title, context, what-to-do, acceptance, related]
+  passed:
+    - title
+    - context
+    - what-to-do
+    - acceptance
+    - related
   failed: []
   graded_at: '2026-09-06T00:00:00Z'
+value: normal
+model: opus
+model_reason: >-
+  the core deliverable is a design decision (keep-and-key vs delete the prop) that requires
+  investigating real fleet placements, not a mechanical pattern-follow
+roadmap: archetype-convergence
 ---
 
 # Entity-circle EntityAvatar size prop is an inherited default, not a derived one
