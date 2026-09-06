@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-06'
-status: needs-enrichment
+status: done
 gate:
   score: 4
   passed:
