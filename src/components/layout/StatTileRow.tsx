@@ -8,15 +8,6 @@ const SM_COLS_MAP: Record<2 | 3 | 4, string> = {
 };
 
 export type StatTileRowProps = {
-  /**
-   * Cell count at the `sm` breakpoint and up. The strip always collapses to a
-   * single stacked column on narrow viewports (`grid-cols-1` with horizontal
-   * hairlines), then expands to `sm:grid-cols-<columns>` with vertical
-   * hairlines.
-   *
-   * Must match the number of `<StatTile>` children for visual balance.
-   */
-  columns: 2 | 3 | 4;
   children: React.ReactNode;
   className?: string;
 };
@@ -30,14 +21,25 @@ export type StatTileRowProps = {
  * stray buttons). Flat surface (no shadow): the strip sits between shadowed
  * sections, part of the page's graded hierarchy.
  *
+ * The cell count is derived from the number of `<StatTile>` children (clamped to
+ * 2–4), never passed in: a call-site column count is an appearance the contract
+ * does not derive (RULES.md hard rule 12 / ADR-0004), and "must match the child
+ * count" is a rule the component can enforce itself. The strip always collapses
+ * to a single stacked column on narrow viewports (horizontal hairlines), then
+ * expands at `sm` (vertical hairlines).
+ *
  * Hand-rolled tile cells are forbidden — use `<StatTile>`. Fixed column
  * counts without the responsive collapse are forbidden — use this primitive.
  */
 export function StatTileRow({
-  columns,
   children,
   className,
 }: StatTileRowProps): React.ReactElement {
+  const columns = Math.min(
+    Math.max(React.Children.count(children), 2),
+    4,
+  ) as 2 | 3 | 4;
+
   return (
     <div
       className={cn(

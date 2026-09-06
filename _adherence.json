@@ -1,5 +1,7 @@
 {
-  "targets": ["src"],
+  "targets": [
+    "src"
+  ],
   "rules": [
     {
       "id": "no-bare-h1",
@@ -82,9 +84,10 @@
         "src/components/archetypes/crud-dialog/**",
         "src/components/archetypes/settings-table/**",
         "src/components/archetypes/report/**",
-        "src/components/archetypes/statement-with-filters/**"
+        "src/components/archetypes/statement-with-filters/**",
+        "src/components/archetypes/analytics-dashboard/**"
       ],
-      "message": "A prop typed as a bare numeric-literal union (`columns?: 2 | 3 | 4`) is the same per-call-site appearance axis as a string-literal look union — the quoted-string pattern of `archetype-look-union-prop` only reaches quoted members and never matches it (RULES.md hard rule 12). The `include` carries `src/components/layout/**` as a second root because the shared chrome (`StatTileRow`) lives outside `src/components/archetypes/`. Closed archetypes (detail-overview, form-page, list-with-detail, crud-dialog, settings-table, report) are gated by their own `*-` error rules. Excluded: statement-with-filters — its `StatementRow.indent` is contract-keyed to the row's own depth in the statement's group -> children data, capped at 2 (statement-with-filters.md Layer 6, indent keying rule: top-level row (no parent group) -> 0, child of a top-level group -> 1, grandchild or deeper -> 2, the terminal step), so ADR-0004's derived test passes and the prop is legal."
+      "message": "A prop typed as a bare numeric-literal union (`columns?: 2 | 3 | 4`) is the same per-call-site appearance axis as a string-literal look union — the quoted-string pattern of `archetype-look-union-prop` only reaches quoted members and never matches it (RULES.md hard rule 12). The `include` carries `src/components/layout/**` as a second root because the shared chrome (`StatTileRow`) lives outside `src/components/archetypes/`. Closed archetypes (detail-overview, form-page, list-with-detail, crud-dialog, settings-table, report) are gated by their own `*-` error rules. Excluded: statement-with-filters — its `StatementRow.indent` is contract-keyed to the row's own depth in the statement's group -> children data, capped at 2 (statement-with-filters.md Layer 6, indent keying rule: top-level row (no parent group) -> 0, child of a top-level group -> 1, grandchild or deeper -> 2, the terminal step), so ADR-0004's derived test passes and the prop is legal. Excluded: analytics-dashboard — its `DashboardWidget.span` is contract-keyed to the widget's kind (analytics-dashboard.md Layer 6, widget span keying rule: primary trend -> full width, comparison/breakdown -> wide, everything else -> one column) and carries no default, so ADR-0004's derived test passes and the prop is legal. Its deleted `columns` props are separately gated by the `analytics-dashboard-columns-prop` / `stat-tile-row-columns-prop` error rules."
     },
     {
       "id": "archetype-alias-union-prop",
@@ -183,6 +186,20 @@
       "severity": "error",
       "include": "src/components/archetypes/list-with-detail/**",
       "message": "list-with-detail's `unstyled` flush flag is deleted — the chrome-suppression decision belongs to the *composing* archetype via the internal `ListChromeContext` (mirroring detail-overview's `UnifiedSurfaceContext`), not to a per-page prop (RULES.md hard rule 12)."
+    },
+    {
+      "id": "analytics-dashboard-columns-prop",
+      "pattern": "^\\s*columns\\??\\s*:",
+      "severity": "error",
+      "include": "src/components/archetypes/analytics-dashboard/**",
+      "message": "analytics-dashboard's grid `columns` prop is deleted — the column ladder is fixed in `<DashboardGrid>` (1 / 2 at `sm` / 3 at `lg`). A per-page column count is an appearance with no contract keying rule, and its backwards-compatible default is disqualifying on its own (RULES.md hard rule 12). Widget width is the keyed axis instead: `<DashboardWidget span>`, required and no default, per analytics-dashboard.md Layer 6's widget span keying rule."
+    },
+    {
+      "id": "stat-tile-row-columns-prop",
+      "pattern": "^\\s*columns\\??\\s*:",
+      "severity": "error",
+      "include": "src/components/layout/StatTileRow.tsx",
+      "message": "`<StatTileRow>`'s `columns` prop is deleted — the strip derives its cell count from `React.Children.count(children)` clamped to 2–4. \"Must match the number of children\" is a rule the component enforces itself, not a comment on a call-site prop (RULES.md hard rule 12)."
     },
     {
       "id": "list-with-detail-shell-class-name",

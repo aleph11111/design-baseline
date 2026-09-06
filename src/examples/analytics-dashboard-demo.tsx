@@ -165,7 +165,6 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
   const [period, setPeriod] = React.useState<Period>("Month");
   const [channel, setChannel] = React.useState("all");
   const [widgetMode, setWidgetMode] = React.useState<WidgetMode>("Loaded");
-  const [columns, setColumns] = React.useState<"2" | "3" | "4">("3");
   const k = KPIS[period];
   const retry = () => setWidgetMode("Loaded");
 
@@ -174,8 +173,10 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="max-w-prose text-sm text-muted-foreground">
           Widgets degrade independently — <strong>Widget states</strong> shows
-          the loading/empty/error planes (per docs Layer 7); <strong>Columns</strong>{" "}
-          drives <code>DashboardGrid</code>&apos;s <code>lg</code> column count.
+          the loading/empty/error planes (per docs Layer 7). Widget width is not a
+          control: each widget&apos;s <code>span</code> follows the contract&apos;s
+          widget-span keying rule (primary trend full width · breakdown wide ·
+          everything else one column).
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <SegmentedControl
@@ -186,16 +187,6 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
               { value: "Loaded", label: "Loaded" },
               { value: "Loading", label: "Loading" },
               { value: "Mixed", label: "Mixed" },
-            ]}
-          />
-          <SegmentedControl
-            aria-label="Columns"
-            value={columns}
-            onValueChange={setColumns}
-            options={[
-              { value: "2", label: "2 cols" },
-              { value: "3", label: "3 cols" },
-              { value: "4", label: "4 cols" },
             ]}
           />
         </div>
@@ -234,7 +225,7 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
           }
         >
           {/* KPI row — reuses StatTileRow / StatTile. */}
-          <StatTileRow columns={4}>
+          <StatTileRow>
             <StatTile label="Revenue" value={k.revenue} hint={`vs last ${period.toLowerCase()}`} />
             <StatTile label="Orders" value={k.orders} hint="paid + fulfilled" />
             <StatTile label="Avg order value" value={k.aov} hint="net of refunds" />
@@ -243,17 +234,18 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
         </DashboardShell>
 
         {/* Widget grid — chart bodies are placeholders (consumer brings the chart lib). */}
-        <DashboardGrid columns={Number(columns) as 2 | 3 | 4}>
+        <DashboardGrid>
+          {/* Primary trend — the series the dashboard is read against: span 3. */}
           <DashboardWidget
             title="Revenue over time"
             description="Trailing 12 months, net of refunds"
-            span={2}
+            span={3}
           >
             <WidgetBody plane={widgetPlane("revenue", widgetMode)} onRetry={retry}>
               <Sparkline values={k.trend} />
             </WidgetBody>
           </DashboardWidget>
-          <DashboardWidget title="Orders by channel">
+          <DashboardWidget title="Orders by channel" span={1}>
             <WidgetBody plane={widgetPlane("channel", widgetMode)} onRetry={retry}>
               <HBars
                 data={[
@@ -264,7 +256,7 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
               />
             </WidgetBody>
           </DashboardWidget>
-          <DashboardWidget title="Top categories">
+          <DashboardWidget title="Top categories" span={1}>
             <WidgetBody plane={widgetPlane("categories", widgetMode)} onRetry={retry}>
               <Bars
                 data={[
@@ -277,7 +269,7 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
               />
             </WidgetBody>
           </DashboardWidget>
-          <DashboardWidget title="Conversion funnel" span={3}>
+          <DashboardWidget title="Conversion funnel" span={2}>
             <WidgetBody plane={widgetPlane("funnel", widgetMode)} onRetry={retry}>
               <HBars
                 data={[

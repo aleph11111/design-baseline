@@ -112,13 +112,11 @@ export function DetailOverviewShell({
   content,
   references,
 }: DetailOverviewShellProps): React.ReactElement {
-  // The aggregate strip is rendered from typed data; the strip's column count
-  // follows the data, so no call site passes a hand-matched `columns`.
+  // The aggregate strip is rendered from typed data; the strip derives its own
+  // cell count from the tiles it is handed, so no call site passes one.
   const statStrip =
     stats && stats.length > 0 ? (
-      <StatTileRow
-        columns={Math.min(Math.max(stats.length, 2), 4) as 2 | 3 | 4}
-      >
+      <StatTileRow>
         {stats.map((s, i) => (
           <StatTile key={i} label={s.label} value={s.value} hint={s.hint} />
         ))}

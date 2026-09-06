@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-06'
-status: needs-enrichment
+status: done
 gate:
   score: 4
   passed:
@@ -109,8 +109,8 @@ deriving, since deletion needs no rule" reasoning already applied to
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — the roadmap this
+- [archetype-convergence.md](../archetype-convergence.md) — the roadmap this
   closes a warn-drain slice of (Phase-0/1/lint tickets already shipped).
-- [archive/archetype-convergence-appearance-prop-lint.md](archive/archetype-convergence-appearance-prop-lint.md)
-- [archive/archetype-convergence-component-kind-appearance-gap.md](archive/archetype-convergence-component-kind-appearance-gap.md)
+- [archive/archetype-convergence-appearance-prop-lint.md](../archive/archetype-convergence-appearance-prop-lint.md)
+- [archive/archetype-convergence-component-kind-appearance-gap.md](../archive/archetype-convergence-component-kind-appearance-gap.md)
 - ADR-0004 — Appearance locality: global or fixed in the component; per-call-site only when derived
