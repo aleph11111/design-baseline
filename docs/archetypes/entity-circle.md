@@ -2,7 +2,7 @@
 key: E
 slug: entity-circle
 kind: component
-version: 1.1
+version: 1.2
 promoted_from: fleet synthesis (brickshop-manager, mistra)
 promoted_at: 2026-07-24
 source_spec_version: n/a (fleet synthesis — no single source spec)
@@ -79,10 +79,34 @@ interactive wrapper the caller adds.
   yields the first character of the first and last token; uppercased. This rule
   is fixed so the same name yields the same initials everywhere.
 
-### L6 — Mobile affordance
+### L6 — Mobile affordance / size
 Fluid — a fixed-size circle that reflows with its row. No separate mobile
-component. Size is chosen by the caller from a small discrete scale (L7), not by
-the viewport.
+component. Size does not respond to the viewport.
+
+**Size is keyed to the scope of the thing the entity is the subject of, not
+chosen per call site.** The circle sits inside exactly one of three scopes, and
+the scope fixes the size:
+
+- The entity is an **attribute of the row or cell it sits in** — the surrounding
+  thing is something else (an action item, a task card, a line of prose) and the
+  entity is one of its fields. The circle is an adornment beside text and takes
+  the **smallest** step.
+- The entity is the **subject of its own row or list item** — a personnel or
+  roster row, an assignee option, the account-menu trigger. The row exists to
+  present *this entity*. The circle is the row's leading identity and takes the
+  **middle** step. This is the resting case: an omitted size resolves here, which
+  is the rule's answer for this scope, not a compatibility default.
+- The entity is the **subject of the whole surface** — a detail panel, profile
+  card, or page header *about* the entity. The circle is that surface's identity
+  mark and takes the **largest** step.
+
+The ladder is one axis — attribute → row → surface — and it is exhaustive: a
+circle is always inside a row or cell, and that row either is about the entity or
+is not; a surface either is about the entity or is not. There is no fourth scope,
+so two engineers holding the same placement derive the same step. A page that
+wants a roster rendered larger than its scope calls for has a per-project
+decision, which the component's class passthrough or a local fork answers, not
+this prop.
 
 ### L7 — Theming
 Rides the shared token set. The initials fill is one of the **sanctioned tones**:

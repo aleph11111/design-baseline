@@ -10,7 +10,19 @@ export interface EntityAvatarProps {
   name: string;
   /** Optional image URL. Renders the image; falls back to initials if it is absent or fails to load. */
   src?: string;
-  /** Circle size. Default "sm". Mirrors the IconAvatar scale. */
+  /**
+   * Circle size. Derived per the contract's L6 size keying rule
+   * (docs/archetypes/entity-circle.md) from the scope of the thing the entity is
+   * the subject of — never chosen per call site:
+   *   "xs" — the entity is an attribute of the row/cell it sits in (an owner
+   *          field on an action-item row, a byline in a line of prose)
+   *   "sm" — the entity is the subject of its own row or list item (a roster
+   *          row, an assignee option, the account-menu trigger). Default: the
+   *          keyed answer for this scope, not a compatibility fallback.
+   *   "md" — the entity is the subject of the whole surface (a detail panel,
+   *          profile card, or page header about the entity)
+   * Mirrors the IconAvatar scale.
+   */
   size?: EntityAvatarSize;
   /** Fill of the initials fallback: "muted" (default, neutral) or "primary" (brand fill). */
   tone?: EntityAvatarTone;

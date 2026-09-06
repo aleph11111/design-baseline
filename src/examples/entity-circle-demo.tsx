@@ -43,12 +43,14 @@ export function EntityCircleDemo(): React.ReactElement {
         </p>
       </div>
 
-      {/* Roster rows — initials fallback (Bill Evans has a photo src that won't resolve). */}
+      {/* Roster rows — each row's subject IS the player, so size is "sm" per the
+          contract's L6 keying rule. Initials fallback (Bill Evans has a photo src
+          that won't resolve). */}
       <Panel title="Personnel">
         <ul className="space-y-3">
           {QUARTET.map((p) => (
             <li key={p.id} className="flex items-center gap-3">
-              <EntityAvatar name={p.name} src={p.photo} size="md" />
+              <EntityAvatar name={p.name} src={p.photo} size="sm" />
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">{p.name}</p>
                 <p className="text-xs text-muted-foreground">{p.instrument}</p>
@@ -58,12 +60,22 @@ export function EntityCircleDemo(): React.ReactElement {
         </ul>
       </Panel>
 
-      {/* Sizes — the same entity at each step of the scale. */}
-      <Panel title="Sizes (xs · sm · md)">
-        <div className="flex items-center gap-4">
-          <EntityAvatar name="Miles Davis" size="xs" />
-          <EntityAvatar name="Miles Davis" size="sm" />
-          <EntityAvatar name="Miles Davis" size="md" />
+      {/* Size is keyed to the scope of the thing the entity is the subject of
+          (contract L6) — the same entity at each scope, not a free scale. */}
+      <Panel title="Size (keyed to subject scope)">
+        <div className="flex items-start gap-6">
+          <div className="flex items-center gap-2">
+            <EntityAvatar name="Miles Davis" size="xs" />
+            <span className="text-xs text-muted-foreground">attribute of a row — xs</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <EntityAvatar name="Miles Davis" size="sm" />
+            <span className="text-xs text-muted-foreground">subject of its row — sm</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <EntityAvatar name="Miles Davis" size="md" />
+            <span className="text-xs text-muted-foreground">subject of the surface — md</span>
+          </div>
         </div>
       </Panel>
 
@@ -73,17 +85,17 @@ export function EntityCircleDemo(): React.ReactElement {
       <Panel title="Tone (keyed to identity role)">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <EntityAvatar name="Cannonball Adderley" size="md" />
+            <EntityAvatar name="Cannonball Adderley" size="sm" />
             <span className="text-xs text-muted-foreground">roster member — neutral</span>
           </div>
           <div className="flex items-center gap-2">
-            <EntityAvatar name="Cannonball Adderley" tone="primary" size="md" />
+            <EntityAvatar name="Cannonball Adderley" tone="primary" size="sm" />
             <span className="text-xs text-muted-foreground">signed-in identity — brand fill</span>
           </div>
         </div>
       </Panel>
 
-      {/* Inline byline — sm avatar sitting in a line of text. */}
+      {/* Inline byline — the entity is an attribute of a line of prose, so "xs". */}
       <Panel title="Inline byline">
         <p className="flex items-center gap-2 text-sm">
           <EntityAvatar name="Bill Evans" size="xs" />
