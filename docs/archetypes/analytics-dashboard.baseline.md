@@ -18,10 +18,13 @@ contract: docs/archetypes/analytics-dashboard.md
   surface (Plex Ledger board form): an on-surface `<SurfaceHeader>` (kicker +
   title left, actions right) at the top of the card, with the KPI row rendered
   in the body below. There is no separate `toolbar`/`filters` slot — see Layer 4.
-- `<DashboardGrid columns={2|3|4}>` — the responsive widget grid (collapses to 1
-  col, then 2 at `sm`, then `columns` at `lg`).
+- `<DashboardGrid>` — the responsive widget grid. The column ladder is fixed in
+  the component (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`) and takes no
+  `columns` prop.
 - `<DashboardWidget title span={1|2|3}>` — one widget card; a thin wrapper over the
-  shared `<SectionCard>` (same ruled title bar) plus a grid column span. Body is
+  shared `<SectionCard>` (same ruled title bar) plus a grid column span. `span` is
+  **required and has no default** — Layer 6's widget span keying rule determines
+  it (`3` primary trend · `2` comparison/breakdown · `1` everything else). Body is
   chart-agnostic.
 - **Reused (all shared `layout/` primitives — G has no dependency on other
   archetypes):** `<StatTileRow>` / `<StatTile>` (the KPI row — same strip as
@@ -52,13 +55,14 @@ contract role. Only layers with a baseline-specific binding appear.
 - Filter bar placement → page-composed, passed into `<DashboardShell headerActions>`, so it renders inline in the `<SurfaceHeader>` actions row alongside any export/share action — the shape the reference demo (`src/examples/analytics-dashboard-demo.tsx`) ships.
 
 ### Layer 5 — KPI row
-- Stat-tile / KPI-tile primitives → `<StatTileRow columns={2|3|4}>` of `<StatTile>`s (same strip as detail-overview's `stats` slot).
+- Stat-tile / KPI-tile primitives → `<StatTileRow>` of `<StatTile>`s (same strip as detail-overview's `stats` slot). It takes no `columns` prop: the `sm:grid-cols-*` step is derived internally from `React.Children.count(children)` clamped to 2–4.
 
 ### Layer 6 — Widget grid
-- Widget-grid primitive → `<DashboardGrid columns={2|3|4}>` (collapses to 1 col, then 2 at `sm`, then `columns` at `lg`).
-- Widget-card primitive → `<DashboardWidget title span={1|2|3}>`, a thin wrapper over the shared `<SectionCard>` (same ruled title bar) plus a grid column span.
+- Widget-grid primitive → `<DashboardGrid>`, a fixed `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` ladder with no `columns` prop.
+- Widget-card primitive → `<DashboardWidget title span={1|2|3}>`, a thin wrapper over the shared `<SectionCard>` (same ruled title bar) plus a grid column span. `span` is required (no default): `3` → `sm:col-span-2 lg:col-span-3`, `2` → `sm:col-span-2`, `1` → no span class.
 - Bare-card ban → a hand-rolled grid of bare `<Card>`s is forbidden; use `<DashboardWidget>`.
 
 ## Acceptance gate (baseline tells)
 - KPI row → `<StatTileRow>`/`<StatTile>`; hand-built metric `<Card>`s fail this box.
 - Widget grid → `<DashboardGrid>` of `<DashboardWidget>`s; a hand-rolled grid of bare `<Card>`s fails "one shell owns the widget chrome".
+- Widget width → every `<DashboardWidget>` passes `span` explicitly, keyed by Layer 6's rule; a re-added `columns` prop on `<DashboardGrid>` or `<StatTileRow>` is an `_adherence.json` **error**.

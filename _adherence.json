@@ -1,5 +1,7 @@
 {
-  "targets": ["src"],
+  "targets": [
+    "src"
+  ],
   "rules": [
     {
       "id": "no-bare-h1",
@@ -183,6 +185,20 @@
       "severity": "error",
       "include": "src/components/archetypes/list-with-detail/**",
       "message": "list-with-detail's `unstyled` flush flag is deleted — the chrome-suppression decision belongs to the *composing* archetype via the internal `ListChromeContext` (mirroring detail-overview's `UnifiedSurfaceContext`), not to a per-page prop (RULES.md hard rule 12)."
+    },
+    {
+      "id": "analytics-dashboard-columns-prop",
+      "pattern": "^\\s*columns\\??\\s*:",
+      "severity": "error",
+      "include": "src/components/archetypes/analytics-dashboard/**",
+      "message": "analytics-dashboard's grid `columns` prop is deleted — the column ladder is fixed in `<DashboardGrid>` (1 / 2 at `sm` / 3 at `lg`). A per-page column count is an appearance with no contract keying rule, and its backwards-compatible default is disqualifying on its own (RULES.md hard rule 12). Widget width is the keyed axis instead: `<DashboardWidget span>`, required and no default, per analytics-dashboard.md Layer 6's widget span keying rule."
+    },
+    {
+      "id": "stat-tile-row-columns-prop",
+      "pattern": "^\\s*columns\\??\\s*:",
+      "severity": "error",
+      "include": "src/components/layout/StatTileRow.tsx",
+      "message": "`<StatTileRow>`'s `columns` prop is deleted — the strip derives its cell count from `React.Children.count(children)` clamped to 2–4. \"Must match the number of children\" is a rule the component enforces itself, not a comment on a call-site prop (RULES.md hard rule 12)."
     },
     {
       "id": "list-with-detail-shell-class-name",

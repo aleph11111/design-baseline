@@ -2,7 +2,7 @@
 key: G
 slug: analytics-dashboard
 kind: page
-version: 1.0
+version: 1.1
 promoted_from: fleet-audit-2026-06-13 (brickshop-manager, my-finance-app, hk-crm, mistra)
 promoted_at: 2026-06-14
 source_spec_version: 1.3
@@ -63,18 +63,39 @@ every widget. Filter state is consumer-owned (URL-synced is encouraged so a
 dashboard view is shareable).
 
 ## Layer 5 — KPI row
-A row of the shared **stat-tile / KPI-tile primitives** (`columns={2|3|4}`) — the
-headline numbers, each with an optional comparison `hint` ("vs last month").
-Pre-format values; the tile never formats.
+A row of the shared **stat-tile / KPI-tile primitives** — the headline numbers,
+each with an optional comparison `hint` ("vs last month"). Pre-format values; the
+tile never formats. The strip's cell count is **not a page decision**: it follows
+the number of tiles it is handed (bounded to a 2–4 cell range, collapsing to a
+single stacked column on narrow viewports), so no page picks a column count that
+can disagree with its own content.
 
 ## Layer 6 — Widget grid
 The archetype's **widget-grid** primitive containing the **widget-card** primitive
 for each widget. Each widget: a short title, optional in-bar control (a range
-toggle), and a body that is a chart, a number, or a small ranked list/table. Use
-`span` for wider widgets (a primary trend line spans 2–3). **Forbidden:** a
-hand-rolled grid of bare cards — use the **widget-card** primitive so widgets
-share the section chrome; embedding an interactive data *table* that belongs to
-list-with-detail (A) — link out instead.
+toggle), and a body that is a chart, a number, or a small ranked list/table. The
+grid's own column count is **fixed by the archetype**, not chosen per page: it
+collapses to one column on narrow viewports, two at the mid breakpoint, and three
+at the wide breakpoint. **Forbidden:** a hand-rolled grid of bare cards — use the
+**widget-card** primitive so widgets share the section chrome; embedding an
+interactive data *table* that belongs to list-with-detail (A) — link out instead.
+
+**Widget span keying rule.** How wide a widget sits in the grid is selected from
+what the widget *is* by this exhaustive rule (derived, not inherited — ADR-0004);
+`span` carries no default, so every widget states its width and none inherits one:
+
+- **full width** — the page's single **primary trend** widget: the one
+  time-series the whole dashboard is read against. At most one per page; a
+  dashboard with no such series has none.
+- **wide** — a **comparison / breakdown** widget whose body is multi-series or
+  multi-category and becomes unreadable at one column: a conversion funnel, a
+  stacked composition, a ranked bar list.
+- **one column** — every other widget: a single figure, a short ranked list, a
+  small table, a sparkline.
+
+A widget that "looks cramped" is not grounds to widen it — either it matches one
+of the two wider kinds above, or its body is too dense for a widget and belongs on
+its own page.
 
 ## Layer 7 — States
 - **Loading** — per-widget skeletons (a widget loads independently); never a
@@ -119,3 +140,6 @@ can't see a metric.
 
 - [ ] Filter/date-range controls sit in one toolbar, not scattered per widget.
 - [ ] Number formatting (currency, %, deltas) is consistent and mono.
+- [ ] `span` follows Layer 6's widget span keying rule (primary trend full width ·
+      comparison/breakdown wide · everything else one column) — not a free choice,
+      and no widget inherits a width it did not state.

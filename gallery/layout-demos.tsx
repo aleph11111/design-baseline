@@ -184,15 +184,15 @@ function SectionCardDemo() {
 function StatTilesDemo() {
   return (
     <div className="max-w-3xl space-y-8">
-      <Variant label="3 columns">
-        <StatTileRow columns={3}>
+      <Variant label="3 tiles">
+        <StatTileRow>
           <StatTile label="Revenue" value="€58.9k" hint="vs last month" />
           <StatTile label="Orders" value="812" hint="paid + fulfilled" />
           <StatTile label="Avg order" value="€72" />
         </StatTileRow>
       </Variant>
-      <Variant label="4 columns">
-        <StatTileRow columns={4}>
+      <Variant label="4 tiles">
+        <StatTileRow>
           <StatTile label="Plays" value="142" />
           <StatTile label="Mean session" value="2h 35m" />
           <StatTile label="Rating" value="5" />
