@@ -50,8 +50,14 @@ Only layers with a baseline-specific binding appear.
   `"?"` when empty. Exported and unit-tested.
 
 ### L6 — Mobile affordance / size scale
-- `size?: "xs" | "sm" | "md"` → `SIZE_CLASS`: `h-6 w-6 text-[10px]` / `h-8 w-8
-  text-xs` / `h-10 w-10 text-sm`. Same scale as `IconAvatar`. Default `sm`.
+- `size?: "xs" | "sm" | "md"` → `SIZE_CLASS`, derived per the contract's L6 size
+  keying rule (scope of the thing the entity is the subject of):
+  - attribute of the surrounding row/cell → `"xs"` → `h-6 w-6 text-[10px]`
+  - subject of its own row or list item → `"sm"` → `h-8 w-8 text-xs` (the default;
+    the keyed answer for this scope, not a compatibility fallback)
+  - subject of the whole surface (detail panel, profile card, page header) →
+    `"md"` → `h-10 w-10 text-sm`
+  Same scale as `IconAvatar`.
 
 ### L7 — Theming (tone)
 - `tone?: "muted" | "primary"` → `TONE_CLASS` on the fallback: `bg-muted
