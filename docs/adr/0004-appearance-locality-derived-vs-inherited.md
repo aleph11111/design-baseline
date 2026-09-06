@@ -54,6 +54,19 @@ hk-crm's `docs/adr/0030-vendor-stamp-design-baseline.md` (2026-07) rejected pack
 
 This ADR supersedes ADR-0030 **on ground 2 only**. The skew argument holds for a package shipping *compiled CSS*, and is void for a source-distributed package shipping none: its `exports` point at `.tsx`, and the consumer's own Tailwind 4 build scans it via `@source` and compiles every class itself. No compiled artifact exists on either side, so nothing can skew. What changes on a version bump is source the consumer was already recompiling — not a prebuilt bundle going stale against a new token sheet.
 
+## Amendment 2026-09-06 — a `kind: "component"` archetype is governed, not a leaf
+
+The [archetype-convergence-component-kind-appearance-gap](../backlog/wip/archetype-convergence-component-kind-appearance-gap.md) ticket surfaced the third category this ADR never named: a MANIFEST `kind: "component"` entry. It is a leaf in the sense that a page shell is not — a molecule with no slots, no data-fetching surface, no page of its own — but it lives under `src/components/archetypes/`, promoted as a shipped entry, not vendored under `src/components/ui/`. The ADR's exemption for `ui/` leaves ("They are leaves, they do not drift") is **directory-scoped and does not extend to this category**: the exemption exists because the `ui/` copies are byte-identical across the fleet and never ship; a component-kind archetype *does* ship (it is in the source-package distribution layer), and a shipped prop is API.
+
+So the classification is: **a `kind: "component"` archetype is governed prop-by-prop by the same derived-vs-inherited test the page-shell compositions face.** It gets no leaf exemption and no composition leniency; the test simply runs per prop, and a prop whose value the contract keys to the entity or its data is legal on a molecule exactly as on a shell.
+
+The first application, on the two component_kind entries of the appearance-prop audit:
+
+- `entity-circle`'s `tone` ("muted" | "primary") **passes** — its contract (L7) keys it to the entity's identity role: the brand fill is reserved for the signed-in entity rendered in the account/identity context; every other entity is neutral. Two engineers holding the same entity derive the same value. The prop stays; the contract records the keying rule (minor version).
+- `overline-typed`'s `tone` ("muted" | "foreground" | "primary" | "inverted") **fails** — the contract states the label conveys *emphasis, not meaning*, and emphasis is a per-page judgement: no rule derives a tone from the entity or its data, and the set sits behind a backwards-compatible default. The prop is deleted; the color is locked into the base signature, the accent-surface recolor belongs to the surface's own context/binding, and the one-off per-site color rides the documented `className` leaf channel (major version).
+
+A later reader classifies a new `kind: "component"` entry without re-deriving this call: shipped means governed; the test is per prop; a contract keying rule is what makes a prop legal.
+
 ## Consequences
 
 - `docs/RULES.md` gains hard rule 12 (the enforceable restatement of this rule, including the closed context set).

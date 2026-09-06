@@ -46,9 +46,10 @@
         "src/components/archetypes/detail-overview/**",
         "src/components/archetypes/form-page/**",
         "src/components/archetypes/list-with-detail/**",
-        "src/components/archetypes/settings-table/**"
+        "src/components/archetypes/settings-table/**",
+        "src/components/archetypes/entity-circle/**"
       ],
-      "message": "A prop named from the appearance-noun list is a per-call-site appearance the contract does not derive (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, settings-table) are gated by their own `*-` error rules."
+      "message": "A prop named from the appearance-noun list is a per-call-site appearance the contract does not derive (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, settings-table) are gated by their own `*-` error rules. Excluded: entity-circle — its `tone` is contract-keyed to the entity's identity role (entity-circle.md L7: brand tone reserved for the signed-in identity; every other entity is neutral), so ADR-0004's derived test passes and the prop is legal."
     },
     {
       "id": "archetype-look-union-prop",

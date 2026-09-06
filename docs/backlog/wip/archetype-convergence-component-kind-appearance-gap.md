@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-06'
-status: ready
+status: wip
 value: high
 roadmap: archetype-convergence
 depends_on:
@@ -47,14 +47,14 @@ in the component.
 
 ## What to do
 
-- [ ] Make the call and record it as an amendment to ADR-0004 plus a
+- [x] Make the call and record it as an amendment to ADR-0004 plus a
       clarifying clause in `docs/RULES.md` rule 12: does a MANIFEST
       `kind: "component"` archetype get governed as a leaf primitive (like
       `src/components/ui/`) or as an archetype composition, and why? Apply the
       ADR's own discriminator — derived vs inherited: a prop whose value the
       contract derives from the entity or its data is legal; a prop with a
       backwards-compatible default and no keying rule is not.
-- [ ] Read both contracts against the call.
+- [x] Read both contracts against the call.
       `docs/archetypes/entity-circle.md:88-89` only enumerates the sanctioned
       tones (a neutral default, a brand tone) with no rule for *when* an entity
       gets which. `docs/archetypes/overline-typed.md:106` states "Tone conveys
@@ -63,7 +63,7 @@ in the component.
       (e.g. tone keyed to a stated entity/section role) or delete the prop and
       fix the value in the component; if the call is that they're exempt,
       leave the code alone.
-- [ ] While in `overline-typed.md`, resolve its `:87` clause sanctioning "a
+- [x] While in `overline-typed.md`, resolve its `:87` clause sanctioning "a
       one-off color the tone set does not cover" via the `className`
       passthrough. The global `archetype-shell-class-name` rule in
       `_adherence.json` is already `severity: "error"` for `*Shell.tsx`/
@@ -72,14 +72,14 @@ in the component.
       contract advertising className as a sanctioned per-site deviation channel
       either contradicts that or is a documented leaf exemption — say which, in
       the contract.
-- [ ] Apply the outcome to `_adherence.json`: if legal, add both archetypes to
+- [x] Apply the outcome to `_adherence.json`: if legal, add both archetypes to
       the `archetype-appearance-noun-prop` rule's `exclude` list (same array
       form the rule already uses for `detail-overview`/`form-page`/
       `list-with-detail`/`settings-table`) with a message naming the contract
       clause that keys them; if not legal, delete the props and update
       `src/examples/entity-circle-demo.tsx`, `src/examples/overline-typed-demo.tsx`,
       and the component tests (`entity-avatar.test.tsx`, `overline.test.tsx`).
-- [ ] Bump both MANIFEST entries: major if a prop is deleted (the API
+- [x] Bump both MANIFEST entries: major if a prop is deleted (the API
       breaks), minor if only the contract gains a keying rule.
 
 ## Acceptance
