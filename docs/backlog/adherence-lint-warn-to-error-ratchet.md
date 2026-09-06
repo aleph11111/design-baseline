@@ -2,7 +2,6 @@
 area: archetypes
 opened: '2026-09-06'
 status: ready
-value: normal
 gate:
   score: 5
   passed:
@@ -13,6 +12,8 @@ gate:
     - related
   failed: []
   graded_at: '2026-09-06T00:00:00Z'
+value: normal
+roadmap: archetype-convergence
 ---
 
 # Ratchet archetype appearance-prop lint rules to blocking severity
