@@ -11,6 +11,7 @@ tickets:
   - archetype-convergence-nested-heading-primitive
   - archetype-convergence-detail-overview-close-api
   - archetype-convergence-appearance-prop-lint
+  - adherence-lint-union-prop-blind-spot
 phases:
   - name: p0
     title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
@@ -39,6 +40,7 @@ phases:
       - archetype-convergence-list-with-detail-close-api
       - archetype-convergence-settings-table-close-api
       - archetype-shell-classname-drop
+      - adherence-lint-union-prop-blind-spot
     open: false
   - name: pkg
     title: Consumable source package — exports map, no compiled CSS
