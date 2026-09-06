@@ -15,6 +15,7 @@ tickets:
   - analytics-dashboard-column-span-props-unclosed
   - entity-circle-size-prop-appearance-locality-gap
   - adherence-lint-alias-rule-size-noun-gap
+  - adherence-lint-warn-to-error-ratchet
 phases:
   - name: p0
     title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
@@ -47,6 +48,7 @@ phases:
       - analytics-dashboard-column-span-props-unclosed
       - entity-circle-size-prop-appearance-locality-gap
       - adherence-lint-alias-rule-size-noun-gap
+      - adherence-lint-warn-to-error-ratchet
     open: false
   - name: pkg
     title: Consumable source package — exports map, no compiled CSS
