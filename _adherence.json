@@ -68,6 +68,44 @@
       "message": "A prop typed as an inline string-literal union of look-names is a design space two projects can fill differently (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, crud-dialog, settings-table) are gated by their own `*-` error rules. Excluded: report — its `width` union is contract-keyed to the document's shape (report.md Structure, width keying rule: compact receipt / short Beleg -> sm, standard document column -> md, wide statement with many columns -> lg), so ADR-0004's derived test passes and the prop is legal."
     },
     {
+      "id": "archetype-numeric-union-prop",
+      "pattern": "^\\s*\\w+\\??:\\s*[0-9]+\\s*\\|\\s*[0-9]+",
+      "severity": "warn",
+      "include": [
+        "src/components/archetypes/**",
+        "src/components/layout/**"
+      ],
+      "exclude": [
+        "src/components/archetypes/detail-overview/**",
+        "src/components/archetypes/form-page/**",
+        "src/components/archetypes/list-with-detail/**",
+        "src/components/archetypes/crud-dialog/**",
+        "src/components/archetypes/settings-table/**",
+        "src/components/archetypes/report/**",
+        "src/components/archetypes/statement-with-filters/**"
+      ],
+      "message": "A prop typed as a bare numeric-literal union (`columns?: 2 | 3 | 4`) is the same per-call-site appearance axis as a string-literal look union — the quoted-string pattern of `archetype-look-union-prop` only reaches quoted members and never matches it (RULES.md hard rule 12). The `include` carries `src/components/layout/**` as a second root because the shared chrome (`StatTileRow`) lives outside `src/components/archetypes/`. Closed archetypes (detail-overview, form-page, list-with-detail, crud-dialog, settings-table, report) are gated by their own `*-` error rules. Excluded: statement-with-filters — its `StatementRow.indent` is contract-keyed to the row's own depth in the statement's group -> children data, capped at 2 (statement-with-filters.md Layer 6, indent keying rule: top-level row (no parent group) -> 0, child of a top-level group -> 1, grandchild or deeper -> 2, the terminal step), so ADR-0004's derived test passes and the prop is legal."
+    },
+    {
+      "id": "archetype-alias-union-prop",
+      "pattern": "^\\s*(?!(?:surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded)\\?\\s*:)\\w+\\??:\\s*(?:{{unionAliases}})\\b",
+      "severity": "warn",
+      "include": [
+        "src/components/archetypes/**",
+        "src/components/layout/**"
+      ],
+      "exclude": [
+        "src/components/archetypes/detail-overview/**",
+        "src/components/archetypes/form-page/**",
+        "src/components/archetypes/list-with-detail/**",
+        "src/components/archetypes/crud-dialog/**",
+        "src/components/archetypes/settings-table/**",
+        "src/components/archetypes/report/**",
+        "src/components/archetypes/overline-typed/**"
+      ],
+      "message": "A prop typed against a union type ALIAS (`size?: EntityAvatarSize`) is the same per-call-site design space as an inline look union, just named once (RULES.md hard rule 12). `{{unionAliases}}` is substituted per scanned file with the union aliases that file itself declares (scripts/lint-design.mjs `harvestUnionAliases`) — same-file only, no type resolution (ADR-0003). The leading negative lookahead skips the appearance-noun prop names `archetype-appearance-noun-prop` already owns, so an aliased `tone?:` is reported once — by that rule, under its triage — not twice. Closed archetypes (detail-overview, form-page, list-with-detail, crud-dialog, settings-table, report) are gated by their own `*-` error rules. Excluded: overline-typed — its `as?: OverlineElement` selects the rendered ELEMENT, not a look: the contract keys it to the document outline (overline-typed.md L8 — the element it renders as is selectable because a label above a heading may be a non-heading element or may itself be the section heading; L11 — when the overline IS the semantic section heading it renders as the heading element so the document outline stays correct), so it is not an appearance axis at all."
+    },
+    {
       "id": "archetype-shell-class-name",
       "pattern": "^\\s{0,2}className\\?\\s*:\\s*string",
       "severity": "error",

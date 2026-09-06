@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-06'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -26,7 +26,7 @@ roadmap: archetype-convergence
 ## Context
 
 `_adherence.json`'s `archetype-look-union-prop` rule (added by
-[archetype-convergence-appearance-prop-lint](archive/archetype-convergence-appearance-prop-lint.md))
+[archetype-convergence-appearance-prop-lint](../archive/archetype-convergence-appearance-prop-lint.md))
 matches only an inline union of quoted string literals on one line
 (`^\s*\w+\??:\s*"a"\s*\|\s*"b"`), so `node scripts/lint-design.mjs` currently
 reports zero hits under `src/components/archetypes/**` for two shapes of the
@@ -88,7 +88,7 @@ same RULES.md hard rule 12 defect that already exist in the tree:
       Layer 6 decision rule stating the mapping explicitly (indent = the
       row's tree depth in the statement's group→children data, capped at 2),
       mirroring how `report.md`'s width JSDoc was promoted into contract prose
-      in [report-calendar-appearance-prop-lint](archive/report-calendar-appearance-prop-lint.md),
+      in [report-calendar-appearance-prop-lint](../archive/report-calendar-appearance-prop-lint.md),
       **then** add `src/components/archetypes/statement-with-filters/**` to
       the numeric-union rule's `exclude`, with the rule's `message` naming
       `statement-with-filters.md`'s new keying-rule clause.
@@ -126,9 +126,9 @@ same RULES.md hard rule 12 defect that already exist in the tree:
 
 ## Related
 
-- [archetype-convergence-appearance-prop-lint.md](archive/archetype-convergence-appearance-prop-lint.md) — shipped the rule this ticket extends; same path-scoping mechanism (`include`/`exclude`, `path.matchesGlob`).
-- [report-calendar-appearance-prop-lint.md](archive/report-calendar-appearance-prop-lint.md) — the precedent this ticket mirrors for `StatementTable.indent`: promote contract prose into an exhaustive keying rule, then exclude, citing the clause in the rule's `message`.
-- [archetype-convergence-component-kind-appearance-gap.md](archive/archetype-convergence-component-kind-appearance-gap.md) — established that a `kind: "component"` archetype (entity-circle) is governed under hard rule 12, not exempt as a leaf.
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap; Phase 1's `?`-marked "audit the remaining twenty archetypes... in MANIFEST order" is what this scanner gap was blocking from being mechanically checkable.
+- [archetype-convergence-appearance-prop-lint.md](../archive/archetype-convergence-appearance-prop-lint.md) — shipped the rule this ticket extends; same path-scoping mechanism (`include`/`exclude`, `path.matchesGlob`).
+- [report-calendar-appearance-prop-lint.md](../archive/report-calendar-appearance-prop-lint.md) — the precedent this ticket mirrors for `StatementTable.indent`: promote contract prose into an exhaustive keying rule, then exclude, citing the clause in the rule's `message`.
+- [archetype-convergence-component-kind-appearance-gap.md](../archive/archetype-convergence-component-kind-appearance-gap.md) — established that a `kind: "component"` archetype (entity-circle) is governed under hard rule 12, not exempt as a leaf.
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap; Phase 1's `?`-marked "audit the remaining twenty archetypes... in MANIFEST order" is what this scanner gap was blocking from being mechanically checkable.
 - ADR-0004 (`docs/adr/0004-appearance-locality-derived-vs-inherited.md`) — the derived-vs-inherited rule, and its 2026-09-06 amendment on `kind: "component"` archetypes.
 - ADR-0003 — adherence lint ships as a zero-dep scanner; this ticket stays inside that constraint (no TS parser).

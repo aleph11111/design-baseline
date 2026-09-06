@@ -419,3 +419,138 @@ describe("lint-design per-rule include glob", () => {
     });
   });
 });
+
+/**
+ * Build a throwaway repo tree from an explicit `{ relPath: content }` map plus an
+ * `_adherence.json` carrying `rules`, run the real scanner, and return
+ * { status, stdout }. `runFixture` above pins a fixed two-prop file shape; the union
+ * rules need per-test file bodies (a type alias in one file and not the other), so
+ * these get their own writer rather than widening that one.
+ */
+function runFilesFixture(rules, files, ...args) {
+  const dir = mkdtempSync(join(tmpdir(), "lint-design-union-"));
+  try {
+    for (const [rel, content] of Object.entries(files)) {
+      const abs = join(dir, rel);
+      mkdirSync(join(abs, ".."), { recursive: true });
+      writeFileSync(abs, content);
+    }
+    writeFileSync(join(dir, "_adherence.json"), JSON.stringify({ targets: ["src"], rules }));
+    try {
+      return { status: 0, stdout: execFileSync("node", [join(root, script), ...args], { cwd: dir, encoding: "utf8" }) };
+    } catch (err) {
+      return { status: err.status, stdout: err.stdout ?? "" };
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+const hitsOf = (stdout) =>
+  JSON.parse(stdout).violations.map((v) => `${v.file}:${v.line}`);
+
+describe("numeric-literal union props (the shape a quoted-string pattern never reaches)", () => {
+  // `archetype-numeric-union-prop`'s live pattern, verbatim.
+  const NUMERIC = "^\\s*\\w+\\??:\\s*[0-9]+\\s*\\|\\s*[0-9]+";
+
+  it("flags a bare numeric union the string-literal rule misses", () => {
+    // One file, two rules: the shipped quoted-string pattern finds nothing in it, the
+    // numeric one finds the prop. That divergence IS the blind spot this rule closes.
+    const files = {
+      "src/components/archetypes/grid/Grid.tsx": "export type P = {\n  columns?: 2 | 3 | 4;\n};\n",
+    };
+    const rules = [
+      { id: "look-union", pattern: '^\\s*\\w+\\??:\\s*"[^"]+"\\s*\\|\\s*"[^"]+"', severity: "warn", message: "m" },
+      { id: "numeric-union", pattern: NUMERIC, severity: "warn", message: "m" },
+    ];
+    const { stdout } = runFilesFixture(rules, files, "--json");
+    const violations = JSON.parse(stdout).violations;
+    expect(violations.map((v) => v.rule)).toEqual(["numeric-union"]);
+    expect(violations[0].line).toBe(2);
+  });
+
+  it("reaches a second include root (`src/components/layout/**`) alongside the archetype root", () => {
+    // `StatTileRow` lives in the shared chrome, outside `src/components/archetypes/` —
+    // the reason the rule's include carries two roots. A single-root include would
+    // report a clean scan over a live defect.
+    const files = {
+      "src/components/layout/StatTileRow.tsx": "export type P = {\n  columns: 2 | 3 | 4;\n};\n",
+      "src/components/ui/grid.tsx": "export type P = {\n  columns: 2 | 3 | 4;\n};\n",
+    };
+    const rule = {
+      id: "numeric-union",
+      pattern: NUMERIC,
+      severity: "warn",
+      message: "m",
+      include: ["src/components/archetypes/**", "src/components/layout/**"],
+    };
+    const { stdout } = runFilesFixture([rule], files, "--json");
+    expect(hitsOf(stdout)).toEqual(["src/components/layout/StatTileRow.tsx:2"]); // ui/ stays out
+  });
+});
+
+describe("union type-alias pre-pass (`{{unionAliases}}`)", () => {
+  // `archetype-alias-union-prop`'s live pattern, verbatim — lookahead included.
+  const ALIAS =
+    "^\\s*(?!(?:surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded)\\?\\s*:)" +
+    "\\w+\\??:\\s*(?:{{unionAliases}})\\b";
+  const aliasRule = (extra = {}) => ({ id: "alias-union", pattern: ALIAS, severity: "warn", message: "m", ...extra });
+
+  it("flags a prop typed against a union alias declared in the same file", () => {
+    // The EntityAvatar shape: the union is named once at the top of the file, so the
+    // prop declaration itself carries no literals for a literal pattern to match.
+    const files = {
+      "src/components/archetypes/e/EntityAvatar.tsx":
+        'export type EntityAvatarSize = "xs" | "sm" | "md";\nexport type P = {\n  size?: EntityAvatarSize;\n};\n',
+    };
+    const { stdout } = runFilesFixture([aliasRule()], files, "--json");
+    expect(hitsOf(stdout)).toEqual(["src/components/archetypes/e/EntityAvatar.tsx:3"]);
+  });
+
+  it("harvests a numeric union alias too", () => {
+    const files = {
+      "src/components/archetypes/g/Grid.tsx": "export type Span = 1 | 2 | 3;\nexport type P = {\n  span?: Span;\n};\n",
+    };
+    const { stdout } = runFilesFixture([aliasRule()], files, "--json");
+    expect(hitsOf(stdout)).toEqual(["src/components/archetypes/g/Grid.tsx:3"]);
+  });
+
+  it("resolves same-file only — an alias imported from elsewhere is out of scope", () => {
+    // The scanner walks one file at a time and holds no module graph (ADR-0003). A
+    // consumer file using the SAME alias name is not flagged: the ticket asks for a
+    // per-file harvest, not cross-file type resolution, and pretending otherwise would
+    // flag every identifier that happens to share a name with some union somewhere.
+    const files = {
+      "src/components/archetypes/e/EntityAvatar.tsx":
+        'export type EntityAvatarSize = "xs" | "sm";\nexport type P = {\n  size?: EntityAvatarSize;\n};\n',
+      "src/components/archetypes/e/Consumer.tsx":
+        'import type { EntityAvatarSize } from "./EntityAvatar";\nexport type Q = {\n  size?: EntityAvatarSize;\n};\n',
+    };
+    const { stdout } = runFilesFixture([aliasRule()], files, "--json");
+    expect(hitsOf(stdout)).toEqual(["src/components/archetypes/e/EntityAvatar.tsx:3"]);
+  });
+
+  it("ignores a file whose aliases are not unions", () => {
+    // No union alias in the file → the rule can match nothing and is skipped, rather
+    // than compiling an empty alternation (which would match the empty string and flag
+    // every prop declaration in the tree).
+    const files = {
+      "src/components/archetypes/x/X.tsx": "export type Id = string;\nexport type P = {\n  id?: Id;\n};\n",
+    };
+    const { stdout, status } = runFilesFixture([aliasRule({ severity: "error" })], files, "--json");
+    expect(hitsOf(stdout)).toEqual([]);
+    expect(status).toBe(0);
+  });
+
+  it("leaves an aliased appearance-noun prop to the rule that already owns it", () => {
+    // `tone?:` is `archetype-appearance-noun-prop`'s, whatever it is typed as — and that
+    // rule carries the per-archetype triage for it. The lookahead keeps one defect from
+    // being reported twice under two different messages.
+    const files = {
+      "src/components/archetypes/c/CalendarShell.tsx":
+        'export type Tone = "default" | "success";\nexport type P = {\n  tone?: Tone;\n  size?: Tone;\n};\n',
+    };
+    const { stdout } = runFilesFixture([aliasRule()], files, "--json");
+    expect(hitsOf(stdout)).toEqual(["src/components/archetypes/c/CalendarShell.tsx:4"]); // size, not tone
+  });
+});

@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import {
   CompileError,
   compileRules,
+  harvestUnionAliases,
   includeReachableUnder,
   scanFile,
 } from "./lint-design.mjs";
@@ -286,5 +287,56 @@ describe("scanFile", () => {
   it("a rule with no `include` or `exclude` matches every walked file's text", () => {
     const v = scanFile("src/anywhere.tsx", text, [comp]);
     expect(v).toHaveLength(3);
+  });
+});
+
+describe("harvestUnionAliases (the same-file union-alias pre-pass)", () => {
+  it("harvests string and numeric union aliases, exported or not", () => {
+    const text = [
+      'export type EntityAvatarSize = "xs" | "sm" | "md";',
+      "type Span = 1 | 2 | 3;",
+      "  export type Indented = 'a' | 'b';",
+    ].join("\n");
+    expect(harvestUnionAliases(text)).toEqual(["EntityAvatarSize", "Span", "Indented"]);
+  });
+
+  it("ignores an alias that is not a literal union", () => {
+    // A union is recognised by "first member is a literal AND a `|` follows on the same
+    // line". An object/function/single-type alias has no such shape, so it never arms a
+    // `{{unionAliases}}` rule — which would otherwise flag every prop typed against it.
+    const text = [
+      "export type Id = string;",
+      "export type Row = { label: string };",
+      "export type Fn = (a: number) => void;",
+      "export type Either = Row | Fn;",
+    ].join("\n");
+    expect(harvestUnionAliases(text)).toEqual([]);
+  });
+
+  it("does not follow a union split across lines — the scanner is line-level, not a parser", () => {
+    // A documented ceiling (ADR-0003): catching this shape means carrying state across
+    // lines. The tree carries no multi-line union alias today; if one lands, this is the
+    // test that says why it is not flagged.
+    const text = 'export type X =\n  | "a"\n  | "b";';
+    expect(harvestUnionAliases(text)).toEqual([]);
+  });
+
+  it("a rule keeps the placeholder as `aliasSource` instead of a compiled regex", () => {
+    // The per-file alternation cannot be compiled once, so `compileRules` carries the
+    // source and `scanFile` compiles it per file — but a bad pattern must still fail at
+    // compile time like any other rule, which the stand-in substitution preserves.
+    const [rule] = compileRules([{ id: "a", pattern: "x(?:{{unionAliases}})" }]);
+    expect(rule.aliasSource).toBe("x(?:{{unionAliases}})");
+    expect(() => compileRules([{ id: "b", pattern: "x(?:{{unionAliases}}" }])).toThrow(CompileError);
+  });
+
+  it("scanFile substitutes only the aliases of the file it is scanning", () => {
+    const compiled = compileRules([
+      { id: "alias-union", pattern: "^\\s*\\w+\\??:\\s*(?:{{unionAliases}})\\b", message: "m" },
+    ]);
+    const declaring = 'export type Size = "xs" | "sm";\nexport type P = {\n  size?: Size;\n};\n';
+    const importing = 'import type { Size } from "./a";\nexport type Q = {\n  size?: Size;\n};\n';
+    expect(scanFile("a.tsx", declaring, compiled).map((v) => v.line)).toEqual([3]);
+    expect(scanFile("b.tsx", importing, compiled)).toEqual([]);
   });
 });

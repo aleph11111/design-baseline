@@ -99,7 +99,11 @@ contract role. Only layers with a baseline-specific binding appear.
   (`font-mono tabular-nums text-right`; `text-muted-foreground` for the
   middle columns, `font-semibold text-foreground` for the terminal column).
 - Tree indentation → the caller composes `<StatementRow indent>` (no tree
-  primitive; expandable-rows are outside the contract).
+  primitive; expandable-rows are outside the contract). `indent` carries the
+  contract's keying rule, not a look: it is the row's depth in the
+  `group → children` data capped at 2 (`0` top-level · `1` child of a
+  top-level group · `2` grandchild or deeper), so the step is derived, never
+  a per-call-site choice.
 
 ### Layer 7 — States
 - Loading → `StateView`-equivalent text loader centred `p-8` (or the
