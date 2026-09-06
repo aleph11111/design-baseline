@@ -21,7 +21,7 @@ gate:
 ## Context
 
 `node scripts/lint-design.mjs` reports 4 remaining `warn` hits from the
-appearance-prop rules the [archetype-convergence-appearance-prop-lint](archive/archetype-convergence-appearance-prop-lint.md)
+appearance-prop rules the [archetype-convergence-appearance-prop-lint](../archive/archetype-convergence-appearance-prop-lint.md)
 ticket added to `_adherence.json`. Two sit on **component-kind** archetypes —
 leaf primitives, not page shells — promoted as `kind: "component"` MANIFEST
 entries: `src/components/archetypes/entity-circle/EntityAvatar.tsx:16`
@@ -32,7 +32,7 @@ defaulting to `"muted"`). Both are flagged by the `archetype-appearance-noun-pro
 rule, scoped to `src/components/archetypes/**`.
 
 Neither `docs/RULES.md` hard rule 12 nor
-[ADR-0004](../adr/0004-appearance-locality-derived-vs-inherited.md) names this
+[ADR-0004](../../adr/0004-appearance-locality-derived-vs-inherited.md) names this
 category. Rule 12 is worded as a per-call-site prop on an archetype
 **composition**; ADR-0004 exempts `src/components/ui/` leaves explicitly
 ("They are leaves, they do not drift"). `entity-circle` and `overline-typed`
@@ -68,7 +68,7 @@ in the component.
       passthrough. The global `archetype-shell-class-name` rule in
       `_adherence.json` is already `severity: "error"` for `*Shell.tsx`/
       `*Sheet.tsx`, and the twelve-shell className drop has shipped
-      ([archetype-shell-classname-drop.md](archive/archetype-shell-classname-drop.md)); a
+      ([archetype-shell-classname-drop.md](../archive/archetype-shell-classname-drop.md)); a
       contract advertising className as a sanctioned per-site deviation channel
       either contradicts that or is a documented leaf exemption — say which, in
       the contract.
@@ -101,13 +101,13 @@ in the component.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap; this
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap; this
   fills the Phase-1 `?`-marked "audit the remaining twenty archetypes... in
   MANIFEST order" for the two component-kind entries the audit list didn't
   originally distinguish from page shells
-- [archetype-convergence-phase0-appearance-locality-decision.md](archive/archetype-convergence-phase0-appearance-locality-decision.md)
+- [archetype-convergence-phase0-appearance-locality-decision.md](../archive/archetype-convergence-phase0-appearance-locality-decision.md)
   — depends on: the derived-vs-inherited discriminator this ticket applies
-- [archetype-convergence-appearance-prop-lint.md](archive/archetype-convergence-appearance-prop-lint.md)
+- [archetype-convergence-appearance-prop-lint.md](../archive/archetype-convergence-appearance-prop-lint.md)
   — depends on: the rule and `exclude` mechanism this ticket configures
 - ADR-0004 — the decision this ticket amends
 - `docs/RULES.md` hard rule 12 — the enforceable restatement this ticket
