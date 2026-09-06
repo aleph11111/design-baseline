@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-09-06
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "exhaustive keying-rule verification plus a message-carrying lint-exclude change is design judgment, not pattern-following (mirrors archetype-convergence-form-page-width-prop's model_reason)"
