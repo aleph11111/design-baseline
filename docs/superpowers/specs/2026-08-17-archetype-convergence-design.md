@@ -779,3 +779,242 @@ them produces three PRs whose combined diff is smaller than one review.
 - Whether `/style-baseline`'s merged-shape migration path (STYLE.md:288) still
   has a live target in the fleet, or is already dead code that `fleet-commands`
   deletes wholesale.
+
+---
+
+## Phase consumer-migration — swap hk-crm's copy channel for the package
+
+Sharpened 2026-09-07, after p0 / p1 / lint / warn-drain / pkg / token-split
+landed. Supersedes the design-level Phase-4 sketch above, which predicted this
+phase before the API was closed and before hk-crm had absorbed the closed API
+through the copy channel.
+
+### What changed under this phase
+
+**The page migration already happened — through the channel this phase is
+meant to retire.** hk-crm's `/companies/[id]` runs the closed v3.0 API today:
+`layout.tsx` owns the entity identity and tab nav (Mode A), and all twelve
+sub-tab pages call `DetailOverviewShell` with `title` / `subtitle` / `badges` /
+`actions` / `stats: StatItem[]`. `grep -rn 'surface=\|className=\|headerFill'`
+across `src/app/(app)/companies/` finds nothing at any call site. Its vendored
+shell differs from this donor's only by the stamp line, `@/` imports, and the
+two post-`pkg` refinements (`SurfaceHeaderBar`, `StatTileRow`'s self-derived
+cell count).
+
+The Phase-4 sketch's prediction — *"the twelve route files collapse to one
+composition with per-tab data"* — is therefore spent, and it was wrong in shape
+as well as timing. The collapse never happened; **Mode A/B did the work
+instead**. The parent layout renders the entity heading once, each sub-tab
+passes its own sub-area `title`, and the five-of-twelve KPI-strip inconsistency
+the sketch worried about is closed because `stats` is typed. The design got the
+outcome it wanted from D4 and D7, not from a call-site collapse. Nothing here
+re-litigates that.
+
+So this phase is **only the channel swap**: hk-crm stops carrying 155 vendored
+files under `src/components/{ui,layout,archetypes}` and installs
+`design-baseline#<tag>` instead. `/companies/[id]` demotes from *the work* to
+*the acceptance surface* — it must render identically before and after, which
+is exactly the proof a distribution change needs.
+
+**What widens it: `ui/` is a real fork, and one class of it can never be
+un-forked.** Measured against hk-crm's tree:
+
+1. **28 of the 36 shared `ui/` primitives are already identical** modulo the
+   vendor stamp, the `"use client"` line, and `@/` versus relative imports. The
+   swap is a no-op for those.
+2. **8 genuinely diverge**: `alert`, `badge`, `button`, `confirmation-dialog`,
+   `error-boundary`, `file-field`, `form`, `state-view`. They fall into four
+   kinds, and only one is drift:
+   - *hk-ahead, appearance* — `badge` and `alert` both moved to
+     `bg-status-{tier}-bg` / `text-status-{tier}-fg` token pairs and `badge`
+     gained an `info` variant. The donor is the one that is behind.
+   - *hk-ahead, functional* — `form`'s `required` asterisk + `aria-required`,
+     `confirmation-dialog`'s `isPending` async mode.
+   - *donor-ahead, consumer stale* — `button`'s dev-mode `size="icon"` a11y
+     warning, `file-field`'s `archetypes/shared/fieldFrame` refactor,
+     `error-boundary`'s `logger` over `console`.
+   - *locale* — `confirmation-dialog` imports `@/ui-text/de`; `state-view`
+     hardcodes `"Lädt…"` and `"Etwas ist schiefgelaufen"`. **This is not
+     drift.** The packaged surface's locale model is English defaults
+     overridable per call site (`layout/MetricList.tsx:92` says so in as many
+     words: *"override per locale (e.g. 'Mehr anzeigen')"*); hk-crm's model is
+     German defaults baked into the file. Both are coherent and they are
+     incompatible at file granularity.
+3. **hk-crm carries 12 `ui/` primitives the donor has none of** —
+   `breadcrumb`, `labeled-control`, `native-field`, `results-count`,
+   `route-error`, `select-field`, `select-filter`, `table-row-actions`,
+   `textarea-field`, `view-toggle`, plus two unit tests. Disjoint names, so no
+   collision — but a blanket alias re-point makes all twelve unresolvable.
+4. **170 files import `@/components/ui`.** Any answer that renames the alias
+   pays 170 edits for a naming change.
+
+`docs/PACKAGE.md:37`'s single-entry re-point therefore deletes twelve
+project-owned primitives and silently reverts two the donor is behind on. P2 as
+written does not survive its first real consumer.
+
+**What is narrower than feared.** `src/components/layout/` has **zero** hk-only
+files — hk-crm's copy is a strict subset of the donor's, so a blanket re-point
+works there unchanged. `src/lib/utils.ts` is byte-identical. `src/hooks/` is
+entirely disjoint (hk-crm has ten of its own and no `use-mobile`) but never
+needs re-pointing at all: after `pkg`'s relativization the package resolves its
+own internals, so only the specifiers hk-crm's *own app code* uses need an
+alias entry. `ui/` is the sole file-level fork in the whole 155-file surface.
+
+**Real remaining consumer-side work, measured.** hk-crm's `src/styles/tokens.css`
+is still the pre-#178 merged shape — no `tokens.layer.css`, 288 diff lines
+against the donor's brand file — and it binds `--font-sans` through `next/font`,
+which is exactly the seam `token-split` documented. Its vendor stamps are split
+38 × `@0.1.0` / 64 × `@0.10.0`, the per-file drift the installed tag replaces.
+`next.config.ts` has no `transpilePackages` and `tsconfig.json` has only
+`"@/*": ["./src/*"]`.
+
+### Decisions
+
+| # | Decision | Rationale |
+|---|---|---|
+| C1 | The phase is **hk-crm's whole channel swap**, not one route family. `/companies/[id]` is the acceptance surface, not the work | The page migration already landed via copy. Keeping the phase page-scoped would leave 141 archetype→`ui` edges resolving to a second copy of every primitive — the dedupe problem P2 exists to prevent |
+| C2 | P2 narrows to a **two-entry alias array, project first**: `"@/components/ui/*": ["./src/components/ui/*", "node_modules/design-baseline/src/components/ui/*"]`. The consumer deletes only the files the package ships *and* it does not own | TypeScript tries `paths` entries in order, so a file the consumer keeps shadows the package's without any import changing. Twelve project-owned primitives and the German-defaulted files survive untouched; the other 28 come from the package. Zero of the 170 import sites move. Must be proven against a Next build before it is documented — that is this phase's verification step 3 |
+| C3 | `layout/`, `archetypes/` re-point **blanket**; `lib/`, `hooks/`, `utils/` get **no alias entry at all** | Measured: `layout/` has no consumer-owned file, `lib/utils.ts` is identical, and `hooks/`/`utils/` are package internals the relativized tree resolves itself. Adding entries for them would be wiring for a problem no consumer has |
+| C4 | The donor **adopts hk-crm's status-token `badge` and `alert`** before the install, and that means adopting the roles: `--color-status-{success,warning,danger,info,neutral}-{bg,fg}` enter `tokens.layer.css`'s `@theme`, their default HSL triplets enter the donor's brand `tokens.css` (`:root` and `.dark`) | The donor has **no `--color-status-*` roles at all** today; `badge`/`alert` still key off `bg-success` / `border-warning/50`. hk-crm's pairs are AA-verified and are a soft-chip tier the donor lacks. Role-in-layer + value-in-brand is exactly T2's shape, and `verify-exports`' T5 invariants already guard that direction |
+| C5 | The remaining six forks are **triaged at install time, not predicted here**. The rule: donor-ahead → consumer takes the package's; hk-ahead-and-general → `/ticket` a promotion, consumer keeps its file until it lands; locale → permanent consumer file | Two of the six (`button`, `file-field`) are already known donor-ahead and two (`form`, `confirmation-dialog`) known hk-ahead-functional, but the diff at install time is the honest input. Predicting the other two buys nothing |
+| C6 | A consumer-kept `ui/` file is **not invisible**: each one is a `sync` row in `docs/promotion-radar.json`, alongside the installed tag | This is the phase's one real weakness. Unlike the roadmap's "fork out, visible in imports" bullet, C2's shadowing is *not* visible at the import — `@/components/ui/badge` reads the same either way. The file's physical presence in the consumer's `src/components/ui/` is countable, so the radar carries the count. No new script; the array the fleet audit already reads |
+| C7 | Donor tickets cover donor work; the **hk-crm install is a runbook in `docs/PACKAGE.md`**, executed from an hk-crm session | The donor's CI can never verify an hk-crm PR. `PACKAGE.md` today documents a greenfield install only; a vendored consumer needs an ordered migration path, and that path is a donor artifact whose reader is the consumer — the same reason `pkg` separated the wiring doc from the installable-ness ticket. Matches the fleet's "projects self-heal from their own session" practice |
+
+### The two-entry path, concretely
+
+`docs/PACKAGE.md` §2 is rewritten from a delete-and-re-point instruction into an
+ownership statement:
+
+```jsonc
+// tsconfig.json — most specific first; within a pattern, project before package
+"paths": {
+  "@/components/ui/*":         ["./src/components/ui/*",
+                                "node_modules/design-baseline/src/components/ui/*"],
+  "@/components/layout/*":     ["node_modules/design-baseline/src/components/layout/*"],
+  "@/components/archetypes/*": ["node_modules/design-baseline/src/components/archetypes/*"],
+  "@/*":                       ["src/*"]
+}
+```
+
+The consumer deletes every `src/components/ui/` file that is identical to the
+package's, keeps the ones it owns or has deliberately forked, and deletes
+`src/components/layout/` and `src/components/archetypes/` wholesale. For hk-crm
+that is 28 files deleted from `ui/`, 20 kept (12 own + 8 pending triage under
+C5), and all of `layout/` + `archetypes/` gone — 155 vendored files down to at
+most 20, and the 20 are countable.
+
+### The migration runbook
+
+`docs/PACKAGE.md` gains a `## Migrating a vendored consumer` section — the
+ordered sequence a project already carrying a `cp -R` corpus runs, which the
+greenfield four-line section does not cover:
+
+1. **Fork triage first, before any install.** Diff the consumer's
+   `src/components/ui/` against the package's, normalising the vendor stamp,
+   the `"use client"` line and `@/`-versus-relative imports — those three
+   account for 28 of hk-crm's 36 apparent differences. Classify each survivor
+   by C5's rule.
+2. **Split `tokens.css`.** Replace the merged `@import "tailwindcss"` entry
+   with `@import "design-baseline/tokens.layer.css"`, keep the `:root` / `.dark`
+   brand triplets, add `@source "../node_modules/design-baseline/src"`, and move
+   the project's `next/font` binding into the brand file's `@theme` stanza —
+   the seam `token-split` shipped.
+3. **Install, wire, delete.** The tag, the four paths entries,
+   `transpilePackages`, then the file deletions from §"The two-entry path".
+4. **Drop the per-file vendor stamps** in the same commit as the deletions —
+   the installed tag is the stamp now (`STACK.md` hazard 5).
+5. **Record the tag and the kept-file count** as a `sync` row in the donor's
+   `docs/promotion-radar.json`.
+
+Step 1 is first on purpose: it is the only step whose output can change the
+plan, and running it after the install means discovering a fork by way of a
+broken build.
+
+### Scope boundary
+
+This phase makes hk-crm installable-onto and documents how. It does **not**:
+
+- Execute the hk-crm PR. That runs from an hk-crm session against this
+  runbook (C7); this phase's donor-side proof is a reported dry run, not a
+  merged consumer change.
+- Migrate `controlling-app`, `mistra`, `brickshop-manager`, `my-finance-app` or
+  `pmo`. The runbook is written to be consumer-agnostic, but hk-crm is the only
+  consumer this phase proves it against.
+- Delete `server/archetypeDrift.ts`, `design-baseline-chrome.json` or the
+  dashboard's adoption machinery (`drop-drift-machinery`), retire any consumer
+  or donor doc (`docs-retire`, `donor-docs`), or delete a fleet command
+  (`fleet-commands`). All four remain blocked on a consumer actually consuming.
+- Give the packaged surface a locale seam. hk-crm's German-defaulted files stay
+  consumer-owned under C2, which is a working answer; whether the package should
+  grow one is deferred below.
+- Reconcile `form`'s `required` asterisk or `confirmation-dialog`'s `isPending`
+  into the donor. Those are `/promote-archetype`'s channel, filed by C5's triage,
+  not this phase's edits.
+
+### Verification
+
+Phase `consumer-migration` is done when all of these hold:
+
+1. `docs/PACKAGE.md` §2 states the two-entry array and the per-directory
+   ownership split of C2/C3, and a `## Migrating a vendored consumer` section
+   carries the five ordered steps with the fork-triage normalisation named.
+2. The donor's `badge` exposes the five status tiers plus `info`, `alert` keys
+   off the same pairs, `tokens.layer.css`'s `@theme` declares the ten
+   `--color-status-*` roles, the brand `tokens.css` carries their `:root` and
+   `.dark` triplets, and `node scripts/verify-exports.mjs` still reports
+   `6/6 ok` — T5's "layer declares no brand values" invariant is what proves the
+   roles went in the layer and the values did not.
+3. **The dry run**: a scratch copy of hk-crm, outside both repos, with the git
+   dependency, the four `paths` entries, `transpilePackages`, the 28 `ui/`
+   deletions and the `layout/` + `archetypes/` deletions applied, passes
+   `npx tsc --noEmit` and `next build`, and `/companies/[id]` renders with the
+   archetype's classes present in the built CSS. Not committed; reported in the
+   ticket. This is what proves C2 against a Next build that resolves aliases
+   into `node_modules` — the open question `pkg` deferred.
+4. `docs/promotion-radar.json`'s package-tag `sync` row names the kept-file
+   count as part of what a consumer records, so a fork surviving the swap is a
+   number rather than a discovery.
+5. `npx tsc --noEmit`, `npm test`, `node scripts/lint-design.mjs` (0 errors) and
+   `npm run gallery:build` are unchanged in the donor. The `badge`/`alert`
+   adoption is the only source-visible change here; anything else moving is a
+   regression.
+
+The class-level acceptance stays the roadmap's: after the swap, hk-crm's
+`/companies/[id]` renders identically and carries no vendored archetype file,
+so no `archetype-rollout`-shaped ticket about it can be filed — the copy it
+would report is gone.
+
+### Ticket batch
+
+| ticket | depends_on |
+|---|---|
+| `donor-status-token-roles-badge-alert-backport` | — |
+| `package-ui-ownership-and-vendored-consumer-runbook` | `donor-status-token-roles-badge-alert-backport` |
+
+Two. The backport is separable and lands first because the runbook's triage
+table cites its outcome — with the donor behind on `badge` and `alert`, step 1
+of the runbook would tell every consumer to keep a fork of two files the donor
+should simply have. The ownership narrowing and the runbook are one ticket
+because a two-entry path documented without the migration order, or an order
+that assumes the old single-entry re-point, is a half-landed change; the dry run
+verifies both at once or neither.
+
+### Deferred to the decompose loop
+
+- Whether the packaged surface should grow a **locale seam** — the archetype
+  layer already answers by prop (English default, `moreLabel`-shaped override),
+  but `ui/state-view.tsx`'s fallbacks and `ui/confirmation-dialog.tsx`'s button
+  labels have no prop, which is why hk-crm forked them rather than overriding.
+  Two German consumers keeping the same two forks is the signal that the seam is
+  worth building; one is not.
+- Which of hk-crm's twelve own `ui/` primitives are fleet-general enough to
+  promote (`breadcrumb`, `results-count` and `table-row-actions` are the
+  obvious candidates). Answered by the triage in step 1 of the runbook,
+  filed via `/promote-archetype`, not decided here.
+- Whether `layout/` needs the two-entry treatment for the next consumer.
+  hk-crm's copy happens to be a strict subset; `controlling-app`'s and
+  `mistra`'s are not yet measured, and if either owns a layout file the
+  blanket re-point of C3 becomes a two-entry array there too.
+- Registry versus git tag, still (P7). The first real install is the input that
+  question was waiting on, and it is this phase's dry run — but the answer is
+  `drop-drift-machinery`'s to make, alongside tag cadence.
