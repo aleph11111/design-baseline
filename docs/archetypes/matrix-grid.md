@@ -2,7 +2,7 @@
 key: M
 slug: matrix-grid
 kind: page
-version: 1.2
+version: 1.3
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -113,6 +113,21 @@ The matrix toolbar is different from a list-with-detail toolbar: search and filt
   - Standard row/column dividers
   - Row-level hover highlight applied to both the sticky row-label cell and each body cell
 - The shell handles horizontal scroll itself. Consumers do not add another scroll container around it.
+
+**Overflow keying rule.** Which element is the horizontal scroll container is
+**derived from whether the surface holds a sticky-edge grid**, not chosen per
+call site (ADR-0004): a sticky first column stays pinned only while the
+element it scrolls inside is the bounded surface itself, so the requirement
+picks the mode. The mapping is exhaustive — the bounded surface has exactly
+two overflow modes:
+
+- **Clipped** (the default for every other archetype's bounded surface) — the
+  surface clips its content to its own rounding and owns no scrolling. Correct
+  when nothing inside needs to stay pinned during horizontal scroll.
+- **Scrolling** — the bounded surface *is* the horizontal scroll container.
+  Required exactly when it holds a grid with a sticky first column, i.e. this
+  archetype. A scroll container nested one level inside the surface (a body
+  wrapper) unpins the sticky column and is forbidden above.
 
 **Allowed variation:**
 - A page-level flex container that lets the shell shrink and scroll rather than enforce its intrinsic width is allowed when the page composes the matrix with a fixed-width sibling (e.g. a permanent filter rail).

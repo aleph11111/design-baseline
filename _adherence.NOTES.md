@@ -58,10 +58,23 @@ check landed.
 
 | id | shape caught | include |
 |---|---|---|
-| `archetype-appearance-noun-prop` | a prop named from the appearance-noun list (`surface`, `variant`, `tone`, `density`, `appearance`, `rhythm`, `fill`, `framed`, `bordered`, `compact`, `padded`) | `src/components/archetypes/**` |
-| `archetype-look-union-prop` | a prop typed as an inline string-literal union of look-names | `src/components/archetypes/**` |
-| `archetype-shell-class-name` | `className` declared on a `*Shell` component | `src/components/archetypes/**/*Shell.tsx` |
+| `archetype-appearance-noun-prop` | a prop named from the appearance-noun list (`surface`, `variant`, `tone`, `density`, `appearance`, `rhythm`, `fill`, `framed`, `bordered`, `compact`, `padded`) | `src/components/archetypes/**` + `src/components/layout/**` |
+| `archetype-look-union-prop` | a prop typed as an inline string-literal union of look-names | `src/components/archetypes/**` + `src/components/layout/**` |
+| `archetype-shell-class-name` | `className` declared on a `*Shell` / `*Sheet` component | `src/components/archetypes/**` + `src/components/layout/**`, `*Shell.tsx` / `*Sheet.tsx` |
 | `archetype-appearance-slot` | an appearance-bearing `ReactNode` slot (`header`, `stats`) | `src/components/archetypes/**` |
+
+**The shared-chrome second root.** `src/components/layout/**` is a second
+`include` root on every rule above except `archetype-appearance-slot` (whose
+widening is its own ticket, along with the `SectionCard.header` slot it
+surfaces). The chrome the archetype shells compose — `SectionCard`,
+`SurfaceFrame`, `StatTileRow`, `ProgressTracker` — lives outside
+`src/components/archetypes/`, and hard rule 12 governs an appearance prop
+there on identical terms: without the root a closed archetype can forward a
+prop it is supposed to fully key to an ungated owner one directory over
+(`DetailSection.tone` → `SectionCard.tone` was exactly that). Because the
+layout dir is one flat folder of unrelated primitives, its triaged props are
+excluded **by exact file path**, never by a `**` folder glob — a folder glob
+there would disarm the whole root.
 
 Each drain rule also carries an `exclude` array with one glob per closed archetype (
 `detail-overview/**`, `form-page/**`, `list-with-detail/**`, and `settings-table/**` as of this
