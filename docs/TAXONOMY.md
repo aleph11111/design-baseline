@@ -8,7 +8,7 @@ called" lookups resolve here.
 | Term | Means | Lives in | Applied / shipped by |
 |------|-------|----------|----------------------|
 | **Baseline** | The whole design donor — tokens + layout primitives + shell + archetypes. The single source of truth. | the `design-baseline` repo | — |
-| **Token** | A design value exposed as a CSS variable: color role, spacing rhythm, radius. Re-skinnable per project. | `src/styles/tokens.css`, documented in `STYLE.md` | `/style-baseline` |
+| **Token** | A design value exposed as a CSS variable: color role, spacing rhythm, radius. Re-skinnable per project. | brand palette + `--radius` in `src/styles/tokens.css`; the `@theme` roles live in the donor-owned `src/styles/tokens.layer.css` — documented in `STYLE.md` | `/style-baseline` |
 | **Layout primitive** | App chrome and cross-cutting building blocks: `AppShell`, `AppSidebar`, `AppHeader`, `PageHeader`, `SectionHeading`, `SectionCard`, `SectionNavShell`, `ThemeToggle`. | `src/components/layout/` | `/style-baseline` |
 | **Archetype** | A **page-shape contract**: how a *kind* of page is structured (route → shell → header → toolbar → data → states → permissions). Identified by a key (`A`, `B`, `C`, `D2`, `J`, `K`, `M`, `F2`) and a slug. Each = spec + reference primitives + demo. | spec in `docs/archetypes/<slug>.md`; registered in `docs/archetypes/MANIFEST.json` | `/style-archetypes <key>` |
 | **Reference primitive** | The components that implement an archetype's chrome (e.g. `GroupedListShell`, `GroupedListSection`). | `src/components/archetypes/<slug>/` | copied by `/style-archetypes` |

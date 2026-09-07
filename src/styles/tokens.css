@@ -1,7 +1,7 @@
 /*
  * Brand tokens — the project-owned half of the tokens stack.
  *
- * Everything else the tokens stack ships (the `@import "tailwindcss"` entry,
+ * Everything else the tokens stack ships (the Tailwind 4 entry import,
  * the `@theme` config and keyframes, `@custom-variant`, the utility
  * definitions, the layer base) lives in `tokens.layer.css` — the donor-owned
  * layer — and is imported from here. This file is the ONLY per-project
@@ -126,3 +126,14 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
+
+/* ---- FONT BINDING — override per project (optional) ----
+   The house faces ship as donor defaults in tokens.layer.css @theme. A project
+   that loads its own faces (Next: next/font; Vite: a <link> in index.html)
+   re-declares them here — a later @theme replaces the donor's value, it does
+   not stack. Leave this block commented to inherit the house style, which is
+   what makes a donor-side face change reach you on a version bump. */
+/* @theme {
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+} */

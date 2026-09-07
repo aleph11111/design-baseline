@@ -73,7 +73,13 @@ is a hard requirement, not a courtesy.
 
 The brand half of the tokens (the `:root` / `.dark` HSL values) stays the
 consumer's own `tokens.css` — the package does not export the brand `tokens.css`,
-so a donor-side default can never silently overwrite the brand palette.
+so a donor-side default can never silently overwrite the brand palette. The same
+brand file is where a project binds its own faces: a `@theme` re-declaration of
+`--font-sans` / `--font-mono` appended to it (the donor ships a commented FONT
+BINDING block there, ready to uncomment) is the supported way to override the
+house faces — a later `@theme` replaces the layer's value rather than stacking,
+and leaving it commented keeps a donor-side face change reaching the project on
+a version bump. `docs/STYLE.md` §Typography documents the same seam.
 
 ### 4. `next.config.js` — `transpilePackages` (Next consumers only)
 

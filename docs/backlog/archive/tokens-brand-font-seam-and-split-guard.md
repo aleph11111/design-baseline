@@ -2,7 +2,7 @@
 area: tooling
 roadmap: archetype-convergence
 opened: '2026-09-07'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "mechanical — a documented CSS stanza, two regex invariants in an existing script, and three stale doc lines; every design decision is settled in the spec section"
@@ -114,13 +114,13 @@ correctly, so that file contradicts itself.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — the roadmap; this is its
+- [archetype-convergence.md](../archetype-convergence.md) — the roadmap; this is its
   `token-split` phase, sharpened in
-  [the spec's `## Phase token-split` section](../superpowers/specs/2026-08-17-archetype-convergence-design.md).
-- [archive/archetype-package-installable.md](archive/archetype-package-installable.md)
+  [the spec's `## Phase token-split` section](../../superpowers/specs/2026-08-17-archetype-convergence-design.md).
+- [archive/archetype-package-installable.md](../archive/archetype-package-installable.md)
   — shipped `scripts/verify-exports.mjs` and the `./tokens.layer.css` export
   subpath (spec decision P5) this ticket extends.
-- [archive/archetype-package-consumer-wiring.md](archive/archetype-package-consumer-wiring.md)
+- [archive/archetype-package-consumer-wiring.md](../archive/archetype-package-consumer-wiring.md)
   — shipped `docs/PACKAGE.md` §3, the second doc surface the seam sentence lands in.
 - ADR-0004 — appearance locality; its line 35 is the rule the font axis currently fails.
 - ADR-0003 — the adherence-lint scanner, deliberately NOT the home for these

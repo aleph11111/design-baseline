@@ -15,7 +15,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | Layer | Choice | Notes |
 |---|---|---|
 | Build (gallery only) | Vite 6 + `@vitejs/plugin-react` | `vite.config.ts`, `root: "gallery"`, relative base + hash routing so the built gallery is mountable at an arbitrary iframe subpath |
-| Styling | Tailwind CSS 4 (`@tailwindcss/vite`) | CSS-first config; no `tailwind.config.ts`. Tokens in `src/styles/tokens.css` |
+| Styling | Tailwind CSS 4 (`@tailwindcss/vite`) | CSS-first config; no `tailwind.config.ts`. Tokens in `src/styles/tokens.css` (brand, per project) + `src/styles/tokens.layer.css` (donor-owned layer) |
 | UI primitives | shadcn/ui via `components.json` (style `default`, base color `slate`, RSC-aware) | 44 primitives in `src/components/ui/` |
 | Framework (donor typecheck) | React 19, TypeScript 5.6 (strict) | React/react-dom are **devDependencies only** — donor typechecking; targets pin their own |
 | Testing | Vitest 4 + jsdom + `@testing-library/react` | Separate `vitest.config.ts` (repo-root scoped) from `vite.config.ts` (gallery-scoped) |
@@ -28,7 +28,8 @@ Two independent verification paths, both donor-only (never copied to targets):
 
 | Path | What it is |
 |---|---|
-| `src/styles/tokens.css` | Tailwind 4 entry point + HSL design tokens (light + dark), re-skin surface |
+| `src/styles/tokens.css` | Brand token file — the `:root` / `.dark` HSL palette (light + dark) + `--radius`; the project-owned re-skin surface; imports the donor-owned layer below |
+| `src/styles/tokens.layer.css` | Donor-owned token layer — the Tailwind 4 entry + `@theme` roles / keyframes, re-applied (overwritten) by `/style-baseline --force`; shipped as the `./tokens.layer.css` package export |
 | `src/lib/utils.ts` | `cn()` |
 | `src/hooks/` | `use-mobile.ts` (`useIsMobile`, required by `ui/sidebar.tsx`) |
 | `src/utils/logger.ts` | console logger — `logger.debug` (gated on `NODE_ENV !== "production"`) + `info`/`warn`/`error` pass-throughs; framework-agnostic. Not an archetype and carries no per-file version: it is plain copy-source, and the invariant that governs it is **the donor surface must be a superset of what the fleet calls** (see §3a) |
