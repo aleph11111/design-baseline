@@ -18,7 +18,7 @@ Charts, data fetching, and auth are **not** in the baseline — pick per project
 
 ## Design tokens
 
-All tokens are HSL triplets in `src/styles/tokens.css`. Every shadcn component reads them via Tailwind utilities like `bg-background`, `text-foreground`, `border-input`. To re-skin: edit the HSL values in `:root` and `.dark`; nothing else changes.
+The re-skinnable tokens — the `:root` / `.dark` HSL triplets plus `--radius` — live in `src/styles/tokens.css`; the `@theme` roles those values map to live in the donor-owned `src/styles/tokens.layer.css`. Every shadcn component reads them via Tailwind utilities like `bg-background`, `text-foreground`, `border-input`. To re-skin: edit the HSL values in `:root` and `.dark` of `src/styles/tokens.css`; nothing else changes.
 
 ### Color roles
 
@@ -93,9 +93,13 @@ The baseline uses Tailwind's 4 px scale. A handful of values carry consistent *m
 
 **House style B — "Plex Ledger" (2026-06-21).** The house face is **IBM Plex Sans**;
 all figures (money / IDs / quantities / dates) render `font-mono tabular-nums` in
-**IBM Plex Mono**. The families are registered as `--font-sans` / `--font-mono` in
-`tokens.css @theme`; each app loads them in its entry (Next: `next/font/google`;
-Vite/gallery: a `<link>` in `index.html`). Prose, labels, and names stay
+**IBM Plex Mono**. The house faces are registered as `--font-sans` / `--font-mono` in
+the donor-owned `tokens.layer.css` `@theme`. A project that loads its own faces (Next:
+`next/font/google`; Vite/gallery: a `<link>` in `index.html`) binds them with a `@theme`
+re-declaration in its brand `src/styles/tokens.css` — the commented FONT BINDING block —
+since a later `@theme` replaces the donor's `--font-*` rather than stacking; leaving it
+commented is what lets a donor-side face change reach the project on a version bump.
+Prose, labels, and names stay
 `font-sans`; only number cells go mono — the layout primitives (`StatTile`,
 `KeyValueRow`, `MetricRow`) already carry `font-mono` on their value, so consumers
 get it for free. The brand accent is **not** part of the house style — it stays each
@@ -411,6 +415,7 @@ When applying the baseline to a new project with its own brand:
 
 1. Edit `src/styles/tokens.css`:
    - Override `--primary`, `--secondary`, `--accent` (and dark variants) with the brand HSLs.
+   - Bind a project's own faces (`--font-sans` / `--font-mono`) by uncommenting the FONT BINDING block near the bottom — leave it commented to inherit the house faces.
    - Override `--radius` if the brand wants squared or pill-shaped UI.
    - Leave `--success` / `--warning` alone unless the brand genuinely redefines
      them — they are semantic, not brand, and the donor defaults are already

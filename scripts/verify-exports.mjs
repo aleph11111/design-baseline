@@ -9,7 +9,7 @@
 // against synthetic inputs, so a guard failing open (or a silent no-match
 // on the real tree) stays caught even if the donor tree is clean.
 //
-// Four invariants of the package surface are checked:
+// Six invariants of the package surface are checked:
 //
 //   1. No `@/` import specifier survives under the four packaged source
 //      dirs. The relativization (P1) must be total — `@/` would resolve
@@ -27,6 +27,20 @@
 //      `files` scopes stays source CSS under `src/styles/` — the compiled-CSS
 //      skew objection dies because a consumer compiles every class from
 //      source. The brand `tokens.css` is deliberately not exported.
+//   5. The donor-owned layer carries no brand values:
+//      `src/styles/tokens.layer.css` declares no `:root` or `.dark` selector. A
+//      brand triplet bleeding into the donor-owned half is silent
+//      (it builds fine) until the next `/style-baseline --force` re-apply
+//      overwrites the layer and detonates it.
+//   6. The brand file is not the pre-#178 merged shape:
+//      `src/styles/tokens.css` carries no `@import "tailwindcss"`. That entry
+//      belongs to the layer; its re-acquisition by the brand file (or the layer
+//      import going missing, leaving it as the sole entry) is the regression a
+//      package consumer could not detect on its own — the file resolves inside
+//      node_modules.
+//      Both are channel-agnostic (spec T5): they pin the two files' *shape*,
+//      not the layer import's specifier, which differs between the copy channel
+//      (`./tokens.layer.css`) and the package channel (`design-baseline/…`).
 //
 // Usage:  node scripts/verify-exports.mjs [--json]
 //         exit 0 all invariants hold; exit 1 at least one broken; exit 2
@@ -128,6 +142,27 @@ function findShippedCss(root, pkg) {
   return shipped;
 }
 
+// Invariant 5 (spec T5): the donor-owned layer declares no brand selectors. A
+// `:root` or `.dark` at the start of a line means a brand value has drifted
+// into the half a `--force` re-apply will blast. The regex is line-anchored and
+// channel-agnostic — it checks the layer's *shape*, not its import specifier.
+// Returns `[file]` offenders (empty when clean).
+const LAYER_BRAND_SELECTOR_RE = /^\s*(:root|\.dark)\b/m;
+function layerDeclaresBrandValues(root) {
+  const rel = 'src/styles/tokens.layer.css';
+  return LAYER_BRAND_SELECTOR_RE.test(readFileSync(join(root, rel), 'utf8')) ? [rel] : [];
+}
+
+// Invariant 6 (spec T5): the brand file is not the pre-#178 merged shape — it
+// carries no `@import "tailwindcss"` (that entry belongs to the layer). Same
+// `readFileSync` + regex shape, channel-agnostic: it pins the brand file's
+// *shape*, never the layer import's specifier. Returns `[file]` offenders.
+const BRAND_TAILWIND_ENTRY_RE = /@import\s+["']tailwindcss["']/;
+function brandFileIsMergedShape(root) {
+  const rel = 'src/styles/tokens.css';
+  return BRAND_TAILWIND_ENTRY_RE.test(readFileSync(join(root, rel), 'utf8')) ? [rel] : [];
+}
+
 function main() {
   const root = process.cwd();
   let pkg;
@@ -147,11 +182,15 @@ function main() {
       !firstStatementIsUseClient(readFileSync(join(root, rel), 'utf8')),
   );
   const shippedCss = findShippedCss(root, pkg);
+  const layerBrand = layerDeclaresBrandValues(root);
+  const brandMerged = brandFileIsMergedShape(root);
   const report = [
     ['no @/ specifiers in packaged dirs', atAlias, atAlias.length === 0],
     ['every exports subpath resolves', deadTargets, deadTargets.length === 0],
     [`all ${barrels.length} barrels carry "use client"`, missingDirective, missingDirective.length === 0],
     ['files ship no compiled CSS', shippedCss, shippedCss.length === 0],
+    ['token layer declares no brand values', layerBrand, layerBrand.length === 0],
+    ['brand tokens file is not the merged shape', brandMerged, brandMerged.length === 0],
   ];
   let failures = 0;
   for (const [label, items, ok] of report) {
@@ -163,7 +202,7 @@ function main() {
       for (const item of items) console.log(`        ${item}`);
     }
   }
-  const summary = `verify:exports — ${failures} failing invariant(s), ${report.filter(([, , ok]) => ok).length}/4 ok`;
+  const summary = `verify:exports — ${failures} failing invariant(s), ${report.filter(([, , ok]) => ok).length}/6 ok`;
   if (failures) {
     console.error(`\n${summary}`);
     process.exitCode = 1;
@@ -176,4 +215,12 @@ if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) 
   main();
 }
 
-export { hasAtAliasImports, resolveExportTargets, barrelFiles, firstStatementIsUseClient, findShippedCss };
+export {
+  hasAtAliasImports,
+  resolveExportTargets,
+  barrelFiles,
+  firstStatementIsUseClient,
+  findShippedCss,
+  layerDeclaresBrandValues,
+  brandFileIsMergedShape,
+};

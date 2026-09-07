@@ -16,6 +16,8 @@ import {
   hasAtAliasImports,
   resolveExportTargets,
   firstStatementIsUseClient,
+  layerDeclaresBrandValues,
+  brandFileIsMergedShape,
 } from "./verify-exports.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -109,19 +111,62 @@ function runScript(cwd) {
   }
 }
 
+describe("token-split invariants (spec T4/T5)", () => {
+  it("layerDeclaresBrandValues: flags a :root/.dark selector in the layer, passes the clean shape", () => {
+    const { dir, put } = fixtureTree();
+    try {
+      // Clean layer: @theme + utils, no brand selector.
+      put("src/styles/tokens.layer.css", '/* clean */\n@theme {\n  --radius: 0.5rem;\n}\n');
+      put("src/styles/tokens.css", '/* brand */\n@import "./tokens.layer.css";\n');
+      expect(layerDeclaresBrandValues(dir)).toEqual([]);
+      // A pasted `:root` block → the regression a `--force` re-apply would blast.
+      put(
+        "src/styles/tokens.layer.css",
+        "/* brand leaked in */\n:root {\n  --primary: 210 40% 96%;\n}\n",
+      );
+      expect(layerDeclaresBrandValues(dir)).toEqual(["src/styles/tokens.layer.css"]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("brandFileIsMergedShape: flags a re-acquired tailwind entry in the brand file, passes the clean shape", () => {
+    const { dir, put } = fixtureTree();
+    try {
+      // Clean brand file: imports the layer, no tailwind entry.
+      put("src/styles/tokens.layer.css", "/* clean layer */\n");
+      put("src/styles/tokens.css", '/* brand */\n@import "./tokens.layer.css";\n');
+      expect(brandFileIsMergedShape(dir)).toEqual([]);
+      // The pre-#178 merged shape back: a `@import "tailwindcss"` in the brand file.
+      put(
+        "src/styles/tokens.css",
+        "/* merged shape */\n@import \"tailwindcss\";\n@import \"./tokens.layer.css\";\n",
+      );
+      expect(brandFileIsMergedShape(dir)).toEqual(["src/styles/tokens.css"]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("CLI exit codes", () => {
-  it("exits 0 on the clean donor tree and reports 4/4 ok", () => {
+  it("exits 0 on the clean donor tree and reports 6/6 ok", () => {
     const { status, stdout } = runScript(root);
     expect(status).toBe(0);
-    expect(stdout).toContain("verify:exports — 0 failing invariant(s), 4/4 ok");
+    expect(stdout).toContain("verify:exports — 0 failing invariant(s), 6/6 ok");
   });
 
   it("exits 1 when a barrel's directive is missing (fixture)", () => {
     const { dir, put } = fixtureTree();
     try {
-      // Minimal donor shape: one archetype, layout, no @/ specifiers.
+      // Minimal donor shape: one archetype, layout, no @/ specifiers, and the
+      // two token-split invariants need src/styles/* present and clean so the
+      // fixture fails ONLY on the barrel (not on a missing file or a stray
+      // brand value).
       put("src/components/layout/index.ts", '"use client";\nexport {};\n');
       put("src/components/archetypes/report/index.ts", 'export {};\n'); // no directive
+      put("src/styles/tokens.layer.css", "/* clean layer */\n@theme {\n  --radius: .5rem;\n}\n");
+      put("src/styles/tokens.css", "/* brand */\n@import \"./tokens.layer.css\";\n");
       writeFileSync(
         join(dir, "package.json"),
         JSON.stringify({
