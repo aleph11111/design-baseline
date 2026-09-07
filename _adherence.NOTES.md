@@ -86,7 +86,7 @@ Two boundaries of the widened walk:
 
 ## The `archetype-*` appearance-prop rules (enforcing hard rule 12)
 
-These four ship at `severity: warn` in the archetype-convergence Phase 1
+These ship in the archetype-convergence Phase 1
 (`docs/backlog/archetype-convergence.md`) and are `include`-scoped to
 `src/components/archetypes/` so the shadcn leaf layer (`src/components/ui/`) is never flagged.
 Their `message` cites `docs/RULES.md` hard rule 12 — an appearance is either global (a token, or
@@ -104,6 +104,7 @@ check landed.
 | `archetype-appearance-boolean-prop` | a boolean look FLAG from an appearance allowlist (`accent`, `emphasis`, `flush`, `sticky*`, `*mono*`, `hideCount`, `showHeader`, `showCount`, `avatar`, …) — capability booleans stay out at the pattern level | `src/components/archetypes/**` + `src/components/layout/**` |
 | `archetype-shell-class-name` | `className` declared on a `*Shell` / `*Sheet` component — the prop name and its indent, NOT its type, so `className?: ClassValue` is caught too | `src/components/archetypes/**` + `src/components/layout/**`, `*Shell.tsx` / `*Sheet.tsx` |
 | `archetype-appearance-slot` | an appearance-bearing `ReactNode` slot (`header`, `stats`) | `src/components/archetypes/**` + `src/components/layout/**` |
+| `archetype-render-callback-prop` | a function-typed prop returning `ReactNode` (`renderHeader?: (args) => React.ReactNode`) — the appearance slot one indirection up. Two mechanisms keep structural callbacks out: OPTIONAL-only drops the required router link-adaptors (`Sidebar`/`SectionNav` `renderLink`), a negative lookahead drops the optional back-link adapter (`renderBackLink`) | `src/components/archetypes/**` + `src/components/layout/**` |
 
 **The shared-chrome second root.** `src/components/layout/**` is a second
 `include` root on every rule above, including `archetype-appearance-slot`
