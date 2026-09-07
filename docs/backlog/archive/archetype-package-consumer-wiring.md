@@ -2,7 +2,7 @@
 area: docs
 roadmap: archetype-convergence
 opened: '2026-09-07'
-status: ready
+status: done
 value: high
 model: opus
 model_reason: the throwaway install is the first real proof the package resolves in a Next-style build; judgment needed when a wiring line does not hold
