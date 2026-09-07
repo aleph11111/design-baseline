@@ -1,7 +1,7 @@
 ---
 slug: stack
 kind: methodology
-version: 1.1
+version: 1.2
 status: locked
 ---
 
@@ -43,16 +43,21 @@ figure alignment) only hold on that stack. This file pins it.
    UI library (e.g. `@base-ui/react` alongside `@radix-ui/*`) runs two focus-trap and
    keyboard models at once — the dependency-level version of "two navigation conventions."
    Overlapping packages get an ADR or get removed. *(Scar origin: hk-crm, 2026-07.)*
-3. **Compiled-CSS version skew.** The DS's `_ds_bundle.css` is compiled with one Tailwind
-   version; the consuming app compiles its own. Record the DS's Tailwind version at
-   adoption time and re-check on every Tailwind minor bump.
+3. **Compiled-CSS version skew.** *Void for a source-distributed package.* There is no
+   compiled `_ds_bundle.css` — the package ships source, and the consumer compiles every
+   class itself with its own Tailwind, so the two-version skew the hazard describes cannot
+   occur. The skew remains a hazard only for the copy-once `cp -R` channel (a vendored
+   bundle compiled elsewhere). Install via `docs/PACKAGE.md` instead of vendoring a bundle.
 4. **Fonts coupled by variable name.** `next/font` sets `--font-ibm-plex-*`; `@theme` maps
    them into `--font-sans`/`--font-mono`. Renaming either side silently falls back to
    system UI. Treat the var names as part of this contract.
 5. **Unstamped vendored peers.** `react-day-picker`, `sonner`, `vaul`, `cmdk`, `recharts`
    all have breaking majors, and nothing records which versions the vendored components
-   were written against. Stamp the DS version (and peer versions) in a comment at the top
-   of each vendored file, or move to package consumption.
+   were written against. The package version is the answer: with package consumption
+   (`docs/PACKAGE.md`) the installed donor tag IS the stamp — one number names every
+   vendored component and its peers, and a tag bump moves them in lockstep. Per-file
+   vendor stamps stay required only for the `cp -R` copy channel, where no package
+   version exists to carry them.
 
 ## What needs an ADR
 
@@ -62,6 +67,10 @@ figure alignment) only hold on that stack. This file pins it.
 - Opting any surface out of the Radix-based primitives.
 
 ## Revision log
+
+- **1.2** — Hazards 3 and 5 corrected for the source-distributed package (phase `pkg`):
+  the compiled-CSS skew is void when no compiled bundle ships, and the package version
+  replaces per-file vendor stamps. Both now point at `docs/PACKAGE.md`.
 
 - **1.1** — Promoted to the Design Baseline; scars generalized to any consumer, with the
   originating project noted.

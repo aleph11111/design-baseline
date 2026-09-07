@@ -28,7 +28,7 @@ standing: 338 internal `@/` imports under `src/components/`, `src/lib/`, `src/ho
 `"use client"` directive present on exactly two donor files, which a Next App Router consumer
 cannot add from inside `node_modules`; and `react`/`react-dom` sitting in `devDependencies`
 for donor typechecking. This ticket is the whole donor-side change; the consumer-facing
-wiring doc is [archetype-package-consumer-wiring](../archetype-package-consumer-wiring.md).
+wiring doc is [archetype-package-consumer-wiring](archetype-package-consumer-wiring.md).
 
 ## What to do
 
@@ -76,7 +76,7 @@ wiring doc is [archetype-package-consumer-wiring](../archetype-package-consumer-
 ## Related
 
 - [archetype-convergence.md](../archetype-convergence.md) — the roadmap; this is phase `pkg`
-- [archetype-package-consumer-wiring.md](../archetype-package-consumer-wiring.md) — depends on this
+- [archetype-package-consumer-wiring.md](archetype-package-consumer-wiring.md) — depends on this
 - [archive/donor-deps-violate-stack-contract.md](../archive/donor-deps-violate-stack-contract.md) — prior dependency-block triage
 - [archive/app-shell-header-props-exports.md](../archive/app-shell-header-props-exports.md) — prior barrel/export change
 - ADR-0003 — adherence lint ships as a zero-dep scanner; `verify-exports.mjs` follows its shape
