@@ -1,7 +1,7 @@
 import * as React from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
-import { HeaderFillContext } from "@/components/layout/headerFill";
+import { HeaderFillContext } from "../../layout/headerFill";
 import {
   DetailOverviewShell,
   UnifiedSurfaceContext,

@@ -1,3 +1,4 @@
+"use client";
 export { DetailOverviewShell } from "./DetailOverviewShell";
 export type {
   DetailOverviewShellProps,
@@ -14,8 +15,8 @@ export type { DetailSectionProps } from "./DetailSection";
 // analytics-dashboard (G) archetype can reuse them without depending on
 // detail-overview. Re-exported here for back-compat — existing
 // `@/components/archetypes/detail-overview` imports keep working.
-export { StatTileRow, type StatTileRowProps } from "@/components/layout";
-export { StatTile, type StatTileProps } from "@/components/layout";
+export { StatTileRow, type StatTileRowProps } from "../../layout";
+export { StatTile, type StatTileProps } from "../../layout";
 
 // ProgressTracker (lifecycle stepper) + MetricList/MetricRow (the rail's compact
 // "figures at a glance" readout) are shared layout primitives, re-exported here
@@ -24,13 +25,13 @@ export {
   ProgressTracker,
   type ProgressStep,
   type ProgressTrackerProps,
-} from "@/components/layout";
+} from "../../layout";
 export {
   MetricList,
   MetricRow,
   type MetricListProps,
   type MetricRowProps,
-} from "@/components/layout";
+} from "../../layout";
 
 export { KeyValueList } from "./KeyValueList";
 export type { KeyValueListProps } from "./KeyValueList";

@@ -1,3 +1,4 @@
+"use client";
 export { GroupedListShell } from "./GroupedListShell";
 export type { GroupedListShellProps } from "./GroupedListShell";
 

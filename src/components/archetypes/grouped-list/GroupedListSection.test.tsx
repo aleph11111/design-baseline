@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
-import { SectionCard } from "@/components/layout/SectionCard";
+import { SectionCard } from "../../layout/SectionCard";
 import { ListWithDetailShell, type ListColumn } from "../list-with-detail";
 // The chrome-suppression context is exported from the shell MODULE, not the
 // barrel — the composing archetype imports it directly (same as GroupedListSection).

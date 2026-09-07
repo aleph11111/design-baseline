@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../../lib/utils";
 
 export type ReportTotalRowProps = {
   /** Row label (e.g. "Zwischensumme", "MwSt. 19 %", "Gesamt"). Stays sans. */

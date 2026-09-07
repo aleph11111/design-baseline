@@ -1,6 +1,6 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
-import { OVERLINE_CLASS } from "@/components/layout/overline";
+import { cn } from "../../../lib/utils";
+import { OVERLINE_CLASS } from "../../layout/overline";
 
 // The shared owner of a **typed overline** — the small, uppercase, letter-spaced
 // "eyebrow / kicker" label that sits above a heading or section title. The fleet

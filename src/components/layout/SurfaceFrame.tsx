@@ -4,7 +4,7 @@ import {
   SurfaceHeaderSlot,
   type SurfaceHeaderSlotProps,
 } from "./SurfaceHeaderSlot";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 type SurfaceFrameSlotProps = Omit<SurfaceHeaderSlotProps, "className">;
 

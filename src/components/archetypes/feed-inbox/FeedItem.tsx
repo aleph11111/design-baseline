@@ -1,6 +1,6 @@
 import * as React from "react";
-import { IconAvatar } from "@/components/ui/icon-avatar";
-import { cn } from "@/lib/utils";
+import { IconAvatar } from "../../ui/icon-avatar";
+import { cn } from "../../../lib/utils";
 import { getInteractiveRowProps, interactiveRowFocusRing } from "../shared";
 
 export type FeedItemProps = {

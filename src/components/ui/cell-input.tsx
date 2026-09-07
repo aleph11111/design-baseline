@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 // The shared owner of an **editable control sitting flush inside a table/grid
 // cell** — the inline-cell field molecule (editable grids, inline-edit rows).

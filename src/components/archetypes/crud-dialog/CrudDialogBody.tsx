@@ -1,7 +1,7 @@
 import * as React from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { ScrollArea } from "../../ui/scroll-area";
+import { Skeleton } from "../../ui/skeleton";
+import { cn } from "../../../lib/utils";
 
 // ---------------------------------------------------------------------------
 // Public types

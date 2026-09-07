@@ -1,6 +1,6 @@
 import * as React from "react";
-import { SectionCard } from "@/components/layout/SectionCard";
-import { cn } from "@/lib/utils";
+import { SectionCard } from "../../layout/SectionCard";
+import { cn } from "../../../lib/utils";
 
 const SPAN_MAP: Record<1 | 2 | 3, string> = {
   1: "",

@@ -11,8 +11,8 @@ import {
 // that its inner delegated list renders flush (no double-card), rather than
 // exposing a per-page `unstyled` prop on the shell.
 import { ListChromeContext } from "../list-with-detail/ListWithDetailShell";
-import { SectionCard } from "@/components/layout/SectionCard";
-import { Badge } from "@/components/ui/badge";
+import { SectionCard } from "../../layout/SectionCard";
+import { Badge } from "../../ui/badge";
 
 export type GroupedListSectionProps<Row> = {
   /** Section title rendered in the group's ruled title bar. */

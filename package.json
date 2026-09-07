@@ -14,7 +14,28 @@
     "verify:manifest": "node scripts/verify-manifest-versions.mjs",
     "scan:adoption-quality": "node scripts/scan-adoption-quality.mjs",
     "pretest": "npm run verify:manifest",
-    "test": "vitest run --configLoader runner"
+    "test": "vitest run --configLoader runner",
+    "verify:exports": "node scripts/verify-exports.mjs"
+  },
+  "exports": {
+    "./layout": "./src/components/layout/index.ts",
+    "./archetypes/*": "./src/components/archetypes/*/index.ts",
+    "./ui/*": "./src/components/ui/*.tsx",
+    "./lib/utils": "./src/lib/utils.ts",
+    "./hooks/*": "./src/hooks/*.ts",
+    "./utils/logger": "./src/utils/logger.ts",
+    "./tokens.layer.css": "./src/styles/tokens.layer.css"
+  },
+  "files": [
+    "src/components",
+    "src/lib",
+    "src/hooks",
+    "src/utils",
+    "src/styles"
+  ],
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -57,8 +78,6 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "jsdom": "^29.1.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.0",
     "tailwindcss": "^4.3.0",
     "typescript": "^5.6.0",
@@ -75,7 +94,7 @@
       ]
     },
     "notes": [
-      "react / react-dom are in devDependencies for donor typechecking only (npx tsc --noEmit) — target projects pin their own; do not copy the devDependencies block into a target.",
+      "react / react-dom are peerDependencies (^19.0.0) — the donor typechecks against its own peer install (npx tsc --noEmit); a package consumer brings its own React. Do not copy the devDependencies block into a target.",
       "@types/node is donor-dev-only — its `process` types typecheck the icon-button NODE_ENV dev warning in button.tsx (promoted from controlling-app); never copy into a target.",
       "Charts (recharts, nivo), auth (next-auth, @supabase/supabase-js), data fetching (@tanstack/react-query) are NOT in the baseline. Add per project.",
       "vite, @vitejs/plugin-react, @tailwindcss/vite, react-router-dom are donor-dev-only — they power the gallery harness (gallery/, vite.config.ts) and are NOT part of the baseline. Never copy them or the gallery into a target.",

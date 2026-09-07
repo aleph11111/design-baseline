@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { HeaderFillContext } from "@/components/layout/headerFill";
+import { Sheet, SheetContent } from "../../ui/sheet";
+import { HeaderFillContext } from "../../layout/headerFill";
 import { CrudDialogHeader, type CrudDialogHeaderProps } from "./CrudDialogHeader";
 
 afterEach(() => {

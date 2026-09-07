@@ -1,10 +1,10 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
-import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
-import { SurfaceHeaderBar } from "@/components/layout/SurfaceHeaderBar";
-import { NestedPageHeading } from "@/components/layout/NestedPageHeading";
-import { StatTile } from "@/components/layout/StatTile";
-import { StatTileRow } from "@/components/layout/StatTileRow";
+import { cn } from "../../../lib/utils";
+import { SurfaceFrame } from "../../layout/SurfaceFrame";
+import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
+import { NestedPageHeading } from "../../layout/NestedPageHeading";
+import { StatTile } from "../../layout/StatTile";
+import { StatTileRow } from "../../layout/StatTileRow";
 
 const WIDTH_MAP: Record<"none" | "md" | "lg" | "xl", string> = {
   none: "",

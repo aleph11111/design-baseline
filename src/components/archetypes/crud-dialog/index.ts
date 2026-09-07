@@ -1,3 +1,4 @@
+"use client";
 export { CrudDialogSheet } from "./CrudDialogSheet";
 export type { CrudDialogSheetProps } from "./CrudDialogSheet";
 

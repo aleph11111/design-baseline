@@ -1,15 +1,15 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
-import { COL_HEADER_CLASS } from "@/components/layout/overline";
+import { COL_HEADER_CLASS } from "../../layout/overline";
 import {
   ReportLineTable,
   ReportLineRow,
-} from "@/components/archetypes/report";
+} from "../report";
 import {
   StatementTable,
   StatementRow,
   StatementTotalRow,
-} from "@/components/archetypes/statement-with-filters";
+} from "../statement-with-filters";
 import { statementGridClass } from "./FigureTable";
 
 afterEach(() => {

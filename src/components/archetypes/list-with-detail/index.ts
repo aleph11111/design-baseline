@@ -1,3 +1,4 @@
+"use client";
 export { ListWithDetailShell } from "./ListWithDetailShell";
 export type {
   ListWithDetailShellProps,

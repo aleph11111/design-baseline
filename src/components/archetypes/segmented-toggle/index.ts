@@ -1,3 +1,4 @@
+"use client";
 // Archetype Sg — segmented-toggle. The molecule already lives in the `ui/` layer
 // (`ui/segmented-control.tsx`, a Radix radio-group); this archetype re-exports the
 // canonical primitive rather than duplicating it, and adds the contract + demo. One
@@ -6,4 +7,4 @@ export {
   SegmentedControl,
   type SegmentedControlProps,
   type SegmentedOption,
-} from "@/components/ui/segmented-control";
+} from "../../ui/segmented-control";

@@ -1,7 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { logger } from '@/utils/logger';
+import { Alert, AlertTitle, AlertDescription } from './alert';
+import { Button } from './button';
+import { logger } from '../../utils/logger';
 
 interface ErrorBoundaryProps {
   children: ReactNode;

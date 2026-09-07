@@ -3,8 +3,8 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
+} from "../../ui/tooltip";
+import { cn } from "../../../lib/utils";
 import { getInteractiveRowProps, interactiveRowFocusRing } from "../shared";
 import type { MatrixCellContext } from "./MatrixGridShell";
 

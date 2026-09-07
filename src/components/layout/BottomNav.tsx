@@ -7,8 +7,8 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
+} from "../ui/sheet";
+import { cn } from "../../lib/utils";
 import { OVERLINE_CLASS } from "./overline";
 
 export interface BottomNavItem {

@@ -1,3 +1,4 @@
+"use client";
 export { CalendarShell } from "./CalendarShell";
 export type {
   CalendarShellProps,

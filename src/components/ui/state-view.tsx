@@ -1,8 +1,8 @@
 import * as React from "react";
 import { AlertTriangle, type LucideIcon } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Alert, AlertDescription, AlertTitle } from "./alert";
+import { Button } from "./button";
+import { cn } from "../../lib/utils";
 
 export type StateViewVariant = "loading" | "empty" | "error";
 

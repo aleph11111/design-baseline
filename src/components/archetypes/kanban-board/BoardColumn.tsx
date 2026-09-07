@@ -1,6 +1,6 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
-import { OVERLINE_CLASS } from "@/components/layout/overline";
+import { cn } from "../../../lib/utils";
+import { OVERLINE_CLASS } from "../../layout/overline";
 
 export type BoardColumnProps = React.HTMLAttributes<HTMLDivElement> & {
   /** Column heading (e.g. "To do"). Rendered as the overline signature. */

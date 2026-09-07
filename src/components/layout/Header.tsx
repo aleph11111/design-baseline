@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Menu } from "lucide-react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger } from "../ui/sidebar";
 
 export interface AppHeaderProps {
   /** Page or app title rendered next to the mobile sidebar toggle. */

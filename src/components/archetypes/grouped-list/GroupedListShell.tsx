@@ -1,10 +1,10 @@
 import * as React from "react";
-import { StateView } from "@/components/ui/state-view";
-import { resolveListState } from "@/components/archetypes/shared";
+import { StateView } from "../../ui/state-view";
+import { resolveListState } from "../shared";
 import {
   SurfaceHeaderSlot,
   type SurfaceHeaderSlotProps,
-} from "@/components/layout/SurfaceHeaderSlot";
+} from "../../layout/SurfaceHeaderSlot";
 
 export type GroupedListShellProps = {
   /** Page-level toolbar slot. Rendered as a bare flex row above the sections region. */

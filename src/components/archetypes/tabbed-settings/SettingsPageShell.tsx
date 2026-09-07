@@ -1,7 +1,7 @@
 import * as React from "react";
-import { ErrorBoundary } from "@/components/ui/error-boundary";
-import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
-import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
+import { ErrorBoundary } from "../../ui/error-boundary";
+import { SurfaceFrame } from "../../layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
 import {
   SettingsPageHeader,
   type SettingsPageHeaderProps,

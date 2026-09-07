@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 const SM_COLS_MAP: Record<2 | 3 | 4, string> = {
   2: "sm:grid-cols-2",

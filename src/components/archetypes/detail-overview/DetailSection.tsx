@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SectionCard } from "@/components/layout/SectionCard";
+import { SectionCard } from "../../layout/SectionCard";
 import { UnifiedSurfaceContext } from "./DetailOverviewShell";
 
 export type DetailSectionProps = {
