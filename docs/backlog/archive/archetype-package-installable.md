@@ -2,7 +2,7 @@
 area: tooling
 roadmap: archetype-convergence
 opened: '2026-09-07'
-status: ready
+status: done
 value: high
 model: opus
 model_reason: mechanical bulk edit, but the exports-map and peer-dependency shape is a design call the spec fixes only in outline

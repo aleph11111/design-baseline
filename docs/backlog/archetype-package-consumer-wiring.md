@@ -19,7 +19,7 @@ gate:
 
 ## Context
 
-Once [archetype-package-installable](wip/archetype-package-installable.md) makes the donor
+Once [archetype-package-installable](archive/archetype-package-installable.md) makes the donor
 resolvable, a consumer still needs four wiring lines, and nothing in the fleet has ever
 installed this package — so the wiring is unproven. Phase `pkg` of the
 [archetype-convergence roadmap](archetype-convergence.md) closes both gaps together: a new
@@ -81,7 +81,7 @@ decision P2, narrowing ADR-0004's "`ui/` stays vendored" clause).
 
 ## Related
 
-- [archetype-package-installable.md](wip/archetype-package-installable.md) — must ship first
+- [archetype-package-installable.md](archive/archetype-package-installable.md) — must ship first
 - [archetype-convergence.md](archetype-convergence.md) — the roadmap; this is phase `pkg`
 - [archive/style-baseline-stack-aware-preflight.md](archive/style-baseline-stack-aware-preflight.md) — prior STACK.md-driven consumer preflight
 - [archive/tokens-header-tw-animate-import-not-plugin.md](archive/tokens-header-tw-animate-import-not-plugin.md) — the tokens-layer hazard STACK.md hazard 1 records
