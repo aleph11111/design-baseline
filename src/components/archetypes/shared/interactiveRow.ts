@@ -10,7 +10,7 @@ export const interactiveRowFocusRing =
 
 /**
  * Keyboard-operability contract for a clickable row/cell that isn't a native
- * `<button>`. Spread the result onto the element alongside its existing
+ * button element. Spread the result onto the element alongside its existing
  * `onClick`: it becomes a tab stop, is exposed to assistive tech as a button,
  * and fires `onActivate` on Enter/Space (Space also suppresses page scroll).
  * Returns `{}` when `onActivate` is undefined, so non-interactive rows/cells

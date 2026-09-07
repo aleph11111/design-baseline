@@ -354,7 +354,7 @@ describe("lint-design per-rule include glob", () => {
     it("pins the layout root in scope for the look-union rule", () => {
       const rule = {
         id: "look-union-prop",
-        pattern: '^\\s*\\w+\\??:\\s*"[^"]+"\\s*\\|\\s*"[^"]+"',
+        pattern: '^\\s*\\w+\\?:\\s*"[^"]+"\\s*\\|\\s*"[^"]+"',
         severity: "error",
         message: "m",
         include: TWO_ROOT_INCLUDE,
@@ -533,8 +533,10 @@ const hitsOf = (stdout) =>
   JSON.parse(stdout).violations.map((v) => `${v.file}:${v.line}`);
 
 describe("numeric-literal union props (the shape a quoted-string pattern never reaches)", () => {
-  // `archetype-numeric-union-prop`'s live pattern, verbatim.
-  const NUMERIC = "^\\s*\\w+\\??:\\s*[0-9]+\\s*\\|\\s*[0-9]+";
+  // `archetype-numeric-union-prop`'s live pattern, verbatim. The `\\?` (literal `?`,
+  // the OPTIONAL marker) — not `\\??` — keeps a non-optional field of a hook RESULT
+  // type out of scope by shape: a value the hook computes is not a per-call-site prop.
+  const NUMERIC = "^\\s*\\w+\\?:\\s*[0-9]+\\s*\\|\\s*[0-9]+";
 
   it("flags a bare numeric union the string-literal rule misses", () => {
     // One file, two rules: the shipped quoted-string pattern finds nothing in it, the
@@ -543,7 +545,7 @@ describe("numeric-literal union props (the shape a quoted-string pattern never r
       "src/components/archetypes/grid/Grid.tsx": "export type P = {\n  columns?: 2 | 3 | 4;\n};\n",
     };
     const rules = [
-      { id: "look-union", pattern: '^\\s*\\w+\\??:\\s*"[^"]+"\\s*\\|\\s*"[^"]+"', severity: "warn", message: "m" },
+      { id: "look-union", pattern: '^\\s*\\w+\\?:\\s*"[^"]+"\\s*\\|\\s*"[^"]+"', severity: "warn", message: "m" },
       { id: "numeric-union", pattern: NUMERIC, severity: "warn", message: "m" },
     ];
     const { stdout } = runFilesFixture(rules, files, "--json");
@@ -552,13 +554,41 @@ describe("numeric-literal union props (the shape a quoted-string pattern never r
     expect(violations[0].line).toBe(2);
   });
 
+  it("does not reach a non-optional field of a hook RESULT type — a value the hook computes, not a prop anyone passes (ADR-0004)", () => {
+    // The widened walk newly exposes the `.ts` files holding hook result shapes:
+    // `isSubmitting: boolean` etc. as NON-optional fields of what the hook returns
+    // (useCrudDialogController.ts). A prop the caller does not supply cannot be a
+    // per-call-site appearance, and the pattern keeps it out by shape: the live
+    // numeric-union rule's `\\?` (literal `?`) rejects `columns: 2 | 3` while
+    // `columns?: 2 | 3` still fires. Same file, both shapes — only the optional one
+    // lands. (The boolean rule already required `\\?`; this pins the union rules.)
+    const files = {
+      "src/components/archetypes/grid/useGridState.ts":
+        "export type R = {\n  columns: 2 | 3 | 4;\n  isSubmitting: boolean;\n  columnsChoice?: 2 | 3 | 4;\n};\n",
+    };
+    const rule = {
+      id: "numeric-union",
+      pattern: NUMERIC,
+      severity: "error",
+      message: "m",
+      include: ["src/components/archetypes/**"],
+    };
+    const { stdout, status } = runFilesFixture([rule], files, "--json");
+    expect(hitsOf(stdout)).toEqual([
+      "src/components/archetypes/grid/useGridState.ts:4",
+    ]); // non-optional `columns:` out of scope by shape, optional `columnsChoice?:` still lands
+    expect(status).toBe(1);
+  });
+
   it("reaches a second include root (`src/components/layout/**`) alongside the archetype root", () => {
     // `StatTileRow` lives in the shared chrome, outside `src/components/archetypes/` —
     // the reason the rule's include carries two roots. A single-root include would
-    // report a clean scan over a live defect.
+    // report a clean scan over a live defect. The fixture uses an OPTIONAL numeric
+    // union (`columns?:`) — the appearance-prop shape the rule targets; a
+    // non-optional `columns:` is a hook-result-derived field the pattern keeps out.
     const files = {
-      "src/components/layout/StatTileRow.tsx": "export type P = {\n  columns: 2 | 3 | 4;\n};\n",
-      "src/components/ui/grid.tsx": "export type P = {\n  columns: 2 | 3 | 4;\n};\n",
+      "src/components/layout/StatTileRow.tsx": "export type P = {\n  columns?: 2 | 3 | 4;\n};\n",
+      "src/components/ui/grid.tsx": "export type P = {\n  columns?: 2 | 3 | 4;\n};\n",
     };
     const rule = {
       id: "numeric-union",
@@ -574,9 +604,11 @@ describe("numeric-literal union props (the shape a quoted-string pattern never r
 
 describe("union type-alias pre-pass (`{{unionAliases}}`)", () => {
   // `archetype-alias-union-prop`'s live pattern, verbatim — lookahead included.
+  // The `\\?` (literal `?`) is the OPTIONAL-marker requirement shared by the
+  // appearance rules (see the NUMERIC const's comment).
   const ALIAS =
     "^\\s*(?!(?:surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded|size)\\?\\s*:)" +
-    "\\w+\\??:\\s*(?:{{unionAliases}})\\b";
+    "\\w+\\?:\\s*(?:{{unionAliases}})\\b";
   const aliasRule = (extra = {}) => ({ id: "alias-union", pattern: ALIAS, severity: "warn", message: "m", ...extra });
 
   it("flags a prop typed against a union alias declared in the same file", () => {
@@ -664,7 +696,7 @@ describe("boolean appearance flags (the shape a noun/union pattern never reaches
         severity: "warn",
         message: "m",
       },
-      { id: "look-union", pattern: '^\\s*\\w+\\??:\\s*"[^"]+"\\s*\\|\\s*"[^"]+"', severity: "warn", message: "m" },
+      { id: "look-union", pattern: '^\\s*\\w+\\?:\\s*"[^"]+"\\s*\\|\\s*"[^"]+"', severity: "warn", message: "m" },
       boolRule(),
     ];
     const { stdout } = runFilesFixture(rules, files, "--json");
@@ -786,6 +818,68 @@ describe("shell `className` typed as something other than `string`", () => {
     };
     const { stdout } = runFilesFixture([classRule()], files, "--json");
     expect(hitsOf(stdout)).toEqual([]);
+  });
+});
+
+describe("walk coverage: `.ts` files are scanned like `.tsx` (the widened walk)", () => {
+  // `archetype-appearance-noun-prop`'s live pattern, verbatim — it already carried the
+  // literal-`?` shape the widening keeps, so this block pins the WALK, not a pattern
+  // shape change.
+  const NOUN = "^\\s*(surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded|size)\\?\\s*:";
+  const nounRule = () => ({
+    id: "appearance-noun-prop",
+    pattern: NOUN,
+    severity: "error",
+    message: "m",
+    include: ["src/components/archetypes/**"],
+  });
+
+  it("reports an appearance-shaped prop declared in a `.ts` file", () => {
+    // The pre-widening walk was `**/*.tsx` — a `.ts` file shared by a table contract
+    // (tableColumn.ts) was the class of live defect it hid: reachable by the rule's
+    // `include`, never handed to it by the walk. A `.tsx` control with the same line
+    // proves the scan of a `.ts` file is the scan of a walked file, not a bypass.
+    const files = {
+      "src/components/archetypes/t/tableColumn.ts": "export type C = {\n  surface?: string;\n};\n",
+      "src/components/archetypes/t/Control.tsx": "export type C = {\n  surface?: string;\n};\n",
+    };
+    const { stdout, status } = runFilesFixture([nounRule()], files, "--json");
+    expect(hitsOf(stdout)).toEqual([
+      "src/components/archetypes/t/Control.tsx:2", // the `.tsx` control
+      "src/components/archetypes/t/tableColumn.ts:2", // the `.ts` file — walked like any other
+    ]);
+    expect(status).toBe(1); // a `.ts` prop is an error-tier hit, exit 1
+  });
+
+  it("does not report a non-optional field of a `.ts` hook-result shape", () => {
+    // Companion pin for the `.ts` case: the same `.ts` file holding a hook's RETURN
+    // type (non-optional `columns: 2 | 3 | 4` — a derived value, ADR-0004) must stay
+    // clean under every appearance rule whose live pattern requires the optional `?`.
+    // `runFilesFixture` runs the real scanner over the real rule set in the fixture's
+    // config, so this asserts the shipped walk + shipped patterns together.
+    const files = {
+      "src/components/archetypes/grid/useGridState.ts":
+        "export type R = {\n  columns: 2 | 3 | 4;\n  isSubmitting: boolean;\n};\n",
+      "src/components/archetypes/grid/useGridState.tsx":
+        "export type R = {\n  columns: 2 | 3 | 4;\n};\n",
+    };
+    // The live patterns of the four rules the widening tightened, each as its own rule.
+    const shippedPatterns = [
+      { id: "noun", pattern: NOUN, severity: "error", message: "m" },
+      { id: "look-union", pattern: "^\\s*\\w+\\?:\\s*\"[^\"]+\"\\s*\\|\\s*\"[^\"]+\"", severity: "error", message: "m" },
+      { id: "numeric-union", pattern: "^\\s*\\w+\\?:\\s*[0-9]+\\s*\\|\\s*[0-9]+", severity: "error", message: "m" },
+      {
+        id: "alias-union",
+        pattern: "^\\s*(?!(?:surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded|size)\\?\\s*:)\\w+\\?:\\s*(?:{{unionAliases}})\\b",
+        severity: "error",
+        message: "m",
+      },
+    ];
+    // No `include`: the test asserts the PATTERN shapes, so file paths must not be the
+    // thing that keeps them out.
+    const { stdout, status } = runFilesFixture(shippedPatterns, files, "--json");
+    expect(hitsOf(stdout)).toEqual([]);
+    expect(status).toBe(0);
   });
 });
 

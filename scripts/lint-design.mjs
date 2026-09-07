@@ -6,8 +6,8 @@
 // (oxlint cannot express `no-restricted-syntax`, which the earlier config depended on — see
 // _adherence.NOTES.md and ADR-0003.)
 //
-// Reads `_adherence.json` (rules + target dirs) from the repo root, walks every `.tsx` file
-// under the target dirs, and reports each hit as a warning. A rule matches either a bare
+// Reads `_adherence.json` (rules + target dirs) from the repo root, walks every `.ts`/`.tsx`
+// file under the target dirs, and reports each hit as a warning. A rule matches either a bare
 // banned tag (`"tag": "button"`) or an arbitrary regex (`"pattern": "focus:ring-1\\b"` — the
 // form the ported docs/audit-signals.json conformance signals use). Tag matching is
 // case-sensitive, so the design-system primitives `<Button>` / `<Table>` are never flagged.
@@ -283,9 +283,10 @@ function main() {
   // order was an accident of readdir(3) on each tree.
   const files = targets
     .flatMap((t) =>
-      globSync('**/*.tsx', { cwd: join(root, t), exclude: ['**/node_modules/**', '**/.*/**'] }).map((rel) =>
-        join(root, t, rel),
-      ),
+      globSync(
+        '**/*.{ts,tsx}',
+        { cwd: join(root, t), exclude: ['**/node_modules/**', '**/.*/**'] },
+      ).map((rel) => join(root, t, rel)),
     )
     .sort((a, b) => a.localeCompare(b));
 
