@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-07'
-status: needs-enrichment
+status: done
 gate:
   score: 4
   passed:
