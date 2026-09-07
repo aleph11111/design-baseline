@@ -19,10 +19,10 @@ gate:
 
 ## Context
 
-Once [archetype-package-installable](archive/archetype-package-installable.md) makes the donor
+Once [archetype-package-installable](../archive/archetype-package-installable.md) makes the donor
 resolvable, a consumer still needs four wiring lines, and nothing in the fleet has ever
 installed this package — so the wiring is unproven. Phase `pkg` of the
-[archetype-convergence roadmap](archetype-convergence.md) closes both gaps together: a new
+[archetype-convergence roadmap](../archetype-convergence.md) closes both gaps together: a new
 `docs/PACKAGE.md` stating the wiring once, plus a throwaway install that proves it. The
 wiring is non-obvious in two places measured in the spec section
 (`docs/superpowers/specs/2026-08-17-archetype-convergence-design.md`, "## Phase pkg —
@@ -81,9 +81,9 @@ decision P2, narrowing ADR-0004's "`ui/` stays vendored" clause).
 
 ## Related
 
-- [archetype-package-installable.md](archive/archetype-package-installable.md) — must ship first
-- [archetype-convergence.md](archetype-convergence.md) — the roadmap; this is phase `pkg`
-- [archive/style-baseline-stack-aware-preflight.md](archive/style-baseline-stack-aware-preflight.md) — prior STACK.md-driven consumer preflight
-- [archive/tokens-header-tw-animate-import-not-plugin.md](archive/tokens-header-tw-animate-import-not-plugin.md) — the tokens-layer hazard STACK.md hazard 1 records
+- [archetype-package-installable.md](../archive/archetype-package-installable.md) — must ship first
+- [archetype-convergence.md](../archetype-convergence.md) — the roadmap; this is phase `pkg`
+- [archive/style-baseline-stack-aware-preflight.md](../archive/style-baseline-stack-aware-preflight.md) — prior STACK.md-driven consumer preflight
+- [archive/tokens-header-tw-animate-import-not-plugin.md](../archive/tokens-header-tw-animate-import-not-plugin.md) — the tokens-layer hazard STACK.md hazard 1 records
 - ADR-0004 — appearance locality; spec decision P2 narrows its "`ui/` stays vendored" clause
 - hk-crm ADR-0030 — vendor-stamp-not-package; its skew objection is what STACK.md hazard 3 carries
