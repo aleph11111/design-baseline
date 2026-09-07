@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: '2026-09-07'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -20,7 +20,7 @@ roadmap: archetype-convergence
 
 ## Context
 
-[ADR-0004](../adr/0004-appearance-locality-derived-vs-inherited.md) has two spots that no longer match the tree, confirmed against `package.json`, `scripts/verify-exports.mjs`, and `docs/adr/INDEX.md`:
+[ADR-0004](../../adr/0004-appearance-locality-derived-vs-inherited.md) has two spots that no longer match the tree, confirmed against `package.json`, `scripts/verify-exports.mjs`, and `docs/adr/INDEX.md`:
 
 - **Line 45** ("`src/components/ui/` primitives **stay vendored**") is narrowed by `docs/audits/2026-09-07-pkg-ui-vendored-clause-narrowing.md` (per spec decision P2: package-consuming projects that take any archetype take `ui/` from the package via the `./ui/*` exports subpath; shell-plus-tokens-only projects may still vendor it). No file in `docs/` links to that note from the ADR — `grep -rn '2026-09-07-pkg-ui' docs/adr/` returns nothing.
 - **Line 52** (ADR-0030 supersession, ground 1) says "there is in fact no `exports` map and `package.json` is still `private: true`" and predicts both are discharged by "Phase 2's work." Confirmed against the shipped tree: the `exports` map exists (7 subpaths — `layout`, `archetypes/*`, `ui/*`, `lib/utils`, `hooks/*`, `utils/logger`, `tokens.layer.css`; `node scripts/verify-exports.mjs` reports 4/4 invariants ok), but `private: true` is still set in `package.json` — deliberately kept, not dropped: a git dependency against a tag (`v0.2.0` exists) needs no publish, so the flag costs nothing and blocks an accidental publish of a private donor.
@@ -45,6 +45,6 @@ roadmap: archetype-convergence
 
 ## Related
 
-- [docs/audits/2026-09-07-pkg-ui-vendored-clause-narrowing.md](../audits/2026-09-07-pkg-ui-vendored-clause-narrowing.md)
+- [docs/audits/2026-09-07-pkg-ui-vendored-clause-narrowing.md](../../audits/2026-09-07-pkg-ui-vendored-clause-narrowing.md)
 - ADR-0004 — Appearance locality: global or fixed in the component; per-call-site only when derived
-- [docs/backlog/archive/archetype-package-installable.md](archive/archetype-package-installable.md)
+- [docs/backlog/archive/archetype-package-installable.md](../archive/archetype-package-installable.md)

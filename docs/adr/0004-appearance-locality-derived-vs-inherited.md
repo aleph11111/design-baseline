@@ -42,14 +42,14 @@ Context axes carry no override prop. The per-instance `headerFill` overrides on 
 
 **The distribution split:**
 
-- `src/components/ui/` primitives **stay vendored** (shadcn's copy-in model). They are leaves, they do not drift — the fleet's copies are byte-identical — and copy-in is correct for them.
+- `src/components/ui/` primitives **stay vendored** (shadcn's copy-in model). They are leaves, they do not drift — the fleet's copies are byte-identical — and copy-in is correct for them. *Narrowed* by [`docs/audits/2026-09-07-pkg-ui-vendored-clause-narrowing.md`](../audits/2026-09-07-pkg-ui-vendored-clause-narrowing.md): a project that installs the package and takes any archetype takes `ui/` from the package (via the `./ui/*` exports subpath) and deletes its vendored copies; a project that takes only the shell + tokens layer may still vendor it. The governance of `ui/` (leaf status, no appearance-prop governance) is untouched — the narrowing moves distribution, not governance. See the Amendment 2026-09-07 section.
 - `src/components/archetypes/` compositions **ship as a source package**, because every observed divergence is compositional: hk-crm's vendored detail-overview primitives are byte-identical to this donor's, and the page is still wrong, because every divergence lives in how twelve route files fill the slots.
 
 ## Supersession of hk-crm ADR-0030
 
 hk-crm's `docs/adr/0030-vendor-stamp-design-baseline.md` (2026-07) rejected package consumption of this donor on two grounds:
 
-1. **No publishable artifact exists here.** Not refuted by this ADR — there is in fact no `exports` map and `package.json` is still `private: true`. That objection is discharged by Phase 2's work (the `exports` map over `src/components/archetypes/`, `private: true` dropped, no publish infrastructure needed for a git dependency against a tag), not by a decision recorded here.
+1. **No publishable artifact existed here.** Refuted now, against the shipped tree: `package.json` carries an `exports` map with seven subpaths (`./layout`, `./archetypes/*`, `./ui/*`, `./lib/utils`, `./hooks/*`, `./utils/logger`, `./tokens.layer.css`), a `files` scope (`src/components`, `src/lib`, `src/hooks`, `src/utils`, `src/styles`), and `react` / `react-dom` as `peerDependencies` (^19.0.0) — a consumer brings its own React. `node scripts/verify-exports.mjs` reports 4/4 invariants ok. `private: true` is **retained on purpose, not dropped**: the dependency channel is a git dependency against a tag (`v0.2.0` exists), which needs no publish, so the flag costs nothing and blocks an accidental publish of a private donor. The objection is discharged; the paragraph is the shipped-state record of that, replacing the original text's prediction that the discharge would come from a later phase.
 2. **A compiled-CSS package is wrong in principle** — the consumer's compiled bundle and the donor's `tokens.css` drift into version skew.
 
 This ADR supersedes ADR-0030 **on ground 2 only**. The skew argument holds for a package shipping *compiled CSS*, and is void for a source-distributed package shipping none: its `exports` point at `.tsx`, and the consumer's own Tailwind 4 build scans it via `@source` and compiles every class itself. No compiled artifact exists on either side, so nothing can skew. What changes on a version bump is source the consumer was already recompiling — not a prebuilt bundle going stale against a new token sheet.
@@ -67,9 +67,17 @@ The first application, on the two component_kind entries of the appearance-prop 
 
 A later reader classifies a new `kind: "component"` entry without re-deriving this call: shipped means governed; the test is per prop; a contract keying rule is what makes a prop legal.
 
+## Amendment 2026-09-07 — the `ui/` distribution clause is narrowed, not reversed
+
+The `pkg` phase shipped `src/components/ui/` *in* the source package (the `./ui/*` exports subpath plus the `files` scope). From the first package-consuming project onwards, `ui/` is no longer a copy-only layer: it has one source of truth in the donor, and a consumer that takes any archetype deletes its vendored copies and points its `@/components/ui/*` alias at `node_modules/design-baseline/src/components/ui/*`. The vendored-copy model stays alive only for projects that take the shell / tokens but never an archetype (the package's 141 archetype→ui edges mean archetype consumption ships `ui/` with it). The full record is [`docs/audits/2026-09-07-pkg-ui-vendored-clause-narrowing.md`](../audits/2026-09-07-pkg-ui-vendored-clause-narrowing.md).
+
+In kind the original rationale survives and weakens in force: byte-identical copies become byte-identical dependencies (the drift the ADR neutralised is now structurally impossible — there is one copy); the leaf / governance status of `ui/` is untouched by the narrowing, which moves distribution, not governance; and the `cp -R` copy channel is not retired — it coexists with the package channel through the migration overlap until the last vendored project migrates off it.
+
+Not a reversal and not a new ADR — the ruling (appearance locality: derived, not inherited) is untouched. If the fleet's last vendored consumer migrates off the copy channel, the original bullet can then be retired outright by an amendment of its own.
+
 ## Consequences
 
 - `docs/RULES.md` gains hard rule 12 (the enforceable restatement of this rule, including the closed context set).
 - Every other `archetype-convergence-*` ticket is graded against this ADR; the roadmap's original "never a per-call-site prop" phrasing is retired in its favour.
 - Enforcement reuses the ADR-0003 zero-dep scanner: the appearance-prop rules land at `severity: "warn"` and each archetype flips them to `error` as it closes. The *inherited-default* check (a prop whose default the contract does not state) is deliberately not expressible as a rule in that scanner and stays a contract-close review step.
-- Supersession of hk-crm ADR-0030 is partial and named: its skew argument is dead, its no-artifact objection lives until Phase 2.
+- Supersession of hk-crm ADR-0030 is partial and named: its skew argument is dead, and its no-artifact objection is discharged by the shipped `pkg` phase (see the supersession section's ground-1 record).
