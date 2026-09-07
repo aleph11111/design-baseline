@@ -43,31 +43,41 @@
       "id": "archetype-appearance-noun-prop",
       "pattern": "^\\s*(surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded|size)\\?\\s*:",
       "severity": "error",
-      "include": "src/components/archetypes/**",
+      "include": [
+        "src/components/archetypes/**",
+        "src/components/layout/**"
+      ],
       "exclude": [
         "src/components/archetypes/detail-overview/**",
         "src/components/archetypes/form-page/**",
         "src/components/archetypes/list-with-detail/**",
         "src/components/archetypes/settings-table/**",
         "src/components/archetypes/entity-circle/**",
-        "src/components/archetypes/calendar/**"
+        "src/components/archetypes/calendar/**",
+        "src/components/layout/SectionCard.tsx"
       ],
-      "message": "A prop named from the appearance-noun list is a per-call-site appearance the contract does not derive (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, settings-table) are gated by their own `*-` error rules. Excluded: entity-circle — its `tone` is contract-keyed to the entity's identity role (entity-circle.md L7: brand tone reserved for the signed-in identity; every other entity is neutral), so ADR-0004's derived test passes and the prop is legal; its `size` is contract-keyed to the scope of the thing the entity is the subject of (entity-circle.md L6: attribute of the surrounding row/cell -> xs, subject of its own row or list item -> sm, subject of the whole surface -> md; an omitted size resolves to sm, the rule's answer for that scope), so the optional prop is legal. `size` is in this rule's pattern so a future archetype that grows one is flagged. Excluded: calendar — its `tone` is contract-keyed to the event's domain status (calendar.md Layer 7: failed/blocked/overdue -> warning, completed/confirmed -> success, noteworthy/externally-driven -> info, no domain status -> default, and the shell resolves an omitted tone to default — the rule's answer for no status, so the optional prop is legal)."
+      "message": "A prop named from the appearance-noun list is a per-call-site appearance the contract does not derive (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, settings-table) are gated by their own `*-` error rules. Excluded: entity-circle — its `tone` is contract-keyed to the entity's identity role (entity-circle.md L7: brand tone reserved for the signed-in identity; every other entity is neutral), so ADR-0004's derived test passes and the prop is legal; its `size` is contract-keyed to the scope of the thing the entity is the subject of (entity-circle.md L6: attribute of the surrounding row/cell -> xs, subject of its own row or list item -> sm, subject of the whole surface -> md; an omitted size resolves to sm, the rule's answer for that scope), so the optional prop is legal. `size` is in this rule's pattern so a future archetype that grows one is flagged. Excluded: calendar — its `tone` is contract-keyed to the event's domain status (calendar.md Layer 7: failed/blocked/overdue -> warning, completed/confirmed -> success, noteworthy/externally-driven -> info, no domain status -> default, and the shell resolves an omitted tone to default — the rule's answer for no status, so the optional prop is legal). The `include` carries `src/components/layout/**` as a second root (same shape as `archetype-numeric-union-prop`) because the shared chrome the archetype shells compose (`SectionCard`, `SurfaceFrame`) lives outside `src/components/archetypes/` — hard rule 12 governs an appearance prop on an archetype composition regardless of which directory owns it, and without the root a closed archetype could forward a prop it is supposed to fully key to an ungated owner one directory over (detail-overview's `DetailSection.tone` -> `SectionCard.tone`). Excluded: `SectionCard.tsx` — its `tone` is contract-keyed to the section's role on the page (detail-overview.md:517-519, surface grading: data sections -> the default tone, reference panels -> `tone=\"muted\"`; the \"three weights\" of that sentence count the separately-governed stat strip as the third, not a third `tone` value), so ADR-0004's derived test passes and the prop is legal."
     },
     {
       "id": "archetype-look-union-prop",
       "pattern": "^\\s*\\w+\\??:\\s*\"[^\"]+\"\\s*\\|\\s*\"[^\"]+\"",
       "severity": "error",
-      "include": "src/components/archetypes/**",
+      "include": [
+        "src/components/archetypes/**",
+        "src/components/layout/**"
+      ],
       "exclude": [
         "src/components/archetypes/detail-overview/**",
         "src/components/archetypes/form-page/**",
         "src/components/archetypes/list-with-detail/**",
         "src/components/archetypes/crud-dialog/**",
         "src/components/archetypes/settings-table/**",
-        "src/components/archetypes/report/**"
+        "src/components/archetypes/report/**",
+        "src/components/layout/SectionCard.tsx",
+        "src/components/layout/SurfaceFrame.tsx",
+        "src/components/layout/ProgressTracker.tsx"
       ],
-      "message": "A prop typed as an inline string-literal union of look-names is a design space two projects can fill differently (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, crud-dialog, settings-table) are gated by their own `*-` error rules. Excluded: report — its `width` union is contract-keyed to the document's shape (report.md Structure, width keying rule: compact receipt / short Beleg -> sm, standard document column -> md, wide statement with many columns -> lg), so ADR-0004's derived test passes and the prop is legal."
+      "message": "A prop typed as an inline string-literal union of look-names is a design space two projects can fill differently (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, crud-dialog, settings-table) are gated by their own `*-` error rules. Excluded: report — its `width` union is contract-keyed to the document's shape (report.md Structure, width keying rule: compact receipt / short Beleg -> sm, standard document column -> md, wide statement with many columns -> lg), so ADR-0004's derived test passes and the prop is legal. The `include` carries `src/components/layout/**` as a second root (same shape as `archetype-numeric-union-prop`) because the shared chrome the archetype shells compose (`SectionCard`, `SurfaceFrame`) lives outside `src/components/archetypes/` — hard rule 12 governs an appearance prop on an archetype composition regardless of which directory owns it. Excluded: `SectionCard.tsx` — its `tone` union is contract-keyed to the section's role on the page (detail-overview.md:517-519, surface grading: data sections -> the default tone, reference panels -> `tone=\"muted\"`), so ADR-0004's derived test passes and the prop is legal; see `archetype-appearance-noun-prop`, which owns the same prop's triage under its noun pattern. Excluded: `SurfaceFrame.tsx` — its `overflow` union is contract-keyed to whether the bounded surface holds a sticky-edge grid (matrix-grid.md Layer 5, overflow keying rule: nothing pinned during horizontal scroll -> clipped, a grid with a sticky first column -> the surface IS the scroll container, because a sticky cell stays pinned only while the element it scrolls inside is the surface itself), so ADR-0004's derived test passes and the prop is legal. Excluded: `ProgressTracker.tsx` — its `ProgressStep.state` (`\"done\" | \"current\" | \"pending\"`) is a DOMAIN-STATE union on a data-item type, not a look: the value comes from the step's position in the lifecycle the caller is rendering, and the component maps each state to a fixed token treatment (see its visual contract) with no per-call-site choice left over — ADR-0004's derived test passes because nothing about it is inherited from the call site. This rule's pattern reaches every inline string union, so a data union in a row/item type lands here and is triaged, not deleted."
     },
     {
       "id": "archetype-numeric-union-prop",
@@ -115,9 +125,11 @@
       "severity": "error",
       "include": [
         "src/components/archetypes/**/*Shell.tsx",
-        "src/components/archetypes/**/*Sheet.tsx"
+        "src/components/archetypes/**/*Sheet.tsx",
+        "src/components/layout/**/*Shell.tsx",
+        "src/components/layout/**/*Sheet.tsx"
       ],
-      "message": "`className` is an unenumerable superset escape hatch on a shell's outer wrapper — fork the component instead (RULES.md hard rule 12). Scoped to top-level props (indent ≤2) so a nested leaf descriptor (the matrix-grid per-cell `cellStyle` field — styling data, not shell appearance) is not flagged. The `include` is an array so it catches both the `*Shell.tsx`-named page shells and the `*Sheet.tsx`-named overlay shells (e.g. crud-dialog's `CrudDialogSheet`) — a shell not named `*Shell.tsx` would otherwise slip the gate."
+      "message": "`className` is an unenumerable superset escape hatch on a shell's outer wrapper — fork the component instead (RULES.md hard rule 12). Scoped to top-level props (indent ≤2) so a nested leaf descriptor (the matrix-grid per-cell `cellStyle` field — styling data, not shell appearance) is not flagged. The `include` is an array so it catches both the `*Shell.tsx`-named page shells and the `*Sheet.tsx`-named overlay shells (e.g. crud-dialog's `CrudDialogSheet`) — a shell not named `*Shell.tsx` would otherwise slip the gate. It also carries the two `src/components/layout/**` shell/sheet globs, so a shell in the shared-chrome layer (`AppShell`) is gated on the same terms as an archetype's own; no layout-layer shell declares `className` today, the root is here so the class stays closed when one grows."
     },
     {
       "id": "archetype-appearance-slot",

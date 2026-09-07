@@ -35,19 +35,24 @@ function run(...args) {
 function runFixture(rules, ...args) {
   const dir = mkdtempSync(join(tmpdir(), "lint-design-include-"));
   const archDir = join(dir, "src", "components", "archetypes", "foo");
+  const layoutDir = join(dir, "src", "components", "layout");
   const uiDir = join(dir, "src", "components", "ui");
   try {
     mkdirSync(archDir, { recursive: true });
+    mkdirSync(layoutDir, { recursive: true });
     mkdirSync(uiDir, { recursive: true });
     // Both a look-union `surface` prop and a top-level `className` escape hatch, so a
     // `surface`-pattern rule and a `className`-pattern rule can each be scoped off path
     // alone. Three archetype-layer files share the same two declarations — one named
     // `*Shell.tsx`, one `*Sheet.tsx` (the overlay-shell suffix that is NOT `*Shell`), and
-    // one `*Panel.tsx` (a leaf, NOT a shell) — plus a ui-layer control. Only paths differ.
+    // one `*Panel.tsx` (a leaf, NOT a shell) — plus a shared-chrome file under
+    // `src/components/layout/` (the second `include` root the archetype-layer
+    // appearance rules carry) and a ui-layer control. Only paths differ.
     const props = 'export type P = {\n  surface?: "a" | "b";\n  className?: string;\n};\n';
     writeFileSync(join(archDir, "FooShell.tsx"), props);
     writeFileSync(join(archDir, "FooSheet.tsx"), props);
     writeFileSync(join(archDir, "FooPanel.tsx"), props);
+    writeFileSync(join(layoutDir, "SharedChrome.tsx"), props);
     writeFileSync(join(uiDir, "button.tsx"), props);
     writeFileSync(join(dir, "_adherence.json"), JSON.stringify({ targets: ["src"], rules }));
     let r;
@@ -197,6 +202,7 @@ describe("lint-design per-rule include glob", () => {
   const NOUN = "src/components/archetypes/foo/FooShell.tsx";
   const SHEET = "src/components/archetypes/foo/FooSheet.tsx";
   const PANEL = "src/components/archetypes/foo/FooPanel.tsx";
+  const LAYOUT = "src/components/layout/SharedChrome.tsx";
   const UI = "src/components/ui/button.tsx";
   const filesOf = (stdout) =>
     new Set(JSON.parse(stdout).violations.map((v) => v.file));
@@ -316,6 +322,83 @@ describe("lint-design per-rule include glob", () => {
       const files = filesOf(stdout);
       expect(files).toContain(NOUN); // the single entry still matches
       expect(files).not.toContain(SHEET); // not in the single-glob scope
+    });
+  });
+
+  describe("array-form include (the shared-chrome second root)", () => {
+    // `archetype-appearance-noun-prop`, `archetype-look-union-prop` and
+    // `archetype-numeric-union-prop` each carry `src/components/layout/**` as a
+    // second root: the chrome the archetype shells compose (SectionCard,
+    // SurfaceFrame) lives outside `src/components/archetypes/`, and hard rule 12
+    // governs an appearance prop there on the same terms. Without the root a
+    // closed archetype can forward a prop it is supposed to fully key to an
+    // ungated owner one directory over (DetailSection.tone -> SectionCard.tone).
+    const TWO_ROOT_INCLUDE = ["src/components/archetypes/**", "src/components/layout/**"];
+
+    it("pins the layout root in scope for the appearance-noun rule", () => {
+      const rule = {
+        id: "appearance-noun-prop",
+        pattern: 'surface\\?\\s*:',
+        severity: "error",
+        message: "m",
+        include: TWO_ROOT_INCLUDE,
+      };
+      const { stdout, status } = runFixture([rule], "--json");
+      const files = filesOf(stdout);
+      expect(files).toContain(LAYOUT); // shared chrome — the widened root
+      expect(files).toContain(NOUN); // the original archetype root still applies
+      expect(files).not.toContain(UI); // same content, outside both roots
+      expect(status).toBe(1);
+    });
+
+    it("pins the layout root in scope for the look-union rule", () => {
+      const rule = {
+        id: "look-union-prop",
+        pattern: '^\\s*\\w+\\??:\\s*"[^"]+"\\s*\\|\\s*"[^"]+"',
+        severity: "error",
+        message: "m",
+        include: TWO_ROOT_INCLUDE,
+      };
+      const { stdout, status } = runFixture([rule], "--json");
+      const files = filesOf(stdout);
+      expect(files).toContain(LAYOUT);
+      expect(files).toContain(NOUN);
+      expect(files).not.toContain(UI);
+      expect(status).toBe(1);
+    });
+
+    it("misses the layout layer with the archetypes-only include (the gap this root closes)", () => {
+      // The pre-widening shape: one string include scoped to the archetype
+      // folder. Same file, same prop — invisible. Pins the regression.
+      const rule = {
+        id: "appearance-noun-prop",
+        pattern: 'surface\\?\\s*:',
+        severity: "error",
+        message: "m",
+        include: "src/components/archetypes/**",
+      };
+      const { stdout } = runFixture([rule], "--json");
+      expect(filesOf(stdout)).not.toContain(LAYOUT);
+    });
+
+    it("takes a single-file exclude under the layout root without reaching the archetype root", () => {
+      // The triaged shared-chrome props are excluded by exact file path
+      // (`src/components/layout/SectionCard.tsx`), not by folder glob — the
+      // layout dir is one flat folder of unrelated primitives, so a `**` there
+      // would disarm the whole root.
+      const rule = {
+        id: "appearance-noun-prop",
+        pattern: 'surface\\?\\s*:',
+        severity: "error",
+        message: "m",
+        include: TWO_ROOT_INCLUDE,
+        exclude: ["src/components/layout/SharedChrome.tsx"],
+      };
+      const { stdout, status } = runFixture([rule], "--json");
+      const files = filesOf(stdout);
+      expect(files).not.toContain(LAYOUT); // excluded by exact path
+      expect(files).toContain(NOUN); // the archetype root is untouched
+      expect(status).toBe(1);
     });
   });
 
