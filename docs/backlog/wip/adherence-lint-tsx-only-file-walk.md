@@ -125,9 +125,9 @@ ungoverned appearance prop.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap
 - [adherence-lint-boolean-classvalue-gap.md](adherence-lint-boolean-classvalue-gap.md) — the session that hit both halves of this gap
-- [adherence-lint-union-prop-blind-spot.md](archive/adherence-lint-union-prop-blind-spot.md) — prior gap-drain precedent
-- [lint-design-include-reachability-guard.md](archive/lint-design-include-reachability-guard.md) — the compile-time guard against a silently-disarmed rule; this is the same failure one level up, at the walk
+- [adherence-lint-union-prop-blind-spot.md](../archive/adherence-lint-union-prop-blind-spot.md) — prior gap-drain precedent
+- [lint-design-include-reachability-guard.md](../archive/lint-design-include-reachability-guard.md) — the compile-time guard against a silently-disarmed rule; this is the same failure one level up, at the walk
 - ADR-0003 — `docs/adr/0003-adherence-lint-zero-dep-scanner.md`
 - ADR-0004 — `docs/adr/0004-appearance-locality-derived-vs-inherited.md`
