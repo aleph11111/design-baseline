@@ -2,7 +2,7 @@
 area: ui
 roadmap: archetype-convergence
 opened: '2026-09-07'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "mechanical — ten @theme roles, two sets of HSL triplets, and two cva variant tables; the source values and the role/value ownership split are both settled in the spec's C4"
