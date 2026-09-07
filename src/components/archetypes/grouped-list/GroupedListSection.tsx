@@ -30,11 +30,6 @@ export type GroupedListSectionProps<Row> = {
     description: React.ReactNode | undefined;
     rowCount: number;
   }) => React.ReactNode;
-  /**
-   * Hide the default row-count `<Badge>` in the title bar. Ignored when
-   * `renderHeader` is provided (the override owns the whole bar).
-   */
-  hideCount?: boolean;
 
   // Inner-shell delegation (Archetype A)
   rows: Row[];
@@ -65,7 +60,6 @@ export function GroupedListSection<Row>({
   title,
   description,
   renderHeader,
-  hideCount,
   rows,
   columns,
   getRowId,
@@ -88,9 +82,7 @@ export function GroupedListSection<Row>({
       title={customHeader ? undefined : title}
       description={customHeader ? undefined : description}
       actions={
-        customHeader || hideCount ? undefined : (
-          <Badge variant="secondary">{rows.length}</Badge>
-        )
+        customHeader ? undefined : <Badge variant="secondary">{rows.length}</Badge>
       }
       header={customHeader}
       flush

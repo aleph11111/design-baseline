@@ -60,7 +60,10 @@ check landed.
 |---|---|---|
 | `archetype-appearance-noun-prop` | a prop named from the appearance-noun list (`surface`, `variant`, `tone`, `density`, `appearance`, `rhythm`, `fill`, `framed`, `bordered`, `compact`, `padded`) | `src/components/archetypes/**` + `src/components/layout/**` |
 | `archetype-look-union-prop` | a prop typed as an inline string-literal union of look-names | `src/components/archetypes/**` + `src/components/layout/**` |
-| `archetype-shell-class-name` | `className` declared on a `*Shell` / `*Sheet` component | `src/components/archetypes/**` + `src/components/layout/**`, `*Shell.tsx` / `*Sheet.tsx` |
+| `archetype-numeric-union-prop` | a prop typed as a bare numeric-literal union (`columns?: 2 \| 3 \| 4`) | `src/components/archetypes/**` + `src/components/layout/**` |
+| `archetype-alias-union-prop` | a prop typed against a union type ALIAS declared in the same file (`{{unionAliases}}` pre-pass) | `src/components/archetypes/**` + `src/components/layout/**` |
+| `archetype-appearance-boolean-prop` | a boolean look FLAG from an appearance allowlist (`accent`, `emphasis`, `flush`, `sticky*`, `*mono*`, `hideCount`, `showHeader`, `showCount`, `avatar`, …) — capability booleans stay out at the pattern level | `src/components/archetypes/**` + `src/components/layout/**` |
+| `archetype-shell-class-name` | `className` declared on a `*Shell` / `*Sheet` component — the prop name and its indent, NOT its type, so `className?: ClassValue` is caught too | `src/components/archetypes/**` + `src/components/layout/**`, `*Shell.tsx` / `*Sheet.tsx` |
 | `archetype-appearance-slot` | an appearance-bearing `ReactNode` slot (`header`, `stats`) | `src/components/archetypes/**` |
 
 **The shared-chrome second root.** `src/components/layout/**` is a second

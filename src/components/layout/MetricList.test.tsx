@@ -52,8 +52,8 @@ describe("MetricList", () => {
   });
 });
 
-describe("MetricRow emphasis/accent", () => {
-  const renderRow = (props: { emphasis?: boolean; accent?: boolean }) => {
+describe("MetricRow emphasis", () => {
+  const renderRow = (props: { emphasis?: boolean }) => {
     const { unmount } = render(
       <MetricRow label="Rohertrag" value="420 €" {...props} />,
     );
@@ -63,35 +63,25 @@ describe("MetricRow emphasis/accent", () => {
     return { label, value };
   };
 
-  it("applies neither treatment by default", () => {
+  it("renders the secondary tier by default", () => {
     const { label, value } = renderRow({});
     expect(label).toContain("text-muted-foreground");
     expect(value).toContain("text-[13px]");
     expect(value).toContain("text-foreground");
-    expect(value).not.toContain("text-primary");
   });
 
-  it("emphasis alone enlarges the value without tinting it", () => {
+  it("emphasis enlarges the value and un-mutes the label", () => {
     const { label, value } = renderRow({ emphasis: true });
     expect(label).not.toContain("text-muted-foreground");
     expect(value).toContain("text-base");
     expect(value).toContain("text-foreground");
-    expect(value).not.toContain("text-primary");
   });
 
-  it("accent alone tints the value without enlarging it", () => {
-    const { label, value } = renderRow({ accent: true });
-    expect(label).toContain("text-muted-foreground");
-    expect(value).toContain("text-[13px]");
-    expect(value).toContain("text-primary");
-    expect(value).not.toContain("text-foreground");
-  });
-
-  it("emphasis and accent compose", () => {
-    const { label, value } = renderRow({ emphasis: true, accent: true });
-    expect(label).not.toContain("text-muted-foreground");
-    expect(value).toContain("text-base");
-    expect(value).toContain("text-primary");
-    expect(value).not.toContain("text-foreground");
+  // The figure never carries a brand tint: the deleted `accent` flag was
+  // per-call-site discretion no contract keyed (ADR-0004), so every row's
+  // value renders `text-foreground` whatever its tier.
+  it("never tints the value with the brand token", () => {
+    expect(renderRow({}).value).not.toContain("text-primary");
+    expect(renderRow({ emphasis: true }).value).not.toContain("text-primary");
   });
 });

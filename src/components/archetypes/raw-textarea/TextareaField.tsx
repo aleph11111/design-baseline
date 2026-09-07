@@ -37,8 +37,6 @@ export interface TextareaFieldProps
   required?: boolean;
   /** Monospace + `spellCheck={false}` — the code / JSON-config variant. */
   mono?: boolean;
-  /** Show a `{len}/{maxLength}` counter (requires `maxLength`); colors muted → amber → destructive. */
-  showCount?: boolean;
   /**
    * Applied to the wrapper `<div>`, not the textarea (this field spreads the
    * native `TextareaHTMLAttributes`, so `className` belongs to the textarea
@@ -60,7 +58,6 @@ export function TextareaField({
   error,
   required,
   mono = false,
-  showCount = false,
   id,
   value,
   defaultValue,
@@ -98,7 +95,12 @@ export function TextareaField({
     onChange?.(e);
   };
 
-  const hasCount = showCount && maxLength != null;
+  // The counter is DERIVED, not opted into: raw-textarea.md L5 keys it to the
+  // field's own data ("When a maximum length is set, the field may show a
+  // `used / max` counter"), so `maxLength` is the whole condition. The former
+  // `showCount` flag added per-call-site discretion on top of that rule, which
+  // ADR-0004's derived-vs-inherited test disqualifies.
+  const hasCount = maxLength != null;
   const near = hasCount && length >= maxLength! * 0.9 && length < maxLength!;
   const atLimit = hasCount && length >= maxLength!;
 
