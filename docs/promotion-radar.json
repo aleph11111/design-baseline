@@ -311,6 +311,14 @@
       ],
       "action": "remove (donor already dropped them; hk-crm's are dead). brickshop legitimately keeps its own.",
       "since": "2026-06-15"
+    },
+    {
+      "item": "donor package tag lag (installed donor tag per consumer)",
+      "projects": [
+        "none yet — first install is the throwaway proof at tag v0.2.0 (2026-09-07, scratch dir, not committed)"
+      ],
+      "action": "record each consumer's installed `design-baseline#<tag>` here as installs land (docs/PACKAGE.md); a consumer more than one minor behind the newest donor tag is a sync row — four consumers on four different tags is the fork problem with better labels, and the tag is the stamp that replaces per-file vendor stamps (STACK.md hazard 5).",
+      "since": "2026-09-07"
     }
   ]
 }
