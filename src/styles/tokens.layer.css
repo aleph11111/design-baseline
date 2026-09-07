@@ -74,6 +74,23 @@
   --color-warning: hsl(var(--warning));
   --color-warning-foreground: hsl(var(--warning-foreground));
 
+  /* Status chip tier — the bg/fg pairs the soft `Badge`/`Alert` status
+     variants key off (`bg-status-{tier}-bg text-status-{tier}-fg`), the same
+     contract hk-crm adopted. The `--destructive` / `--success` solid roles
+     stay for filled surfaces; this tier is the soft chip look. Roles live
+     here (the donor layer); the HSL values live in the brand `tokens.css`,
+     so a consumer rebrands the tier without touching this file. */
+  --color-status-success-bg: hsl(var(--status-success-bg));
+  --color-status-success-fg: hsl(var(--status-success-fg));
+  --color-status-warning-bg: hsl(var(--status-warning-bg));
+  --color-status-warning-fg: hsl(var(--status-warning-fg));
+  --color-status-danger-bg: hsl(var(--status-danger-bg));
+  --color-status-danger-fg: hsl(var(--status-danger-fg));
+  --color-status-info-bg: hsl(var(--status-info-bg));
+  --color-status-info-fg: hsl(var(--status-info-fg));
+  --color-status-neutral-bg: hsl(var(--status-neutral-bg));
+  --color-status-neutral-fg: hsl(var(--status-neutral-fg));
+
   --color-rating: hsl(var(--rating));
 
   --color-muted: hsl(var(--muted));

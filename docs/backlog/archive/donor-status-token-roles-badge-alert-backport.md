@@ -2,7 +2,7 @@
 area: ui
 roadmap: archetype-convergence
 opened: '2026-09-07'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "mechanical — ten @theme roles, two sets of HSL triplets, and two cva variant tables; the source values and the role/value ownership split are both settled in the spec's C4"
@@ -70,8 +70,8 @@ files the donor should simply have. Filed as decision **C4** of the
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — roadmap; phase
+- [archetype-convergence.md](../archetype-convergence.md) — roadmap; phase
   `consumer-migration`, decision C4
-- [archive/tokens-brand-font-seam-and-split-guard.md](archive/tokens-brand-font-seam-and-split-guard.md)
+- [archive/tokens-brand-font-seam-and-split-guard.md](../archive/tokens-brand-font-seam-and-split-guard.md)
   — shipped the layer/brand ownership split and `verify-exports`' two CSS invariants
 - ADR-0004 — appearance locality: derived vs inherited; the token tier this uses
