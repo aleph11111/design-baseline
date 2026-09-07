@@ -14,7 +14,11 @@ gate:
   graded_at: '2026-09-07T06:06:46Z'
 value: high
 model: sonnet
-model_reason: "established regex idiom (archetype-alias-union-prop's negative-lookahead pattern) replicated per closed folder; legal props are enumerated below and acceptance is fully testable — no open design judgment left"
+model_reason: >-
+  established regex idiom (archetype-alias-union-prop's negative-lookahead pattern) replicated per
+  closed folder; legal props are enumerated below and acceptance is fully testable — no open design
+  judgment left
+roadmap: archetype-convergence
 ---
 
 # Closed archetype folders leak new appearance props past the lint gate

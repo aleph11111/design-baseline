@@ -16,6 +16,7 @@ tickets:
   - entity-circle-size-prop-appearance-locality-gap
   - adherence-lint-alias-rule-size-noun-gap
   - adherence-lint-warn-to-error-ratchet
+  - adherence-lint-closed-folder-allowlist-gap
 phases:
   - name: p0
     title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
@@ -49,6 +50,7 @@ phases:
       - entity-circle-size-prop-appearance-locality-gap
       - adherence-lint-alias-rule-size-noun-gap
       - adherence-lint-warn-to-error-ratchet
+      - adherence-lint-closed-folder-allowlist-gap
     open: false
   - name: pkg
     title: Consumable source package — exports map, no compiled CSS
@@ -71,15 +73,23 @@ phases:
     open: true
     spec_anchor: '## Phases 2–5 — design level only'
   - name: docs-retire
-    title: 'Retire World A docs in each migrated consumer: eight methodology docs, adoption-plan, three JSON configs, docs/archetypes/, vendor stamps, design:/patterns: Doc Paths keys; keep _adherence lint'
+    title: >-
+      Retire World A docs in each migrated consumer: eight methodology docs, adoption-plan, three
+      JSON configs, docs/archetypes/, vendor stamps, design:/patterns: Doc Paths keys; keep
+      _adherence lint
     tickets: []
     open: true
   - name: donor-docs
-    title: Collapse donor spec + .baseline.md pairs into one doc per closed archetype; rewrite ADOPTION.md for package consumption; point PLUGIN-CONTRACT actions at the package install; retire FLEET-AUDIT.md and the audit reports into promotion-radar.json
+    title: >-
+      Collapse donor spec + .baseline.md pairs into one doc per closed archetype; rewrite
+      ADOPTION.md for package consumption; point PLUGIN-CONTRACT actions at the package install;
+      retire FLEET-AUDIT.md and the audit reports into promotion-radar.json
     tickets: []
     open: true
   - name: fleet-commands
-    title: Delete /adopt-baseline, /style-baseline, /style-archetypes from ~/.claude/commands and fleet/commands; keep /promote-archetype
+    title: >-
+      Delete /adopt-baseline, /style-baseline, /style-archetypes from ~/.claude/commands and
+      fleet/commands; keep /promote-archetype
     tickets: []
     open: true
 ---
