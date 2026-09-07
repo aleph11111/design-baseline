@@ -38,7 +38,7 @@ slot (`archetype-appearance-slot`). A **render-callback** prop — a function-ty
 prop returning `ReactNode`, e.g. `GroupedListSection`'s
 `renderHeader?: (args: { title, description, rowCount }) => React.ReactNode` — is none of
 these, so it escapes every rule. That prop was the concrete instance that motivated
-[adherence-lint-appearance-slot-layout-gap](wip/adherence-lint-appearance-slot-layout-gap.md)
+[adherence-lint-appearance-slot-layout-gap](archive/adherence-lint-appearance-slot-layout-gap.md)
 closing the `SectionCard.header` slot below it, and it is being **deleted** by that ticket;
 but the general shape is still unguarded, so a per-call-site appearance can be smuggled
 back in one level of indirection up — the same unenumerable escape hatch the other five
@@ -73,7 +73,7 @@ Filed alongside (not widened into) [adherence-lint-boolean-classvalue-gap](adher
 ## Related
 
 - [adherence-lint-boolean-classvalue-gap.md](adherence-lint-boolean-classvalue-gap.md) — the sibling "prop-shape blind spot" ticket this is filed alongside (boolean / `className?: ClassValue` shapes); same family, distinct shape class.
-- [adherence-lint-appearance-slot-layout-gap.md](wip/adherence-lint-appearance-slot-layout-gap.md) — the ticket that deletes the concrete `GroupedListSection.renderHeader` instance and whose layout-layer widen this shares.
+- [adherence-lint-appearance-slot-layout-gap.md](archive/adherence-lint-appearance-slot-layout-gap.md) — the ticket that deletes the concrete `GroupedListSection.renderHeader` instance and whose layout-layer widen this shares.
 - [archive/adherence-lint-union-prop-blind-spot.md](archive/adherence-lint-union-prop-blind-spot.md) — the drain-ticket precedent for the triage method (delete-unkeyed / promote-then-exclude, cite the line in `message`).
 - [archive/report-calendar-appearance-prop-lint.md](archive/report-calendar-appearance-prop-lint.md) — promote-contract-prose-then-exclude precedent.
 - ADR-0004 (`docs/adr/0004-appearance-locality-derived-vs-inherited.md`) — the derived-vs-inherited test each render-callback prop is graded against.

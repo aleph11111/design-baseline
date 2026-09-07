@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-07'
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: >-
