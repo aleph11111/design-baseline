@@ -22,6 +22,7 @@ tickets:
   - archetype-package-installable
   - archetype-package-consumer-wiring
   - adr-0004-narrowing-crossref-and-ground1-stale
+  - tokens-brand-font-seam-and-split-guard
 phases:
   - name: p0
     title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
@@ -68,9 +69,9 @@ phases:
     spec_anchor: '## Phase pkg — consumable source package'
   - name: token-split
     title: Split tokens.css into package-owned base and project-owned brand layers
-    tickets: []
-    open: true
-    spec_anchor: '## Phases 2–5 — design level only'
+    tickets:
+      - tokens-brand-font-seam-and-split-guard
+    spec_anchor: '## Phase token-split — close the font seam and guard the split'
   - name: consumer-migration
     title: Migrate hk-crm /companies/[id] onto the packaged archetype
     tickets: []
