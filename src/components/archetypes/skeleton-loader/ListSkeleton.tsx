@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { Skeleton } from "../../ui/skeleton";
+import { cn } from "../../../lib/utils";
 
 export interface ListSkeletonProps {
   /** Number of placeholder rows to render. Default 5. */

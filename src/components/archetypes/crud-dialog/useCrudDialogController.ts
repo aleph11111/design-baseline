@@ -1,6 +1,6 @@
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 import type { UseCrudDialogModeResult } from "./useCrudDialogMode";
-import { deriveSubmittingLabel } from "@/components/archetypes/shared/submittingLabel";
+import { deriveSubmittingLabel } from "../shared/submittingLabel";
 
 // ---------------------------------------------------------------------------
 // Types

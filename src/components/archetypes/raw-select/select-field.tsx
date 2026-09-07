@@ -5,8 +5,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+} from "../../ui/select";
+import { cn } from "../../../lib/utils";
 import {
   FieldError,
   FieldFrame,

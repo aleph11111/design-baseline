@@ -19,7 +19,7 @@
  * of the fleet (teal for hk-crm, blue for BrickShop) with zero per-app code.
  */
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 export type ProgressStep = {
   label: React.ReactNode;

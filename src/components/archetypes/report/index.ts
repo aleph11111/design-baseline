@@ -1,3 +1,4 @@
+"use client";
 export { ReportShell } from "./ReportShell";
 export type { ReportShellProps } from "./ReportShell";
 

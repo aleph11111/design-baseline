@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { Label } from "../../ui/label";
+import { cn } from "../../../lib/utils";
 
 // The **shared labeled-field frame** — the one owner of the label + hint + error
 // assembly every labeled field in the baseline composes (NativeField (I),

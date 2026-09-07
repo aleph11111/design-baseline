@@ -1,3 +1,4 @@
+"use client";
 export { AppShell, type AppShellProps } from "./AppShell";
 export { AppSidebar, type NavItem, type NavGroup, type AppSidebarProps } from "./Sidebar";
 export { AppHeader, type AppHeaderProps } from "./Header";

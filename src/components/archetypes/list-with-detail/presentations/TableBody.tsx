@@ -7,8 +7,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+} from "../../../ui/table";
+import { cn } from "../../../../lib/utils";
 import { RowActionsMenu, alignClass, identifierCell } from "../../shared";
 import type { RowAction } from "../../shared";
 import type { ListColumn, SortDirection } from "../ListWithDetailShell";

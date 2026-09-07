@@ -1,8 +1,8 @@
 import * as React from "react";
-import { Button } from "@/components/ui/button";
-import { SectionCard } from "@/components/layout/SectionCard";
-import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
-import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
+import { Button } from "../../ui/button";
+import { SectionCard } from "../../layout/SectionCard";
+import { SurfaceFrame } from "../../layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
 import { WizardStepper, type WizardStep } from "./WizardStepper";
 
 export type WizardShellProps = {

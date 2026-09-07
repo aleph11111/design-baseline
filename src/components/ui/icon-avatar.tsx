@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback } from "./avatar";
+import { cn } from "../../lib/utils";
 
 export type IconAvatarSize = "xs" | "sm" | "md";
 

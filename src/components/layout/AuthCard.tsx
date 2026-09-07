@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 export type AuthCardProps = {
   /** Heading — "Sign in", "Not authorized", "Something went wrong". */

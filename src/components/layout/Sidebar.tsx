@@ -12,13 +12,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@/components/ui/sidebar";
+} from "../ui/sidebar";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
+} from "../ui/collapsible";
+import { cn } from "../../lib/utils";
 import { OVERLINE_CLASS } from "./overline";
 
 export interface NavItem {

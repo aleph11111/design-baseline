@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../../../lib/utils";
 import { RowActionsMenu, getInteractiveRowProps, interactiveRowFocusRing } from "../../shared";
 import type { RowAction } from "../../shared";
 import type { ListColumn } from "../ListWithDetailShell";

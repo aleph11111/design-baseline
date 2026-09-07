@@ -1,6 +1,6 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
-import { COL_HEADER_CLASS } from "@/components/layout/overline";
+import { cn } from "../../../lib/utils";
+import { COL_HEADER_CLASS } from "../../layout/overline";
 
 /**
  * The shared figure-table signature — the hairline-divided line-item table

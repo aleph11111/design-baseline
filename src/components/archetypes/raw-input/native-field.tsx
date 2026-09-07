@@ -1,7 +1,7 @@
 import * as React from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { Input } from "../../ui/input";
+import { Textarea } from "../../ui/textarea";
+import { cn } from "../../../lib/utils";
 import {
   FieldError,
   FieldFrame,

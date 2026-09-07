@@ -1,10 +1,10 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../../lib/utils";
 import {
   FigureTable,
   FigureRow,
   statementGridClass,
-} from "@/components/archetypes/shared";
+} from "../shared";
 
 export type StatementTableProps = {
   /**

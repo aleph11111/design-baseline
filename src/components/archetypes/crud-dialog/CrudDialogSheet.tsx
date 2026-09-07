@@ -1,7 +1,7 @@
 import * as React from "react";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Sheet, SheetContent } from "../../ui/sheet";
+import { cn } from "../../../lib/utils";
+import { useIsMobile } from "../../../hooks/use-mobile";
 
 // ---------------------------------------------------------------------------
 // Width variant map

@@ -1,6 +1,6 @@
 import * as React from "react";
-import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
-import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
+import { SurfaceFrame } from "../../layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
 
 // ---------------------------------------------------------------------------
 // Public types

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { TooltipProvider } from "../../ui/tooltip";
 import { MatrixGridShell, type MatrixColumn, type MatrixRow } from "./MatrixGridShell";
 
 const columns: MatrixColumn[] = [{ key: "mon", label: "Mon" }];

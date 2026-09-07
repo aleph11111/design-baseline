@@ -1,13 +1,13 @@
 import * as React from "react";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { Input } from "./input";
+import { cn } from "../../lib/utils";
 import {
   FieldError,
   FieldFrame,
   FieldHint,
   FieldLabel,
   useFieldIds,
-} from "@/components/archetypes/shared/fieldFrame";
+} from "../archetypes/shared/fieldFrame";
 
 // The shared owner of a **native color input** — the one shadcn gap the fleet
 // kept hand-rolling (brickshop ColorPickerField/ColorInput, controlling-app

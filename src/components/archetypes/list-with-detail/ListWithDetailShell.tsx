@@ -1,9 +1,9 @@
 import * as React from "react";
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
-import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
-import { SurfaceHeaderBar } from "@/components/layout/SurfaceHeaderBar";
-import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../../ui/sheet";
+import { SurfaceFrame } from "../../layout/SurfaceFrame";
+import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
+import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
+import { useIsMobile } from "../../../hooks/use-mobile";
 import {
   ListWithDetailEmptyState,
   type ListEmptyMode,

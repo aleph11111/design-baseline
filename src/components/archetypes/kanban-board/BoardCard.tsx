@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../../lib/utils";
 
 export type BoardCardProps = React.HTMLAttributes<HTMLDivElement> & {
   /** Forwards to the root div (DnD consumers attach the draggable here). */

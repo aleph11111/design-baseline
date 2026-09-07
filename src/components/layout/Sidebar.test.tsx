@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import { Home, Upload, type LucideIcon } from "lucide-react";
 import { AppSidebar, type NavGroup } from "./Sidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider } from "../ui/sidebar";
 
 afterEach(() => {
   cleanup();

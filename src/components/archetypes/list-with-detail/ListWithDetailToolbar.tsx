@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { SearchInput } from "@/components/ui/search-input";
-import { cn } from "@/lib/utils";
+import { SearchInput } from "../../ui/search-input";
+import { cn } from "../../../lib/utils";
 
 export type ListWithDetailToolbarProps = {
   searchValue?: string;

@@ -1,3 +1,4 @@
+"use client";
 export { SettingsPageShell } from "./SettingsPageShell";
 export type { SettingsPageShellProps } from "./SettingsPageShell";
 

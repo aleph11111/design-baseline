@@ -26,12 +26,12 @@
  * treatment in step if that house style ever changes.
  */
 import * as React from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from "../ui/collapsible";
 import { ChevronDown } from "lucide-react";
 
 export type MetricRowProps = {

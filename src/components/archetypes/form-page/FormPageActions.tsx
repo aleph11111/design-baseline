@@ -1,6 +1,6 @@
 import * as React from "react";
-import { ActionFooterBar } from "@/components/archetypes/shared/ActionFooterBar";
-import { cn } from "@/lib/utils";
+import { ActionFooterBar } from "../shared/ActionFooterBar";
+import { cn } from "../../../lib/utils";
 
 // ---------------------------------------------------------------------------
 // Public types

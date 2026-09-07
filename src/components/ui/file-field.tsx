@@ -1,14 +1,14 @@
 import * as React from "react";
 import { FileText, Loader2, Upload, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "./button";
+import { cn } from "../../lib/utils";
 import {
   FieldError,
   FieldFrame,
   FieldHint,
   FieldLabel,
   useFieldIds,
-} from "@/components/archetypes/shared/fieldFrame";
+} from "../archetypes/shared/fieldFrame";
 
 // The shared owner of a **native file input** — the other shadcn gap the fleet
 // kept hand-rolling (brickshop photo/invoice/logo pickers, controlling-app

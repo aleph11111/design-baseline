@@ -1,6 +1,6 @@
 import * as React from "react";
-import { cn } from "@/lib/utils";
-import { FigureTable, FigureRow } from "@/components/archetypes/shared";
+import { cn } from "../../../lib/utils";
+import { FigureTable, FigureRow } from "../shared";
 
 /**
  * The report's fixed line-item grid: name (fluid) · qty (3rem) · unit (5.5rem)

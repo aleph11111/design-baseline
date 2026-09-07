@@ -1,3 +1,4 @@
+"use client";
 export { StatementWithFiltersShell } from "./StatementWithFiltersShell";
 export type { StatementWithFiltersShellProps } from "./StatementWithFiltersShell";
 

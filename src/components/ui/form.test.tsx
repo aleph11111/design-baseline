@@ -3,7 +3,7 @@ import { render } from "@testing-library/react"
 import { FormProvider, useForm } from "react-hook-form"
 import { describe, expect, it } from "vitest"
 
-import { FormField, FormItem, useFormField } from "@/components/ui/form"
+import { FormField, FormItem, useFormField } from "./form"
 
 function FormProviderWrapper({ children }: { children: React.ReactNode }) {
   const methods = useForm()

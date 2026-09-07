@@ -1,7 +1,7 @@
 import * as React from "react";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { SidebarProvider } from "../ui/sidebar";
+import { TooltipProvider } from "../ui/tooltip";
+import { Toaster as Sonner } from "../ui/sonner";
 import { HeaderFillContext, type HeaderFill } from "./headerFill";
 
 export interface AppShellProps {

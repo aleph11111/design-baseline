@@ -1,8 +1,8 @@
 import * as React from "react";
 import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { SheetDescription, SheetTitle } from "@/components/ui/sheet";
-import { SurfaceHeaderBar } from "@/components/layout/SurfaceHeaderBar";
+import { Button } from "../../ui/button";
+import { SheetDescription, SheetTitle } from "../../ui/sheet";
+import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
 
 // ---------------------------------------------------------------------------
 // Public types

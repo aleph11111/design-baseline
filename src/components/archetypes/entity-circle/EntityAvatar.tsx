@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
+import { cn } from "../../../lib/utils";
 
 export type EntityAvatarSize = "xs" | "sm" | "md";
 export type EntityAvatarTone = "muted" | "primary";

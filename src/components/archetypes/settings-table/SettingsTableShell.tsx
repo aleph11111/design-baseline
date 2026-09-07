@@ -7,10 +7,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { StateView } from "@/components/ui/state-view";
+} from "../../ui/table";
+import { Button } from "../../ui/button";
+import { Checkbox } from "../../ui/checkbox";
+import { StateView } from "../../ui/state-view";
 import {
   RowActionsMenu,
   alignClass,
@@ -18,10 +18,10 @@ import {
   resolveListState,
   type RowAction,
   type TableColumn,
-} from "@/components/archetypes/shared";
-import { SurfaceFrame } from "@/components/layout/SurfaceFrame";
-import type { SurfaceHeaderSlotProps } from "@/components/layout/SurfaceHeaderSlot";
-import { cn } from "@/lib/utils";
+} from "../shared";
+import { SurfaceFrame } from "../../layout/SurfaceFrame";
+import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
+import { cn } from "../../../lib/utils";
 
 // The row overflow menu + its action shape are shared with list-with-detail.
 // `SettingsRowAction` stays exported as an alias for back-compat.
