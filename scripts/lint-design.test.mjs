@@ -788,3 +788,78 @@ describe("shell `className` typed as something other than `string`", () => {
     expect(hitsOf(stdout)).toEqual([]);
   });
 });
+
+describe("residual appearance prop in a closed archetype folder (the allowlist gap)", () => {
+  // Regression against the LIVE gate, not a copy that could drift: the test pulls the
+  // shipped `*-residual-appearance-prop` rules straight out of _adherence.json. Each is
+  // scoped (include) to one closed folder and guards the appearance shapes with a leading
+  // negative lookahead naming that folder's legal props — so a new, unkeyed appearance prop
+  // added inside a closed folder (which the excluded drain rules no longer reach) is the
+  // error these rules exist to catch, while the enumerated legal props are skipped.
+  const residual = (id) => {
+    const r = JSON.parse(readFileSync(join(root, "_adherence.json"), "utf8")).rules.find(
+      (x) => x.id === id,
+    );
+    expect(r).toBeTruthy();
+    expect(r.severity).toBe("error");
+    return r;
+  };
+
+  it("flags an unkeyed string-union appearance prop in a closed folder (error, exit 1)", () => {
+    // settings-table carries NO legal props, so its rule's lookahead skips nothing —
+    // the strictest direction. The folder is excluded from the drain rules, so ONLY
+    // this residual rule can reach `tone?: "brand" | "loud"`.
+    const rule = residual("settings-table-residual-appearance-prop");
+    const files = {
+      "src/components/archetypes/settings-table/Foo.tsx":
+        'export type P = {\n  tone?: "brand" | "loud";\n};\n',
+    };
+    const { status, stdout } = runFilesFixture([rule], files, "--json");
+    expect(status).toBe(1);
+    const vs = JSON.parse(stdout).violations;
+    expect(vs).toHaveLength(1);
+    expect(vs[0].rule).toBe(rule.id);
+    expect(vs[0].line).toBe(2);
+    expect(vs[0].severity).toBe("error");
+  });
+
+  it("reaches a numeric-literal-union appearance prop the quoted-string pattern misses", () => {
+    // `density?: 1 | 2` matches only the numeric branch of the rule's alternation — the
+    // same shape `archetype-numeric-union-prop` catches across the open folders.
+    const rule = residual("settings-table-residual-appearance-prop");
+    const files = {
+      "src/components/archetypes/settings-table/Foo.tsx": "export type P = {\n  density?: 1 | 2;\n};\n",
+    };
+    const { status } = runFilesFixture([rule], files);
+    expect(status).toBe(1);
+  });
+
+  it("leaves an enumerated legal prop unflagged while still catching an unkeyed one (the two directions at once)", () => {
+    // form-page's legal prop is `width`. Line 2 (`width`) is the allowlist's, so the
+    // negative lookahead skips it; line 3 (`tone`) is NOT a form-page legal prop, so it
+    // is flagged. One file, both directions: the gate does not over-reach onto the legal
+    // prop, and it does not under-reach past the unkeyed one.
+    const rule = residual("form-page-residual-appearance-prop");
+    const files = {
+      "src/components/archetypes/form-page/Foo.tsx":
+        'export type P = {\n  width?: "sm" | "md" | "lg" | "xl";\n  tone?: "a" | "b";\n};\n',
+    };
+    const { stdout } = runFilesFixture([rule], files, "--json");
+    const vs = JSON.parse(stdout).violations;
+    expect(vs).toHaveLength(1);
+    expect(vs[0].line).toBe(3); // width (line 2) skipped, tone (line 3) flagged
+  });
+
+  it("leaves detail-overview's contract-keyed `tone` unflagged (exit 0)", () => {
+    // `tone` is legal in detail-overview (data-section-vs-reference-panel grading per
+    // detail-overview.md L517-519), so the file the gap already "bit" stays clean — the
+    // prop is legal by the gate now saying so, not by the gate having no opinion.
+    const rule = residual("detail-overview-residual-appearance-prop");
+    const files = {
+      "src/components/archetypes/detail-overview/DetailSection.tsx":
+        'export type P = {\n  tone?: "default" | "muted";\n};\n',
+    };
+    const { status } = runFilesFixture([rule], files);
+    expect(status).toBe(0);
+  });
+});
