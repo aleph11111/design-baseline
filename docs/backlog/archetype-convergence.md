@@ -21,6 +21,7 @@ tickets:
   - adherence-lint-layout-scope-gap
   - archetype-package-installable
   - archetype-package-consumer-wiring
+  - adr-0004-narrowing-crossref-and-ground1-stale
 phases:
   - name: p0
     title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
@@ -63,6 +64,7 @@ phases:
     tickets:
       - archetype-package-installable
       - archetype-package-consumer-wiring
+      - adr-0004-narrowing-crossref-and-ground1-stale
     spec_anchor: '## Phase pkg — consumable source package'
   - name: token-split
     title: Split tokens.css into package-owned base and project-owned brand layers

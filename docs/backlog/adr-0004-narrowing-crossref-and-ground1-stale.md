@@ -1,13 +1,19 @@
 ---
 area: docs
-opened: 2026-09-07
+opened: '2026-09-07'
 status: ready
-value: normal
 gate:
   score: 5
-  passed: [title, context, what-to-do, acceptance, related]
+  passed:
+    - title
+    - context
+    - what-to-do
+    - acceptance
+    - related
   failed: []
-  graded_at: 2026-09-07T00:00:00Z
+  graded_at: '2026-09-07T00:00:00.000Z'
+value: normal
+roadmap: archetype-convergence
 ---
 
 # ADR-0004 line 45 vendored clause and ground-1 paragraph are stale against shipped `pkg` phase
