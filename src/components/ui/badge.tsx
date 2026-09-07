@@ -11,15 +11,18 @@ const badgeVariants = cva(
       variant: {
         default:
           "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        // Status tiers — the soft chip look comes from the design-baseline status
+        // token pairs (one AA-verified source in tokens.css), not per-badge colors.
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border-transparent bg-status-neutral-bg text-status-neutral-fg",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground",
+          "border-transparent bg-status-danger-bg text-status-danger-fg",
         success:
-          "border-transparent bg-success text-success-foreground hover:bg-success/80",
+          "border-transparent bg-status-success-bg text-status-success-fg",
         warning:
-          "border-transparent bg-warning text-warning-foreground hover:bg-warning/80",
+          "border-transparent bg-status-warning-bg text-status-warning-fg",
+        info: "border-transparent bg-status-info-bg text-status-info-fg",
+        outline: "text-foreground",
       },
     },
     defaultVariants: {

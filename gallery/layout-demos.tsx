@@ -22,6 +22,7 @@ import {
 } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SearchInput } from "@/components/ui/search-input";
 import { Input } from "@/components/ui/input";
@@ -442,6 +443,71 @@ function RowActionsMenuDemo() {
   );
 }
 
+/**
+ * The status chip tier `Badge`/`Alert` key off — one AA-verified bg/fg pair
+ * per tier (`--status-{tier}-{bg,fg}` pairs in tokens.css, the `--color-status-*`
+ * roles in the donor layer), the soft-chip look that replaced the solid brand
+ * roles on the status variants. Every tier is shown so the axis is visible,
+ * not just a prop value; `default`/`destructive` stay on the solid roles
+ * (filled surfaces, not chips).
+ */
+function StatusChipTierDemo() {
+  const badgeTiers: Array<[string, "default" | "secondary" | "success" | "warning" | "destructive" | "info"]> = [
+    ["default", "default"],
+    ["neutral", "secondary"],
+    ["success", "success"],
+    ["warning", "warning"],
+    ["danger", "destructive"],
+    ["info", "info"],
+  ];
+  return (
+    <div className="max-w-2xl space-y-8">
+      <Variant label="Badge — status chip tier (bg-status-{tier}-bg / text-status-{tier}-fg)">
+        <div className="flex flex-wrap items-center gap-2">
+          {badgeTiers.map(([tier, variant]) => (
+            <Badge key={variant} variant={variant}>
+              {tier}
+            </Badge>
+          ))}
+          <Badge variant="outline">outline</Badge>
+        </div>
+      </Variant>
+      <Variant label="Alert — status chip tier (soft bg + tinted border, the same pairs)">
+        <div className="space-y-3">
+          <Alert variant="warning">
+            <AlertTitle>Almost at the limit</AlertTitle>
+            <AlertDescription>
+              Seat usage is at 90% — a warning stays a warm hue, not brand red.
+            </AlertDescription>
+          </Alert>
+          <Alert variant="success">
+            <AlertTitle>Shipped</AlertTitle>
+            <AlertDescription>The build finished and the canary passed its checks.</AlertDescription>
+          </Alert>
+          <Alert variant="info">
+            <AlertTitle>New in baseline</AlertTitle>
+            <AlertDescription>
+              The chip tier landed in the donor — an info variant exists for both.
+            </AlertDescription>
+          </Alert>
+          <Alert variant="destructive">
+            <AlertTitle>Something failed</AlertTitle>
+            <AlertDescription>
+              The destructive variant stays on the solid role — a full-surface
+              signal, not a chip.
+            </AlertDescription>
+          </Alert>
+        </div>
+      </Variant>
+      <p className="max-w-prose text-[13px] leading-relaxed text-muted-foreground">
+        The pairs live in the project-owned <code>tokens.css</code> (<code>:root</code> +{" "}
+        <code>.dark</code>); the <code>--color-status-*</code> roles live in the donor-owned layer —
+        re-skin the chip tier by editing the brand file, never the layer.
+      </p>
+    </div>
+  );
+}
+
 function CellFieldDemo() {
   const [rows, setRows] = React.useState([
     { id: 1, name: "Mapo Tofu", qty: 35, grade: "A" },
@@ -660,6 +726,7 @@ export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "state-view", displayName: "StateView", Demo: StateViewDemo },
   { slug: "icon-avatar", displayName: "IconAvatar", Demo: IconAvatarDemo },
   { slug: "row-actions-menu", displayName: "RowActionsMenu", Demo: RowActionsMenuDemo },
+  { slug: "status-chip-tier", displayName: "Status chip tier (Badge / Alert)", Demo: StatusChipTierDemo },
   { slug: "cell-field", displayName: "CellInput / CellSelect", Demo: CellFieldDemo },
   { slug: "section-nav", displayName: "SectionNavShell", Demo: SectionNavDemo },
 ];

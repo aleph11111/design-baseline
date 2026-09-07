@@ -420,6 +420,12 @@ When applying the baseline to a new project with its own brand:
    - Leave `--success` / `--warning` alone unless the brand genuinely redefines
      them — they are semantic, not brand, and the donor defaults are already
      contrast-checked in both themes.
+   - The `--status-{success,warning,danger,info,neutral}-{bg,fg}` pairs own the
+     soft chip tier `Badge`/`Alert` status variants key off; the donor defaults
+     are AA-verified in both themes. Re-skin the chip tier here — the roles
+     (`--color-status-*`) live in the donor-owned layer, so the brand file is
+     the only seam. `danger` has its own pair and is NOT `--destructive`:
+     re-skinning the red independently is a deliberate decision, not a bug.
    - `--rating` is the quality/affordance ink (e.g. rating stars) — it lightens
      in `.dark` for on-surface legibility but carries no `-foreground` pair;
      override the donor default only if the brand's rating marker genuinely

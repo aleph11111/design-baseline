@@ -56,6 +56,20 @@
     --warning: 26 90.5% 37.1%;
     --warning-foreground: 0 0% 100%;
 
+    /* Status chip tier — the soft bg/fg pairs `Badge`/`Alert` key off
+       (tokens.layer.css roles). Default pairs seeded from hk-crm's
+       AA-verified status contract. The pair structure flips between
+       themes: a light chip carrying dark text in light mode; in `.dark` a
+       dark chip carrying light text. Independently of the solid
+       `--destructive` role — the soft tier keeps its own AA-verified
+       contrast, so a brand re-skin of `--destructive` does not silently
+       re-check the chip pair's contrast. */
+    --status-success-bg: 142 76% 93%;   --status-success-fg: 142 64% 24%;
+    --status-warning-bg: 43 96% 90%;    --status-warning-fg: 29 80% 30%;
+    --status-danger-bg: 0 86% 94%;      --status-danger-fg: 0 63% 35%;
+    --status-info-bg: 214 95% 93%;      --status-info-fg: 217 76% 33%;
+    --status-neutral-bg: 210 40% 94%;   --status-neutral-fg: 215 16% 35%;
+
     /* Quality/affordance marker (e.g. rating stars) — deliberately NOT
        --warning: a star is a quality signal, not an alert, and coupling it
        to the warning hue would drag it every time that hue moves. No
@@ -109,6 +123,14 @@
 
     --warning: 43 96% 56%;
     --warning-foreground: 26 90% 10%;
+
+    /* Status chip tier — dark pairs (deep bg, light fg), the flipped
+       counterpart of the `:root` tier; same values hk-crm's `.dark` ships. */
+    --status-success-bg: 142 30% 15%;  --status-success-fg: 142 55% 70%;
+    --status-warning-bg: 36 40% 16%;   --status-warning-fg: 43 90% 68%;
+    --status-danger-bg: 0 40% 17%;     --status-danger-fg: 0 75% 75%;
+    --status-info-bg: 216 40% 18%;     --status-info-fg: 214 90% 76%;
+    --status-neutral-bg: 215 20% 20%;  --status-neutral-fg: 210 25% 72%;
 
     --rating: 43 96% 56%;
 
