@@ -90,7 +90,7 @@ the archetype-convergence design spec settle the shape; this ticket lands it.
 
 - [archetype-convergence.md](archetype-convergence.md) — roadmap; phase
   `consumer-migration`, decisions C2/C3/C5/C6/C7
-- [donor-status-token-roles-badge-alert-backport.md](donor-status-token-roles-badge-alert-backport.md)
+- [donor-status-token-roles-badge-alert-backport.md](wip/donor-status-token-roles-badge-alert-backport.md)
   — lands first; its outcome is what step 1's triage table cites
 - [archive/archetype-package-consumer-wiring.md](archive/archetype-package-consumer-wiring.md)
   — wrote the greenfield `docs/PACKAGE.md` this narrows
