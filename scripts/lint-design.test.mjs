@@ -656,6 +656,109 @@ describe("appearance-slot rule (`archetype-appearance-slot`) — the shared-chro
   });
 });
 
+describe("render-callback rule (`archetype-render-callback-prop`) — appearance vs. structural", () => {
+  // `archetype-render-callback-prop`'s live pattern, verbatim. A function-typed prop
+  // returning `ReactNode` is the appearance escape hatch one indirection up. Two
+  // things do the appearance-vs-structural separation and both are IN this string:
+  // the `\\?` optional-marker (a REQUIRED render callback is a composition slot the
+  // consumer must supply — structure, the same carve-out `archetype-appearance-slot`
+  // makes for `AppShell`'s required `header`), and the leading negative lookahead on
+  // `renderBackLink` (structural by role: a router back-link adapter taking
+  // `(href, label)`), mirroring `archetype-alias-union-prop`'s owned-set lookahead.
+  const RENDER_CB =
+    "^\\s{0,2}(?!renderBackLink\\?)render[A-Z]\\w*\\?\\s*:\\s*\\(.*\\)\\s*=>\\s*(React\\.)?ReactNode";
+  const renderRule = (extra = {}) => ({
+    id: "render-callback",
+    pattern: RENDER_CB,
+    severity: "error",
+    message: "m",
+    include: ["src/components/archetypes/**", "src/components/layout/**"],
+    ...extra,
+  });
+
+  it("flags an appearance render-callback across both include roots", () => {
+    // The shape `GroupedListSection.renderHeader` had before
+    // `adherence-lint-appearance-slot-layout-gap` deleted it. It must be caught in the
+    // shared-chrome layer too (`src/components/layout/**`, the second root the sibling
+    // appearance rules carry), because that is where the chrome the shells compose
+    // lives. `ui/` is outside include and stays out.
+    const files = {
+      "src/components/archetypes/g/GroupedListSection.tsx":
+        "export type P = {\n  renderHeader?: (args: { title: string; rowCount: number }) => React.ReactNode;\n};\n",
+      "src/components/layout/SectionCard.tsx":
+        "export type P = {\n  renderStats?: (ctx: Ctx) => ReactNode;\n};\n",
+      "src/components/ui/badge.tsx":
+        "export type P = {\n  renderHeader?: (args: Ctx) => React.ReactNode;\n};\n",
+    };
+    const { stdout } = runFilesFixture([renderRule()], files, "--json");
+    expect(hitsOf(stdout).sort()).toEqual(
+      [
+        "src/components/archetypes/g/GroupedListSection.tsx:2",
+        "src/components/layout/SectionCard.tsx:2",
+      ].sort(),
+    ); // ui/ stays out
+  });
+
+  it("leaves every live structural render callback green", () => {
+    // The four structural callbacks that exist in the tree today, verbatim. Nothing
+    // here may report: `renderLink` is REQUIRED (no `?`), so the optional-only pattern
+    // drops it without needing a name in the lookahead — including the aliased
+    // re-declaration on `AppSidebar`. `renderBackLink?` IS optional, so the lookahead
+    // is what keeps it out, in both the layout copy and the form-page one. This is the
+    // test that fails if someone "simplifies" the pattern by dropping either mechanism.
+    const files = {
+      "src/components/layout/Sidebar.tsx":
+        "export type P = {\n  renderLink: (item: NavItem, children: React.ReactNode) => React.ReactNode;\n" +
+        '  renderLink2: AppSidebarProps["renderLink"];\n};\n',
+      "src/components/layout/SectionNav.tsx":
+        "export type P = {\n  renderLink: (item: NavItem, children: React.ReactNode) => React.ReactNode;\n};\n",
+      "src/components/layout/PageHeader.tsx":
+        "export type P = {\n  renderBackLink?: (href: string, label: string) => React.ReactNode;\n};\n",
+      "src/components/archetypes/form-page/FormPageHeader.tsx":
+        "export type P = {\n  renderBackLink?: (href: string, label: string) => React.ReactNode;\n};\n",
+    };
+    const { stdout } = runFilesFixture([renderRule()], files, "--json");
+    expect(hitsOf(stdout)).toEqual([]);
+  });
+
+  it("excludes matrix-grid's contract-keyed `renderCell` by path, without un-gating its siblings", () => {
+    // `renderCell?` matches the pattern by shape — it is a real optional render
+    // callback — and is kept out by an exact-path `exclude` instead, because the
+    // contract derives it (matrix-grid.md:154 types it, :165 names composition via
+    // `renderCell`/`cellStyle` the sanctioned cell-variant axis "not props", :321
+    // hands the consumer the whole body). That is the promote-then-exclude mechanism,
+    // distinct from the lookahead: the exclude un-gates the FILE, so a second archetype
+    // file must still report.
+    const files = {
+      "src/components/archetypes/matrix-grid/MatrixGridShell.tsx":
+        "export type P = {\n  renderCell?: (ctx: MatrixCellContext<Cell>) => React.ReactNode;\n};\n",
+      "src/components/archetypes/matrix-grid/MatrixGridRow.tsx":
+        "export type P = {\n  renderHeader?: (ctx: Ctx) => React.ReactNode;\n};\n",
+    };
+    const { stdout } = runFilesFixture(
+      [renderRule({ exclude: ["src/components/archetypes/matrix-grid/MatrixGridShell.tsx"] })],
+      files,
+      "--json",
+    );
+    expect(hitsOf(stdout)).toEqual(["src/components/archetypes/matrix-grid/MatrixGridRow.tsx:2"]);
+  });
+
+  it("ignores a nested descriptor and a non-ReactNode return", () => {
+    // Two things that look adjacent but are not this rule's class. The indent cap
+    // (`\\s{0,2}`, the `archetype-shell-class-name` precedent) keeps a nested leaf
+    // descriptor out, and the `=> ReactNode` tail keeps `cellStyle`-shaped callbacks
+    // returning styling DATA out — a callback is only in scope when what it returns is
+    // the rendered node itself.
+    const files = {
+      "src/components/archetypes/m/MatrixGridShell.tsx":
+        "export type P = {\n  cellStyle?: (ctx: Ctx) => { className?: string };\n" +
+        "  nested: {\n      renderHeader?: (ctx: Ctx) => React.ReactNode;\n  };\n};\n",
+    };
+    const { stdout } = runFilesFixture([renderRule()], files, "--json");
+    expect(hitsOf(stdout)).toEqual([]);
+  });
+});
+
 describe("union type-alias pre-pass (`{{unionAliases}}`)", () => {
   // `archetype-alias-union-prop`'s live pattern, verbatim — lookahead included.
   // The `\\?` (literal `?`) is the OPTIONAL-marker requirement shared by the
