@@ -256,6 +256,30 @@ describe("scanFile", () => {
     expect(aShell).toHaveLength(3);
   });
 
+  it("keeps an `exclude`'s `.` literal — a one-character near-miss is not excluded", () => {
+    // The exclude is the ratchet's precision valve and names exact files. The
+    // hand-rolled glob compiler it replaced never escaped its literal parts,
+    // so the `.` in an exact-file exclude was an any-character wildcard and a
+    // near-miss filename (the `X` for `.` in `table.tsx`) was silently
+    // excluded with no signal. `path.matchesGlob` keeps the `.` literal:
+    // only the named file is removed.
+    const [tableComp] = compileRules([
+      {
+        id: "no-raw-table",
+        tag: "table",
+        severity: "error",
+        exclude: ["frontend/src/components/ui/table.tsx"],
+      },
+    ]);
+    const tableMarkup = "<table />\n";
+    const named = scanFile("frontend/src/components/ui/table.tsx", tableMarkup, [tableComp]);
+    const nearMissX = scanFile("frontend/src/components/ui/tableXtsx", tableMarkup, [tableComp]);
+    const nearMiss_ = scanFile("frontend/src/components/ui/table_tsx", tableMarkup, [tableComp]);
+    expect(named).toHaveLength(0);
+    expect(nearMissX).toHaveLength(1);
+    expect(nearMiss_).toHaveLength(1);
+  });
+
   it("a zero-segment `**` still matches (`src/**/x` admits `src/x`)", () => {
     const [compX] = compileRules([
       { id: "nested", pattern: "<input\\b", include: "src/**/x" },
