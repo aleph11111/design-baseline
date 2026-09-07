@@ -23,6 +23,8 @@ tickets:
   - archetype-package-consumer-wiring
   - adr-0004-narrowing-crossref-and-ground1-stale
   - tokens-brand-font-seam-and-split-guard
+  - donor-status-token-roles-badge-alert-backport
+  - package-ui-ownership-and-vendored-consumer-runbook
 phases:
   - name: p0
     title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
@@ -74,9 +76,11 @@ phases:
     spec_anchor: '## Phase token-split — close the font seam and guard the split'
   - name: consumer-migration
     title: Migrate hk-crm /companies/[id] onto the packaged archetype
-    tickets: []
-    open: true
-    spec_anchor: '## Phases 2–5 — design level only'
+    tickets:
+      - donor-status-token-roles-badge-alert-backport
+      - package-ui-ownership-and-vendored-consumer-runbook
+    spec_anchor: >-
+      ## Phase consumer-migration — swap hk-crm's copy channel for the package
   - name: drop-drift-machinery
     title: Delete the copy-comparison drift and adoption machinery
     tickets: []
