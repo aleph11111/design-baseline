@@ -120,8 +120,25 @@
       "message": "A prop typed against a union type ALIAS (`circleSize?: EntityAvatarSize`) is the same per-call-site design space as an inline look union, just named once (RULES.md hard rule 12). `{{unionAliases}}` is substituted per scanned file with the union aliases that file itself declares (scripts/lint-design.mjs `harvestUnionAliases`) — same-file only, no type resolution (ADR-0003). The leading negative lookahead skips the appearance-noun prop names `archetype-appearance-noun-prop` already owns — its alternation is that rule's owned-noun set verbatim (surface, variant, tone, density, appearance, rhythm, fill, framed, bordered, compact, padded, size) and must be kept identical to it — so an aliased noun prop is reported once, by that rule under its per-archetype triage, not twice under two different messages. That is why entity-circle is absent from the `exclude` below: its `size?: EntityAvatarSize` is skipped by the lookahead, so the noun rule's entity-circle triage is the single place the decision lives. Closed archetypes (detail-overview, form-page, list-with-detail, crud-dialog, settings-table, report) are gated by their own `*-` error rules. Excluded: overline-typed — its `as?: OverlineElement` selects the rendered ELEMENT, not a look: the contract keys it to the document outline (overline-typed.md L8 — the element it renders as is selectable because a label above a heading may be a non-heading element or may itself be the section heading; L11 — when the overline IS the semantic section heading it renders as the heading element so the document outline stays correct), so it is not an appearance axis at all. Excluded: raw-input — its `type?: NativeFieldType` selects the native input TYPE, not a look: the contract keys it to the field's data kind (raw-input.md:39 — the enumerated native controls the field assembles: text, number, date/time, password/url/email, a `range` slider, multi-line text) and to the platform keyboarding each of those carries (L4:77–78 — the native control keeps its native keyboarding verbatim: a date control's picker, a range control's arrow-key stepping, a textarea's newline), so it is not an appearance axis at all."
     },
     {
+      "id": "archetype-appearance-boolean-prop",
+      "pattern": "^\\s{0,2}(accent|emphasis|flush|muted|filled|elevated|tinted|sticky\\w*|\\w*[Mm]ono\\w*|hideCount|showHeader|showCount|avatar)\\?\\s*:\\s*boolean\\b",
+      "severity": "error",
+      "include": [
+        "src/components/archetypes/**",
+        "src/components/layout/**"
+      ],
+      "exclude": [
+        "src/components/layout/MetricList.tsx",
+        "src/components/layout/SectionCard.tsx",
+        "src/components/archetypes/detail-overview/DetailSection.tsx",
+        "src/components/archetypes/raw-textarea/TextareaField.tsx",
+        "src/components/archetypes/skeleton-loader/ListSkeleton.tsx"
+      ],
+      "message": "A boolean look FLAG is a per-call-site appearance the contract does not derive — the same design space as an appearance-noun prop or a look union, just spelled as an on/off (RULES.md hard rule 12). A boolean is disqualified twice over when its default is off: ADR-0004 — \"A backwards-compatible default is disqualifying on its own. It means the value was inherited rather than derived.\" The vocabulary is an ALLOWLIST, mirroring how `archetype-appearance-noun-prop`'s noun list was chosen: behaviour/capability booleans (`isLoading`, `bulkSelectable`, `sortable`, `unread`, `chrome`, `canDelete`, `showDestructive`, `showSidebarTrigger`) are kept out at the pattern level, not excluded one by one, because a capability is not an appearance. `show*`/`hide*` are therefore NOT wildcards — only the three live look toggles (`hideCount`, `showHeader`, `showCount`) are named, so `showDestructive` (a permission) and `showSidebarTrigger` (a shell-composition fact) never enter this rule's scope. The appearance nouns that are already boolean-shaped (`framed`, `bordered`, `compact`, `padded`) are deliberately ABSENT: `archetype-appearance-noun-prop` owns those names whatever their type, and one prop name gets one owner — the same double-ownership discipline `archetype-alias-union-prop`'s negative lookahead enforces. `include` carries `src/components/layout/**` as a second root because the shared chrome the archetype shells compose lives there (`MetricList`, `SectionCard`) and no appearance-prop rule reached it. Closed folders are NOT excluded here: the per-folder ratchet rules ban deleted props by name and none of them names a boolean, so a closed archetype's boolean flags are only gated by this rule. Excluded: `MetricList.tsx` — its `emphasis` is contract-keyed to the metric's tier (detail-overview.md:205-207: the compact metric readout is \"a condensed, ruled metric list (label left, tabular value right, a 'show more' disclosure for secondary figures)\" — two tiers, headline rows and secondary figures, and `emphasis` renders the headline tier; the discretionary `accent` on the same primitive was deleted, not excluded). Excluded: `SectionCard.tsx` and `DetailSection.tsx` — their `flush` is contract-keyed to the content kind (detail-overview.md:512: \"ruled row lists use `flush` (rows own their own padding and hairline dividers); free-form content (islands, prose) omits it and gets the section's default padding\"). Excluded: `TextareaField.tsx` — its `mono` is contract-keyed to the field's data kind (raw-textarea.md:92: \"mono / code (allowed variation) — a monospace tone for JSON/config input, which also disables spell-check\"), the same not-an-appearance-axis reasoning `archetype-alias-union-prop` applies to raw-input's `type`. Excluded: `ListSkeleton.tsx` — its `showHeader` and `avatar` are contract-keyed to the shape being mirrored (skeleton-loader.md:35: \"The placeholder can mirror that shape, so the layout doesn't jump\"; :75-78 enumerate `header` and `leading media` as the shape knobs, the latter \"for row shapes that lead with one\"), so both are derived from the real list, not chosen per call site. A path `exclude` un-gates the whole FILE, not the one legal prop — that ceiling is the same one every per-archetype exclude in this config carries, and tightening it to a per-file allowlist is `adherence-lint-closed-folder-allowlist-gap`'s mechanism, not a second one invented here."
+    },
+    {
       "id": "archetype-shell-class-name",
-      "pattern": "^\\s{0,2}className\\?\\s*:\\s*string",
+      "pattern": "^\\s{0,2}className\\?\\s*:",
       "severity": "error",
       "include": [
         "src/components/archetypes/**/*Shell.tsx",
@@ -129,7 +146,7 @@
         "src/components/layout/**/*Shell.tsx",
         "src/components/layout/**/*Sheet.tsx"
       ],
-      "message": "`className` is an unenumerable superset escape hatch on a shell's outer wrapper — fork the component instead (RULES.md hard rule 12). Scoped to top-level props (indent ≤2) so a nested leaf descriptor (the matrix-grid per-cell `cellStyle` field — styling data, not shell appearance) is not flagged. The `include` is an array so it catches both the `*Shell.tsx`-named page shells and the `*Sheet.tsx`-named overlay shells (e.g. crud-dialog's `CrudDialogSheet`) — a shell not named `*Shell.tsx` would otherwise slip the gate. It also carries the two `src/components/layout/**` shell/sheet globs, so a shell in the shared-chrome layer (`AppShell`) is gated on the same terms as an archetype's own; no layout-layer shell declares `className` today, the root is here so the class stays closed when one grows."
+      "message": "`className` is an unenumerable superset escape hatch on a shell's outer wrapper — fork the component instead (RULES.md hard rule 12). The pattern stops at the `:` and does NOT pin the type: `className?: ClassValue` (already idiomatic in this repo — `src/components/layout/SurfaceFrame.tsx`) is the same escape hatch as `className?: string`, so pinning `\\s*string` let a shell reopen the deleted axis by widening the annotation. Scoped to top-level props (indent ≤2) so a nested leaf descriptor (the matrix-grid per-cell `cellStyle` field — styling data, not shell appearance) is not flagged; that indent cap is what the type-agnostic pattern now leans on entirely. The `include` is an array so it catches both the `*Shell.tsx`-named page shells and the `*Sheet.tsx`-named overlay shells (e.g. crud-dialog's `CrudDialogSheet`) — a shell not named `*Shell.tsx` would otherwise slip the gate. It also carries the two `src/components/layout/**` shell/sheet globs, so a shell in the shared-chrome layer (`AppShell`) is gated on the same terms as an archetype's own; no layout-layer shell declares `className` today, the root is here so the class stays closed when one grows."
     },
     {
       "id": "archetype-appearance-slot",
@@ -160,7 +177,7 @@
     },
     {
       "id": "detail-overview-shell-class-name",
-      "pattern": "^\\s*className\\?\\s*:\\s*string",
+      "pattern": "^\\s{0,2}className\\?\\s*:",
       "severity": "error",
       "include": "src/components/archetypes/detail-overview/DetailOverviewShell.tsx",
       "message": "`className` is an unenumerable superset escape hatch on the detail-overview shell — `className=\"border-0 shadow-none\"` reconstitutes the deleted `surface=\"separated\"` (RULES.md hard rule 12)."
@@ -181,7 +198,7 @@
     },
     {
       "id": "form-page-shell-class-name",
-      "pattern": "^\\s*className\\?\\s*:\\s*string",
+      "pattern": "^\\s{0,2}className\\?\\s*:",
       "severity": "error",
       "include": "src/components/archetypes/form-page/FormPageShell.tsx",
       "message": "`className` is an unenumerable superset escape hatch on the form-page shell (RULES.md hard rule 12). form-page is closed: `width` is contract-keyed to field count / column layout and the shell carries no `className` prop — fork the component instead."
@@ -216,14 +233,14 @@
     },
     {
       "id": "list-with-detail-shell-class-name",
-      "pattern": "^\\s*className\\?\\s*:\\s*string",
+      "pattern": "^\\s{0,2}className\\?\\s*:",
       "severity": "error",
       "include": "src/components/archetypes/list-with-detail/ListWithDetailShell.tsx",
       "message": "`className` is an unenumerable superset escape hatch on the list-with-detail shell — fork the component instead (archetype-convergence list-with-detail close-API; RULES.md hard rule 12)."
     },
     {
       "id": "crud-dialog-shell-class-name",
-      "pattern": "^\\s{0,2}className\\?\\s*:\\s*string",
+      "pattern": "^\\s{0,2}className\\?\\s*:",
       "severity": "error",
       "include": "src/components/archetypes/crud-dialog/**",
       "message": "`className` is an unenumerable superset escape hatch on the crud-dialog shell — the CRUD-dialog shell (`CrudDialogSheet`) is the archetype's outer wrapper and is not named `*Shell.tsx`, so the generic `*Shell`-scope alone never reaches it (archetype-convergence crud-dialog close-API; RULES.md hard rule 12). Scoped to indent ≤2 top-level props, folder-wide, so re-adding `className` to the sheet or body/header/footer reopens the deleted axis."

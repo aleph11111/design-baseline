@@ -69,14 +69,6 @@ export type FormPageActionsProps = {
    */
   overflowMenu?: React.ReactNode;
 
-  /**
-   * When true (default), the actions row becomes sticky to the bottom of the
-   * viewport on narrow screens with a background fill, then static on
-   * `sm` and up. Disable when the form is already inside a scroll container
-   * that has its own sticky footer behavior.
-   */
-  stickyOnMobile?: boolean;
-
   className?: string;
 };
 
@@ -121,7 +113,6 @@ export function FormPageActions({
   canDelete = true,
   isDeleting = false,
   overflowMenu,
-  stickyOnMobile = true,
   className,
 }: FormPageActionsProps): React.ReactElement {
   // Thin wrapper over the shared ActionFooterBar core. B's distinct surface:
@@ -131,10 +122,13 @@ export function FormPageActions({
   // the primary `type="submit"` so it submits the surrounding native <form>.
   return (
     <ActionFooterBar
+      // Sticky-on-mobile is unconditional: form-page.md L11 states the
+      // primitive "handles this automatically" (:284) and L359 states it as the
+      // primitive's behaviour, not a per-form choice — so there is no flag to
+      // contradict the contract with.
       className={cn(
         "pt-2",
-        stickyOnMobile &&
-          "sticky bottom-0 -mx-6 border-t bg-background/95 px-6 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/75 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none",
+        "sticky bottom-0 -mx-6 border-t bg-background/95 px-6 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/75 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none",
         className,
       )}
       primaryLabel={primaryLabel}

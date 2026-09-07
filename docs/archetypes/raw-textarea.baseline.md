@@ -30,7 +30,7 @@ forwards its ref to the underlying textarea and spreads native
 import { TextareaField } from "@/components/archetypes/raw-textarea";
 
 <TextareaField label="Notes" hint="Markdown is fine." rows={4} />
-<TextareaField label="Review" showCount maxLength={280} />
+<TextareaField label="Review" maxLength={280} />
 <TextareaField label="Config" mono error={jsonError} rows={5} />
 <TextareaField label="Signature" required rows={2} />
 ```
@@ -51,7 +51,12 @@ frame's `FieldLabel htmlFor`, so a label click focuses the field. Native textare
 key handling is untouched.
 
 ### L5 — Counter (allowed variation)
-`showCount` + `maxLength` render a `{length}/{maxLength}` span with `tabular-nums`.
+`maxLength` alone renders a `{length}/{maxLength}` span with `tabular-nums` —
+the counter is derived from the contract's own condition ("when a maximum length
+is set"), never opted into per call site. There is no `showCount` flag: it was a
+per-call-site discretion on top of that keying rule, which ADR-0004's
+derived-vs-inherited test disqualifies, and it is gated by
+`archetype-appearance-boolean-prop`.
 Length is `String(value).length` when controlled, else an internal tracker seeded
 from `defaultValue`. Tone scale:
 - default → `text-muted-foreground`

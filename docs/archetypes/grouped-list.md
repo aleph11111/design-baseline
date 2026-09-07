@@ -2,7 +2,7 @@
 key: K
 slug: grouped-list
 kind: page
-version: 1.2
+version: 1.3
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.6
@@ -109,11 +109,11 @@ The toolbar renders as a prop of the grouped-list shell (the `toolbar` slot), ab
 
 **Allowed variation:**
 - **Section description** — an optional `description` line under the title in the bar. Use when the group title benefits from a one-line clarifier.
-- **Hide the count** — set `hideCount` to drop the default row-count badge.
 - **Custom title bar** — `renderHeader({ title, description, rowCount })` replaces the bar's default content (overline + count) with a dense header (sync indicator, status chip). It renders inside the same ruled bar.
 
 **Forbidden:**
 - Hand-rolled section markup. Always go through the grouped-list shell and its section primitive.
+- A per-section toggle for the row-count badge. The count is part of the section signature and is derived from the group's own row count; a section whose bar needs different content replaces the whole bar via `renderHeader`, which reports `rowCount` so a custom bar can still show it.
 - A section heading floating as plain text above a detached table card — the group is one bounded section-card.
 - Section chrome styled per page. The section-card titled-section shape is uniform across archetypes.
 - Page-level `max-width` on the grouped content region. Full-width.

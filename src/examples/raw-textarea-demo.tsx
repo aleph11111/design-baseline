@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
  * raw-textarea demo — a book-club annotation form (domain deliberately far from
  * any source project's nouns). Types are defined here first, then fed to
  * TextareaField; the primitive never sees a domain type, only its own
- * label/hint/error/required/mono/showCount knobs + native textarea attributes.
+ * label/hint/error/required/mono knobs + native textarea attributes.
  *
  * Shows the three variation axes the fleet hand-rolls:
  *   1. plain labeled field + helper line       (reading notes)
- *   2. showCount + maxLength threshold coloring (one-line review)
+ *   2. maxLength threshold coloring (one-line review)
  *   3. mono / JSON variant + error state        (shelf metadata)
  */
 
@@ -68,7 +68,6 @@ export function RawTextareaDemo(): React.ReactElement {
       <TextareaField
         label="One-line review"
         required
-        showCount
         maxLength={REVIEW_LIMIT}
         placeholder="Sum it up for the group…"
         rows={2}

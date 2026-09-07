@@ -220,11 +220,6 @@ export function GroupedListDemo() {
             );
           }
 
-          // Levantine — hide the default row-count badge.
-          if (id === "c2") {
-            return <GroupedListSection<Recipe> key={id} {...sectionProps} hideCount />;
-          }
-
           return <GroupedListSection<Recipe> key={id} {...sectionProps} />;
         })}
 

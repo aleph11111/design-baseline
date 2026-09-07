@@ -642,3 +642,149 @@ describe("union type-alias pre-pass (`{{unionAliases}}`)", () => {
     expect(hitsOf(stdout)).toEqual(["src/components/archetypes/c/CalendarShell.tsx:5"]); // circleSize only
   });
 });
+
+describe("boolean appearance flags (the shape a noun/union pattern never reaches)", () => {
+  // `archetype-appearance-boolean-prop`'s live pattern, verbatim.
+  const BOOLEAN =
+    "^\\s{0,2}(accent|emphasis|flush|muted|filled|elevated|tinted|sticky\\w*|\\w*[Mm]ono\\w*" +
+    "|hideCount|showHeader|showCount|avatar)\\?\\s*:\\s*boolean\\b";
+  const boolRule = (extra = {}) => ({ id: "bool-flag", pattern: BOOLEAN, severity: "warn", message: "m", ...extra });
+
+  it("flags a vocabulary name typed `boolean` that every other appearance rule misses", () => {
+    // One file, three rules: the shipped noun pattern and the quoted-union pattern both
+    // find nothing (`accent` is not a noun, `boolean` is not a literal union), the boolean
+    // one finds the prop. That divergence IS the blind spot this rule closes.
+    const files = {
+      "src/components/layout/MetricList.tsx": "export type P = {\n  accent?: boolean;\n};\n",
+    };
+    const rules = [
+      {
+        id: "noun-prop",
+        pattern: "^\\s*(surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded|size)\\?\\s*:",
+        severity: "warn",
+        message: "m",
+      },
+      { id: "look-union", pattern: '^\\s*\\w+\\??:\\s*"[^"]+"\\s*\\|\\s*"[^"]+"', severity: "warn", message: "m" },
+      boolRule(),
+    ];
+    const { stdout } = runFilesFixture(rules, files, "--json");
+    const violations = JSON.parse(stdout).violations;
+    expect(violations.map((v) => v.rule)).toEqual(["bool-flag"]);
+    expect(violations[0].line).toBe(2);
+  });
+
+  it("leaves capability booleans alone — the vocabulary is an allowlist, not an exclude list", () => {
+    // The whole design of the rule: a behaviour/capability boolean is not an appearance,
+    // and it is kept out at the PATTERN level so no `exclude` has to name it one by one.
+    // `showDestructive` / `showSidebarTrigger` are the near-misses that a `show*` wildcard
+    // would have swept in — a permission and a shell-composition fact, neither a look.
+    const files = {
+      "src/components/archetypes/a/Shell.tsx":
+        "export type P = {\n  isLoading?: boolean;\n  bulkSelectable?: boolean;\n  sortable?: boolean;\n" +
+        "  unread?: boolean;\n  canDelete?: boolean;\n  showDestructive?: boolean;\n  showSidebarTrigger?: boolean;\n};\n",
+    };
+    const { stdout } = runFilesFixture([boolRule()], files, "--json");
+    expect(hitsOf(stdout)).toEqual([]);
+  });
+
+  it("reaches a `*Mono`-suffixed name and a `sticky*`-prefixed one", () => {
+    // The vocabulary carries two shapes, not just bare names: a name CONTAINING mono
+    // (`identifierMono` — the same appearance concept under a prefixed name) and a
+    // `sticky*` name (`stickyOnMobile`). A bare-`mono` alternation reaches neither.
+    const files = {
+      "src/components/archetypes/a/Table.tsx":
+        "export type P = {\n  identifierMono?: boolean;\n  stickyOnMobile?: boolean;\n  monospace?: boolean;\n};\n",
+    };
+    const { stdout } = runFilesFixture([boolRule()], files, "--json");
+    expect(hitsOf(stdout)).toEqual([
+      "src/components/archetypes/a/Table.tsx:2",
+      "src/components/archetypes/a/Table.tsx:3",
+      "src/components/archetypes/a/Table.tsx:4",
+    ]);
+  });
+
+  it("omits the boolean-shaped appearance nouns the noun rule already owns", () => {
+    // `framed` / `bordered` / `compact` / `padded` are on
+    // `archetype-appearance-noun-prop`'s list, which matches them whatever their type.
+    // One prop name gets one owner — the same discipline the alias rule's lookahead
+    // enforces — so this rule must NOT re-report them under a second message.
+    const files = {
+      "src/components/archetypes/a/Shell.tsx":
+        "export type P = {\n  framed?: boolean;\n  bordered?: boolean;\n  compact?: boolean;\n  padded?: boolean;\n  flush?: boolean;\n};\n",
+    };
+    const { stdout } = runFilesFixture([boolRule()], files, "--json");
+    expect(hitsOf(stdout)).toEqual(["src/components/archetypes/a/Shell.tsx:6"]); // flush only
+  });
+
+  it("reaches the second include root (`src/components/layout/**`) alongside the archetype root", () => {
+    // `MetricList` and `SectionCard` live in the shared chrome, outside
+    // `src/components/archetypes/` — a single-root include would report a clean scan
+    // over the live `accent` defect that opened this rule.
+    const files = {
+      "src/components/layout/MetricList.tsx": "export type P = {\n  accent?: boolean;\n};\n",
+      "src/components/ui/badge.tsx": "export type P = {\n  accent?: boolean;\n};\n",
+    };
+    const { stdout } = runFilesFixture(
+      [boolRule({ include: ["src/components/archetypes/**", "src/components/layout/**"] })],
+      files,
+      "--json",
+    );
+    expect(hitsOf(stdout)).toEqual(["src/components/layout/MetricList.tsx:2"]); // ui/ stays out
+  });
+
+  it("stays at top-level props (indent ≤2) so a nested styling-data leaf is not flagged", () => {
+    const files = {
+      "src/components/archetypes/m/MatrixGridShell.tsx":
+        "export type P = {\n  flush?: boolean;\n  cellStyle?: {\n    mono?: boolean;\n  };\n};\n",
+    };
+    const { stdout } = runFilesFixture([boolRule()], files, "--json");
+    expect(hitsOf(stdout)).toEqual(["src/components/archetypes/m/MatrixGridShell.tsx:2"]);
+  });
+});
+
+describe("shell `className` typed as something other than `string`", () => {
+  // `archetype-shell-class-name`'s live pattern, verbatim — type-agnostic, indent-capped.
+  const CLASSNAME = "^\\s{0,2}className\\?\\s*:";
+  const classRule = (extra = {}) => ({
+    id: "shell-class-name",
+    pattern: CLASSNAME,
+    severity: "warn",
+    message: "m",
+    include: ["src/components/archetypes/**/*Shell.tsx", "src/components/archetypes/**/*Sheet.tsx"],
+    ...extra,
+  });
+
+  it("reaches `className?: ClassValue`, which a `:\\s*string` pattern walks past", () => {
+    // The escape hatch is the PROP, not its type: `ClassValue` is already idiomatic in
+    // this repo (`src/components/layout/SurfaceFrame.tsx`), so a shell could have reopened
+    // the deleted axis just by widening the annotation. Both rules run over one file: the
+    // type-pinned one finds only the `string` shell, the type-agnostic one finds both.
+    const files = {
+      "src/components/archetypes/a/AShell.tsx": "export type P = {\n  className?: ClassValue;\n};\n",
+      "src/components/archetypes/b/BShell.tsx": "export type P = {\n  className?: string;\n};\n",
+    };
+    const pinned = classRule({ id: "pinned", pattern: "^\\s{0,2}className\\?\\s*:\\s*string" });
+    const { stdout } = runFilesFixture([pinned, classRule()], files, "--json");
+    const byRule = (r) =>
+      JSON.parse(stdout)
+        .violations.filter((v) => v.rule === r)
+        .map((v) => v.file);
+    expect(byRule("pinned")).toEqual(["src/components/archetypes/b/BShell.tsx"]);
+    expect(byRule("shell-class-name")).toEqual([
+      "src/components/archetypes/a/AShell.tsx",
+      "src/components/archetypes/b/BShell.tsx",
+    ]);
+  });
+
+  it("still spares a nested `cellStyle.className` leaf once the type pin is gone", () => {
+    // Dropping `:\s*string` leaves the indent cap as the ONLY thing separating a shell's
+    // outer-wrapper prop from the matrix-grid per-cell styling-data field. If the cap were
+    // lost with the pin, the widening would have traded one blind spot for a false error.
+    const files = {
+      "src/components/archetypes/m/MatrixGridShell.tsx":
+        "export type CellStyle = {\n  align?: string;\n};\nexport type P = {\n  cellStyle?: {\n    className?: string;\n  };\n};\n",
+    };
+    const { stdout } = runFilesFixture([classRule()], files, "--json");
+    expect(hitsOf(stdout)).toEqual([]);
+  });
+});

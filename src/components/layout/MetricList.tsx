@@ -18,7 +18,7 @@
  * Composition (mirrors KeyValueList → KeyValueRow):
  *   <MetricList more={<><MetricRow .../><MetricRow .../></>}>
  *     <MetricRow label="Umsatz"   value={fmtEur(rev)} hint="inkl. Versand" emphasis />
- *     <MetricRow label="Rohertrag" value={fmtEur(gp)}  hint="Marge 34,2 %" emphasis accent />
+ *     <MetricRow label="Rohertrag" value={fmtEur(gp)}  hint="Marge 34,2 %" emphasis />
  *   </MetricList>
  *
  * IDIOM NOTE: values render `font-mono tabular-nums`, matching the baseline's
@@ -41,8 +41,6 @@ export type MetricRowProps = {
   hint?: React.ReactNode;
   /** Headline row: larger value. Secondary rows omit it. */
   emphasis?: boolean;
-  /** Tint the value with `--primary` (the brand). Use for the profit/ARR line. */
-  accent?: boolean;
   className?: string;
 };
 
@@ -51,7 +49,6 @@ export function MetricRow({
   value,
   hint,
   emphasis,
-  accent,
   className,
 }: MetricRowProps): React.ReactElement {
   return (
@@ -76,9 +73,8 @@ export function MetricRow({
       </div>
       <div
         className={cn(
-          "shrink-0 font-mono font-semibold tabular-nums",
+          "shrink-0 font-mono font-semibold tabular-nums text-foreground",
           emphasis ? "text-base" : "text-[13px]",
-          accent ? "text-primary" : "text-foreground",
         )}
       >
         {value}

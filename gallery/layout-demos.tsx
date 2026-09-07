@@ -537,7 +537,7 @@ function MetricListDemo() {
               }
             >
               <MetricRow label="Revenue" value="€5,920" hint="incl. shipping" emphasis />
-              <MetricRow label="Gross profit" value="€2,228" hint="margin 37.6%" emphasis accent />
+              <MetricRow label="Gross profit" value="€2,228" hint="margin 37.6%" emphasis />
             </MetricList>
           </div>
         </SectionCard>
@@ -547,7 +547,7 @@ function MetricListDemo() {
           <div className="px-5 py-3">
             <MetricList>
               <MetricRow label="Gesamtwert" value="€12.500,00" emphasis />
-              <MetricRow label="ARR" value="€4.200,00" hint="annualisiert" emphasis accent />
+              <MetricRow label="ARR" value="€4.200,00" hint="annualisiert" emphasis />
             </MetricList>
           </div>
         </SectionCard>

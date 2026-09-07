@@ -48,21 +48,21 @@ describe("TextareaField", () => {
   it("counter colors muted → amber → destructive by fill against maxLength", () => {
     // 9/10 = 90% → warning; controlled value drives the length.
     const { rerender } = render(
-      <TextareaField label="R" showCount maxLength={10} value={"x".repeat(9)} onChange={() => {}} />
+      <TextareaField label="R" maxLength={10} value={"x".repeat(9)} onChange={() => {}} />
     );
     expect(screen.getByText("9/10").className).toMatch(/text-amber/);
     rerender(
-      <TextareaField label="R" showCount maxLength={10} value={"x".repeat(10)} onChange={() => {}} />
+      <TextareaField label="R" maxLength={10} value={"x".repeat(10)} onChange={() => {}} />
     );
     expect(screen.getByText("10/10").className).toMatch(/text-destructive/);
     rerender(
-      <TextareaField label="R" showCount maxLength={10} value={"x"} onChange={() => {}} />
+      <TextareaField label="R" maxLength={10} value={"x"} onChange={() => {}} />
     );
     expect(screen.getByText("1/10").className).toMatch(/text-muted-foreground/);
   });
 
   it("tracks its own length for the counter when uncontrolled", () => {
-    render(<TextareaField label="R" showCount maxLength={5} />);
+    render(<TextareaField label="R" maxLength={5} />);
     fireEvent.change(screen.getByLabelText("R"), { target: { value: "abc" } });
     expect(screen.getByText("3/5")).toBeTruthy();
   });

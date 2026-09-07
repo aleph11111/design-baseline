@@ -194,8 +194,10 @@ export function DetailOverviewDemo(): React.ReactElement {
           supplies it).
           The blue `--primary` override is BrickShop's brand, scoped to this
           surface: the donor default stays neutral slate; each app brings its own
-          accent. One token re-skins every primary action, accent figure, badge,
-          and ProgressTracker dot. */}
+          accent. One token re-skins every primary action, badge, and
+          ProgressTracker dot. (Not the metric figures — those always render
+          `text-foreground`; the brand-tint flag was per-call-site discretion no
+          contract keyed, so it is gone.) */}
       <div
         className="rounded-xl bg-muted/50 p-4 sm:p-6"
         style={
@@ -264,7 +266,6 @@ export function DetailOverviewDemo(): React.ReactElement {
                     value={fmtEUR(o.grossProfit)}
                     hint={`margin ${o.margin}`}
                     emphasis
-                    accent
                   />
                 </MetricList>
               </DetailSection>
