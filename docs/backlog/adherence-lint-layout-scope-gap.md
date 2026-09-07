@@ -11,15 +11,14 @@ gate:
     - acceptance
     - related
   failed:
-    - open_question: "Open question section present — caps score at 4 per gate ceiling rule"
+    - open_question: Open question section present — caps score at 4 per gate ceiling rule
   graded_at: '2026-09-07T00:00:00Z'
 value: normal
 model: opus
 model_reason: >-
-  contract-keying triage (derived-vs-inherited test on SectionCard.tone and
-  SurfaceFrame.overflow, plus writing/enumerating the keying rule in the
-  owning contract) is design judgment, not pattern-following — mirrors
-  adherence-lint-union-prop-blind-spot's model_reason
+  contract-keying triage (derived-vs-inherited test on SectionCard.tone and SurfaceFrame.overflow,
+  plus writing/enumerating the keying rule in the owning contract) is design judgment, not
+  pattern-following — mirrors adherence-lint-union-prop-blind-spot's model_reason
 roadmap: archetype-convergence
 ---
 
