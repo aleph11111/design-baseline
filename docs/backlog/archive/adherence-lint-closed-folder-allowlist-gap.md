@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-07'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -105,8 +105,8 @@ opinion*, not because any rule says so.
 
 ## Related
 
-- [adherence-lint-warn-to-error-ratchet](archive/adherence-lint-warn-to-error-ratchet.md) — shipped the per-folder exclude/ratchet valve this ticket closes a hole in.
-- [archetype-convergence-appearance-prop-lint](archive/archetype-convergence-appearance-prop-lint.md) — introduced the five drain rules this ticket's per-folder rules parallel.
-- [adherence-lint-alias-rule-size-noun-gap](archive/adherence-lint-alias-rule-size-noun-gap.md) — same shape of bug (a rule's negative-lookahead prefix list not kept in sync with another rule's owned-noun set).
-- [archetype-convergence](archetype-convergence.md) — the active roadmap whose `lint` phase's class-level acceptance this gap undercuts.
+- [adherence-lint-warn-to-error-ratchet](../archive/adherence-lint-warn-to-error-ratchet.md) — shipped the per-folder exclude/ratchet valve this ticket closes a hole in.
+- [archetype-convergence-appearance-prop-lint](../archive/archetype-convergence-appearance-prop-lint.md) — introduced the five drain rules this ticket's per-folder rules parallel.
+- [adherence-lint-alias-rule-size-noun-gap](../archive/adherence-lint-alias-rule-size-noun-gap.md) — same shape of bug (a rule's negative-lookahead prefix list not kept in sync with another rule's owned-noun set).
+- [archetype-convergence](../archetype-convergence.md) — the active roadmap whose `lint` phase's class-level acceptance this gap undercuts.
 - ADR-0004 — appearance locality: derived vs. inherited (the keying rule `DetailSection.tone`'s exemption invokes).
