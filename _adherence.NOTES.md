@@ -7,10 +7,10 @@ half of **ADOPTION.md gate 2** (see `docs/ADOPTION.md`, `docs/PLACEMENT.md`).
 ## How it runs
 
 A consuming project wires a `lint:design` script (`node scripts/lint-design.mjs`) and runs it
-in CI. The scanner is **zero-dependency** — a heuristic `.tsx` source scan, no ESLint or oxlint
-required — so a consumer with no linter still gets a working gate. Warnings are allowed during
-rollout; flip a rule to `"severity": "error"` in `_adherence.json` as its violation class is
-cleaned (the ratchet). Matching is case-sensitive, so the design-system primitives `<Button>` /
+in CI. The scanner is **zero-dependency** — a heuristic `.ts`/`.tsx` source scan, no ESLint or
+oxlint required — so a consumer with no linter still gets a working gate. Warnings are allowed
+during rollout; flip a rule to `"severity": "error"` in `_adherence.json` as its violation class
+is cleaned (the ratchet). Matching is case-sensitive, so the design-system primitives `<Button>` /
 `<Table>` are never flagged — only the bare lowercase HTML elements.
 
 A rule carries either `tag` (a bare-element ban — the scanner builds the `<tag` open-tag regex)
@@ -35,10 +35,49 @@ per-folder `error` rules is added for the closed API, so the scanner no longer c
 archetype as an open one (the `detail-overview-*` rules below are the first to use it; the
 `form-page-shell-class-name` rule is the second closed archetype's ratchet).
 
-`targets` lists the directory roots the scanner walks for `.tsx` files. The donor ships `["src"]`;
-a consumer retargets it to its app-page directories (e.g. `["src/app/(app)"]`), since these bans
-apply to page bodies, not marketing/auth chrome or the primitive definitions themselves (the DS
-`table.tsx` / `button.tsx` legitimately contain the raw elements they wrap).
+`targets` lists the directory roots the scanner walks for `.ts` and `.tsx` files
+(`'**/*.{ts,tsx}'` per target). The donor ships `["src"]`; a consumer retargets it to its
+app-page directories (e.g. `["src/app/(app)"]`), since these bans apply to page bodies, not
+marketing/auth chrome or the primitive definitions themselves (the DS `table.tsx` /
+`button.tsx` legitimately contain the raw elements they wrap).
+
+### Why the walk spans `.ts`
+
+`.ts` files hold the shared column/table contract (`tableColumn.ts`), the hook **result**
+types (`useCrudDialogController.ts`, `useFormPageState.ts` …), and `src/components/layout/`
+helpers — any of them can carry a prop declaration the rules must see. Walking `.tsx` only
+silently narrowed what `targets` yields: `includeReachableUnder` proves a rule's `include` is
+reachable under the targets, but the walk then never handed those files to the rule — provably
+reachable, never executed. The widening (2026-09-07) surfaced exactly one live defect the
+narrow walk hid: `tableColumn.ts`'s `identifierMono` / `align` (triaged by exclude, see the
+rule messages).
+
+Two boundaries of the widened walk:
+
+- **`gallery/` is intentionally OUT of `targets`.** `gallery/` is donor-dev demo-hosting code
+  that never ships to a consumer (`npm run gallery:build` emits `gallery-dist/`, the surface
+  the dashboard hub iframes), so consumer-facing adherence is not what it measures — and adding
+  it would put the six `error` appearance rules on a tree of deliberate raw-HTML demo markup
+  (hand-rolled tables, bare buttons, literal palette classes demonstrating the primitives). The
+  stale-call-site class it hid (a `<MetricRow accent>` surviving a prop deletion — see the
+  `adherence-lint-boolean-classvalue-gap` session, both call sites since deleted) is already
+  caught by `npx tsc --noEmit`, the donor's own verification command: the moment a gallery call
+  site references a deleted prop again, the donor does not typecheck. Do not re-litigate the
+  `targets` list against `gallery/`; the division is this paragraph.
+- **A hook's RESULT interface is not a per-call-site prop.** The hook result types that the
+  widened walk newly sees (`UseCrudDialogControllerResult.isCreate` / `isSubmitting` /
+  `readOnly` / `showPrimary`, `UseCrudDialogModeResult.isView` / `isEdit` / `isCreate`,
+  `UseFormPageStateResult.isDirty` / `isSubmitting`, `ResolveListStateInput.isEmpty`) declare
+  non-optional fields of what a hook RETURNS — derived values the hook computes, not props
+  anyone passes. A prop the caller does not supply cannot be a per-call-site appearance:
+  ADR-0004's inherited-vs-derived test passes by construction. Rather than excluding each
+  hook file by path, the appearance rules keep this out **at the pattern level**: the
+  `archetype-appearance-noun-prop`, `archetype-look-union-prop`, `archetype-numeric-union-prop`
+  and `archetype-alias-union-prop` patterns require the literal `?` of an OPTIONAL prop
+  (`\w+\?` instead of `\w+\??`), so a non-optional declaration is out of scope by shape — the
+  same keep-it-out-at-the-pattern-level discipline `archetype-appearance-boolean-prop` uses
+  for capability booleans. A `.ts` file that declares an optional appearance-shaped prop on a
+  PROP type (an interface a component accepts) stays fully gated.
 
 > **Why not oxlint?** The original config leaned on oxlint's `no-restricted-syntax`, which oxlint
 > does not implement (`Rule 'no-restricted-syntax' not found`), and carried `_`-prefixed comment

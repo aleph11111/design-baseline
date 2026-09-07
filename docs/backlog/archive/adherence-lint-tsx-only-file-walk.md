@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-07'
-status: ready
+status: done
 value: high
 model: opus
 model_reason: >-
@@ -69,12 +69,12 @@ ungoverned appearance prop.
 
 ## What to do
 
-- [ ] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
-- [ ] Widen the walk in `scripts/lint-design.mjs`'s `main()` from `'**/*.tsx'`
+- [x] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
+- [x] Widen the walk in `scripts/lint-design.mjs`'s `main()` from `'**/*.tsx'`
       to a `.ts`-inclusive pattern (`'**/*.{ts,tsx}'`, which `globSync`
       brace-expands), keeping the existing
       `exclude: ['**/node_modules/**', '**/.*/**']`.
-- [ ] Run the full drain the widening produces BEFORE landing it, the way
+- [x] Run the full drain the widening produces BEFORE landing it, the way
       `adherence-lint-union-prop-blind-spot` and
       `adherence-lint-alias-rule-size-noun-gap` did:
       `node scripts/lint-design.mjs --json` on the widened walk, then per hit
@@ -84,7 +84,7 @@ ungoverned appearance prop.
       `crud-dialog/useCrudDialogController.ts`, `crud-dialog/useCrudDialogMode.ts`,
       `form-page/useFormPageState.ts`, `shared/resolveListState.ts` — re-run the
       scan rather than trusting that list.
-- [ ] Decide the hook-result question once, at the pattern level, not per file:
+- [x] Decide the hook-result question once, at the pattern level, not per file:
       a field of a hook's RETURN type is derived by construction (the hook
       computes it), so it is not a per-call-site appearance prop under ADR-0004
       at all. Require a literal `\?` in the appearance rules that currently
@@ -94,7 +94,7 @@ ungoverned appearance prop.
       keep-it-out-at-the-pattern-level discipline
       `archetype-appearance-boolean-prop` already uses for capability booleans.
       That rule already requires `\?`; leave it as is.
-- [ ] Leave `gallery/` OUT of `_adherence.json`'s `targets`, and cover it the way
+- [x] Leave `gallery/` OUT of `_adherence.json`'s `targets`, and cover it the way
       `tsc` already does: `gallery/` is donor-dev demo-hosting code that never
       ships to a consumer (`npm run gallery:build` emits `gallery-dist/`, the
       surface the dashboard hub iframes), so consumer-facing adherence is not
@@ -103,7 +103,7 @@ ungoverned appearance prop.
       is already caught by `npx tsc --noEmit`, the donor's own verification
       command; record that division in `_adherence.NOTES.md` so the next reader
       does not re-litigate it.
-- [ ] Extend `scripts/lint-design.test.mjs` with a fixture asserting a `.ts`
+- [x] Extend `scripts/lint-design.test.mjs` with a fixture asserting a `.ts`
       file is walked (an appearance-shaped prop in a `.ts` file is reported) and
       that a non-optional field in one is not.
 
@@ -125,9 +125,9 @@ ungoverned appearance prop.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap
 - [adherence-lint-boolean-classvalue-gap.md](adherence-lint-boolean-classvalue-gap.md) — the session that hit both halves of this gap
-- [adherence-lint-union-prop-blind-spot.md](archive/adherence-lint-union-prop-blind-spot.md) — prior gap-drain precedent
-- [lint-design-include-reachability-guard.md](archive/lint-design-include-reachability-guard.md) — the compile-time guard against a silently-disarmed rule; this is the same failure one level up, at the walk
+- [adherence-lint-union-prop-blind-spot.md](../archive/adherence-lint-union-prop-blind-spot.md) — prior gap-drain precedent
+- [lint-design-include-reachability-guard.md](../archive/lint-design-include-reachability-guard.md) — the compile-time guard against a silently-disarmed rule; this is the same failure one level up, at the walk
 - ADR-0003 — `docs/adr/0003-adherence-lint-zero-dep-scanner.md`
 - ADR-0004 — `docs/adr/0004-appearance-locality-derived-vs-inherited.md`
