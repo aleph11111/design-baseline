@@ -74,7 +74,7 @@ Two live ungated hits today, both reachable from a closed archetype:
       is judged too informal to count as an exhaustive keying rule, promote
       it into a proper Layer/decision-rule clause first (the
       `statement-with-filters` indent precedent in
-      [adherence-lint-union-prop-blind-spot](archive/adherence-lint-union-prop-blind-spot.md)),
+      [adherence-lint-union-prop-blind-spot](../archive/adherence-lint-union-prop-blind-spot.md)),
       bump `detail-overview.md`'s frontmatter `version` (minor) and the
       matching `docs/archetypes/MANIFEST.json` entry (currently `"3.2"`),
       **then** exclude.
@@ -113,10 +113,10 @@ Two live ungated hits today, both reachable from a closed archetype:
 
 ## Related
 
-- [adherence-lint-union-prop-blind-spot.md](archive/adherence-lint-union-prop-blind-spot.md) — the drain-ticket precedent this ticket mirrors: same triage method (contract-keying test, promote-then-exclude, cite line in `message`), and the `include`-array shape this ticket copies for the two remaining rules.
-- [entity-circle-size-prop-appearance-locality-gap.md](archive/entity-circle-size-prop-appearance-locality-gap.md) — same rule family, another prop closed via a contract keying rule.
-- [archetype-convergence-appearance-prop-lint.md](archive/archetype-convergence-appearance-prop-lint.md) — shipped the original rules and `include`/`exclude` mechanism this ticket extends.
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap; Phase 1 closes archetype-layer appearance props, of which this is the layout-directory blind spot.
+- [adherence-lint-union-prop-blind-spot.md](../archive/adherence-lint-union-prop-blind-spot.md) — the drain-ticket precedent this ticket mirrors: same triage method (contract-keying test, promote-then-exclude, cite line in `message`), and the `include`-array shape this ticket copies for the two remaining rules.
+- [entity-circle-size-prop-appearance-locality-gap.md](../archive/entity-circle-size-prop-appearance-locality-gap.md) — same rule family, another prop closed via a contract keying rule.
+- [archetype-convergence-appearance-prop-lint.md](../archive/archetype-convergence-appearance-prop-lint.md) — shipped the original rules and `include`/`exclude` mechanism this ticket extends.
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap; Phase 1 closes archetype-layer appearance props, of which this is the layout-directory blind spot.
 - ADR-0004 (`docs/adr/0004-appearance-locality-derived-vs-inherited.md`) — the derived-vs-inherited test and its component-kind amendment this ticket's triage applies.
 - RULES.md hard rule 12 — the enforcement mechanism (`_adherence.json`'s five appearance-prop rules at `error`).
 
