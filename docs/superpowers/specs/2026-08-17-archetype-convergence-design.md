@@ -610,3 +610,172 @@ doc is separated because its reader is the consumer, not the donor.
 - Who bumps the tag and when. The package version becomes the fleet broadcast
   number that `design-baseline-chrome.json` failed to be, but retiring that
   file is `drop-drift-machinery`'s work, so tag cadence is decided there.
+
+---
+
+## Phase token-split — close the font seam and guard the split
+
+Sharpened 2026-09-07, after p0 / p1 / lint / warn-drain / pkg landed. Supersedes
+the design-level Phase-3 sketch above, which predicted this phase before the
+split had shipped.
+
+### What changed under this phase
+
+**The split itself already shipped, and not under this roadmap.** PR #178
+(`4e75636`, `feat(style-baseline)!: split tokens.css into donor-owned layer +
+project-owned brand file`) landed the two-file shape the roadmap's Phase-3
+bullet asks for: `src/styles/tokens.layer.css` is donor-owned (the
+`@import "tailwindcss"` entry, the `@theme` colour/font/radius/motion roles and
+keyframes, `@custom-variant`, the utility definitions, the `@layer base`
+resets), and `src/styles/tokens.css` is brand-only — the `:root` / `.dark` HSL
+triplets plus `--radius` — importing the layer above it.
+
+**Its operator-facing acceptance is delivered by phase `pkg`, not by more
+splitting.** The roadmap's second Phase-3 bullet — *changing `--font-sans` in
+the donor reaches every consumer through a version bump* — needs a propagation
+channel, and `pkg` built it: decision P5 ships `tokens.layer.css` as the
+`./tokens.layer.css` export subpath, and the throwaway-consumer proof matrix
+(`docs/PACKAGE.md:110`) shows a layer-`@theme` class (`bg-success/10`) present
+in the consumer's `dist` only when the layer `@import` is wired. A donor-side
+`@theme` edit therefore reaches a consumer by bumping the installed tag. That
+row is the acceptance; this phase does not re-prove it.
+
+So this phase is not "split the tokens" — it is **close the residue the split
+left**, which is three things, each measured in the tree:
+
+1. **Font binding has no project-owned seam.** RULES rule 12 (and ADR-0004:35)
+   names the token tier as *brand colour, font binding, radius — declared once
+   per project in `src/styles/tokens.css`*. Colour holds (the brand `:root` /
+   `.dark` blocks) and radius holds (`--radius` in the brand file), but
+   `--font-sans` and `--font-mono` are declared at `tokens.layer.css:100-101`,
+   inside the donor-owned half — the file `/style-baseline --force` overwrites
+   on every re-apply and that a package consumer cannot edit at all, because it
+   resolves inside `node_modules`. A consumer binding its own face therefore has
+   no legal place to say so. This is exactly the roadmap's observation that
+   hk-crm diverges 132 lines *legitimately*, because it binds `--font-sans`
+   through `next/font`.
+
+2. **Nothing mechanical keeps the two halves apart.** The separation is stated
+   in prose, in the header comment of each file and in `docs/STYLE.md:262,282`.
+   Two regressions it cannot catch: brand HSL values drifting back into the
+   layer, where the next `--force` re-apply silently blasts them; and a brand
+   file regressing to the pre-#178 merged shape by re-acquiring the
+   `@import "tailwindcss"` entry.
+
+3. **Three donor docs still describe the pre-#178 merged file.**
+   `docs/ARCHITECTURE.md:31` calls `tokens.css` the "Tailwind 4 entry point +
+   HSL design tokens"; `docs/TAXONOMY.md:11` names it as the token artifact
+   without the layer; `docs/STYLE.md:21` says "All tokens are HSL triplets in
+   `src/styles/tokens.css`". `STYLE.md`'s own §"Broadcast surface" section
+   (262, 282) already describes the split correctly, so the file contradicts
+   itself.
+
+### Decisions
+
+| # | Decision | Rationale |
+|---|---|---|
+| T1 | The font seam is a **plain `@theme` block in the brand file**, after the layer import — no donor-side indirection variable | Measured, not assumed: appending `@theme { --font-sans: "ZZTestFace", sans-serif; }` to `src/styles/tokens.css` and running `npm run gallery:build` emits `font-sans:"ZZTestFace", sans-serif` in the built CSS and nothing else — Tailwind 4 merges `@theme` blocks in source order and the later declaration replaces, rather than duplicates, the donor's. The seam already exists in Tailwind's semantics; it is only undocumented |
+| T2 | The layer **keeps** the house-face defaults (`"IBM Plex Sans"` / `"IBM Plex Mono"`) | Rejected alternative: move the font roles down into the brand file to make ownership uniform. That destroys the operator goal in the same stroke — if the family is only ever declared per project, a donor-side house-style change reaches nobody. The layer owns the default and the fallback stack; the brand file owns the override. Both halves are load-bearing |
+| T3 | Rejected: a donor-declared `--brand-font-sans` indirection (`--font-sans: var(--brand-font-sans, "IBM Plex Sans", …)`) | It buys discoverability and costs a second name for one value plus a donor-owned mechanism that only exists to be overridden. T1's re-declaration reaches the same place with a comment. Ponytail rung: the platform feature already covers it |
+| T4 | The guard is **two more invariants in `scripts/verify-exports.mjs`**, not a new script and not an `_adherence.json` rule | The script already runs four packaging invariants and is wired as `npm run verify:exports`; the split is a packaging invariant of the same kind (what the `./tokens.layer.css` subpath is allowed to contain). `_adherence.json` scans component source for appearance props — CSS-file shape is not its vocabulary, and ADR-0003's scanner would need a new matcher class to express it |
+| T5 | The invariants are **channel-agnostic**: the layer declares no `:root` or `.dark` selector, and the brand file carries no `@import "tailwindcss"` | Stated this way they hold for both distribution channels — the copy channel's `@import "./tokens.layer.css"` and the package channel's `@import "design-baseline/tokens.layer.css"`. Pinning the import *specifier* would make the check channel-specific and would break on the channel this roadmap is moving toward |
+
+### The seam, concretely
+
+The brand file gains a commented, ready-to-uncomment stanza below its existing
+`@layer base` block:
+
+```css
+/* ---- FONT BINDING — override per project (optional) ----
+   The house faces ship as donor defaults in tokens.layer.css @theme. A project
+   that loads its own faces (Next: next/font; Vite: a <link> in index.html)
+   re-declares them here — a later @theme replaces the donor's value, it does
+   not stack. Leave this block commented to inherit the house style, which is
+   what makes a donor-side face change reach you on a version bump. */
+/* @theme {
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+} */
+```
+
+`--font-plex-sans` is the CSS variable a `next/font` loader exposes; a Vite
+consumer names the family directly. The comment is the whole documentation
+surface a consumer sees in the file; `docs/STYLE.md` §Typography and
+`docs/PACKAGE.md` §3 each gain the corresponding sentence, so the wiring doc
+and the style doc do not disagree with the file.
+
+### The guard, concretely
+
+`scripts/verify-exports.mjs` grows two entries in its `report` array, taking the
+summary from `4 ok` to `6 ok`:
+
+| invariant | fails when |
+|---|---|
+| `token layer declares no brand values` | `src/styles/tokens.layer.css` matches `/^\s*(:root\|\.dark)\b/m` — a `:root` or `.dark` selector block appearing in the donor-owned half means brand values a `--force` re-apply will destroy |
+| `brand tokens file is not the merged shape` | `src/styles/tokens.css` matches `/@import\s+["']tailwindcss["']/` — the pre-#178 merged entry point back in the project-owned file, or the layer import gone |
+
+Both are `readFileSync` + regex against two fixed paths, in the same shape as
+the existing `findShippedCss`. No new dependency, no new npm script.
+
+### Scope boundary
+
+This phase closes the donor-side residue of a split that already shipped. It
+does **not**:
+
+- Give `controlling-app`, `mistra`, `my-finance-app` or `pmo` a `tokens.css` —
+  they carry none at all, which is a consumer-adoption fact, not a donor
+  defect. `consumer-migration`'s work.
+- Reconcile hk-crm's 132-line divergence or brickshop-manager's 158. Those
+  become measurable *against* the seam this phase documents, and are migrated
+  in `consumer-migration`.
+- Resolve the two-channel import duality (`@import "./tokens.layer.css"` in a
+  copied tree versus `@import "design-baseline/tokens.layer.css"` in an
+  installed one). Both are correct for their channel today; the duality ends
+  when `fleet-commands` deletes `/style-baseline`.
+- Touch `docs/ADOPTION.md` or `docs/PLUGIN-CONTRACT.md` — `donor-docs`' work,
+  for the same reason phase `pkg` left them alone.
+
+### Verification
+
+Phase `token-split` is done when all of these hold:
+
+1. `node scripts/verify-exports.mjs` reports `6/6 ok`, and each new invariant
+   has been shown to fail on a deliberately broken copy of its target file
+   (a `:root` block pasted into the layer; `@import "tailwindcss"` pasted into
+   the brand file) before being reverted.
+2. Uncommenting the brand file's font stanza with a literal family and running
+   `npm run gallery:build` emits that family as the sole `font-sans:` value in
+   `gallery-dist/assets/*.css`; re-commenting it restores
+   `"IBM Plex Sans"`. This is the seam's proof and is reported in the ticket,
+   not committed.
+3. `docs/ARCHITECTURE.md`, `docs/TAXONOMY.md` and `docs/STYLE.md:21` describe
+   the two-file shape, and `grep -rn 'tokens\.css' docs/` finds no line calling
+   the brand file the Tailwind entry point.
+4. `docs/STYLE.md` §Typography and `docs/PACKAGE.md` §3 both name the brand-file
+   `@theme` override as the supported way to bind a project's own faces.
+5. `npx tsc --noEmit`, `npm test` and `node scripts/lint-design.mjs`
+   (0 errors) are unchanged — this phase touches CSS, a node script and docs,
+   so any movement in those is a regression, not a result.
+
+### Ticket batch
+
+| ticket | depends_on |
+|---|---|
+| `tokens-brand-font-seam-and-split-guard` | — |
+
+One, not three. The seam, its guard and the doc reconciliation are the same
+statement made in three places — a brand file that documents an override the
+docs do not mention, or a guard against a shape the docs still describe as
+current, is a half-landed change. They are also small enough that splitting
+them produces three PRs whose combined diff is smaller than one review.
+
+### Deferred to the decompose loop
+
+- Whether the seam should eventually also cover `--radius`'s derived scale
+  (`--radius-lg/md/sm` are computed in the layer from the brand `--radius`,
+  which is the shape T1 wants for fonts and already works). Nothing is broken;
+  it is worth knowing whether the two axes should be described identically in
+  `STYLE.md`.
+- Whether `/style-baseline`'s merged-shape migration path (STYLE.md:288) still
+  has a live target in the fleet, or is already dead code that `fleet-commands`
+  deletes wholesale.
