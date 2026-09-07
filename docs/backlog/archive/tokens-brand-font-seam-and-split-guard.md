@@ -2,7 +2,7 @@
 area: tooling
 roadmap: archetype-convergence
 opened: '2026-09-07'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "mechanical — a documented CSS stanza, two regex invariants in an existing script, and three stale doc lines; every design decision is settled in the spec section"
