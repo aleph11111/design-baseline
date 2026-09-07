@@ -819,6 +819,164 @@ describe("shell `className` typed as something other than `string`", () => {
     const { stdout } = runFilesFixture([classRule()], files, "--json");
     expect(hitsOf(stdout)).toEqual([]);
   });
+
+  describe("container-wrapped appearance unions (the `Array<T>` spine the bare-union pattern misses)", () => {
+    // The gap this ticket closes: every earlier appearance-union rule reached a union
+    // only when it sat IMMEDIATELY after the `:`. Wrap the same union in a container
+    // (`Array<`, `ReadonlyArray<`, `Readonly<`, a `readonly (…)`, or a bare `(` before it)
+    // and the character after the `:` is now `A`/`r`/`(` — not a quote, digit, or alias
+    // name — so the rule walked straight past it. The `look` rule's pattern is widened
+    // with an optional container OPENERS prefix, and the same prefix is carried into
+    // `numeric` and `alias`, so one rule owns one union KIND across every spelling and a
+    // container is still reported once under one message. The `^\s*` anchor is what makes
+    // "exactly one hit" hold (a match can start only at the line's prop name), and the
+    // prefix consuming only OPENERS is what keeps a non-union element out of scope.
+    const cfg = JSON.parse(readFileSync(join(root, "_adherence.json"), "utf8"));
+    const ruleById = (id) => cfg.rules.find((r) => r.id === id);
+    const look = ruleById("archetype-look-union-prop");
+    const numeric = ruleById("archetype-numeric-union-prop");
+    // `{{unionAliases}}` must be present — the alias rule is only compiled per-file
+    // after the harvest; the harvest is file-local, so these fixtures declare their
+    // own alias.
+    expect(look.pattern).toBeTruthy();
+    expect(numeric.pattern).toBeTruthy();
+    expect(ruleById("archetype-alias-union-prop").pattern).toContain("{{unionAliases}}");
+
+    const lookRule = { id: "look-union", pattern: look.pattern, severity: "warn", message: "m" };
+    const numericRule = {
+      id: "numeric-union",
+      pattern: numeric.pattern,
+      severity: "warn",
+      message: "m",
+    };
+    const aliasRule = {
+      id: "alias-union",
+      pattern: ruleById("archetype-alias-union-prop").pattern,
+      severity: "warn",
+      message: "m",
+    };
+    const include = ["src/components/archetypes/**", "src/components/layout/**"];
+
+    const hitLines = (stdout, file) =>
+      JSON.parse(stdout)
+        .violations.filter((v) => v.file === file)
+        .map((v) => v.line)
+        .sort((a, b) => a - b);
+    const anyHitFile = (stdout, rule) =>
+      JSON.parse(stdout)
+        .violations.filter((v) => v.rule === rule)
+        .map((v) => v.file);
+
+    it("flags `Array<Readonly<\"a\" | \"b\">>` under the look rule — the spelling the bare pattern walked past", () => {
+      // The LIVE triaged instance (`FigureRow.emphasis`), in minimal form. `Readonly`
+      // and `Array` are both consumed as OPENERS by the prefix before the first member
+      // reaches the quoted-union the rule already matches.
+      const f = "src/components/archetypes/e/ArrayRule.tsx";
+      const { stdout } = runFilesFixture(
+        [{ ...lookRule, include }],
+        { [f]: "export type P = {\n  emphasis?: Array<Readonly<\"a\" | \"b\">>;\n};\n" },
+        "--json",
+      );
+      expect(hitLines(stdout, f)).toEqual([2]);
+    });
+
+    it("flags `readonly (\"a\" | \"b\")[]` (the postfix-array spelling) under the look rule", () => {
+      // `FigureRow.cellAlign` / `FigureRow.headerAlign` in minimal form: `readonly `
+      // and `(` are each one consumed OPENER; the closing `[])` follows the union the
+      // rule matches and is never part of the prefix.
+      const f = "src/components/archetypes/e/PostfixRule.tsx";
+      const { stdout } = runFilesFixture(
+        [{ ...lookRule, include }],
+        { [f]: "export type P = {\n  cellAlign?: readonly (\"a\" | \"b\")[];\n};\n" },
+        "--json",
+      );
+      expect(hitLines(stdout, f)).toEqual([2]);
+    });
+
+    it("flags `(\"a\" | \"b\")[]` (the bare tuple spelling) under the look rule", () => {
+      const f = "src/components/archetypes/e/TupleRule.tsx";
+      const { stdout } = runFilesFixture(
+        [{ ...lookRule, include }],
+        { [f]: "export type P = {\n  span?: (\"a\" | \"b\")[];\n};\n" },
+        "--json",
+      );
+      expect(hitLines(stdout, f)).toEqual([2]);
+    });
+
+    it("still matches a bare inline union EXACTLY once (no double-report from the widening)", () => {
+      // The prefix is optional, so a prop with NO container is untouched — and the
+      // `^\s*` anchor means the widened pattern cannot find a SECOND start position on
+      // the same line, so widening a rule that already matched a bare union cannot make
+      // it report twice. One match, line 2.
+      const f = "src/components/archetypes/e/BareRule.tsx";
+      const { stdout } = runFilesFixture(
+        [{ ...lookRule, include }],
+        { [f]: "export type P = {\n  tone?: \"a\" | \"b\";\n};\n" },
+        "--json",
+      );
+      expect(hitLines(stdout, f)).toEqual([2]);
+    });
+
+    it("does NOT match a container of a non-union element (string[] / React.ReactNode[] / Array<string>)", () => {
+      // The prefix only consumes OPENERS. An element type that is not a literal union
+      // (`string`, `React.ReactNode`, `Array<string>`) never reaches the quoted/numeric
+      // union the rule matches, so the whole prop is left alone — the same
+      // not-an-appearance-axis reasoning the bare rules apply to non-look unions, now
+      // extended to the container spelling. Four non-union containers, one file: a hit
+      // under either rule in this file would be a false positive the widening introduced.
+      const f = "src/components/archetypes/e/NonUnionRule.tsx";
+      const files = {
+        [f]:
+          "export type P = {\n" +
+          "  ids?: string[];\n" +
+          "  cells?: React.ReactNode[];\n" +
+          "  names?: Array<string>;\n" +
+          "  columns?: readonly React.ReactNode[];\n" +
+          "};\n",
+      };
+      const { stdout } = runFilesFixture([lookRule, numericRule], files, "--json");
+      // Either rule (look OR numeric) reporting this file is a false positive.
+      expect(hitLines(stdout, f)).toEqual([]);
+      expect(anyHitFile(stdout, "look-union")).not.toContain(f);
+      expect(anyHitFile(stdout, "numeric-union")).not.toContain(f);
+    });
+
+    it("flags a container of a numeric union under the numeric rule — `Array<1 | 2 | 3>`", () => {
+      // The same widening under the numeric rule: `columns?: Array<1 | 2 | 3>` is the
+      // container spelling of `columns?: 1 | 2 | 3`, deleted from analytics-dashboard
+      // and banned by-name there — a fresh one in an OPEN archetype is a live defect.
+      const f = "src/components/archetypes/n/Numeric.tsx";
+      const { stdout } = runFilesFixture(
+        [{ ...numericRule, include }],
+        { [f]: "export type P = {\n  columns?: Array<1 | 2 | 3>;\n};\n" },
+        "--json",
+      );
+      expect(hitLines(stdout, f)).toEqual([2]);
+      // And the look rule must NOT claim the same prop (kind ownership: one kind, one rule).
+      const lookOnly = runFilesFixture([{ ...lookRule, include }], { [f]: "export type P = {\n  columns?: Array<1 | 2 | 3>;\n};\n" }, "--json");
+      expect(hitLines(lookOnly.stdout, f)).toEqual([]);
+    });
+
+    it("reaches an aliased union wrapped in a container — `circleSize?: Array<EntityAvatarSize>`", () => {
+      // The alias rule's prefix is the same OPENERS set. `Array<EntityAvatarSize>` is
+      // a container of a union ALIAS — the `Array<` opener is consumed before the alias
+      // name reaches `(?:{{unionAliases}})\\b`, and the alias harvest is file-local so
+      // the file must declare the union the prop is typed against. One hit, line 3.
+      const f = "src/components/archetypes/a/Avatar.tsx";
+      const { stdout } = runFilesFixture(
+        [{ ...aliasRule, include }],
+        {
+          [f]:
+            'export type EntityAvatarSize = "xs" | "sm";\n' +
+            "export type P = {\n" +
+            "  circleSize?: Array<EntityAvatarSize>;\n" +
+            "};\n",
+        },
+        "--json",
+      );
+      expect(hitLines(stdout, f)).toEqual([3]);
+    });
+  });
 });
 
 describe("walk coverage: `.ts` files are scanned like `.tsx` (the widened walk)", () => {
