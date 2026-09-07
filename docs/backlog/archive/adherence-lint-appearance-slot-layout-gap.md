@@ -48,7 +48,7 @@ Delivered:
 - [x] Read `grouped-list.md`: no contract keys a section-level custom-header slot (descriptive prose only) → Branch A.
 - [x] Deleted `SectionCard.header`; reworked the live call path in `GroupedListSection` (deleted `renderHeader` callback; added sanctioned `actions` right-aligned treatment channel); reworked the demo's Sichuan heat badge onto `actions`; reworked the three `SectionCard.test.tsx` header cases.
 - [x] N/A — Branch A taken, no `exclude` needed.
-- [x] `renderHeader`-shaped render-callback props get their own follow-up ticket ([`adherence-lint-render-callback-slot-gap`](../adherence-lint-render-callback-slot-gap.md)); function-typed props are a distinct prop-shape class from boolean / `className?: ClassValue`, so it is filed alongside — not folded into — `adherence-lint-boolean-classvalue-gap`.
+- [x] `renderHeader`-shaped render-callback props get their own follow-up ticket ([`adherence-lint-render-callback-slot-gap`](../wip/adherence-lint-render-callback-slot-gap.md)); function-typed props are a distinct prop-shape class from boolean / `className?: ClassValue`, so it is filed alongside — not folded into — `adherence-lint-boolean-classvalue-gap`.
 - [x] `scripts/lint-design.test.mjs` gains the pinning cases (second include root reaches `layout/`; exclude still engages on the widened root).
 
 Contract impact recorded: `grouped-list.md` spec 1.2→1.3 (layer 5 allowed variation changed, renderHeader→actions, migration note rewritten), `MANIFEST.json` deliverable 2.1→3.0 (shipped-primitive prop deletion, major per the `README.md` versioning table; matches the close-API-delete precedent of #195). `source_spec_version` untouched.
@@ -80,7 +80,7 @@ header cases and the `grouped-list-demo.tsx` Sichuan section.
 `GroupedListSection`'s `renderHeader` was a **render-callback** prop escaping
 every current appearance rule's pattern — the escape hatch survived one level
 up — so a prop-shape follow-up was filed:
-[adherence-lint-render-callback-slot-gap](../adherence-lint-render-callback-slot-gap.md).
+[adherence-lint-render-callback-slot-gap](../wip/adherence-lint-render-callback-slot-gap.md).
 
 ## What to do
 
@@ -118,7 +118,7 @@ up — so a prop-shape follow-up was filed:
 ## Related
 
 - [adherence-lint-layout-scope-gap.md](../adherence-lint-layout-scope-gap.md) — the parent this was split out of; widened the other three rules to the same second root and established the exact-file-path exclude convention for the layout layer.
-- [adherence-lint-render-callback-slot-gap.md](../adherence-lint-render-callback-slot-gap.md) — the render-callback prop-shape follow-up filed by this work (function-typed props; distinct class from boolean / `className?: ClassValue`).
+- [adherence-lint-render-callback-slot-gap.md](../wip/adherence-lint-render-callback-slot-gap.md) — the render-callback prop-shape follow-up filed by this work (function-typed props; distinct class from boolean / `className?: ClassValue`).
 - [adherence-lint-boolean-classvalue-gap.md](../adherence-lint-boolean-classvalue-gap.md) — the prop-shape blind-spot family this follow-up is filed alongside.
 - [adherence-lint-closed-folder-allowlist-gap.md](../adherence-lint-closed-folder-allowlist-gap.md) — sibling in flight; also edits the same rule objects in `_adherence.json`, so serialize rather than parallelize.
 - [archive/adherence-lint-union-prop-blind-spot.md](../archive/adherence-lint-union-prop-blind-spot.md) — the drain-ticket precedent for the triage method (contract-keying test, promote-then-exclude, cite the line in `message`).

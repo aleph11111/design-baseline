@@ -38,7 +38,7 @@ slot (`archetype-appearance-slot`). A **render-callback** prop — a function-ty
 prop returning `ReactNode`, e.g. `GroupedListSection`'s
 `renderHeader?: (args: { title, description, rowCount }) => React.ReactNode` — is none of
 these, so it escapes every rule. That prop was the concrete instance that motivated
-[adherence-lint-appearance-slot-layout-gap](archive/adherence-lint-appearance-slot-layout-gap.md)
+[adherence-lint-appearance-slot-layout-gap](../archive/adherence-lint-appearance-slot-layout-gap.md)
 closing the `SectionCard.header` slot below it, and it is being **deleted** by that ticket;
 but the general shape is still unguarded, so a per-call-site appearance can be smuggled
 back in one level of indirection up — the same unenumerable escape hatch the other five
@@ -58,7 +58,7 @@ Filed alongside (not widened into) [adherence-lint-boolean-classvalue-gap](adher
 - [ ] Before editing, grep every prop declaration under `src/components/archetypes/**` and `src/components/layout/**` for a function-typed prop returning `ReactNode` (`render*` / `*Render?` / bare `on*Render`), not only the `GroupedListSection.renderHeader` instance this report names — re-run after the rule changes to confirm the hit set is what the pattern actually owns.
 - [ ] Fix the appearance-vs-structural boundary at the pattern level, not one-by-one excludes: structural render callbacks (`Sidebar` / `SectionNav` `renderLink`, `PageHeader` `renderBackLink` — router / navigation adapters) stay out at the pattern, the way `archetype-alias-union-prop`'s lookahead keeps the noun rule's owned set out of double-ownership.
 - [ ] Add a render-callback appearance rule to `_adherence.json`, `include` scoped to both `src/components/archetypes/**` and `src/components/layout/**` (the second root is required because the shared chrome lives outside `src/components/archetypes/`, the same widen as the sibling rules).
-- [ ] Triage every hit the way the earlier drain tickets ([`adherence-lint-union-prop-blind-spot`](archive/adherence-lint-union-prop-blind-spot.md)) did: delete the prop and rework call sites / demos when no contract keying rule derives it, or add an exact-path `exclude` whose `message` cites the contract line that does.
+- [ ] Triage every hit the way the earlier drain tickets ([`adherence-lint-union-prop-blind-spot`](../archive/adherence-lint-union-prop-blind-spot.md)) did: delete the prop and rework call sites / demos when no contract keying rule derives it, or add an exact-path `exclude` whose `message` cites the contract line that does.
 - [ ] Cover both the flagged shape and a structural callback it must NOT flag in `scripts/lint-design.test.mjs`, the way the sibling tickets pin their include/exclude behaviour.
 
 ## Acceptance
@@ -73,9 +73,9 @@ Filed alongside (not widened into) [adherence-lint-boolean-classvalue-gap](adher
 ## Related
 
 - [adherence-lint-boolean-classvalue-gap.md](adherence-lint-boolean-classvalue-gap.md) — the sibling "prop-shape blind spot" ticket this is filed alongside (boolean / `className?: ClassValue` shapes); same family, distinct shape class.
-- [adherence-lint-appearance-slot-layout-gap.md](archive/adherence-lint-appearance-slot-layout-gap.md) — the ticket that deletes the concrete `GroupedListSection.renderHeader` instance and whose layout-layer widen this shares.
-- [archive/adherence-lint-union-prop-blind-spot.md](archive/adherence-lint-union-prop-blind-spot.md) — the drain-ticket precedent for the triage method (delete-unkeyed / promote-then-exclude, cite the line in `message`).
-- [archive/report-calendar-appearance-prop-lint.md](archive/report-calendar-appearance-prop-lint.md) — promote-contract-prose-then-exclude precedent.
+- [adherence-lint-appearance-slot-layout-gap.md](../archive/adherence-lint-appearance-slot-layout-gap.md) — the ticket that deletes the concrete `GroupedListSection.renderHeader` instance and whose layout-layer widen this shares.
+- [archive/adherence-lint-union-prop-blind-spot.md](../archive/adherence-lint-union-prop-blind-spot.md) — the drain-ticket precedent for the triage method (delete-unkeyed / promote-then-exclude, cite the line in `message`).
+- [archive/report-calendar-appearance-prop-lint.md](../archive/report-calendar-appearance-prop-lint.md) — promote-contract-prose-then-exclude precedent.
 - ADR-0004 (`docs/adr/0004-appearance-locality-derived-vs-inherited.md`) — the derived-vs-inherited test each render-callback prop is graded against.
 - RULES.md hard rule 12 — the enforcement mechanism this rule belongs to.
 
