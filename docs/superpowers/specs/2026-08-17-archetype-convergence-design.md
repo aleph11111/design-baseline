@@ -320,16 +320,9 @@ binding. MANIFEST gets a **major** version bump — the API breaks deliberately.
 
 Not decomposed here; recorded so the later batches inherit the reasoning.
 
-**Phase 2 — consumable source package.** `exports` map over
-`src/components/archetypes/` plus the `src/components/layout/` primitives the
-archetypes depend on, `private: true` dropped, and **no compiled CSS shipped**.
-That omission is the whole answer to hk-crm ADR-0030's skew objection: a package
-whose `exports` point at `.tsx` and whose consumer scans it with Tailwind 4
-`@source` has no version skew, because the consumer still compiles every class
-itself. ADR-0004 supersedes ADR-0030 on that point only — its first objection,
-that no publishable artifact exists, is simply Phase 2's work. Distribution
-channel: git dependency against a tag first, since it needs no publish
-infrastructure.
+**Phase 2 — consumable source package.** Sharpened against shipped reality in
+[Phase `pkg`](#phase-pkg--consumable-source-package) below; that section
+supersedes the design-level sketch this paragraph used to carry.
 
 **Phase 3 — token split.** `src/styles/tokens.css` splits into a package-owned
 base layer and a project-owned brand layer, so a consumer overrides brand
@@ -416,3 +409,204 @@ Filed with this spec. Later phases are deliberately not fanned out.
 | `archetype-convergence-nested-heading-primitive` | phase0 |
 | `archetype-convergence-detail-overview-close-api` | phase0, nested-heading |
 | `archetype-convergence-appearance-prop-lint` | phase0 |
+
+---
+
+## Phase pkg — consumable source package
+
+Sharpened 2026-09-07, after p0 / p1 / lint / warn-drain landed. Supersedes the
+design-level Phase-2 sketch above, which predicted this phase before the API
+was closed and before the token layer was split.
+
+### What changed under this phase
+
+Two shipped facts narrow it, and one widens it.
+
+**The API is closed across the whole layer, not just detail-overview.** Every
+appearance rule in `_adherence.json` now sits at `severity: "error"` scoped to
+`src/components/archetypes/**` *and* `src/components/layout/**`
+(`archetype-appearance-noun-prop`, `-look-union-prop`, `-numeric-union-prop`,
+`-alias-union-prop`, `-appearance-boolean-prop`, `-shell-class-name`,
+`-appearance-slot`), with per-archetype closed-folder rules behind them. The
+ratchet is fully engaged; `node scripts/lint-design.mjs` reports 0 errors and
+59 warns, all six of them the generic ADR-0003 page-level rules RULES rule 12
+deliberately keeps at warn. So this phase needs **no** "export only the closed
+archetypes" gate — the whole exported surface is closed. The D8 sequencing
+worry is spent.
+
+**The token split already shipped.** `src/styles/tokens.layer.css` is the
+donor-owned half (`@import "tailwindcss"`, `@theme` roles and keyframes,
+`@custom-variant`, utility definitions, layer base) and `src/styles/tokens.css`
+is brand-only, importing the layer relatively. The roadmap's Phase-3 work is
+therefore mostly done, and its operator-facing acceptance — *changing
+`--font-sans` here reaches every consumer through a version bump* — is
+delivered by **this** phase's exports map, not by any further split. The
+`token-split` phase's own sharpening confirms what residue is left; this
+section does not claim it.
+
+**What widens it: an `exports` map alone does not make the donor installable.**
+Five blockers the earlier sketch does not mention, each measured in the tree:
+
+1. **338 internal `@/` imports** inside the surface to be packaged —
+   `@/components/ui` ×141, `@/lib/utils` ×90, `@/components/layout` ×61,
+   `@/components/archetypes` ×36, `@/hooks/use-mobile` ×3, `@/utils/logger` ×1.
+   In a consumer, `@/` is *their* root alias, so a packaged file asking for
+   `@/components/layout` resolves against the consumer's `src/`.
+2. **`"use client"` exists on exactly two files** in the donor
+   (`ui/tooltip.tsx`, `examples/DemoNextApp.tsx`). hk-crm's vendored copies
+   differ from the donor *by that line*. A Next App Router consumer cannot add
+   it — the file is inside `node_modules`.
+3. **`src/components/ui/` cannot stay out of the package.** 141 archetype→ui
+   edges mean shipping archetypes ships `ui/`, which puts two copies of every
+   primitive — and of the Radix context-bearing ones — in a consumer.
+4. **Tailwind 4 does not scan `node_modules`.** The consumer-side `@source`
+   directive is a hard requirement, not documentation courtesy.
+5. **`react` / `react-dom` sit in `devDependencies`** (deliberately, for donor
+   typechecking). A package must declare them as peers.
+
+### Decisions
+
+| # | Decision | Rationale |
+|---|---|---|
+| P1 | Every internal import under `src/components/`, `src/lib/`, `src/hooks/`, `src/utils/` becomes **relative**; `@/` is banned there mechanically | The package must resolve its own internals without borrowing the consumer's alias. Relative paths also keep the `cp -R` channel working through the migration overlap — same folder shape, same resolution — so no flag day |
+| P2 | The package **owns `src/components/ui/`**; a consumer deletes its vendored copy and re-points `@/components/ui/*` at the package with one tsconfig path entry | One copy of every primitive, no dedupe question, and every existing consumer import keeps working unchanged. Narrows ADR-0004's "`ui/` stays vendored" clause to projects that take only the shell and never an archetype — recorded as an amendment to that ADR, not a silent reversal |
+| P3 | **`private: true` is kept** | A git dependency against a tag needs no publish, so the flag costs nothing and makes an accidental publish of a private donor impossible. This reverses the earlier sketch's "drop `private: true`" bullet on the narrow ground that the channel decision makes it unnecessary. Drop it only if a registry is ever chosen |
+| P4 | The `"use client"` boundary is **one directive per exported barrel** — 23 archetype `index.ts` + `layout/index.ts` | `"use client"` marks a module boundary, so a directive on the barrel covers its whole subtree: 24 lines, mechanically checkable, versus a per-file judgement call re-made on every new component. Cost is that an archetype subtree cannot render as a server component; these shells are interactive anyway, and hk-crm's vendored copies already all carry the directive |
+| P5 | **No compiled CSS**, but `tokens.layer.css` ships as a **source-CSS subpath** | The omission of compiled CSS is the whole answer to ADR-0030's skew objection: the consumer still compiles every class from source. Shipping the layer file is what makes a donor-side `@theme` or `--font-sans` change propagate by version bump |
+| P6 | Brand `tokens.css` is **deliberately not exported** | Exporting it would let a consumer `@import` the one file it is supposed to own. It stays a copy-once artifact |
+| P7 | Distribution channel: **git dependency against a tag**. Registry stays deferred | Needs no publish infrastructure. A registry decision needs a second consumer to be a real question |
+| P8 | Proof is a **throwaway** consumer install plus a **committed** `scripts/verify-exports.mjs` | A second buildable app in a repo whose premise is "not a buildable app" is the wrong permanent cost. The one-off install proves it once; the script makes the invariants repeatable |
+
+### The exports map
+
+```json
+"exports": {
+  "./layout":            "./src/components/layout/index.ts",
+  "./archetypes/*":      "./src/components/archetypes/*/index.ts",
+  "./ui/*":              "./src/components/ui/*.tsx",
+  "./lib/utils":         "./src/lib/utils.ts",
+  "./hooks/*":           "./src/hooks/*.ts",
+  "./utils/logger":      "./src/utils/logger.ts",
+  "./tokens.layer.css":  "./src/styles/tokens.layer.css"
+}
+```
+
+One wildcard covers all 23 archetype directories — each already carries an
+`index.ts`, verified. All 49 files in `src/components/ui/` are `.tsx`, so the
+`*.tsx` pattern is exact rather than optimistic; Node's `exports` does no
+extension resolution, which is why the pattern carries the extension. `files`
+scopes the pack to `src/components`, `src/lib`, `src/hooks`, `src/utils`,
+`src/styles` — `src/examples/`, `gallery/` and the vite/vitest harness stay
+donor-dev-only, as `package.json`'s `designBaseline.notes` already declare.
+Co-located `*.test.tsx` files ride along inside the packaged component dirs;
+that is a few dozen KB and no ignore machinery is worth building for it.
+
+`react` and `react-dom` move to `peerDependencies` (`^19`). The Radix set,
+`class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`,
+`next-themes`, `sonner`, `vaul`, `cmdk`, `react-day-picker`,
+`react-hook-form`, `@hookform/resolvers` and `zod` stay real `dependencies` —
+they are what the primitives import, and npm dedupes compatible ranges. No
+build step is added; `exports` points at `.tsx` and the consumer transpiles.
+
+### Consumer wiring
+
+Four lines and one import, documented once in a new `docs/PACKAGE.md`:
+
+```jsonc
+// package.json
+"design-baseline": "github:aleph11111/design-baseline#v0.2.0"
+```
+```jsonc
+// tsconfig.json — more specific path first
+"paths": {
+  "@/components/ui/*": ["node_modules/design-baseline/src/components/ui/*"],
+  "@/*": ["src/*"]
+}
+```
+```css
+/* the project's own tokens.css */
+@import "design-baseline/tokens.layer.css";
+@source "../node_modules/design-baseline/src";
+```
+```js
+// next.config.js — Next consumers only
+transpilePackages: ["design-baseline"]
+```
+
+`docs/STACK.md` carries two corrections in the same work, because it is the
+document ADR-0030 cited: hazard 3 ("Compiled-CSS version skew") is void for a
+source-distributed package and says so, and hazard 5 ("Unstamped vendored
+peers") already ends *"or move to package consumption"* — it now names the
+package version as the answer that replaces per-file stamps.
+
+`docs/ADOPTION.md` and `docs/PLUGIN-CONTRACT.md` are **not** touched here;
+their rewrite is the `donor-docs` phase's, and doing it early would rewrite
+them against a package no consumer has installed yet.
+
+### Scope boundary
+
+This phase makes the donor installable and documents how to install it. It does
+**not** migrate a consumer (`consumer-migration`), delete the drift machinery,
+`design-baseline-chrome.json` or the per-file vendor stamps
+(`drop-drift-machinery`), retire any consumer or donor doc (`docs-retire`,
+`donor-docs`), or delete a fleet command (`fleet-commands`). Every one of those
+deletions is *blocked on* this phase existing, which is the honest overhead
+accounting: this phase adds one dependency line per consumer and removes the
+`cp -R` distribution model that the 89 archived `archetype-rollout` tickets,
+the four `MANIFEST.json` forks, and `design-baseline-chrome.json`'s ten bumps
+against 39 commits were all paying for.
+
+### Verification
+
+Phase `pkg` is done when all of these hold:
+
+1. `npx tsc --noEmit` passes and `npm test` passes with no `@/` import
+   remaining under `src/components/`, `src/lib/`, `src/hooks/`, `src/utils/`.
+2. `node scripts/verify-exports.mjs` passes, checking four invariants: zero
+   `@/` specifiers in the packaged directories; every `exports` subpath
+   resolves to a file that exists; all 24 exported barrels carry `"use client"`
+   as their first statement; `files` ships no compiled `.css`.
+3. `node scripts/lint-design.mjs` still reports 0 errors — the relativization
+   must not disturb the closed-API ratchet.
+4. `npm run gallery:build` still succeeds: the gallery keeps its own `@/`
+   alias (`vite.config.ts:27`) and is not part of the packaged surface, so it
+   is the regression check that relativization did not break composition.
+5. A throwaway Vite + Tailwind 4 consumer, created outside the repo, installs
+   the donor as a git dependency, applies the four wiring lines, imports
+   `DetailOverviewShell` from `design-baseline/archetypes/detail-overview`, and
+   both typechecks and builds with the archetype's classes present in the
+   output CSS. Not committed; the run is reported in the ticket.
+6. `docs/PACKAGE.md` exists and `docs/STACK.md` hazards 3 and 5 name the
+   package as the answer.
+
+### Tripwire
+
+The failure mode worth naming: four consumers pinned to four different tags is
+the same fork problem with better labels. The guard is one number per consumer
+— the installed tag — recorded as a single `sync` entry in
+`docs/promotion-radar.json`, the array the fleet audit already reads. No new
+script, no watcher. A consumer more than one minor behind the donor tag is a
+`sync` row, exactly as a stale primitive is today.
+
+### Ticket batch
+
+| ticket | depends_on |
+|---|---|
+| `archetype-package-installable` | — |
+| `archetype-package-consumer-wiring` | `archetype-package-installable` |
+
+Two, not four: the donor is either installable or it is not, and splitting
+relativization, the client boundary and the exports map into separate PRs
+produces intermediate states that nothing can install or verify. The wiring
+doc is separated because its reader is the consumer, not the donor.
+
+### Deferred to the decompose loop
+
+- Registry versus git tag, once a real consumer has installed the package (P7).
+- Whether the consumer's `@/components/ui/*` re-point (P2) survives contact
+  with a Next.js build that also resolves the alias for files inside
+  `node_modules` — proven or disproven by the Verification step 5 install, and
+  the reason that install is inside this phase rather than the next one.
+- Who bumps the tag and when. The package version becomes the fleet broadcast
+  number that `design-baseline-chrome.json` failed to be, but retiring that
+  file is `drop-drift-machinery`'s work, so tag cadence is decided there.
