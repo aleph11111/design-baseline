@@ -11,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SegmentedControl } from "@/components/ui/segmented-control";
-import { OVERLINE_CLASS } from "@/components/layout/overline";
 
 // ---------------------------------------------------------------------------
 // Domain types — recipes by cuisine. Written without reference to the source
@@ -196,26 +195,14 @@ export function GroupedListDemo() {
             selectedRowId: selectedId,
           };
 
-          // Sichuan — custom dense title bar (a heat badge in place of the
-          // default row-count badge).
+          // Sichuan — a heat badge in place of the default row-count badge
+          // (one right-aligned treatment per bar, via `actions`).
           if (id === "c1") {
             return (
               <GroupedListSection<Recipe>
                 key={id}
                 {...sectionProps}
-                renderHeader={({ title, description, rowCount }) => (
-                  <div className="flex flex-1 items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <h2 className={OVERLINE_CLASS}>{title}</h2>
-                      {description && (
-                        <p className="mt-0.5 text-sm font-normal normal-case tracking-normal text-muted-foreground">
-                          {description}
-                        </p>
-                      )}
-                    </div>
-                    <Badge variant="warning">{rowCount} · high heat</Badge>
-                  </div>
-                )}
+                actions={<Badge variant="warning">{rows.length} · high heat</Badge>}
               />
             );
           }

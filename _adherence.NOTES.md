@@ -103,12 +103,12 @@ check landed.
 | `archetype-alias-union-prop` | a prop typed against a union type ALIAS declared in the same file (`{{unionAliases}}` pre-pass) | `src/components/archetypes/**` + `src/components/layout/**` |
 | `archetype-appearance-boolean-prop` | a boolean look FLAG from an appearance allowlist (`accent`, `emphasis`, `flush`, `sticky*`, `*mono*`, `hideCount`, `showHeader`, `showCount`, `avatar`, …) — capability booleans stay out at the pattern level | `src/components/archetypes/**` + `src/components/layout/**` |
 | `archetype-shell-class-name` | `className` declared on a `*Shell` / `*Sheet` component — the prop name and its indent, NOT its type, so `className?: ClassValue` is caught too | `src/components/archetypes/**` + `src/components/layout/**`, `*Shell.tsx` / `*Sheet.tsx` |
-| `archetype-appearance-slot` | an appearance-bearing `ReactNode` slot (`header`, `stats`) | `src/components/archetypes/**` |
+| `archetype-appearance-slot` | an appearance-bearing `ReactNode` slot (`header`, `stats`) | `src/components/archetypes/**` + `src/components/layout/**` |
 
 **The shared-chrome second root.** `src/components/layout/**` is a second
-`include` root on every rule above except `archetype-appearance-slot` (whose
-widening is its own ticket, along with the `SectionCard.header` slot it
-surfaces). The chrome the archetype shells compose — `SectionCard`,
+`include` root on every rule above, including `archetype-appearance-slot`
+(widened with the `SectionCard.header` slot its own ticket surfaced and
+deleted). The chrome the archetype shells compose — `SectionCard`,
 `SurfaceFrame`, `StatTileRow`, `ProgressTracker` — lives outside
 `src/components/archetypes/`, and hard rule 12 governs an appearance prop
 there on identical terms: without the root a closed archetype can forward a

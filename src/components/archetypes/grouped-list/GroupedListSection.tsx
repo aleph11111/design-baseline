@@ -15,21 +15,17 @@ import { SectionCard } from "@/components/layout/SectionCard";
 import { Badge } from "@/components/ui/badge";
 
 export type GroupedListSectionProps<Row> = {
-  /** Section title rendered in the group's ruled title bar. Required unless `renderHeader` is provided. */
+  /** Section title rendered in the group's ruled title bar. */
   title?: React.ReactNode;
   /** Optional description line under the title (`text-sm text-muted-foreground`). */
   description?: React.ReactNode;
   /**
-   * Override the default title-bar content. Receives the section's
-   * `{ title, description, rowCount }` and returns the header node rendered
-   * inside the group's ruled title bar — replacing the default overline +
-   * count badge. Use for a sync indicator, status chip, or other dense header.
+   * Right-aligned controls in the group's ruled title bar (a status
+   * `<Badge>`, a sync chip, a small count-annotated badge). When provided,
+   * they replace the default row-count badge — one right-aligned treatment
+   * per bar, not a bespoke override of the bar itself.
    */
-  renderHeader?: (args: {
-    title: React.ReactNode;
-    description: React.ReactNode | undefined;
-    rowCount: number;
-  }) => React.ReactNode;
+  actions?: React.ReactNode;
 
   // Inner-shell delegation (Archetype A)
   rows: Row[];
@@ -59,7 +55,7 @@ export type GroupedListSectionProps<Row> = {
 export function GroupedListSection<Row>({
   title,
   description,
-  renderHeader,
+  actions,
   rows,
   columns,
   getRowId,
@@ -73,18 +69,11 @@ export function GroupedListSection<Row>({
   onSortChange,
   className,
 }: GroupedListSectionProps<Row>): React.ReactElement {
-  const customHeader = renderHeader
-    ? renderHeader({ title, description, rowCount: rows.length })
-    : undefined;
-
   return (
     <SectionCard
-      title={customHeader ? undefined : title}
-      description={customHeader ? undefined : description}
-      actions={
-        customHeader ? undefined : <Badge variant="secondary">{rows.length}</Badge>
-      }
-      header={customHeader}
+      title={title}
+      description={description}
+      actions={actions ?? <Badge variant="secondary">{rows.length}</Badge>}
       flush
       className={className}
     >

@@ -40,19 +40,7 @@ describe("SectionCard — chrome=true (default)", () => {
     expect(bar.contains(getByText("A clarifier"))).toBe(true);
   });
 
-  it("renders a ruled title bar when only header is set", () => {
-    const { container, getByText } = render(
-      <SectionCard header={<span>Custom header</span>}>
-        <p>body</p>
-      </SectionCard>,
-    );
-
-    const bar = sectionOf(container).firstElementChild as HTMLElement;
-    expect(bar.className).toContain("border-b");
-    expect(bar.contains(getByText("Custom header"))).toBe(true);
-  });
-
-  it("renders no title bar when neither title nor header is set", () => {
+  it("renders no title bar when no title is set", () => {
     const { container } = render(
       <SectionCard>
         <p>body</p>
@@ -108,7 +96,7 @@ describe("SectionCard — chrome=false", () => {
     expect(bar.contains(getByText("Details"))).toBe(true);
   });
 
-  it("renders no bar when neither title nor header is set", () => {
+  it("renders no bar when no title is set", () => {
     const { container } = render(
       <SectionCard chrome={false}>
         <p>body</p>
@@ -135,35 +123,6 @@ describe("SectionCard — chrome=false", () => {
     );
 
     expect(mutedTone.innerHTML).toBe(defaultTone.innerHTML);
-  });
-});
-
-describe("SectionCard — header/title precedence", () => {
-  it("renders header and drops title when both are provided (chrome=true)", () => {
-    const { container, getByText, queryByText } = render(
-      <SectionCard title="Ignored title" header={<span>Custom header</span>}>
-        <p>body</p>
-      </SectionCard>,
-    );
-
-    const bar = sectionOf(container).firstElementChild as HTMLElement;
-    expect(bar.contains(getByText("Custom header"))).toBe(true);
-    expect(queryByText("Ignored title")).toBeNull();
-  });
-
-  it("renders header and drops title when both are provided (chrome=false)", () => {
-    const { getByText, queryByText } = render(
-      <SectionCard
-        title="Ignored title"
-        header={<span>Custom header</span>}
-        chrome={false}
-      >
-        <p>body</p>
-      </SectionCard>,
-    );
-
-    expect(getByText("Custom header")).toBeTruthy();
-    expect(queryByText("Ignored title")).toBeNull();
   });
 });
 
