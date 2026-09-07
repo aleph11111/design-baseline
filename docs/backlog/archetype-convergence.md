@@ -17,6 +17,7 @@ tickets:
   - adherence-lint-alias-rule-size-noun-gap
   - adherence-lint-warn-to-error-ratchet
   - adherence-lint-closed-folder-allowlist-gap
+  - adherence-lint-boolean-classvalue-gap
 phases:
   - name: p0
     title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
@@ -51,6 +52,7 @@ phases:
       - adherence-lint-alias-rule-size-noun-gap
       - adherence-lint-warn-to-error-ratchet
       - adherence-lint-closed-folder-allowlist-gap
+      - adherence-lint-boolean-classvalue-gap
     open: false
   - name: pkg
     title: Consumable source package — exports map, no compiled CSS
