@@ -572,6 +572,60 @@ describe("numeric-literal union props (the shape a quoted-string pattern never r
   });
 });
 
+describe("appearance-slot rule (`archetype-appearance-slot`) — the shared-chrome second root", () => {
+  // `archetype-appearance-slot`'s live pattern, verbatim. An optional `header`/`stats`
+  // typed as `ReactNode` is the appearance-bearing escape hatch; the layout widen is
+  // what lets it reach the shared-chrome layer where `SectionCard` lives.
+  const SLOT = "^\\s*(header|stats)\\?\\s*:\\s*(React\\.)?ReactNode";
+
+  it("reaches the shared-chrome second include root alongside the archetype root", () => {
+    // `SectionCard` lives in the shared chrome, outside `src/components/archetypes/` —
+    // the reason the rule's include carries two roots (the last of the four
+    // archetype-layer appearance rules to get the widen). A single-root include would
+    // report a clean scan over a live defect. `ui/` is outside include and stays out.
+    const files = {
+      "src/components/layout/SectionCard.tsx": "export type P = {\n  header?: React.ReactNode;\n};\n",
+      "src/components/archetypes/foo/FooSection.tsx": "export type P = {\n  stats?: React.ReactNode;\n};\n",
+      "src/components/ui/badge.tsx": "export type P = {\n  header?: React.ReactNode;\n};\n",
+    };
+    const rule = {
+      id: "appearance-slot",
+      pattern: SLOT,
+      severity: "error",
+      message: "m",
+      include: ["src/components/archetypes/**", "src/components/layout/**"],
+    };
+    const { stdout } = runFilesFixture([rule], files, "--json");
+    expect(hitsOf(stdout).sort()).toEqual(
+      [
+        "src/components/archetypes/foo/FooSection.tsx:2",
+        "src/components/layout/SectionCard.tsx:2",
+      ].sort(),
+    ); // ui/ stays out
+  });
+
+  it("an excluded file inside the widened root is not over-reached", () => {
+    // The widen must not over-reach a file excluded by the rule's `exclude` — here the
+    // archetype's own closed folder, proving the array-form include + exclude valve
+    // still engages on the widened root.
+    const files = {
+      "src/components/archetypes/detail-overview/DetailSection.tsx":
+        "export type P = {\n  header?: React.ReactNode;\n};\n",
+      "src/components/layout/SectionCard.tsx": "export type P = {\n  header?: React.ReactNode;\n};\n",
+    };
+    const rule = {
+      id: "appearance-slot",
+      pattern: SLOT,
+      severity: "error",
+      message: "m",
+      include: ["src/components/archetypes/**", "src/components/layout/**"],
+      exclude: ["src/components/archetypes/detail-overview/**"],
+    };
+    const { stdout } = runFilesFixture([rule], files, "--json");
+    expect(hitsOf(stdout)).toEqual(["src/components/layout/SectionCard.tsx:2"]); // excluded archetype folder stays out
+  });
+});
+
 describe("union type-alias pre-pass (`{{unionAliases}}`)", () => {
   // `archetype-alias-union-prop`'s live pattern, verbatim — lookahead included.
   const ALIAS =

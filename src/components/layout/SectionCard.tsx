@@ -24,12 +24,6 @@ export type SectionCardProps = {
    */
   actions?: React.ReactNode;
   /**
-   * Raw header override. When provided, it replaces the default
-   * `<SectionHeading>` inside the title bar entirely — use for dense custom
-   * headers (sync indicators, multi-control rows). Wins over `title`.
-   */
-  header?: React.ReactNode;
-  /**
    * Content layout.
    * - `false` (default): content is wrapped in `px-5 py-4` padding — for
    *   free-form content (prose, field groups, custom panels).
@@ -85,15 +79,14 @@ export function SectionCard({
   title,
   description,
   actions,
-  header,
   flush = false,
   tone = "default",
   chrome = true,
   children,
   className,
 }: SectionCardProps): React.ReactElement {
-  const hasBar = header !== undefined || title !== undefined;
-  const bar = header ?? (
+  const hasBar = title !== undefined;
+  const bar = (
     <SectionHeading title={title} description={description} actions={actions} />
   );
 

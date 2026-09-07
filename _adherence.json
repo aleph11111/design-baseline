@@ -152,14 +152,17 @@
       "id": "archetype-appearance-slot",
       "pattern": "^\\s*(header|stats)\\?\\s*:\\s*(React\\.)?ReactNode",
       "severity": "error",
-      "include": "src/components/archetypes/**",
+      "include": [
+        "src/components/archetypes/**",
+        "src/components/layout/**"
+      ],
       "exclude": [
         "src/components/archetypes/detail-overview/**",
         "src/components/archetypes/form-page/**",
         "src/components/archetypes/list-with-detail/**",
         "src/components/archetypes/settings-table/**"
       ],
-      "message": "An appearance-bearing `ReactNode` slot (`header`, `stats`) is a per-call-site appearance prop by another name (RULES.md hard rule 12). Closed archetypes (detail-overview, form-page, list-with-detail, settings-table) are gated by their own `*-` error rules."
+      "message": "An appearance-bearing `ReactNode` slot (`header`, `stats`) is a per-call-site appearance prop by another name (RULES.md hard rule 12). The `include` carries `src/components/layout/**` as a second root because the shared chrome lives outside `src/components/archetypes/` — the same layout-layer widen as the sibling appearance rules. Pattern is optional-slot-only (`header?` / `stats?`), so a required composition slot (e.g. `AppShell`'s required `header` prop, the app's structural header region) is out of scope by design — an untyped-by-default slot the consumer must fill is structure, not a per-call-site appearance. Closed archetypes (detail-overview, form-page, list-with-detail, settings-table) are gated by their own `*-` error rules; detail-overview's typed `stats: StatItem[]` is separately gated by `detail-overview-appearance-slot`."
     },
     {
       "id": "detail-overview-surface-prop",
