@@ -19,6 +19,8 @@ tickets:
   - adherence-lint-closed-folder-allowlist-gap
   - adherence-lint-boolean-classvalue-gap
   - adherence-lint-layout-scope-gap
+  - archetype-package-installable
+  - archetype-package-consumer-wiring
 phases:
   - name: p0
     title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
@@ -58,9 +60,10 @@ phases:
     open: false
   - name: pkg
     title: Consumable source package — exports map, no compiled CSS
-    tickets: []
-    open: true
-    spec_anchor: '## Phases 2–5 — design level only'
+    tickets:
+      - archetype-package-installable
+      - archetype-package-consumer-wiring
+    spec_anchor: '## Phase pkg — consumable source package'
   - name: token-split
     title: Split tokens.css into package-owned base and project-owned brand layers
     tickets: []
