@@ -11,14 +11,14 @@ gate:
     - acceptance
     - related
   failed:
-    - open_question: "capped at 4 — vocabulary list and hide*/show* ownership left open for operator confirmation"
+    - open_question: capped at 4 — vocabulary list and hide*/show* ownership left open for operator confirmation
   graded_at: '2026-09-07T00:00:00Z'
 value: normal
 model: opus
 model_reason: >-
-  a boolean-flag vocabulary and a per-prop delete-vs-key triage across seven
-  named call sites is design judgment, not pattern-following (mirrors
-  adherence-lint-union-prop-blind-spot's model_reason)
+  a boolean-flag vocabulary and a per-prop delete-vs-key triage across seven named call sites is
+  design judgment, not pattern-following (mirrors adherence-lint-union-prop-blind-spot's
+  model_reason)
 roadmap: archetype-convergence
 ---
 
