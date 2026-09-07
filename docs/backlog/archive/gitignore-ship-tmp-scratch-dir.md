@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-07'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: one .gitignore line beside the existing tasks/ and .worktrees/ entries; no design decision left
