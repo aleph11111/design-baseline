@@ -112,10 +112,10 @@ shell adopting it would silently reopen the deleted escape hatch.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap
-- [adherence-lint-alias-rule-size-noun-gap.md](archive/adherence-lint-alias-rule-size-noun-gap.md) — prior gap in the same rule family
-- [adherence-lint-union-prop-blind-spot.md](archive/adherence-lint-union-prop-blind-spot.md) — prior gap-drain precedent (numeric/aliased unions)
-- [archetype-shell-classname-drop.md](archive/archetype-shell-classname-drop.md) — original className escape-hatch removal
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap
+- [adherence-lint-alias-rule-size-noun-gap.md](../archive/adherence-lint-alias-rule-size-noun-gap.md) — prior gap in the same rule family
+- [adherence-lint-union-prop-blind-spot.md](../archive/adherence-lint-union-prop-blind-spot.md) — prior gap-drain precedent (numeric/aliased unions)
+- [archetype-shell-classname-drop.md](../archive/archetype-shell-classname-drop.md) — original className escape-hatch removal
 - ADR-0004 — `docs/adr/0004-appearance-locality-derived-vs-inherited.md`
 
 ## Open question
