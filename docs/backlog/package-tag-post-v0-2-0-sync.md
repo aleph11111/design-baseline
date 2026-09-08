@@ -1,15 +1,21 @@
 ---
 area: other
-opened: 2026-09-08
+opened: '2026-09-08'
 status: ready
+gate:
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-09-08T00:00:00.000Z'
 value: normal
 model: opus
 model_reason: multi-file doc sync + dry-run measurement, no established pattern to follow mechanically
-gate:
-  score: 5
-  passed: [title, context, what_to_do, acceptance, related]
-  failed: []
-  graded_at: 2026-09-08T00:00:00Z
+roadmap: archetype-convergence
 ---
 
 # Cut v0.2.1 tag and re-validate the vendored-consumer runbook against it
