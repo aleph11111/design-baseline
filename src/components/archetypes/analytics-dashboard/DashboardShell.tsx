@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import { SurfaceFrame } from "../../layout/SurfaceFrame";
 import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";

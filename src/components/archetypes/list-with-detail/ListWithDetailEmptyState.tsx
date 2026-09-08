@@ -1,3 +1,4 @@
+"use client";
 import { StateView } from "../../ui/state-view";
 
 export type ListEmptyMode = "empty" | "loading" | "error" | "filtered-empty";

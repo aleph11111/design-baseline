@@ -1,3 +1,4 @@
+"use client";
 import type { ReactNode } from "react";
 import { SearchInput } from "../../ui/search-input";
 import { cn } from "../../../lib/utils";

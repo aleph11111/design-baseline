@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import { IconAvatar } from "../../ui/icon-avatar";
 import { cn } from "../../../lib/utils";

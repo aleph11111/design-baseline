@@ -9,7 +9,7 @@
 // against synthetic inputs, so a guard failing open (or a silent no-match
 // on the real tree) stays caught even if the donor tree is clean.
 //
-// Six invariants of the package surface are checked:
+// Seven invariants of the package surface are checked:
 //
 //   1. No `@/` import specifier survives under the four packaged source
 //      dirs. The relativization (P1) must be total — `@/` would resolve
@@ -41,6 +41,17 @@
 //      Both are channel-agnostic (spec T5): they pin the two files' *shape*,
 //      not the layer import's specifier, which differs between the copy channel
 //      (`./tokens.layer.css`) and the package channel (`design-baseline/…`).
+//   7. Every consumer-measured leaf carries `"use client";` as its first line
+//      (ADR-0006): invariant 3's one-directive-per-barrel covers the 24
+//      `index.ts` barrels, but `./ui/*` (and the layout/archetypes leaves) are
+//      exported directly as source, so a consumer resolving, say,
+//      `@/components/ui/sidebar` through `node_modules/` needs the leaf itself
+//      client-rooted — the phase-pkg dry run reproduced the
+//      `createContext is not a function` page-data crash without it. The
+//      leaf set is frozen in `scripts/consumer-directive-set.json` (first
+//      measured consumer, hk-crm — provenance in the file) because the donor
+//      cannot reach the consumer at verify time; re-derive when the consumer's
+//      directive set moves.
 //
 // Usage:  node scripts/verify-exports.mjs [--json]
 //         exit 0 all invariants hold; exit 1 at least one broken; exit 2
@@ -163,6 +174,28 @@ function brandFileIsMergedShape(root) {
   return BRAND_TAILWIND_ENTRY_RE.test(readFileSync(join(root, rel), 'utf8')) ? [rel] : [];
 }
 
+const CONSUMER_SET_REL = 'scripts/consumer-directive-set.json';
+
+// Invariant 7 (ADR-0006): every consumer-measured leaf carries the directive
+// as its FIRST statement — the leaf-level complement of invariant 3's
+// barrel-level check. Reads the frozen set (provenance in the file header) so
+// a direct subpath export can never silently lose its client module boundary
+// again. Missing files and missing directives are reported alike. Synthetic
+// fixtures point `root` at a throwaway tree with their own set file, so the
+// check stays exercised without the real 97-file set.
+function consumerLeavesMissingDirective(root) {
+  let set;
+  try {
+    set = JSON.parse(readFileSync(join(root, CONSUMER_SET_REL), 'utf8')).files ?? [];
+  } catch {
+    return [`${CONSUMER_SET_REL} (missing or unreadable — re-derive, see its header)`];
+  }
+  return set.filter(
+    (rel) => !existsSync(join(root, rel)) ||
+      !firstStatementIsUseClient(readFileSync(join(root, rel), 'utf8')),
+  );
+}
+
 function main() {
   const root = process.cwd();
   let pkg;
@@ -184,6 +217,15 @@ function main() {
   const shippedCss = findShippedCss(root, pkg);
   const layerBrand = layerDeclaresBrandValues(root);
   const brandMerged = brandFileIsMergedShape(root);
+  const consumerLeaves = consumerLeavesMissingDirective(root);
+  // The count for the ok label; a missing set already fails via the
+  // predicate's message, so this must not throw on the same condition.
+  let totalLeaves = 0;
+  try {
+    totalLeaves = JSON.parse(readFileSync(join(root, CONSUMER_SET_REL), 'utf8')).files.length;
+  } catch {
+    /* reported by consumerLeavesMissingDirective */
+  }
   const report = [
     ['no @/ specifiers in packaged dirs', atAlias, atAlias.length === 0],
     ['every exports subpath resolves', deadTargets, deadTargets.length === 0],
@@ -191,6 +233,7 @@ function main() {
     ['files ship no compiled CSS', shippedCss, shippedCss.length === 0],
     ['token layer declares no brand values', layerBrand, layerBrand.length === 0],
     ['brand tokens file is not the merged shape', brandMerged, brandMerged.length === 0],
+    [`${totalLeaves} consumer-measured leaves carry "use client" (ADR-0006)`, consumerLeaves, consumerLeaves.length === 0],
   ];
   let failures = 0;
   for (const [label, items, ok] of report) {
@@ -202,7 +245,7 @@ function main() {
       for (const item of items) console.log(`        ${item}`);
     }
   }
-  const summary = `verify:exports — ${failures} failing invariant(s), ${report.filter(([, , ok]) => ok).length}/6 ok`;
+  const summary = `verify:exports — ${failures} failing invariant(s), ${report.filter(([, , ok]) => ok).length}/${report.length} ok`;
   if (failures) {
     console.error(`\n${summary}`);
     process.exitCode = 1;
@@ -223,4 +266,5 @@ export {
   findShippedCss,
   layerDeclaresBrandValues,
   brandFileIsMergedShape,
+  consumerLeavesMissingDirective,
 };
