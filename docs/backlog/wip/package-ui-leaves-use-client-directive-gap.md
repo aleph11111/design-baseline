@@ -66,10 +66,10 @@ only where the consumer happens to keep its own copy of a file.
 
 - [wip/package-ui-ownership-and-vendored-consumer-runbook.md](wip/package-ui-ownership-and-vendored-consumer-runbook.md) —
   the `consumer-migration` phase whose dry run measured this gap
-- [archive/archetype-package-installable.md](archive/archetype-package-installable.md) —
+- [archive/archetype-package-installable.md](../archive/archetype-package-installable.md) —
   the `pkg` phase that made the donor installable and wrote the v0.2.0
   surface
-- [archetype-convergence.md](archetype-convergence.md) — roadmap; its
+- [archetype-convergence.md](../archetype-convergence.md) — roadmap; its
   `consumer-migration` decisions C2/C5 are this fix's consumers
 - ADR-0004 — appearance locality; the "`ui/` stays vendored" clause whose
   narrowing this defect undermines
