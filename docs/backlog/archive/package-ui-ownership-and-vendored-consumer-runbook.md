@@ -2,7 +2,7 @@
 area: tooling
 roadmap: archetype-convergence
 opened: '2026-09-07'
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "the two-entry alias must be proven against a real Next build before it is documented, and the fork triage rule has to survive a 155-file consumer tree — a doc edit only after a dry run resolves it"
