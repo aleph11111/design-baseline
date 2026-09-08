@@ -4,7 +4,7 @@ The Design Baseline can be consumed as a **git source package** instead of a `cp
 copy. A consumer adds one dependency line and four wiring lines:
 
 ```
-"design-baseline": "github:aleph11111/design-baseline#v0.2.0"
+"design-baseline": "github:aleph11111/design-baseline#v0.2.1"
 ```
 
 Everything below is load-bearing — each line was proven in a throwaway Vite +
@@ -27,7 +27,7 @@ consumed commit is pinned (P7 of the spec — no registry publish).
 
 ```jsonc
 // package.json
-"design-baseline": "github:aleph11111/design-baseline#v0.2.0"
+"design-baseline": "github:aleph11111/design-baseline#v0.2.1"
 ```
 
 `react` / `react-dom` are the package's **peer dependencies** (`^19`) — the
@@ -130,8 +130,9 @@ The wiring above is the **greenfield** path. A project that already carries a
 102 per-file vendor stamps (38 × `design-baseline@0.1.0`, 64 × `@0.10.0`) — does
 not delete that corpus and re-point blindly. It **triages the fork first**, then
 installs. The steps are ordered so the fork is visible *before* any file moves;
-the whole path for hk-crm was dry-run proven at tag `v0.2.0` (see the ticket
-`package-ui-ownership-and-vendored-consumer-runbook`, `## Outcome`).
+the whole path for hk-crm was dry-run proven at tag `v0.2.0` and re-validated at
+`v0.2.1` (see the `## Outcome` sections of `package-ui-ownership-and-vendored-consumer-runbook`
+and `package-tag-post-v0-2-0-sync`).
 
 ### Step 1 — Fork triage (normalise, then diff; before anything is deleted)
 
@@ -140,9 +141,14 @@ carries that the installed package tag also ships, remove the noise that is not 
 choice, then diff what remains. That is the **normalisation** pass:
 
 1. strip the per-file **vendor stamp** header line (`design-baseline@…`),
-2. strip the `"use client"` directive (the package's `ui/` leaves at `v0.2.0`
-   ship it un-directive; its presence/absence is a build-wiring difference, not a
-   code difference — see the directive-gap ticket),
+2. **compare** the `"use client"` directive line — do not strip it away the
+   `v0.2.0` runbook did. After ADR-0006 the package deliberately carries the
+   directive on 34 of its 41 `ui/` leaves and intentionally leaves 7 server-safe
+   (`accordion`, `calendar`, `cell-input`, `color-field`, `icon-avatar`,
+   `progress`, `segmented-control`), so presence/absence encodes a real RSC-boundary
+   choice. A file whose only difference after item 1/3 is the directive is
+   boundary-divergent, not identical: keep the project copy until the boundary —
+   not just the code — matches (see the closed-gap note in the Guard below).
 3. rewrite `@/components/ui/…` and the relative siblings to one form so the
    import-graph difference does not read as a content difference.
 
@@ -155,28 +161,33 @@ What the normalisation reveals is the fork, and the fork decides the file's fate
 | differs, consumer is ahead **and general** | a change worth promoting back | keep the project file (it shadows the package's via the project-first array) and `/promote-archetype` it; delete it only once the promotion lands in the donor and the consumer re-points at that new tag |
 | differs, **locale** | not drift at all — the consumer's copy is its own localisation | **permanent consumer-owned file** — keep it, never un-fork it at file granularity (the packaged surface is English defaults overridable per call site) |
 
-Measured against hk-crm at tag `v0.2.0`, of the 36 `ui/` primitives the project
-and the package share, the normalisation collapses **28 to identical** (they would
-otherwise read as divergent through stamps and directives) and **8 remain
-genuinely forked** — `alert`, `badge`, `button`, `confirmation-dialog`,
-`error-boundary`, `file-field`, `form`, `state-view` — two of which are locale
-(`confirmation-dialog` imports `@/ui-text/de`; `state-view` hardcodes
-`"Lädt…"` / `"Etwas ist schiefgelaufen"`). Beyond the 36 shared, the project keeps
-**13 consumer-only `ui/` files** (`breadcrumb`, `labeled-control`,
-`native-field`, `results-count`, `route-error`, `select-field`,
-`select-filter`, `table-row-actions`, `textarea-field`, `view-toggle` + their unit
-tests) that the package has none of. The two-entry array (the project-first entry)
-is what makes all 13 and the 8 forks *shadow* the package instead of breaking —
-a single-entry re-point to `node_modules/…` alone makes them unresolvable across
-every file that imports them.
+Measured against hk-crm at tag `v0.2.1` (the `v0.2.0` baseline is in the
+`## Outcome` of `package-ui-ownership-and-vendored-consumer-runbook`; its 8 forked
+files included `alert`/`badge`, which the status-token backport
+`cb77b0e` then synced to the package, collapsing them into the identical set),
+of the 36 `ui/` primitives the project and the package share, the normalisation
+collapses **30 to identical** (they would otherwise read as divergent through
+stamps and import forms) and **6 remain genuinely forked** — `button` (donor
+ahead: dev-warning on icon buttons), `confirmation-dialog`, `error-boundary`
+(consumer ahead, general: locale text + `console.error` vs the donor's
+`utils/logger` — promote-or-keep), `file-field` (donor ahead: native
+drag-and-drop + error/required via the `fieldFrame` seam), `form` (consumer
+ahead: `required` aria/mark), and `state-view` (**locale** — hk's German
+defaults). Beyond the 36 shared, the project keeps **13 consumer-only `ui/`
+files** (`breadcrumb`, `labeled-control`, `native-field`, `results-count`,
+`route-error`, `select-field`, `select-filter`, `table-row-actions`,
+`textarea-field`, `view-toggle` + their 3 unit tests) that the package has none
+of. The two-entry array (the project-first entry) is what makes all 13 and the 6
+forks *shadow* the package instead of breaking — a single-entry re-point to
+`node_modules/…` alone makes them unresolvable across every file that imports them.
 
-**Record the kept-file count in the radar** (step 5): in hk-crm's case the 28
-identicals split into 25 that stay (their hk copy carries `"use client"`, the
-package's lacks it — see the guard) and 3 that can be deleted (directive-
-consistent); the 8 forks and the 13 consumer-only files all stay. So of hk-crm's
-49 `ui/` files, **46 keep** (25 + 8 + 13) and 3 delete. The number of files kept
-**is** the visible guard that a fork survived the swap — shadowing is invisible
-at the import site.
+**Record the kept-file count in the radar** (step 5): all 30 identicals are also
+**directive-consistent** at `v0.2.1` (28 pairs both carry `"use client"`, 2 pairs —
+`icon-avatar`, `segmented-control` — both carry none), so every deletion leaves the
+RSC boundary unchanged and nothing has to stay as a boundary guard. The 6 forks
+and the 13 consumer-only files all stay. So of hk-crm's 49 `ui/` files, **19 keep**
+(6 + 13) and **30 delete**. The number of files kept **is** the visible guard that a
+fork survived the swap — shadowing is invisible at the import site.
 
 ### Step 2 — Split the brand `tokens.css`
 
@@ -193,11 +204,13 @@ merged `tokens.css` is the pre-#178 state this step splits.
    and `transpilePackages` (wiring line 4) for Next consumers.
 2. **Delete only the project files step 1 ruled as delete-or-take-the-package's**,
    in the same commit as the wiring, so the alias array alone resolves the
-   package's copy of them. Everything else — the 8 forks, the 13 consumer-only
-   `ui/` files, the 25 directive-asymmetric identicals, all of `layout/` and
-   `archetypes/` — **stays** as a project file shadowing the package. A wholesale
-   `rm -rf src/components/ui/` is what the old single-entry instruction did; it is
-   the anti-pattern this runbook replaces.
+   package's copy of them. At `v0.2.1` that is the full 30-identical set — none
+   are boundary-divergent, so there is nothing held back as a guard. Everything
+   else — the 6 forks, the 13 consumer-only `ui/` files, and a file step 1 left
+   boundary-divergent — **stays** as a project file shadowing the package, as
+   does all of `layout/` and `archetypes/`. A wholesale `rm -rf
+   src/components/ui/` is what the old single-entry instruction did; it is the
+   anti-pattern this runbook replaces.
 3. Build and type-check before touching any stamp.
 
 ### Step 4 — Drop the per-file vendor stamps, in the same commit as step 3's deletions
@@ -205,7 +218,7 @@ merged `tokens.css` is the pre-#178 state this step splits.
 The stamps exist to mark which vendored copy a file was copied from, so the project
 can tell drift from drift. Once the package is the source of truth and the alias
 array resolves it, the stamps are dead weight *and* lie (they still say
-`@0.1.0`/`@0.10.0` while the project runs `@v0.2.0`). Remove them from every file
+`@0.1.0`/`@0.10.0` while the project runs `@v0.2.1`). Remove them from every file
 step 1 triaged, in the same commit as the deletions, so a later `git blame`/diff
 shows the swap and the stamp-removal as one change. The stamps on the kept forks
 remain until each one resolves (step 1's promote-or-keep decision).
@@ -219,22 +232,29 @@ count is the visible guard that the fork survived the swap. A consumer more than
 one minor behind the newest donor tag — or whose kept count grew since last
 recorded — is a `sync` row.
 
-### Guard: the `"use client"` directive gap
+### Closed gap: the `"use client"` directive (ADR-0006)
 
-At tag `v0.2.0` the package's `ui/` leaves ship **without** the `"use client"`
-directive the consumer's vendored copies carry (48 of the package's 49 `ui/`
-leaves lack it; hk-crm's copies carry it). The
-donor's own gallery is client-rooted (`createRoot` + `HashRouter` +
-`next-themes`' `ThemeProvider`), so the donor never exercises a `ui/` leaf's server
-boundary — the gap is invisible there and only surfaces in a real Next SSR
-consumer: delete a project copy of a directive-carrying leaf so the alias resolves
-the directive-less package copy, and the file's RSC boundary flips, crashing with
-`f.createContext is not a function`. This is why step 3 deletes only
-**directive-consistent** files (hk-crm's 3: `icon-avatar`, `segmented-control`,
-`tooltip` — the only identicals whose package copy also lacks the directive, so
-the boundary does not change). The donor-side fix lives in the
-`package-ui-leaves-use-client-directive-gap` ticket; until it lands, a consumer at
-`v0.2.0` must keep every directive-carrying `ui/` leaf as a project file.
+The hazard this section used to document is closed. At `v0.2.0` the package's
+`ui/` leaves shipped **without** the `"use client"` directive the consumer's
+vendored copies carry (48 of the package's 49 `ui/` leaves lacked it; hk-crm's
+copies carried it). The donor's own gallery is client-rooted (`createRoot` +
+`HashRouter` + `next-themes`' `ThemeProvider`), so it never exercises a `ui/`
+leaf's server boundary — the gap was invisible there and only surfaced in a real
+Next SSR consumer: let the alias resolve the directive-less package copy of a
+directive-carrying leaf and the file's RSC boundary flips, crashing with
+`f.createContext is not a function`. The donor-side fix landed as
+`package-ui-leaves-use-client-directive-gap` (PR #234, **ADR-0006**): 97
+consumer-measured `ui/` leaves now carry the directive — 34 of the 41
+implementation leaves — guarded as `verify-exports` **invariant 7** so the donor
+can never quietly regress to the directive-less surface again. The 7 leaves that
+still carry none are the donor's deliberate server-safe set
+(`accordion`, `calendar`, `cell-input`, `color-field`, `icon-avatar`,
+`progress`, `segmented-control`). The v0.2.1 re-validation (the step-1 measurement
+above, recorded in the radar sync row below and the `## Outcome` of
+`package-tag-post-v0-2-0-sync`) deletes every identical `ui/` file — all 30
+directive-consistent — and both gates pass, proving the gap is gone on the
+consumer side too. A consumer at `v0.2.0` (or earlier) still must keep every
+directive-carrying `ui/` leaf as a project file.
 
 ## Measured caveats (context, not a 5th wiring line)
 
