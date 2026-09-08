@@ -313,11 +313,11 @@
       "since": "2026-06-15"
     },
     {
-      "item": "donor package tag lag (installed donor tag per consumer)",
+      "item": "donor package tag lag (installed donor tag + kept-file count, per consumer)",
       "projects": [
-        "none yet — first install is the throwaway proof at tag v0.2.0 (2026-09-07, scratch dir, not committed)"
+        "none yet — first install is the throwaway proof at tag v0.2.0 (2026-09-07, scratch dir, not committed); hk-crm's dry run at v0.2.0 would record tag v0.2.0 + 46 ui/ kept (25 directive-asymmetric identicals + 8 forked + 13 consumer-only; 3 directive-consistent deleted) + full layout/ + archetypes/ kept (docs/PACKAGE.md, Migrating a vendored consumer)"
       ],
-      "action": "record each consumer's installed `design-baseline#<tag>` here as installs land (docs/PACKAGE.md); a consumer more than one minor behind the newest donor tag is a sync row — four consumers on four different tags is the fork problem with better labels, and the tag is the stamp that replaces per-file vendor stamps (STACK.md hazard 5).",
+      "action": "record each consumer's installed `design-baseline#<tag>` AND its kept-file count here as installs land (docs/PACKAGE.md, Migrating a vendored consumer step 5) — shadowing is invisible at the import site, so the kept-file count is the only visible guard that a fork survived the swap; a consumer more than one minor behind the newest donor tag, or whose kept count grew since last recorded, is a sync row — four consumers on four different tags is the fork problem with better labels, and the tag is the stamp that replaces per-file vendor stamps (STACK.md hazard 5).",
       "since": "2026-09-07"
     }
   ]

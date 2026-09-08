@@ -98,3 +98,61 @@ the archetype-convergence design spec settle the shape; this ticket lands it.
   — the relativization that makes C3's "no alias entry for internals" true
 - ADR-0004 — appearance locality; its "`ui/` stays vendored" clause is what P2,
   and now C2, narrow
+
+## Outcome (2026-09-08 — dry run + docs landed)
+
+**Dry run (Acceptance).** Scratch copy of hk-crm at `@59597e29` (pristine, main,
+untouched) in `/tmp/pkgdry/hk-scratch/` outside both repos, with the
+`design-baseline#v0.2.0` git dependency layered into hk's real `node_modules`,
+the four project-first `paths` entries, `transpilePackages`, and the `tokens.css`
+split onto `@import "design-baseline/tokens.layer.css"` + `@source
+"../../node_modules/design-baseline/src"`.
+
+The literal acceptance config — 28 `ui/` deletions **plus** the whole of
+`layout/` + `archetypes/` deleted — **does not pass**: the `ui/` deletions alone
+leave `npx tsc --noEmit` clean (0 resolution errors — the two-entry array
+resolves every `ui/` import into the package), but the whole-directory deletes
+produce 45 **content** errors (TS2305/2322/2353/2741/7006), all of one kind:
+hk's vendored snapshot is stale relative to v0.2.0 (`@0.1.0`/`@0.10.0` stamps)
+and carries hk-owned exports the package does not ship (`BooleanToggleCell`,
+`BoardSkeleton`, `ListSkeleton`, `detailPresentation`, `stickyOnMobile`, …), so
+hk's own pages stop type-checking against the package's newer archetype
+signatures. The blanket delete therefore assumes the consumer's corpus
+**matches** the installed tag — a stale `cp -R` snapshot does not — and the
+project-first array (C2) is what makes the mismatch survivable.
+
+**The corrected, corpus-consistent config passes both gates:**
+
+| gate | result |
+|---|---|
+| `npx tsc --noEmit` | exit 0 — **0 resolution errors** (the mechanism `pkg` deferred: the project-first entry resolves hk's 13 consumer-only + 8 forked + 25 asymmetric files to the project; the package entry resolves the 3 deleted to `node_modules/`) |
+| `next build` (Next 16, Turbopack) | exit 0 — all 33 routes; `/companies/[id]` builds (dynamic, ƒ) |
+| layer tokens in built CSS | `bg-success` / `animate-pulse` / `text-destructive` present — the package layer `@theme` reached the build via the two-deep `@source` |
+| `ui/` kept-file count (C6) | **46 kept** (25 + 8 + 13), 3 deleted |
+
+**Triage detail (step 1).** Of the 36 `ui/` primitives hk shares with the
+package, normalising vendor-stamp / `"use client"` / `@/-vs-relative` collapses
+**28 to identical** (the spec's "28 of 36") and **8 remain genuinely forked**
+(`alert`, `badge`, `button`, `confirmation-dialog`, `error-boundary`,
+`file-field`, `form`, `state-view`; `confirmation-dialog` and `state-view` are
+**locale** — permanent consumer files). Beyond the shared 36, hk keeps **13
+consumer-only `ui/` files** the package has none of. So of hk's 49 `ui/` files:
+25 identical-but-directive-asymmetric + 8 forked + 13 consumer-only = **46
+kept**, 3 identical **and** directive-consistent (`icon-avatar`,
+`segmented-control`, `tooltip`) deleted. `layout/` (18 files, 0 hk-only) and
+`archetypes/` (88 files, 13 hk-owned structural) are kept whole.
+
+**The `"use client"` gap is the load-bearing guard.** At v0.2.0 48 of the
+package's 49 `ui/` leaves lack the `"use client"` directive hk's copies carry;
+the donor's client-rooted gallery never exercises a `ui/` leaf's server boundary,
+so the gap is invisible there and only surfaces in a real Next SSR consumer.
+A/B reproduced the failure: deleting one directive-carrying leaf's project copy
+so the alias resolves the directive-less package copy flips the file's RSC
+boundary and crashes `next build` page-data collection with
+`f.createContext is not a function` — which is exactly what deleting hk's
+`sidebar.tsx` did. This is why step 3 deletes only directive-consistent files.
+**Filed as donor ticket `package-ui-leaves-use-client-directive-gap` (PR #232,
+landed main @922479e)**; the runbook's guard is written against that ticket.
+
+**Not committed:** the scratch copy and its `node_modules` layering stay out of
+both repos per Acceptance. hk-crm is untouched.
