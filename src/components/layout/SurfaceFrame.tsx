@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import type { ClassValue } from "clsx";
 import {

@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import { SectionCard } from "../../layout/SectionCard";
 import { cn } from "../../../lib/utils";

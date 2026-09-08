@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import { Sheet, SheetContent } from "../../ui/sheet";
 import { cn } from "../../../lib/utils";

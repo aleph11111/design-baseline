@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import { ChevronLeft } from "lucide-react";
 import { HeadingRow } from "./HeadingRow";

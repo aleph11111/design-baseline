@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../../ui/sheet";
 import { SurfaceFrame } from "../../layout/SurfaceFrame";

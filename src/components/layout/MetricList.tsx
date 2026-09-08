@@ -1,3 +1,4 @@
+"use client";
 /**
  * MetricList / MetricRow — the compact, vertical "figures at a glance" readout.
  *

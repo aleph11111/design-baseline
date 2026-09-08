@@ -3,8 +3,9 @@
 // Covers the invariants of `scripts/verify-exports.mjs` against SYNTHETIC
 // inputs and throwaway trees, so a predicate failing open (or no longer
 // matching its own tree) is caught without a broken donor tree. The
-// CLI-facing surface gets two subprocess runs: the clean exit (real donor
-// tree) and a broken exit (missing barrel directive in a fixture).
+// CLI-facing surface gets three subprocess runs: the clean exit (real donor
+// tree), a broken barrel exit (missing barrel directive in a fixture), and a
+// broken leaf exit (a consumer-set leaf missing its directive).
 //
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -18,6 +19,7 @@ import {
   firstStatementIsUseClient,
   layerDeclaresBrandValues,
   brandFileIsMergedShape,
+  consumerLeavesMissingDirective,
 } from "./verify-exports.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -149,11 +151,41 @@ describe("token-split invariants (spec T4/T5)", () => {
   });
 });
 
+describe("consumerLeavesMissingDirective (invariant 7, ADR-0006)", () => {
+  it("passes when every set leaf starts with the directive", () => {
+    const { dir, put } = fixtureTree();
+    try {
+      put("scripts/consumer-directive-set.json", JSON.stringify({ files: ["src/components/ui/a.tsx"] }));
+      put("src/components/ui/a.tsx", '"use client";\nexport const A = 1;\n');
+      expect(consumerLeavesMissingDirective(dir)).toEqual([]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("flags a dropped directive and a missing set file", () => {
+    const { dir, put } = fixtureTree();
+    try {
+      put("scripts/consumer-directive-set.json",
+        JSON.stringify({ files: ["src/components/ui/a.tsx", "src/components/ui/b.tsx"] }));
+      put("src/components/ui/a.tsx", '"use client";\nexport const A = 1;\n');
+      put("src/components/ui/b.tsx", 'import * as R from "react";\nexport const B = 2;\n'); // no directive
+      expect(consumerLeavesMissingDirective(dir)).toEqual(["src/components/ui/b.tsx"]);
+      rmSync(join(dir, "scripts/consumer-directive-set.json"));
+      expect(consumerLeavesMissingDirective(dir)).toEqual([
+        "scripts/consumer-directive-set.json (missing or unreadable — re-derive, see its header)",
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("CLI exit codes", () => {
-  it("exits 0 on the clean donor tree and reports 6/6 ok", () => {
+  it("exits 0 on the clean donor tree and reports 7/7 ok", () => {
     const { status, stdout } = runScript(root);
     expect(status).toBe(0);
-    expect(stdout).toContain("verify:exports — 0 failing invariant(s), 6/6 ok");
+    expect(stdout).toContain("verify:exports — 0 failing invariant(s), 7/7 ok");
   });
 
   it("exits 1 when a barrel's directive is missing (fixture)", () => {
@@ -167,6 +199,9 @@ describe("CLI exit codes", () => {
       put("src/components/archetypes/report/index.ts", 'export {};\n'); // no directive
       put("src/styles/tokens.layer.css", "/* clean layer */\n@theme {\n  --radius: .5rem;\n}\n");
       put("src/styles/tokens.css", "/* brand */\n@import \"./tokens.layer.css\";\n");
+      // An empty consumer set keeps invariant 7 quiet so this fixture fails
+      // ONLY on the barrel.
+      put("scripts/consumer-directive-set.json", JSON.stringify({ files: [] }));
       writeFileSync(
         join(dir, "package.json"),
         JSON.stringify({
@@ -179,6 +214,35 @@ describe("CLI exit codes", () => {
       expect(status).toBe(1);
       expect(stdout).toContain("FAIL");
       expect(stdout).toContain("src/components/archetypes/report/index.ts");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("exits 1 when a consumer-set leaf dropped its directive (invariant 7)", () => {
+    const { dir, put } = fixtureTree();
+    try {
+      // Barrels carry the directive (invariant 3 quiet); the one ui/ leaf in
+      // the frozen set lost its directive — the exact regression this invariant
+      // guards (a consumer dropping the directive off a copied ui/ file).
+      put("src/components/layout/index.ts", '"use client";\nexport {};\n');
+      put("src/components/ui/sidebar.tsx", 'import * as R from "react";\nexport const S = 1;\n');
+      put("scripts/consumer-directive-set.json",
+        JSON.stringify({ files: ["src/components/ui/sidebar.tsx"] }));
+      put("src/styles/tokens.layer.css", "/* clean layer */\n@theme {\n  --radius: .5rem;\n}\n");
+      put("src/styles/tokens.css", "/* brand */\n@import \"./tokens.layer.css\";\n");
+      writeFileSync(
+        join(dir, "package.json"),
+        JSON.stringify({
+          name: "fixture",
+          exports: { "./layout": "./src/components/layout/index.ts" },
+          files: ["src/components"],
+        }),
+      );
+      const { status, stdout } = runScript(dir);
+      expect(status).toBe(1);
+      expect(stdout).toContain("consumer-measured leaves");
+      expect(stdout).toContain("src/components/ui/sidebar.tsx");
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import { AlertTriangle, type LucideIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "./alert";

@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import { SidebarProvider } from "../ui/sidebar";
 import { TooltipProvider } from "../ui/tooltip";

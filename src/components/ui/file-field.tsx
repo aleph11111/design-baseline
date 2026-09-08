@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import { FileText, Loader2, Upload, X } from "lucide-react";
 import { Button } from "./button";
