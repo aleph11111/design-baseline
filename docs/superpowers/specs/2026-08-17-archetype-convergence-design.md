@@ -338,13 +338,12 @@ collapse is also what makes the entity-scoped stats decision self-enforcing:
 after the collapse there is one call site, so the five-of-twelve KPI-strip
 inconsistency cannot recur.
 
-**Phase 5 — delete the compensating machinery.** `server/archetypeDrift.ts`,
-`server/methodologyAdoption.ts`, most of `server/archetypeShapeAudit.ts`, the
-four `MANIFEST.json` forks, the per-file vendor stamps and
-`docs/design-baseline-chrome.json` exist only to ask whether copies are still the
-same. A package makes the question meaningless. Kept: `docs/promotion-radar.json`
-and `/promote-archetype`, the adherence lint, and the LLM audit narrowed to its
-one genuine job.
+**Phase 5 — delete the compensating machinery.** Sharpened against shipped
+reality in [Phase `drop-drift-machinery`](#phase-drop-drift-machinery--retire-the-copy-comparand)
+below; that section supersedes the design-level sketch this paragraph used to
+carry. Its correction, in one line: a package does not make the question
+meaningless on its own — it makes the *comparand* wrong, and the machinery keeps
+asking with a broken one until the comparand is replaced.
 
 ## Verification
 
@@ -1018,3 +1017,197 @@ verifies both at once or neither.
 - Registry versus git tag, still (P7). The first real install is the input that
   question was waiting on, and it is this phase's dry run — but the answer is
   `drop-drift-machinery`'s to make, alongside tag cadence.
+
+---
+
+## Phase drop-drift-machinery — retire the copy comparand
+
+Sharpened 2026-09-08, after p0 / p1 / lint / warn-drain / pkg / token-split /
+consumer-migration landed. Supersedes the design-level Phase-5 sketch above,
+which assumed the machinery becomes deletable the moment a package exists.
+
+### What changed under this phase
+
+**The gate is unmet, and it is four times wider than the phase title reads.**
+Zero consumers have installed. hk-crm — the one consumer `consumer-migration`
+made installable-onto — still carries 49 files under `src/components/ui/`, 23
+archetype directories, 49 files under `docs/archetypes/` and 102 per-file vendor
+stamps. `~/.claude/state/archetype-drift-flags.json` is live and non-empty
+across three repos (brickshop-manager's `grouped-list` at `1.3` against the
+donor's `3.0`, `matrix-grid` at `1.3` against `2.3`). Deleting the scanners now
+blinds real staleness, which is exactly what the coding-dashboard child ticket
+already says. Taken literally, the phase is blocked on four consecutive repeats
+of `consumer-migration`.
+
+**But migration does not silence the machinery — it makes it lie.** This is the
+finding that makes the phase actionable before the first install.
+`archetypeDrift.ts`'s chrome axis (`CHROME_MARKERS`, ~`:157`) treats
+`src/styles/tokens.css` as proof that chrome is installed. `token-split` made
+that file the **project-owned brand half**, which a migrated consumer keeps
+forever by design. The axis then reads `docs/design-baseline-chrome.json` for a
+version; `docs-retire` deletes that file; the absent-or-corrupt branch returns
+`state: "unstamped"`. So a consumer that follows the runbook exactly reports a
+permanent chrome flag, and the repos that did the right thing become the noisiest
+rows in the fleet. The MANIFEST axis behaves correctly by contrast — a repo with
+no local manifest is skipped (`archetypeDrift.ts`, ~`:229`), so that half already
+decommissions itself per consumer.
+
+**The donor carries two version numbers with one meaning between them.**
+`package.json` says `0.2.1` — tagged, installable, what a consumer actually
+resolves. `docs/archetypes/MANIFEST.json`'s `plugin.version` says `0.10.2`, and
+`archetypeDrift.ts` (~`:212`) reads *that* as the chrome-bundle comparand.
+`PLUGIN-CONTRACT.md:64` documents `plugin.version` as the **contract** version —
+"bump on breaking changes to this shape". The scanner co-opted a contract number
+as a bundle stamp, which is precisely the roadmap's Context complaint: *one
+hand-bumped number standing in for the whole 44-component shell*. The two numbers
+disagree by an order of magnitude because they were never measuring the same
+thing.
+
+**`archetypeDrift.ts` is not all copy-comparison.** Its `LocalArchetypeEntry`
+axis reports project-local, versionless archetypes — shapes a project defined
+for itself that the donor never absorbed — and its own comment states that the
+molecule-only Radar structurally cannot see them. That is promotion-candidate
+discovery, which the roadmap's Phase-5 keep-list already claims ("discovering
+that two projects share a pattern worth hoisting"). A wholesale file deletion
+would take it out with the copy comparison.
+
+**The deletions already have a decomposed owner.** coding-dashboard's
+`dashboard-drop-drift-machinery` (`status: blocked`, gate 5) enumerates the
+modules, the client columns, the three state files and the docs, and already
+splits the land: the archetype half clears on `consumer-migration`, the
+methodology half only on `docs-retire` + `fleet-commands`, because
+`methodologyAdoption.ts` compares donor methodology-doc `version:` fields against
+consumer copies. Nothing here re-decomposes that; this phase re-scopes it.
+
+### Decisions
+
+| # | Decision | Rationale |
+|---|---|---|
+| E1 | The phase stays **donor + dashboard-side**. Consumer install PRs remain consumer-session work, per `consumer-migration`'s C7. The blocking gate changes from "a consumer actually consumes" to "the machinery is correct for a migrated world" | The donor's CI can never verify an hk-crm PR, and the correctness fix is *prerequisite* to the first migration rather than gated behind it — ship it after the first install and install #1 spends its whole life emitting a false flag |
+| E2 | The chrome axis and the MANIFEST-version axis **collapse into one**: the consumer's installed `design-baseline` dependency range against the donor's tag. `docs/design-baseline-chrome.json` loses its last reader | The installed tag is the only comparand that survives the channel swap. It is also strictly better in the copy world's terms — it is written by the package manager rather than hand-bumped, so it cannot go stale against the thing it claims to stamp |
+| E3 | `plugin.version` reverts to its documented meaning — the **contract shape version only**. The bundle/installed version is `package.json`'s, which is the tag. `PLUGIN-CONTRACT.md`'s Versioning section says so explicitly | One number per meaning. `designPlugin.ts` already reads `plugin.version` as the contract version; only the drift scanner misread it. Fixing the reader without naming the rule in the contract leaves the next reader free to misread it again |
+| E4 | `LocalArchetypeEntry` **survives in place** — the module shrinks around it, no new file | Ladder rule 2: it already lives in the module that keeps existing. Splitting promotion-candidate discovery into its own file would be a new file for one function with one caller |
+| E5 | Deletion is **per-repo and automatic, not an event**. The modules delete when the scan returns empty — the machinery's own output is its deletion trigger | The manifest axis already skips unadopted repos; under E2 the tag axis reports a migrated repo correctly instead of flagging it. Any explicit "consumers still copy-vendored: N" counter would be a second hand-maintained number of exactly the `design-baseline-chrome.json` kind this roadmap exists to kill |
+| E6 | `methodologyAdoption.ts` and the copy half of `archetypeShapeAudit.ts` are **not this phase's**. They stay on the child ticket's own gate: `docs-retire` + `fleet-commands` | The child ticket's split is correct and measured. Pulling the methodology half forward would delete the only signal that consumer methodology docs are stale while those docs still exist |
+| E7 | Consumer-side artifacts — per-file vendor stamps, the four `design-baseline-chrome.json` files, the four `MANIFEST.json` forks, the `docs/archetypes/` corpora — belong to **`docs-retire`**. This phase removes their last *reader*; `docs-retire` removes the *files* | They are double-listed in the roadmap's Phase-5 and Phase-6 bullets. Reader-then-file is the only safe order, and it puts each artifact in exactly one phase. This section supersedes the roadmap's Phase-5 prose on that point |
+| E8 | The dashboard code lands via the existing `dashboard-drop-drift-machinery`, **re-scoped rather than re-filed**, and its `blocked_reason` is rewritten to E1's gate | The ticket is gate-scored 5 with an accurate module inventory. Re-filing would lose the inventory and the phase split for a title change |
+| E9 | **Git tag, not a registry** — the inherited P7 question, answered. Tag cadence is demand-driven: a tag is cut when a consumer needs a change, not on a schedule | `consumer-migration`'s dry run resolved a git dependency through a Next build with no publish infrastructure at all. A registry buys distribution to machines that do not have the donor checked out, and no such consumer exists. Scheduled tagging would re-introduce a version number that moves without a reason behind it |
+
+### The replacement axis, concretely
+
+Everything the chrome axis and the manifest-version axis do collapses to one
+read of the consumer's `package.json`:
+
+```ts
+// the whole comparand, in the package world
+const dep = consumerPkg.dependencies?.["design-baseline"];   // "github:…#v0.2.1" | undefined
+if (!dep) return null;                                       // not a package consumer — copy-world axes still apply
+const installed = dep.match(/#v?([\d.]+)/)?.[1];             // "0.2.1"
+return isNewer(donorPkg.version, installed) ? { state: "behind", installed, donor: donorPkg.version } : null;
+```
+
+`CHROME_MARKERS`, `CHROME_STAMP`, `scanChrome`, `ChromeStampEntry` and the
+`plugin.version` read all go. A repo with no `design-baseline` dependency falls
+through to the existing copy-world axes unchanged, which is how the three
+unmigrated consumers keep their signal while hk-crm stops producing one.
+
+### Ownership split
+
+| Artifact | Repo | Phase | Action |
+|---|---|---|---|
+| `PLUGIN-CONTRACT.md` Versioning section | design-baseline | **this phase** | State that the bundle version is `package.json`'s / the tag, and `plugin.version` is the contract shape only |
+| `MANIFEST.json` `plugin.version` | design-baseline | **this phase** | Stops moving with `src/` changes; bumps only on a contract-shape break |
+| `archetypeDrift.ts` chrome + manifest-version axes | coding-dashboard | **this phase**, via the re-scoped child | Replaced by the tag axis (E2) |
+| `archetypeDrift.ts` `LocalArchetypeEntry` | coding-dashboard | — | Kept (E4) |
+| `archetype-drift-flags.json` chrome fields, `client/src/features/design/` chrome column | coding-dashboard | **this phase**, via the child | Deleted with the axis |
+| `methodologyAdoption.ts`, `archetypeShapeAudit.ts` copy half | coding-dashboard | `docs-retire` / `fleet-commands` | Untouched here (E6) |
+| `moleculeAudit.ts`, `adoptionScan.ts`, `designPlugin.ts`, promotion radar, `docs/audit-signals.json` | both | — | Kept — signal rubric, not copy comparison |
+| Vendor stamps, `design-baseline-chrome.json` files, MANIFEST forks, `docs/archetypes/` corpora | consumers | `docs-retire` | Files deleted there; this phase only removes their reader (E7) |
+| The hk-crm install PR itself | hk-crm | — | Consumer-session work against `PACKAGE.md`'s runbook (E1/C7) |
+
+### Scope boundary
+
+This phase makes the machinery correct for a migrated world and shrinks it to
+the one comparand that survives. It does **not**:
+
+- Execute any consumer's install. hk-crm's channel swap runs from an hk-crm
+  session against `docs/PACKAGE.md`'s "Migrating a vendored consumer" runbook.
+- Delete `archetypeDrift.ts`, `methodologyAdoption.ts` or `archetypeShapeAudit.ts`
+  as files. Three consumers still produce real copy-world flags; the modules go
+  when the scan returns empty (E5).
+- Touch any consumer repo's files (E7), retire any donor doc (`donor-docs`), or
+  delete a fleet command (`fleet-commands`). `MANIFEST.json`'s `plugin.actions`
+  still name `/style-baseline` and `/style-archetypes`; re-pointing them at the
+  package install is `donor-docs`' bullet, not this one.
+- Narrow the LLM shape audit to its "should this be an archetype?" job. That is
+  the surviving half of `archetypeShapeAudit.ts` and moves on the same gate as
+  the copy half (E6).
+
+### Verification
+
+Phase `drop-drift-machinery` is done when all of these hold:
+
+1. `docs/PLUGIN-CONTRACT.md`'s Versioning section states that the installed /
+   bundle version is `package.json`'s (equal to the git tag) and that
+   `plugin.version` is the contract shape version only, bumped on a shape break.
+2. `grep -rn "design-baseline-chrome" ~/Documents/dev/coding-dashboard/server
+   ~/Documents/dev/coding-dashboard/client/src` returns nothing outside
+   `docs/backlog/archive/` and `docs/adr/`.
+3. **The F2 regression fixture**: a repo with `"design-baseline": "…#v0.2.1"` in
+   `package.json`, a project-owned `src/styles/tokens.css`, no
+   `docs/archetypes/MANIFEST.json` and no `docs/design-baseline-chrome.json`
+   produces **zero** flags. Today that same repo reports `state: "unstamped"`,
+   so this test fails before the change and passes after — it is the phase's
+   whole point in one assertion.
+4. A fixture repo pinned at `#v0.2.0` against a donor `package.json` at `0.2.1`
+   reports `behind` exactly once, on the tag axis, with no chrome row.
+5. A fixture repo with **no** `design-baseline` dependency and a local
+   `docs/archetypes/MANIFEST.json` still reports its version drift unchanged —
+   the three unmigrated consumers keep their signal.
+6. `LocalArchetypeEntry` rows still appear for a repo carrying a versionless
+   namespaced archetype, and `keyCollidesWithBaseline` still fires.
+7. coding-dashboard `npm test` green; the Design tab renders with no chrome
+   column and no chrome-derived state string in `designStates.ts`.
+8. Donor gates unchanged: `npx tsc --noEmit` clean, `node scripts/lint-design.mjs`
+   0 errors, `node scripts/verify-exports.mjs` 7/7 ok, `npm run gallery:build` ok.
+   (`npm test` carries the known `Sidebar.test.tsx` jsdom `localStorage`
+   failure, unrelated to this phase.)
+
+The class-level acceptance: after this phase, a consumer that migrates
+correctly produces **no flag at all**, and one that falls behind its tag
+produces exactly one. The question "are these copies still the same" is not
+answered better — it stops being asked, per repo, at the moment that repo stops
+having copies.
+
+### Ticket batch
+
+| ticket | depends_on |
+|---|---|
+| `plugin-version-contract-vs-bundle-split` | — |
+
+One donor ticket. The dashboard work is not re-filed: coding-dashboard's
+existing `dashboard-drop-drift-machinery` carries it, re-scoped per E8 — its
+archetype half becomes the E2 axis replacement rather than a deletion, its
+methodology half is unchanged, and its `blocked_reason` moves to E1's gate. That
+re-scope is an edit in that repo's backlog, executed from a coding-dashboard
+session, and it is what unblocks the ticket that has been blocked since
+2026-09-06.
+
+The donor ticket is separable and lands first because the scanner's replacement
+axis needs a comparand whose meaning is settled: with `plugin.version` still
+doubling as a bundle stamp, the dashboard change would have two candidate
+numbers to read and no document saying which is wrong.
+
+### Deferred to the decompose loop
+
+- Whether `moleculeAudit.ts`'s signal rubric needs any change in the package
+  world. It scans source with ripgrep and does not compare copies, so the
+  presumption is no — but its per-repo `@source`-scanned surface changes when a
+  consumer's primitives move into `node_modules`, and the first migrated
+  consumer is the input to that question.
+- Whether the surviving LLM shape audit should read the package's archetype
+  contracts directly rather than a consumer's vendored copy. Same gate: it needs
+  one migrated consumer to be answerable, and it belongs to `docs-retire`'s land.
+- Whether `LocalArchetypeEntry` eventually belongs in the promotion radar rather
+  than in the drift module. It stays put under E4; the question reopens only when
+  the drift module's last copy-world axis dies, which is E5's trigger.
