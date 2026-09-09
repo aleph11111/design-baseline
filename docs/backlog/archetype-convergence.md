@@ -85,8 +85,7 @@ phases:
   - name: drop-drift-machinery
     title: Delete the copy-comparison drift and adoption machinery
     tickets: []
-    open: true
-    spec_anchor: '## Phases 2–5 — design level only'
+    spec_anchor: '## Phase drop-drift-machinery — retire the copy comparand'
   - name: docs-retire
     title: >-
       Retire World A docs in each migrated consumer: eight methodology docs, adoption-plan, three
