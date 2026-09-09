@@ -1211,3 +1211,243 @@ numbers to read and no document saying which is wrong.
 - Whether `LocalArchetypeEntry` eventually belongs in the promotion radar rather
   than in the drift module. It stays put under E4; the question reopens only when
   the drift module's last copy-world axis dies, which is E5's trigger.
+
+---
+
+## Phase docs-retire — retire the copies, ship the successor
+
+Sharpened 2026-09-09, after p0 / p1 / lint / warn-drain / pkg / token-split /
+consumer-migration / drop-drift-machinery landed. Supersedes the roadmap's
+Phase-6 bullets, which are wrong on three of their five items in ways only
+measurement shows.
+
+### What changed under this phase
+
+**The gate is unmet in the same way, and the same answer applies.** Zero
+consumers have installed: `grep '"design-baseline"'` across `hk-crm`,
+`controlling-app`, `mistra`, `brickshop-manager`, `my-finance-app` and `pmo`
+`package.json` files returns nothing. Taken literally — *"in each migrated
+consumer"* — this phase has no target at all. `drop-drift-machinery` hit the
+same wall and answered it correctly: the donor-side half is *prerequisite* to
+the first migration rather than gated behind it. Ship the successor and the
+order before the first consumer deletes anything, or install #1 deletes a doc
+whose replacement does not exist yet.
+
+**Deletion has no successor today.** `package.json`'s `files` is
+`["src/components", "src/lib", "src/hooks", "src/utils", "src/styles"]`. The
+package ships **no docs**. So the roadmap's *"delete the eight methodology
+docs"* currently means *delete them and read nothing* — a consumer still has to
+answer "which archetype is this page?" after installing, and
+`CHOOSING-A-SURFACE.md` is the only thing that answers it. The four surviving
+methodology docs total 68 KB; the whole `docs/` tree is 4.5 MB.
+
+**Deleting the consumer MANIFEST fork kills the axis the previous phase
+deliberately kept.** `archetypeDrift.ts`'s `LocalArchetypeEntry`
+(~`:224`–`:240`) reads *the consumer's* `docs/archetypes/MANIFEST.json` and
+reports its **versionless** entries — the project's own namespaced shapes, the
+promotion-candidate discovery E4 spared by name. Measured: `hk-crm`,
+`controlling-app` and `mistra` carry pure baseline forks (22 / 22 / 11 entries,
+zero local slugs), but `brickshop-manager` carries six local-only slugs —
+`detail-view`, `settings-form`, `domain-hub`, `lookup`, `feed`, `item-selector`
+— and they are the only live rows that axis has. A wholesale file deletion
+takes E4 out from the consumer side one phase after `drop-drift-machinery`
+protected it from the dashboard side.
+
+**A third hand-maintained number for one meaning, exactly E3's shape.** The
+donor's `MANIFEST.json` `methodology[].version` says `placement 1.2`,
+`stack 1.1`, `adoption 1.2`. The donor's own doc frontmatter says `1.3`, `1.2`,
+`1.3`. `methodologyAdoption.ts` compares each consumer's copy against the
+**MANIFEST** number, so `controlling-app` sitting at `PLACEMENT 1.2` reports
+*fresh* while genuinely one bump behind, and `hk-crm`'s `STACK.md` at `1.3`
+reads as ahead of a donor claiming `1.1` whose file actually says `1.2`. Three
+numbers, one fact. The roadmap's Context complaint — *one hand-bumped number
+standing in for the whole shell* — recurs here at doc granularity.
+
+**`methodologyAdoption.ts` does not die on this phase.** Its `AdherenceLint`
+interface computes gate 3 — `lint:design` in `scripts`, `scripts/lint-design.mjs`
+present, `_adherence.json` present — and the adherence lint is on the roadmap's
+explicit keep-list, in this phase's own title. Same shape as E4: the module
+shrinks around the half that survives. `dashboard-drop-drift-machinery`'s split
+("the methodology half only on `docs-retire` + `fleet-commands`") is right about
+the gate and wrong about the extent.
+
+**What the phase title's counts actually resolve to.** *Eight methodology docs*:
+six are the MANIFEST `methodology[]` array, one is `SURFACES.md`, one is a stray
+`FLEET-AUDIT.md` in `hk-crm` that `/adopt-baseline` never distributes
+(`adopt-baseline.md:413` lists it as donor-internal) and that arrived by hand.
+*Adoption-plan*: `docs/ADOPTION-STATUS.md`, which only `controlling-app` has —
+`hk-crm` migrated by hand and never got one. *Three JSON configs*:
+`_adherence.json` (**kept**, by this phase's own title),
+`docs/design-baseline-chrome.json` (dead — `drop-drift-machinery` already
+removed its reader), and `docs/archetypes/MANIFEST.json` (**shrinks**, per
+above). One deletion, one shrink, one keep — not three deletions.
+*`design:`/`patterns:` Doc Paths keys*: only `controlling-app` carries a
+`design:` key at all; all four carry `patterns:`, and for `brickshop-manager`
+and `mistra` it points at a corpus that holds project-local shapes.
+
+### Decisions
+
+| # | Decision | Rationale |
+|---|---|---|
+| F1 | The phase is **donor + dashboard-side**. Consumer doc deletions run from that consumer's own session against a runbook step. The blocking gate changes from "a consumer has migrated" to "the retirement has a successor and a safe order" | E1's precedent, unchanged: the donor's CI can never verify an hk-crm PR, and shipping the successor *after* the first install means install #1 spends its life with a dangling reference |
+| F2 | Consumer docs get the **same three-way ownership split `ui/` got in C2** — package-owned, dead, project-owned-kept — not a flat delete list | The roadmap's "no reader left" is false for two of the artifacts it names. An ownership table is the only form that survives measurement, and it is the form the fleet already reads for `ui/` |
+| F3 | The package **ships the four surviving methodology docs**: `CHOOSING-A-SURFACE.md`, `PLACEMENT.md`, `STACK.md`, `DETAIL-PAGE-TEARDOWN-PLAYBOOK.md` enter `files`. `ADOPTION.md` and `ADOPTION-QUALITY.md` do **not** — they are donor-internal and die in the consumer with no successor | 68 KB, one array entry, and the doc a consumer reads is then pinned to the tag it installed. Reading the donor checkout instead re-introduces the skew this roadmap exists to kill, one level down. Shipping all of `docs/` puts 4.5 MB of backlog, ADRs and audits into every `node_modules` |
+| F4 | A consumer's `docs/archetypes/MANIFEST.json` **shrinks to its versionless local entries**; it is deleted only when that leaves it empty | Preserves E4's `LocalArchetypeEntry` from the consumer side. Empty for `hk-crm` / `controlling-app` / `mistra` (delete the file), six rows for `brickshop-manager` (keep the file, drop the fork) |
+| F5 | `SURFACES.md`, `_adherence.json` + the lint, and an **unversioned** `ADOPTION.md` are **project-owned and kept** | `hk-crm`'s `SURFACES.md` is 30 filled rows of its own binding resolution, read at review; `/adopt-baseline` scaffolds it once and never refreshes it. `methodologyAdoption.ts` already models the unversioned-`ADOPTION.md` case as *uncomparable, not stale* — the consumer's adoption record living at the donor's contract path |
+| F6 | `MANIFEST.json`'s `methodology[].version` field **is removed**; each doc's own frontmatter `version:` is the single source, and the scanner reads it | One number per meaning, E3's rule applied to docs. The scanner already calls `splitFrontmatter` on the consumer copy — reading the donor's the same way is a smaller module, not a bigger one, and it keeps the staleness axis *correct* for the three unmigrated consumers instead of silently under-reporting |
+| F7 | `methodologyAdoption.ts` **shrinks around its `AdherenceLint` half**, and `dashboard-drop-drift-machinery`'s split is corrected to say so. No new file | E4's ladder rule again: the surviving half already lives in the module that keeps existing. The lint gate is on this phase's own keep-list |
+| F8 | Doc Paths: the **`design:` key is removed** (`controlling-app` only). The **`patterns:` key is kept** wherever the corpus retains local shapes and removed only where the corpus was a pure baseline fork | Not a blanket removal. `brickshop-manager`'s `patterns:` points at six project-local archetypes it authored before the donor existed; `mistra`'s names project-local shapes in its own description. Removing the key there blinds the project to its own corpus |
+| F9 | `brickshop-manager` archives its pre-donor `.md` corpus to `docs/archive/archetypes-2026/` per the roadmap, but its **MANIFEST stays live** at `docs/archetypes/MANIFEST.json` carrying the six local rows | The roadmap's archive bullet is about prose. Archiving the axis input alongside it would silently do what F4 exists to prevent |
+| F10 | The consumer-side deletions land as **step 6 of `PACKAGE.md`'s "Migrating a vendored consumer" runbook**, not as a separate doc | C7's shape. The runbook already carries five ordered steps ending at "record the tag"; doc retirement is the sixth, and a consumer executing steps 1–5 and then hunting for a second document is how a half-migration happens |
+
+### The ownership table, concretely
+
+`docs/PACKAGE.md`'s runbook gains this, one row per artifact a vendored
+consumer carries:
+
+| Artifact | Owner after the swap | Action |
+|---|---|---|
+| `docs/CHOOSING-A-SURFACE.md`, `docs/PLACEMENT.md`, `docs/STACK.md`, `docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md` | package | Delete the copy; read `node_modules/design-baseline/docs/<name>` |
+| `docs/ADOPTION.md` **with** `version:` frontmatter | — | Delete. The contract it carries is `donor-docs`' rewrite, and "adopted" is a version in `package.json` |
+| `docs/ADOPTION.md` **without** `version:` | project | Keep — it is the project's own adoption record at a donor path (`hk-crm`) |
+| `docs/ADOPTION-QUALITY.md`, `docs/ADOPTION-STATUS.md` | — | Delete. The nine-gate checklist has no meaning once `/adopt-baseline` is gone (`fleet-commands`) |
+| `docs/FLEET-AUDIT.md` in a consumer | — | Delete. Donor-internal; the copy in `hk-crm` was never distributed by `/adopt-baseline` |
+| `docs/SURFACES.md` | project | Keep. Its reader is review, not adoption |
+| `_adherence.json`, `scripts/lint-design.mjs`, the `lint:design` script | project | Keep, retargeted. This phase's title says so |
+| `docs/design-baseline-chrome.json` | — | Delete. `drop-drift-machinery` removed its last reader (E2) |
+| `docs/archetypes/<slug>.md` + `<slug>.baseline.md` forks | package | Delete. The closed API's props are the contract; `donor-docs` collapses the donor pair |
+| `docs/archetypes/MANIFEST.json` | project, shrunk | Drop every entry carrying a `version:` (baseline adoptions). Keep versionless local entries. Delete the file only if none remain (F4) |
+| Per-file `design-baseline@<ver>` vendor stamps | — | Delete — already runbook step 4; the installed tag is the stamp |
+| `## Doc Paths` `design:` key | — | Remove |
+| `## Doc Paths` `patterns:` key | conditional | Remove iff `docs/archetypes/` is now gone; keep if F4 left local rows |
+
+### The version comparand, concretely
+
+`MANIFEST.json`'s `methodology[]` entries lose their `version` field:
+
+```jsonc
+{ "slug": "placement", "kind": "methodology", "displayName": "Placement",
+  "status": "locked", "doc": "docs/PLACEMENT.md", "governs": [ … ] }
+```
+
+and `methodologyAdoption.ts` reads the donor's own frontmatter through the
+`splitFrontmatter` it already imports:
+
+```ts
+const donorVersion = splitFrontmatter(await readFile(join(donorPath, m.doc), "utf8")).data.version;
+```
+
+Nothing else reads the field — `designPlugin.ts` reads `plugin.version` (E3's
+contract number) and the client renders the scanner's output, not the manifest.
+The comparison a consumer's copy is measured against becomes the same string
+`/adopt-baseline --update` would write, which is what the module's own docblock
+already claims it is.
+
+### Scope boundary
+
+This phase gives consumer doc retirement a successor, an order, and a correct
+version comparand. It does **not**:
+
+- Delete a single file in any consumer repo. Every deletion in the ownership
+  table runs from that consumer's session against runbook step 6 (F1/C7).
+- Execute any consumer's install. Still `PACKAGE.md`'s runbook, still consumer
+  work.
+- Rewrite `ADOPTION.md`, collapse the donor's `<slug>.md` / `<slug>.baseline.md`
+  pairs, re-point `PLUGIN-CONTRACT`'s actions, or retire `FLEET-AUDIT.md` **in
+  the donor**. All four are `donor-docs`. This phase only decides that the
+  *consumer's copies* die and which four survive as package-shipped.
+- Delete `/adopt-baseline`, `/style-baseline` or `/style-archetypes`. That is
+  `fleet-commands`. Until then `/adopt-baseline --update` can re-vendor a
+  deleted doc into a migrated consumer — an opt-in manual command, so the
+  exposure is a mis-run rather than a mechanism, and the phase order stays
+  reader-then-file-then-writer.
+- Delete `methodologyAdoption.ts`, `archetypeShapeAudit.ts`'s copy half, or
+  narrow the LLM shape audit. The lint gate survives in the first (F7); the
+  other two move on `fleet-commands` per E6, once the docs they compare are
+  actually gone from the fleet rather than merely retirable.
+- Touch `docs/audit-signals.json`, `moleculeAudit.ts` or the promotion radar.
+  Signal rubric, not copy comparison — kept, as in E-table.
+
+### Verification
+
+Phase `docs-retire` is done when all of these hold:
+
+1. `package.json`'s `files` array carries the four package-owned methodology
+   docs and neither `docs/ADOPTION.md`, `docs/ADOPTION-QUALITY.md`,
+   `docs/FLEET-AUDIT.md` nor any other `docs/` path; `npm pack --dry-run`
+   lists exactly those four `docs/` entries.
+2. `node scripts/verify-exports.mjs` still reports **7/7 ok**. The docs are
+   files, not exports — an invariant moving here is a regression.
+3. `docs/archetypes/MANIFEST.json`'s `methodology[]` entries carry **no**
+   `version` field —
+   `python3 -c "import json;print([d.get('version') for d in json.load(open('docs/archetypes/MANIFEST.json'))['methodology']])"`
+   prints all `None` — and `docs/PLUGIN-CONTRACT.md` states that a methodology
+   doc's version is its own frontmatter, alongside E3's two other numbers.
+4. `docs/PACKAGE.md`'s "Migrating a vendored consumer" section carries a
+   **step 6** with the ownership table verbatim, including the conditional
+   `patterns:` row and the MANIFEST-shrink rule.
+5. **The F4 regression fixture** (coding-dashboard): a repo whose
+   `docs/archetypes/MANIFEST.json` holds only versionless local entries still
+   produces its `LocalArchetypeEntry` rows and its `keyCollidesWithBaseline`
+   flag, with **zero** baseline-adoption drift rows. Today `brickshop-manager`
+   is that repo with a fork attached; after F4 it is that repo cleanly.
+6. **The F6 fixture**: a consumer copy at `PLACEMENT 1.2` against a donor
+   `docs/PLACEMENT.md` whose frontmatter says `1.3` reports **stale**. Today it
+   reports fresh, because the MANIFEST says `1.2` — this test fails before the
+   change and passes after.
+7. `methodologyAdoption.ts`'s `AdherenceLint` gate still computes for every
+   scanned repo, and `dashboard-drop-drift-machinery`'s scope text names the
+   surviving half rather than scheduling the module for deletion.
+8. Donor gates unchanged: `npx tsc --noEmit` clean,
+   `node scripts/lint-design.mjs` 0 errors, `npm run gallery:build` ok.
+   (`npm test` carries the known `Sidebar.test.tsx` jsdom `localStorage`
+   failure, unrelated to this phase.)
+
+The class-level acceptance: after this phase, a consumer that runs the runbook
+end to end carries **no doc it did not write**, every doc it deletes has a
+named successor or a stated reason it has none, and the fleet's methodology
+staleness signal is measured against one number per doc rather than three.
+
+### Ticket batch
+
+| ticket | depends_on |
+|---|---|
+| `package-ships-methodology-docs-single-version-source` | — |
+| `package-doc-retirement-ownership-and-runbook-step` | `package-ships-methodology-docs-single-version-source` |
+
+Two. The first is the successor and the comparand — the `files` array (F3) and
+the `methodology[].version` removal with the frontmatter read (F6) — and it
+lands first because the ownership table's "read
+`node_modules/design-baseline/docs/…`" row is a false instruction until the
+package actually ships those files. The second is the ownership table and
+runbook step 6 (F2/F4/F5/F8/F9/F10), which is one ticket because a table
+without the order, or an order that omits the MANIFEST-shrink rule, is the
+half-landed change that costs `brickshop-manager` its six local rows.
+
+The dashboard work is **not re-filed**: coding-dashboard's existing
+`dashboard-drop-drift-machinery` carries it, re-scoped per E8 a second time —
+its methodology half becomes *shrink around `AdherenceLint`* (F7) plus the
+frontmatter comparand (F6), not a module deletion. That re-scope is an edit in
+that repo's backlog, executed from a coding-dashboard session.
+
+### Deferred to the decompose loop
+
+- Whether the four package-shipped methodology docs should eventually be one
+  doc. `CHOOSING-A-SURFACE` and `PLACEMENT` answer adjacent questions and
+  `donor-docs` is already collapsing the archetype pairs; whether the
+  cross-archetype docs collapse the same way is that phase's call, informed by
+  which of the four a migrated consumer actually opens.
+- Whether `_adherence.json`'s `targets` retarget should be a package-shipped
+  default rather than a per-consumer hand edit. Every consumer makes the same
+  edit today (`["src/app/(app)"]`), which is the rule-of-2 signal — but the
+  lint runner is vendored, not packaged, and packaging it is `fleet-commands`'
+  question once `/adopt-baseline` stops shipping it.
+- Whether a consumer's kept `SURFACES.md` wants a machine-readable form the
+  promotion radar could read. It is the one artifact in the table that holds
+  fleet-relevant project knowledge and has no reader outside a human review.
+  One consumer keeping it proves nothing; four keeping it is the signal.
+- Whether `archetypeShapeAudit.ts`'s surviving "should this be an archetype?"
+  half should read the package's contracts. Inherited from
+  `drop-drift-machinery`'s deferred list and still gated on a migrated
+  consumer — F3 makes it *answerable* (the contracts now ship), but not before
+  one repo installs.

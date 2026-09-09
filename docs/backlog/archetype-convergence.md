@@ -93,8 +93,10 @@ phases:
       Retire World A docs in each migrated consumer: eight methodology docs, adoption-plan, three
       JSON configs, docs/archetypes/, vendor stamps, design:/patterns: Doc Paths keys; keep
       _adherence lint
-    tickets: []
-    open: true
+    tickets:
+      - package-ships-methodology-docs-single-version-source
+      - package-doc-retirement-ownership-and-runbook-step
+    spec_anchor: '## Phase docs-retire — retire the copies, ship the successor'
   - name: donor-docs
     title: >-
       Collapse donor spec + .baseline.md pairs into one doc per closed archetype; rewrite
