@@ -61,7 +61,23 @@ the hub usable without a baseline, and what lets someone bring their own.
 
 ## Versioning
 
-The `plugin.version` is the **contract** version (bump on breaking changes to
-this shape). Per-archetype `version` / `source_spec_version` are the **content**
+Two version numbers, one meaning each — do not read one where the other is
+meant:
+
+- **Installed / bundle version** — `package.json`'s `version`, equal to the
+  git tag (e.g. `v0.2.1`). This is the number a consumer resolves when it
+  depends on `design-baseline`, and the number that stands for the shipped
+  shell (chrome + primitives). A change under `src/components/` or
+  `src/styles/` bumps `package.json` and cuts a tag — demand-driven cadence:
+  a tag is cut when a consumer needs the change, not on a schedule.
+- **Contract shape version** — `plugin.version` in
+  `docs/archetypes/MANIFEST.json`. This is the **contract** version: bump on
+  a breaking change to the `plugin` block's shape (a new discoverable layer,
+  a reshaped surface/action contract) and on nothing else. It does **not**
+  move when `src/components/` or `src/styles/` change — chrome and primitive
+  changes are `package.json` + tag, per the rule above — so no reader can
+  derive an installed/bundle version from it.
+
+Per-archetype `version` / `source_spec_version` are the **content**
 versions (bumped when a primitive/spec changes) and drive drift detection. See
 `docs/archetypes/MANIFEST.json` and `docs/TAXONOMY.md`.
