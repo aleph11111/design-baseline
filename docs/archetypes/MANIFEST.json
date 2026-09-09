@@ -377,7 +377,6 @@
       "slug": "choosing-a-surface",
       "kind": "methodology",
       "displayName": "Choosing a surface",
-      "version": "2.0",
       "status": "locked",
       "doc": "docs/CHOOSING-A-SURFACE.md",
       "governs": [
@@ -394,7 +393,6 @@
       "slug": "placement",
       "kind": "methodology",
       "displayName": "Placement",
-      "version": "1.2",
       "status": "locked",
       "doc": "docs/PLACEMENT.md",
       "governs": [
@@ -416,7 +414,6 @@
       "slug": "stack",
       "kind": "methodology",
       "displayName": "Stack contract",
-      "version": "1.1",
       "status": "locked",
       "doc": "docs/STACK.md"
     },
@@ -424,7 +421,6 @@
       "slug": "adoption",
       "kind": "methodology",
       "displayName": "Adoption contract",
-      "version": "1.2",
       "status": "locked",
       "doc": "docs/ADOPTION.md"
     },
@@ -432,7 +428,6 @@
       "slug": "adoption-quality",
       "kind": "methodology",
       "displayName": "Adoption quality (Axis C)",
-      "version": "1.0",
       "status": "locked",
       "doc": "docs/ADOPTION-QUALITY.md"
     },
@@ -440,7 +435,6 @@
       "slug": "detail-page-teardown-playbook",
       "kind": "methodology",
       "displayName": "Detail-page teardown-first playbook",
-      "version": "1.0",
       "status": "locked",
       "doc": "docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md"
     }

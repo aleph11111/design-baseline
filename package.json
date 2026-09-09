@@ -31,7 +31,11 @@
     "src/lib",
     "src/hooks",
     "src/utils",
-    "src/styles"
+    "src/styles",
+    "docs/CHOOSING-A-SURFACE.md",
+    "docs/PLACEMENT.md",
+    "docs/STACK.md",
+    "docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md"
   ],
   "peerDependencies": {
     "react": "^19.0.0",
