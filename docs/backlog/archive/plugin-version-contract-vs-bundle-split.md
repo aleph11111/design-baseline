@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-08'
-status: ready
+status: done
 gate:
   score: 5
   passed:
