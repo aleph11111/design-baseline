@@ -42,9 +42,23 @@ for (const entry of manifest.archetypes) {
   }
 }
 
-if (mismatches) {
-  console.error(`\nverify:manifest — ${mismatches} source_spec_version mismatch(es)`);
+// Methodology docs have no deliverable counter (no primitives, demo, or
+// blueprint) — the MANIFEST copy of a methodology doc's `version` is a mirror
+// that goes stale. Each doc's own frontmatter `version:` is the single source
+// (PLUGIN-CONTRACT.md, Versioning section), so a `version` field on any
+// methodology[] entry is a reintroduced hand-maintained number and must not
+// exist. This loop covers the second array the :30 archetypes loop never
+// reached, which is why the methodology drift class was never caught.
+const methodologyVersions = (manifest.methodology ?? []).filter((e) => 'version' in e);
+
+if (mismatches || methodologyVersions.length) {
+  if (mismatches) {
+    console.error(`\nverify:manifest — ${mismatches} source_spec_version mismatch(es)`);
+  }
+  for (const e of methodologyVersions) {
+    console.error(`verify:manifest — methodology doc "${e.slug}" carries a "version" field; remove it, the doc's frontmatter is the single source`);
+  }
   process.exit(1);
 }
-console.log('verify:manifest — all source_spec_version fields match');
+console.log('verify:manifest — all source_spec_version fields match; no methodology version mirrors');
 process.exit(0);

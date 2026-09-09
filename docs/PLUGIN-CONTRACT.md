@@ -81,3 +81,14 @@ meant:
 Per-archetype `version` / `source_spec_version` are the **content**
 versions (bumped when a primitive/spec changes) and drive drift detection. See
 `docs/archetypes/MANIFEST.json` and `docs/TAXONOMY.md`.
+
+A **methodology doc's version is its own frontmatter** `version:` — the
+single source for that doc, alongside the two numbers above. Methodology docs
+(`docs/CHOOSING-A-SURFACE.md`, `docs/PLACEMENT.md`, `docs/STACK.md`,
+`docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`) have no primitives, demo, or blueprint,
+so they carry no deliverable counter: the `methodology[]` entries in
+`docs/archetypes/MANIFEST.json` must therefore carry **no** `version` field.
+A mirror there goes stale, and a scanner comparing a consumer copy against it
+under-reports staleness; the comparison key is the doc's own frontmatter.
+`scripts/verify-manifest-versions.mjs` fails if a `methodology[]` entry ever
+carries a `version` field.
