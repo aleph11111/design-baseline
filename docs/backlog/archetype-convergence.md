@@ -28,6 +28,7 @@ tickets:
   - package-tag-post-v0-2-0-sync
   - plugin-version-contract-vs-bundle-split
   - package-ships-methodology-docs-single-version-source
+  - package-doc-retirement-ownership-and-runbook-step
 phases:
   - name: p0
     title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
