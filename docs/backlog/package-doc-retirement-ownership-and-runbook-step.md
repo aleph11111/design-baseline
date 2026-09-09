@@ -2,15 +2,25 @@
 area: archetypes
 opened: '2026-09-09'
 status: ready
-value: normal
-model: opus
-model_reason: "the ownership table is a judgement per artifact (package-owned vs dead vs project-owned-kept) and the MANIFEST-shrink rule has to preserve an axis in another repo; wrong calls here delete project knowledge in four consumers"
-depends_on: [package-ships-methodology-docs-single-version-source]
 gate:
   score: 5
-  passed: [title, context, what-to-do, acceptance, related]
+  passed:
+    - title
+    - context
+    - what-to-do
+    - acceptance
+    - related
   failed: []
   graded_at: '2026-09-09T00:00:00Z'
+value: normal
+model: opus
+model_reason: >-
+  the ownership table is a judgement per artifact (package-owned vs dead vs project-owned-kept) and
+  the MANIFEST-shrink rule has to preserve an axis in another repo; wrong calls here delete project
+  knowledge in four consumers
+depends_on:
+  - package-ships-methodology-docs-single-version-source
+roadmap: archetype-convergence
 ---
 
 # Add a doc-retirement ownership table and step 6 to the vendored-consumer runbook
