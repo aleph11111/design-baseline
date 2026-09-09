@@ -2,14 +2,22 @@
 area: archetypes
 opened: '2026-09-09'
 status: ready
-value: high
-model: sonnet
-model_reason: "mechanical — one package.json files entry, one field removal across six MANIFEST entries, one loop added to scripts/verify-manifest-versions.mjs; every decision is settled in the spec's F3/F6"
 gate:
   score: 5
-  passed: [title, context, what-to-do, acceptance, related]
+  passed:
+    - title
+    - context
+    - what-to-do
+    - acceptance
+    - related
   failed: []
   graded_at: '2026-09-09T00:00:00Z'
+value: high
+model: sonnet
+model_reason: >-
+  mechanical — one package.json files entry, one field removal across six MANIFEST entries, one loop
+  added to scripts/verify-manifest-versions.mjs; every decision is settled in the spec's F3/F6
+roadmap: archetype-convergence
 ---
 
 # Ship the four surviving methodology docs in the package and make each doc's frontmatter its only version
