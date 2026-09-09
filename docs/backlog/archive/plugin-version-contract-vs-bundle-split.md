@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-08'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -58,8 +58,8 @@ one is wrong.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap, phase `drop-drift-machinery`, decision E3
-- [docs/superpowers/specs/2026-08-17-archetype-convergence-design.md](../superpowers/specs/2026-08-17-archetype-convergence-design.md) — "## Phase drop-drift-machinery — retire the copy comparand"
-- [archive/archetype-doc-manifest-version-drift.md](archive/archetype-doc-manifest-version-drift.md) — the same two-counters-one-meaning shape, at archetype rather than plugin level
-- [archive/archetype-manifest-version-verify-script.md](archive/archetype-manifest-version-verify-script.md) — the verify script that made archetype version fields self-checking
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap, phase `drop-drift-machinery`, decision E3
+- [docs/superpowers/specs/2026-08-17-archetype-convergence-design.md]() — "## Phase drop-drift-machinery — retire the copy comparand"
+- [archive/archetype-doc-manifest-version-drift.md](../archive/archetype-doc-manifest-version-drift.md) — the same two-counters-one-meaning shape, at archetype rather than plugin level
+- [archive/archetype-manifest-version-verify-script.md](../archive/archetype-manifest-version-verify-script.md) — the verify script that made archetype version fields self-checking
 - coding-dashboard `dashboard-drop-drift-machinery` — the cross-repo child this unblocks
