@@ -25,7 +25,7 @@ roadmap: archetype-convergence
 ## Context
 
 Two defects in the donor's methodology layer, both blocking the `docs-retire` phase of
-[archetype-convergence](archetype-convergence.md) (spec section *"## Phase docs-retire — retire the
+[archetype-convergence](../archetype-convergence.md) (spec section *"## Phase docs-retire — retire the
 copies, ship the successor"*, decisions F3 and F6).
 
 **No successor.** `package.json`'s `files` is `["src/components", "src/lib", "src/hooks",
@@ -45,7 +45,7 @@ genuinely one bump behind, and `hk-crm`'s `STACK.md` at `1.3` reads as ahead of 
 meaning) applied one level down, and it is a live under-report against three unmigrated consumers.
 
 Distinct from the archived
-[archetype-doc-manifest-version-drift](archive/archetype-doc-manifest-version-drift.md), which
+[archetype-doc-manifest-version-drift](../archive/archetype-doc-manifest-version-drift.md), which
 decided the **archetypes[]** doc-vs-MANIFEST counters are independent by design (spec contract vs
 deliverable iteration). A methodology doc has no primitives, demo or blueprint, so it has no
 deliverable counter — the MANIFEST copy is a mirror, and mirrors go stale.
@@ -72,8 +72,8 @@ deliverable counter — the MANIFEST copy is a mirror, and mirrors go stale.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — the roadmap; phase `docs-retire`, decisions F3 and F6
-- [archive/archetype-doc-manifest-version-drift.md](archive/archetype-doc-manifest-version-drift.md) — decided `archetypes[]` doc-vs-MANIFEST counters are independent by design; methodology docs are the opposite case
-- [archive/archetype-manifest-version-verify-script.md](archive/archetype-manifest-version-verify-script.md) — shipped `scripts/verify-manifest-versions.mjs`, whose loop never covered `methodology[]`
-- [archive/plugin-version-contract-vs-bundle-split.md](archive/plugin-version-contract-vs-bundle-split.md) — E3's one-number-per-meaning rule, applied here one level down
-- [archive/package-ui-ownership-and-vendored-consumer-runbook.md](archive/package-ui-ownership-and-vendored-consumer-runbook.md) — the runbook this ticket's successor docs are consumed by
+- [archetype-convergence.md](../archetype-convergence.md) — the roadmap; phase `docs-retire`, decisions F3 and F6
+- [archive/archetype-doc-manifest-version-drift.md](../archive/archetype-doc-manifest-version-drift.md) — decided `archetypes[]` doc-vs-MANIFEST counters are independent by design; methodology docs are the opposite case
+- [archive/archetype-manifest-version-verify-script.md](../archive/archetype-manifest-version-verify-script.md) — shipped `scripts/verify-manifest-versions.mjs`, whose loop never covered `methodology[]`
+- [archive/plugin-version-contract-vs-bundle-split.md](../archive/plugin-version-contract-vs-bundle-split.md) — E3's one-number-per-meaning rule, applied here one level down
+- [archive/package-ui-ownership-and-vendored-consumer-runbook.md](../archive/package-ui-ownership-and-vendored-consumer-runbook.md) — the runbook this ticket's successor docs are consumed by
