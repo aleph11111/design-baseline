@@ -26,6 +26,7 @@ tickets:
   - donor-status-token-roles-badge-alert-backport
   - package-ui-ownership-and-vendored-consumer-runbook
   - package-tag-post-v0-2-0-sync
+  - plugin-version-contract-vs-bundle-split
 phases:
   - name: p0
     title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
@@ -84,7 +85,8 @@ phases:
     spec_anchor: '## Phase consumer-migration — swap hk-crm''s copy channel for the package'
   - name: drop-drift-machinery
     title: Delete the copy-comparison drift and adoption machinery
-    tickets: []
+    tickets:
+      - plugin-version-contract-vs-bundle-split
     spec_anchor: '## Phase drop-drift-machinery — retire the copy comparand'
   - name: docs-retire
     title: >-

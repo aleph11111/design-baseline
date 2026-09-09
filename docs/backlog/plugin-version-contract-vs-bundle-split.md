@@ -2,9 +2,6 @@
 area: tooling
 opened: '2026-09-08'
 status: ready
-value: high
-model: sonnet
-model_reason: "the decision is already made in the roadmap spec (drop-drift-machinery, E3); the work is a documented contract edit plus a grep over the readers"
 gate:
   score: 5
   passed:
@@ -15,6 +12,12 @@ gate:
     - related
   failed: []
   graded_at: '2026-09-08T00:00:00.000Z'
+value: high
+model: sonnet
+model_reason: >-
+  the decision is already made in the roadmap spec (drop-drift-machinery, E3); the work is a
+  documented contract edit plus a grep over the readers
+roadmap: archetype-convergence
 ---
 
 # Split MANIFEST plugin.version's contract meaning from the installed bundle version
