@@ -31,7 +31,7 @@ roadmap: archetype-convergence
 *"record the tag"*. It says nothing about the World-A doc corpus a vendored consumer also carries —
 six methodology docs, `docs/SURFACES.md`, `docs/design-baseline-chrome.json`, the
 `docs/archetypes/` fork with its `MANIFEST.json`, and the `design:`/`patterns:` `## Doc Paths` keys.
-That retirement is the `docs-retire` phase of [archetype-convergence](archetype-convergence.md)
+That retirement is the `docs-retire` phase of [archetype-convergence](../archetype-convergence.md)
 (spec section *"## Phase docs-retire — retire the copies, ship the successor"*), and per its F1/F10
 it belongs in the same runbook as step 6 — a consumer that runs steps 1–5 and then hunts for a
 second document is how a half-migration happens.
@@ -100,7 +100,7 @@ The phase title's counts resolve differently too: *three JSON configs* is one de
 - [[package-ships-methodology-docs-single-version-source]] — must ship first: the table's
   "read `node_modules/design-baseline/docs/…`" rows are a false instruction until the package actually
   ships those four files
-- [archetype-convergence.md](archetype-convergence.md) — the roadmap; phase `docs-retire`, decisions F2, F4, F5, F8, F9, F10
-- [archive/package-ui-ownership-and-vendored-consumer-runbook.md](archive/package-ui-ownership-and-vendored-consumer-runbook.md) — shipped the five-step runbook this ticket extends, and the `ui/` ownership split this table mirrors for docs
-- [archive/plugin-version-contract-vs-bundle-split.md](archive/plugin-version-contract-vs-bundle-split.md) — removed `docs/design-baseline-chrome.json`'s last reader; this ticket schedules the file
-- [archive/docs-drift-adoption-plan-transitional-doc-never-removed.md](archive/docs-drift-adoption-plan-transitional-doc-never-removed.md) — the prior instance of a transitional doc outliving its reader
+- [archetype-convergence.md](../archetype-convergence.md) — the roadmap; phase `docs-retire`, decisions F2, F4, F5, F8, F9, F10
+- [archive/package-ui-ownership-and-vendored-consumer-runbook.md](../archive/package-ui-ownership-and-vendored-consumer-runbook.md) — shipped the five-step runbook this ticket extends, and the `ui/` ownership split this table mirrors for docs
+- [archive/plugin-version-contract-vs-bundle-split.md](../archive/plugin-version-contract-vs-bundle-split.md) — removed `docs/design-baseline-chrome.json`'s last reader; this ticket schedules the file
+- [archive/docs-drift-adoption-plan-transitional-doc-never-removed.md](../archive/docs-drift-adoption-plan-transitional-doc-never-removed.md) — the prior instance of a transitional doc outliving its reader
