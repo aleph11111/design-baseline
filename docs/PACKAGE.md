@@ -232,6 +232,56 @@ count is the visible guard that the fork survived the swap. A consumer more than
 one minor behind the newest donor tag — or whose kept count grew since last
 recorded — is a `sync` row.
 
+### Step 6 — Retire the doc corpus the swap left without a reader
+
+Steps 1–5 swapped the *component* copies for the package. The vendored consumer
+carries a second, doc-shaped corpus — the methodology docs, `SURFACES.md`, the
+archetype pair forks and their `MANIFEST.json`, the chrome JSON, and the
+`design:`/`patterns:` `## Doc Paths` keys — and that retirement is the sixth
+step of this runbook, not a separate document: a consumer that runs steps 1–5 and
+then hunts for a second document is how a half-migration happens. It is the same
+three-way ownership split `ui/` got in step 1 (C2) — package-owned, dead,
+project-owned-kept — not a flat delete list, because "no reader left" is false
+for a third of the artifacts. Two caveats before the table. The `node_modules/…`
+rows are a true instruction only against a tag that ships those docs
+(`package-ships-methodology-docs-single-version-source`) — the package does not
+ship `docs/ADOPTION.md` or `docs/ADOPTION-QUALITY.md`, which is what their rows
+say. And until `fleet-commands` removes `/adopt-baseline`, its `--update` can
+still re-vendor a doc step 6 deleted — an opt-in manual command, so the
+exposure is a mis-run rather than a mechanism; the order stays reader, then
+file, then writer.
+
+| Artifact | Owner after the swap | Action |
+|---|---|---|
+| `docs/CHOOSING-A-SURFACE.md`, `docs/PLACEMENT.md`, `docs/STACK.md`, `docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md` | package | Delete the copy; read `node_modules/design-baseline/docs/<name>` |
+| `docs/ADOPTION.md` **with** `version:` frontmatter | — | Delete. The contract it carries is `donor-docs`' rewrite, and "adopted" is a version in `package.json` |
+| `docs/ADOPTION.md` **without** `version:` | project | Keep — it is the project's own adoption record at a donor path (`hk-crm`) |
+| `docs/ADOPTION-QUALITY.md`, `docs/ADOPTION-STATUS.md` | — | Delete. The nine-gate checklist has no meaning once `/adopt-baseline` is gone (`fleet-commands`) |
+| `docs/FLEET-AUDIT.md` in a consumer | — | Delete. Donor-internal; the copy in `hk-crm` was never distributed by `/adopt-baseline` |
+| `docs/SURFACES.md` | project | Keep. Its reader is review, not adoption |
+| `_adherence.json`, `scripts/lint-design.mjs`, the `lint:design` script | project | Keep, retargeted. This phase's title says so |
+| `docs/design-baseline-chrome.json` | — | Delete. `drop-drift-machinery` removed its last reader (E2) |
+| `docs/archetypes/<slug>.md` + `<slug>.baseline.md` forks | package | Delete. The closed API's props are the contract; `donor-docs` collapses the donor pair |
+| `docs/archetypes/MANIFEST.json` | project, shrunk | Drop every entry carrying a `version:` (baseline adoptions). Keep versionless local entries. Delete the file only if none remain (F4) |
+| Per-file `design-baseline@<ver>` vendor stamps | — | Delete — already runbook step 4; the installed tag is the stamp |
+| `## Doc Paths` `design:` key | — | Remove |
+| `## Doc Paths` `patterns:` key | conditional | Remove iff `docs/archetypes/` is now gone; keep if F4 left local rows |
+
+**`brickshop-manager` exception (F9).** Its `docs/archetypes/` corpus predates
+the donor (its own ADR-0030, April 2026): the `.md` corpus is **archived** to
+`docs/archive/archetypes-2026/` on its migration, not deleted — but its
+`MANIFEST.json` stays **live** at `docs/archetypes/MANIFEST.json` carrying its
+six versionless local rows (`detail-view`, `settings-form`, `domain-hub`,
+`lookup`, `feed`, `item-selector`), the only live input the
+promotion-candidate axis in the dashboard reads from the consumer side. The
+archive bullet is about prose; archiving the axis input alongside it would
+silently do what the F4 shrink rule exists to prevent.
+
+Applying the table to the four measured consumers: `hk-crm` / `controlling-app`
+/ `mistra` carry no versionless local entries, so their `MANIFEST.json` shrinks
+to empty and is **deleted**; `brickshop-manager`'s shrinks to its six local
+rows and is **kept**, together with its `patterns:` key.
+
 ### Closed gap: the `"use client"` directive (ADR-0006)
 
 The hazard this section used to document is closed. At `v0.2.0` the package's
