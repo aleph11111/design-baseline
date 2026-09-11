@@ -1,7 +1,9 @@
 ---
 area: tooling
 opened: '2026-09-11'
-status: ready
+status: done
+closed: '2026-09-11'
+resolution: closed-subsumed
 value: high
 model: sonnet
 model_reason: >-
@@ -23,7 +25,7 @@ gate:
 
 ## Context
 
-The donor now distributes itself as an installable source package (`package.json` `version` == git tag, currently `0.2.1`) and `docs/PLUGIN-CONTRACT.md`'s Versioning section — shipped by [plugin-version-contract-vs-bundle-split](archive/plugin-version-contract-vs-bundle-split.md) — settles the two numbers: the installed/bundle version is `package.json`'s / the tag, while `docs/archetypes/MANIFEST.json`'s `plugin.version` is the **contract shape** version only and never moves with `src/components/` or `src/styles/`. coding-dashboard's `server/archetypeDrift.ts` still contradicts both facts. At `:212` it reads `baseline.plugin?.version` as the chrome-bundle comparand — a contract number co-opted as a bundle stamp, and the two donor numbers now disagree by an order of magnitude (`0.2.1` vs `0.10.2`). Its chrome axis (`CHROME_MARKERS` `:157`, `CHROME_STAMP` `:161`, `scanChrome` `:167`, called at `:228`, `ChromeStampEntry` `:64`/`:81`) treats the presence of `src/styles/tokens.css` as proof chrome is installed; the donor's token split made that file the **project-owned brand half**, which a correctly migrated consumer keeps forever, and the axis then reads `docs/design-baseline-chrome.json` for a version — a file migrated consumers no longer carry — so the absent-or-corrupt branch returns `state: "unstamped"`. Net effect: a consumer that follows `docs/PACKAGE.md`'s "Migrating a vendored consumer" runbook exactly emits a permanent false chrome flag, and the repos that did the right thing become the noisiest rows in the fleet. This is prerequisite to the first consumer install, not gated behind it: shipping after install #1 means install #1 spends its whole life emitting a false flag. **Cross-repo ticket** — every edit lands in `~/Documents/dev/coding-dashboard` and must be executed from a coding-dashboard session, because the donor's CI cannot verify them (spec decision E1).
+The donor now distributes itself as an installable source package (`package.json` `version` == git tag, currently `0.2.1`) and `docs/PLUGIN-CONTRACT.md`'s Versioning section — shipped by [plugin-version-contract-vs-bundle-split](../archive/plugin-version-contract-vs-bundle-split.md) — settles the two numbers: the installed/bundle version is `package.json`'s / the tag, while `docs/archetypes/MANIFEST.json`'s `plugin.version` is the **contract shape** version only and never moves with `src/components/` or `src/styles/`. coding-dashboard's `server/archetypeDrift.ts` still contradicts both facts. At `:212` it reads `baseline.plugin?.version` as the chrome-bundle comparand — a contract number co-opted as a bundle stamp, and the two donor numbers now disagree by an order of magnitude (`0.2.1` vs `0.10.2`). Its chrome axis (`CHROME_MARKERS` `:157`, `CHROME_STAMP` `:161`, `scanChrome` `:167`, called at `:228`, `ChromeStampEntry` `:64`/`:81`) treats the presence of `src/styles/tokens.css` as proof chrome is installed; the donor's token split made that file the **project-owned brand half**, which a correctly migrated consumer keeps forever, and the axis then reads `docs/design-baseline-chrome.json` for a version — a file migrated consumers no longer carry — so the absent-or-corrupt branch returns `state: "unstamped"`. Net effect: a consumer that follows `docs/PACKAGE.md`'s "Migrating a vendored consumer" runbook exactly emits a permanent false chrome flag, and the repos that did the right thing become the noisiest rows in the fleet. This is prerequisite to the first consumer install, not gated behind it: shipping after install #1 means install #1 spends its whole life emitting a false flag. **Cross-repo ticket** — every edit lands in `~/Documents/dev/coding-dashboard` and must be executed from a coding-dashboard session, because the donor's CI cannot verify them (spec decision E1).
 
 ## What to do
 
@@ -48,8 +50,37 @@ The donor now distributes itself as an installable source package (`package.json
 
 ## Related
 
-- [plugin-version-contract-vs-bundle-split.md](archive/plugin-version-contract-vs-bundle-split.md) — the donor half, shipped: settled `plugin.version` as contract-shape-only so this axis has one unambiguous comparand.
-- [archetype-convergence.md](archetype-convergence.md) — parent roadmap; this is the dashboard side of phase `drop-drift-machinery` (spec anchor `## Phase drop-drift-machinery — retire the copy comparand`, decisions E1–E8).
-- [package-ui-ownership-and-vendored-consumer-runbook.md](archive/package-ui-ownership-and-vendored-consumer-runbook.md) — wrote `docs/PACKAGE.md`'s "Migrating a vendored consumer" runbook, the exact path that trips the false chrome flag.
-- [tokens-brand-font-seam-and-split-guard.md](archive/tokens-brand-font-seam-and-split-guard.md) — made `src/styles/tokens.css` the project-owned brand half, which is why `CHROME_MARKERS` now misreads it.
-- coding-dashboard [docs/backlog/dashboard-drop-drift-machinery.md](https://github.com/aleph11111/coding-dashboard/blob/main/docs/backlog/dashboard-drop-drift-machinery.md) — edit and re-scope, never re-file (E8).
+- [plugin-version-contract-vs-bundle-split.md](../archive/plugin-version-contract-vs-bundle-split.md) — the donor half, shipped: settled `plugin.version` as contract-shape-only so this axis has one unambiguous comparand.
+- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap; this is the dashboard side of phase `drop-drift-machinery` (spec anchor `## Phase drop-drift-machinery — retire the copy comparand`, decisions E1–E8).
+- [package-ui-ownership-and-vendored-consumer-runbook.md](../archive/package-ui-ownership-and-vendored-consumer-runbook.md) — wrote `docs/PACKAGE.md`'s "Migrating a vendored consumer" runbook, the exact path that trips the false chrome flag.
+- [tokens-brand-font-seam-and-split-guard.md](../archive/tokens-brand-font-seam-and-split-guard.md) — made `src/styles/tokens.css` the project-owned brand half, which is why `CHROME_MARKERS` now misreads it.
+- coding-dashboard [docs/backlog/dashboard-drop-drift-machinery.md](https://github.com/aleph11111/coding-dashboard/blob/main/docs/backlog/archive/dashboard-drop-drift-machinery.md) — edit and re-scope, never re-file (E8).
+
+## Verdict — SUBSUMED (closed 2026-09-11)
+
+This ticket's work was already merged into coding-dashboard before this ticket
+was opened. Verified 2026-09-11 against coding-dashboard main (`6206b26`):
+
+- **PR #1009** (`fix(archetype-drift): version the bundle axis by the installed
+  pin`, commit `308c123`, merged 2026-09-09) landed the E2 axis replacement:
+  `scanBundleVersion` reads each repo's `package.json`
+  `dependencies["design-baseline"]` with `/#v?([\d.]+)/` and compares it to the
+  donor's `package.json` version via `isNewer`; `CHROME_MARKERS` /
+  `CHROME_STAMP` / `scanChrome` / `ChromeStampEntry` and the `plugin.version`
+  read are deleted; `LocalArchetypeEntry` and the copy-world MANIFEST axes
+  survive; the F2 fixtures (migrated-current → zero flags, pinned-behind → one
+  `behind` row, local-archetypes → `keyCollidesWithBaseline` fires) are in
+  `server/archetypeDrift.test.ts` — green (`node --test`, 17/17 pass).
+- The client-side chromes were replaced on the same PR — `updateBundle` /
+  `updateBundleAction` / `BundleVersionEntry` in `client/src/features/design/`;
+  only the unrelated code-hygiene `fileChrome` axis (molecule/token counts from
+  the promotion radar — a different feature) remains.
+- The acceptance gate `grep -rn "design-baseline-chrome" server client/src`
+  returns nothing outside `docs/backlog/archive/` and `docs/adr/`.
+- The E8 sibling **`dashboard-drop-drift-machinery`** was re-scoped and shipped
+  in the same PR (2026-09-09 update in its archived ticket: archetype half =
+  this axis replacement, methodology half unchanged, `blocked_reason` rewritten
+  to E1's gate) and is now `status: done` in coding-dashboard's
+  `docs/backlog/archive/`.
+
+Do not re-implement. This ticket is the donor-side record of that subsumption.
