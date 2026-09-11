@@ -1,7 +1,9 @@
 ---
 area: tooling
 opened: '2026-09-11'
-status: ready
+status: done
+closed: '2026-09-11'
+resolution: closed-subsumed
 value: high
 model: sonnet
 model_reason: >-
@@ -52,4 +54,33 @@ The donor now distributes itself as an installable source package (`package.json
 - [archetype-convergence.md](../archetype-convergence.md) — parent roadmap; this is the dashboard side of phase `drop-drift-machinery` (spec anchor `## Phase drop-drift-machinery — retire the copy comparand`, decisions E1–E8).
 - [package-ui-ownership-and-vendored-consumer-runbook.md](../archive/package-ui-ownership-and-vendored-consumer-runbook.md) — wrote `docs/PACKAGE.md`'s "Migrating a vendored consumer" runbook, the exact path that trips the false chrome flag.
 - [tokens-brand-font-seam-and-split-guard.md](../archive/tokens-brand-font-seam-and-split-guard.md) — made `src/styles/tokens.css` the project-owned brand half, which is why `CHROME_MARKERS` now misreads it.
-- coding-dashboard [docs/backlog/dashboard-drop-drift-machinery.md](https://github.com/aleph11111/coding-dashboard/blob/main/docs/backlog/dashboard-drop-drift-machinery.md) — edit and re-scope, never re-file (E8).
+- coding-dashboard [docs/backlog/dashboard-drop-drift-machinery.md](https://github.com/aleph11111/coding-dashboard/blob/main/docs/backlog/archive/dashboard-drop-drift-machinery.md) — edit and re-scope, never re-file (E8).
+
+## Verdict — SUBSUMED (closed 2026-09-11)
+
+This ticket's work was already merged into coding-dashboard before this ticket
+was opened. Verified 2026-09-11 against coding-dashboard main (`6206b26`):
+
+- **PR #1009** (`fix(archetype-drift): version the bundle axis by the installed
+  pin`, commit `308c123`, merged 2026-09-09) landed the E2 axis replacement:
+  `scanBundleVersion` reads each repo's `package.json`
+  `dependencies["design-baseline"]` with `/#v?([\d.]+)/` and compares it to the
+  donor's `package.json` version via `isNewer`; `CHROME_MARKERS` /
+  `CHROME_STAMP` / `scanChrome` / `ChromeStampEntry` and the `plugin.version`
+  read are deleted; `LocalArchetypeEntry` and the copy-world MANIFEST axes
+  survive; the F2 fixtures (migrated-current → zero flags, pinned-behind → one
+  `behind` row, local-archetypes → `keyCollidesWithBaseline` fires) are in
+  `server/archetypeDrift.test.ts` — green (`node --test`, 17/17 pass).
+- The client-side chromes were replaced on the same PR — `updateBundle` /
+  `updateBundleAction` / `BundleVersionEntry` in `client/src/features/design/`;
+  only the unrelated code-hygiene `fileChrome` axis (molecule/token counts from
+  the promotion radar — a different feature) remains.
+- The acceptance gate `grep -rn "design-baseline-chrome" server client/src`
+  returns nothing outside `docs/backlog/archive/` and `docs/adr/`.
+- The E8 sibling **`dashboard-drop-drift-machinery`** was re-scoped and shipped
+  in the same PR (2026-09-09 update in its archived ticket: archetype half =
+  this axis replacement, methodology half unchanged, `blocked_reason` rewritten
+  to E1's gate) and is now `status: done` in coding-dashboard's
+  `docs/backlog/archive/`.
+
+Do not re-implement. This ticket is the donor-side record of that subsumption.
