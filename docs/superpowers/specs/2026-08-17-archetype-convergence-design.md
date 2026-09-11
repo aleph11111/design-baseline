@@ -1451,3 +1451,262 @@ that repo's backlog, executed from a coding-dashboard session.
   `drop-drift-machinery`'s deferred list and still gated on a migrated
   consumer — F3 makes it *answerable* (the contracts now ship), but not before
   one repo installs.
+
+---
+
+## Phase donor-docs — retire the mirrors, ship the contract
+
+Sharpened 2026-09-11, after p0 / p1 / lint / warn-drain / pkg / token-split /
+consumer-migration / drop-drift-machinery / docs-retire landed. Supersedes the
+roadmap's Phase-7 bullets, which are right on the target and wrong on the form
+of three of their four items.
+
+### What changed under this phase
+
+**"Closed archetype" stopped being a subset.** The roadmap wrote *"one doc per
+closed archetype"* when `detail-overview` was the only closed one. `warn-drain`
+put all eight generic archetype rules at `severity: error` over
+`src/components/archetypes/**` and drained them to zero hits, with every
+surviving appearance prop carrying a cited contract keying rule. All 22 MANIFEST
+archetypes are closed. The phase is all-22 or none; there is no partial form
+left to choose.
+
+**The split's own justification is retired by item 4 of this same phase.**
+`docs/RULES.md:9`'s rule-2 *Why* and `docs/archetypes/README.md:18` both
+justify the contract / `.baseline.md` pair as *"what makes stack-agnostic
+fit-scoring (`docs/FLEET-AUDIT.md`) possible"*, and `ARCHITECTURE.md:113`
+repeats it — *"a Tailwind-3/Next project can audit its pages against the
+contract without installing any baseline primitive."* That reader is measured
+zero: every fleet repo carrying archetypes runs the baseline stack (`hk-crm`
+`tailwind ^4` + 16 `@radix-ui` packages; `brickshop-manager` `^4.3.3` + 18).
+No dashboard code reads `reference_impl` at all. The hypothetical divergent-stack
+consumer has been the split's only cited beneficiary for four months and has
+never appeared.
+
+**What a `.baseline.md` actually holds is the shipped code, retyped.** Read end
+to end, a sibling is an import snippet, a usage block, a role→primitive map and
+the class strings already literal in the source —
+`skeleton-loader.baseline.md:26-31` is three `<ListSkeleton …/>` call forms the
+gallery demo renders live and the prop types declare. That is E3's defect at
+doc granularity: one meaning, two hand-maintained statements, and the
+`/promote-archetype` flow spends four of its steps (`:386`, `:448`, `:657`,
+`:675`) routing edits between them to keep the mirror true.
+
+**`docs-retire` shipped a dangling instruction this phase must pay off.**
+`PACKAGE.md:264` tells a migrated consumer its `docs/archetypes/<slug>.md` +
+`<slug>.baseline.md` forks are **package**-owned — "Delete." `package.json`'s
+`files` ships `src/components`, `src/lib`, `src/hooks`, `src/utils`,
+`src/styles` and the four methodology docs, and **no** `docs/archetypes/` path.
+The row is a false instruction until this phase ships the contracts. F3's
+finding, one level down and already promised to a consumer.
+
+**The `PLUGIN-CONTRACT` actions are a contract statement with no machine
+reader.** `MANIFEST.plugin.actions` declares `/style-baseline` and
+`/style-archetypes {key}` — the two commands `fleet-commands` deletes next. A
+grep of the hub's `server/` and `client/src` finds no consumer of
+`plugin.actions`; `designPlugin.ts:21` validates only `key` / `slug` per
+archetype entry. So re-pointing them is cheap, breaks nothing, and is
+**ordering-critical**: it must land before `fleet-commands`, or the connected
+plugin advertises two commands that no longer exist.
+
+**`FLEET-AUDIT.md` is not one deletable unit — it is three, and only one is
+dead.** Its *drift* half lost its comparand on `drop-drift-machinery`. Its
+*gap-finding* half is what `promotion-radar.json` already holds (16 candidates,
+3 at `watch`). But its *rubric* half is the prose spec for
+`docs/audit-signals.json`, which has three live readers on the keep-list —
+`moleculeAudit.ts:117`, `adoptionScan.ts:26`, and this donor's own
+`scripts/scan-adoption-quality.mjs` — and `ADOPTION-QUALITY.md` (read by the
+hub at `designStates.ts:811`) cross-references `FLEET-AUDIT.md` four times,
+including for its output schema and triage tier. Deleting the file before the
+salvage lands orphans a rubric three scanners still run.
+
+**`ADOPTION.md` was rewritten for package consumption two phases ago, under a
+different name.** `docs/PACKAGE.md` is 24 KB of four wiring lines, a six-step
+migration runbook and a proof matrix. `ADOPTION.md`'s nine-point checklist is
+`/adopt-baseline`'s script and dies with it on `fleet-commands`; point 6
+(vendor stamps) is already deleted by runbook step 4. Only its four-gate
+enforcement table and its upstream rule-of-2 loop have no home.
+
+**The roadmap's size acceptance is unreachable as written.** *"the donor's
+docs/ is under 250 KB"*: `docs/` is 4.6 MB, of which `audits/` is 2.5 MB
+(2.3 MB is one 2026-07 hk-crm HTML dump), `backlog/` 988 KB and
+`archetypes/` 612 KB. The 22 contracts alone are 335 KB and are the thing the
+package now ships. The measure was a proxy for "no doc without a reader" and
+is restated as that.
+
+### Decisions
+
+| # | Decision | Rationale |
+|---|---|---|
+| G1 | The phase is **donor-side**, plus exactly one edit in `coding-dashboard` (`fleet/commands/promote-archetype.md`). No consumer repo is touched | E1/F1's precedent, unchanged. The promote flow is the only writer of the artifact G2 deletes; leaving it writing siblings means the next promotion re-creates the class |
+| G2 | The `.baseline.md` sibling is **deleted, not merged**. 22 files, 133 KB | Merging preserves the mirror and doubles the contract's size; the roadmap's own rationale is *"once the archetype is a closed component, its props are the contract"*. The binding's live form is the shipped typed export plus the gallery demo, both already distributed by the package |
+| G3 | `RULES.md` rule **2 is rewritten** (one contract + the exported component, `spec` + `primitives_dir` in the MANIFEST); rule **3 is untouched**. Residue a sibling carried that the types and demo do not — a role→primitive decision such as `StateView` rendering `loadingSkeleton` verbatim — moves into the **primitive's JSDoc or its demo**, never into the contract | Keeps the contract role-only by construction rather than by a second file. The stack-agnostic property was never the split's product; rule 3 is. `lessons.md:34` already treats the documented public export as the binding's home |
+| G4 | `reference_impl` leaves every MANIFEST archetype entry, and `scripts/verify-manifest-versions.mjs` grows the guard: no entry carries `reference_impl`, no `docs/archetypes/*.baseline.md` exists | The mechanical tripwire is what stops the pair re-appearing by hand, the same way the methodology-`version` guard stopped E3's third number. Hub-safe: `designPlugin.ts:21` requires only `key`/`slug` |
+| G5 | The package **ships `docs/archetypes/`** — the 22 contracts, `MANIFEST.json`, `README.md` — via one `files` entry | Pays off `PACKAGE.md:264`. ~480 KB after G2, against F3's stated ceiling (68 KB fine, 4.5 MB not): the corpus a consumer deletes must resolve somewhere, and pinning it to the installed tag is the same argument F3 made for the four methodology docs |
+| G6 | `plugin.actions` re-points at the package install — one `install-package` action naming `docs/PACKAGE.md`'s runbook, `iterate-baseline` kept, `/promote-archetype` added as the one surviving fleet command — and `plugin.version` goes **0.10.2 → 0.11.0** | PLUGIN-CONTRACT's own rule: bump on a break to the `plugin` block's shape, and G4 + the action set are exactly that. Lands **before** `fleet-commands` so no window exists where the manifest advertises deleted commands |
+| G7 | `docs/ADOPTION.md` is **deleted** and its `methodology[]` entry with it. The four-gate enforcement table moves into `PACKAGE.md`; the upstream rule-of-2 loop moves into `PROMOTION-RADAR.md` | PACKAGE.md is the successor and already ships. Two docs for one meaning is the defect this roadmap exists to kill. F5 is unaffected: it governs a *consumer's* unversioned `ADOPTION.md`, which stays project-owned at that path |
+| G8 | `FLEET-AUDIT.md` gets the **three-way split**: the rubric half's prose moves to `ADOPTION-QUALITY.md` (its existing reader) with `audit-signals.json` unchanged as the machine form; the drift half is deleted; the gap half becomes radar candidates. The file is deleted **only after** the salvage lands | F2/C2's shape a third time. Three scanners still run the rubric; a delete-first order takes their spec out from under them |
+| G9 | `docs/audits/`: the 2.3 MB `hk-crm-adoption-2026-07/` HTML dump and the two 2026-06 dated sweeps are deleted, the sweeps only after any unpromoted row is on the radar. `2026-09-07-pkg-ui-vendored-clause-narrowing.md` and `2026-archetype-appearance-prop-audit.{md,json}` **stay** — they are cited evidence for shipped phases | The test is a live citation, not a date. A dated report whose only reader was `FLEET-AUDIT.md`'s methodology has no reader once G8 lands |
+| G10 | The roadmap's *"docs/ under 250 KB"* acceptance is **restated** as: every doc under `docs/` has a named reader, and no dated audit dump survives without a citation | 335 KB of contracts are the package's payload. A byte target that the deliverable itself blows is a proxy measuring the wrong thing |
+
+### The deletion, concretely
+
+Per archetype, three files become two and one manifest key disappears:
+
+```
+docs/archetypes/<slug>.md               kept, untouched, now package-shipped
+docs/archetypes/<slug>.baseline.md      deleted (residue → JSDoc / demo first)
+src/components/archetypes/<slug>/       unchanged — it is now the binding
+MANIFEST: "reference_impl": …           removed; "spec" + "primitives_dir" remain
+```
+
+Each contract's *"Reference implementation"* blockquote (the
+`> [`<slug>.baseline.md`](./<slug>.baseline.md)` callout at the head of all 22,
+e.g. `calendar.md:38`, `raw-input.md:33`) is replaced by one line naming the
+package import path for the archetype's primitives. `grouped-list.baseline.md:56`
+is the one sibling that delegates to another sibling; its delegation is a
+contract-level statement and moves to `grouped-list.md`.
+
+The doc-set edits that follow the deletion, each already located:
+
+- `docs/RULES.md:9` — rule 2 rewritten per G3; rule 3 (`:11`) untouched.
+- `docs/archetypes/README.md:16,18,174,186` — the pair table row, the
+  stack-agnostic *Why*, the copy list, and the deliverable-version definition.
+- `docs/ARCHITECTURE.md:44,63,111,113,133` — the artifact table row, the
+  version paragraph, the §5 description, the fit-audit justification, the
+  promotion diagram.
+- `CLAUDE.md:25,49,58` — Doc Paths gloss, the "two-doc pair" quick reference,
+  and the *contract vs. reference-implementation split is load-bearing* note,
+  which becomes *the contract is role-only; the binding is the exported
+  component* (rule 3 is what was load-bearing).
+- `docs/PLUGIN-CONTRACT.md:37,47` — the entry-key list and the bodies clause.
+- `docs/PACKAGE.md:264` — the ownership row's successor path becomes real.
+
+### The action set, concretely
+
+```jsonc
+"actions": [
+  { "id": "install-package",   "label": "Install design-baseline",
+    "command": "see docs/PACKAGE.md", "scope": "project" },
+  { "id": "promote-archetype", "label": "Promote an archetype",
+    "command": "/promote-archetype {key}", "scope": "baseline" },
+  { "id": "iterate-baseline",  "label": "Iterate design-baseline",
+    "command": "design-baseline iteration session", "scope": "baseline" }
+]
+```
+
+`adopt-baseline` and `adopt-archetype` leave the array: their commands die on
+`fleet-commands`, and a package install is not a command the hub can fire
+per-project — it is a four-line wiring change the runbook owns. The hub renders
+no action today, so the array's job until it does is to state which of the two
+worlds the plugin lives in.
+
+### Scope boundary
+
+This phase collapses the donor's archetype doc pair, ships the contracts, and
+retires the two audit-era docs. It does **not**:
+
+- Touch a consumer repo. `docs-retire`'s runbook step 6 already owns every
+  consumer deletion, and G5 is what makes its `docs/archetypes/` row true.
+- Delete `/adopt-baseline`, `/style-baseline` or `/style-archetypes`, or their
+  fleet copies. `fleet-commands`. G6 only stops the manifest advertising them.
+- Delete `audit-signals.json`, `moleculeAudit.ts`, `adoptionScan.ts`,
+  `scan-adoption-quality.mjs` or `ADOPTION-QUALITY.md`. The rubric is kept —
+  G8 moves its prose to the reader that survives.
+- Narrow `archetypeShapeAudit.ts`'s surviving "should this be an archetype?"
+  half or point it at the package's contracts. Inherited from
+  `drop-drift-machinery`'s and `docs-retire`'s deferred lists; G5 makes it
+  answerable (the contracts now ship) but it is still gated on one repo
+  installing.
+- Re-version any archetype. Deleting a doc that mirrors shipped code changes
+  no deliverable; `version` and `source_spec_version` stand. Only
+  `plugin.version` moves (G6).
+- Collapse the four package-shipped methodology docs into one. That is
+  `docs-retire`'s deferred question and still wants a migrated consumer's
+  reading behaviour to answer it.
+
+### Verification
+
+Phase `donor-docs` is done when all of these hold:
+
+1. `ls docs/archetypes/*.baseline.md` finds nothing, and
+   `python3 -c "import json;print([a.get('reference_impl') for a in json.load(open('docs/archetypes/MANIFEST.json'))['archetypes']])"`
+   prints all `None`.
+2. `node scripts/verify-manifest-versions.mjs` **fails** on a manifest with a
+   re-added `reference_impl` key and on a re-added `*.baseline.md` file — the
+   guard is tested in both directions, not merely absent-passing.
+3. `grep -rn 'baseline\.md' docs/ src/ CLAUDE.md README.md _adherence.json`
+   returns no live reference outside `docs/backlog/`, `docs/audits/` and this
+   spec.
+4. `docs/RULES.md` rule 3 is **byte-identical** to its pre-phase text, and no
+   contract names a primitive or a Tailwind class:
+   `grep -rEn 'src/components/|\bbg-|\btext-(xs|sm|lg|xl)\b' docs/archetypes/*.md`
+   finds nothing outside `README.md`.
+5. `npm pack --dry-run` lists `docs/archetypes/` — 22 contracts, `MANIFEST.json`,
+   `README.md` — and still exactly the four methodology docs, and still no other
+   `docs/` path.
+6. `node scripts/verify-exports.mjs` still reports **7/7 ok**. Docs are files,
+   not exports.
+7. `docs/archetypes/MANIFEST.json` `plugin.version` is `0.11.0`, its `actions`
+   array names no `/style-*` command, and
+   `grep -rn 'style-baseline\|style-archetypes' docs/PLUGIN-CONTRACT.md docs/archetypes/MANIFEST.json`
+   is empty.
+8. The hub still reports the plugin `connected: true` against this worktree
+   after the manifest edit (`designPlugin.ts`'s four validation steps), proving
+   G4/G6 did not break the connector.
+9. `docs/ADOPTION.md` is gone, the `adoption` entry has left `methodology[]`,
+   and both salvaged parts are findable:
+   `grep -n 'four gates\|Gate' docs/PACKAGE.md` and
+   `grep -n 'Rule of 2\|rule-of-2' docs/PROMOTION-RADAR.md`.
+10. `docs/FLEET-AUDIT.md` is gone; `ADOPTION-QUALITY.md` carries the Axis-C
+    triage tier and output-schema prose that used to cross-reference it and
+    cross-references nothing deleted; `node scripts/scan-adoption-quality.mjs`
+    still runs against `docs/audit-signals.json` unchanged.
+11. `du -sh docs/audits` is under 100 KB and every surviving file under it is
+    cited from a shipped phase's section in this spec or from an ADR.
+12. Donor gates unchanged: `npx tsc --noEmit` clean,
+    `node scripts/lint-design.mjs` 0 errors, `npm run gallery:build` ok.
+    (`npm test` carries the known `Sidebar.test.tsx` jsdom `localStorage`
+    failure, unrelated to this phase.)
+
+The class-level acceptance: after this phase, **no artifact in the donor
+restates what the shipped code already says**. An archetype has one contract,
+one component directory and one demo; a doc that would have to be re-edited
+whenever a prop changes does not exist, so it cannot go stale.
+
+### Ticket batch
+
+| ticket | depends_on |
+|---|---|
+| `archetype-baseline-sibling-retire` | — |
+| `package-ships-contracts-and-plugin-actions` | `archetype-baseline-sibling-retire` |
+| `fleet-audit-and-adoption-doc-retire` | — |
+
+Three. The first is G2/G3/G4 plus the six located doc-set edits and the
+`promote-archetype` change — one ticket because a deletion without the rule
+rewrite leaves `RULES.md` mandating a file that no longer exists, and a rule
+rewrite without the manifest guard lets the next promotion re-create it. The
+second is G5/G6, and it depends on the first because shipping
+`docs/archetypes/` before the siblings are gone ships the mirror into every
+consumer's `node_modules`. The third is G7/G8/G9/G10 — independent of both,
+since it touches no archetype artifact.
+
+### Deferred to the decompose loop
+
+- Whether `docs/archetypes/README.md` should ship in the package at all, or
+  whether the consumer-facing half of it belongs in `PACKAGE.md`. It is 22 KB
+  of donor methodology (promotion flow, version semantics) with a consumer-facing
+  head; splitting it is only worth doing once a consumer has read it.
+- Whether the contracts, once package-shipped, should lose their per-archetype
+  `version` in favour of the installed tag — the same collapse F6 performed on
+  methodology docs. Deferred because `version` still drives the hub's drift
+  axis for repos that have not installed, and `drop-drift-machinery` kept that
+  axis deliberately.
+- Which of the 22 contracts still carry an **Allowed variation** block with no
+  keying rule. D1's re-read was scoped to `detail-overview` in p1; the closed
+  API makes the rest answerable by reading the props, and a variation the
+  component can no longer express is prose describing a design space that is
+  gone.
+- Whether `ADOPTION-QUALITY.md` survives `fleet-commands`. It is the Axis-C
+  rubric's prose home after G8, and its reader is a hub ritual, not a consumer —
+  so it is donor-internal by F3's test but not dead.
