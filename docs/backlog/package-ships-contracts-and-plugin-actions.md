@@ -70,7 +70,7 @@ and `client/src` finds no consumer of `plugin.actions`, and
 
 ## Related
 
-- [archetype-baseline-sibling-retire](archetype-baseline-sibling-retire.md) — must ship first: shipping `docs/archetypes/` before the siblings are deleted puts the mirror into every consumer's `node_modules`
+- [archetype-baseline-sibling-retire](wip/archetype-baseline-sibling-retire.md) — must ship first: shipping `docs/archetypes/` before the siblings are deleted puts the mirror into every consumer's `node_modules`
 - [archetype-convergence.md](archetype-convergence.md) — roadmap, phase `donor-docs`
 - [package-doc-retirement-ownership-and-runbook-step.md](archive/package-doc-retirement-ownership-and-runbook-step.md) — wrote the ownership row this ticket makes true
 - [package-ships-methodology-docs-single-version-source.md](archive/package-ships-methodology-docs-single-version-source.md) — the `files`-array precedent (F3)

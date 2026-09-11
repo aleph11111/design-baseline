@@ -83,8 +83,8 @@ props are the binding.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — roadmap, phase `donor-docs`
-- [decouple-archetype-contract-from-reference-impl.md](archive/decouple-archetype-contract-from-reference-impl.md) — shipped the split this ticket retires
-- [style-archetypes-carry-baseline-sibling.md](archive/style-archetypes-carry-baseline-sibling.md) — taught the copy channel to carry the sibling
-- [package-ships-methodology-docs-single-version-source.md](archive/package-ships-methodology-docs-single-version-source.md) — the `methodology[].version` guard this ticket's manifest guard mirrors
+- [archetype-convergence.md](../archetype-convergence.md) — roadmap, phase `donor-docs`
+- [decouple-archetype-contract-from-reference-impl.md](../archive/decouple-archetype-contract-from-reference-impl.md) — shipped the split this ticket retires
+- [style-archetypes-carry-baseline-sibling.md](../archive/style-archetypes-carry-baseline-sibling.md) — taught the copy channel to carry the sibling
+- [package-ships-methodology-docs-single-version-source.md](../archive/package-ships-methodology-docs-single-version-source.md) — the `methodology[].version` guard this ticket's manifest guard mirrors
 - ADR-0004 — appearance locality: derived vs inherited (why the API is closed)
