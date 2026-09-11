@@ -2,13 +2,6 @@
 area: tooling
 opened: '2026-09-11'
 status: done
-closed: '2026-09-11'
-resolution: closed-subsumed
-value: high
-model: sonnet
-model_reason: >-
-  every fork is pre-decided in the roadmap spec (drop-drift-machinery, E1-E8); the work is a
-  scoped axis swap plus deletions with a named fixture set
 gate:
   score: 5
   passed:
@@ -19,6 +12,14 @@ gate:
     - related
   failed: []
   graded_at: '2026-09-11T00:00:00.000Z'
+closed: '2026-09-11'
+resolution: closed-subsumed
+value: high
+model: sonnet
+model_reason: >-
+  every fork is pre-decided in the roadmap spec (drop-drift-machinery, E1-E8); the work is a scoped
+  axis swap plus deletions with a named fixture set
+roadmap: archetype-convergence
 ---
 
 # Replace the dashboard drift scanner's chrome axis with the installed design-baseline tag
