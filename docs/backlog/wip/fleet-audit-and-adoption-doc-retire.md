@@ -84,7 +84,7 @@ including for its output schema and triage tier.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — roadmap, phase `donor-docs`
-- [package-doc-retirement-ownership-and-runbook-step.md](archive/package-doc-retirement-ownership-and-runbook-step.md) — the consumer-side ownership table this donor-side retirement mirrors
-- [plugin-version-contract-vs-bundle-split.md](archive/plugin-version-contract-vs-bundle-split.md) — `drop-drift-machinery`, which removed the drift comparand this doc's middle half described
+- [archetype-convergence.md](../archetype-convergence.md) — roadmap, phase `donor-docs`
+- [package-doc-retirement-ownership-and-runbook-step.md](../archive/package-doc-retirement-ownership-and-runbook-step.md) — the consumer-side ownership table this donor-side retirement mirrors
+- [plugin-version-contract-vs-bundle-split.md](../archive/plugin-version-contract-vs-bundle-split.md) — `drop-drift-machinery`, which removed the drift comparand this doc's middle half described
 - ADR-0005 — the adoptionQuality scan ships as a zero-dep donor script (the rubric reader that survives)
