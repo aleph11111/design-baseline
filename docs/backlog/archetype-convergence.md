@@ -30,6 +30,9 @@ tickets:
   - package-ships-methodology-docs-single-version-source
   - package-doc-retirement-ownership-and-runbook-step
   - dashboard-drift-tag-axis-replaces-chrome
+  - archetype-baseline-sibling-retire
+  - package-ships-contracts-and-plugin-actions
+  - fleet-audit-and-adoption-doc-retire
 phases:
   - name: p0
     title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
@@ -105,8 +108,11 @@ phases:
       Collapse donor spec + .baseline.md pairs into one doc per closed archetype; rewrite
       ADOPTION.md for package consumption; point PLUGIN-CONTRACT actions at the package install;
       retire FLEET-AUDIT.md and the audit reports into promotion-radar.json
-    tickets: []
-    open: true
+    tickets:
+      - archetype-baseline-sibling-retire
+      - package-ships-contracts-and-plugin-actions
+      - fleet-audit-and-adoption-doc-retire
+    spec_anchor: '## Phase donor-docs — retire the mirrors, ship the contract'
   - name: fleet-commands
     title: >-
       Delete /adopt-baseline, /style-baseline, /style-archetypes from ~/.claude/commands and
