@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-09-11
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: mechanical deletion of an already fleet-decided dead hook, no design judgment left
