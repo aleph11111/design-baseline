@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Axis-C (adoptionQuality) discovery radar — the machine half of the
 // "deterministic tripwires → LLM acceptance gate" split documented in
-// docs/ADOPTION-QUALITY.md and docs/FLEET-AUDIT.md.
+// docs/ADOPTION-QUALITY.md and docs/STYLE.md ("The fleet audit rubric").
 //
 // Where docs/audit-signals.json's `molecule`/`conformance` arrays have a machine
 // consumer (the dashboard's moleculeAudit) and `adoptionQuality` has had none —
@@ -12,7 +12,7 @@
 // consumer with nothing but Node gets a working scan the moment it has the
 // vendored docs/audit-signals.json — no ripgrep, no ESLint, no fork of the
 // runner. The consumer vendors the SIGNALS (the donor file, file-copy sync) and
-// calls THIS script; forking either half is the drift the FLEET-AUDIT "never
+// calls THIS script; forking either half is the drift the fleet audit "never
 // fork the runner" rule exists to prevent.
 //
 // Semantics — a radar, not a ratchet:

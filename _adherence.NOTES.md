@@ -2,7 +2,7 @@
 
 The prose that used to live inside the lint config, moved out so the config stays pure data.
 The config (`_adherence.json`) and its runner (`scripts/lint-design.mjs`) are the mechanical
-half of **ADOPTION.md gate 2** (see `docs/ADOPTION.md`, `docs/PLACEMENT.md`).
+half of **gate 2 of the four-gate enforcement stack** (see `docs/PACKAGE.md`, `docs/PLACEMENT.md`).
 
 ## How it runs
 
@@ -244,7 +244,7 @@ until the scanner grows to cover them. This is the honest ledger of what gate 2 
 mechanize:
 
 - app layout files must render `AppShell` — no raw `<main>` with padding/background classes
-  (PLACEMENT.md app-frame slot; ADOPTION.md point 1). The `p-8 bg-slate-50` iframe-feel scar.
+  (PLACEMENT.md app-frame slot; the adoption checklist point 1). The `p-8 bg-slate-50` iframe-feel scar.
 - exactly one primary action node per `PageHeader` — count primary-variant Buttons in a
   `PageHeader` subtree.
 - `RowActionsMenu` is the only per-row overflow menu — ban a raw `DropdownMenu` inside a

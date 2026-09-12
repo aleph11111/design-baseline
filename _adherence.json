@@ -13,13 +13,13 @@
       "id": "no-raw-table",
       "tag": "table",
       "severity": "warn",
-      "message": "Use the DS table primitives, not a raw <table> (ADOPTION.md gate 2)."
+      "message": "Use the DS table primitives, not a raw <table> (gate 2 of the four-gate stack)."
     },
     {
       "id": "no-bare-button",
       "tag": "button",
       "severity": "warn",
-      "message": "Use the Button primitive, not a bare <button> (ADOPTION.md gate 2)."
+      "message": "Use the Button primitive, not a bare <button> (gate 2 of the four-gate stack)."
     },
     {
       "id": "literal-color",

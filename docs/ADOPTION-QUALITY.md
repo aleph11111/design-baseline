@@ -9,8 +9,10 @@ status: locked
 
 > **Integration points.** This axis is wired into the fleet machinery, not standalone:
 > the deterministic tripwires live in [`audit-signals.json`](audit-signals.json) (the
-> `adoptionQuality` block); the scan section, per-route schema field, and 🔴
-> wrapper-adoption triage tier live in [`FLEET-AUDIT.md`](FLEET-AUDIT.md); the
+> `adoptionQuality` block); the scan mechanics, per-route output schema, and 🔴
+> wrapper-adoption triage tier live in this doc; the other two axes (A — molecule
+> drift, B — conformance) have their rubrics in [`STYLE.md`](STYLE.md) ("Shared
+> content molecules" + "The baseline is a design language"), and the
 > per-archetype checklists Axis C scores against are the **`## Acceptance gate`**
 > section in each [`archetypes/*.md`](archetypes/); and the remediation ritual is
 > [`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](DETAIL-PAGE-TEARDOWN-PLAYBOOK.md). This
@@ -98,9 +100,10 @@ here:
 - **S6 Brand primary** — primary actions/active states read the brand `--primary` (the
   target's token override is applied), not donor slate.
 
-## Output (schema addition)
+## Output (per-route schema)
 
-Add to the per-route record in the FLEET-AUDIT output schema:
+Add the `adoptionQuality` field to the per-route record of any fleet-scan
+report — only on routes that adopt a shell archetype:
 
 ```jsonc
 {
@@ -120,13 +123,15 @@ Add to the per-route record in the FLEET-AUDIT output schema:
 
 A page can now be **adopted AND red** — the state the old schema couldn't express.
 
-## Triage tier (in FLEET-AUDIT.md)
+## Triage tier
 
-- 🔴 **wrapper adoption (Axis C)** — page imports an archetype primitive but fails its
-  acceptance gate (kept the content the archetype subsumes). Action: run the
-  **teardown ritual** (`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`) on that route — DELETE-first,
-  then re-map slots. Distinct from molecule drift (didn't use a primitive) and
-  conformance (off-token): here the primitive *is* used, but the subtraction wasn't done.
+The triage rubric fleet-wide (green / yellow / red per finding, human-confirmed,
+defaulting ambiguous cases to yellow) is
+[STYLE.md](STYLE.md#triage-rubric-greenyellowred); the fleet's green/yellow/red
+placement grid lives in [PLACEMENT.md](PLACEMENT.md#enforcement--how-this-stays-true).
+Axis C adds one tier:
+
+- 🔴 **wrapper adoption (Axis C)** — an `adopted: true` page that fails its archetype's `## Acceptance gate`: it imports the shell but kept the content the archetype subsumes (status band, equal-weight toolbar, tab-as-primary-nav). Action: run the **teardown ritual** (`DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`) on the route — DELETE-first, then re-map slots; the filled inventory table + checked gate are required PR deliverables. Distinct from molecule drift (didn't use a primitive) and conformance (off-token) — here the primitive *is* used, but the subtraction wasn't done. Re-audit flips it green at `score → 1.0`.
 
 ## The rollout half ("audit → ausrollen")
 

@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: '2026-09-11'
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "the FLEET-AUDIT split is a salvage judgement against three live scanners — deciding which rubric prose still has a reader is design reading, not a delete"
@@ -84,7 +84,7 @@ including for its output schema and triage tier.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — roadmap, phase `donor-docs`
-- [package-doc-retirement-ownership-and-runbook-step.md](archive/package-doc-retirement-ownership-and-runbook-step.md) — the consumer-side ownership table this donor-side retirement mirrors
-- [plugin-version-contract-vs-bundle-split.md](archive/plugin-version-contract-vs-bundle-split.md) — `drop-drift-machinery`, which removed the drift comparand this doc's middle half described
+- [archetype-convergence.md](../archetype-convergence.md) — roadmap, phase `donor-docs`
+- [package-doc-retirement-ownership-and-runbook-step.md](../archive/package-doc-retirement-ownership-and-runbook-step.md) — the consumer-side ownership table this donor-side retirement mirrors
+- [plugin-version-contract-vs-bundle-split.md](../archive/plugin-version-contract-vs-bundle-split.md) — `drop-drift-machinery`, which removed the drift comparand this doc's middle half described
 - ADR-0005 — the adoptionQuality scan ships as a zero-dep donor script (the rubric reader that survives)

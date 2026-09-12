@@ -122,6 +122,25 @@ module.exports = {
 }
 ```
 
+## The enforcement stack — four gates, cheapest first
+
+The installed package keeps its guarantees only if the consumer can't silently
+drift. The contract a project takes on with the package, in mechanical order:
+
+| Gate | Catches | Mechanism | When |
+|------|---------|-----------|------|
+| 1. Types | wrong props, wrong variants | vendored `.d.ts` / package types, `tsc --noEmit` | on save / CI |
+| 2. Adherence lint | literal Tailwind palette classes, weak focus rings, raw `<h1>`/`<table>`/`<button>`/`<input>`/`<select>`/`<textarea>` | `scripts/lint-design.mjs` (zero-dep scan, tag + regex rules in `_adherence.json`) | pre-commit + CI |
+| 3. Visual baselines | drift the linter can't see (spacing, chrome, states) | Playwright `toHaveScreenshot()` per archetype page | CI |
+| 4. Review against docs | surface choice, placement, navigation model | `SURFACES.md` + `PLACEMENT.md` + `CHOOSING-A-SURFACE.md` as the review checklist | PR review |
+
+Gates 1–3 are mechanical; gate 4 is human but checklist-driven. A rule that lives
+only in prose (gate 4) and keeps being violated should be pushed down the stack —
+into the lint config (gate 2) or a snapshot (gate 3) — so it stops costing
+review attention. The two-way feedback loop that feeds gate 2 (project scars
+upstream, donor changes downstream) is documented in
+[`docs/PROMOTION-RADAR.md`](PROMOTION-RADAR.md).
+
 ## Migrating a vendored consumer
 
 The wiring above is the **greenfield** path. A project that already carries a

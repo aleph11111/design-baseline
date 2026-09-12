@@ -418,13 +418,6 @@
       "doc": "docs/STACK.md"
     },
     {
-      "slug": "adoption",
-      "kind": "methodology",
-      "displayName": "Adoption contract",
-      "status": "locked",
-      "doc": "docs/ADOPTION.md"
-    },
-    {
       "slug": "adoption-quality",
       "kind": "methodology",
       "displayName": "Adoption quality (Axis C)",
