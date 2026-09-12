@@ -120,11 +120,7 @@ Do **not** use this archetype for:
 - **Modal-shaped detail** — use J (crud-dialog) when the detail lives in an
   overlay surface (sheet/modal) rather than at a dedicated route.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (concrete
-> primitives + Tailwind-4 class strings) lives in
-> [`detail-overview.baseline.md`](./detail-overview.baseline.md). A project on a
-> different stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/detail-overview`; the prop surface is the API and the sandbox demo (`src/examples/detail-overview-demo.tsx`) is the gallery reference.
 
 ## Canonical slot order
 

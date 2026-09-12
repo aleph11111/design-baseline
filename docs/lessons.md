@@ -31,7 +31,8 @@ assigning `kind`; a cross-repo code ticket should say which repo it ships from.
 ## Donor exports: "unused in-repo" ≠ dead code
 
 design-baseline is a **donor** — `src/` exports are copy-source for downstream projects.
-A documented public export (e.g. those enumerated in `docs/archetypes/<slug>.baseline.md`)
+A documented public export (e.g. the primitives declared by a MANIFEST `primitives_dir`,
+the export `design-baseline/archetypes/<slug>`)
 being unused in the local demo/gallery is the *expected, correct* state, not dead code.
 Hygiene sweeps that grep for in-repo consumers will over-flag these. Before pruning an
 "orphaned" export, check whether it's documented public API; if so, keep it. The genuine

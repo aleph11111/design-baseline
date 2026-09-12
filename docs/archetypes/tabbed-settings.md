@@ -18,11 +18,7 @@ The archetype owns the shared **settings-page shell** / **settings-page header**
 primitives, which are also reused by the settings-form (D1) and settings-table
 (D2) archetypes.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (concrete
-> primitives + Tailwind-4 class strings) lives in
-> [`tabbed-settings.baseline.md`](./tabbed-settings.baseline.md). A project on a
-> different stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/tabbed-settings`; the prop surface is the API and the sandbox demo (`src/examples/tabbed-settings-demo.tsx`) is the gallery reference.
 
 ---
 

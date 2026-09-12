@@ -19,18 +19,14 @@ to a title or search box — not a page shape, and not primary navigation.
 
 Promoted as a fleet synthesis. The shape was hand-rolled at every call site with drifted
 button padding (`px-2` / `px-2.5` / `px-3`) and, usually, no keyboard model — a plain row
-of `<button>`s toggling a `bg-primary` class. The donor consolidated it into one owner;
+of `<button>`s toggling a brand-fill class. The donor consolidated it into one owner;
 brickshop-manager still carries a bespoke plain-button copy, and hk-crm vendored the donor
 primitive verbatim (`design-baseline@… — vendored` stamp). Rule-of-2 is met. This archetype
 formalizes the already-consolidated molecule as a documented, gallery-demoed baseline entry
 so downstream repos inherit the *contract* (when to reach for it, its keyboard/a11y model)
 and not merely a stray component.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every rule
-> names a *role*, not a primitive. The baseline-stack binding (the concrete primitive +
-> Tailwind-4 class strings) lives in
-> [`segmented-toggle.baseline.md`](./segmented-toggle.baseline.md). A project on a different
-> stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/segmented-toggle`; the prop surface is the API and the sandbox demo (`src/examples/segmented-toggle-demo.tsx`) is the gallery reference.
 
 ## When to use it (and when not)
 

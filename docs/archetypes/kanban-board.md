@@ -20,11 +20,7 @@ fixed row×column intersection grid, not movable cards.
 
 Promoted from the 2026-06-13 fleet audit (recurs in pmo and hk-crm; rule-of-2).
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (concrete
-> primitives + Tailwind-4 class strings) lives in
-> [`kanban-board.baseline.md`](./kanban-board.baseline.md). A project on a
-> different stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/kanban-board`; the prop surface is the API and the sandbox demo (`src/examples/kanban-board-demo.tsx`) is the gallery reference.
 
 > **Drag-agnostic by design.** The baseline ships **no drag-and-drop library**
 > (same stance as charts — DnD is heavy and consumers differ: dnd-kit, native

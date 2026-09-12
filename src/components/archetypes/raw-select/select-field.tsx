@@ -51,7 +51,13 @@ export interface SelectFieldProps {
   value: string;
   /** Fires with the chosen option's raw value. */
   onChange: (value: string) => void;
-  /** The option set, in display order. Supplied as data, not as markup. */
+  /**
+   * The option set, in display order — supplied as data, not as markup.
+   *
+   * An explicit "none" / "select…" choice is a real entry in this array (a
+   * `SelectOption`), never a `"__none__"` magic sentinel with per-site
+   * null-coercion — the drift observed in the fleet.
+   */
   options: SelectOption[];
   /** Placeholder shown when no option is selected. */
   placeholder?: string;

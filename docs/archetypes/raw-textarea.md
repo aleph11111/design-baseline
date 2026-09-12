@@ -27,11 +27,7 @@ re-implemented too. Rule-of-2 is met many times over (the field composition in a
 within brickshop). This is the convergence target that composition should collapse
 onto.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** —
-> every rule names a *role*, not a primitive. The baseline-stack binding (the
-> concrete primitive + Tailwind-4 class strings) lives in
-> [`raw-textarea.baseline.md`](./raw-textarea.baseline.md). A project on a
-> different stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/raw-textarea`; the prop surface is the API and the sandbox demo (`src/examples/raw-textarea-demo.tsx`) is the gallery reference.
 
 ## When to use it (and when not)
 

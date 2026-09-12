@@ -26,11 +26,7 @@ no archetype to adopt — a clear rule-of-2 gap.
 > consumer drops its own chart components (recharts / nivo / visx / …) into the
 > widget bodies. A baseline that mandated a chart lib would not be re-skinnable.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (concrete
-> primitives + Tailwind-4 class strings) lives in
-> [`analytics-dashboard.baseline.md`](./analytics-dashboard.baseline.md). A project on a
-> different stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/analytics-dashboard`; the prop surface is the API and the sandbox demo (`src/examples/analytics-dashboard-demo.tsx`) is the gallery reference.
 
 ## Layer 1 — Route config
 A top-level route (e.g. `/dashboard`, `/reports`, `/analytics`). Code-split behind

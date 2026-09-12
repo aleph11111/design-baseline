@@ -23,11 +23,7 @@ controlling-app repeat the same idea. Rule-of-2 is met several times over, so th
 `component` kind is formalized here (see `README.md` → "Archetype kinds"). This is
 the convergence target that idea should collapse onto.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** —
-> every rule names a *role*, not a primitive. The baseline-stack binding (the
-> concrete primitive + Tailwind-4 class strings) lives in
-> [`skeleton-loader.baseline.md`](./skeleton-loader.baseline.md). A project on a
-> different stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/skeleton-loader`; the prop surface is the API and the sandbox demo (`src/examples/skeleton-loader-demo.tsx`) is the gallery reference.
 
 ## When to use it (and when not)
 

@@ -38,11 +38,7 @@ B is **not** the right choice for:
 - Multi-step flows or wizards spanning multiple submission stages → use a flow archetype (not in baseline v1.0).
 - Inline-table editing → out of scope for both A and B.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (concrete
-> primitives + Tailwind-4 class strings) lives in
-> [`form-page.baseline.md`](./form-page.baseline.md). A project on a different stack
-> adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/form-page`; the prop surface is the API and the sandbox demo (`src/examples/form-page-demo.tsx`) is the gallery reference.
 
 ---
 

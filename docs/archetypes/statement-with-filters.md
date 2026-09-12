@@ -39,11 +39,7 @@ read-only ledger report" donor gap recorded in that fleet's archetype page-map
 - Not **G (analytics-dashboard)** — G requires a stat-tile row + a widget grid;
   this shape is one governed statement.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** —
-> every rule names a *role*, not a primitive. The baseline-stack binding
-> (concrete primitives + Tailwind-4 class strings) lives in
-> [`statement-with-filters.baseline.md`](./statement-with-filters.baseline.md).
-> A project on a different stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/statement-with-filters`; the prop surface is the API and the sandbox demo (`src/examples/statement-with-filters-demo.tsx`) is the gallery reference.
 
 ## Structure
 

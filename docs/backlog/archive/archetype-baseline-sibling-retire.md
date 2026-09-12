@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-11'
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "per-archetype salvage judgement — deciding which sibling prose the types and demo already carry is design reading, not a mechanical delete"
@@ -83,8 +83,8 @@ props are the binding.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — roadmap, phase `donor-docs`
-- [decouple-archetype-contract-from-reference-impl.md](archive/decouple-archetype-contract-from-reference-impl.md) — shipped the split this ticket retires
-- [style-archetypes-carry-baseline-sibling.md](archive/style-archetypes-carry-baseline-sibling.md) — taught the copy channel to carry the sibling
-- [package-ships-methodology-docs-single-version-source.md](archive/package-ships-methodology-docs-single-version-source.md) — the `methodology[].version` guard this ticket's manifest guard mirrors
+- [archetype-convergence.md](../archetype-convergence.md) — roadmap, phase `donor-docs`
+- [decouple-archetype-contract-from-reference-impl.md](../archive/decouple-archetype-contract-from-reference-impl.md) — shipped the split this ticket retires
+- [style-archetypes-carry-baseline-sibling.md](../archive/style-archetypes-carry-baseline-sibling.md) — taught the copy channel to carry the sibling
+- [package-ships-methodology-docs-single-version-source.md](../archive/package-ships-methodology-docs-single-version-source.md) — the `methodology[].version` guard this ticket's manifest guard mirrors
 - ADR-0004 — appearance locality: derived vs inherited (why the API is closed)

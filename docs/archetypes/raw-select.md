@@ -29,11 +29,7 @@ place and drops it in the next. Rule-of-2 is met many times over. This is the
 convergence target that shape should collapse onto — and the exact residual the
 `raw-label` radar entry flagged when `raw-input` deliberately scoped enum controls out.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (the concrete
-> primitive + Tailwind-4 class strings) lives in
-> [`raw-select.baseline.md`](./raw-select.baseline.md). A project on a different stack
-> adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/raw-select`; the prop surface is the API and the sandbox demo (`src/examples/raw-select-demo.tsx`) is the gallery reference.
 
 ## When to use it (and when not)
 

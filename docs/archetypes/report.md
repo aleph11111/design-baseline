@@ -13,11 +13,7 @@ A **report** page is a single **formal document** rendered as one bounded card �
 
 R is **read-first**: the document is the content. Actions (export, send) live in the header bar, never interleaved with the document body. Unlike the detail-overview (C), a report has no rail, no status home, no activity stepper — it is a flat, ordered document column whose figures carry the weight.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (concrete
-> primitives + Tailwind-4 class strings) lives in
-> [`report.baseline.md`](./report.baseline.md). A project on a different stack
-> adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/report`; the prop surface is the API and the sandbox demo (`src/examples/report-demo.tsx`) is the gallery reference.
 
 ---
 

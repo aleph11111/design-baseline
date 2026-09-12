@@ -17,11 +17,7 @@ A **grouped list** page is the variant of Archetype A used when a flat table wou
 
 K **inherits A's table contract**. Layers 6–10 (table, empty states, data, types, mutations) are delegated to the inner **list-with-detail shell** and follow A's rules unchanged. The layers below specify only what differs from A or what the outer grouping wrapper adds on top.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (concrete
-> primitives + Tailwind-4 class strings) lives in
-> [`grouped-list.baseline.md`](./grouped-list.baseline.md). A project on a different
-> stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/grouped-list`; the prop surface is the API and the sandbox demo (`src/examples/grouped-list-demo.tsx`) is the gallery reference.
 
 ---
 

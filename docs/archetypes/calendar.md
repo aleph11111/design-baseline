@@ -32,11 +32,7 @@ per-cell editing, use archetype M (matrix-grid) — a calendar is *not* a matrix
 its columns are time, its cells stack multiple chips, and it scrolls rather than
 densifies.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (concrete
-> primitives + Tailwind-4 class strings) lives in
-> [`calendar.baseline.md`](./calendar.baseline.md). A project on a different stack
-> adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/calendar`; the prop surface is the API and the sandbox demo (`src/examples/calendar-demo.tsx`) is the gallery reference.
 
 ---
 
