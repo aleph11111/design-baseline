@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-11'
-status: ready
+status: done
 value: high
 depends_on: [archetype-baseline-sibling-retire]
 model: sonnet
