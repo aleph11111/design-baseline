@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: '2026-09-11'
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "the FLEET-AUDIT split is a salvage judgement against three live scanners — deciding which rubric prose still has a reader is design reading, not a delete"
