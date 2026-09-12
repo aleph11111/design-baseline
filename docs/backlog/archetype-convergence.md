@@ -316,7 +316,10 @@ Phase 2's work.
   alone, and the class-level acceptance is that no further ticket of that shape
   can be filed for any archetype whose API is closed.
 - No consumer repo carries a vendored methodology doc or an archetypes/
-  folder; the donor's docs/ is under 250 KB.
+  folder; in the donor's `docs/`, every doc has a named reader (G10) and no
+  dated audit dump survives without one — the original "under 250 KB" clause
+  restated: the byte target was a proxy for "no doc without a reader", and the
+  22 contracts alone (335 KB) are the package's payload.
 
 ## Related
 

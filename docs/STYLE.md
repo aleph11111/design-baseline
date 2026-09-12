@@ -394,11 +394,147 @@ A component the baseline will never own must still:
    overline signatures documented above.
 
 An add-on that does these three reads as native with zero baseline code behind it.
-The fleet audit's **Axis-B conformance scan** (see `docs/FLEET-AUDIT.md`) enforces
-this against *all* components, not just adopted ones — a rising conformance count is
-the early signal that the base/add-on seam is starting to show. When a hand-rolled
-pattern crosses the rule-of-2 (appears in a 2nd project), the audit's **promotion
-radar** surfaces it as an Axis-A candidate to absorb into the baseline.
+The fleet audit's **Axis-B conformance scan** enforces this against *all*
+components, not just adopted ones — a rising conformance count is the early
+signal that the base/add-on seam is starting to show. When a hand-rolled pattern
+crosses the rule-of-2 (appears in a 2nd project), it trips onto the
+[promotion radar](PROMOTION-RADAR.md) as an Axis-A candidate to absorb into the
+baseline.
+
+## The fleet audit rubric — what the scanners score
+
+The fleet audit is a **read-only** sweep (it measures; it never gates and never
+writes to an audited project — see [RULES.md](RULES.md)) that maps every
+frontend project's pages onto the baseline archetypes and scores three axes:
+**Axis A** (molecule drift — hand-rolled what the donor owns), **Axis B**
+(conformance — off the visual substrate), **Axis C** (adoption quality — adopted
+the shell but kept the legacy content). Each axis's deterministic half is the
+machine form in [`docs/audit-signals.json`](audit-signals.json); its LLM half is
+the per-page walk. Axis C's full treatment lives in
+[`docs/ADOPTION-QUALITY.md`](ADOPTION-QUALITY.md).
+
+**Two independent questions for every hand-rolled element** (don't conflate
+them):
+
+- **Axis A — should it be a shared *component* the donor owns?** Yes if its
+  structure + behaviour recurs (rule-of-2) and is stable. Routing per finding:
+  `promote` (a new primitive or a variant on an existing one) | `wrap` (a thin
+  wrapper around a native control — even native-only gaps like
+  `<input type="color|file">` get wrapped so they're shared *and* on-token) |
+  `adopt-existing` (the donor already owns the molecule) | `conform-only`
+  (Axis B is the whole disposition) | `sanctioned` (rare — both singular *and*
+  already fully token-conformant). "Special functionality" is not an escape: an
+  inline-cell editor is functionally special but visually just an `<Input>`.
+- **Axis B — must it obey the shared *visual language* (tokens, spacing scale,
+  radius, focus ring, typography, composed atoms)?** Always yes, no exceptions —
+  including the legitimately project-specific elements the donor will never own.
+
+### Molecule rubric (Axis A — hand-rolled molecule → owner)
+
+Grep-able heuristics for hand-rolled content molecules a baseline component
+already owns. Each match is a 🔴 drift hit pointing at the owner — signals, not
+proof; a human confirms. Where the donor lacks the owner but the pattern
+recurs, the routing is promote/wrap, not "exception".
+
+| Hand-rolled signal (regex-ish) | Should use |
+|--------------------------------|------------|
+| `<ul`/`<div>` rows rendering a record list (cells, columns) | `<Table>` |
+| `<label` / `<input` / `<select` / `<textarea` (raw, not shadcn) | shared field stack (`<Label>`+`<Input>`/`<Select>`/`<Textarea>` or RHF `<FormField>`) |
+| `<input type="color">` (boxed swatch, optional hex `<Input>`) | `ColorField` (`ui/color-field`) |
+| `<input type="file">` (hidden + hand-rolled trigger / dropzone / filename row) | `FileField` (`ui/file-field`) |
+| `rounded-md border p-0.5` wrapping `<button>`s | `SegmentedControl` |
+| `relative … max-w-sm` + `Search` icon + `<Input className="pl-9">` | `SearchInput` |
+| `rounded-full border px-2.5 py-0.5` text pill | `<Badge>` |
+| `rounded-full bg-muted` icon/initials circle | `IconAvatar` |
+| inline `"Loading…"` / centered muted `<div>` / ad-hoc `<Alert>` for empty/error | `StateView` |
+| re-typed `text-xs … uppercase tracking-*` overline | `OVERLINE_CLASS` / `SectionHeading` |
+| private `⋯` `DropdownMenu` per table | `RowActionsMenu` (`archetypes/shared`) |
+
+### Conformance rubric (Axis B — applies to EVERY component, incl. add-ons)
+
+Catches the deeper problem the molecule rubric misses: **a hand-rolled thing
+that doesn't look like ours.** Runs against all components — baseline, adopted,
+and the legit project-specific add-ons — because that's what keeps the add-ons
+visually native. A conformance hit is not "adopt a baseline component"; it's
+"however you build this, build it from our substrate."
+
+| Conformance violation (signal) | Should use |
+|--------------------------------|------------|
+| Literal palette color: `bg-/text-/border-(slate|gray|zinc|green|red|blue|amber|yellow|emerald|teal)-\d00` | semantic tokens (`bg-muted`, `text-muted-foreground`, `border-input`, `text-destructive`, `bg-primary`, `<Badge variant>`) |
+| Hard-coded hex/rgb in `className` or `style` | tokens |
+| `focus:ring-1` / `focus:outline-none` without `focus-visible:ring-2 ring-ring` | the standard focus ring |
+| Hard-coded radius/shadow (`rounded-[..]`, arbitrary `shadow-[..]`) | `rounded-md`/`rounded-lg`, token shadows |
+| Ad-hoc spacing off the scale (`p-[7px]`, `gap-[5px]`) | the 4px spacing scale + the rhythm above |
+| Raw `<button>`/`<input>`/`<select>`/`<textarea>` where a shadcn atom exists | the shadcn atom (`Button`/`Input`/…) |
+| Re-declared typography (`text-[13px]`, custom uppercase tracking) | the heading/overline signatures (`OVERLINE_CLASS`, etc.) |
+
+Records land per route as `moleculeDrift` / `conformanceViolations` /
+`handRolledMolecules` rows (the fleet pass clusters the last fleet-wide — that
+cluster is what feeds the promotion radar).
+
+### Page-level pass (fit + adoption)
+
+The page-level walk classifies each route against the archetype set (a fit
+score, driven by the signals recorded per route so a human can override it) and
+flags it `adopted` (imports the archetype's baseline primitive) vs
+`hand-rolled` (matches the shape, doesn't use the primitive — divergence) vs
+`gap` (resembles nothing — a candidate new archetype; the durable form of the
+gap list is the promotion radar).
+
+| Signal | Archetype |
+|--------|-----------|
+| Table + row→detail/panel navigation | A — list-with-detail |
+| Table on a `/settings/*` route, row→edit-dialog | D2 — settings-table |
+| Table partitioned into titled sections | K — grouped-list |
+| 2-D grid, rows × columns, cell interactions | M — matrix-grid |
+| RHF form on a dedicated create/edit route | B — form-page |
+| Side sheet / dialog with view·edit·create modes | J — crud-dialog |
+| Read-only entity page, sections + stat tiles | C — detail-overview |
+| Top tab strip delegating to per-tab bodies | F2 — tabbed-settings |
+| Matches none ≥ 0.5 | (gap — candidate) |
+
+**Fit score:** `1.0` = uses the baseline primitive (adopted, exact).
+`0.6–0.9` = matches the shape structurally but hand-rolled (divergence
+candidate). `< 0.5` = weak/no match (gap candidate).
+
+### Triage rubric (green/yellow/red)
+
+Fleet-wide application of the green/yellow/red enforcement grid (placement's
+grid: [PLACEMENT.md](PLACEMENT.md)):
+
+- 🟢 **green** — adopted + current. No action.
+- 🟡 **yellow** — *essential* variation (domain-appropriate divergence). Action:
+  leave it, or capture it as a **variant axis** on the archetype (like
+  `crud-dialog layout`). NOT something to flatten.
+- 🔴 **red** — *accidental* drift: a page that hand-rolls a shape an archetype
+  already covers. Action: adopt / reconcile.
+- ➕ **gap** — a shape recurring in ≥ 2 projects with no archetype. Action:
+  promote a new archetype (rule-of-2, evidence-backed).
+- 🔴 **molecule drift** (Axis A, within-page scan) — a hand-rolled molecule where
+  a shared owner exists. Always red, usually low-effort: swap to the primitive.
+  Cluster fleet-wide so one sweep fixes a whole class.
+- 🟠 **conformance violation** (Axis B) — an element off the visual substrate.
+  Applies to *every* component incl. legit add-ons. Action: re-base on
+  tokens/atoms — does not require a baseline component.
+- 🔴 **wrapper adoption** (Axis C) — the adopted-but-not-torn-down state; its
+  tier and action live in [ADOPTION-QUALITY.md](ADOPTION-QUALITY.md#triage-tier).
+- ➕ **promotion candidate** (rule-of-2 on hand-rolled molecules) — a pattern the
+  donor doesn't own yet, now hand-rolled in ≥ 2 projects. Action: promote/wrap
+  into the donor — the root-cause heal.
+
+The hardest, most valuable call is **yellow vs red** — the audit proposes a tier
+per finding; a human confirms. Default ambiguous cases to yellow (don't unify
+away real difference).
+
+### How it runs
+
+A multi-agent fan-out (one read-only scanner per project, in parallel) → a
+single synthesis pass that aggregates, clusters gaps, and triages. Every action
+is a proposal a human schedules (a `/ticket`, an iteration session); the
+deterministic per-family greps run from `audit-signals.json`, and Axis C's
+recurring machine half is the donor's zero-dep
+`scripts/scan-adoption-quality.mjs` ([ADR-0005](adr/0005-adoption-quality-scan-zero-dep-donor-script.md))
+— discovery radar, never a gate.
 
 ## Conventions
 

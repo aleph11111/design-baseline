@@ -9,7 +9,7 @@ A reusable frontend foundation extracted from the patterns that worked in `contr
 ```
 design-baseline/
 ├── components.json                 # shadcn-cli config
-├── _adherence.json                 # adherence-lint rules; consumers wire `lint:design` -> scripts/lint-design.mjs (ADOPTION.md gate 2)
+├── _adherence.json                 # adherence-lint rules; consumers wire `lint:design` -> scripts/lint-design.mjs (gate 2 of the four-gate stack)
 ├── package.json                    # reference dep list + typecheck devDependencies
 ├── scripts/
 │   ├── lint-design.mjs             # zero-dep adherence-lint runner for `lint:design` (reads _adherence.json)
@@ -19,7 +19,7 @@ design-baseline/
 │   ├── CHOOSING-A-SURFACE.md       # methodology — which surface/archetype for which job
 │   ├── PLACEMENT.md                # methodology — what goes where inside any archetype
 │   ├── STACK.md                    # methodology — the pinned package contract (divergence needs an ADR)
-│   ├── ADOPTION.md                 # methodology — the adoption contract + 4-gate enforcement stack
+│   ├── PACKAGE.md                  # package consumption: the four gates + migration runbook
 │   └── archetypes/                 # page-shape contracts + MANIFEST.json registry
 └── src/
     ├── styles/
@@ -48,7 +48,7 @@ Four cross-archetype methodology docs sit upstream of the individual archetype s
 | [`docs/CHOOSING-A-SURFACE.md`](docs/CHOOSING-A-SURFACE.md) | Selection — which surface/archetype for which job (the CRUD ladder + collection chooser). Every archetype spec defers to it. |
 | [`docs/PLACEMENT.md`](docs/PLACEMENT.md) | Placement — what goes where inside any archetype; each recurring slot → its owning primitive; green/yellow/red grid. |
 | [`docs/STACK.md`](docs/STACK.md) | The pinned package contract + known trip points; diverging from a row requires an ADR. |
-| [`docs/ADOPTION.md`](docs/ADOPTION.md) | The adoption contract — 9-point checklist (point 1: adopt the `AppShell` frame), 4-gate enforcement stack, two-way feedback loop. The zero-dep `scripts/lint-design.mjs` (rules in `_adherence.json`) is its mechanical gate 2. |
+| [`docs/PACKAGE.md`](docs/PACKAGE.md) | Package consumption — four wiring lines, the six-step migration runbook, proof matrix, and the 4-gate enforcement stack. The zero-dep `scripts/lint-design.mjs` (rules in `_adherence.json`) is its mechanical gate 2. |
 
 ## How to apply it
 

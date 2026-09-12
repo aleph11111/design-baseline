@@ -2,8 +2,9 @@
 
 Living list of patterns the fleet hand-rolls that the baseline should **own** (Axis
 A) — the root-cause heal for recurring drift. Generated/curated from the fleet
-molecule audit (`docs/FLEET-AUDIT.md`); machine-readable source of truth is
-[`promotion-radar.json`](./promotion-radar.json), which the dashboard hub renders.
+molecule audit (the rubric now lives in `docs/STYLE.md` "The fleet audit rubric");
+machine-readable source of truth is [`promotion-radar.json`](./promotion-radar.json),
+which the dashboard hub renders.
 
 **How it works:** a pattern trips onto the radar when it's hand-rolled in a **2nd**
 project (rule-of-2). Each entry routes via the two axes — **own it** (promote / wrap
@@ -37,20 +38,41 @@ step belongs to the close-out, not "someday".
 | Overline/eyebrow/kicker label re-typed inline | promote | `Overline` (archetype O, composes `OVERLINE_CLASS` + closed tone set) | mistra, hk-crm, my-finance-app, dashboard | **promoted 2026-07-24** |
 | Single-choice mode/filter toggle hand-rolled as button row | adopt-existing | `SegmentedControl` (archetype Sg, Radix radio-group) | brickshop, hk-crm | **promoted 2026-07-24** |
 | Initials avatar for a named entity (image fallback, tone) | promote | `EntityAvatar` (archetype E, `entityInitials()`) | brickshop, mistra | **promoted 2026-07-24** |
+| Analytics dashboard (KPI stat-card row + chart widgets + period filters) | promote | archetype G (`analytics-dashboard`) | brickshop, my-finance, hk-crm, mistra | **promoted 2026-06-14** (gap-fold) |
+| Import / ingestion wizard (upload → column-mapping → verify → commit) | promote | archetype W (`import-wizard`) | controlling-app, my-finance | **promoted 2026-06-14** (gap-fold) |
+| Kanban board (sortable columns of draggable cards) | promote | archetype P (`kanban-board`) | pmo, hk-crm | **promoted 2026-06-14** (gap-fold) |
+| Inbox / feed surface (conversation/activity feed + filter chips) | promote | archetype H (`feed-inbox`) | brickshop, hk-crm | **promoted 2026-06-14** (gap-fold) |
 
-## Watch (1 project so far — confirm a 2nd before promoting)
+## Watch (confirmed in a 2nd/3rd project on the next re-audit before promoting)
 
 | Pattern | Axis A | Donor target | Projects | Status |
 |---|---|---|---|---|
 | Filter bar (pill row + "all", labeled filter caption) | promote | `PillBar` + `LabeledFilter` (from hk-crm) | hk-crm | watch |
 | Colored/semantic icon circle | promote | `IconAvatar` `tone` prop | brickshop | watch |
 | Non-row contextual/overflow menu (custom trigger) | watch | `ActionMenu` sibling of `RowActionsMenu` | controlling-app, brickshop | watch |
+| Auth / error static card (sign-in / not-authorized shell) — gap-fold | watch | archetype; `AuthCard` owns the sign-in half | controlling-app, hk-crm, pmo | watch |
 
 ## Sanctioned (genuine one-offs — conform-only, no component)
 - matrix/pivot `<table>` (sticky cols + group spans) — its inline cell control still routes to `CellSelect`.
 - combobox / `CommandInput` search — different widget.
 - test-fixture raw `<label>`/`<input>`.
 - `<label>`-wraps-control (checkbox/radio row, file dropzone with hidden input) — already associated by DOM nesting.
+
+## The feedback loop (both directions)
+
+**Downstream (baseline → project):** on every baseline version bump, a
+consumer diffs the baseline against its installed tag, migrates, and re-records.
+"Are we up to date?" must always be answerable from the radar's `sync`
+rows; if it isn't, that is itself a drift.
+
+**Upstream (project → baseline):** when the same drift lands twice in one
+project, it becomes a scar in that project's `RULES.md`. When the same scar
+appears in a second project — Rule of 2, same as archetypes — it is promoted
+into the baseline: into `PLACEMENT.md` / `STACK.md` / `CHOOSING-A-SURFACE.md`
+as prose, and into `_adherence.json` (run by `scripts/lint-design.mjs`) as a
+check where mechanically possible. This is the gate-2 feed documented in
+[`docs/PACKAGE.md`](PACKAGE.md#the-enforcement-stack--four-gates-cheapest-first);
+every consumer then inherits the fix.
 
 ## Sync (convergence, not promotion)
 

@@ -23,7 +23,7 @@ The generic skills read this block to find the project's documentation artifacts
 - `specs: docs/superpowers/specs/` *(design specs — e.g. the archetype-promotion design)*
 - `plans: docs/superpowers/plans/` *(implementation plans)*
 - `archetypes: docs/archetypes/` *(MANIFEST.json registry + `<slug>.md` contract / `<slug>.baseline.md` reference-impl pairs; methodology in `docs/archetypes/README.md`)*
-- `audits: docs/audits/` *(dated fleet fit/drift/molecule-adoption sweeps; methodology in `docs/FLEET-AUDIT.md`)*
+- `audits: docs/audits/` *(dated fleet audit reports; the rubric they score against lives in `docs/STYLE.md`'s "The fleet audit rubric")*
 
 ## Skills
 
@@ -49,7 +49,7 @@ npm run gallery:view              # gallery:build + preview on :5173
 - One idea: `docs/archetypes/MANIFEST.json` is the versioned source of truth for what baseline ships; every archetype is a **two-doc pair** — the stack-agnostic contract (`<slug>.md`) and the baseline reference implementation (`<slug>.baseline.md`) — plus reference primitives (`src/components/archetypes/<slug>/`) and a sandbox demo (`src/examples/<slug>-demo.tsx`).
 - `src/components/ui/` (44 shadcn/ui primitives), `src/components/layout/` (AppShell/Sidebar/Header + shared chrome), `src/components/archetypes/` (one dir per shipped archetype; 21 registered in MANIFEST) — see `docs/ARCHITECTURE.md` for the full map.
 - Promotion flow: a real project matures an archetype through Phases 1–4 (scope-lock → audit → spec → migration) → `/promote-archetype` applies maturity gates, de-source-ifies, and writes both donor docs + primitives + demo + MANIFEST entry.
-- Fleet-scale fit/drift measurement lives in `docs/FLEET-AUDIT.md` + `docs/audits/`; it reads the archetype contracts to score adoption across other repos without ever writing to them.
+- Fleet-scale audit measurement is the read-only sweep described in `docs/STYLE.md` ("The fleet audit rubric") + `docs/ADOPTION-QUALITY.md` (Axis C) + `docs/PROMOTION-RADAR.md` (the durable candidate radar); the machine form is `docs/audit-signals.json`, and dated reports land in `docs/audits/`. It scores other repos without ever writing to them.
 - Full component map, promotion flow detail, and open questions: `docs/ARCHITECTURE.md`.
 
 ## Project-Specific Notes

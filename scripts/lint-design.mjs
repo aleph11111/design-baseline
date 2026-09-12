@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// design-baseline adherence lint — the mechanical half of ADOPTION.md gate 2.
+// design-baseline adherence lint — the mechanical half of gate 2 of the four-gate enforcement stack (docs/PACKAGE.md).
 //
 // Zero-dependency by design: a heuristic source scan, no ESLint or oxlint required, so a
 // consumer with no linter still gets a working gate the moment /adopt-baseline wires it.
