@@ -70,8 +70,8 @@ and `client/src` finds no consumer of `plugin.actions`, and
 
 ## Related
 
-- [archetype-baseline-sibling-retire](archive/archetype-baseline-sibling-retire.md) — must ship first: shipping `docs/archetypes/` before the siblings are deleted puts the mirror into every consumer's `node_modules`
-- [archetype-convergence.md](archetype-convergence.md) — roadmap, phase `donor-docs`
-- [package-doc-retirement-ownership-and-runbook-step.md](archive/package-doc-retirement-ownership-and-runbook-step.md) — wrote the ownership row this ticket makes true
-- [package-ships-methodology-docs-single-version-source.md](archive/package-ships-methodology-docs-single-version-source.md) — the `files`-array precedent (F3)
-- [plugin-version-contract-vs-bundle-split.md](archive/plugin-version-contract-vs-bundle-split.md) — the two-number split whose bump rule governs `plugin.version`
+- [archetype-baseline-sibling-retire](../archive/archetype-baseline-sibling-retire.md) — must ship first: shipping `docs/archetypes/` before the siblings are deleted puts the mirror into every consumer's `node_modules`
+- [archetype-convergence.md](../archetype-convergence.md) — roadmap, phase `donor-docs`
+- [package-doc-retirement-ownership-and-runbook-step.md](../archive/package-doc-retirement-ownership-and-runbook-step.md) — wrote the ownership row this ticket makes true
+- [package-ships-methodology-docs-single-version-source.md](../archive/package-ships-methodology-docs-single-version-source.md) — the `files`-array precedent (F3)
+- [plugin-version-contract-vs-bundle-split.md](../archive/plugin-version-contract-vs-bundle-split.md) — the two-number split whose bump rule governs `plugin.version`
