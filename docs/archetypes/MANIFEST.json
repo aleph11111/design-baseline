@@ -3,12 +3,12 @@
   "canonical_id": "slug",
   "_note": "slug is the canonical cross-doc identifier; slugs are globally unique. The letter `key` is namespace-scoped display/ordering metadata only and may collide across namespaces. `namespace` defaults to \"baseline\" when absent. See docs/archetypes/README.md for the full convention.",
   "namespaces": {
-    "baseline": "Promoted design-baseline donor archetypes (synced via /style-archetypes). Letter keys are the donor's. Target projects add their own namespace(s) for project-local archetypes (anything not in this donor manifest)."
+    "baseline": "Promoted design-baseline donor archetypes (shipped in the design-baseline package — see docs/PACKAGE.md for the install runbook). Letter keys are the donor's. Target projects add their own namespace(s) for project-local archetypes (anything not in this donor manifest)."
   },
   "plugin": {
     "kind": "design",
     "name": "design-baseline",
-    "version": "0.10.2",
+    "version": "0.11.0",
     "taxonomy": "docs/TAXONOMY.md",
     "surface": {
       "type": "vite-app",
@@ -19,16 +19,16 @@
     },
     "actions": [
       {
-        "id": "adopt-baseline",
-        "label": "Adopt design-baseline",
-        "command": "/style-baseline",
+        "id": "install-package",
+        "label": "Install design-baseline",
+        "command": "see docs/PACKAGE.md",
         "scope": "project"
       },
       {
-        "id": "adopt-archetype",
-        "label": "Adopt archetype",
-        "command": "/style-archetypes {key}",
-        "scope": "project"
+        "id": "promote-archetype",
+        "label": "Promote an archetype",
+        "command": "/promote-archetype {key}",
+        "scope": "baseline"
       },
       {
         "id": "iterate-baseline",
