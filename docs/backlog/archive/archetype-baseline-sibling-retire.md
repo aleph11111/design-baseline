@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-11'
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "per-archetype salvage judgement — deciding which sibling prose the types and demo already carry is design reading, not a mechanical delete"
