@@ -36,11 +36,7 @@ An **entity CRUD dialog** is a right-side overlay surface that creates, views, o
 
 J is the first non-page archetype in the baseline. It extends the twelve-layer page framework with three dialog-specific layers: mode contract, footer contract, and cross-context invocation. Dialogs that own a single entity's lifecycle belong here. Confirm dialogs (destructive only, no entity model), transient flow dialogs (multi-step action, no owned entity), and read-only reference viewers are out of scope.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (concrete
-> primitives + Tailwind-4 class strings) lives in
-> [`crud-dialog.baseline.md`](./crud-dialog.baseline.md). A project on a
-> different stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/crud-dialog`; the prop surface is the API and the sandbox demo (`src/examples/crud-dialog-demo.tsx`) is the gallery reference.
 
 ---
 

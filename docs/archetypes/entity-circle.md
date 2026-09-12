@@ -25,11 +25,7 @@ name with the circle. Rule-of-2 is met, so the shape is formalized here as the
 convergence target. Three other fleet repos surface *near-misses* that are
 deliberately **out of scope** (see "When to use it").
 
-> **Reference implementation.** This file is the **stack-agnostic contract** —
-> every rule names a *role*, not a primitive. The baseline-stack binding (the
-> concrete primitive + Tailwind-4 class strings) lives in
-> [`entity-circle.baseline.md`](./entity-circle.baseline.md). A project on a
-> different stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/entity-circle`; the prop surface is the API and the sandbox demo (`src/examples/entity-circle-demo.tsx`) is the gallery reference.
 
 ## When to use it (and when not)
 

@@ -107,6 +107,10 @@ const TONE_CLASS: Record<CalendarEventTone, ToneClasses> = {
  * House style B: flat carded surface (no shadow), faint hairlines, every figure
  * mono/tabular, token-pure tones. The grid scrolls horizontally on narrow
  * viewports rather than reflowing — a week stays a week.
+ *
+ * Event interaction (open / create) is consumer-owned: the shell renders the
+ * chips and the header actions, and the consumer wires their click handlers.
+ * The shell exposes no `onClick` on day cells or event chips.
  */
 export function CalendarShell({
   kicker,

@@ -21,11 +21,7 @@ Promoted from the 2026-06-13 fleet audit (recurs as a standalone activity feed i
 brickshop — its internal "archetype H" — and hk-crm; rule-of-2). Key `H` mirrors
 brickshop's existing naming.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (concrete
-> primitives + Tailwind-4 class strings) lives in
-> [`feed-inbox.baseline.md`](./feed-inbox.baseline.md). A project on a different
-> stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/feed-inbox`; the prop surface is the API and the sandbox demo (`src/examples/feed-inbox-demo.tsx`) is the gallery reference.
 
 ### Two sub-shapes — same molecule
 

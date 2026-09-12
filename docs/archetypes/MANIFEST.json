@@ -50,7 +50,6 @@
       "promoted_at": "2026-05-22",
       "source_spec_version": "1.9",
       "spec": "docs/archetypes/list-with-detail.md",
-      "reference_impl": "docs/archetypes/list-with-detail.baseline.md",
       "primitives_dir": "src/components/archetypes/list-with-detail",
       "example": "src/examples/list-with-detail-demo.tsx"
     },
@@ -65,7 +64,6 @@
       "promoted_at": "2026-05-24",
       "source_spec_version": "1.7",
       "spec": "docs/archetypes/form-page.md",
-      "reference_impl": "docs/archetypes/form-page.baseline.md",
       "primitives_dir": "src/components/archetypes/form-page",
       "example": "src/examples/form-page-demo.tsx"
     },
@@ -80,7 +78,6 @@
       "promoted_at": "2026-05-23",
       "source_spec_version": "1.6",
       "spec": "docs/archetypes/detail-overview.md",
-      "reference_impl": "docs/archetypes/detail-overview.baseline.md",
       "blueprint": "docs/archetypes/detail-overview-blueprint.svg",
       "primitives_dir": "src/components/archetypes/detail-overview",
       "example": "src/examples/detail-overview-demo.tsx"
@@ -96,7 +93,6 @@
       "promoted_at": "2026-05-22",
       "source_spec_version": "1.4",
       "spec": "docs/archetypes/settings-table.md",
-      "reference_impl": "docs/archetypes/settings-table.baseline.md",
       "primitives_dir": "src/components/archetypes/settings-table",
       "example": "src/examples/settings-table-demo.tsx"
     },
@@ -111,7 +107,6 @@
       "promoted_at": "2026-08-04",
       "source_spec_version": "1.7",
       "spec": "docs/archetypes/crud-dialog.md",
-      "reference_impl": "docs/archetypes/crud-dialog.baseline.md",
       "primitives_dir": "src/components/archetypes/crud-dialog",
       "example": "src/examples/crud-dialog-demo.tsx"
     },
@@ -126,7 +121,6 @@
       "promoted_at": "2026-05-22",
       "source_spec_version": "1.6",
       "spec": "docs/archetypes/grouped-list.md",
-      "reference_impl": "docs/archetypes/grouped-list.baseline.md",
       "primitives_dir": "src/components/archetypes/grouped-list",
       "example": "src/examples/grouped-list-demo.tsx"
     },
@@ -141,7 +135,6 @@
       "promoted_at": "2026-05-22",
       "source_spec_version": "1.4",
       "spec": "docs/archetypes/matrix-grid.md",
-      "reference_impl": "docs/archetypes/matrix-grid.baseline.md",
       "primitives_dir": "src/components/archetypes/matrix-grid",
       "example": "src/examples/matrix-grid-demo.tsx"
     },
@@ -156,7 +149,6 @@
       "promoted_at": "2026-05-31",
       "source_spec_version": "1.4",
       "spec": "docs/archetypes/tabbed-settings.md",
-      "reference_impl": "docs/archetypes/tabbed-settings.baseline.md",
       "primitives_dir": "src/components/archetypes/tabbed-settings",
       "example": "src/examples/tabbed-settings-demo.tsx"
     },
@@ -171,7 +163,6 @@
       "promoted_at": "2026-06-14",
       "source_spec_version": "1.3",
       "spec": "docs/archetypes/analytics-dashboard.md",
-      "reference_impl": "docs/archetypes/analytics-dashboard.baseline.md",
       "primitives_dir": "src/components/archetypes/analytics-dashboard",
       "example": "src/examples/analytics-dashboard-demo.tsx"
     },
@@ -186,7 +177,6 @@
       "promoted_at": "2026-06-14",
       "source_spec_version": "1.2",
       "spec": "docs/archetypes/import-wizard.md",
-      "reference_impl": "docs/archetypes/import-wizard.baseline.md",
       "primitives_dir": "src/components/archetypes/import-wizard",
       "example": "src/examples/import-wizard-demo.tsx"
     },
@@ -201,7 +191,6 @@
       "promoted_at": "2026-06-14",
       "source_spec_version": "1.2",
       "spec": "docs/archetypes/feed-inbox.md",
-      "reference_impl": "docs/archetypes/feed-inbox.baseline.md",
       "primitives_dir": "src/components/archetypes/feed-inbox",
       "example": "src/examples/feed-inbox-demo.tsx"
     },
@@ -216,7 +205,6 @@
       "promoted_at": "2026-06-14",
       "source_spec_version": "1.2",
       "spec": "docs/archetypes/kanban-board.md",
-      "reference_impl": "docs/archetypes/kanban-board.baseline.md",
       "primitives_dir": "src/components/archetypes/kanban-board",
       "example": "src/examples/kanban-board-demo.tsx"
     },
@@ -228,10 +216,9 @@
       "kind": "page",
       "version": "2.2",
       "authored": "2026-06-23",
-      "authored_reason": "Baseline-authored from the Plex Ledger gallery mockup board (single-mockup origin, no consuming source project). Sanctioned exception to the 'baseline never originates' rule \u2014 see docs/adr/0001-grandfather-authored-report-calendar.md. Closed set with `calendar`; not a pattern to repeat.",
+      "authored_reason": "Baseline-authored from the Plex Ledger gallery mockup board (single-mockup origin, no consuming source project). Sanctioned exception to the 'baseline never originates' rule — see docs/adr/0001-grandfather-authored-report-calendar.md. Closed set with `calendar`; not a pattern to repeat.",
       "source_spec_version": "1.1",
       "spec": "docs/archetypes/report.md",
-      "reference_impl": "docs/archetypes/report.baseline.md",
       "primitives_dir": "src/components/archetypes/report",
       "example": "src/examples/report-demo.tsx"
     },
@@ -246,7 +233,6 @@
       "promoted_at": "2026-08-19",
       "source_spec_version": "1.0",
       "spec": "docs/archetypes/statement-with-filters.md",
-      "reference_impl": "docs/archetypes/statement-with-filters.baseline.md",
       "primitives_dir": "src/components/archetypes/statement-with-filters",
       "example": "src/examples/statement-with-filters-demo.tsx"
     },
@@ -258,10 +244,9 @@
       "kind": "page",
       "version": "2.2",
       "authored": "2026-06-23",
-      "authored_reason": "Baseline-authored from the Plex Ledger gallery mockup board (single-mockup origin, no consuming source project). Sanctioned exception to the 'baseline never originates' rule \u2014 see docs/adr/0001-grandfather-authored-report-calendar.md. Closed set with `report`; not a pattern to repeat.",
+      "authored_reason": "Baseline-authored from the Plex Ledger gallery mockup board (single-mockup origin, no consuming source project). Sanctioned exception to the 'baseline never originates' rule — see docs/adr/0001-grandfather-authored-report-calendar.md. Closed set with `report`; not a pattern to repeat.",
       "source_spec_version": "1.1",
       "spec": "docs/archetypes/calendar.md",
-      "reference_impl": "docs/archetypes/calendar.baseline.md",
       "primitives_dir": "src/components/archetypes/calendar",
       "example": "src/examples/calendar-demo.tsx"
     },
@@ -274,9 +259,8 @@
       "version": "1.0",
       "promoted_from": "brickshop-manager (fleet synthesis; hk-crm, controlling-app)",
       "promoted_at": "2026-07-23",
-      "source_spec_version": "n/a (fleet synthesis \u2014 no single source spec)",
+      "source_spec_version": "n/a (fleet synthesis — no single source spec)",
       "spec": "docs/archetypes/skeleton-loader.md",
-      "reference_impl": "docs/archetypes/skeleton-loader.baseline.md",
       "primitives_dir": "src/components/archetypes/skeleton-loader",
       "example": "src/examples/skeleton-loader-demo.tsx"
     },
@@ -289,9 +273,8 @@
       "version": "1.2",
       "promoted_from": "fleet synthesis (controlling-app, my-finance-app, mistra, dashboard, brickshop-manager)",
       "promoted_at": "2026-07-23",
-      "source_spec_version": "n/a (fleet synthesis \u2014 no single source spec)",
+      "source_spec_version": "n/a (fleet synthesis — no single source spec)",
       "spec": "docs/archetypes/raw-input.md",
-      "reference_impl": "docs/archetypes/raw-input.baseline.md",
       "primitives_dir": "src/components/archetypes/raw-input",
       "example": "src/examples/raw-input-demo.tsx"
     },
@@ -304,9 +287,8 @@
       "version": "1.2",
       "promoted_from": "brickshop-manager (fleet synthesis; dashboard, controlling-app, my-finance-app, mistra, hk-crm, pmo)",
       "promoted_at": "2026-07-23",
-      "source_spec_version": "n/a (fleet synthesis \u2014 no single source spec)",
+      "source_spec_version": "n/a (fleet synthesis — no single source spec)",
       "spec": "docs/archetypes/raw-textarea.md",
-      "reference_impl": "docs/archetypes/raw-textarea.baseline.md",
       "primitives_dir": "src/components/archetypes/raw-textarea",
       "example": "src/examples/raw-textarea-demo.tsx"
     },
@@ -319,9 +301,8 @@
       "version": "1.1",
       "promoted_from": "fleet synthesis (mistra, my-finance-app, dashboard, brickshop-manager, controlling-app)",
       "promoted_at": "2026-07-24",
-      "source_spec_version": "n/a (fleet synthesis \u2014 no single source spec)",
+      "source_spec_version": "n/a (fleet synthesis — no single source spec)",
       "spec": "docs/archetypes/raw-select.md",
-      "reference_impl": "docs/archetypes/raw-select.baseline.md",
       "primitives_dir": "src/components/archetypes/raw-select",
       "example": "src/examples/raw-select-demo.tsx"
     },
@@ -334,9 +315,8 @@
       "version": "2.0",
       "promoted_from": "fleet synthesis (mistra, hk-crm, my-finance-app, dashboard)",
       "promoted_at": "2026-07-24",
-      "source_spec_version": "n/a (fleet synthesis \u2014 no single source spec)",
+      "source_spec_version": "n/a (fleet synthesis — no single source spec)",
       "spec": "docs/archetypes/overline-typed.md",
-      "reference_impl": "docs/archetypes/overline-typed.baseline.md",
       "primitives_dir": "src/components/archetypes/overline-typed",
       "example": "src/examples/overline-typed-demo.tsx"
     },
@@ -349,9 +329,8 @@
       "version": "1.0",
       "promoted_from": "brickshop-manager (fleet synthesis; hk-crm vendored the donor primitive)",
       "promoted_at": "2026-07-24",
-      "source_spec_version": "n/a (fleet synthesis \u2014 no single source spec)",
+      "source_spec_version": "n/a (fleet synthesis — no single source spec)",
       "spec": "docs/archetypes/segmented-toggle.md",
-      "reference_impl": "docs/archetypes/segmented-toggle.baseline.md",
       "primitives_dir": "src/components/archetypes/segmented-toggle",
       "example": "src/examples/segmented-toggle-demo.tsx"
     },
@@ -364,14 +343,13 @@
       "version": "1.2",
       "promoted_from": "fleet synthesis (brickshop-manager, mistra)",
       "promoted_at": "2026-07-24",
-      "source_spec_version": "n/a (fleet synthesis \u2014 no single source spec)",
+      "source_spec_version": "n/a (fleet synthesis — no single source spec)",
       "spec": "docs/archetypes/entity-circle.md",
-      "reference_impl": "docs/archetypes/entity-circle.baseline.md",
       "primitives_dir": "src/components/archetypes/entity-circle",
       "example": "src/examples/entity-circle-demo.tsx"
     }
   ],
-  "_methodology_note": "Cross-archetype methodology docs \u2014 the selection/placement/stack/adoption laws the individual archetype specs defer to. Not page shapes; no primitives or demos. `governs` lists the archetype keys each doc's rules bear on. Adopted from the hk-crm 360\u00b0 audit (2026-07); see docs/adr/0002-adopt-baseline-upstream-methodology.md.",
+  "_methodology_note": "Cross-archetype methodology docs — the selection/placement/stack/adoption laws the individual archetype specs defer to. Not page shapes; no primitives or demos. `governs` lists the archetype keys each doc's rules bear on. Adopted from the hk-crm 360° audit (2026-07); see docs/adr/0002-adopt-baseline-upstream-methodology.md.",
   "methodology": [
     {
       "slug": "choosing-a-surface",

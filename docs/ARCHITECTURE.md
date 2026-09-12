@@ -39,9 +39,8 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `src/examples/<slug>-demo.tsx` | Sandbox demo per archetype — the "generic-ness contract" proving the primitive has zero domain-type leakage. Donor-dev only, **never copied** to targets |
 | `src/examples/DemoNextApp.tsx` / `DemoViteApp.tsx` | Reference wiring for Next.js 16 App Router / Vite + React Router 7 consumers |
 | `gallery/` | Donor-dev Vite app (`Gallery.tsx`, `registry.ts`, `layout-demos.tsx`) that mounts every demo behind a nav; also the buildable `gallery-dist/` surface the dashboard hub iframes per `docs/PLUGIN-CONTRACT.md` |
-| `docs/archetypes/MANIFEST.json` | Versioned registry: `plugin` block (hub-binding metadata + declared actions), `namespaces`, the `archetypes` array (key, slug, version, promoted_from/promoted_at, source_spec_version, spec, reference_impl, primitives_dir, example), and the `methodology` array (the cross-archetype methodology docs: slug, version, status, doc, governs) |
+| `docs/archetypes/MANIFEST.json` | Versioned registry: `plugin` block (hub-binding metadata + declared actions), `namespaces`, the `archetypes` array (key, slug, version, promoted_from/promoted_at, source_spec_version, spec, primitives_dir, example), and the `methodology` array (the cross-archetype methodology docs: slug, version, status, doc, governs) |
 | `docs/archetypes/<slug>.md` | Stack-agnostic **contract** per archetype (see §5) |
-| `docs/archetypes/<slug>.baseline.md` | Baseline-stack **reference implementation** binding per archetype (see §5) |
 | `docs/archetypes/README.md` | The methodology: layer sets, phases, Rule of 2, promotion contract, versioning rules |
 | `docs/STYLE.md` | Tokens, spacing/rhythm scale, typography, re-skin checklist, ownership-boundary statement |
 | `docs/TAXONOMY.md` | Canonical vocabulary (Baseline / Token / Layout primitive / Archetype / Reference primitive / Demo / Gallery / Plugin) |
@@ -59,8 +58,8 @@ Two independent verification paths, both donor-only (never copied to targets):
 ### 3a. How leaf utils version (they don't — they carry a superset invariant instead)
 
 `src/utils/` and `src/lib/` hold framework-agnostic leaf files with no gallery demo and no
-page-shape contract. They are **not** archetypes: no MANIFEST entry, no `<slug>.md` /
-`<slug>.baseline.md` pair, no per-file version. `MANIFEST.plugin.version` is not their version
+page-shape contract. They are **not** archetypes: no MANIFEST entry, no `<slug>.md`
+contract, no per-file version. `MANIFEST.plugin.version` is not their version
 either — per `docs/PLUGIN-CONTRACT.md` it versions the *hub contract shape*, not shipped content.
 
 What governs them instead is a one-line invariant, because `/style-baseline` step 4 copies these
@@ -103,16 +102,16 @@ Widening a leaf util is cheap; a downstream typecheck break is not. See
 
 `Sk` (skeleton-loader), `I` (raw-input), `T` (raw-textarea), `S` (raw-select), `O` (overline-typed), `Sg` (segmented-toggle), and `E` (entity-circle) are the **component**-kind archetypes — molecules reused across page archetypes rather than page shapes of their own. The `flow` kind remains **deferred** (no baseline archetypes yet; formalized once two projects independently need the shape, per Rule of 2).
 
-## 5. The contract / reference-implementation split
+## 5. The contract and its binding
 
-Every archetype ships as **two markdown files**, deliberately decoupled:
+An archetype is **one contract plus the exported component** (the stack-specific reference-implementation sibling docs were retired — a closed archetype's props are the binding, and a second doc restating shipped code is a mirror that drifts):
 
 - `docs/archetypes/<slug>.md` — the **contract**: every required/forbidden/allowed-variation rule expressed by *role* ("the top-level app shell", "the canonical page-title type style"), never a concrete component or Tailwind class. Portable to any stack.
-- `docs/archetypes/<slug>.baseline.md` — the **reference implementation**: binds each contract role to a concrete baseline primitive (`<AppShell>`, `<SurfaceHeader>`, `<ListWithDetailShell>`, …) and literal Tailwind-4 class strings, layer by layer. Baseline-stack only.
+- `src/components/archetypes/<slug>/` — the **binding**: the shipped, typed export of the concrete baseline primitives (`design-baseline/archetypes/<slug>` in `package.json` exports). A closed archetype's props are the API; the sandbox demo (`src/examples/<slug>-demo.tsx`) renders them live in the gallery.
 
-`MANIFEST.json` records both per entry (`spec` / `reference_impl`). This split is what makes the fleet fit/drift audit (the rubric in `docs/STYLE.md`) meaningful against stacks that don't run the baseline at all — a Tailwind-3/Next project can audit its pages against the contract without installing any baseline primitive.
+`MANIFEST.json` records the contract (`spec`) and the primitives (`primitives_dir`) per entry. The contracts are the fleet fit/drift audit's comparand (the rubric in `docs/STYLE.md`): adoption is scored against the role-only contract, independently of which stack a repo's primitives come from.
 
-Each page-kind archetype covers **12 layers** (route config → page shell → header → toolbar → content wrapper → table/grid → states → data fetching → types → mutations → mobile → permissions); dialog-kind archetypes (currently just `crud-dialog`) extend to **15** (+ mode contract, footer contract, cross-context invocation). Two independent version counters exist per archetype and are expected to diverge: the spec's frontmatter `version:` (contract changes only) and the MANIFEST entry's `version:` (any shipped change — spec, reference-impl, primitives, demo, or blueprint); the deliverable version always runs ≥ the spec version.
+Each page-kind archetype covers **12 layers** (route config → page shell → header → toolbar → content wrapper → table/grid → states → data fetching → types → mutations → mobile → permissions); dialog-kind archetypes (currently just `crud-dialog`) extend to **15** (+ mode contract, footer contract, cross-context invocation). Two independent version counters exist per archetype and are expected to diverge: the spec's frontmatter `version:` (contract changes only) and the MANIFEST entry's `version:` (any shipped change — contract, primitives, demo, or blueprint); the deliverable version always runs ≥ the spec version.
 
 ## 6. Promotion flow (source project → donor)
 
@@ -127,10 +126,10 @@ Source project (e.g. brickshop-manager)
                        2. De-source-ification (strip domain types/routes/brand, generic names)
                        3. Layer-by-layer review (12 or 15 questions, accept/edit/reject each)
                        4. Sandbox second-consumer demo, domain-far nouns, types written first
-                       5. Write donor files: contract, reference-impl sibling, primitives, demo, MANIFEST entry
+                       5. Write donor files: contract, primitives, demo, MANIFEST entry
                                     │
                                     ▼
-                     docs/archetypes/<slug>.md + <slug>.baseline.md + src/components/archetypes/<slug>/
+                     docs/archetypes/<slug>.md + src/components/archetypes/<slug>/
                      + src/examples/<slug>-demo.tsx + MANIFEST.json entry
                                     │
                                     ▼

@@ -6,18 +6,18 @@ Baseline archetypes are generalised from mature, real-project implementations. T
 
 > **Living manifest:** `MANIFEST.json` is the source of truth for which archetypes baseline currently ships and at what version.
 
-## Contract vs. reference implementation (two files per archetype)
+## Contract and binding (one doc per archetype)
 
-Each archetype ships as **two files**, so the portable asset (the page-shape contract) is decoupled from the non-portable one (the baseline-stack implementation):
+Each archetype ships as **one contract plus the exported component**: the stack-agnostic **page-shape contract** `docs/archetypes/<slug>.md`, whose binding is the shipped, typed export `design-baseline/archetypes/<slug>` (the reference primitives in `src/components/archetypes/<slug>/`).
 
-| File | What it is | Portable? |
-|------|-----------|-----------|
-| `docs/archetypes/<slug>.md` | The **stack-agnostic contract** — every layer / required / forbidden / allowed-variation rule expressed in terms of **roles** ("the top-level app shell", "the canonical page-title type style", "the search-input molecule"), never a concrete primitive or Tailwind class. | ✅ Any stack |
-| `docs/archetypes/<slug>.baseline.md` | The **baseline reference implementation** — binds each contract role to its concrete design-baseline primitive (`<AppShell>`, `<SurfaceHeader>`, …) and Tailwind-4 class strings, layer by layer. | ❌ shadcn/ui + Tailwind 4 + sidebar shell only |
+| Artifact | What it is |
+|----------|-----------|
+| `docs/archetypes/<slug>.md` | The **stack-agnostic contract** — every layer / required / forbidden / allowed-variation rule expressed in terms of **roles** ("the top-level app shell", "the canonical page-title type style", "the search-input molecule"), never a concrete primitive or Tailwind class. |
+| `src/components/archetypes/<slug>/` (export `design-baseline/archetypes/<slug>`) | The **binding** — the concrete design-baseline primitives. A closed archetype's props are the API; the sandbox demo (`src/examples/<slug>-demo.tsx`) renders them live in the gallery. |
 
-Why: a divergent consumer (e.g. a Tailwind 3 / Next project with its own component system) can legitimately adopt the **contract** — layers, slots, states, responsibilities — and audit a page against it **without** having the baseline's primitives installed. The `.baseline.md` sibling is the reference binding for projects that *do* run the baseline stack. This split is what makes stack-agnostic fit-scoring possible (see the fleet audit rubric in [`docs/STYLE.md`](../STYLE.md)).
+Why one doc, not a pair: once an archetype is closed, its props are the contract, and a second doc restating the shipped code is a hand-maintained mirror that drifts the moment a prop changes. (The retired stack-specific reference-implementation siblings were exactly that mirror — see `docs/RULES.md` rule 2 and the `archetype-convergence` roadmap, phase `donor-docs`.)
 
-**The rule for authors:** the contract file names a **role**; the sibling names the **primitive**. If a required/forbidden rule mentions a `src/components/...` import or a literal Tailwind class, it belongs in the sibling, not the contract. `MANIFEST.json` records both via `spec` (contract) and `reference_impl` (sibling) per entry.
+**The rule for authors:** the contract file names a **role**; the binding's primitive names and Tailwind classes live in the exported component, never in the contract (rules 2–3 of `docs/RULES.md`). `MANIFEST.json` records the contract via `spec` and the primitives via `primitives_dir` per entry.
 
 ## Identifying archetypes: slug, key, and namespace
 
@@ -171,7 +171,7 @@ Apply via the `/style-archetypes` skill (requires `/style-baseline` to have run 
 /style-archetypes --force           # overwrite existing archetype files
 ```
 
-What gets copied per archetype: the contract `docs/archetypes/<slug>.md`, its baseline reference sibling `docs/archetypes/<slug>.baseline.md` (both listed in the MANIFEST entry as `spec` and `reference_impl`), and `src/components/archetypes/<slug>/`. A non-baseline consumer that only wants the portable contract can copy `<slug>.md` alone and ignore the sibling. `MANIFEST.json` is always merged (by slug, preserving target-only entries and keys) so the target stays current and can run `--update` later. The framework `README.md` is copied **only when the target has none or it is byte-identical to the donor's** — a project-maintained README that diverges is never overwritten (see *Identifying archetypes* above). Sandbox demo files (`src/examples/`) are never copied to targets — they are a generic-ness contract for the donor only.
+What gets copied per archetype: the contract `docs/archetypes/<slug>.md` and `src/components/archetypes/<slug>/` (recorded in the MANIFEST entry as `spec` and `primitives_dir`). `MANIFEST.json` is always merged (by slug, preserving target-only entries and keys) so the target stays current and can run `--update` later. The framework `README.md` is copied **only when the target has none or it is byte-identical to the donor's** — a project-maintained README that diverges is never overwritten (see *Identifying archetypes* above). Sandbox demo files (`src/examples/`) are never copied to targets — they are a generic-ness contract for the donor only.
 
 Project-added archetypes (not in the baseline MANIFEST) are never touched by `/style-archetypes`. The target's `docs/archetypes/` may freely contain project-local spec files.
 
@@ -183,7 +183,7 @@ count different things, so they legitimately drift apart. A gap between them is 
 | Field | Lives in | Counts | Bumped when |
 |-------|----------|--------|-------------|
 | **Spec version** | the spec doc's frontmatter `version:` (`docs/archetypes/<slug>.md`) | the archetype's written **contract** — the rules a consuming page must satisfy | a spec **rule** changes (a layer contract, a required prop, an allowed-variation boundary) |
-| **Deliverable version** | the `MANIFEST.json` entry's `version:` | the whole shipped **deliverable** — spec **+** reference implementation (`.baseline.md`) **+** primitives **+** demo **+** blueprint | **any** shipped change to any of those parts, including ones that leave the contract untouched |
+| **Deliverable version** | the `MANIFEST.json` entry's `version:` | the whole shipped **deliverable** — the spec's contract **+** primitives **+** demo **+** blueprint | **any** shipped change to any of those parts, including ones that leave the contract untouched |
 
 The deliverable version counts a **superset** of events: every spec-rule change is also a
 deliverable change, but a demo-coverage pass, a blueprint panel, or a primitive styling

@@ -60,7 +60,16 @@ export interface NativeFieldProps {
   multiline?: boolean;
   /** Helper text under the control (linked via `aria-describedby`). */
   hint?: string;
-  /** Error message; renders below and sets `aria-invalid` + a destructive ring. */
+  /**
+   * Error message; renders below and sets `aria-invalid` + a destructive ring.
+   *
+   * A single string — the field presents *the* error and nothing else. It
+   * renders alongside a `hint` (the frame's coexistence rule); the error never
+   * suppresses the hint. There is no severity variant and no counter/footer
+   * slot: a live character counter, or any other graded status line, is
+   * caller-owned presentation over caller state — a sibling `<p>` after the
+   * field, which is the same DOM a slot would produce.
+   */
   error?: string;
   /** Show a required marker and set the native `required` attribute. */
   required?: boolean;

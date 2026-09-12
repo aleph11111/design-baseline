@@ -14,6 +14,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
+import { CellSelect } from "@/components/ui/cell-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -128,7 +129,9 @@ export function MatrixGridDemo() {
   const [draftGrade, setDraftGrade] = useState<Grade>("A");
   const [draftNote, setDraftNote] = useState("");
   // Cell variant axis: "click" = read-only cells that open a side-sheet to edit;
-  // "inline" = editable-cell (a <select> rendered directly in each filled cell).
+  // "inline" = editable-cell — the shared `CellSelect` (ui/cell-input) flush in
+  // each filled cell, per the contract (matrix-grid.md, Layer 6: "not a bare
+  // native `<select>`").
   const [mode, setMode] = useState<"click" | "inline">("click");
   // Toolbar axis: a grid-driving control (the term) lives in the `toolbar` band
   // under the header — not in `headerActions`. Switching to a term with no
@@ -269,20 +272,20 @@ export function MatrixGridDemo() {
         isFilled={(cell) => cell !== undefined}
         renderCell={(ctx) =>
           mode === "inline" && ctx.isFilled ? (
-            <select
+            <CellSelect
               value={ctx.cell!.grade}
               onClick={(e) => e.stopPropagation()}
               onChange={(e) =>
                 setCellGrade(ctx.row.id, ctx.column.key, e.target.value as Grade)
               }
-              className="w-full cursor-pointer bg-transparent text-center text-[13px] font-mono font-medium tabular-nums focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+              className="text-center text-[13px] font-mono font-medium tabular-nums"
             >
               {ALL_GRADES.map((g) => (
                 <option key={g} value={g}>
                   {g === "INCOMPLETE" ? "INC" : g}
                 </option>
               ))}
-            </select>
+            </CellSelect>
           ) : (
             <span className="font-mono font-medium tabular-nums">
               {ctx.cell?.grade === "INCOMPLETE" ? "INC" : ctx.cell?.grade}

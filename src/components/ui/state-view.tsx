@@ -27,6 +27,10 @@ export type StateViewProps = {
    * place of the centered "Loading…" text when `variant="loading"`. The node
    * owns its own `role="status"`, so StateView renders it verbatim. Omit for the
    * default text loader.
+   *
+   * Default across the list/table shells (list-with-detail, settings-table,
+   * grouped-list) is the text loader; a skeleton is an explicit opt-in for the
+   * pages whose row shape is known ahead of the fetch.
    */
   loadingSkeleton?: React.ReactNode;
   /** Optional leading icon for the empty state (centered above the text). */

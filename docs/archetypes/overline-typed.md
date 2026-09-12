@@ -30,11 +30,7 @@ should collapse onto: one primitive owning the base signature + a closed semanti
 set. (See L7 — v2 retired that tone set as an appearance axis the contract could not
 derive, and keeps the base signature plus two documented channels instead.)
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (the concrete
-> primitive + Tailwind-4 class strings) lives in
-> [`overline-typed.baseline.md`](./overline-typed.baseline.md). A project on a different
-> stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/overline-typed`; the prop surface is the API and the sandbox demo (`src/examples/overline-typed-demo.tsx`) is the gallery reference.
 
 ## When to use it (and when not)
 

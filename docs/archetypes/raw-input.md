@@ -27,11 +27,7 @@ equivalent (a `range` slider in mistra, `date`/`time` pickers in several project
 sit bare. Rule-of-2 is met many times over. This is the convergence target that
 idea should collapse onto.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** —
-> every rule names a *role*, not a primitive. The baseline-stack binding (the
-> concrete primitive + Tailwind-4 class strings) lives in
-> [`raw-input.baseline.md`](./raw-input.baseline.md). A project on a different
-> stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/raw-input`; the prop surface is the API and the sandbox demo (`src/examples/raw-input-demo.tsx`) is the gallery reference.
 
 ## When to use it (and when not)
 

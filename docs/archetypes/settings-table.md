@@ -33,11 +33,7 @@ A **settings table** page shows a list of configuration entities (categories, su
 
 D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, toolbar, and data-fetching contracts. The key divergence is the **click contract**: D2 opens an edit dialog on row click rather than navigating to a detail route or opening a right-rail panel.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (concrete
-> primitives + Tailwind-4 class strings) lives in
-> [`settings-table.baseline.md`](./settings-table.baseline.md). A project on a
-> different stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/settings-table`; the prop surface is the API and the sandbox demo (`src/examples/settings-table-demo.tsx`) is the gallery reference.
 
 ---
 

@@ -12,7 +12,7 @@
 //
 // Usage:  node scripts/verify-manifest-versions.mjs
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const root = process.cwd();
@@ -51,14 +51,32 @@ for (const entry of manifest.archetypes) {
 // reached, which is why the methodology drift class was never caught.
 const methodologyVersions = (manifest.methodology ?? []).filter((e) => 'version' in e);
 
-if (mismatches || methodologyVersions.length) {
+// A closed archetype's props are the binding (RULES.md rule 2): its reference
+// implementation is the shipped, typed export, not a doc. Any `reference_impl`
+// key on an archetype entry — or any `docs/archetypes/*.baseline.md` file — is
+// a reintroduced sibling mirror that must not exist. Mirrors the
+// methodology[].version guard above (same drift class: a hand-maintained copy
+// of the shipped code).
+const refImplEntries = (manifest.archetypes ?? []).filter((a) => 'reference_impl' in a);
+const archetypesDir = join(root, 'docs/archetypes');
+const baselineSiblings = existsSync(archetypesDir)
+  ? readdirSync(archetypesDir).filter((f) => f.endsWith('.baseline.md'))
+  : [];
+
+if (mismatches || methodologyVersions.length || refImplEntries.length || baselineSiblings.length) {
   if (mismatches) {
     console.error(`\nverify:manifest — ${mismatches} source_spec_version mismatch(es)`);
   }
   for (const e of methodologyVersions) {
     console.error(`verify:manifest — methodology doc "${e.slug}" carries a "version" field; remove it, the doc's frontmatter is the single source`);
   }
+  for (const a of refImplEntries) {
+    console.error(`verify:manifest — archetype "${a.slug}" carries a "reference_impl" key; delete it, the binding is the shipped typed export (RULES.md rule 2), not a doc`);
+  }
+  for (const f of baselineSiblings) {
+    console.error(`verify:manifest — ${join('docs/archetypes', f).replace(/\\/g, '/')} exists; the baseline reference siblings are retired (G2) — delete the file`);
+  }
   process.exit(1);
 }
-console.log('verify:manifest — all source_spec_version fields match; no methodology version mirrors');
+console.log('verify:manifest — all source_spec_version fields match; no methodology version mirrors; no reference_impl keys, no .baseline.md siblings');
 process.exit(0);

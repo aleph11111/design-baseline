@@ -21,11 +21,7 @@ indicator and the Back / Next·Commit footer — is constant.
 Promoted from the 2026-06-13 fleet audit (recurs in controlling-app and
 my-finance-app — rule-of-2).
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (concrete
-> primitives + Tailwind-4 class strings) lives in
-> [`import-wizard.baseline.md`](./import-wizard.baseline.md). A project on a
-> different stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/import-wizard`; the prop surface is the API and the sandbox demo (`src/examples/import-wizard-demo.tsx`) is the gallery reference.
 
 ## Layer 1 — Route config
 A dedicated route (e.g. `/imports/new`, `/transactions/import`). Lazy + suspense.

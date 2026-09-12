@@ -24,11 +24,7 @@ Use this archetype when:
 
 If the page is a single-axis list of rows (no meaningful columns beyond display fields), use archetype A (list-with-detail). If the page is a single-axis settings catalogue with inline edit, use archetype D2 (settings-table).
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (concrete
-> primitives + Tailwind-4 class strings) lives in
-> [`matrix-grid.baseline.md`](./matrix-grid.baseline.md). A project on a different
-> stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/matrix-grid`; the prop surface is the API and the sandbox demo (`src/examples/matrix-grid-demo.tsx`) is the gallery reference.
 
 ---
 

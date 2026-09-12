@@ -38,11 +38,7 @@ status: locked
 
 A **list-with-detail** page shows a table of domain entities (items, users, orders, posts, records…) with row-level actions and — where a dedicated detail view exists — navigation to that view on click. Use this archetype whenever a page's primary job is to expose a filterable, searchable collection of rows that a user browses and acts upon individually. It is the most common page shape in a business application; any screen that is "a table with a toolbar" belongs here.
 
-> **Reference implementation.** This file is the **stack-agnostic contract** — every
-> rule names a *role*, not a primitive. The baseline-stack binding (concrete
-> primitives + Tailwind-4 class strings) lives in
-> [`list-with-detail.baseline.md`](./list-with-detail.baseline.md). A project on a
-> different stack adopts this contract without needing that file.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/list-with-detail`; the prop surface is the API and the sandbox demo (`src/examples/list-with-detail-demo.tsx`) is the gallery reference.
 
 ---
 

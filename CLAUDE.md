@@ -22,7 +22,7 @@ The generic skills read this block to find the project's documentation artifacts
 - `rules: docs/RULES.md`
 - `specs: docs/superpowers/specs/` *(design specs — e.g. the archetype-promotion design)*
 - `plans: docs/superpowers/plans/` *(implementation plans)*
-- `archetypes: docs/archetypes/` *(MANIFEST.json registry + `<slug>.md` contract / `<slug>.baseline.md` reference-impl pairs; methodology in `docs/archetypes/README.md`)*
+- `archetypes: docs/archetypes/` *(MANIFEST.json registry + one `<slug>.md` contract per archetype — the binding is the shipped typed export `design-baseline/archetypes/<slug>` from `src/components/archetypes/<slug>/`; methodology in `docs/archetypes/README.md`)*
 - `audits: docs/audits/` *(dated fleet audit reports; the rubric they score against lives in `docs/STYLE.md`'s "The fleet audit rubric")*
 
 ## Skills
@@ -46,7 +46,7 @@ npm run gallery:view              # gallery:build + preview on :5173
 
 ## Architecture Quick Reference
 
-- One idea: `docs/archetypes/MANIFEST.json` is the versioned source of truth for what baseline ships; every archetype is a **two-doc pair** — the stack-agnostic contract (`<slug>.md`) and the baseline reference implementation (`<slug>.baseline.md`) — plus reference primitives (`src/components/archetypes/<slug>/`) and a sandbox demo (`src/examples/<slug>-demo.tsx`).
+- One idea: `docs/archetypes/MANIFEST.json` is the versioned source of truth for what baseline ships; every archetype is **one contract plus the exported component** — the stack-agnostic contract (`<slug>.md`) and the shipped typed primitives (`src/components/archetypes/<slug>/`, export `design-baseline/archetypes/<slug>`) — plus a sandbox demo (`src/examples/<slug>-demo.tsx`).
 - `src/components/ui/` (44 shadcn/ui primitives), `src/components/layout/` (AppShell/Sidebar/Header + shared chrome), `src/components/archetypes/` (one dir per shipped archetype; 21 registered in MANIFEST) — see `docs/ARCHITECTURE.md` for the full map.
 - Promotion flow: a real project matures an archetype through Phases 1–4 (scope-lock → audit → spec → migration) → `/promote-archetype` applies maturity gates, de-source-ifies, and writes both donor docs + primitives + demo + MANIFEST entry.
 - Fleet-scale audit measurement is the read-only sweep described in `docs/STYLE.md` ("The fleet audit rubric") + `docs/ADOPTION-QUALITY.md` (Axis C) + `docs/PROMOTION-RADAR.md` (the durable candidate radar); the machine form is `docs/audit-signals.json`, and dated reports land in `docs/audits/`. It scores other repos without ever writing to them.
@@ -55,6 +55,6 @@ npm run gallery:view              # gallery:build + preview on :5173
 ## Project-Specific Notes
 
 - **GitHub-backed repo:** `origin` is `github.com/aleph11111/design-baseline`; truth ref is `origin/main`. `/ship` pushes the feature branch, opens a PR, and enables auto-merge (squash + delete remote branch on green CI) rather than merging directly.
-- **Contract vs. reference-implementation split is load-bearing**, not a style choice — it's what lets a non-baseline stack (Tailwind 3, different component system) adopt an archetype's page-shape contract without the baseline's primitives. Never fold Tailwind classes or `src/components/...` primitive names into a `<slug>.md` contract body — those belong only in `<slug>.baseline.md`.
-- **`/promote-archetype` currently has a wiring gap**, called out in its own Notes section: it writes `docs/archetypes/<slug>.md`/`.baseline.md`/MANIFEST directly, but as of this repo becoming a managed `/feat`-worktree project those writes must happen inside a design-baseline `/feat` worktree, not the primary checkout on `main`. The skill has not yet been updated to do this automatically — a known TODO.
+- **The contract is role-only; the binding is the exported component** — that is what is load-bearing (rules 2–3 of `docs/RULES.md`). Never fold Tailwind classes or `src/components/...` primitive names into a `<slug>.md` contract body: a closed archetype's props are the contract, and a doc restating the shipped code is a mirror that drifts (the retired reference-implementation siblings were exactly that).
+- **`/promote-archetype` currently has a wiring gap**, called out in its own Notes section: it writes `docs/archetypes/<slug>.md` and MANIFEST directly, but as of this repo becoming a managed `/feat`-worktree project those writes must happen inside a design-baseline `/feat` worktree, not the primary checkout on `main`. The skill has not yet been updated to do this automatically — a known TODO (it also still authors the retired baseline siblings; a coding-dashboard ticket is filed to fix it).
 - **Baseline never originates archetypes** — every entry should trace to a `promoted_from` source project (maturity-gated: spec locked/ADR'd, v1+, Phase-4 migration started, stable one session). Two entries (`report`, `calendar`) instead carry `authored` with no `promoted_from` — a **closed set** of sanctioned exceptions, grandfathered by `docs/adr/0001-grandfather-authored-report-calendar.md` and marked with an `authored_reason` in the MANIFEST; not a pattern to repeat.
