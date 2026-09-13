@@ -1540,7 +1540,7 @@ is restated as that.
 |---|---|---|
 | G1 | The phase is **donor-side**, plus exactly one edit in `coding-dashboard` (`fleet/commands/promote-archetype.md`). No consumer repo is touched | E1/F1's precedent, unchanged. The promote flow is the only writer of the artifact G2 deletes; leaving it writing siblings means the next promotion re-creates the class |
 | G2 | The `.baseline.md` sibling is **deleted, not merged**. 22 files, 133 KB | Merging preserves the mirror and doubles the contract's size; the roadmap's own rationale is *"once the archetype is a closed component, its props are the contract"*. The binding's live form is the shipped typed export plus the gallery demo, both already distributed by the package |
-| G3 | `RULES.md` rule **2 is rewritten** (one contract + the exported component, `spec` + `primitives_dir` in the MANIFEST); rule **3 is untouched**. Residue a sibling carried that the types and demo do not — a role→primitive decision such as `StateView` rendering `loadingSkeleton` verbatim — moves into the **primitive's JSDoc or its demo**, never into the contract | Keeps the contract role-only by construction rather than by a second file. The stack-agnostic property was never the split's product; rule 3 is. `lessons.md:34` already treats the documented public export as the binding's home |
+| G3 | `RULES.md` rule **2 is rewritten** (one contract + the exported component, `spec` + `primitives_dir` in the MANIFEST); rule **3's invariant is untouched** — the contract stays primitive-free — while its destination clause, which named the retired `.baseline.md` sibling, is re-pointed at the binding's live home. Residue a sibling carried that the types and demo do not — a role→primitive decision such as `StateView` rendering `loadingSkeleton` verbatim — moves into the **primitive's JSDoc or its demo**, never into the contract | Keeps the contract role-only by construction rather than by a second file. The stack-agnostic property was never the split's product; rule 3 is. `lessons.md:34` already treats the documented public export as the binding's home |
 | G4 | `reference_impl` leaves every MANIFEST archetype entry, and `scripts/verify-manifest-versions.mjs` grows the guard: no entry carries `reference_impl`, no `docs/archetypes/*.baseline.md` exists | The mechanical tripwire is what stops the pair re-appearing by hand, the same way the methodology-`version` guard stopped E3's third number. Hub-safe: `designPlugin.ts:21` requires only `key`/`slug` |
 | G5 | The package **ships `docs/archetypes/`** — the 22 contracts, `MANIFEST.json`, `README.md` — via one `files` entry | Pays off `PACKAGE.md:264`. ~480 KB after G2, against F3's stated ceiling (68 KB fine, 4.5 MB not): the corpus a consumer deletes must resolve somewhere, and pinning it to the installed tag is the same argument F3 made for the four methodology docs |
 | G6 | `plugin.actions` re-points at the package install — one `install-package` action naming `docs/PACKAGE.md`'s runbook, `iterate-baseline` kept, `/promote-archetype` added as the one surviving fleet command — and `plugin.version` goes **0.10.2 → 0.11.0** | PLUGIN-CONTRACT's own rule: bump on a break to the `plugin` block's shape, and G4 + the action set are exactly that. Lands **before** `fleet-commands` so no window exists where the manifest advertises deleted commands |
@@ -1569,7 +1569,7 @@ contract-level statement and moves to `grouped-list.md`.
 
 The doc-set edits that follow the deletion, each already located:
 
-- `docs/RULES.md:9` — rule 2 rewritten per G3; rule 3 (`:11`) untouched.
+- `docs/RULES.md:9` — rule 2 rewritten per G3; rule 3 (`:11`) keeps its invariant, its destination clause re-pointed at the primitive's JSDoc / gallery demo (the retired `.baseline.md` sibling no longer exists to receive residue).
 - `docs/archetypes/README.md:16,18,174,186` — the pair table row, the
   stack-agnostic *Why*, the copy list, and the deliverable-version definition.
 - `docs/ARCHITECTURE.md:44,63,111,113,133` — the artifact table row, the
@@ -1638,7 +1638,11 @@ Phase `donor-docs` is done when all of these hold:
 3. `grep -rn 'baseline\.md' docs/ src/ CLAUDE.md README.md _adherence.json`
    returns no live reference outside `docs/backlog/`, `docs/audits/` and this
    spec.
-4. `docs/RULES.md` rule 3 is **byte-identical** to its pre-phase text, and no
+4. `docs/RULES.md` rule 3's **invariant is unchanged** (a contract may never name a
+   primitive or a Tailwind class) and its destination clause no longer routes residue
+   into the retired `.baseline.md` sibling — it names the primitive's JSDoc in
+   `src/components/archetypes/<slug>/` or its gallery demo in `src/examples/<slug>-demo.tsx`,
+   the same residue home G3 prescribes — and no
    contract names a primitive or a Tailwind class:
    `grep -rEn 'src/components/|\bbg-|\btext-(xs|sm|lg|xl)\b' docs/archetypes/*.md`
    finds nothing outside `README.md`.
