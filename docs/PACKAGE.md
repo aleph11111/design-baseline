@@ -265,18 +265,17 @@ for a third of the artifacts. Two caveats before the table. The `node_modules/�
 rows are a true instruction only against a tag that ships those docs
 (`package-ships-methodology-docs-single-version-source`) — the package does not
 ship `docs/ADOPTION.md` or `docs/ADOPTION-QUALITY.md`, which is what their rows
-say. And until `fleet-commands` removes `/adopt-baseline`, its `--update` can
-still re-vendor a doc step 6 deleted — an opt-in manual command, so the
-exposure is a mis-run rather than a mechanism; the order stays reader, then
-file, then writer.
+say. The retired copy-distribution command that could once re-vendor a doc
+this step 6 deletes ships no such writer any more, so the re-vendor vector is
+gone; the order stays reader, then file, then writer.
 
 | Artifact | Owner after the swap | Action |
 |---|---|---|
 | `docs/CHOOSING-A-SURFACE.md`, `docs/PLACEMENT.md`, `docs/STACK.md`, `docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md` | package | Delete the copy; read `node_modules/design-baseline/docs/<name>` |
 | `docs/ADOPTION.md` **with** `version:` frontmatter | — | Delete. The contract it carries is `donor-docs`' rewrite, and "adopted" is a version in `package.json` |
 | `docs/ADOPTION.md` **without** `version:` | project | Keep — it is the project's own adoption record at a donor path (`hk-crm`) |
-| `docs/ADOPTION-QUALITY.md`, `docs/ADOPTION-STATUS.md` | — | Delete. The nine-gate checklist has no meaning once `/adopt-baseline` is gone (`fleet-commands`) |
-| `docs/FLEET-AUDIT.md` in a consumer | — | Delete. Donor-internal; the copy in `hk-crm` was never distributed by `/adopt-baseline` |
+| `docs/ADOPTION-QUALITY.md`, `docs/ADOPTION-STATUS.md` | — | Delete. The nine-gate checklist has no meaning without the command that wrote it |
+| `docs/FLEET-AUDIT.md` in a consumer | — | Delete. Donor-internal; the copy in `hk-crm` was never vendored into consumers |
 | `docs/SURFACES.md` | project | Keep. Its reader is review, not adoption |
 | `_adherence.json`, `scripts/lint-design.mjs`, the `lint:design` script | project | Keep, retargeted. This phase's title says so |
 | `docs/design-baseline-chrome.json` | — | Delete. `drop-drift-machinery` removed its last reader (E2) |

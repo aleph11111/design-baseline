@@ -23,7 +23,7 @@ The generic skills read this block to find the project's documentation artifacts
 - `plans: docs/superpowers/plans/` *(implementation plans)*
 - `archetypes: docs/archetypes/` *(MANIFEST.json registry + one `<slug>.md` contract per archetype — the binding is the shipped typed export `design-baseline/archetypes/<slug>` from `src/components/archetypes/<slug>/`; methodology in `docs/archetypes/README.md`)*
 - `audits: docs/audits/` *(dated fleet audit reports; the rubric they score against lives in `docs/STYLE.md`'s "The fleet audit rubric")*
-- `design: docs/` *(the World-A methodology layer — this donor IS the design-baseline; declared as one bare-root key so its machine readers — the `/adopt-baseline`, `/style-archetypes`, `/promote-archetype` skills and the dashboard's `design-plugin` donor gate — resolve every file below, matching controlling-app's donor-layer pattern. Frozen set: the repo's own `archetype-convergence` roadmap's `docs-retire` phase retires them later.)*
+- `design: docs/` *(the World-A methodology layer — this donor IS the design-baseline; declared as one bare-root key so its machine readers — the `/style-archetypes` and `/promote-archetype` skills and the dashboard's `design-plugin` donor gate — resolve every file below, matching controlling-app's donor-layer pattern. Frozen set: the repo's own `archetype-convergence` roadmap's `docs-retire` phase retires them later.)*
   - `docs/ADOPTION-QUALITY.md` — Axis C adoption-quality audit contract (`/style-archetypes` Phase 3)
   - `docs/CHOOSING-A-SURFACE.md` — surface-selection decision
   - `docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md` — detail-page teardown playbook

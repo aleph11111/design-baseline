@@ -2,7 +2,7 @@
 // design-baseline adherence lint — the mechanical half of gate 2 of the four-gate enforcement stack (docs/PACKAGE.md).
 //
 // Zero-dependency by design: a heuristic source scan, no ESLint or oxlint required, so a
-// consumer with no linter still gets a working gate the moment /adopt-baseline wires it.
+// consumer with no linter still gets a working gate the moment this runbook's install-and-wire steps wire it.
 // (oxlint cannot express `no-restricted-syntax`, which the earlier config depended on — see
 // _adherence.NOTES.md and ADR-0003.)
 //
