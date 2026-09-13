@@ -33,6 +33,9 @@ tickets:
   - archetype-baseline-sibling-retire
   - package-ships-contracts-and-plugin-actions
   - fleet-audit-and-adoption-doc-retire
+  - adopt-baseline-command-retire
+  - hk-crm-package-install-cutover
+  - copy-channel-final-delete
 phases:
   - name: p0
     title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
@@ -117,8 +120,11 @@ phases:
     title: >-
       Delete /adopt-baseline, /style-baseline, /style-archetypes from ~/.claude/commands and
       fleet/commands; keep /promote-archetype
-    tickets: []
-    open: true
+    tickets:
+      - adopt-baseline-command-retire
+      - hk-crm-package-install-cutover
+      - copy-channel-final-delete
+    spec_anchor: '## Phase fleet-commands — retire the copy channel, one part now and one gated'
 ---
 
 # Archetype convergence — close the archetype API, then distribute it as a package

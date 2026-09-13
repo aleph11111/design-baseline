@@ -1714,3 +1714,282 @@ since it touches no archetype artifact.
 - Whether `ADOPTION-QUALITY.md` survives `fleet-commands`. It is the Axis-C
   rubric's prose home after G8, and its reader is a hub ritual, not a consumer —
   so it is donor-internal by F3's test but not dead.
+
+## Phase fleet-commands — retire the copy channel, one part now and one gated
+
+Sharpened 2026-09-13, after p0 / p1 / lint / warn-drain / pkg / token-split /
+consumer-migration / drop-drift-machinery / docs-retire / donor-docs landed.
+Supersedes the roadmap's Phase-8 bullets, which name the right four files and
+get the shape, the location count and the ordering wrong.
+
+### What changed under this phase
+
+**No consumer has installed the package.** This is the fact the phase turns on.
+`consumer-migration`'s title reads *"Migrate hk-crm `/companies/[id]` onto the
+packaged archetype"*, and what it shipped is the donor-side enablers — the
+project-first `ui/` paths array, the ten `--color-status-*` roles, tag `v0.2.1`,
+`verify-exports` at 7/7, and `PACKAGE.md:125-233`'s five-step runbook — plus a
+**dry run** recorded in `docs/backlog/archive/package-tag-post-v0-2-0-sync.md:41-100`.
+On disk today `hk-crm` carries 102 vendor stamps, 49 files in
+`src/components/ui/`, 23 in `src/components/archetypes/`, and no `design-baseline`
+entry in `package.json`. `controlling-app`, `mistra` and `brickshop-manager` are
+the same. The roadmap's Phase 4 — *"Migrate consumers, one at a time"* — has
+never run and has no phase of its own. So `/style-baseline` and
+`/style-archetypes` are not a superseded channel: they are the **only** channel,
+and deleting them today leaves the fleet with zero.
+
+**`/adopt-baseline` is the one command that is genuinely dead.** Its product was
+the vendored methodology corpus, and `docs-retire` moved that into the package's
+`files` (the four docs resolve from `node_modules/design-baseline/docs/`).
+`donor-docs`' G7 deleted `docs/ADOPTION.md`, the contract its step 3 vendored.
+Its remaining half — the nine-point `ADOPTION-STATUS.md` checklist — is scored
+dashboard-side by `computeCompletionGate`, which reads the repo's working tree,
+not the skill. Nothing the command does still works.
+
+**"Delete from `~/.claude/commands` and `fleet/commands`" is one delete, not
+two.** Every entry under `~/.claude/commands/` is a symlink into
+`coding-dashboard/fleet/commands/` (`adopt-baseline.md ->
+/Users/christoph/Documents/dev/coding-dashboard/fleet/commands/adopt-baseline.md`),
+and `fleet/install.sh:474-495` reaps a dangling managed link on its next run —
+`unlinked  commands/<name>.md (dangling — its mirror file was deleted)`. The
+second location maintains itself; `fleet/install.sh --check` is the proof.
+
+**The blast radius is the dashboard, not the 2,555 lines of command prose.**
+Inverse of every prior phase, which was donor-side with at most one
+`coding-dashboard` edit (E1/F1/G1). Located readers:
+
+- `server/methodologyAdoption.test.ts:283-308` — `readFile`s
+  `fleet/commands/adopt-baseline.md` and diffs its `# Gate N (name):` headers
+  against `computeCompletionGate`'s array. Deleting the file breaks a test.
+- `server/ritualsDesign.test.ts:24,39` — asserts two ritual prompts match
+  `/style-archetypes`.
+- `server/rituals-prompts.ts:134,486,502,551,564` — five prompt sites
+  instructing repos to run `/style-archetypes`, `/style-baseline` and
+  `/style-archetypes --update`.
+- `server/archetypeShapeAudit.ts:93,214` — the shape audit's **event trigger**
+  is `/style-archetypes --update` moving a consumer manifest's `version`.
+- `server/methodologyAdoption.ts:15,17,51,72`, `server/routes/design.ts:266`,
+  `server/lib/adoptionLayers.ts:7`, `server/lib/liveSession.ts:7`,
+  `server/types/worktrees.ts:135`, `server/ritual-key.ts:5`,
+  `docs/ARCHITECTURE.md:43,54,136,137,141,326` — comments and prose naming the
+  commands as the mechanism they measure.
+- `fleet/commands/promote-archetype.md:5,571,917-918` — the surviving command
+  describes its own output as *"ships with `/style-archetypes` to new
+  projects"*, mirrors `--update`'s per-key patch, and verifies itself by
+  *"Test apply: `/style-archetypes <slug>` in a fresh `/style-baseline`-applied
+  project"*.
+
+**The donor's own doc set names the copy commands ~50 times** — `README.md:5,55,60,65,88`,
+`CLAUDE.md:7,26,27,45`, `docs/STYLE.md` (13 sites), `docs/TAXONOMY.md:11-14,31-36`,
+`docs/ARCHITECTURE.md:7,32,65,70,136,145,146`, `docs/RULES.md:21,39`,
+`docs/archetypes/README.md:30,164-176,228`, `docs/PROMOTION-RADAR.md:84,89`,
+`docs/promotion-radar.json:381`, `vite.config.ts:11`, `src/utils/logger.ts:18`,
+`src/components/layout/AuthCard.tsx:21`, `scripts/verify-exports.mjs:33`.
+
+**`PACKAGE.md:268-271` is a live forward reference this phase pays off.** It
+warns that *"until `fleet-commands` removes `/adopt-baseline`, its `--update`
+can still re-vendor a doc step 6 deleted"*. Same shape as `donor-docs` paying
+off `PACKAGE.md:264` — each phase's ship turns a predecessor's caveat into a
+fact.
+
+### Decisions
+
+| # | Decision | Rationale |
+|---|---|---|
+| H1 | The phase splits **by deadness, not by command**. Part **A** retires `/adopt-baseline` and ships now. Part **B** deletes `/style-baseline`, `/style-archetypes` and their dashboard readers, and is **gated** | `/adopt-baseline`'s product ships in the package and its contract doc is already deleted; the other two are the fleet's only live channel at zero installs. One phase, two ripeness classes |
+| H2 | The phase is **`coding-dashboard`-side**, plus a six-site donor doc pass. Inverse of G1's donor-side/one-dashboard-edit shape | The commands live in `fleet/commands/` and every runtime reader is under `server/`. The donor only *describes* them |
+| H3 | Deleting a command is **one** file delete plus `bash fleet/install.sh`. The `~/.claude/commands/` symlink is not deleted by hand | `install.sh:474-495` reaps dangling managed links; `mine_dangling` scopes the reap to links the repo owns, so a hand-made foreign link is left alone. Doing it by hand duplicates a mechanism that already exists |
+| H4 | `methodologyAdoption.test.ts:283-308` is **deleted, not re-homed onto an inline gate list** | It is a mirror test: one invariant (gate order), two hand-maintained statements. Re-homing it preserves the mirror with one side amputated. Its subject is `ADOPTION-STATUS.md`'s numbering, which has no writer once the skill is gone |
+| H5 | `computeCompletionGate`, `scanMethodologyAdoption` and the nine-gate score **survive Part A** and retire in Part B | They scan a repo's working tree, and all four consumers are still copy-vendored — the measurement is still true. Only the skill-file mirror dies now. Same reasoning `drop-drift-machinery` used to keep `LocalArchetypeEntry` (E4) |
+| H6 | `/promote-archetype` gets **one** edit pass, in Part A, covering all four sites | `:917-918`'s "test apply in a fresh `/style-baseline` project" was already the wrong verification the moment `donor-docs` made the typed export plus the gallery demo the binding; it becomes `npm pack --dry-run` plus the demo. `:5` and `:571`'s framing is re-pointed at the package in the same pass — two passes over one file to stage a prose edit is the cost the split was meant to avoid |
+| H7 | Part B's gate is a **stated, checkable precondition on its ticket**, not a mechanism: at least one consumer repo where `node -e "require.resolve('design-baseline/package.json')"` succeeds **and** `ls src/components/archetypes` is empty or absent | A fleet scanner built to fire exactly once is the machinery this roadmap deletes. The check is two commands in the ticket's first step |
+| H8 | Part A's donor doc pass is exactly `CLAUDE.md:26`, `docs/README.md:16`, `docs/PACKAGE.md:268-271` and its `ADOPTION-QUALITY.md, ADOPTION-STATUS.md` ownership row, and `scripts/lint-design.mjs:5`. **ADR-0002, ADR-0003 and `adr/INDEX.md` are not edited** | An ADR records what was decided then; rewriting one to match today falsifies the record. The four citations there are historical and read correctly as history |
+| H9 | The ~50 `/style-*` donor doc sites stay untouched until Part B | Documenting a channel that four repos still depend on as dead is a worse defect than the stale reference it would fix. Part B rewrites them in one pass against the world where the package is the channel |
+| H10 | The roadmap's *"keep `/promote-archetype`"* acceptance is **restated**: at every moment, **at least one distribution channel exists** — never zero | `/promote-archetype` is a producer, not a channel: it writes into the donor. Keeping it while deleting all three consumer-facing commands satisfies the roadmap's letter and leaves the fleet able to publish and unable to receive |
+| H11 | The roadmap's missing Phase 4 — the actual `hk-crm` package cutover — is filed **as this phase's ticket**, because no other phase owns it and it is Part B's only unblocker | A gate with no scheduled unblocker is a phase that never closes. Scoping it here is narrower than reopening `consumer-migration`, whose section is shipped and accurate about what it shipped |
+
+### Part A, concretely
+
+Ships on this phase's first ticket. Nothing here is gated.
+
+```
+fleet/commands/adopt-baseline.md            deleted (600 lines)
+~/.claude/commands/adopt-baseline.md        reaped by `bash fleet/install.sh`
+server/methodologyAdoption.test.ts:283-308  deleted (the gate-order mirror test)
+fleet/commands/promote-archetype.md         :5, :571, :917-918 re-pointed at the package
+```
+
+Donor doc pass, each site already located:
+
+- `CLAUDE.md:26` — the `design:` Doc Paths gloss lists `/adopt-baseline` among
+  the key's machine readers. It is no longer one.
+- `docs/README.md:16` — same list, same edit.
+- `docs/PACKAGE.md:268-271` — the *"until `fleet-commands` removes
+  `/adopt-baseline`"* caveat becomes the fact; the `ADOPTION-QUALITY.md,
+  ADOPTION-STATUS.md` row's *"once `/adopt-baseline` is gone (`fleet-commands`)"*
+  loses its forward tense.
+- `scripts/lint-design.mjs:5` — the header comment's *"the moment
+  `/adopt-baseline` wires it"* names the wiring's new owner, `PACKAGE.md`'s
+  runbook.
+
+What Part A does **not** touch: `computeCompletionGate` itself (H5), the
+`ADOPTION-STATUS.md` files sitting in `controlling-app` (a consumer artifact
+`docs-retire`'s runbook step 6 deletes on migration), and every `/style-*`
+reference anywhere (H9).
+
+### Part B, concretely
+
+Gated on H7. One ticket, filed now and blocked, so the decompose loop can see it.
+
+```
+fleet/commands/style-baseline.md            deleted (505 lines)
+fleet/commands/style-archetypes.md          deleted (516 lines)
+~/.claude/commands/style-{baseline,archetypes}.md   reaped by install.sh
+```
+
+Dashboard readers, in dependency order — prompts first (they *instruct* the
+dead commands), then the machinery that measures the channel:
+
+- `server/rituals-prompts.ts:134` — the archetype-adoption ritual's "run
+  `/style-archetypes`" instruction becomes the package install.
+- `server/rituals-prompts.ts:486,502,551,564` — the donor-iteration and
+  promotion prompts' `--update` propagation story becomes a tag bump.
+- `server/ritualsDesign.test.ts:24,39` — the two assertions follow their
+  prompts.
+- `server/archetypeShapeAudit.ts` — the shape axis and its
+  `/style-archetypes --update` event trigger lose their subject; retire with
+  `selectBumpedShapeKeys`, `selectResolvedShapeKeys` and
+  `~/.claude/state/archetype-shape-{flags,refire-flags}.json`.
+- `server/methodologyAdoption.ts` + `computeCompletionGate` +
+  `server/routes/design.ts:266`'s third adoption axis — the nine-gate score
+  (H5's survivors).
+- `server/archetypeDrift.ts`'s `LocalArchetypeEntry` /
+  `keyCollidesWithBaseline` — kept by `drop-drift-machinery`'s E4 *for
+  copy-vendored repos*; the last one is gone at this gate.
+- `docs/ARCHITECTURE.md:43,54,136,137,141,326` and `server/lib/adoptionLayers.ts:7`,
+  `server/ritual-key.ts:5`, `server/types/worktrees.ts:135`,
+  `server/lib/liveSession.ts:7` — prose following the code.
+
+Donor doc pass, Part B (H9's deferred ~50 sites): `README.md:5,55,60,65,88`,
+`CLAUDE.md:7,26,27,45`, `docs/STYLE.md`'s thirteen sites, `docs/TAXONOMY.md`'s
+distribution column, `docs/ARCHITECTURE.md:7,32,65,70,136,145,146`,
+`docs/RULES.md` rules 8 and the sandbox-demo bullet,
+`docs/archetypes/README.md:30,164-176,228`, `docs/PROMOTION-RADAR.md:84,89` +
+`promotion-radar.json:381`, `vite.config.ts:11`, `src/utils/logger.ts:18`,
+`src/components/layout/AuthCard.tsx:21`, `scripts/verify-exports.mjs:33`.
+`docs/RULES.md` rule 8 (`/style-archetypes` merges MANIFEST by slug) is
+**deleted, not rewritten** — it governs a merge that no longer happens.
+
+### Scope boundary
+
+This phase retires the copy-distribution commands and the dashboard machinery
+whose only subject is the copies. It does **not**:
+
+- Delete `/promote-archetype`. It is the surviving producer, and `donor-docs`'
+  G6 already made it the one fleet command `plugin.actions` advertises.
+- Delete `/adopt-workflow`, `/feat`, `/ship`, `/ticket` or any other
+  `fleet/commands/` entry. The roadmap's scope is the design-distribution
+  commands only.
+- Delete `_adherence.json`, `scripts/lint-design.mjs` or the `lint:design`
+  wiring in any repo. `docs-retire`'s title kept the lint explicitly and
+  `PACKAGE.md`'s ownership table already says "keep, retargeted".
+- Delete `docs/audit-signals.json`, `moleculeAudit.ts`, `adoptionScan.ts`,
+  `scan-adoption-quality.mjs` or `ADOPTION-QUALITY.md` in the **donor**.
+  `donor-docs`' G8 moved the Axis-C rubric into `ADOPTION-QUALITY.md`
+  deliberately; whether it survives is that phase's deferred question and is
+  answered by whether the hub ritual still runs, not by a command's deletion.
+- Rewrite `archetypeShapeAudit.ts`'s surviving "should this be an archetype?"
+  half. Inherited deferred item, three phases running.
+- Edit any ADR (H8).
+- Touch a consumer repo, except the one `hk-crm` cutover ticket, which is the
+  gate's unblocker and is scoped to the install itself.
+
+### Verification
+
+Phase `fleet-commands` is done when all of these hold.
+
+**Part A:**
+
+1. `ls ~/Documents/dev/coding-dashboard/fleet/commands/` lists eleven files and
+   no `adopt-baseline.md`; `ls ~/.claude/commands/adopt-baseline.md` fails.
+2. `bash fleet/install.sh --check` exits 0 — no `UNMIRRORED`, no dangling
+   managed link left behind.
+3. `npm test` in `coding-dashboard` passes with the gate-order test gone, and
+   `grep -rn 'adopt-baseline' server/` returns no `readFile` of a command path.
+4. `grep -rn 'style-baseline\|style-archetypes' fleet/commands/promote-archetype.md`
+   is empty, and its step-9 verification names `npm pack --dry-run` and the
+   gallery demo.
+5. `grep -rn 'adopt-baseline' CLAUDE.md docs/README.md docs/PACKAGE.md scripts/lint-design.mjs`
+   in the donor returns nothing; the same grep over `docs/adr/` still returns
+   its four historical citations (H8 — their survival is the check, not their
+   absence).
+6. Donor gates unchanged: `npx tsc --noEmit` clean,
+   `node scripts/lint-design.mjs` 0 errors, `node scripts/verify-exports.mjs`
+   7/7 ok, `node scripts/verify-manifest-versions.mjs` ok.
+
+**Part B, after the gate opens:**
+
+7. The gate is met and recorded: in at least one consumer,
+   `node -e "require.resolve('design-baseline/package.json')"` succeeds and
+   `src/components/archetypes/` is absent.
+8. `fleet/commands/` holds nine files; `/promote-archetype` is among them.
+   `bash fleet/install.sh --check` exits 0.
+9. `grep -rn 'style-baseline\|style-archetypes\|adopt-baseline' server/ client/src/`
+   in `coding-dashboard` returns nothing outside `docs/backlog/` and
+   `docs/superpowers/`; `npm test` passes.
+10. The hub still reports the design plugin `connected: true` and renders the
+    Design tab without the retired axes — no runtime error from a removed
+    `shapeEntries` / `methodology` field.
+11. In the donor, `grep -rn 'style-baseline\|style-archetypes' --include='*.md'
+    --include='*.ts' --include='*.tsx' --include='*.mjs' --include='*.json' .`
+    returns nothing outside `docs/backlog/`, `docs/adr/`, `docs/audits/` and
+    this spec.
+12. `docs/RULES.md` has no rule governing a `MANIFEST.json` merge, and its
+    rule count and numbering are contiguous.
+13. Donor gates unchanged, as (6).
+
+The class-level acceptance: **at no point between Part A and Part B does the
+fleet have zero distribution channels.** Before Part B, the copy commands work
+and the package is installable; after it, the package is the channel and the
+copy commands are gone. The failure mode this phase is shaped to avoid is the
+window in between — a fleet that can neither re-vendor nor install.
+
+### Ticket batch
+
+| ticket | depends_on |
+|---|---|
+| `adopt-baseline-command-retire` | — |
+| `hk-crm-package-install-cutover` | — |
+| `copy-channel-final-delete` | `hk-crm-package-install-cutover` |
+
+Three. The first is Part A whole — the delete, the mirror test, the
+`/promote-archetype` pass and the four donor doc sites — as one ticket because
+deleting the command without deleting the test that reads it breaks
+`coding-dashboard`'s suite, and the doc sites are the same sentence in four
+files. The second is the roadmap's never-run Phase 4, scoped to the install
+itself: `npm i design-baseline` against the tag, the four wiring lines,
+`PACKAGE.md`'s runbook steps, and the vendored-copy deletion. The third is
+Part B whole, blocked on the second, because every deletion in it is only
+correct once the second has landed.
+
+### Deferred to the decompose loop
+
+- Whether `controlling-app`, `mistra` and `brickshop-manager` each need their
+  own cutover ticket or whether one migrated consumer is enough to open Part
+  B's gate. H7 says one is enough to *delete the commands*; whether the other
+  three are then migrated or left frozen at their last vendored state is a
+  separate call, and `brickshop-manager`'s pre-donor lineage
+  (`docs/archive/archetypes-2026/`, Phase 6's carve-out) makes it the one most
+  likely to stay frozen.
+- Whether the nine-gate score has a successor at all after Part B — "is this
+  repo on the package, at which tag" is one `package.json` read and is already
+  `archetypeDrift.ts`'s bundle axis, so the honest answer may be that the
+  Adoption tab's third axis simply collapses into the second.
+- Whether `/promote-archetype`'s 934 lines survive contact with a world where
+  the donor is a package: four of its steps existed to route edits between a
+  contract and its `.baseline.md` sibling and were already cut by `donor-docs`.
+  A re-read against the closed API is likely to find more.
+- Whether `fleet/commands/` wants a deprecation convention at all — a command
+  that prints a pointer and exits — or whether deletion plus git history is the
+  whole answer. The answer here is deletion, on H3's reasoning; the question is
+  only whether a future fleet-command retirement deserves better.
