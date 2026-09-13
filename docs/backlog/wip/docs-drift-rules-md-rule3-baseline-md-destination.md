@@ -75,5 +75,5 @@ just never updated its own verification clause to match its own decision.
 
 ## Related
 
-- [docs/backlog/archive/archetype-baseline-sibling-retire.md](archive/archetype-baseline-sibling-retire.md) — the retirement this ticket's drift follows from
-- [docs/backlog/archetype-convergence.md](archetype-convergence.md) — parent roadmap, `donor-docs` phase
+- [docs/backlog/archive/archetype-baseline-sibling-retire.md](../archive/archetype-baseline-sibling-retire.md) — the retirement this ticket's drift follows from
+- [docs/backlog/archetype-convergence.md](../archetype-convergence.md) — parent roadmap, `donor-docs` phase
