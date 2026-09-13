@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-13'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "mechanical deletion plus four located prose edits — the design decisions are all settled in the spec's H1/H3/H4/H6/H8"
