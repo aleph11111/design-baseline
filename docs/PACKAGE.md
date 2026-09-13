@@ -280,7 +280,7 @@ file, then writer.
 | `docs/SURFACES.md` | project | Keep. Its reader is review, not adoption |
 | `_adherence.json`, `scripts/lint-design.mjs`, the `lint:design` script | project | Keep, retargeted. This phase's title says so |
 | `docs/design-baseline-chrome.json` | — | Delete. `drop-drift-machinery` removed its last reader (E2) |
-| `docs/archetypes/<slug>.md` forks | package | Delete. The closed API's props are the contract; `donor-docs` collapsed the donor pair (one contract per archetype — the binding is the shipped typed export, not a doc) |
+| `docs/archetypes/<slug>.md` forks | package | Delete the fork; the successor is the installed contract at `node_modules/design-baseline/docs/archetypes/<slug>.md` — the closed API's props are the contract (the binding is the shipped typed export, not a doc) |
 | `docs/archetypes/MANIFEST.json` | project, shrunk | Drop every entry carrying a `version:` (baseline adoptions). Keep versionless local entries. Delete the file only if none remain (F4) |
 | Per-file `design-baseline@<ver>` vendor stamps | — | Delete — already runbook step 4; the installed tag is the stamp |
 | `## Doc Paths` `design:` key | — | Remove |

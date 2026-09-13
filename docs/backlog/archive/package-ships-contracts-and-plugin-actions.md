@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-11'
-status: ready
+status: done
 value: high
 depends_on: [archetype-baseline-sibling-retire]
 model: sonnet
@@ -36,42 +36,55 @@ and `client/src` finds no consumer of `plugin.actions`, and
 
 ## What to do
 
-- [ ] Add `docs/archetypes` to `package.json`'s `files` array — the 22
+- [x] Add `docs/archetypes` to `package.json`'s `files` array — the 22
       contracts, `MANIFEST.json` and `README.md`, ~480 KB after the siblings
       are gone (G5).
-- [ ] Rewrite `MANIFEST.json`'s `plugin.actions` to the three-entry set in the
+- [x] Rewrite `MANIFEST.json`'s `plugin.actions` to the three-entry set in the
       spec: `install-package` (naming `docs/PACKAGE.md`'s runbook),
       `promote-archetype`, `iterate-baseline`. `adopt-baseline` and
       `adopt-archetype` leave the array.
-- [ ] Bump `plugin.version` `0.10.2` → `0.11.0` — a break to the `plugin`
+- [x] Bump `plugin.version` `0.10.2` → `0.11.0` — a break to the `plugin`
       block's shape, which is the bump rule `docs/PLUGIN-CONTRACT.md`'s
       *Versioning* section states (and the two-number split
       `plugin-version-contract-vs-bundle-split` documented).
-- [ ] Update `docs/PLUGIN-CONTRACT.md`'s example `actions` block and its
+- [x] Update `docs/PLUGIN-CONTRACT.md`'s example `actions` block and its
       "A repo IS a design-plugin when it has" item 3 so both match the shipped
       manifest.
-- [ ] Correct `docs/PACKAGE.md:264`'s ownership row to name the real successor
+- [x] Correct `docs/PACKAGE.md:264`'s ownership row to name the real successor
       path (`node_modules/design-baseline/docs/archetypes/<slug>.md`).
+- [x] Re-point the one residual `/style-archetypes` command reference in
+      `MANIFEST.json`'s `namespaces.baseline` description at the package install —
+      the acceptance grep requires `docs/archetypes/MANIFEST.json` to carry no
+      `/style-baseline` or `/style-archetypes` reference, and the only surviving
+      one (line 6) named the old sync command for a corpus that is now shipped
+      in the package. Not a 6th What-to-do item; the acceptance gate forces it out.
 
 ## Acceptance
 
-- [ ] `npm pack --dry-run` shows every `docs/archetypes/*.md` contract and no
+- [x] `npm pack --dry-run` shows every `docs/archetypes/*.md` contract and no
       `docs/ADOPTION*.md`, `docs/FLEET-AUDIT.md` or other `docs/` entry beyond
       the four methodology docs.
-- [ ] `node scripts/verify-exports.mjs` still reports 7/7 ok — docs are files,
+- [x] `node scripts/verify-exports.mjs` still reports 7/7 ok — docs are files,
       not exports, so no invariant moves here.
-- [ ] `grep -rn 'style-baseline\|style-archetypes' docs/PLUGIN-CONTRACT.md docs/archetypes/MANIFEST.json`
+- [x] `grep -rn 'style-baseline\|style-archetypes' docs/PLUGIN-CONTRACT.md docs/archetypes/MANIFEST.json`
       returns nothing, and `plugin.version` reads `0.11.0`.
-- [ ] The hub reports the plugin `connected: true` against this checkout after
+- [x] The hub reports the plugin `connected: true` against this checkout after
       the manifest edit, so `designPlugin.ts`'s four validation steps still
       pass with the reshaped `actions` and the dropped `reference_impl` keys.
-- [ ] Donor gates unchanged: `npx tsc --noEmit` clean,
+
+      Verified by replicating `designPlugin.ts`'s 4 validation steps (dir,
+      readable MANIFEST, `plugin` block present, `archetypes` non-empty)
+      directly against this checkout: `connected:true`, 22 archetypes, all
+      carrying `key`+`slug`. `actions` is unconsumed by the hub, so the
+      reshaped array does not affect the connector's result.
+
+- [x] Donor gates unchanged: `npx tsc --noEmit` clean,
       `node scripts/lint-design.mjs` 0 errors, `npm run gallery:build` ok.
 
 ## Related
 
-- [archetype-baseline-sibling-retire](archive/archetype-baseline-sibling-retire.md) — must ship first: shipping `docs/archetypes/` before the siblings are deleted puts the mirror into every consumer's `node_modules`
-- [archetype-convergence.md](archetype-convergence.md) — roadmap, phase `donor-docs`
-- [package-doc-retirement-ownership-and-runbook-step.md](archive/package-doc-retirement-ownership-and-runbook-step.md) — wrote the ownership row this ticket makes true
-- [package-ships-methodology-docs-single-version-source.md](archive/package-ships-methodology-docs-single-version-source.md) — the `files`-array precedent (F3)
-- [plugin-version-contract-vs-bundle-split.md](archive/plugin-version-contract-vs-bundle-split.md) — the two-number split whose bump rule governs `plugin.version`
+- [archetype-baseline-sibling-retire](../archive/archetype-baseline-sibling-retire.md) — must ship first: shipping `docs/archetypes/` before the siblings are deleted puts the mirror into every consumer's `node_modules`
+- [archetype-convergence.md](../archetype-convergence.md) — roadmap, phase `donor-docs`
+- [package-doc-retirement-ownership-and-runbook-step.md](../archive/package-doc-retirement-ownership-and-runbook-step.md) — wrote the ownership row this ticket makes true
+- [package-ships-methodology-docs-single-version-source.md](../archive/package-ships-methodology-docs-single-version-source.md) — the `files`-array precedent (F3)
+- [plugin-version-contract-vs-bundle-split.md](../archive/plugin-version-contract-vs-bundle-split.md) — the two-number split whose bump rule governs `plugin.version`

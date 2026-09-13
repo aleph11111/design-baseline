@@ -25,9 +25,9 @@ the hub usable without a baseline, and what lets someone bring their own.
          "route": "/a/{slug}"                  // deep-link shape within the surface
        },
        "actions": [                            // declared, hub maps to its machinery
-         { "id": "adopt-baseline",  "command": "/style-baseline",        "scope": "project" },
-         { "id": "adopt-archetype", "command": "/style-archetypes {key}", "scope": "project" },
-         { "id": "iterate-baseline","command": "<iterate session>",       "scope": "baseline" }
+         { "id": "install-package",   "command": "see docs/PACKAGE.md",         "scope": "project" },
+         { "id": "promote-archetype", "command": "/promote-archetype {key}",    "scope": "baseline" },
+         { "id": "iterate-baseline",  "command": "design-baseline iteration",   "scope": "baseline" }
        ]
      }
      ```
@@ -46,10 +46,12 @@ the hub usable without a baseline, and what lets someone bring their own.
    self-contained `gallery-dist/` (per the `surface` block). The hub serves this
    dir and iframes it; it never copies the plugin's components.
 
-3. **The archetype bodies** the manifest points at: contracts
-   (`docs/archetypes/<slug>.md`), reference primitives
-   (`src/components/archetypes/<slug>/`), and demos
-   (`src/examples/<slug>-demo.tsx`).
+3. **The archetype bodies** the manifest points at: the contracts
+   (`docs/archetypes/<slug>.md`), the primitives
+   (`src/components/archetypes/<slug>/`), and the demos
+   (`src/examples/<slug>-demo.tsx`). The contracts ship in the package, so a
+   consumer's `docs/archetypes/<slug>.md` fork is deleted and superseded by
+   the installed one — `docs/PACKAGE.md`, step 6.
 
 ## How the hub binds (the connector)
 
