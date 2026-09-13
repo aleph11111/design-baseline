@@ -82,9 +82,9 @@ working tree and all four consumers are still copy-vendored — spec decision H5
   H1/H3/H4/H6/H8.
 - [[copy-channel-final-delete]] — Part B, gated on the first package install; it is what deletes
   `/style-baseline`, `/style-archetypes` and the dashboard machinery this ticket deliberately keeps.
-- [package-doc-retirement-ownership-and-runbook-step.md](archive/package-doc-retirement-ownership-and-runbook-step.md)
+- [package-doc-retirement-ownership-and-runbook-step.md](../archive/package-doc-retirement-ownership-and-runbook-step.md)
   — wrote `PACKAGE.md:268-271`'s forward reference this ticket pays off.
-- [package-ships-contracts-and-plugin-actions.md](archive/package-ships-contracts-and-plugin-actions.md)
+- [package-ships-contracts-and-plugin-actions.md](../archive/package-ships-contracts-and-plugin-actions.md)
   — `donor-docs` G6 already dropped `/style-*` from `plugin.actions`, so no manifest advertises a
   command this ticket deletes.
 - ADR-0002 — adopt the baseline-upstream methodology docs (the decision `/adopt-baseline`
