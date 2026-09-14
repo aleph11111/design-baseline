@@ -76,9 +76,9 @@ decision H7.
   B's only unblocker and no other phase owns it (spec decision H11).
 - [[copy-channel-final-delete]] — blocked on this ticket; its gate is this ticket's first two
   acceptance bullets.
-- [package-tag-post-v0-2-0-sync.md](archive/package-tag-post-v0-2-0-sync.md) — the dry run whose
+- [package-tag-post-v0-2-0-sync.md](../archive/package-tag-post-v0-2-0-sync.md) — the dry run whose
   numbers this ticket's acceptance reuses.
-- [package-ui-ownership-and-vendored-consumer-runbook.md](archive/package-ui-ownership-and-vendored-consumer-runbook.md)
+- [package-ui-ownership-and-vendored-consumer-runbook.md](../archive/package-ui-ownership-and-vendored-consumer-runbook.md)
   — wrote the five-step runbook and the `ui/` ownership split this ticket executes.
 - ADR-0004 — appearance locality, derived vs inherited: the decision that `src/components/ui/`
   stays vendored while `src/components/archetypes/` ships as a package.
