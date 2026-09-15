@@ -43,8 +43,8 @@ Also worth correcting: `/adopt-baseline`'s `--update`/`--force` path (`~/.claude
 
 ## Related
 
-- [archetype-shell-classname-drop.md](archive/archetype-shell-classname-drop.md) — the phase that introduced the per-archetype rules being collapsed here.
-- [ADR-0003](../adr/0003-adherence-lint-zero-dep-scanner.md) — adherence lint ships as a zero-dep scanner; governs how rule scope/anchor changes are made.
+- [archetype-shell-classname-drop.md](../archive/archetype-shell-classname-drop.md) — the phase that introduced the per-archetype rules being collapsed here.
+- [ADR-0003](../../adr/0003-adherence-lint-zero-dep-scanner.md) — adherence lint ships as a zero-dep scanner; governs how rule scope/anchor changes are made.
 - `docs/RULES.md` hard rule 12 (appearance locality — derived vs. inherited; the shell-`className` escape-hatch clause this whole rule family enforces).
 
 ## Open question
