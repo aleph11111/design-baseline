@@ -149,7 +149,7 @@
         "src/components/layout/**/*Shell.tsx",
         "src/components/layout/**/*Sheet.tsx"
       ],
-      "message": "`className` is an unenumerable superset escape hatch on a shell's outer wrapper — fork the component instead (RULES.md hard rule 12). The pattern stops at the `:` and does NOT pin the type: `className?: ClassValue` (already idiomatic in this repo — `src/components/layout/SurfaceFrame.tsx`) is the same escape hatch as `className?: string`, so pinning `\\s*string` let a shell reopen the deleted axis by widening the annotation. Scoped to top-level props (indent ≤2) so a nested leaf descriptor (the matrix-grid per-cell `cellStyle` field — styling data, not shell appearance) is not flagged; that indent cap is what the type-agnostic pattern now leans on entirely. The `include` is an array so it catches both the `*Shell.tsx`-named page shells and the `*Sheet.tsx`-named overlay shells (e.g. crud-dialog's `CrudDialogSheet`) — a shell not named `*Shell.tsx` would otherwise slip the gate. It also carries the two `src/components/layout/**` shell/sheet globs, so a shell in the shared-chrome layer (`AppShell`) is gated on the same terms as an archetype's own; no layout-layer shell declares `className` today, the root is here so the class stays closed when one grows."
+      "message": "`className` is an unenumerable superset escape hatch on a shell's outer wrapper — fork the component instead (RULES.md hard rule 12). The pattern stops at the `:` and does NOT pin the type: `className?: ClassValue` (already idiomatic in this repo — `src/components/layout/SurfaceFrame.tsx`) is the same escape hatch as `className?: string`, so pinning `\\s*string` let a shell reopen the deleted axis by widening the annotation. Scoped to top-level props (indent ≤2) so a nested leaf descriptor (the matrix-grid per-cell `cellStyle` field — styling data, not shell appearance) is not flagged; that indent cap is what the type-agnostic pattern now leans on entirely. The `include` is an array so it catches both the `*Shell.tsx`-named page shells and the `*Sheet.tsx`-named overlay shells (e.g. crud-dialog's `CrudDialogSheet`) — a shell not named `*Shell.tsx` would otherwise slip the gate. It also carries the two `src/components/layout/**` shell/sheet globs, so a shell in the shared-chrome layer (`AppShell`) is gated on the same terms as an archetype's own; no layout-layer shell declares `className` today, the root is here so the class stays closed when one grows. This is the ONLY `className` gate for the `*Shell`/`*Sheet` class — the three per-archetype copies that shadowed it (detail-overview / form-page / list-with-detail) were each scoped to one `*Shell.tsx` file these globs already cover and are deleted; when an archetype closes its API, widen this include rather than adding another copy. Keep the `^\\s{0,2}` anchor (the normalized one since PR #127): `^\\s*` would re-flag the nested leaf descriptors the indent cap spares. `crud-dialog-shell-class-name` is the one surviving sibling and is NOT redundant — see `_adherence.NOTES.md`."
     },
     {
       "id": "archetype-appearance-slot",
@@ -195,13 +195,6 @@
       "message": "detail-overview's `rhythm` prop is deleted — the contract sets no 'short' threshold, so nobody derives the same value (RULES.md hard rule 12)."
     },
     {
-      "id": "detail-overview-shell-class-name",
-      "pattern": "^\\s{0,2}className\\?\\s*:",
-      "severity": "error",
-      "include": "src/components/archetypes/detail-overview/DetailOverviewShell.tsx",
-      "message": "`className` is an unenumerable superset escape hatch on the detail-overview shell — `className=\"border-0 shadow-none\"` reconstitutes the deleted `surface=\"separated\"` (RULES.md hard rule 12)."
-    },
-    {
       "id": "detail-overview-appearance-slot",
       "pattern": "^\\s*(header|stats)\\?\\s*:\\s*(React\\.)?ReactNode",
       "severity": "error",
@@ -221,13 +214,6 @@
       "severity": "error",
       "include": "src/components/archetypes/detail-overview/**",
       "message": "detail-overview is closed, so its folder is excluded from the shared drain rules; this residual rule catches the appearance-shaped props they no longer reach. Any appearance prop NOT on the enumerated legal list is an error (RULES.md hard rule 12) — a new `variant` / `density` / `appearance` / a string- or numeric-literal union, etc. Enforces 2026-08-17-archetype-convergence-design.md's class-level acceptance (no further archetype-rollout-shaped ticket filable against a closed archetype's API). Legal and skipped by the leading negative lookahead: `layout` — keyed to entity density (detail-overview.md L274: `layout` \"vertical|rail\", dense/transactional/financial -> rail, light/early-stage -> vertical), so it derives the same value every call site; `width` — keyed to wide tables (detail-overview.md L276–277, L323–325: `width` \"md\" default | \"none\" only for wide embedded tables, ignored under `layout=\"rail\"`), so it derives the same value; `tone` on `DetailSection` — contract-keyed to the data-section-vs-reference-panel distinction (detail-overview.md L517–519: data sections use the default tone; reference panels use `tone=\"muted\"`), the same grading entity-circle.md L7 and calendar.md Layer 7 key their `tone` to, so ADR-0004's derived test passes and the prop is legal."
-    },
-    {
-      "id": "form-page-shell-class-name",
-      "pattern": "^\\s{0,2}className\\?\\s*:",
-      "severity": "error",
-      "include": "src/components/archetypes/form-page/FormPageShell.tsx",
-      "message": "`className` is an unenumerable superset escape hatch on the form-page shell (RULES.md hard rule 12). form-page is closed: `width` is contract-keyed to field count / column layout and the shell carries no `className` prop — fork the component instead."
     },
     {
       "id": "form-page-residual-appearance-prop",
@@ -277,13 +263,6 @@
       "severity": "error",
       "include": "src/components/layout/StatTileRow.tsx",
       "message": "`<StatTileRow>`'s `columns` prop is deleted — the strip derives its cell count from `React.Children.count(children)` clamped to 2–4. \"Must match the number of children\" is a rule the component enforces itself, not a comment on a call-site prop (RULES.md hard rule 12)."
-    },
-    {
-      "id": "list-with-detail-shell-class-name",
-      "pattern": "^\\s{0,2}className\\?\\s*:",
-      "severity": "error",
-      "include": "src/components/archetypes/list-with-detail/ListWithDetailShell.tsx",
-      "message": "`className` is an unenumerable superset escape hatch on the list-with-detail shell — fork the component instead (archetype-convergence list-with-detail close-API; RULES.md hard rule 12)."
     },
     {
       "id": "crud-dialog-shell-class-name",
