@@ -82,3 +82,7 @@ decision H7.
   — wrote the five-step runbook and the `ui/` ownership split this ticket executes.
 - ADR-0004 — appearance locality, derived vs inherited: the decision that `src/components/ui/`
   stays vendored while `src/components/archetypes/` ships as a package.
+
+## Stalled — reaped by the feat-stall sweep
+
+The session working this ticket stopped writing to its transcript for 1744 minutes and no process was left holding the worktree. Whatever it had done is committed on `feat/hk-crm-package-install-cutover`; the worktree and its pane were released. Re-run `/feat hk-crm-package-install-cutover` to pick it back up, or close the ticket if the branch shows the work is already done.
