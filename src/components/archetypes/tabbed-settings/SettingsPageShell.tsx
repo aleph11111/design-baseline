@@ -17,8 +17,15 @@ import {
 // and a `SurfaceHeader` renders at the top of a bounded card wrapping the
 // children. The existing `title` prop (from `SettingsPageHeaderProps`) is
 // used as the surface title.
-export type SettingsPageShellProps = SettingsPageHeaderProps &
+export type SettingsPageShellProps = Omit<SettingsPageHeaderProps, "title"> &
   Omit<SurfaceHeaderSlotProps, "title"> & {
+    /**
+     * Page title. Omit it on a settings-table (D2) page: the settings-table
+     * shell owns the card and its own on-surface header, so this shell
+     * contributes only the error boundary, the breadcrumb slot and the vertical
+     * rhythm. Passing one there would draw a second header above the card.
+     */
+    title?: React.ReactNode;
     /**
      * Optional breadcrumb trail rendered above the header.
      *
@@ -58,7 +65,7 @@ export type SettingsPageShellProps = SettingsPageHeaderProps &
  * Consumer shapes:
  *   F2 tabbed settings: <SettingsPageShell title="…"><Tabs>…</Tabs></SettingsPageShell>
  *   D1 settings form:   <SettingsPageShell title="…" actions={<SaveButton/>}><form>…</form></SettingsPageShell>
- *   D2 settings table:  <SettingsPageShell title="…"><SettingsTableShell …/></SettingsPageShell>
+ *   D2 settings table:  <SettingsPageShell breadcrumbs={…}><SettingsTableShell title="…" …/></SettingsPageShell>
  */
 export function SettingsPageShell({
   breadcrumbs,
@@ -84,7 +91,9 @@ export function SettingsPageShell({
           </SurfaceFrame>
         ) : (
           <>
-            <SettingsPageHeader {...header} />
+            {header.title !== undefined && (
+              <SettingsPageHeader {...header} title={header.title} />
+            )}
             {children}
           </>
         )}

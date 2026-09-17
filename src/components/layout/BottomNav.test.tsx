@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 import { Home, Settings } from "lucide-react";
 import { BottomNav, type BottomNavItem } from "./BottomNav";
 
@@ -9,9 +8,13 @@ const moreItems: BottomNavItem[] = [{ path: "/settings", title: "Settings", icon
 
 function renderNav(props: Partial<React.ComponentProps<typeof BottomNav>> = {}) {
   return render(
-    <MemoryRouter>
-      <BottomNav items={items} moreItems={moreItems} {...props} />
-    </MemoryRouter>,
+    <BottomNav
+      items={items}
+      moreItems={moreItems}
+      pathname="/"
+      renderLink={(item, children) => <a href={item.path}>{children}</a>}
+      {...props}
+    />,
   );
 }
 

@@ -10,6 +10,15 @@ export type BoardColumnProps = React.HTMLAttributes<HTMLDivElement> & {
   count?: number;
   /** Optional trailing controls in the column header (an add-card button, a menu). */
   actions?: React.ReactNode;
+  /**
+   * Render the canonical empty-column placeholder instead of the bare card
+   * stack — keeping the drop target visible and the board width stable while a
+   * column holds no cards. State, not a look: the contract (Layer 7) fixes the
+   * placeholder's chrome here so no consumer hand-rolls a dashed div.
+   */
+  empty?: boolean;
+  /** Text for the empty placeholder. The consumer supplies its own i18n string. */
+  emptyContent?: React.ReactNode;
   /** Forwards to the root div (DnD consumers attach the droppable here). */
   ref?: React.Ref<HTMLDivElement>;
 };
@@ -24,6 +33,8 @@ export function BoardColumn({
   title,
   count,
   actions,
+  empty,
+  emptyContent,
   children,
   className,
   ref,
@@ -45,7 +56,16 @@ export function BoardColumn({
         )}
         {actions && <div className="ml-auto flex items-center">{actions}</div>}
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-2">{children}</div>
+      {empty ? (
+        <div
+          data-testid="board-column-empty"
+          className="flex flex-1 items-center justify-center rounded border border-dashed p-4 text-xs text-muted-foreground min-h-[60px]"
+        >
+          {emptyContent}
+        </div>
+      ) : (
+        <div className="flex flex-1 flex-col gap-2 p-2">{children}</div>
+      )}
     </div>
   );
 }

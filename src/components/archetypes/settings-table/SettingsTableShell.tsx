@@ -58,7 +58,13 @@ export type SettingsTableShellProps<Row> = {
   toolbar?: React.ReactNode;
 
   // Per-row secondary actions (dropdown menu)
-  rowActions?: SettingsRowAction<Row>[];
+  /**
+   * Per-row secondary actions. Either a static list, or a factory the shell
+   * calls with each row — the factory form lets an entry's `disabled` (or the
+   * entry set itself) be derived from that row's data, the same per-row
+   * capability rule `TableColumn.isClickable` follows.
+   */
+  rowActions?: SettingsRowAction<Row>[] | ((row: Row) => SettingsRowAction<Row>[]);
 
   // States
   isLoading?: boolean;
@@ -115,7 +121,8 @@ export function SettingsTableShell<Row>({
   headerActions,
 }: SettingsTableShellProps<Row>): React.ReactElement {
   const hasActions =
-    rowActions !== undefined && rowActions.length > 0;
+    typeof rowActions === "function" ||
+    (rowActions !== undefined && rowActions.length > 0);
   const hasBulk = bulkSelectable === true;
   const hasBulkSelection = hasBulk && selectedIds.length > 0;
 
@@ -263,7 +270,7 @@ export function SettingsTableShell<Row>({
                 const isIdentifier = col.isIdentifier === true;
                 const cellProps =
                   isIdentifier && onRowEdit
-                    ? identifierCell(col, () => onRowEdit(row))
+                    ? identifierCell(col, () => onRowEdit(row), row)
                     : null;
                 return (
                   <TableCell
@@ -280,7 +287,12 @@ export function SettingsTableShell<Row>({
               })}
               {hasActions && (
                 <TableCell className="w-10">
-                  <RowActionsMenu row={row} actions={rowActions!} />
+                  <RowActionsMenu
+                    row={row}
+                    actions={
+                      typeof rowActions === "function" ? rowActions(row) : rowActions!
+                    }
+                  />
                 </TableCell>
               )}
             </TableRow>

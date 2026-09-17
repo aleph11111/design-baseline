@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-13'
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "a real migration across 102 vendored files in a foreign repo with a build to keep green — judgment on every fork-triage call the runbook's step 1 raises"
@@ -76,9 +76,13 @@ decision H7.
   B's only unblocker and no other phase owns it (spec decision H11).
 - [[copy-channel-final-delete]] — blocked on this ticket; its gate is this ticket's first two
   acceptance bullets.
-- [package-tag-post-v0-2-0-sync.md](archive/package-tag-post-v0-2-0-sync.md) — the dry run whose
+- [package-tag-post-v0-2-0-sync.md](../archive/package-tag-post-v0-2-0-sync.md) — the dry run whose
   numbers this ticket's acceptance reuses.
-- [package-ui-ownership-and-vendored-consumer-runbook.md](archive/package-ui-ownership-and-vendored-consumer-runbook.md)
+- [package-ui-ownership-and-vendored-consumer-runbook.md](../archive/package-ui-ownership-and-vendored-consumer-runbook.md)
   — wrote the five-step runbook and the `ui/` ownership split this ticket executes.
 - ADR-0004 — appearance locality, derived vs inherited: the decision that `src/components/ui/`
   stays vendored while `src/components/archetypes/` ships as a package.
+
+## Stalled — reaped by the feat-stall sweep
+
+The session working this ticket stopped writing to its transcript for 1744 minutes and no process was left holding the worktree. Whatever it had done is committed on `feat/hk-crm-package-install-cutover`; the worktree and its pane were released. Re-run `/feat hk-crm-package-install-cutover` to pick it back up, or close the ticket if the branch shows the work is already done.
