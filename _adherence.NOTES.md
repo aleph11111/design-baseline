@@ -33,7 +33,7 @@ the file is skipped when ANY entry matches. That is the per-archetype **ratchet 
 archetype's class is closed, its folder is excluded from the shared `warn` drain rules and a set of
 per-folder `error` rules is added for the closed API, so the scanner no longer counts a closed
 archetype as an open one (the `detail-overview-*` rules below are the first to use it; the
-`form-page-shell-class-name` rule is the second closed archetype's ratchet).
+`form-page-*` rules are the second closed archetype's ratchet).
 
 `targets` lists the directory roots the scanner walks for `.ts` and `.tsx` files
 (`'**/*.{ts,tsx}'` per target). The donor ships `["src"]`; a consumer retargets it to its
@@ -127,7 +127,8 @@ the first: the close-API ticket removed `surface`, `rhythm`, `className`, `heade
 `header`/`stats` `ReactNode` slots (and corrected the `width` default), so the drain rules no
 longer fire on it. `form-page` is the second: its close removed the `className` escape hatch and
 keyed `width` exhaustively to field count / column layout in the contract, so the
-`form-page-shell-class-name` ratchet rule gates the closed API. `list-with-detail` is the third:
+generic `archetype-shell-class-name` rule gates the deleted hatch and
+`form-page-residual-appearance-prop` gates everything else. `list-with-detail` is the third:
 the close-API ticket removed `detailPresentation`, `unstyled`, and the shell's `className` (and
 deleted the per-shell `headerFill` override from the contract doc), while `presentation` and
 `align` remain legal — contract-derived — so the whole folder is excluded from the shared drain
@@ -171,7 +172,6 @@ The ratchet stays engaged across future changes; the drain no longer re-flags th
 |---|---|---|
 | `detail-overview-surface-prop` | a `surface` prop declaration (any type) | `src/components/archetypes/detail-overview/**` |
 | `detail-overview-rhythm-prop` | a `rhythm` prop declaration | `src/components/archetypes/detail-overview/**` |
-| `detail-overview-shell-class-name` | `className?: string` declared on the shell | `…/detail-overview/DetailOverviewShell.tsx` |
 | `detail-overview-appearance-slot` | a `header`/`stats` `ReactNode` slot | `src/components/archetypes/detail-overview/**` |
 | `detail-overview-headerfill-prop` | a `headerFill` prop declaration | `src/components/archetypes/detail-overview/**` |
 
@@ -182,17 +182,27 @@ string-literal-union props, so the generic drain rules would over-fire on them; 
 folder and re-gating the retired axes by name keeps the lint both precise and ratcheted. That split
 is the reason the ratchet needed the `exclude` glob at all.
 
-### The `form-page` ratchet rule (second closed archetype)
-
-| id | shape caught | include |
-|---|---|---|
-| `form-page-shell-class-name` | `className?: string` declared on the shell | `…/form-page/FormPageShell.tsx` |
+### The `form-page` ratchet (second closed archetype)
 
 The form-page close kept the `width` axis (keyed exhaustively to field count / column layout in the
 contract — the same keep as detail-overview's derived `layout`/`width`), so the folder drops out of
-the drain and the retired axis is re-gated by name, scoped to the shell file: a folder-wide
-`include` would fire on `FormPageHeader`'s pass-through `className` (a non-`*Shell` wrapper — the
-kept axis), which the `*Shell.tsx`-and-file scoping avoids.
+the drain and the retired axes are re-gated by name. The deleted `className` hatch is gated by the
+generic `archetype-shell-class-name` rule, whose `*Shell.tsx` glob already covers
+`FormPageShell.tsx`; a folder-wide re-gate would instead fire on `FormPageHeader`'s pass-through
+`className` (a non-`*Shell` wrapper — the kept axis), which the name-scoped glob avoids. That is
+the leaf/shell line this whole rule class draws, and it is why the collapse below could drop the
+per-archetype copy without narrowing coverage.
+
+**Why there is one `*Shell`/`*Sheet` `className` rule and not four.** `detail-overview`,
+`form-page`, and `list-with-detail` each carried a `<slug>-shell-class-name` copy scoped to one
+`*Shell.tsx` file. Every one of those files is already inside `archetype-shell-class-name`'s
+globs, and all four rules had converged on the identical `^\s{0,2}className\?\s*:` pattern, so
+the copies enforced nothing the generic rule did not — they are deleted. When an archetype closes
+its API from here on, widen the generic rule's `include`; do not add another copy.
+`crud-dialog-shell-class-name` is the one survivor, and deliberately so: crud-dialog's close
+deleted `className` from `CrudDialogBody`/`Header`/`Footer` as well as the sheet, and those three
+are neither `*Shell`- nor `*Sheet`-named, so its folder-wide scope reaches files no name-scoped
+glob does.
 
 Two deliberate boundary choices:
 
@@ -223,7 +233,6 @@ axes are re-gated by name.
 |---|---|---|
 | `list-with-detail-detail-presentation` | a `detailPresentation` prop declaration | `src/components/archetypes/list-with-detail/**` |
 | `list-with-detail-unstyled-prop` | an `unstyled` prop declaration | `src/components/archetypes/list-with-detail/**` |
-| `list-with-detail-shell-class-name` | `className?: string` declared on the shell | `…/list-with-detail/ListWithDetailShell.tsx` |
 
 The `unstyled` prop is replaced by the internal `ListChromeContext` (the analogue of detail-overview's
 `UnifiedSurfaceContext`). A composing archetype that owns the surrounding surface sets the context
