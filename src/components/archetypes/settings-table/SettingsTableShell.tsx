@@ -263,7 +263,7 @@ export function SettingsTableShell<Row>({
                 const isIdentifier = col.isIdentifier === true;
                 const cellProps =
                   isIdentifier && onRowEdit
-                    ? identifierCell(col, () => onRowEdit(row))
+                    ? identifierCell(col, () => onRowEdit(row), row)
                     : null;
                 return (
                   <TableCell

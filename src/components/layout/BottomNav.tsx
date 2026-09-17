@@ -1,5 +1,5 @@
+import * as React from "react";
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
 import { type LucideIcon, MoreHorizontal } from "lucide-react";
 import {
   Sheet,
@@ -20,6 +20,15 @@ export interface BottomNavItem {
 
 interface BottomNavProps {
   items: readonly BottomNavItem[];
+  /** Current pathname — used to highlight the active link. */
+  pathname: string;
+  /**
+   * Render-prop for the link itself — lets the consumer plug in `next/link`,
+   * `react-router-dom`'s `NavLink`/`Link`, or a plain `<a>`. Mirrors the
+   * `renderLink` contract on `<AppSidebar>` / `<SectionNavShell>` so a project
+   * wires every nav the same way.
+   */
+  renderLink: (item: BottomNavItem, children: React.ReactNode) => React.ReactNode;
   /** Items rendered inside the "more" sheet. Omit to hide the more trigger. */
   moreItems?: readonly BottomNavItem[];
   moreLabel?: string;
@@ -35,7 +44,13 @@ function NavCell({ children }: { children: React.ReactNode }) {
   );
 }
 
-const linkClass = ({ isActive }: { isActive: boolean }) =>
+function isPathActive(pathname: string, item: BottomNavItem) {
+  if (item.path === "/") return pathname === "/";
+  if (item.end) return pathname === item.path;
+  return pathname === item.path || pathname.startsWith(item.path + "/");
+}
+
+const linkClass = (isActive: boolean) =>
   cn(
     "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium",
     "text-muted-foreground hover:text-foreground transition-colors",
@@ -44,6 +59,8 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
 
 export function BottomNav({
   items,
+  pathname,
+  renderLink,
   moreItems,
   moreLabel = "More",
   navLabel = "Bottom navigation",
@@ -58,10 +75,13 @@ export function BottomNav({
     >
       {items.map((item) => (
         <NavCell key={item.path}>
-          <NavLink to={item.path} end={item.end} className={linkClass}>
-            <item.icon className="h-5 w-5" />
-            <span className="truncate max-w-full px-1">{item.title}</span>
-          </NavLink>
+          {renderLink(
+            item,
+            <span className={linkClass(isPathActive(pathname, item))}>
+              <item.icon className="h-5 w-5" />
+              <span className="truncate max-w-full px-1">{item.title}</span>
+            </span>,
+          )}
         </NavCell>
       ))}
       {moreItems && moreItems.length > 0 && (
@@ -91,21 +111,22 @@ export function BottomNav({
                 {moreItems.map((item) => (
                   <li key={item.path}>
                     <SheetClose asChild>
-                      <NavLink
-                        to={item.path}
-                        end={item.end}
-                        className={({ isActive }) =>
-                          cn(
-                            "flex items-center gap-3 px-4 py-3 text-base",
-                            isActive
-                              ? "text-primary bg-accent"
-                              : "text-foreground hover:bg-accent",
-                          )
-                        }
-                      >
-                        <item.icon className="h-5 w-5" />
-                        <span>{item.title}</span>
-                      </NavLink>
+                      <span>
+                        {renderLink(
+                          item,
+                          <span
+                            className={cn(
+                              "flex items-center gap-3 px-4 py-3 text-base",
+                              isPathActive(pathname, item)
+                                ? "text-primary bg-accent"
+                                : "text-foreground hover:bg-accent",
+                            )}
+                          >
+                            <item.icon className="h-5 w-5" />
+                            <span>{item.title}</span>
+                          </span>,
+                        )}
+                      </span>
                     </SheetClose>
                   </li>
                 ))}

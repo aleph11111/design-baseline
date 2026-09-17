@@ -41,6 +41,13 @@ export type RowActionsMenuProps<Row> = {
   actions: RowActionItem<Row>[];
   /** Accessible label for the trigger. */
   triggerLabel?: string;
+  /**
+   * Disable the trigger itself — for an in-flight row mutation (a delete the
+   * consumer is awaiting), where re-opening the menu could double-fire the
+   * action. A capability boolean, not an appearance: it reports whether the
+   * row can currently accept an action at all.
+   */
+  triggerDisabled?: boolean;
 };
 
 function isSeparator<Row>(item: RowActionItem<Row>): item is RowActionSeparator {
@@ -67,11 +74,12 @@ export function RowActionsMenu<Row>({
   row,
   actions,
   triggerLabel = "Row actions",
+  triggerDisabled,
 }: RowActionsMenuProps<Row>): React.ReactElement {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button variant="ghost" size="icon" className="h-8 w-8" disabled={triggerDisabled}>
           <MoreHorizontal className="h-4 w-4" />
           <span className="sr-only">{triggerLabel}</span>
         </Button>

@@ -29,6 +29,15 @@ export type TableColumn<Row> = {
    */
   isIdentifier?: boolean;
   /**
+   * Per-row gate on the identifier cell's click contract: when it returns false
+   * the cell skips the clickable treatment and the activate handler for that row,
+   * even though `isIdentifier` is true. Use for rows that cannot be opened
+   * (terminated, archived, superseded). A capability predicate derived from the
+   * row, not a per-call-site look — both readers of the same row derive the same
+   * value.
+   */
+  isClickable?: (row: Row) => boolean;
+  /**
    * Style the identifier cell with `font-mono text-sm font-medium`.
    * Off by default: keyed to the identifier's character style, on for
    * alphanumeric codes or slugs, off for human-readable name identifiers.
@@ -57,16 +66,23 @@ export function alignClass(align: TableColumn<unknown>["align"]): string {
 export function identifierCell<Row = unknown>(
   col: TableColumn<Row>,
   onActivate?: () => void,
+  row?: Row,
 ) {
   const mono = col.identifierMono === true;
+  // Per-row gate: a column may declare rows that cannot be opened. Drop the
+  // activate handler for those, so the cell keeps the identifier's typography
+  // but none of the click affordance (cursor, focus ring, keyboard tab stop).
+  const gated =
+    col.isClickable !== undefined && row !== undefined && !col.isClickable(row);
+  const activate = gated ? undefined : onActivate;
   return {
     className: cn(
       "text-primary hover:underline",
-      onActivate !== undefined &&
+      activate !== undefined &&
         cn("cursor-pointer", interactiveRowFocusRing),
       mono && "font-mono text-sm font-medium",
     ),
-    onClick: onActivate,
-    ...getInteractiveRowProps(onActivate),
+    onClick: activate,
+    ...getInteractiveRowProps(activate),
   };
 }

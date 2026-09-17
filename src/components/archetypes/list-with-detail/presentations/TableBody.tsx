@@ -141,7 +141,7 @@ export function TableBody<Row>({
                   col.isIdentifier === true && onRowSelect !== undefined
                     ? () => onRowSelect(row)
                     : undefined;
-                const cellProps = activate ? identifierCell(col, activate) : null;
+                const cellProps = activate ? identifierCell(col, activate, row) : null;
                 return (
                   <TableCell
                     key={col.key}
