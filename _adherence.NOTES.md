@@ -21,6 +21,19 @@ violations. Keep them in sync: change one, change the other. `raw-html-control` 
 narrowed to `input|select|textarea` — `button` and `table` already have dedicated tag rules, and
 the full alternation would double-warn the same line.
 
+The three `tag` rules are the bare-element bans. They carry no `include`, so they apply to every
+walked file, and they are the only rules in the set that match markup rather than a prop
+declaration:
+
+| id | shape caught | include |
+|---|---|---|
+| `no-bare-h1` | a bare `<h1>` open tag — page titles go through `PageHeader` (`docs/PLACEMENT.md`, Header slots) | *(unscoped — every walked file)* |
+| `no-raw-table` | a bare `<table>` open tag — use the DS table primitives | *(unscoped)* |
+| `no-bare-button` | a bare `<button>` open tag — use the `Button` primitive | *(unscoped)* |
+
+Case-sensitive matching is what keeps them usable: `<Table>` and `<Button>` (the DS primitives)
+never match, so only the lowercase HTML elements are flagged.
+
 A rule may also carry an optional `include` glob (repo-root-relative), restricting it to that path
 set — matched by stdlib `path.matchesGlob` (Node >= 22): `**` spans any run of directory segments,
 `*` matches within one. This is what lets a rule
@@ -119,9 +132,10 @@ layout dir is one flat folder of unrelated primitives, its triaged props are
 excluded **by exact file path**, never by a `**` folder glob — a folder glob
 there would disarm the whole root.
 
-Each drain rule also carries an `exclude` array with one glob per closed archetype (
-`detail-overview/**`, `form-page/**`, `list-with-detail/**`, and `settings-table/**` as of this
-update) — once an archetype's class is closed it drops out of the `warn` drain and is gated by
+Each drain rule also carries an `exclude` array with one glob per archetype its own class no longer
+reaches — the closed folders, plus the individually triaged files. That array in `_adherence.json`
+is the authoritative list; the sections below are the per-ratchet ledger of what replaced the drain
+in each folder. Once an archetype's class is closed it drops out of the `warn` drain and is gated by
 its own `error`-tier rules instead (the ratchet, per the `exclude` above). `detail-overview` was
 the first: the close-API ticket removed `surface`, `rhythm`, `className`, `headerFill`, and the
 `header`/`stats` `ReactNode` slots (and corrected the `width` default), so the drain rules no
@@ -174,6 +188,7 @@ The ratchet stays engaged across future changes; the drain no longer re-flags th
 | `detail-overview-rhythm-prop` | a `rhythm` prop declaration | `src/components/archetypes/detail-overview/**` |
 | `detail-overview-appearance-slot` | a `header`/`stats` `ReactNode` slot | `src/components/archetypes/detail-overview/**` |
 | `detail-overview-headerfill-prop` | a `headerFill` prop declaration | `src/components/archetypes/detail-overview/**` |
+| `detail-overview-residual-appearance-prop` | any appearance-shaped prop the four named rules do NOT cover — an appearance noun, a string-literal union, or a numeric-literal union — except the three contract-keyed keeps `layout`, `width` and `DetailSection`'s `tone`, which a leading negative lookahead skips | `src/components/archetypes/detail-overview/**` |
 
 These are deliberately *narrower* than the four drain rules — they name the specific retired
 axes, not the whole appearance-noun / look-union class. `layout` and `width` (kept, contract-derived)
@@ -181,6 +196,16 @@ and `DetailSection`'s `tone` (kept, a graded-section data prop) remain legal eve
 string-literal-union props, so the generic drain rules would over-fire on them; excluding the whole
 folder and re-gating the retired axes by name keeps the lint both precise and ratcheted. That split
 is the reason the ratchet needed the `exclude` glob at all.
+
+**The `*-residual-appearance-prop` companion.** Naming the retired axes is precise but closed: it
+gates the props the close deleted and nothing else, so a *new* appearance prop could land in a
+closed folder and hit no rule at all — the folder is excluded from the shared drain by then. Every
+ratchet therefore carries one residual rule alongside its named-axis rules, running the allowlist
+in the other direction: any appearance-shaped declaration (appearance noun, string-literal union,
+numeric-literal union) is an `error` **unless** it is one of that archetype's enumerated
+contract-keyed keeps, which a leading negative lookahead skips. That is what makes a closed
+archetype's API closed — no further archetype-rollout-shaped ticket is filable against it
+(`2026-08-17-archetype-convergence-design.md`'s class-level acceptance).
 
 ### The `form-page` ratchet (second closed archetype)
 
@@ -192,6 +217,10 @@ generic `archetype-shell-class-name` rule, whose `*Shell.tsx` glob already cover
 `className` (a non-`*Shell` wrapper — the kept axis), which the name-scoped glob avoids. That is
 the leaf/shell line this whole rule class draws, and it is why the collapse below could drop the
 per-archetype copy without narrowing coverage.
+
+| id | shape caught | include |
+|---|---|---|
+| `form-page-residual-appearance-prop` | any appearance-shaped prop except the kept `width` axis (keyed to field count / column layout), skipped by the leading negative lookahead | `src/components/archetypes/form-page/**` |
 
 **Why there is one `*Shell`/`*Sheet` `className` rule and not four.** `detail-overview`,
 `form-page`, and `list-with-detail` each carried a `<slug>-shell-class-name` copy scoped to one
@@ -233,11 +262,70 @@ axes are re-gated by name.
 |---|---|---|
 | `list-with-detail-detail-presentation` | a `detailPresentation` prop declaration | `src/components/archetypes/list-with-detail/**` |
 | `list-with-detail-unstyled-prop` | an `unstyled` prop declaration | `src/components/archetypes/list-with-detail/**` |
+| `list-with-detail-residual-appearance-prop` | any appearance-shaped prop except the kept `presentation` axis (keyed to the row's data-column count by the contract's decision table), skipped by the leading negative lookahead | `src/components/archetypes/list-with-detail/**` |
 
 The `unstyled` prop is replaced by the internal `ListChromeContext` (the analogue of detail-overview's
 `UnifiedSurfaceContext`). A composing archetype that owns the surrounding surface sets the context
 to `flush`; the shell then drops its own card chrome. The prop itself is no longer part of the
 per-page API, and re-adding one reopens the escape-hatch defect (RULES.md hard rule 12).
+
+### The `settings-table` ratchet
+
+`severity: error`, `include`-scoped to `src/components/archetypes/settings-table/`. The only ratchet
+whose residual rule carries **no** legal-name lookahead: no prop on the settings-table surface is a
+contract-keyed look — the column `align`, `isIdentifier`, and the state props are data, not
+appearance — so there is nothing to keep on the allowlist and every appearance-shaped prop is an
+error. The folder had no retired named axes to re-gate either, so the residual rule is the whole
+ratchet.
+
+| id | shape caught | include |
+|---|---|---|
+| `settings-table-residual-appearance-prop` | any appearance-shaped prop at all — appearance noun, string-literal union, or numeric-literal union | `src/components/archetypes/settings-table/**` |
+
+### The `crud-dialog` ratchet
+
+`severity: error`, `include`-scoped to `src/components/archetypes/crud-dialog/`. Two rules, and the
+`className` one is the single surviving per-archetype copy of that ban (the paragraph above says
+why): crud-dialog's close deleted `className` from `CrudDialogBody` / `Header` / `Footer` as well as
+the sheet, and those three are neither `*Shell`- nor `*Sheet`-named, so only a folder-wide scope
+reaches them.
+
+| id | shape caught | include |
+|---|---|---|
+| `crud-dialog-shell-class-name` | a `className` prop declaration anywhere in the folder — the sheet's escape hatch and the three body-part wrappers a name-scoped glob never reaches | `src/components/archetypes/crud-dialog/**` |
+| `crud-dialog-residual-appearance-prop` | any appearance-shaped prop except the two kept axes `width` (keyed to tab count / field count) and `layout` (keyed to the body's field shape), skipped by the leading negative lookahead | `src/components/archetypes/crud-dialog/**` |
+
+### The `report` ratchet
+
+`severity: error`, `include`-scoped to `src/components/archetypes/report/`. `width` is the one kept
+axis — the contract's exhaustive "Width keying rule" derives it from the document's shape (`sm`
+compact receipt, `md` standard document column, `lg` wide statement), so it resolves to the same
+value at every call site.
+
+| id | shape caught | include |
+|---|---|---|
+| `report-residual-appearance-prop` | any appearance-shaped prop except the kept `width` axis, skipped by the leading negative lookahead | `src/components/archetypes/report/**` |
+
+### The `analytics-dashboard` ratchet — and the two deleted `columns` axes
+
+`severity: error`. The kept axis is `<DashboardWidget span>`, keyed to the widget's kind by the
+contract's exhaustive "Widget span keying rule" (primary trend → 3, comparison/breakdown → 2,
+everything else → 1) and **required with no default**, so every widget states its own width and none
+inherits one.
+
+The two `columns` rules are the same deletion twice over, which is why they share a pattern and sit
+in one table: a per-call-site column count is an appearance no contract keys, and its
+backwards-compatible default is disqualifying on its own. The grid's ladder is fixed in
+`<DashboardGrid>` (1 / 2 at `sm` / 3 at `lg`); `<StatTileRow>` derives its cell count from
+`React.Children.count(children)` clamped to 2–4. `stat-tile-row-columns-prop` is the one rule in
+this class scoped to a single **shared-chrome** file rather than an archetype folder — `StatTileRow`
+lives in `src/components/layout/`, the second `include` root.
+
+| id | shape caught | include |
+|---|---|---|
+| `analytics-dashboard-residual-appearance-prop` | any appearance-shaped prop except the kept `span` axis, skipped by the leading negative lookahead | `src/components/archetypes/analytics-dashboard/**` |
+| `analytics-dashboard-columns-prop` | a `columns` prop declaration — the deleted grid axis | `src/components/archetypes/analytics-dashboard/**` |
+| `stat-tile-row-columns-prop` | a `columns` prop declaration — the deleted strip axis | `src/components/layout/StatTileRow.tsx` |
 
 The first run's `warn` hits are recorded as
 [`docs/audits/2026-archetype-appearance-prop-audit.md`](docs/audits/2026-archetype-appearance-prop-audit.md)
