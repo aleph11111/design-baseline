@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { SurfaceHeader } from "./SurfaceHeader";
+import { SurfaceHeaderBar } from "./SurfaceHeaderBar";
 
 export type SurfaceHeaderSlotProps = {
   /** Overline kicker above the title (the entity/section class). */
@@ -17,9 +18,17 @@ export type SurfaceHeaderSlotProps = {
 
 /**
  * SurfaceHeaderSlot — the shared "on-surface header" contract every framed
- * archetype shell mounts at the top of its bounded surface: renders a
- * `<SurfaceHeader>` when `title` is set, renders nothing otherwise. Centralizes
- * the `title !== undefined` guard so shells don't each hand-roll it.
+ * archetype shell mounts at the top of its bounded surface. Centralizes the
+ * header guard so shells don't each hand-roll it:
+ *
+ *   - `title` set                  → the full `<SurfaceHeader>` stack.
+ *   - no `title`, `headerActions`  → an actions-only `<SurfaceHeaderBar>`.
+ *   - neither                      → nothing.
+ *
+ * The actions-only band matters because a list surface often carries a
+ * page-level action (an "Add" button) while its title is already supplied by
+ * the page around it. Gating the whole slot on `title` alone silently swallowed
+ * those actions — the consumer passed `headerActions` and nothing rendered.
  *
  * The header's treatment is read from `HeaderFillContext` (set once at
  * `<AppShell headerFill=…>`) — there is no per-shell override prop.
@@ -31,7 +40,12 @@ export function SurfaceHeaderSlot({
   icon,
   headerActions,
 }: SurfaceHeaderSlotProps): React.ReactElement | null {
-  if (title === undefined) return null;
+  if (title === undefined) {
+    if (headerActions === undefined) return null;
+    // Actions-only band: no title block, so the bar's title slot stays empty
+    // and the actions keep their canonical padding and header-fill treatment.
+    return <SurfaceHeaderBar actions={headerActions}>{null}</SurfaceHeaderBar>;
+  }
   return (
     <SurfaceHeader
       kicker={kicker}
