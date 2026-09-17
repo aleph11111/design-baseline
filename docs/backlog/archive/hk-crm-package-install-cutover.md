@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-13'
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "a real migration across 102 vendored files in a foreign repo with a build to keep green — judgment on every fork-triage call the runbook's step 1 raises"

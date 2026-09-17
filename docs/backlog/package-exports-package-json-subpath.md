@@ -29,7 +29,7 @@ defined by "exports" in .../node_modules/design-baseline/package.json
 ```
 
 This is not hypothetical: it is the literal acceptance command of
-[wip/hk-crm-package-install-cutover.md](wip/hk-crm-package-install-cutover.md) ("In `hk-crm`,
+[wip/hk-crm-package-install-cutover.md](archive/hk-crm-package-install-cutover.md) ("In `hk-crm`,
 `node -e \"require.resolve('design-baseline/package.json')\"` succeeds"), and the same command
 is the first half of [copy-channel-final-delete.md](copy-channel-final-delete.md)'s Part-B gate.
 Both had to be verified against `design-baseline/archetypes/detail-overview` instead, because
