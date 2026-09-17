@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-15'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "mechanical — eleven named rules each need one ledger row in an existing table format; no design fork, the rules' own `message` fields already carry the rationale to compress"
@@ -37,7 +37,7 @@ nowhere in the file:
   of only two surviving `className` gates.
 
 The gap has already cost a filing. The
-[archive/adherence-shell-classname-rule-consolidation.md](archive/adherence-shell-classname-rule-consolidation.md)
+[archive/adherence-shell-classname-rule-consolidation.md](../archive/adherence-shell-classname-rule-consolidation.md)
 ticket's What-to-do instructed the implementer to "remove … the
 `crud-dialog-shell-class-name` row" from the ledger — a row that has never
 existed. A ledger that is silently partial reads as exhaustive, so its absences
@@ -79,7 +79,7 @@ get mistaken for the rule not existing rather than the row not being written.
 
 ## Related
 
-- [archive/adherence-shell-classname-rule-consolidation.md](archive/adherence-shell-classname-rule-consolidation.md) — the filing this gap misled; it asked for the deletion of a ledger row that never existed.
-- [archive/archetype-convergence-crud-dialog-close-api.md](archive/archetype-convergence-crud-dialog-close-api.md) — the close that added the two undocumented `crud-dialog-*` rules.
-- [archive/lint-design-include-reachability-guard.md](archive/lint-design-include-reachability-guard.md) — the precedent for guarding the rule config with a test rather than review.
-- [ADR-0003](../adr/0003-adherence-lint-zero-dep-scanner.md) — adherence lint ships as a zero-dep scanner; governs how rule/doc changes are made.
+- [archive/adherence-shell-classname-rule-consolidation.md](../archive/adherence-shell-classname-rule-consolidation.md) — the filing this gap misled; it asked for the deletion of a ledger row that never existed.
+- [archive/archetype-convergence-crud-dialog-close-api.md](../archive/archetype-convergence-crud-dialog-close-api.md) — the close that added the two undocumented `crud-dialog-*` rules.
+- [archive/lint-design-include-reachability-guard.md](../archive/lint-design-include-reachability-guard.md) — the precedent for guarding the rule config with a test rather than review.
+- [ADR-0003]() — adherence lint ships as a zero-dep scanner; governs how rule/doc changes are made.

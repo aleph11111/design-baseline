@@ -1272,3 +1272,17 @@ describe("residual appearance prop in a closed archetype folder (the allowlist g
     expect(status).toBe(0);
   });
 });
+
+describe("the `_adherence.NOTES.md` ledger covers the shipped rule set", () => {
+  // `_adherence.NOTES.md` is the per-rule ledger several rule `message` fields point a
+  // reader at, so a partial one reads as exhaustive: an absent row gets mistaken for the
+  // rule not existing (the `adherence-shell-classname-rule-consolidation` filing asked for
+  // the deletion of a `crud-dialog-shell-class-name` row that had never been written).
+  // Documentation is not review-enforceable, so it is enforced here instead.
+  it("documents every id in `_adherence.json`", () => {
+    const { rules } = JSON.parse(readFileSync(join(root, "_adherence.json"), "utf8"));
+    const notes = readFileSync(join(root, "_adherence.NOTES.md"), "utf8");
+    const undocumented = rules.map((r) => r.id).filter((id) => !notes.includes(id));
+    expect(undocumented).toEqual([]);
+  });
+});
