@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-15'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "mechanical — eleven named rules each need one ledger row in an existing table format; no design fork, the rules' own `message` fields already carry the rationale to compress"
