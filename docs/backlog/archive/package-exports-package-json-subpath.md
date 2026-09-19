@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-17'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "a one-line exports addition plus a tag bump against an established release pattern (v0.2.0/v0.2.1/v0.2.2) — no design decision left"
