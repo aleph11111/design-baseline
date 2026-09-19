@@ -81,10 +81,10 @@ alongside `item`/`projects`/`action`) — the date the entry was raised, same in
 candidate's `promotedAt`. Stamp it when adding a sync entry; the dashboard falls back to
 the overlay's `generated` date when it's absent.
 
-- **`FormItem` gap (`space-y-2`→`space-y-1.5`)** persists in mistra / controlling-app / hk-crm — the campaign added new primitives but never synced *changed-existing* ones. Re-broadcast the donor's `form.tsx` via `/style-baseline`. (Future syncs must cover changed-existing primitives, not just new files.)
+- **`FormItem` gap (`space-y-2`→`space-y-1.5`)** persists in mistra / controlling-app / hk-crm — the campaign added new primitives but never synced *changed-existing* ones. Fixed at the source: the package ships `form.tsx`, so a consumer picks the change up by bumping its pinned `design-baseline` tag — no per-file sync pass to forget.
 - **dead `bricklink*` Badge variants** in hk-crm — remove (donor dropped them; brickshop legitimately keeps its own).
 
 ## Next actions
 1. No **candidate** rows remain — all resolved candidates in `promotion-radar.json` are `promoted`. The live queue is the three **watch** rows in the Watch section (promote once rule-of-2 re-trips).
-2. Re-broadcast changed primitives (incl. `FormItem`) via a `/style-baseline` sync pass per project.
+2. Land changed primitives (incl. `FormItem`) in the donor, cut a tag, and bump the pinned version in each consumer.
 3. Re-run the fleet audit → candidates become adoptable (promoted) or are confirmed sanctioned; conformance count and drift trend toward zero. That re-audit is the proof the loop closed.

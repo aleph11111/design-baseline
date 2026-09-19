@@ -6,13 +6,14 @@
  * definitions, the layer base) lives in `tokens.layer.css` — the donor-owned
  * layer — and is imported from here. This file is the ONLY per-project
  * divergence surface: the `:root` / `.dark` HSL values are the brand palette
- * (docs/STYLE.md's Re-skin checklist documents which to override), so
- * `/style-baseline` keeps an existing brand file across `--force` re-applies
- * while the donor-owned layer refreshes from the donor.
+ * (docs/STYLE.md's Re-skin checklist documents which to override). A consumer
+ * keeps its own copy of this file and `@import`s the donor-owned layer from the
+ * package (`design-baseline/tokens.layer.css`), so a tag bump refreshes the
+ * layer and never touches the brand palette.
  *
- * Pre-split targets: a repo still on the old merged single `tokens.css` is on
- * the merged shape — `/style-baseline --force` splits it into this brand file
- * plus a refreshed layer, keeping the `:root`/`.dark` values verbatim.
+ * Pre-split consumers: a repo still on the old merged single `tokens.css` splits
+ * it into this brand file plus the package layer import, keeping the
+ * `:root`/`.dark` values verbatim. See docs/PACKAGE.md.
  */
 
 @import "./tokens.layer.css";

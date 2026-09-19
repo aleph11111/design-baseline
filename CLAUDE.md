@@ -4,7 +4,7 @@ This file tells Claude Code how to work in this repository. It declares the docu
 
 ## What This Is
 
-The **design-baseline donor** — the upstream source of a shadcn/ui + Tailwind 4 + sidebar app shell, and of reusable **page archetypes** (page-shape contracts + reference implementations). It is not a buildable app; `src/` is copy-source for downstream projects. Consumed via three global skills: `/style-baseline` (applies the shell + tokens), `/style-archetypes` (applies page-shape archetypes), and `/promote-archetype` (promotes a matured archetype FROM a source project INTO this donor). It also satisfies the `design-plugin` contract (`docs/PLUGIN-CONTRACT.md`) so the dashboard hub at `~/.claude/dashboard` can connect to it and mount its gallery. This repo is backed by a GitHub origin (`github.com/aleph11111/design-baseline`); its truth ref is `origin/main`.
+The **design-baseline donor** — the upstream source of a shadcn/ui + Tailwind 4 + sidebar app shell, and of reusable **page archetypes** (page-shape contracts + reference implementations). It is not a buildable app; `src/` is the source surface of a **git source package** that downstream projects install and import from (`docs/PACKAGE.md`). `/promote-archetype` is the one global skill that writes here — it promotes a matured archetype FROM a source project INTO this donor. It also satisfies the `design-plugin` contract (`docs/PLUGIN-CONTRACT.md`) so the dashboard hub at `~/.claude/dashboard` can connect to it and mount its gallery. This repo is backed by a GitHub origin (`github.com/aleph11111/design-baseline`); its truth ref is `origin/main`.
 
 ## How We Work Together
 
@@ -23,8 +23,8 @@ The generic skills read this block to find the project's documentation artifacts
 - `plans: docs/superpowers/plans/` *(implementation plans)*
 - `archetypes: docs/archetypes/` *(MANIFEST.json registry + one `<slug>.md` contract per archetype — the binding is the shipped typed export `design-baseline/archetypes/<slug>` from `src/components/archetypes/<slug>/`; methodology in `docs/archetypes/README.md`)*
 - `audits: docs/audits/` *(dated fleet audit reports; the rubric they score against lives in `docs/STYLE.md`'s "The fleet audit rubric")*
-- `design: docs/` *(the World-A methodology layer — this donor IS the design-baseline; declared as one bare-root key so its machine readers — the `/style-archetypes` and `/promote-archetype` skills and the dashboard's `design-plugin` donor gate — resolve every file below, matching controlling-app's donor-layer pattern. Frozen set: the repo's own `archetype-convergence` roadmap's `docs-retire` phase retires them later.)*
-  - `docs/ADOPTION-QUALITY.md` — Axis C adoption-quality audit contract (`/style-archetypes` Phase 3)
+- `design: docs/` *(the World-A methodology layer — this donor IS the design-baseline; declared as one bare-root key so its machine readers — the `/promote-archetype` skill and the dashboard's `design-plugin` donor gate — resolve every file below, matching controlling-app's donor-layer pattern. Frozen set: the repo's own `archetype-convergence` roadmap's `docs-retire` phase retires them later.)*
+  - `docs/ADOPTION-QUALITY.md` — Axis C adoption-quality audit contract (the zero-dep donor scan, `npm run scan:adoption-quality`; ADR-0005)
   - `docs/CHOOSING-A-SURFACE.md` — surface-selection decision
   - `docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md` — detail-page teardown playbook
   - `docs/PACKAGE.md` — packaging contract
@@ -42,7 +42,7 @@ The generic skills read this block to find the project's documentation artifacts
 - **`project-workflow`** — session workflow, doc maintenance, ADR conventions, backlog state machine, parallel-safe `/feat` → `/ship` lifecycle. Activates at session start.
 - **`project-rules`** — loads `docs/RULES.md` on demand for archetype-promotion, MANIFEST, or version-bump work.
 - **`project-architecture`** — points you at `docs/ARCHITECTURE.md`. Read before grepping.
-- This repo's own role: donor for the global `/style-baseline`, `/style-archetypes`, `/promote-archetype` skills (defined in `~/.claude/commands/`) — read those files, not this one, for their step-by-step mechanics.
+- This repo's own role: donor for the global `/promote-archetype` skill (defined in `~/.claude/commands/`) — read that file, not this one, for its step-by-step mechanics. Consumers get the baseline by installing the package, not by running a copy command.
 - **`/ticket <thought>`** files a backlog item — never hand-write `docs/backlog/<slug>.md`.
 
 ## Commands

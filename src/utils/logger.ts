@@ -14,10 +14,10 @@ export const logger = {
       console.debug(...args);
     }
   },
-  // `info`/`warn` carry no logic on purpose. They exist because this file is
-  // copy-source: `/style-baseline` overwrites a target's `src/utils/logger.ts`
-  // unconditionally, so the donor surface must be a superset of what the fleet
-  // calls or the next re-apply breaks those call sites. See docs/STYLE.md
+  // `info`/`warn` carry no logic on purpose. They exist because this file ships
+  // in the package as `design-baseline/utils/logger`: a consumer's call sites
+  // resolve straight into it, so the donor surface must be a superset of what the
+  // fleet calls or the next tag bump breaks them. See docs/STYLE.md
   // § "Donor file scope".
   info: (...args: LogArgs) => {
     console.info(...args);

@@ -17,8 +17,8 @@ export type AuthCardProps = {
 
 /**
  * AuthCard — the centered single-card shell for off-app utility screens: sign-in,
- * not-authorized, generic error / 404. A layout primitive (shipped by
- * `/style-baseline`), NOT a page archetype — these screens have no toolbar, data
+ * not-authorized, generic error / 404. A layout primitive (shipped as
+ * `design-baseline/layout`), NOT a page archetype — these screens have no toolbar, data
  * layer, or list/detail shape; they're a centered card with a title, a short
  * message, and one or two actions.
  *

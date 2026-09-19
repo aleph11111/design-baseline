@@ -4,7 +4,7 @@ This is an initial architecture map for the design-baseline donor, drafted from 
 
 ## 1. What this repo is, and isn't
 
-`design-baseline` is **donor source, not a buildable app**. There is no app entry point that renders the baseline itself in production — `src/` exists to be *copied* into target projects (manually, or via `/style-baseline` + `/style-archetypes`). The only thing this repo builds and runs on its own is the **gallery** (`gallery/`), a donor-dev harness that mounts every archetype demo behind a nav so the baseline can be browsed and, separately, iframed by the dashboard hub as a "design plugin" surface.
+`design-baseline` is **donor source, not a buildable app**. There is no app entry point that renders the baseline itself in production — `src/` is the source surface of a **git source package** that target projects install and import from (`docs/PACKAGE.md`). The only thing this repo builds and runs on its own is the **gallery** (`gallery/`), a donor-dev harness that mounts every archetype demo behind a nav so the baseline can be browsed and, separately, iframed by the dashboard hub as a "design plugin" surface.
 
 Two independent verification paths, both donor-only (never copied to targets):
 - `npx tsc --noEmit` — strict TypeScript (`noUncheckedIndexedAccess`, `noUnusedLocals`, `noUnusedParameters`) against `src/**/*` (examples' Next/Vite demo wiring excluded via `tsconfig.json`).
@@ -29,7 +29,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | Path | What it is |
 |---|---|
 | `src/styles/tokens.css` | Brand token file — the `:root` / `.dark` HSL palette (light + dark) + `--radius`; the project-owned re-skin surface; imports the donor-owned layer below |
-| `src/styles/tokens.layer.css` | Donor-owned token layer — the Tailwind 4 entry + `@theme` roles / keyframes, re-applied (overwritten) by `/style-baseline --force`; shipped as the `./tokens.layer.css` package export |
+| `src/styles/tokens.layer.css` | Donor-owned token layer — the Tailwind 4 entry + `@theme` roles / keyframes, shipped as the `./tokens.layer.css` package export, which a consumer `@import`s |
 | `src/lib/utils.ts` | `cn()` |
 | `src/hooks/` | `use-mobile.ts` (`useIsMobile`, required by `ui/sidebar.tsx`) |
 | `src/utils/logger.ts` | console logger — `logger.debug` (gated on `NODE_ENV !== "production"`) + `info`/`warn`/`error` pass-throughs; framework-agnostic. Not an archetype and carries no per-file version: it is plain copy-source, and the invariant that governs it is **the donor surface must be a superset of what the fleet calls** (see §3a) |
@@ -62,12 +62,12 @@ page-shape contract. They are **not** archetypes: no MANIFEST entry, no `<slug>.
 contract, no per-file version. `MANIFEST.plugin.version` is not their version
 either — per `docs/PLUGIN-CONTRACT.md` it versions the *hub contract shape*, not shipped content.
 
-What governs them instead is a one-line invariant, because `/style-baseline` step 4 copies these
-files over a target's existing copy unconditionally (`cp "$BASELINE/src/utils/logger.ts" …`):
+What governs them instead is a one-line invariant, because the package ships these files and a
+consumer's imports resolve straight into them:
 
-> **The donor's exported surface for a copy-source util must be a superset of what the fleet
-> already calls.** Narrowing it doesn't deprecate a downstream call site — it breaks it on the
-> next `/style-baseline --force`.
+> **The donor's exported surface for a shipped util must be a superset of what the fleet
+> already calls.** Narrowing it doesn't deprecate a downstream call site — it breaks it the
+> moment that consumer bumps its pinned tag.
 
 That is why `logger` carries `info`/`warn` despite having no donor call site: `brickshop-manager`
 does (14 `logger.info` + 5 `logger.warn` as of 2026-08-27), and the donor is the file's owner.
@@ -133,7 +133,7 @@ Source project (e.g. brickshop-manager)
                      + src/examples/<slug>-demo.tsx + MANIFEST.json entry
                                     │
                                     ▼
-                     Target projects: /style-baseline (chrome) → /style-archetypes [<slug>] (page shapes)
+                     Consumers: install the package, import design-baseline/archetypes/<slug>
 ```
 
 `--update` diffs each layer between an advanced source spec and the current baseline, triaging each difference as generic-improvement (propagate), project-specific (stays in source), or spec-correction (propagate), then bumps versions and the MANIFEST.
@@ -142,9 +142,8 @@ Source project (e.g. brickshop-manager)
 
 ## 7. Downstream consumption
 
-- **`/style-baseline`** — detects target stack (Next vs Vite), copies tokens/utils/hooks/utils/ui/layout + `components.json`, installs deps, prints re-skin next-steps. Owns the sidebar/header *behavior*; nav *content* stays project-owned (see README "Ownership boundary").
-- **`/style-archetypes [<slug>] [--list|--update|--force]`** — requires `/style-baseline` first. Copies the contract + reference-impl pair + primitives per archetype; merges `MANIFEST.json` by `slug` (never touches non-`baseline`-namespace/project-local entries); copies the framework `README.md` only when the target has none or it's byte-identical (a diverged target README is left alone, donor's copy dropped as `README.donor.md`). Sandbox demos are never copied.
-- **Dashboard hub binding** — the hub (a separate managed project) treats this repo as a `design` plugin per `docs/PLUGIN-CONTRACT.md`: it validates `MANIFEST.json` has a `plugin` block, serves the built `gallery-dist/` (`npm run gallery:build`), and maps declared `actions` (`adopt-baseline`, `adopt-archetype`, `iterate-baseline`) to its own machinery. Connection is optional and path-configured — the hub degrades gracefully if disconnected.
+- **The package** — a consumer pins `"design-baseline": "github:aleph11111/design-baseline#vX.Y.Z"`, adds the two CSS lines and the `tsconfig` `paths` entries, and imports `design-baseline/layout`, `design-baseline/ui/*`, `design-baseline/archetypes/<slug>`. `docs/PACKAGE.md` is the contract: the four wiring lines, the migration runbook for a project that had vendored a copy, and the enforcement stack. The donor owns the sidebar/header *behavior*; nav *content* stays project-owned (see README "Ownership boundary"). Propagation is a **tag bump** — cut a tag here, bump the pinned version there. `src/examples/` is not in the package `files` list, so sandbox demos never reach a consumer.
+- **Dashboard hub binding** — the hub (a separate managed project) treats this repo as a `design` plugin per `docs/PLUGIN-CONTRACT.md`: it validates `MANIFEST.json` has a `plugin` block, serves the built `gallery-dist/` (`npm run gallery:build`), and maps declared `actions` (`install-package`, `promote-archetype`, `iterate-baseline`) to its own machinery. Connection is optional and path-configured — the hub degrades gracefully if disconnected.
 
 ## 8. Fleet audit system
 

@@ -8,10 +8,10 @@ called" lookups resolve here.
 | Term | Means | Lives in | Applied / shipped by |
 |------|-------|----------|----------------------|
 | **Baseline** | The whole design donor — tokens + layout primitives + shell + archetypes. The single source of truth. | the `design-baseline` repo | — |
-| **Token** | A design value exposed as a CSS variable: color role, spacing rhythm, radius. Re-skinnable per project. | brand palette + `--radius` in `src/styles/tokens.css`; the `@theme` roles live in the donor-owned `src/styles/tokens.layer.css` — documented in `STYLE.md` | `/style-baseline` |
-| **Layout primitive** | App chrome and cross-cutting building blocks: `AppShell`, `AppSidebar`, `AppHeader`, `PageHeader`, `SectionHeading`, `SectionCard`, `SectionNavShell`, `ThemeToggle`. | `src/components/layout/` | `/style-baseline` |
-| **Archetype** | A **page-shape contract**: how a *kind* of page is structured (route → shell → header → toolbar → data → states → permissions). Identified by a key (`A`, `B`, `C`, `D2`, `J`, `K`, `M`, `F2`) and a slug. Each = spec + reference primitives + demo. | spec in `docs/archetypes/<slug>.md`; registered in `docs/archetypes/MANIFEST.json` | `/style-archetypes <key>` |
-| **Reference primitive** | The components that implement an archetype's chrome (e.g. `GroupedListShell`, `GroupedListSection`). | `src/components/archetypes/<slug>/` | copied by `/style-archetypes` |
+| **Token** | A design value exposed as a CSS variable: color role, spacing rhythm, radius. Re-skinnable per project. | brand palette + `--radius` in `src/styles/tokens.css`; the `@theme` roles live in the donor-owned `src/styles/tokens.layer.css` — documented in `STYLE.md` | package export `design-baseline/tokens.layer.css` |
+| **Layout primitive** | App chrome and cross-cutting building blocks: `AppShell`, `AppSidebar`, `AppHeader`, `PageHeader`, `SectionHeading`, `SectionCard`, `SectionNavShell`, `ThemeToggle`. | `src/components/layout/` | package export `design-baseline/layout` |
+| **Archetype** | A **page-shape contract**: how a *kind* of page is structured (route → shell → header → toolbar → data → states → permissions). Identified by a key (`A`, `B`, `C`, `D2`, `J`, `K`, `M`, `F2`) and a slug. Each = spec + reference primitives + demo. | spec in `docs/archetypes/<slug>.md`; registered in `docs/archetypes/MANIFEST.json` | package export `design-baseline/archetypes/<slug>` |
+| **Reference primitive** | The components that implement an archetype's chrome (e.g. `GroupedListShell`, `GroupedListSection`). | `src/components/archetypes/<slug>/` | shipped as `design-baseline/archetypes/<slug>` |
 | **Demo** | The rendered, worked example of an archetype — what the gallery shows and what you eyeball to "see" the archetype. | `src/examples/<slug>-demo.tsx` | donor-dev only (not shipped) |
 | **Gallery** | The donor-dev app that mounts the demos behind a nav so the baseline can be browsed visually. | `gallery/` | donor-dev only (not shipped) |
 | **Plugin** | The baseline packaged as a wireable capability for the hub: the gallery surface + the `plugin` block in `MANIFEST.json` (metadata + declared actions). | this repo, described by `MANIFEST.json` → `plugin` | wired into the dashboard hub |
@@ -28,13 +28,13 @@ called" lookups resolve here.
 
 ```
 Baseline
-├── Tokens ─────────────► /style-baseline
-├── Layout primitives ──► /style-baseline
-├── shadcn/ui primitives ► /style-baseline
+├── Tokens ─────────────► design-baseline/tokens.layer.css
+├── Layout primitives ──► design-baseline/layout
+├── shadcn/ui primitives ► design-baseline/ui/<name>
 └── Archetype  (key + slug)
      ├── spec            (docs/archetypes/<slug>.md)      ── the contract
-     ├── reference primitives (src/components/archetypes) ── /style-archetypes
-     └── demo            (src/examples/<slug>-demo.tsx)   ── shown in the Gallery
+     ├── reference primitives (src/components/archetypes) ── design-baseline/archetypes/<slug>
+     └── demo            (src/examples/<slug>-demo.tsx)   ── shown in the Gallery (not shipped)
 
 Plugin = Gallery surface + MANIFEST.plugin (metadata + actions)
          └── wired into the dashboard hub → browse archetypes, fire adopt tickets
