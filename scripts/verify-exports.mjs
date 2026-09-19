@@ -9,7 +9,7 @@
 // against synthetic inputs, so a guard failing open (or a silent no-match
 // on the real tree) stays caught even if the donor tree is clean.
 //
-// Seven invariants of the package surface are checked:
+// Eight invariants of the package surface are checked:
 //
 //   1. No `@/` import specifier survives under the four packaged source
 //      dirs. The relativization (P1) must be total — `@/` would resolve
@@ -52,6 +52,14 @@
 //      measured consumer, hk-crm — provenance in the file) because the donor
 //      cannot reach the consumer at verify time; re-derive when the consumer's
 //      directive set moves.
+//   8. `exports` declares `"./package.json"`. Node's exports encapsulation
+//      refuses any subpath the map does not name, so without this entry
+//      `require.resolve('design-baseline/package.json')` throws
+//      `ERR_PACKAGE_PATH_NOT_EXPORTED` in a correctly installed consumer —
+//      which is how tooling reads the installed package's own `version`.
+//      Invariant 2 cannot catch this: it checks the targets that ARE listed
+//      resolve, never that a subpath is still listed, so a future exports
+//      edit could silently drop it.
 //
 // Usage:  node scripts/verify-exports.mjs [--json]
 //         exit 0 all invariants hold; exit 1 at least one broken; exit 2
@@ -196,6 +204,16 @@ function consumerLeavesMissingDirective(root) {
   );
 }
 
+// Invariant 8 — see header. The self-referencing subpath must stay in the map;
+// pure over the parsed manifest, no filesystem (its target is package.json
+// itself, whose existence invariant 2 already covers).
+const SELF_SUBPATH = './package.json';
+function exportsSelfSubpath(pkg) {
+  return (pkg.exports ?? {})[SELF_SUBPATH] === SELF_SUBPATH
+    ? []
+    : [`${SELF_SUBPATH} (missing from exports — consumers get ERR_PACKAGE_PATH_NOT_EXPORTED)`];
+}
+
 function main() {
   const root = process.cwd();
   let pkg;
@@ -218,6 +236,7 @@ function main() {
   const layerBrand = layerDeclaresBrandValues(root);
   const brandMerged = brandFileIsMergedShape(root);
   const consumerLeaves = consumerLeavesMissingDirective(root);
+  const selfSubpath = exportsSelfSubpath(pkg);
   // The count for the ok label; a missing set already fails via the
   // predicate's message, so this must not throw on the same condition.
   let totalLeaves = 0;
@@ -234,6 +253,7 @@ function main() {
     ['token layer declares no brand values', layerBrand, layerBrand.length === 0],
     ['brand tokens file is not the merged shape', brandMerged, brandMerged.length === 0],
     [`${totalLeaves} consumer-measured leaves carry "use client" (ADR-0006)`, consumerLeaves, consumerLeaves.length === 0],
+    ['exports declares "./package.json"', selfSubpath, selfSubpath.length === 0],
   ];
   let failures = 0;
   for (const [label, items, ok] of report) {
@@ -267,4 +287,5 @@ export {
   layerDeclaresBrandValues,
   brandFileIsMergedShape,
   consumerLeavesMissingDirective,
+  exportsSelfSubpath,
 };

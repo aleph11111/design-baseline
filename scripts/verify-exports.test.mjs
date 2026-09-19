@@ -20,6 +20,7 @@ import {
   layerDeclaresBrandValues,
   brandFileIsMergedShape,
   consumerLeavesMissingDirective,
+  exportsSelfSubpath,
 } from "./verify-exports.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -181,11 +182,23 @@ describe("consumerLeavesMissingDirective (invariant 7, ADR-0006)", () => {
   });
 });
 
+describe("exportsSelfSubpath (invariant 8)", () => {
+  it("passes when the self subpath is declared, flags a map that lost it", () => {
+    const listed = { exports: { "./package.json": "./package.json", "./layout": "./x.ts" } };
+    expect(exportsSelfSubpath(listed)).toEqual([]);
+    // Dropped entirely, and mis-targeted — both leave a consumer with
+    // ERR_PACKAGE_PATH_NOT_EXPORTED, so both must fail.
+    expect(exportsSelfSubpath({ exports: { "./layout": "./x.ts" } })).toHaveLength(1);
+    expect(exportsSelfSubpath({ exports: { "./package.json": "./dist/package.json" } })).toHaveLength(1);
+    expect(exportsSelfSubpath({})).toHaveLength(1);
+  });
+});
+
 describe("CLI exit codes", () => {
-  it("exits 0 on the clean donor tree and reports 7/7 ok", () => {
+  it("exits 0 on the clean donor tree and reports 8/8 ok", () => {
     const { status, stdout } = runScript(root);
     expect(status).toBe(0);
-    expect(stdout).toContain("verify:exports — 0 failing invariant(s), 7/7 ok");
+    expect(stdout).toContain("verify:exports — 0 failing invariant(s), 8/8 ok");
   });
 
   it("exits 1 when a barrel's directive is missing (fixture)", () => {
@@ -206,7 +219,10 @@ describe("CLI exit codes", () => {
         join(dir, "package.json"),
         JSON.stringify({
           name: "fixture",
-          exports: { "./layout": "./src/components/layout/index.ts" },
+          exports: {
+            "./package.json": "./package.json",
+            "./layout": "./src/components/layout/index.ts",
+          },
           files: ["src/components"],
         }),
       );
@@ -235,7 +251,10 @@ describe("CLI exit codes", () => {
         join(dir, "package.json"),
         JSON.stringify({
           name: "fixture",
-          exports: { "./layout": "./src/components/layout/index.ts" },
+          exports: {
+            "./package.json": "./package.json",
+            "./layout": "./src/components/layout/index.ts",
+          },
           files: ["src/components"],
         }),
       );

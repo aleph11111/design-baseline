@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-17'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "a one-line exports addition plus a tag bump against an established release pattern (v0.2.0/v0.2.1/v0.2.2) — no design decision left"
@@ -29,9 +29,9 @@ defined by "exports" in .../node_modules/design-baseline/package.json
 ```
 
 This is not hypothetical: it is the literal acceptance command of
-[wip/hk-crm-package-install-cutover.md](archive/hk-crm-package-install-cutover.md) ("In `hk-crm`,
+[wip/hk-crm-package-install-cutover.md](../archive/hk-crm-package-install-cutover.md) ("In `hk-crm`,
 `node -e \"require.resolve('design-baseline/package.json')\"` succeeds"), and the same command
-is the first half of [copy-channel-final-delete.md](copy-channel-final-delete.md)'s Part-B gate.
+is the first half of [copy-channel-final-delete.md](../copy-channel-final-delete.md)'s Part-B gate.
 Both had to be verified against `design-baseline/archetypes/detail-overview` instead, because
 the underlying property they test — a consumer resolving the package out of `node_modules` —
 does hold; only the spelling fails.
@@ -65,7 +65,7 @@ consumers pinned to `v0.2.1`/`v0.2.2` are unaffected until they bump.
 - [[hk-crm-package-install-cutover]] — surfaced it; its first acceptance bullet is this command,
   and it verified the gate through `design-baseline/archetypes/detail-overview` instead.
 - [[copy-channel-final-delete]] — the same command is half of its Part-B gate.
-- [package-tag-post-v0-2-0-sync.md](archive/package-tag-post-v0-2-0-sync.md) — the dry run that
+- [package-tag-post-v0-2-0-sync.md](../archive/package-tag-post-v0-2-0-sync.md) — the dry run that
   first wrote this acceptance command, and the tag-cutting pattern this ticket follows.
-- [archetype-package-installable.md](archive/archetype-package-installable.md) — wrote the
+- [archetype-package-installable.md](../archive/archetype-package-installable.md) — wrote the
   `exports` map and `scripts/verify-exports.mjs` this ticket extends.
