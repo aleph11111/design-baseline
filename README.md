@@ -59,7 +59,7 @@ already vendored a copy, and the proof matrix) lives in
 
 ```jsonc
 // package.json — pin a tag; a version bump is a one-digit change
-"design-baseline": "github:aleph11111/design-baseline#v0.2.2"
+"design-baseline": "github:aleph11111/design-baseline#vX.Y.Z"
 ```
 
 ```css
