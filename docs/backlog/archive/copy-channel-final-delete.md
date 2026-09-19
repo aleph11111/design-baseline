@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-13'
-status: ready
+status: done
 value: normal
 depends_on: [hk-crm-package-install-cutover]
 model: opus
