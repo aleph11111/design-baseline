@@ -11,6 +11,6 @@ This directory is design-baseline's minimum doc set. Every file here names the r
 | `rules` | `docs/RULES.md` | `project-rules` skill; promotion-flow and MANIFEST work |
 | `specs` | `docs/superpowers/specs/` | `resolve-spec-plan-dirs.sh` (spec fanout at `/feat` carry-in + `/ship`) |
 | `plans` | `docs/superpowers/plans/` | `resolve-spec-plan-dirs.sh` (plan fanout at `/ship`) |
-| `archetypes` | `docs/archetypes/` | `MANIFEST.json` registry + one `<slug>.md` contract per archetype; `/style-archetypes` + `/promote-archetype` skills |
+| `archetypes` | `docs/archetypes/` | `MANIFEST.json` registry + one `<slug>.md` contract per archetype; the `/promote-archetype` skill; shipped to consumers as `design-baseline/archetypes/<slug>` |
 | `audits` | `docs/audits/` | dated fleet-audit reports; the rubric they score against lives in `docs/STYLE.md` |
-| `design` | `docs/` *(bare-root declaration)* | the World-A methodology layer — this donor **is** the design-baseline. Machine readers: the `/style-archetypes`, `/promote-archetype` skills and the dashboard's `design-plugin` donor gate. Frozen set — the `archetype-convergence` roadmap's `docs-retire` phase retires it later. The per-file entries are the `design:` sub-rows in `CLAUDE.md` |
+| `design` | `docs/` *(bare-root declaration)* | the World-A methodology layer — this donor **is** the design-baseline. Machine readers: the `/promote-archetype` skill and the dashboard's `design-plugin` donor gate. Frozen set — the `archetype-convergence` roadmap's `docs-retire` phase retires it later. The per-file entries are the `design:` sub-rows in `CLAUDE.md` |

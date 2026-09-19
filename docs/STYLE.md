@@ -171,15 +171,15 @@ These ship alongside `components/ui/` because the shadcn primitives import them 
 
 ## Utils (`src/utils/`)
 
-- `logger` — console logger with the four standard levels: `debug` (gated on `process.env.NODE_ENV !== "production"` — the `import.meta.env.DEV` variant broke under Next builds, so the `process` guard is deliberate; see the comment in `src/utils/logger.ts`), plus `info`/`warn`/`error` pass-throughs. Only `error` has a donor call site (`components/ui/error-boundary.tsx`); the other three exist for downstream consumers, because `/style-baseline` overwrites a target's copy of this file and a narrower donor surface breaks their call sites (see "Donor file scope" below). Swap for a real logger (Sentry, pino) in projects that need one — keep the same surface so the import doesn't churn.
+- `logger` — console logger with the four standard levels: `debug` (gated on `process.env.NODE_ENV !== "production"` — the `import.meta.env.DEV` variant broke under Next builds, so the `process` guard is deliberate; see the comment in `src/utils/logger.ts`), plus `info`/`warn`/`error` pass-throughs. Only `error` has a donor call site (`components/ui/error-boundary.tsx`); the other three exist for downstream consumers, because this file ships in the package and a narrower donor surface breaks their call sites (see "Donor file scope" below). Swap for a real logger (Sentry, pino) in projects that need one — keep the same surface so the import doesn't churn.
 
 ## Archetypes (`src/components/archetypes/` + `docs/archetypes/`)
 
 Archetypes are page-shape contracts that sit on top of the layout primitives. Each archetype is a 12–15 layer spec covering route, shell, header, toolbar, data fetching, types, mutations, mobile, permissions — plus reference primitive components that implement the chrome. See `docs/archetypes/README.md` for the methodology.
 
-Apply with the sibling command `/style-archetypes` (requires `/style-baseline` to have run first). `docs/archetypes/MANIFEST.json` is the living catalog of what ships — read it (or `/style-archetypes --list`) rather than relying on any list enumerated here.
+Each archetype is importable from the package as `design-baseline/archetypes/<slug>`. `docs/archetypes/MANIFEST.json` is the living catalog of what ships — read it rather than relying on any list enumerated here.
 
-Archetypes are optional — projects that don't want the page-shape vocabulary can use the baseline chrome alone. Project-specific archetypes live alongside baseline ones in the target's `docs/archetypes/`; `/style-archetypes` never touches files that aren't in the MANIFEST.
+Archetypes are optional — projects that don't want the page-shape vocabulary can use the baseline chrome alone. Project-specific archetypes live in the consuming project's own `docs/archetypes/`, alongside nothing the donor owns — the baseline's contracts ship inside the package.
 
 ## Layout primitives (`src/components/layout/`)
 
@@ -215,7 +215,7 @@ Pages own everything inside `<main>`. Cross-cutting things (search, notification
 
 ### Two-level navigation — `<SectionNavShell>`
 
-Some sections (settings is the canonical case) need a *second* nav level: a grouped sub-nav that persists while you move between the section's pages. `<SectionNavShell>` is that layer. It is a layout primitive — a sibling of `<AppSidebar>`, **not** a page archetype — so it ships with `/style-baseline` and never needs `/style-archetypes`.
+Some sections (settings is the canonical case) need a *second* nav level: a grouped sub-nav that persists while you move between the section's pages. `<SectionNavShell>` is that layer. It is a layout primitive — a sibling of `<AppSidebar>`, **not** a page archetype — so it comes from `design-baseline/layout`, not from an archetype import.
 
 The shape is three nesting levels:
 
@@ -242,65 +242,92 @@ The child pages rendered through the outlet are the archetype layer — typicall
 
 ### Ownership boundary — baseline vs. project
 
-The baseline owns the **rendering and interaction behaviour** of `<AppSidebar>` and `<AppHeader>`: markup, active-state styling, text-selection suppression on click, keyboard handling, collapse persistence, mobile sheet fallback. Behaviour bugs (e.g. clicking a nav item selecting its label) are baseline bugs — fix them once in the donor, then propagate to every target via `/style-baseline --force`.
+The baseline owns the **rendering and interaction behaviour** of `<AppSidebar>` and `<AppHeader>`: markup, active-state styling, text-selection suppression on click, keyboard handling, collapse persistence, mobile sheet fallback. Behaviour bugs (e.g. clicking a nav item selecting its label) are baseline bugs — fix them once in the donor, cut a tag, and every consumer picks the fix up by bumping its pin.
 
 The project owns the **content and grouping shape** of its navigation: the `navItems` / `groups` props it passes to `<AppSidebar>`, the flat-vs-grouped decision, labels, icons, route paths, and any project-specific switchers (e.g. `controlling-app`'s asset switcher). Two mature targets — `brickshop-manager` (flat domain groups) and `controlling-app` (asset-scoped nav) — deliberately use different grouping concepts, and that divergence is by design. Do **not** push project grouping logic up into the baseline.
 
-If you find yourself patching `components/layout/Sidebar.tsx` or `components/ui/sidebar.tsx` inside a target project to fix a behaviour issue, stop — fix it in the donor here and re-run `/style-baseline --force` instead. The target's copy is a downstream snapshot, not an editable fork.
+If you find yourself shadowing `components/layout/Sidebar.tsx` or `components/ui/sidebar.tsx` inside a consumer to fix a behaviour issue, stop — fix it in the donor here and bump the consumer's pin instead. A shadowed copy stops receiving donor fixes; that is a deliberate fork, not a patch.
 
-### Donor file scope — immutable primitives vs. starter files
+### Donor file scope — what the package owns vs. what your project owns
 
-Not every file the donor ships is meant to stay byte-identical in targets. There are two categories, and `/style-baseline --force` treats them **differently**: it overwrites the immutable primitives (with a `DRIFT:` report and an in-place keep-aid whenever a target had diverged) but **never overwrites a starter file** — an existing brand `tokens.css` and `components.json` are kept byte-identical, so a re-broadcast can never blast a target's brand palette away.
+Not every file in this repo reaches a consumer, and of the ones that do, not all are the
+donor's to own. There are four categories. The package `files` list decides the first split;
+the `tsconfig` `paths` arrays in `docs/PACKAGE.md` decide the second.
 
-> **Donor-dev gallery is never broadcast.** The `gallery/` app, `vite.config.ts`, `gallery-dist/`, and the gallery-only dev deps (`vite`, `@vitejs/plugin-react`, `@tailwindcss/vite`, `react-router-dom`) exist only so the baseline can be browsed visually (`npm run gallery`) and mounted as a "design plugin" in the dashboard hub. They are **not** part of the baseline — `/style-baseline` and `/style-archetypes` copy `src/...`, never the harness. Don't copy them into a target. Vocabulary for all of this is pinned in [`docs/TAXONOMY.md`](./TAXONOMY.md).
+> **Donor-dev gallery is never shipped.** The `gallery/` app, `vite.config.ts`, `gallery-dist/`,
+> and the gallery-only dev deps (`vite`, `@vitejs/plugin-react`, `@tailwindcss/vite`,
+> `react-router-dom`) exist only so the baseline can be browsed visually (`npm run gallery`) and
+> mounted as a "design plugin" in the dashboard hub. They are **not** part of the baseline — the
+> package `files` list carries `src/...` and the contract docs, never the harness. Vocabulary for
+> all of this is pinned in [`docs/TAXONOMY.md`](./TAXONOMY.md).
 
-> **Donor component tests** live colocated as `*.test.tsx` next to the primitive they cover (see `src/components/archetypes/**/*.test.tsx`), run via `npm test` (`vitest.config.ts`, root-scoped). The test-only dev deps (`vitest`, `@testing-library/react`, `jsdom`) exist so the donor can regression-test behavior a type-only check can't verify — e.g. ref forwarding, where TypeScript can't tell a `ref` prop is silently discarded at runtime. **Caveat:** because `/style-archetypes` currently copies every `.tsx` file in an applied archetype's directory, a colocated `*.test.tsx` broadcasts into the target project along with the primitive — the target then needs the same test-only dev deps to typecheck/build, or the file should be excluded by the copy step. Not yet resolved; see the backlog.
+> **Donor component tests** live colocated as `*.test.tsx` next to the primitive they cover (see
+> `src/components/archetypes/**/*.test.tsx`), run via `npm test` (`vitest.config.ts`, root-scoped).
+> The test-only dev deps (`vitest`, `@testing-library/react`, `jsdom`) exist so the donor can
+> regression-test behavior a type-only check can't verify — e.g. ref forwarding, where TypeScript
+> can't tell a `ref` prop is silently discarded at runtime. They are donor-dev deps, not peer or
+> runtime ones, so a consumer never installs them; the colocated test files ship inside
+> `src/components/` but nothing imports them, so they are never part of a consumer's build graph.
 
-**Immutable primitives** — donor is the source of truth; re-broadcast freely:
+**Package-owned primitives** — the donor is the source of truth and a consumer imports them
+rather than holding a copy:
 
-- `src/components/ui/*.tsx` (shadcn primitives — regenerated by the donor, never per-project)
-- `src/components/layout/Sidebar.tsx`, `Header.tsx`, `AppShell.tsx`, `SectionNav.tsx` (only when the target uses them straight; brickshop-manager wraps them in its own `AppSidebar.tsx` / `MainLayout.tsx` and is the exception, not the rule)
-- `src/lib/utils.ts`
-- `src/hooks/use-mobile.ts`
-- `src/utils/logger.ts` (kept framework-agnostic via `typeof process !== "undefined"` guard — do not "improve" by Vite-only or Next-only references)
-- `src/styles/tokens.layer.css` — the donor-owned half of the tokens stack: `@import "tailwindcss"` entry, `@theme` config (colour/font/radius/motion roles + keyframes), `@custom-variant`, the utility definitions, layer base. It is the only tokens file the donor owns — the brand half below it is the only tokens file a target owns.
+- `src/components/ui/*` (the shadcn/ui set), exported as `design-baseline/ui/<name>`
+- `src/components/layout/*`, exported as `design-baseline/layout`
+- `src/components/archetypes/<slug>/*`, exported as `design-baseline/archetypes/<slug>`
+- `src/lib/utils.ts` → `design-baseline/lib/utils`
+- `src/hooks/use-mobile.ts` → `design-baseline/hooks/use-mobile`
+- `src/utils/logger.ts` → `design-baseline/utils/logger` (kept framework-agnostic via the
+  `typeof process !== "undefined"` guard — do not "improve" by Vite-only or Next-only references)
+- `src/styles/tokens.layer.css` → `design-baseline/tokens.layer.css`, the donor-owned half of the
+  tokens stack: `@import "tailwindcss"` entry, `@theme` config (colour/font/radius/motion roles +
+  keyframes), `@custom-variant`, the utility definitions, layer base. It is the only tokens file
+  the donor owns — the brand half below it is the only tokens file a consumer owns.
 
-Because these are copied **over** a target's existing file, the donor's exported surface for the
+Because a consumer's imports resolve **into** these files, the donor's exported surface for the
 `.ts`/`.tsx` ones must stay a **superset** of what the fleet already calls. Narrowing it (dropping
-a method with no donor call site) does not deprecate a downstream caller — it breaks that
-caller's typecheck on the next `/style-baseline --force`. Check the fleet before trimming an
-export here, and widen rather than cut when a consumer is found. See `docs/ARCHITECTURE.md` §3a.
-(For the `tokens.layer.css` there is no export surface to keep a superset of — the contract is
-that a target's copy of its brand file imports it by relative path, so the layer may freely gain
-`@theme` roles, keyframes and directives; a donor-side fix then reaches every target on the next
-re-apply, with a `DRIFT:` line in the `/style-baseline` report naming the layer if the target's
-copy had drifted.)
+a method with no donor call site) does not deprecate a downstream caller — it breaks that caller's
+typecheck the moment they bump the pinned tag. Check the fleet before trimming an export here, and
+widen rather than cut when a consumer is found. See `docs/ARCHITECTURE.md` §3a. (For
+`tokens.layer.css` there is no export surface to keep a superset of — the contract is that a
+consumer's brand file `@import`s it from the package, so the layer may freely gain `@theme` roles,
+keyframes and directives, and a donor-side fix reaches every consumer on the next tag bump.)
 
-**Merged barrels** — donor owns the file but it is *not* clobbered wholesale:
+**Shadowed primitives** — package-owned, but a consumer may keep its own copy that wins:
 
-- `src/components/{ui,layout}/index.ts` — the donor's export lines are the source of truth and overwrite the target's, **but** `/style-baseline` step 4b re-merges any project-local `export … from "./X"` line whose target module the donor doesn't ship. A naive `cp -R` would replace the barrel and silently forget local-only primitives that still exist on disk (e.g. mistra's `Breadcrumbs`/`PageHeader`), breaking every `@/components/layout` import on the next `tsc`. Convention for a product-local primitive that sits on top of the donor (per the consuming project's archetype layer): drop it in as `components/layout/<Name>.tsx` and add an `export … from "./<Name>"` line to `index.ts`. Because the donor ships no `<Name>` module, that line is preserved across every re-apply — no separate barrel, no import-site churn. Do **not** upstream such primitives into the donor merely to survive a re-apply; the merge is what makes them survivable while staying project-local.
+`docs/PACKAGE.md` points each `@/components/...` alias at a **two-entry array, project first**, so
+a file the consumer keeps — a triaged fork, a consumer-only primitive — resolves ahead of the
+package's copy without moving a single import. That is the escape hatch, and it is per-file: a
+consumer shadows `ui/button.tsx` alone and still gets every other primitive from the package.
+A shadowed file stops receiving donor fixes, so it is a deliberate fork, not a default. There is
+no barrel merge to worry about any more: a consumer imports `design-baseline/layout` for the
+donor's primitives and its own `@/components/layout` for its local ones, so a project-local
+primitive never has to survive a clobbered `index.ts`.
 
-**Starter files** — donor ships defaults, targets expected to diverge; `/style-baseline`
-**keeps** an existing one (never clobbered, with or without `--force`):
+**Project-owned files** — the donor ships a default, the consumer owns the copy:
 
-- `src/styles/tokens.css` — the **brand token file**: `@import "./tokens.layer.css"` plus the
-  `:root` and `.dark` HSL blocks (the Re-skin checklist below documents which values to
-  override — re-broadcasting would blast brand colors away, which is precisely why it is the
-  tokens file that is protected). Its whole content is the brand half; the donor-owned half
-  (theme config, keyframes, `@plugin`/`@import` directives, layer base) lives in
-  `tokens.layer.css` next to it and refreshes from the donor on every re-apply. A target that
-  has been on the old merged single-file `tokens.css` is migrated on its next
-  `/style-baseline --force`: the `:root`/`.dark` blocks are extracted verbatim into a kept
-  brand file and the donor's layer lands beside it — brand values are then protected, and the
-  donor half propagates again.
-- `components.json` `style`/`rsc` flags (the `rsc` flag specifically must match the target's framework: `true` for Next App Router, `false` for Vite)
+- `src/styles/tokens.css` — the **brand token file**: `@import "design-baseline/tokens.layer.css"`
+  plus the `:root` and `.dark` HSL blocks (the Re-skin checklist below documents which values to
+  override). This file lives in the consumer's own tree and the donor never writes to it, which is
+  why brand colours are structurally safe: the donor half (theme config, keyframes,
+  `@plugin`/`@import` directives, layer base) arrives through the import, not through a copy.
+- `components.json` `style`/`rsc` flags (the `rsc` flag specifically must match the consumer's
+  framework: `true` for Next App Router, `false` for Vite)
+- Project-specific layout additions (e.g. `BottomNav.tsx`, brickshop's customized `Header.tsx`) and
+  wrappers (brickshop's `AppSidebar.tsx`, `MainLayout.tsx`). **Note:** the donor ships a canonical
+  `PageHeader.tsx` (see the layout table above) — a pre-existing project-local `page-header.tsx`
+  (lowercase) is a *different* file, but new projects should prefer the baseline `PageHeader` and
+  migrate local title blocks onto it.
 
-**Project-only files** — donor does not ship these; targets add as needed; broadcast must not delete:
+**Operating rule for a tag bump**: cut a tag in the donor, bump the pinned version in the
+consumer, then run the consumer's typecheck. Nothing in the consumer's tree changes, so there is
+no diff to review and no revert pass — the two categories that used to need one (a clobbered brand
+`tokens.css`, a clobbered barrel) no longer exist as copies at all. What a bump *can* surface is a
+narrowed donor export breaking a call site, which is exactly what the superset rule above exists to
+prevent, and a shadowed file silently missing a fix, which is the cost of having forked it. The two
+real re-broadcasts of the copy era (mistra PR #126, hk-crm PR #44) each needed a manual revert pass;
+that whole class of work is what the package removed.
 
-- Project-specific layout additions (e.g. `BottomNav.tsx`, `ThemeToggle.tsx`, brickshop's customized `Header.tsx`). **Note:** the donor now ships a canonical `PageHeader.tsx` (see the layout table above) — a pre-existing project-local `page-header.tsx` (lowercase) is a *different* file and survives the barrel merge, but new projects should prefer the baseline `PageHeader` and migrate local title blocks onto it.
-- Project-specific layout wrappers (brickshop's `AppSidebar.tsx`, `MainLayout.tsx`)
-
-**Operating rule for `/style-baseline --force`**: review `git diff --stat` after the cp pass. Starter files never appear in it — they are kept byte-identical. The diff carries the immutable primitives, and step 4 prints a `DRIFT:` line naming every one that differed (prior version kept beside it as `<name>.local.<ext>`), so a narrowed donor surface is visible before the next typecheck instead of surfacing as a silent break. Reset a drifted starter only by deleting it and re-running (the donor's default comes back); project-only `.tsx`/`.ts` files survive automatically (cp -R never deletes; it overlays), and their barrel export lines are re-merged by step 4b (so a clobbered `index.ts` no longer forgets local-only primitives). The two real re-broadcasts of this kind to date (mistra PR #126, hk-crm PR #44) each needed a manual revert pass; with the keep-starters + `DRIFT:` report the revert pass is gone, and the curated diff review is the remaining step.
 
 ## Shared content molecules — same mental model, identical render
 
@@ -543,7 +570,7 @@ recurring machine half is the donor's zero-dep
 - **Variants**: when a component needs sizes or visual variants, reach for CVA (see `button.tsx`).
 - **Forms**: `react-hook-form` + `zod` schema + shadcn `<Form>`. No `<form>` without RHF.
 - **Toasts**: `sonner` is the only toast runtime (`import { toast } from "sonner"`); `AppShell` mounts its `<Toaster>` viewport.
-- **Server vs client components** (Next.js): the layout primitives and most shadcn components are interactive — mark the files that import them with `"use client"`. The `/style-baseline` skill does this for you when scaffolding into a Next project.
+- **Server vs client components** (Next.js): the layout primitives and most shadcn components are interactive — mark the files that import them with `"use client"`. `docs/PACKAGE.md` covers the Next wiring; per-leaf `"use client"` is a donor invariant (ADR-0006, `verify-exports` invariant 7), so the package's own files already carry it.
 
 ## Re-skin checklist
 

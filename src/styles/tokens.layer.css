@@ -2,11 +2,11 @@
  * Design baseline — Tailwind 4 token layer. The DONOR-OWNED half of the
  * tokens stack: the `@import "tailwindcss"` entry, `@theme` config (colour /
  * font / radius / motion roles and keyframes), `@custom-variant`, the utility
- * definitions, the layer base. `/style-baseline` overwrites this file on
- * re-apply (with a `DRIFT:` report and an in-place keep-aid when a target had
- * diverged), so a donor-side fix — a changed keyframe, an `@plugin`/`@import`
- * directive, a new `@theme` role, a new utility — reaches every target with
- * no manual merge.
+ * definitions, the layer base. It ships as the package export
+ * `design-baseline/tokens.layer.css` and a consumer `@import`s it rather than
+ * holding a copy, so a donor-side fix — a changed keyframe, an `@plugin`/`@import`
+ * directive, a new `@theme` role, a new utility — reaches every consumer on the
+ * next tag bump with no manual merge.
  *
  * The brand half lives in `tokens.css` beside this file — the ONLY file a
  * target may diverge from the donor. It holds the `:root` / `.dark` HSL

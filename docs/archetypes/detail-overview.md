@@ -90,7 +90,7 @@ status: locked
 > were settled in a rendered design review (2026-06-12), not from spec text
 > alone. Compliant pages in different applications now share one recognizable
 > layout, and layout iterations are a single-file change to the shell / the
-> detail-section primitive that propagates via `/style-archetypes --update`.
+> detail-section primitive that propagates by a package tag bump.
 > Breaking primitive API change (v1.x pages must move their sections into
 > slots). A second rendered review settled the **ledger design**: ruled
 > master-data rows (the key-value list primitive replaces the k/v grid),
@@ -282,7 +282,7 @@ the entity:
 Appearance is never picked per call site: the header-fill axis is the
 top-level app shell's closed context, and everything else is fixed in the
 primitives. Layout iterations are a single-file change to the shell that
-propagates baseline-wide via `/style-archetypes --update`.
+propagates baseline-wide by a package tag bump.
 
 ---
 

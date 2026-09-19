@@ -8,8 +8,8 @@ import { fileURLToPath, URL } from "node:url";
 //
 // This config builds the `gallery/` app that renders the archetype demos so the
 // baseline can be browsed visually (and later mounted as a "design plugin" in
-// the dashboard hub). It is never copied into a target project; `/style-baseline`
-// and `/style-archetypes` only copy `src/...`. See STYLE.md, "Donor file scope".
+// the dashboard hub). It never reaches a consumer: the package `files` list
+// carries `src/...` only. See STYLE.md, "Donor file scope".
 //
 // All `gallery*` scripts pass `--configLoader runner`; see vitest.config.ts for
 // why (esbuild parses every ancestor `package.json`, so a corrupt main-checkout

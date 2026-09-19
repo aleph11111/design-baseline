@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-13'
-status: ready
+status: done
 value: normal
 depends_on: [hk-crm-package-install-cutover]
 model: opus
@@ -99,7 +99,7 @@ one fleet command `plugin.actions` advertises.
   H7/H9/H10.
 - [[adopt-baseline-command-retire]] — Part A; established the delete-plus-`install.sh` mechanics
   and deferred this ticket's ~50 donor doc sites.
-- [plugin-version-contract-vs-bundle-split.md](archive/plugin-version-contract-vs-bundle-split.md)
+- [plugin-version-contract-vs-bundle-split.md](../archive/plugin-version-contract-vs-bundle-split.md)
   — `drop-drift-machinery`'s E4, which kept `LocalArchetypeEntry` for copy-vendored repos; this
   ticket is where that keep expires.
 - ADR-0003 — adherence lint ships as a zero-dep scanner; the lint is kept, retargeted, not deleted

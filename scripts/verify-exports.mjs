@@ -30,8 +30,8 @@
 //   5. The donor-owned layer carries no brand values:
 //      `src/styles/tokens.layer.css` declares no `:root` or `.dark` selector. A
 //      brand triplet bleeding into the donor-owned half is silent
-//      (it builds fine) until the next `/style-baseline --force` re-apply
-//      overwrites the layer and detonates it.
+//      (it builds fine) until a consumer bumps its pinned tag and the donor's
+//      layer overrides that consumer's own brand.
 //   6. The brand file is not the pre-#178 merged shape:
 //      `src/styles/tokens.css` carries no `@import "tailwindcss"`. That entry
 //      belongs to the layer; its re-acquisition by the brand file (or the layer

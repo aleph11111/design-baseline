@@ -2,7 +2,7 @@
 
 A reusable frontend foundation extracted from the patterns that worked in `controlling-app` and `brickshop-manager`. The goal: start a new project, say "use the baseline," and get a coherent, dark-mode-ready, accessible UI on day one.
 
-**This repo is donor source, not a buildable app.** Files in `src/` are meant to be copied into a target project — either manually or via the `/style-baseline` skill. Verify the donor with `npm install && npx tsc --noEmit` (strict TypeScript settings real targets use) and `npm test` (component tests guarding shared primitives like `SurfaceHeader`).
+**This repo is donor source, not a buildable app.** `src/` ships as a **git source package** — consumers add one dependency line and import from `design-baseline/...`; see [`docs/PACKAGE.md`](docs/PACKAGE.md). Verify the donor with `npm install && npx tsc --noEmit` (strict TypeScript settings real targets use) and `npm test` (component tests guarding shared primitives like `SurfaceHeader`).
 
 ## What's in it
 
@@ -52,28 +52,42 @@ Four cross-archetype methodology docs sit upstream of the individual archetype s
 
 ## How to apply it
 
-### Option 1 — `/style-baseline` skill (recommended)
+Install the package and wire it in — four lines, all of them load-bearing. The full
+runbook (tsconfig `paths`, the two CSS lines, the migration steps for a project that
+already vendored a copy, and the proof matrix) lives in
+[`docs/PACKAGE.md`](docs/PACKAGE.md).
 
-From inside a fresh project:
-
+```jsonc
+// package.json — pin a tag; a version bump is a one-digit change
+"design-baseline": "github:aleph11111/design-baseline#vX.Y.Z"
 ```
-/style-baseline
+
+```css
+/* src/styles/tokens.css */
+@import "design-baseline/tokens.layer.css";
+@source "../../node_modules/design-baseline/src";
 ```
 
-The skill detects your target stack (Next.js vs Vite), copies `src/styles/tokens.css`, `src/lib/utils.ts`, `src/hooks/`, `src/utils/`, `src/components/ui/`, `src/components/layout/`, and `components.json` into the project, adds `"use client"` where Next requires it, installs the dependency set, and prints the brand-token edits you should make next.
+Then import from the package rather than copying files:
 
-Optionally, run `/style-archetypes` after `/style-baseline` to also copy the page-shape archetypes into the project — `docs/archetypes/MANIFEST.json` is the living list of what ships. See `docs/archetypes/README.md` for the methodology.
+```ts
+import { AppShell } from "design-baseline/layout";
+import { Button } from "design-baseline/ui/button";
+import { DetailOverviewShell } from "design-baseline/archetypes/detail-overview";
+```
 
-### Option 2 — manual
+The package ships **source** (`.tsx` / `.ts`), never compiled JS or CSS — your own
+toolchain transpiles it and compiles every Tailwind class from source, so there is no
+compiled bundle to drift out of sync.
 
-1. Install the deps from `package.json` (plus `@tailwindcss/postcss` for Next or `@tailwindcss/vite` for Vite).
-2. Copy `components.json` to project root.
-3. Copy `src/styles/tokens.css`, `src/lib/utils.ts`, `src/hooks/`, `src/utils/`, `src/components/ui/`, `src/components/layout/` into your project (preserving the structure). The `hooks/` and `utils/` files are required imports from `components/ui/` (sidebar, toaster, error-boundary) — skipping them breaks the TypeScript build.
-4. Import `tokens.css` once at the app entry (Next: `app/layout.tsx`; Vite: `src/main.tsx`).
-5. Make sure `@/` resolves to your `src/` directory (`tsconfig.json` + bundler config).
-6. For Next.js App Router: prepend `"use client"` to every `.tsx` in `components/ui/` and `components/layout/` (Vite ignores the directive — harmless either way).
-7. Open `docs/STYLE.md` and follow the **Re-skin checklist** to customize colors, radius, and brand font.
-8. (Optional) Apply the archetype layer: copy `docs/archetypes/` and `src/components/archetypes/` into the project. See `docs/archetypes/README.md` for what's in each archetype and `docs/STYLE.md` for the convention.
+The archetype layer comes with the package: `docs/archetypes/MANIFEST.json` is the living
+list of what ships, and each archetype is importable as `design-baseline/archetypes/<slug>`.
+See [`docs/archetypes/README.md`](docs/archetypes/README.md) for the methodology and
+[`docs/CHOOSING-A-SURFACE.md`](docs/CHOOSING-A-SURFACE.md) for picking one.
+
+Your project still owns its brand: `src/styles/tokens.css` is yours to edit — open
+[`docs/STYLE.md`](docs/STYLE.md) and follow the **Re-skin checklist** to set colors, radius,
+and brand font.
 
 ## What's intentionally out of scope
 
@@ -85,7 +99,7 @@ Optionally, run `/style-archetypes` after `/style-baseline` to also copy the pag
 
 The baseline owns how the sidebar and header **render and behave**; each project owns **what's in its nav** and **how it's grouped**. `brickshop-manager` (flat domain groups) and `controlling-app` (asset-scoped nav with a switcher) deliberately disagree on grouping, and that's fine — they both consume the same `<AppSidebar>` primitive with different `navItems` / `groups` props. Behaviour fixes belong in this donor; nav content lives in each project's `MainLayout` / `AppShell` composition.
 
-If a behaviour bug shows up in a target (e.g. nav-item text gets selected on click), fix it here in `src/components/layout/Sidebar.tsx` or `src/components/ui/sidebar.tsx` and re-broadcast via `/style-baseline --force` — don't patch the target's snapshot. See `docs/STYLE.md` § "Ownership boundary" for the full statement.
+If a behaviour bug shows up in a consumer (e.g. nav-item text gets selected on click), fix it here in `src/components/layout/Sidebar.tsx` or `src/components/ui/sidebar.tsx`, cut a new tag, and bump the consumer's pinned `design-baseline` version — don't patch the consumer's tree. See `docs/STYLE.md` § "Ownership boundary" for the full statement.
 
 ## Provenance
 

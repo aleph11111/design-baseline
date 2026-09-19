@@ -25,9 +25,9 @@ Why one doc, not a pair: once an archetype is closed, its props are the contract
 
 **The letter `key` is namespace-scoped display/ordering metadata only — never a cross-doc identifier.** A bare letter can be ambiguous: a project that ran its own archetype audit may assign `B` to a different archetype than the donor's `B` (`form-page`). When a letter must appear in prose and could be ambiguous, qualify it with its namespace (`baseline:B`).
 
-**`namespace` separates donor archetypes from project-local ones.** Every entry the donor ships carries `"namespace": "baseline"`. A target project that adds its own archetypes (anything not in this donor manifest) stamps them with its own namespace (e.g. `"namespace": "acme"`) and a unique slug. The field is interpreted as **"baseline when absent"**, so the disambiguator within a manifest is `(namespace, key)` — or, preferably, the always-unique `slug`.
+**`namespace` separates donor archetypes from project-local ones.** Every entry the donor ships carries `"namespace": "baseline"`. A consuming project that adds its own archetypes (anything not in this donor manifest) stamps them with its own namespace (e.g. `"namespace": "acme"`) and a unique slug. The field is interpreted as **"baseline when absent"**, so the disambiguator within a manifest is `(namespace, key)` — or, preferably, the always-unique `slug`.
 
-This is why `/style-archetypes` is safe to re-run: it merges `MANIFEST.json` **by slug** and only adds or updates entries for slugs it copied from the donor. Project-local entries (different slugs, non-`baseline` namespace) are never touched, and a refreshed baseline entry preserves any target-only keys (including a `namespace` the target stamped). The framework README itself is treated as **project-maintainable** — `/style-archetypes` copies it only when the target has none or it is byte-identical to the donor's; a diverged target README is left in place (the donor's copy is dropped alongside as `README.donor.md` for manual reconciliation).
+The donor's manifest and a consumer's manifest are now **separate files that never merge**: the baseline's ships inside the package (`node_modules/design-baseline/docs/archetypes/MANIFEST.json`) and a consumer's own `docs/archetypes/MANIFEST.json`, if it keeps one, lists only its project-local archetypes. That is what makes `(namespace, key)` safe — there is no merge step that could clobber a project-local entry, and no `README.donor.md` reconciliation to do.
 
 > **Which archetype for a given entity?** An entity shows up at different depths in different projects (a shallow `Company` vs one that owns contacts/deals/contracts). Don't build tiers of one layout — pick the right archetype by depth + context. See [`docs/CHOOSING-A-SURFACE.md`](../CHOOSING-A-SURFACE.md): the **surface ladder** (token → row → dialog → section → detail page), the **create spectrum** (dialog vs page), and when to escalate.
 
@@ -159,21 +159,28 @@ Baseline archetypes are promoted from real project implementations using the `/p
 
 **Frequency:** user-initiated only. No automation.
 
-### How target projects get archetypes
+### How consuming projects get archetypes
 
-Apply via the `/style-archetypes` skill (requires `/style-baseline` to have run first):
+They install the package — there is no per-archetype apply step. A consumer pins
+`"design-baseline": "github:aleph11111/design-baseline#vX.Y.Z"`, wires the four lines in
+[`docs/PACKAGE.md`](../PACKAGE.md), and imports the archetype it wants:
 
-```
-/style-archetypes                   # apply all baseline archetypes
-/style-archetypes list-with-detail  # apply one by slug
-/style-archetypes --list            # preview what would be copied
-/style-archetypes --update          # show stale archetypes in this project
-/style-archetypes --force           # overwrite existing archetype files
+```ts
+import { DetailOverviewShell } from "design-baseline/archetypes/detail-overview";
 ```
 
-What gets copied per archetype: the contract `docs/archetypes/<slug>.md` and `src/components/archetypes/<slug>/` (recorded in the MANIFEST entry as `spec` and `primitives_dir`). `MANIFEST.json` is always merged (by slug, preserving target-only entries and keys) so the target stays current and can run `--update` later. The framework `README.md` is copied **only when the target has none or it is byte-identical to the donor's** — a project-maintained README that diverges is never overwritten (see *Identifying archetypes* above). Sandbox demo files (`src/examples/`) are never copied to targets — they are a generic-ness contract for the donor only.
+What a consumer gets per archetype: the primitives of `src/components/archetypes/<slug>/`, exported
+as `design-baseline/archetypes/<slug>`, and the contract `docs/archetypes/<slug>.md`, which ships in
+the package's `files` list and is readable at
+`node_modules/design-baseline/docs/archetypes/<slug>.md` (the MANIFEST entry's `spec` and
+`primitives_dir` name both). `MANIFEST.json` ships with them as the catalog of what that tag
+contains — nothing merges it into a consumer's own manifest. Staleness is one number: the pinned
+tag versus the donor's `package.json` version. Sandbox demo files (`src/examples/`) are **not** in
+the package `files` list, so a consumer never receives them — they are a generic-ness contract for
+the donor only.
 
-Project-added archetypes (not in the baseline MANIFEST) are never touched by `/style-archetypes`. The target's `docs/archetypes/` may freely contain project-local spec files.
+Project-added archetypes live in the consumer's own `docs/archetypes/` and are entirely separate
+from the package's copy; nothing the donor ships can touch them.
 
 ### Versioning
 
@@ -225,6 +232,6 @@ The following are intentionally out of scope for all baseline archetypes:
 - **Data fetching implementation** — baseline specs describe the data *contract* (what shape a hook must return) but ship no React Query hooks, Supabase clients, Prisma queries, or fetch calls. Consumers wire their own data layer.
 - **Charts and analytics** — dashboard / KPI archetypes are deferred until two projects independently build the same shape (rule-of-2). No charting library is included.
 - **i18n** — string externalization, locale switching, RTL layout. Not the baseline's concern.
-- **Project-specific archetypes** — if a shape appears in only one project, it stays in that project. The baseline only ships shapes that two or more real applications have proven to need. Project-local archetypes live alongside baseline ones in the target's `docs/archetypes/`; `/style-archetypes` never touches files that aren't in the MANIFEST.
+- **Project-specific archetypes** — if a shape appears in only one project, it stays in that project. The baseline only ships shapes that two or more real applications have proven to need. Project-local archetypes live in the consuming project's own `docs/archetypes/`, separate from the package's shipped catalog.
 - **Brand tokens and visual style packs** — the baseline ships neutral HSL tokens. Re-skin is the project's job per `docs/STYLE.md`.
-- **Sample pages** — applying an archetype copies spec docs and primitive components. It does not scaffold a full page. The spec doc is the reference; pages are hand-written by the consumer.
+- **Sample pages** — an archetype ships a contract and primitive components. It does not scaffold a full page. The spec doc is the reference; pages are hand-written by the consumer.
