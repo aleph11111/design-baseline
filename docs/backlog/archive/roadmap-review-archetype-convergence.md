@@ -1,7 +1,7 @@
 ---
 area: roadmap-review
 opened: '2026-09-23'
-status: ready
+status: done
 gate:
   score: 5
   passed:
