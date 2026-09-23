@@ -2,7 +2,7 @@
 area: archetypes
 kind: roadmap
 opened: '2026-08-17'
-status: active
+status: in-review
 spec: docs/superpowers/specs/2026-08-17-archetype-convergence-design.md
 scope:
   - archetype-convergence-*
