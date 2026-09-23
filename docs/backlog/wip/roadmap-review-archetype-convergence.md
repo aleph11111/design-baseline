@@ -19,7 +19,7 @@ value: high
 
 ## Context
 
-[docs/backlog/archetype-convergence.md](archetype-convergence.md) is `status: in-review`. All 41
+[docs/backlog/archetype-convergence.md](../archetype-convergence.md) is `status: in-review`. All 41
 children are in `docs/backlog/archive/` with `status: done`: every `roadmap: archetype-convergence`
 back-pointer, unioned with the frontmatter `tickets:` list and the nine
 `archetype-convergence-*` scope matches. Intent comes from the roadmap's `## Phases` and
@@ -124,13 +124,13 @@ Alternatives (not recommended):
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — the roadmap under review.
-- [archive/hk-crm-package-install-cutover.md](archive/hk-crm-package-install-cutover.md) — the one
+- [archetype-convergence.md](../archetype-convergence.md) — the roadmap under review.
+- [archive/hk-crm-package-install-cutover.md](../archive/hk-crm-package-install-cutover.md) — the one
   shipped consumer cutover, and the template for the three proposed ones.
-- [archive/copy-channel-final-delete.md](archive/copy-channel-final-delete.md) — the H7 gate that
+- [archive/copy-channel-final-delete.md](../archive/copy-channel-final-delete.md) — the H7 gate that
   let the copy channel die after one consumer.
-- [docs/superpowers/specs/2026-08-17-archetype-convergence-design.md](../superpowers/specs/2026-08-17-archetype-convergence-design.md)
+- [docs/superpowers/specs/2026-08-17-archetype-convergence-design.md]()
   — the spec. Its fleet-commands "Deferred to the decompose loop" section names the open
   three-consumer question.
-- [docs/adr/0004-appearance-locality-derived-vs-inherited.md](../adr/0004-appearance-locality-derived-vs-inherited.md)
+- [docs/adr/0004-appearance-locality-derived-vs-inherited.md]()
   — the rule the closed API enforces.
