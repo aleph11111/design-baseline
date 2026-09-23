@@ -2,7 +2,7 @@
 area: archetypes
 kind: roadmap
 opened: '2026-08-17'
-status: in-review
+status: delivered
 spec: docs/superpowers/specs/2026-08-17-archetype-convergence-design.md
 scope:
   - archetype-convergence-*
@@ -326,6 +326,30 @@ Phase 2's work.
   dated audit dump survives without one — the original "under 250 KB" clause
   restated: the byte target was a proxy for "no doc without a reader", and the
   22 contracts alone (335 KB) are the package's payload.
+
+## Completion verdict (2026-09-23)
+
+**Delivered: donor-side convergence plus one proven consumer.** Every donor-side criterion
+has shipped: the closed API, the lint ratchet, the package, the token split, the donor docs
+and the fleet commands. hk-crm is the proof consumer (decision H7: one migrated consumer was
+enough to retire the copy channel). The Done-when criteria above were written for all four
+consumers. Read against the whole fleet, D1–D3 and D5 were still partial at review time:
+`controlling-app`, `mistra` and `brickshop-manager` were unmigrated, and hk-crm's
+`/companies/[id]` routes were uncollapsed. That remainder does not need a new design cycle.
+Each piece repeats the shipped `hk-crm-package-install-cutover` template, so each is carried
+as a standalone follow-up rather than kept open on this roadmap or moved to a successor:
+
+- [controlling-app-package-install-cutover](controlling-app-package-install-cutover.md)
+- [mistra-package-install-cutover](mistra-package-install-cutover.md)
+- [brickshop-manager-package-install-cutover](brickshop-manager-package-install-cutover.md),
+  which also runs the Phase 6 archive to `docs/archive/archetypes-2026/`
+- [hk-crm-companies-detail-single-composition](hk-crm-companies-detail-single-composition.md),
+  Phase 4 bullet 1
+
+This settles the "separate call" left open by the spec's fleet-commands "Deferred" list: the
+three remaining consumers get migrated, not frozen. The Done-when criteria hold fleet-wide once
+those four tickets ship. Full delta:
+[[roadmap-review-archetype-convergence]].
 
 ## Related
 
