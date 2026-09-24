@@ -2,7 +2,7 @@
 key: D2
 slug: settings-table
 kind: page
-version: 2.0
+version: 2.1
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -11,6 +11,13 @@ status: locked
 
 # Archetype D2 — Settings table
 
+> **v2.1 (2026-09-24) — promoted from mistra's fork.** New keyed column rule:
+> `hideBelowMd` (the narrow-viewport column subset) is keyed to the column's
+> role — see Layer 6. The Layer 4 result count is now shell-rendered from
+> `rowLabel` (the entity-plural noun, or a count → noun function). Row-actions
+> entries may derive `label` / `disabled` from the row. Additive; no breaking
+> change.
+>
 > **v2.0 (2026-08-18) — the shell API closes (archetype-convergence Phase 1).**
 > Per-shell appearance choice is no longer a per-page decision. The shell carries
 > no `className` prop (it never shipped one — confirmed by reading the type), and
@@ -91,7 +98,7 @@ The page header no longer floats above the shell as a separate page-header primi
 **Required:**
 - Toolbar renders as the shell's `toolbar` slot, not above or below the shell.
 - **Primary create action** — single button (small), the default/primary style, leading "add" icon. Label: "Add {entity}". Opens the add dialog. Canonical home: the shell's `headerActions` (the on-surface header bar, Layer 3 — it inverts on a brand-filled header). The legacy `onAddNew` toolbar button remains supported on existing pages, but new pages put the create action in the header — the toolbar owns data controls, not writes.
-- **Result count** — in the **canonical muted small-text style**, right-aligned, format: `{n} results` or `{n} {entity-plural}`.
+- **Result count** — in the **canonical muted small-text style**, right-aligned, format: `{n} results` or `{n} {entity-plural}`. The shell renders it from `rowLabel` — the noun, or a function of the count for singular/plural nouns; `n` is the length of the (filtered) `rows`. Hidden while bulk selection is active (the "{n} selected" count replaces it).
 
 **Allowed variation:**
 - **Search input** — the shared **search-input molecule**; never hand-rolled. Required when the dataset is not intrinsically small (threshold: more than ~10 rows). Omit for pages where search adds no value (e.g. a fixed list of ≤10 numbering series).
@@ -145,6 +152,16 @@ The page header no longer floats above the shell as a separate page-header primi
   | **Everything else** (names, descriptions, free text) | **`align="left"`** (default). |
 
   Two engineers holding the same `columns` config derive the same alignment. It is a per-column *data* prop (it describes the value the column holds), not a choice of the shell's own appearance.
+- **Narrow-viewport column subset** — `hideBelowMd` on a column hides it below the `md` breakpoint (table presentation only). **Choose by the column's role** (what the row's reader needs to pick a row on a phone):
+
+  | Column role | `hideBelowMd` |
+  |---|---|
+  | **Identifier** | never — the shell ignores the flag on the identifier column; it carries the click contract. |
+  | **Row-state token** (status / priority / stage — what the reader triages by) | off. |
+  | **The one figure the list is ranked or scanned by** (due date, amount, score — at most one per table) | off. |
+  | **Context** — relational (company, project, owner), descriptive (comment, topics, email), or record metadata (created / updated, size, duration) | **on**. |
+
+  Two engineers holding the same `columns` config derive the same subset. Like `align`, it is a per-column *data* prop (it describes the column's role), not a choice of the shell's own appearance.
 - **Primary identifier cell** — rendered in the **brand/primary color with a hover underline**, with a pointer cursor. Clicking it calls `onRowEdit(row)` — the consumer opens the edit dialog. This is D2's core click contract: **row click → edit dialog, never a detail route or a detail panel**.
 
 **Allowed variation:**
@@ -243,7 +260,7 @@ Mutations are out of the primitive's scope. Callbacks surface the intent; the co
 
 **Required:**
 - No dedicated `/mobile/...` route. The same route serves all viewports.
-- **Table body** — stays the base table primitive on all viewports. The content wrapper provides horizontal scroll on overflow so the table scrolls on narrow viewports.
+- **Table body** — stays the base table primitive on all viewports. The content wrapper provides horizontal scroll on overflow so the table scrolls on narrow viewports. Context columns drop out below `md` per the Layer 6 narrow-viewport column subset rule.
 - **Edit dialog** — opens as a full-screen **overlay surface** on mobile (same adaptive pattern as Archetype A's detail panel). D2's edit dialog composes the J (`crud-dialog`) archetype's dialog-shell family — the header/body/footer sub-primitives plus a mode hook — which handles the desktop-width / mobile-full-viewport swap automatically.
 
 **Extension points (not in baseline v1.0 — consumer may add):**

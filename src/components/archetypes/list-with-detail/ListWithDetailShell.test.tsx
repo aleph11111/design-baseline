@@ -206,6 +206,48 @@ describe("ListWithDetailShell", () => {
     );
     expect(ref.current).toBeInstanceOf(HTMLDivElement);
   });
+
+  it("renders the footer band below the body, and the empty-state action", () => {
+    const { rerender } = render(
+      <ListWithDetailShell
+        rows={rows}
+        columns={columns}
+        getRowId={(r) => r.id}
+        footer={<button type="button">Load more</button>}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Load more" })).toBeTruthy();
+
+    rerender(
+      <ListWithDetailShell
+        rows={[]}
+        columns={columns}
+        getRowId={(r) => r.id}
+        emptyStateAction={<button type="button">Add person</button>}
+      />,
+    );
+    expect(screen.getByText("No items yet")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Add person" })).toBeTruthy();
+  });
+
+  it("hideBelowMd hides a context column below md, but never the identifier", () => {
+    type Wide = Row & { created: string };
+    const wideColumns: ListColumn<Wide>[] = [
+      { key: "name", header: "Name", cell: (r) => r.name, isIdentifier: true, hideBelowMd: true },
+      { key: "created", header: "Created", cell: (r) => r.created, hideBelowMd: true },
+    ];
+    render(
+      <ListWithDetailShell
+        rows={[{ ...rows[0]!, created: "2026-01-01" }]}
+        columns={wideColumns}
+        getRowId={(r) => r.id}
+      />,
+    );
+    expect(screen.getByText("Created").className).toContain("hidden md:table-cell");
+    expect(screen.getByText("2026-01-01").className).toContain("hidden md:table-cell");
+    expect(screen.getByText("Name").className).not.toContain("hidden");
+    expect(screen.getByText("Ada Lovelace").className).not.toContain("hidden");
+  });
 });
 
 // ---------------------------------------------------------------------------
