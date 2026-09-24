@@ -15,6 +15,7 @@ import { StateView } from "../../ui/state-view";
 import {
   RowActionsMenu,
   alignClass,
+  hideBelowMdClass,
   identifierCell,
   resolveListState,
   type RowAction,
@@ -56,6 +57,13 @@ export type SettingsTableShellProps<Row> = {
   addNewLabel?: string;
   /** Rendered inside the toolbar before the Add-new button. */
   toolbar?: React.ReactNode;
+  /**
+   * The noun of the toolbar's result-count line (Layer 4): renders
+   * `{rows.length} {rowLabel}`, right-aligned in the muted small-text style.
+   * The function form receives the count, for singular/plural nouns. Omitted =
+   * no count line.
+   */
+  rowLabel?: string | ((count: number) => string);
 
   // Per-row secondary actions (dropdown menu)
   /**
@@ -106,6 +114,7 @@ export function SettingsTableShell<Row>({
   onAddNew,
   addNewLabel = "Add new",
   toolbar,
+  rowLabel,
   rowActions,
   isLoading,
   error,
@@ -190,8 +199,16 @@ export function SettingsTableShell<Row>({
           )}
         </div>
       ) : (
-        // Normal mode: show consumer toolbar slot
-        <div className="flex flex-1 items-center gap-2">{toolbar}</div>
+        // Normal mode: show consumer toolbar slot + the result count
+        <>
+          <div className="flex flex-1 items-center gap-2">{toolbar}</div>
+          {rowLabel !== undefined && (
+            <span className="shrink-0 text-sm text-muted-foreground">
+              {rows.length}{" "}
+              {typeof rowLabel === "function" ? rowLabel(rows.length) : rowLabel}
+            </span>
+          )}
+        </>
       )}
       {onAddNew && (
         <Button
@@ -240,7 +257,7 @@ export function SettingsTableShell<Row>({
             </TableHead>
           )}
           {columns.map((col) => (
-            <TableHead key={col.key} className={alignClass(col.align)}>
+            <TableHead key={col.key} className={cn(alignClass(col.align), hideBelowMdClass(col))}>
               {col.header}
             </TableHead>
           ))}
@@ -277,6 +294,7 @@ export function SettingsTableShell<Row>({
                     key={col.key}
                     className={cn(
                       alignClass(col.align),
+                      hideBelowMdClass(col),
                       cellProps?.className,
                     )}
                     {...cellProps}
