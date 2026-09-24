@@ -52,7 +52,7 @@ using `docs/PACKAGE.md`'s "Migrating a vendored consumer" runbook, the same way
 
 ## Related
 
-- [archive/hk-crm-package-install-cutover.md](archive/hk-crm-package-install-cutover.md) — the template cutover.
-- [controlling-app-package-install-cutover.md](controlling-app-package-install-cutover.md) — sibling cutover.
+- [archive/hk-crm-package-install-cutover.md](../archive/hk-crm-package-install-cutover.md) — the template cutover.
+- [controlling-app-package-install-cutover.md](../controlling-app-package-install-cutover.md) — sibling cutover.
 - [[roadmap-review-archetype-convergence]] — the review that filed this.
 - ADR-0004 — appearance locality, which the donor's closed API enforces.
