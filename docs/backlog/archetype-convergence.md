@@ -289,8 +289,9 @@ Phase 2's work.
 - [ ] Remove the `design:`/`patterns:` `## Doc Paths` keys once nothing reads
       them; keep the `_adherence` lint.
 - [ ] `brickshop-manager`'s `docs/archetypes/` is a pre-donor lineage (its own
-      ADR-0030, April 2026) — archive it to `docs/archive/archetypes-2026/` on
-      its migration, not delete it.
+      ADR-0030, April 2026) — archive its `.md` corpus to `docs/archive/archetypes-2026/` on
+      its migration, not delete it. Its `MANIFEST.json` stays live at
+      `docs/archetypes/MANIFEST.json` with the six local rows (F9).
 
 ### Phase 7 — Donor docs
 
