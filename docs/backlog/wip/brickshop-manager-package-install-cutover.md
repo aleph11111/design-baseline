@@ -47,6 +47,6 @@ from a brickshop-manager session.
 
 ## Related
 
-- [archive/hk-crm-package-install-cutover.md](archive/hk-crm-package-install-cutover.md) — the template cutover.
-- [mistra-package-install-cutover.md](mistra-package-install-cutover.md) — sibling cutover.
+- [archive/hk-crm-package-install-cutover.md](../archive/hk-crm-package-install-cutover.md) — the template cutover.
+- [mistra-package-install-cutover.md](../mistra-package-install-cutover.md) — sibling cutover.
 - [[roadmap-review-archetype-convergence]] — proposed this as `brickshop-manager-archetypes-archive-freeze`. Renamed because the review resolved the freeze-vs-cutover call to cutover (D5).
