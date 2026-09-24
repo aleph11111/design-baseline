@@ -130,4 +130,20 @@ describe("RowActionsMenu", () => {
       ["menuitem", "Delete"],
     ]);
   });
+
+  it("resolves function-form label and disabled against the row", () => {
+    const menu = openMenu([
+      {
+        label: (r) => (r.id === "row-1" ? "Unpin" : "Pin"),
+        onSelect: () => {},
+        disabled: (r) => r.id === "row-1",
+      },
+      { label: "Static", onSelect: () => {}, disabled: false },
+    ]);
+
+    const items = itemsOf(menu);
+    expect(items.map((item) => item.textContent)).toEqual(["Unpin", "Static"]);
+    expect(nth(items, 0).getAttribute("data-disabled")).not.toBeNull();
+    expect(nth(items, 1).getAttribute("data-disabled")).toBeNull();
+  });
 });

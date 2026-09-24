@@ -1,4 +1,5 @@
 "use client";
+import type * as React from "react";
 import { StateView } from "../../ui/state-view";
 
 export type ListEmptyMode = "empty" | "loading" | "error" | "filtered-empty";
@@ -8,6 +9,8 @@ export type ListWithDetailEmptyStateProps = {
   message?: string;
   error?: unknown;
   onRetry?: () => void;
+  /** CTA inside the empty / filtered-empty panel (e.g. an "Add {entity}" button). */
+  action?: React.ReactNode;
   className?: string;
 };
 
@@ -22,6 +25,7 @@ export function ListWithDetailEmptyState({
   message,
   error,
   onRetry,
+  action,
   className,
 }: ListWithDetailEmptyStateProps) {
   if (mode === "loading") {
@@ -46,6 +50,7 @@ export function ListWithDetailEmptyState({
           ? "No matches. Try clearing filters."
           : "No items yet")
       }
+      action={action}
       className={className}
     />
   );

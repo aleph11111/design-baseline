@@ -80,6 +80,11 @@ export type ListWithDetailShellProps<Row> = {
   // header; there is no per-shell override.
 
   emptyStateMessage?: string;
+  /**
+   * CTA inside the empty / filtered-empty panel (e.g. "Add {entity}") — a
+   * composition slot, the same shape as settings-table's empty-state action.
+   */
+  emptyStateAction?: React.ReactNode;
   filteredEmpty?: boolean;
   sortBy?: string;
   sortDirection?: SortDirection;
@@ -97,6 +102,12 @@ export type ListWithDetailShellProps<Row> = {
    *   chevron) — the mobile / pick-an-item shape for single-data-column rows.
    */
   presentation?: "table" | "card-grid" | "action-row";
+  /**
+   * A band inside the card below the body (hairline top rule), for list-level
+   * controls that follow the rows — e.g. a "Load more" row. A composition slot:
+   * the band's chrome is fixed here; the slot varies content only.
+   */
+  footer?: React.ReactNode;
   /** Forwards to the root `<SurfaceFrame>` div. */
   ref?: React.Ref<HTMLDivElement>;
 } & SurfaceHeaderSlotProps;
@@ -125,11 +136,13 @@ export function ListWithDetailShell<Row>(
     title,
     headerActions,
     emptyStateMessage,
+    emptyStateAction,
     filteredEmpty,
     sortBy,
     sortDirection,
     onSortChange,
     presentation = "table",
+    footer,
     ref,
   }: ListWithDetailShellProps<Row>,
 ) {
@@ -193,6 +206,7 @@ export function ListWithDetailShell<Row>(
       message={emptyStateMessage}
       error={error}
       onRetry={onRetry}
+      action={emptyStateAction}
     />
   ) : presentation === "card-grid" ? (
     <CardGridBody {...presentationProps} />
@@ -268,7 +282,10 @@ export function ListWithDetailShell<Row>(
       chrome={!chromeless}
     >
       <div className="flex">
-        <div className="min-w-0 flex-1 overflow-x-auto">{bodyContent}</div>
+        <div className="min-w-0 flex-1">
+          <div className="overflow-x-auto">{bodyContent}</div>
+          {footer !== undefined && <div className="border-t px-4 py-3">{footer}</div>}
+        </div>
         {detailPanel}
       </div>
     </SurfaceFrame>

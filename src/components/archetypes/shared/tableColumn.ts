@@ -43,6 +43,16 @@ export type TableColumn<Row> = {
    * alphanumeric codes or slugs, off for human-readable name identifiers.
    */
   identifierMono?: boolean;
+  /**
+   * Hide the column below the `md` breakpoint (table bodies only). NOT a free
+   * look choice: the shared contract decision rule (Layer 6, both
+   * list-with-detail and settings-table) keys it to the column's role — the
+   * identifier, row-state tokens (status / priority / stage), and the one
+   * figure the list is ranked by stay; every context column (relational,
+   * descriptive, record metadata) hides. Ignored on the identifier column,
+   * which never hides.
+   */
+  hideBelowMd?: boolean;
 };
 
 /**
@@ -52,6 +62,18 @@ export function alignClass(align: TableColumn<unknown>["align"]): string {
   if (align === "right") return "text-right";
   if (align === "center") return "text-center";
   return "text-left";
+}
+
+/**
+ * The narrow-viewport visibility class for one column's head and cells.
+ * The identifier column never hides — it carries the row's click contract.
+ */
+export function hideBelowMdClass(
+  col: Pick<TableColumn<unknown>, "hideBelowMd" | "isIdentifier">,
+): string | undefined {
+  return col.hideBelowMd === true && col.isIdentifier !== true
+    ? "hidden md:table-cell"
+    : undefined;
 }
 
 /**

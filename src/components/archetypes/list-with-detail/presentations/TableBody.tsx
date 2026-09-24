@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "../../../ui/table";
 import { cn } from "../../../../lib/utils";
-import { RowActionsMenu, alignClass, identifierCell } from "../../shared";
+import { RowActionsMenu, alignClass, hideBelowMdClass, identifierCell } from "../../shared";
 import type { RowAction } from "../../shared";
 import type { ListColumn, SortDirection } from "../ListWithDetailShell";
 
@@ -96,6 +96,7 @@ export function TableBody<Row>({
                 }
                 className={cn(
                   alignClass(col.align),
+                  hideBelowMdClass(col),
                   canSort && "cursor-pointer select-none hover:bg-muted/50",
                 )}
                 aria-sort={
@@ -147,6 +148,7 @@ export function TableBody<Row>({
                     key={col.key}
                     className={cn(
                       alignClass(col.align),
+                      hideBelowMdClass(col),
                       cellProps?.className,
                     )}
                     {...cellProps}

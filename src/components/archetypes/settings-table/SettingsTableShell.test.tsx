@@ -114,4 +114,21 @@ describe("SettingsTableShell selection membership", () => {
     expect(onBulkDelete).toHaveBeenCalledWith([rows[1], rows[3]]);
     expect(onBulkSelectChange).toHaveBeenCalledWith([]);
   });
+
+  it("renders the result-count line from rowLabel (string and count function)", () => {
+    const { rerender } = render(
+      <SettingsTableShell rows={makeRows(3)} columns={columns} getRowId={(r) => r.id} rowLabel="suppliers" />,
+    );
+    expect(screen.getByText("3 suppliers")).toBeTruthy();
+
+    rerender(
+      <SettingsTableShell
+        rows={makeRows(1)}
+        columns={columns}
+        getRowId={(r) => r.id}
+        rowLabel={(n) => (n === 1 ? "agent" : "agents")}
+      />,
+    );
+    expect(screen.getByText("1 agent")).toBeTruthy();
+  });
 });

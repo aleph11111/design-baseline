@@ -12,6 +12,7 @@ export { getInteractiveRowProps, interactiveRowFocusRing } from "./interactiveRo
 
 export {
   alignClass,
+  hideBelowMdClass,
   identifierCell,
   type TableColumn,
 } from "./tableColumn";

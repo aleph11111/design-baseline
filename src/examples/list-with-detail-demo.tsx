@@ -111,14 +111,18 @@ function derivePresentation<Row>(
 // every surface renders in the gallery. Numeric columns take `align="right"`
 // (tabular figures align on units); the categorical badge takes
 // `align="center"` (a short token); free text stays left (default).
+// `hideBelowMd` follows the Layer 6 role rule: identifier, the status token and
+// the one ranked figure (last published) stay on a phone; the context columns
+// (host, episode count, category) drop out below `md`.
 const TABLE_COLUMNS: ListColumn<Podcast>[] = [
   { key: "title", header: "Show", cell: (p) => p.title, isIdentifier: true, identifierMono: false },
-  { key: "host", header: "Host", cell: (p) => p.host },
+  { key: "host", header: "Host", cell: (p) => p.host, hideBelowMd: true },
   {
     key: "episodes",
     header: "Episodes",
     cell: (p) => <span className="font-mono tabular-nums">{p.episodeCount}</span>,
     align: "right",
+    hideBelowMd: true,
     sortable: true,
     sortFn: (a, b) => a.episodeCount - b.episodeCount,
   },
@@ -139,6 +143,7 @@ const TABLE_COLUMNS: ListColumn<Podcast>[] = [
       </Badge>
     ),
     align: "center",
+    hideBelowMd: true,
   },
   {
     key: "status",
@@ -191,7 +196,7 @@ const PRESENTATION_ACTION_ROW = derivePresentation(ACTION_ROW_COLUMNS); // 1 dat
 // Demo page
 // ---------------------------------------------------------------------------
 
-const STATES = ["loaded", "loading", "error"] as const;
+const STATES = ["loaded", "empty", "loading", "error"] as const;
 
 export function ListWithDetailDemo() {
   const [search, setSearch] = useState("");
@@ -218,6 +223,7 @@ export function ListWithDetailDemo() {
     );
   }, [filtered, sortBy, sortDirection]);
 
+  const isEmpty = state === "empty";
   const selected = filtered.find((p) => p.id === selectedId) ?? null;
   const isLoading = state === "loading";
   const error = state === "error" ? new Error("Failed to load podcasts.") : null;
@@ -267,6 +273,13 @@ export function ListWithDetailDemo() {
     isLoading,
     error,
     onRetry: () => setState("loaded"),
+    // The empty-state CTA (Layer 7) — visible in the "empty" state.
+    emptyStateAction: (
+      <Button size="sm" onClick={() => setState("loaded")}>
+        <Plus className="mr-1 h-4 w-4" />
+        New show
+      </Button>
+    ),
   };
 
   return (
@@ -305,6 +318,28 @@ export function ListWithDetailDemo() {
                 setSortBy(next);
                 setSortDirection(dir);
               },
+              // Row-derived label + disabled: the one actions list serves
+              // every row, so the toggle's label and the delete gate read it.
+              rowActions: [
+                {
+                  label: (p: Podcast) => (p.isActive ? "Pause show" : "Resume show"),
+                  onSelect: () => {},
+                },
+                {
+                  label: "Delete",
+                  destructive: true,
+                  disabled: (p: Podcast) => p.isActive,
+                  onSelect: () => {},
+                },
+              ],
+              // The footer band (Layer 5) — a paged list's "Load more" row.
+              footer: (
+                <div className="flex justify-center">
+                  <Button variant="outline" size="sm">
+                    Load more
+                  </Button>
+                </div>
+              ),
             },
             {
               label: "Card grid (browse-y, 2–3 data cols)",
@@ -349,6 +384,8 @@ export function ListWithDetailDemo() {
                   sortBy={panel.sortBy}
                   sortDirection={panel.sortDirection}
                   onSortChange={panel.onSortChange}
+                  rowActions={panel.rowActions}
+                  footer={panel.footer}
                   toolbar={
                     <ListWithDetailToolbar
                       searchValue={search}
@@ -357,7 +394,7 @@ export function ListWithDetailDemo() {
                     />
                   }
                   {...shellProps}
-                  rows={panel.rows}
+                  rows={isEmpty ? [] : panel.rows}
                 />
               </div>
             </section>

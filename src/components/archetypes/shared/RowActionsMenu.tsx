@@ -11,13 +11,19 @@ import {
 } from "../../ui/dropdown-menu";
 import { Button } from "../../ui/button";
 
+/**
+ * One menu action. `label` and `disabled` accept either a value or a function of
+ * the row: the actions list is shared by every row, so a per-row toggle label
+ * ("Pin" / "Unpin") or a per-row permission gate needs the row to resolve.
+ * Behaviour, not appearance — the menu resolves the function form at render.
+ */
 export type RowAction<Row> = {
-  label: string;
+  label: string | ((row: Row) => string);
   onSelect: (row: Row) => void;
   icon?: React.ComponentType<{ className?: string }>;
   destructive?: boolean;
   /** Disable the item (e.g. no permission, not applicable to this row). */
-  disabled?: boolean;
+  disabled?: boolean | ((row: Row) => boolean);
 };
 
 /** A horizontal rule grouping the items around it. */
@@ -96,7 +102,9 @@ export function RowActionsMenu<Row>({
           return (
             <DropdownMenuItem
               key={`act-${i}`}
-              disabled={item.disabled}
+              disabled={
+                typeof item.disabled === "function" ? item.disabled(row) : item.disabled
+              }
               onSelect={() => item.onSelect(row)}
               className={
                 item.destructive
@@ -105,7 +113,7 @@ export function RowActionsMenu<Row>({
               }
             >
               {Icon && <Icon className="mr-2 h-4 w-4" />}
-              {item.label}
+              {typeof item.label === "function" ? item.label(row) : item.label}
             </DropdownMenuItem>
           );
         })}

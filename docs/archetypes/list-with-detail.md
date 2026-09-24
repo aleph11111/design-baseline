@@ -2,7 +2,7 @@
 key: A
 slug: list-with-detail
 kind: page
-version: 2.0
+version: 2.1
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.9
@@ -11,6 +11,13 @@ status: locked
 
 # Archetype A — List-with-detail
 
+> **v2.1 (2026-09-24) — promoted from mistra's fork.** New keyed column rule:
+> `hideBelowMd` (the narrow-viewport column subset) is keyed to the column's
+> role — see Layer 6. Two composition slots join the shell: `footer` (a band
+> below the body, e.g. "Load more") and `emptyStateAction` (the empty-state
+> CTA) — they compose content, never the shell's look. Row-actions entries may
+> derive `label` / `disabled` from the row. Additive; no breaking change.
+>
 > **v2.0 (2026-08-18) — the shell API closes (archetype-convergence Phase 1).**
 > The per-call-site appearance props are deleted or keyed; the shell's chrome is
 > no longer a per-page choice. The `detailPresentation` prop
@@ -124,6 +131,9 @@ The page header does not float above the shell as a separate page-header primiti
   - Loading, empty, and error slots (the shared state-view)
   - Row-level hover highlight
 
+**Allowed variation:**
+- **Footer band** — the shell's `footer` slot renders a band inside the card below the body (hairline top rule), for list-level controls that follow the rows — canonically a "Load more" row for paged lists. The band's chrome is fixed by the shell; the slot varies content only.
+
 **Forbidden:**
 - Hand-rolled card wrappers. One shell, one style.
 - Page-level `max-width` on the list table. Full-width. List tables scale to available width so the column set adapts to the user's viewport; capping width at a fixed breakpoint loses horizontal space the table could use.
@@ -160,6 +170,16 @@ The page header does not float above the shell as a separate page-header primiti
   | **Everything else** (names, descriptions, free text) | **`align="left"`** (default). |
 
   Two engineers holding the same `columns` config derive the same alignment. It is a per-column *data* prop (it describes the value the column holds), not a choice of the shell's own appearance, and it does not change the shell's surface.
+- **Narrow-viewport column subset** — `hideBelowMd` on a column hides it below the `md` breakpoint (table presentation only). **Choose by the column's role** (what the row's reader needs to pick a row on a phone):
+
+  | Column role | `hideBelowMd` |
+  |---|---|
+  | **Identifier** | never — the shell ignores the flag on the identifier column; it carries the click contract. |
+  | **Row-state token** (status / priority / stage — what the reader triages by) | off. |
+  | **The one figure the list is ranked or scanned by** (due date, amount, score — at most one per table) | off. |
+  | **Context** — relational (company, project, owner), descriptive (comment, topics, email), or record metadata (created / updated, size, duration) | **on**. |
+
+  Two engineers holding the same `columns` config derive the same subset. Like `align`, it is a per-column *data* prop (it describes the column's role), not a choice of the shell's own appearance.
 - **Status indicators:**
   - **Categorical status** (draft / active / archived / paid / …) — use a shared **status-badge** variant. Color map lives in a shared file, not duplicated per page.
   - **Binary toggle** (enabled/disabled, monitored/paused, …) — a **brand-primary dot** (on) / **muted dot** (off) plus label text. Token-pure — never a literal palette color at the call site; semantic raw-color mappings live only inside the owning primitives (status-badge, calendar tones).
@@ -186,6 +206,7 @@ The page header does not float above the shell as a separate page-header primiti
 
 **Allowed variation:**
 - **Empty-state icon** — optional decoration (e.g. a domain-relevant icon, centered above the empty text).
+- **Empty-state CTA** — `emptyStateAction` renders a primary action inside the empty panel (e.g. "Add {entity}"), the same shape as settings-table's empty-state CTA.
 - **`filtered-empty` mode** — an optional fourth mode for the empty slot when a consumer wants distinct copy for "search produced no results" vs "table is genuinely empty". Identical visual treatment; only the message differs.
 
 ---
@@ -249,7 +270,7 @@ Mutations are out of the primitive's scope. The consumer's row-click handler or 
 
 **Required:**
 - No dedicated `/mobile/...` route for list-with-detail pages. The same route serves all viewports.
-- **Table body** — stays the base table primitive on all viewport widths. The primitive's content wrapper provides horizontal scroll so the table scrolls on narrow viewports rather than overflowing. Consumers do not add their own scroll wrapper.
+- **Table body** — stays the base table primitive on all viewport widths. The primitive's content wrapper provides horizontal scroll so the table scrolls on narrow viewports rather than overflowing. Consumers do not add their own scroll wrapper. Context columns drop out below `md` per the Layer 6 narrow-viewport column subset rule.
 - **Detail panel slot** — the primitive uses an internal **viewport-breakpoint hook** to swap the presentation of whatever element the consumer passes as the `detail` prop. On desktop, `detail` renders as a right rail alongside the list. On mobile, the same `detail` element always renders inside a full-screen **overlay surface** (sheet). Consumers pass one `detail` element; the primitive handles the swap automatically. The mobile overlay is a responsive-structure decision (the mobile container of detail content), not a page-facing appearance axis — there is no prop that lets a page opt into the overlay on desktop.
 - **Overlay dismissal** — when `detail` renders as the overlay surface (mobile — the only place the overlay ships), dismissing it (Esc, backdrop click, close button) is reported back to the consumer via a dismissal callback. Required whenever a consumer relies on the overlay to reflect a cleared selection — otherwise the consumer's own selection state can go stale after the surface closes.
 - **Header fill** — when `detailTitle` is provided, the overlay's header bar follows the same **header-fill contract** as the master surface header (three modes — brand-filled / muted tint / hairline). It is a closed project context, set once at the top-level app shell; there is no per-shell override — the overlay's header bar reads the context, the same as the master on-surface header.
