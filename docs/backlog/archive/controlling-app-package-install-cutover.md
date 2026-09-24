@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-23'
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "cross-repo migration with fork-triage calls on every vendored ui/ file that differs from the donor"
@@ -56,7 +56,18 @@ writes into a consumer.
 
 ## Related
 
-- [archive/hk-crm-package-install-cutover.md](archive/hk-crm-package-install-cutover.md) — the template cutover.
+- [archive/hk-crm-package-install-cutover.md](../archive/hk-crm-package-install-cutover.md) — the template cutover.
 - [[roadmap-review-archetype-convergence]] — the review that filed this (gaps D2/D3/D5).
-- [archetype-convergence.md](archetype-convergence.md) — the roadmap.
+- [archetype-convergence.md](../archetype-convergence.md) — the roadmap.
 - ADR-0006 — "use client" is consumer-measured per leaf.
+
+## Outcome
+
+Run from controlling-app's own session (the donor never writes into a consumer). controlling-app
+PR #1042 (squash `38c0971f`, merged 2026-09-24) installed `design-baseline#v0.2.3`: `ui/` kept 25
+(8 forks + 2 fork tests + 15 consumer-only), deleted 20; `layout/` fully kept; `docs/archetypes/`
+and its `MANIFEST.json` fork deleted (consumer ADR-0074). `tsc`, `next build`, `make check` and both
+Docker builds were green locally. The consumer's GitHub Actions did not run (account billing).
+Blocker found on the way: the donor repo was private, so consumer Docker/CI builds could not fetch
+the git dependency. It was made public on 2026-09-24. Step 5's radar row was recorded in
+`docs/promotion-radar.json`. Follow-up (consumer-side): `frontend-design-baseline-held-forks-converge`.
