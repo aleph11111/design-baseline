@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-23'
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "refactor across 11 route files with per-tab data shape design; KPI-strip consistency is the point"
