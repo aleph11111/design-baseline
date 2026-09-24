@@ -56,7 +56,7 @@ writes into a consumer.
 
 ## Related
 
-- [archive/hk-crm-package-install-cutover.md](archive/hk-crm-package-install-cutover.md) — the template cutover.
+- [archive/hk-crm-package-install-cutover.md](../archive/hk-crm-package-install-cutover.md) — the template cutover.
 - [[roadmap-review-archetype-convergence]] — the review that filed this (gaps D2/D3/D5).
-- [archetype-convergence.md](archetype-convergence.md) — the roadmap.
+- [archetype-convergence.md](../archetype-convergence.md) — the roadmap.
 - ADR-0006 — "use client" is consumer-measured per leaf.

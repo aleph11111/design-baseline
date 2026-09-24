@@ -340,7 +340,7 @@ consumers. Read against the whole fleet, D1–D3 and D5 were still partial at re
 Each piece repeats the shipped `hk-crm-package-install-cutover` template, so each is carried
 as a standalone follow-up rather than kept open on this roadmap or moved to a successor:
 
-- [controlling-app-package-install-cutover](controlling-app-package-install-cutover.md)
+- [controlling-app-package-install-cutover](wip/controlling-app-package-install-cutover.md)
 - [mistra-package-install-cutover](mistra-package-install-cutover.md)
 - [brickshop-manager-package-install-cutover](wip/brickshop-manager-package-install-cutover.md),
   which also runs the Phase 6 archive to `docs/archive/archetypes-2026/`
