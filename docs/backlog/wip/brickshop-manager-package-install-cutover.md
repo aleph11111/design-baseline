@@ -27,8 +27,12 @@ from a brickshop-manager session.
 
 ## What to do
 
-- [ ] From a brickshop-manager `/feat` worktree, `git mv docs/archetypes docs/archive/archetypes-2026`,
-      keeping the history. Then remove the `archetypes` Doc-Paths key in `CLAUDE.md` (Phase 6 carve-out).
+- [ ] From a brickshop-manager `/feat` worktree, `git mv` the `.md` corpus of `docs/archetypes/` into
+      `docs/archive/archetypes-2026/`, keeping the history (Phase 6 carve-out). `MANIFEST.json` stays live at
+      `docs/archetypes/MANIFEST.json`, shrunk to its six versionless local rows (`detail-view`,
+      `settings-form`, `domain-hub`, `lookup`, `feed`, `item-selector`), and the `archetypes`/`patterns`
+      Doc-Paths key in `CLAUDE.md` stays with it. `docs/PACKAGE.md` step 6's F9 exception has the reason:
+      the dashboard's promotion-candidate axis reads that file, and archiving it is what the F4 shrink rule prevents.
 - [ ] Add `design-baseline` to `package.json` pinned to the current donor tag (`v0.2.3` at filing time),
       then apply `docs/PACKAGE.md`'s "Migrating a vendored consumer" steps 1–4. In step 1, triage every
       file in `src/components/archetypes/` and `src/components/ui/` against the donor. Pre-donor files
@@ -40,8 +44,9 @@ from a brickshop-manager session.
 
 - In brickshop-manager, `node -e "require.resolve('design-baseline/package.json')"` succeeds, and
   `src/components/archetypes/` is absent.
-- `git -C brickshop-manager show origin/main:docs/archive/archetypes-2026/MANIFEST.json` succeeds, while
-  `origin/main:docs/archetypes/MANIFEST.json` fails.
+- `git -C brickshop-manager show origin/main:docs/archetypes/MANIFEST.json` succeeds and lists exactly the
+  six versionless rows (no entry carries a `version:`), while `origin/main:docs/archive/archetypes-2026/MANIFEST.json`
+  fails and no `.md` file remains under `origin/main:docs/archetypes/`.
 - `tsc --noEmit` and `vite build` are clean, and archetype routes render unchanged against pre-migration
   screenshots.
 

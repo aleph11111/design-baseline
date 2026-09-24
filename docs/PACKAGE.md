@@ -4,7 +4,7 @@ The Design Baseline can be consumed as a **git source package** instead of a `cp
 copy. A consumer adds one dependency line and four wiring lines:
 
 ```
-"design-baseline": "github:aleph11111/design-baseline#v0.2.1"
+"design-baseline": "github:aleph11111/design-baseline#v0.2.3"
 ```
 
 Everything below is load-bearing — each line was proven in a throwaway Vite +
@@ -27,7 +27,7 @@ consumed commit is pinned (P7 of the spec — no registry publish).
 
 ```jsonc
 // package.json
-"design-baseline": "github:aleph11111/design-baseline#v0.2.1"
+"design-baseline": "github:aleph11111/design-baseline#v0.2.3"
 ```
 
 `react` / `react-dom` are the package's **peer dependencies** (`^19`) — the
@@ -216,6 +216,32 @@ keep the brand half in the project's own file, exactly as wiring line 3 document
 brand `:root`/`.dark` HSL values and the project's own `@theme` font stanza (e.g.
 hk-crm's IBM Plex `next/font` binding) stay project-owned. A `cp -R` consumer's
 merged `tokens.css` is the pre-#178 state this step splits.
+
+### Closed-API removals per archetype version (read before step 3)
+
+Step 3 is mechanical only for a consumer whose archetype call sites already match
+the installed tag's closed API. A consumer that last synced before these closings,
+or one that grew its own props on a locally evolved shell (the pre-donor
+`brickshop-manager` lineage), gets type errors the moment the alias array resolves
+the package. brickshop measured 48 of them at `v0.2.3`. The props below were
+deleted or tightened by the MAJOR bumps that shipped in `v0.2.0`:
+
+| Archetype (MANIFEST version) | Prop | Change | Call-site migration |
+|---|---|---|---|
+| `detail-overview` (3.0, #122) | `DetailOverviewShell header?: ReactNode` | deleted | Pass `title` / `subtitle` / `badges` / `actions` as data |
+| `detail-overview` (3.0, #122) | `DetailOverviewShell stats?: ReactNode` | now `StatItem[]` | Pass `{ label, value, hint? }` items; the shell renders the tile row |
+| `detail-overview` (3.0, #122) | `surface`, `rhythm`, `headerFill`, `className` | deleted | Drop them; set the header fill on `<AppShell headerFill=…>` |
+| `analytics-dashboard` (3.0, #195) | `DashboardGrid columns` | deleted | Drop it; the ladder is fixed (1 / 2 at `sm` / 3 at `lg`) |
+| `analytics-dashboard` (3.0, #195) | `StatTileRow columns` | deleted | Drop it; the cell count comes from the number of children (2–4) |
+| `analytics-dashboard` (3.0, #195) | `DashboardWidget span` | now required | Pass `span` by the contract's Layer 6 keying rule (primary trend `3`, comparison/breakdown `2`, else `1`) |
+| `detail-overview` | `KeyValueRow mono` | never a donor prop | Drop it; the value always renders mono and tabular |
+
+A consumer carrying any of these should **converge each archetype first**: move its
+call sites to the closed API against its own vendored copy, one archetype per
+commit, until it type-checks. Then run step 3. A prop the consumer needs that the
+closed API refuses is a fork (step 1's keep-or-promote decision), not something to
+cast away. Extend this table whenever a MAJOR MANIFEST bump removes or tightens
+a prop.
 
 ### Step 3 — Install, wire, delete
 
