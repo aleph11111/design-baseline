@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-24'
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "five separate ADR-0004/rule-10 keying-rule calls (ship with a contract decision rule, or reject and have mistra adapt) — real design judgment per feature, not mechanical porting"
