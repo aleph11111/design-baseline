@@ -11,6 +11,9 @@
  *   - Row action ("Duplicate")
  *   - Empty state when filter produces no rows
  *   - Bulk select demonstration
+ *   - Result-count line (`rowLabel`, singular/plural function form)
+ *   - Narrow-viewport column subset (`hideBelowMd` on the context columns)
+ *   - Row-derived action gate (`disabled` as a function of the row)
  */
 
 import * as React from "react";
@@ -70,6 +73,8 @@ const COLUMNS: SettingsColumn<Recipe>[] = [
   {
     key: "cuisine",
     header: "Cuisine",
+    // Layer 6 role rule: descriptive context → drops out below `md`.
+    hideBelowMd: true,
     cell: (r) => CUISINE_LABELS[r.cuisine],
   },
   {
@@ -82,6 +87,8 @@ const COLUMNS: SettingsColumn<Recipe>[] = [
     key: "servings",
     header: "Servings",
     align: "right",
+    // Record metadata → drops out below `md`; prep time is the ranked figure.
+    hideBelowMd: true,
     cell: (r) => r.servings,
   },
 ];
@@ -129,6 +136,8 @@ export function SettingsTableDemo() {
   const rowActions: SettingsRowAction<Recipe>[] = [
     {
       label: "Duplicate",
+      // Row-derived gate: a copy cannot be duplicated again.
+      disabled: (recipe) => recipe.id.includes("-copy-"),
       onSelect: handleDuplicate,
     },
     // NOTE: real consumers must gate destructive actions through <AlertDialog>
@@ -187,6 +196,7 @@ export function SettingsTableDemo() {
           getRowId={(r) => r.id}
           onRowEdit={handleRowEdit}
           toolbar={toolbarContent}
+          rowLabel={(n) => (n === 1 ? "recipe" : "recipes")}
           rowActions={rowActions}
           emptyMessage={
             query.trim()
