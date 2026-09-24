@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-23'
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "refactor across 11 route files with per-tab data shape design; KPI-strip consistency is the point"
@@ -43,6 +43,6 @@ tab decides its own `stats`. Work from an hk-crm session.
 
 ## Related
 
-- [archive/hk-crm-package-install-cutover.md](archive/hk-crm-package-install-cutover.md) — the install that left this gap.
-- [archive/archetype-convergence-detail-overview-close-api.md](archive/archetype-convergence-detail-overview-close-api.md) — the closed API this composes.
+- [archive/hk-crm-package-install-cutover.md](../archive/hk-crm-package-install-cutover.md) — the install that left this gap.
+- [archive/archetype-convergence-detail-overview-close-api.md](../archive/archetype-convergence-detail-overview-close-api.md) — the closed API this composes.
 - [[roadmap-review-archetype-convergence]] — the review that filed this.
