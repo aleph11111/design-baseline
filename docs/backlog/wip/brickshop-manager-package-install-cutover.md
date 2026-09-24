@@ -50,3 +50,12 @@ from a brickshop-manager session.
 - [archive/hk-crm-package-install-cutover.md](../archive/hk-crm-package-install-cutover.md) — the template cutover.
 - [mistra-package-install-cutover.md](../mistra-package-install-cutover.md) — sibling cutover.
 - [[roadmap-review-archetype-convergence]] — proposed this as `brickshop-manager-archetypes-archive-freeze`. Renamed because the review resolved the freeze-vs-cutover call to cutover (D5).
+
+## Handoff — 2026-09-24
+
+The donor session did not edit brickshop-manager: brickshop still evolves archetypes locally (A v2.0
+#1154, J v3.1 #1156), so fork triage belongs to a brickshop session (fleet self-heal rule). A playbook
+was written to brickshop's gitignored `tasks/design-baseline-cutover-playbook.md` and a brickshop
+session launched (cmux workspace "brickshop: design-baseline cutover") to run this ticket's steps and
+open a PR against brickshop `origin/main` without merging. The ticket stays in `wip/` until that PR
+lands and the acceptance checks pass; donor-side package bugs it surfaces get their own tickets.
