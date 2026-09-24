@@ -87,10 +87,10 @@ each has a donor-side ruling.
 
 - [[mistra-package-install-cutover]] — blocked on this ticket; its fork-triage step needs these rulings
   before it can delete mistra's vendored archetype copies.
-- [archive/archetype-convergence-list-with-detail-close-api.md](archive/archetype-convergence-list-with-detail-close-api.md) — the Phase 1 closure this promotion must not reopen carelessly.
-- [archive/archetype-convergence-settings-table-close-api.md](archive/archetype-convergence-settings-table-close-api.md) — same closure for D2.
-- [archive/test-gap-row-actions-menu-zero-tests.md](archive/test-gap-row-actions-menu-zero-tests.md) — RowActionsMenu test coverage context for the label/disabled function-form change.
-- [archive/refactor-identifier-cell-column-config-duplication.md](archive/refactor-identifier-cell-column-config-duplication.md) — the shared `TableColumn` extraction `hideBelowMd` extends.
+- [archive/archetype-convergence-list-with-detail-close-api.md](../archive/archetype-convergence-list-with-detail-close-api.md) — the Phase 1 closure this promotion must not reopen carelessly.
+- [archive/archetype-convergence-settings-table-close-api.md](../archive/archetype-convergence-settings-table-close-api.md) — same closure for D2.
+- [archive/test-gap-row-actions-menu-zero-tests.md](../archive/test-gap-row-actions-menu-zero-tests.md) — RowActionsMenu test coverage context for the label/disabled function-form change.
+- [archive/refactor-identifier-cell-column-config-duplication.md](../archive/refactor-identifier-cell-column-config-duplication.md) — the shared `TableColumn` extraction `hideBelowMd` extends.
 - [[archetype-convergence]] — parent roadmap.
 - ADR-0004 — appearance locality (derived vs. inherited), the governing rule for every keying-rule call above.
 - `docs/RULES.md` hard rules 8 (version-field semantics) and 10 (appearance locality enforcement).

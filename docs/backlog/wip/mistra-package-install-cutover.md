@@ -97,7 +97,7 @@ mistra's 2026-08 re-sync of its MANIFEST pairs. mistra's `detail-overview.baseli
 `design-baseline/archetypes/<slug>` produced 81 tsc errors.
 
 - **Consumer-ahead and general, needing donor promotion** (each one a rule-10 call):
-  - [mistra-list-detail-settings-table-fork-promotion](../mistra-list-detail-settings-table-fork-promotion.md):
+  - [mistra-list-detail-settings-table-fork-promotion](mistra-list-detail-settings-table-fork-promotion.md):
     `hideBelowMd`, list `footer`, `emptyStateAction`, per-row `RowAction` label/disabled, settings
     `rowLabel`.
   - [mistra-fork-triage-promotions](../mistra-fork-triage-promotions.md): `destructiveDisabled`, the
