@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-23'
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "cross-repo migration with fork-triage calls on every vendored ui/ file that differs from the donor"
