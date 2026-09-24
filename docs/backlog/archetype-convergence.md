@@ -341,7 +341,7 @@ as a standalone follow-up rather than kept open on this roadmap or moved to a su
 
 - [controlling-app-package-install-cutover](controlling-app-package-install-cutover.md)
 - [mistra-package-install-cutover](mistra-package-install-cutover.md)
-- [brickshop-manager-package-install-cutover](brickshop-manager-package-install-cutover.md),
+- [brickshop-manager-package-install-cutover](wip/brickshop-manager-package-install-cutover.md),
   which also runs the Phase 6 archive to `docs/archive/archetypes-2026/`
 - [hk-crm-companies-detail-single-composition](hk-crm-companies-detail-single-composition.md),
   Phase 4 bullet 1
