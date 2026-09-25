@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-24'
-status: needs-enrichment
+status: done
 value: high
 model: opus
 model_reason: "five ADR-0004/rule-10 appearance-vs-capability calls plus one genuine encapsulation fork (export UnifiedSurfaceContext vs ship a collapsible variant) — real design judgment, not pattern-following"
