@@ -100,7 +100,7 @@ mistra's 2026-08 re-sync of its MANIFEST pairs. mistra's `detail-overview.baseli
   - [mistra-list-detail-settings-table-fork-promotion](../archive/mistra-list-detail-settings-table-fork-promotion.md):
     `hideBelowMd`, list `footer`, `emptyStateAction`, per-row `RowAction` label/disabled, settings
     `rowLabel`.
-  - [mistra-fork-triage-promotions](../mistra-fork-triage-promotions.md): `destructiveDisabled`, the
+  - [mistra-fork-triage-promotions](mistra-fork-triage-promotions.md): `destructiveDisabled`, the
     `useCrudDialogController` post-save reset fix, the detail header's leading/back-link slot,
     `UnifiedSurfaceContext` access for mistra's `CollapsibleSection`, and `DashboardGrid` `columns`.
 - **Donor-ahead renames** (call-site mapping when re-pointing): `headerSubtitle`→`subtitle`,

@@ -17,7 +17,7 @@ gate:
 
 ## Context
 
-Fork triage for [`mistra-package-install-cutover`](wip/mistra-package-install-cutover.md) (against donor tag
+Fork triage for [`mistra-package-install-cutover`](../wip/mistra-package-install-cutover.md) (against donor tag
 `v0.2.3`) diffed mistra's vendored copies at mistra `origin/main`
 `frontend/src/components/archetypes/{crud-dialog,detail-overview,analytics-dashboard}` against this donor and
 found five real divergences, each an ADR-0004 / RULES.md rule-10 appearance-vs-capability or contract-shape
@@ -98,11 +98,11 @@ five items resolved (shipped or rejected) before mistra can delete its vendored 
 
 ## Related
 
-- [wip/mistra-package-install-cutover.md](wip/mistra-package-install-cutover.md) — the cutover ticket
+- [wip/mistra-package-install-cutover.md](../wip/mistra-package-install-cutover.md) — the cutover ticket
   blocked on this one; its fork-triage runbook step needs these five items resolved first.
-- [archive/archetype-convergence-crud-dialog-close-api.md](archive/archetype-convergence-crud-dialog-close-api.md) — prior promotion precedent on this same archetype.
-- [archive/archetype-convergence-detail-overview-close-api.md](archive/archetype-convergence-detail-overview-close-api.md) — prior promotion precedent on this same archetype.
-- [archive/analytics-dashboard-column-span-props-unclosed.md](archive/analytics-dashboard-column-span-props-unclosed.md) — prior appearance-prop audit on this same archetype, same auto-resolve-to-Recommended shape.
+- [archive/archetype-convergence-crud-dialog-close-api.md](../archive/archetype-convergence-crud-dialog-close-api.md) — prior promotion precedent on this same archetype.
+- [archive/archetype-convergence-detail-overview-close-api.md](../archive/archetype-convergence-detail-overview-close-api.md) — prior promotion precedent on this same archetype.
+- [archive/analytics-dashboard-column-span-props-unclosed.md](../archive/analytics-dashboard-column-span-props-unclosed.md) — prior appearance-prop audit on this same archetype, same auto-resolve-to-Recommended shape.
 - ADR-0004 — appearance locality: derived vs. inherited, governing items 1 and 5.
 - RULES.md rule 8 (version-field semantics) and rule 10 (appearance-locality enforcement), both directly invoked above.
 
