@@ -2,7 +2,7 @@
 key: M
 slug: matrix-grid
 kind: page
-version: 1.3
+version: 1.4
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -148,6 +148,7 @@ This is the core layer. The matrix shell is generic over a single type parameter
 **Cell contract:**
 - `isFilled?: (cell: Cell | undefined) => boolean` — defines whether a cell is "filled" (data present) or "empty" (blank). Default: `cell !== undefined && cell !== null`.
 - `renderCell?: (ctx: MatrixCellContext<Cell>) => React.ReactNode` — renders content inside filled cells. `ctx` carries `{ row, column, cell, isFilled }`. Empty cells render no content by default (their background may still come from `cellStyle`).
+- `renderEmptyCell?: (ctx: MatrixCellContext<Cell>) => React.ReactNode` — opt-in. Renders content inside empty cells; without it, empty cells stay blank (the default). Pass it when the domain distinguishes a visible empty marker (e.g. `—`) from a filled value. Fill/empty routing (`isFilled`) and the `data-filled` stamp below are unaffected by whether this prop is set.
 - `cellStyle?: (ctx) => { className?: string; tooltip?: string }` — returns per-cell className and optional tooltip text. Used by both filled and empty cells. When `tooltip` is provided, the cell is wrapped in a **tooltip affordance** (the shell's responsibility).
 - **`data-filled` DOM attribute.** The shell stamps `data-filled` (empty-string value) on a cell's `<td>` when `isFilled(cell)` is true, and omits the attribute entirely on empty cells. This is public DOM surface — consumers (and their e2e tests) select on `[data-filled]` to detect fill state instead of coupling to `cellStyle`'s className, which is presentation and free to change (color tokens, variants) without notice.
 

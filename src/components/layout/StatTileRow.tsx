@@ -36,8 +36,12 @@ export function StatTileRow({
   children,
   className,
 }: StatTileRowProps): React.ReactElement {
+  // React.Children.toArray, not .count — .count tallies the `false`/`null`
+  // a hidden conditional tile ({cond && <StatTile/>}) leaves behind, so a row
+  // with 2 of 4 tiles hidden would still derive 4 columns. toArray drops
+  // null/undefined/boolean before the length is taken.
   const columns = Math.min(
-    Math.max(React.Children.count(children), 2),
+    Math.max(React.Children.toArray(children).length, 2),
     4,
   ) as 2 | 3 | 4;
 

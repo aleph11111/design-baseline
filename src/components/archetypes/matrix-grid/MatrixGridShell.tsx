@@ -52,6 +52,13 @@ export type MatrixGridShellProps<Cell> = {
   isFilled?: (cell: Cell | undefined) => boolean;
   /** Renders content for filled cells. Empty cells render no content by default. */
   renderCell?: (ctx: MatrixCellContext<Cell>) => React.ReactNode;
+  /**
+   * Renders content for empty cells. Opt-in: without it, empty cells render no
+   * content (the default). Pass it when the domain distinguishes a visible
+   * empty marker (e.g. `—`) from a filled value. Empty cells never get the
+   * filled stamp regardless.
+   */
+  renderEmptyCell?: (ctx: MatrixCellContext<Cell>) => React.ReactNode;
   /** Per-cell className + optional tooltip. Used by both filled and empty cells. */
   cellStyle?: (ctx: MatrixCellContext<Cell>) => {
     className?: string;
@@ -91,6 +98,7 @@ export function MatrixGridShell<Cell>({
   getRowId,
   isFilled,
   renderCell,
+  renderEmptyCell,
   cellStyle,
   onCellClick,
   kicker,
@@ -152,7 +160,15 @@ export function MatrixGridShell<Cell>({
                     <MatrixCell
                       key={col.key}
                       ctx={ctx}
-                      content={ctx.isFilled && renderCell ? renderCell(ctx) : null}
+                      content={
+                        ctx.isFilled
+                          ? renderCell
+                            ? renderCell(ctx)
+                            : null
+                          : renderEmptyCell
+                            ? renderEmptyCell(ctx)
+                            : null
+                      }
                       style={style}
                       activate={clickable ? () => onCellClick!(ctx) : undefined}
                       cellKey={`${rowKey}::${col.key}`}

@@ -7,6 +7,18 @@ import { buttonVariants } from "./button";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
+// Module-level so the component identity is stable across renders — an inline
+// arrow here makes react-day-picker remount the nav buttons on every render.
+function CalendarChevron({ orientation }: { orientation?: "left" | "right" | "up" | "down" }) {
+  return orientation === "left" ? (
+    <ChevronLeft className="h-4 w-4" />
+  ) : (
+    <ChevronRight className="h-4 w-4" />
+  );
+}
+
+const calendarComponents: CalendarProps["components"] = { Chevron: CalendarChevron };
+
 function Calendar({
   className,
   classNames,
@@ -16,22 +28,24 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
+      navLayout="around"
       className={cn("p-3 pointer-events-auto", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-        month: "space-y-4",
-        month_caption: "flex justify-center pt-1 relative items-center",
+        // Nav buttons and caption share one in-flow header row (navLayout="around"),
+        // so nothing is absolutely positioned over the buttons.
+        month: "grid grid-cols-[auto_1fr_auto] items-center gap-y-4",
+        month_caption: "col-start-2 flex justify-center items-center",
         caption_label: "text-sm font-medium",
-        nav: "space-x-1 flex items-center absolute inset-x-0 top-1 justify-between",
         button_previous: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+          "col-start-1 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         ),
         button_next: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+          "col-start-3 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         ),
-        month_grid: "w-full border-collapse space-y-1",
+        month_grid: "col-span-3 w-full border-collapse space-y-1",
         weekdays: "flex",
         weekday:
           "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
@@ -53,14 +67,7 @@ function Calendar({
         hidden: "invisible",
         ...classNames,
       }}
-      components={{
-        Chevron: ({ orientation }) =>
-          orientation === "left" ? (
-            <ChevronLeft className="h-4 w-4" />
-          ) : (
-            <ChevronRight className="h-4 w-4" />
-          ),
-      }}
+      components={calendarComponents}
       formatters={{
         formatDay: (date) => date.getDate().toString(),
         formatCaption: (date, options) => {

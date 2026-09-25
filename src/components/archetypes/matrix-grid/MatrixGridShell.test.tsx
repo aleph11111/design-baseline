@@ -54,6 +54,32 @@ describe("MatrixGridShell", () => {
     const emptyCell = document.querySelectorAll("tbody td")[1]!;
     expect(emptyCell.hasAttribute("data-filled")).toBe(false);
   });
+
+  it("renders renderEmptyCell content on empty cells without stamping data-filled", () => {
+    const mixedColumns: MatrixColumn[] = [{ key: "mon", label: "Mon" }, { key: "tue", label: "Tue" }];
+    const mixedRows: MatrixRow<string>[] = [
+      { id: "1", label: "Ada", cells: { mon: "P" } },
+    ];
+    render(
+      <MatrixGridShell
+        columns={mixedColumns}
+        rows={mixedRows}
+        renderCell={(ctx) => ctx.cell}
+        renderEmptyCell={() => "—"}
+      />,
+    );
+    const cells = document.querySelectorAll("tbody td");
+    expect(cells[0]!.getAttribute("data-filled")).toBe("");
+    expect(cells[0]!.textContent).toBe("P");
+    expect(cells[1]!.hasAttribute("data-filled")).toBe(false);
+    expect(cells[1]!.textContent).toBe("—");
+  });
+
+  it("renders no content by default on empty cells (no renderEmptyCell)", () => {
+    const emptyRows: MatrixRow<string>[] = [{ id: "1", label: "Ada", cells: {} }];
+    render(<MatrixGridShell columns={columns} rows={emptyRows} renderCell={(ctx) => ctx.cell} />);
+    expect(document.querySelector("tbody td")!.textContent).toBe("");
+  });
 });
 
 const groupedColumns: MatrixColumn[] = [
