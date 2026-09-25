@@ -42,6 +42,11 @@ export type ActionFooterBarProps = {
    * also present. Defaults to true.
    */
   showDestructive?: boolean;
+  /**
+   * When true, the destructive button renders disabled (no spinner) — a
+   * static gate distinct from `isDeleting`'s in-flight state. Defaults to false.
+   */
+  destructiveDisabled?: boolean;
 
   /** Overflow slot, rendered left of the secondary/primary group. */
   overflowMenu?: React.ReactNode;
@@ -90,6 +95,7 @@ export function ActionFooterBar({
   secondaryLabel,
   onSecondary,
   destructiveLabel,
+  destructiveDisabled = false,
   onDestructive,
   showDestructive = true,
   overflowMenu,
@@ -127,7 +133,7 @@ export function ActionFooterBar({
             variant="outline"
             className="text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
             onClick={onDestructive}
-            disabled={isDeleting || isSubmitting}
+            disabled={destructiveDisabled || isDeleting || isSubmitting}
           >
             {isDeleting && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 import type { UseCrudDialogModeResult } from "./useCrudDialogMode";
 import { deriveSubmittingLabel } from "../shared/submittingLabel";
@@ -63,7 +64,11 @@ export type UseCrudDialogControllerOptions<TValues extends FieldValues> = {
   form: UseFormReturn<TValues>;
   /** Result of useCrudDialogMode, wired with the form's isDirty. */
   mode: UseCrudDialogModeResult;
-  /** Values handleSecondary resets to when leaving edit mode. */
+  /**
+   * Values handleSecondary resets to when leaving edit mode, until the first
+   * successful save — from then on it resets to the last-saved values, since
+   * this prop may still hold the pre-save record.
+   */
   defaultValues: TValues;
   /**
    * Omit for an edit-only dialog whose entity is created outside the UI
@@ -141,6 +146,10 @@ export function useCrudDialogController<TValues extends FieldValues>(
     canEdit = true,
   } = options;
 
+  // Set on each successful save so a later Cancel restores the just-saved
+  // values rather than the (possibly pre-save) `defaultValues` prop.
+  const lastSavedValues = useRef<TValues | null>(null);
+
   const labels: CrudDialogLabels = { ...DEFAULT_CRUD_DIALOG_LABELS, ...options.labels };
 
   async function handleClose() {
@@ -184,6 +193,7 @@ export function useCrudDialogController<TValues extends FieldValues>(
     // that was just saved, so the user keeps their place. Both bypass the
     // dirty-discard guard — it only catches *unsaved* changes.
     form.reset(values);
+    lastSavedValues.current = values;
     if (mode.isCreate) {
       onClose();
       return;
@@ -197,7 +207,7 @@ export function useCrudDialogController<TValues extends FieldValues>(
       return;
     }
     const ok = await mode.setMode("view");
-    if (ok) form.reset(defaultValues);
+    if (ok) form.reset(lastSavedValues.current ?? defaultValues);
   }
 
   return {

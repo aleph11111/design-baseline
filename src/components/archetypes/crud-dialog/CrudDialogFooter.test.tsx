@@ -135,3 +135,48 @@ describe("CrudDialogFooter — button `type` attributes", () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 });
+
+describe("CrudDialogFooter — destructiveDisabled static gate", () => {
+  it("disables the destructive button without a spinner when destructiveDisabled", () => {
+    render(
+      <CrudDialogFooter
+        destructiveLabel="Delete"
+        onDestructive={vi.fn()}
+        destructiveDisabled
+      />,
+    );
+
+    const button = screen.getByRole<HTMLButtonElement>("button", {
+      name: "Delete",
+    });
+    expect(button.disabled).toBe(true);
+    expect(button.querySelector("svg")).toBeNull();
+  });
+
+  it("keeps isDeleting's spinner independent of destructiveDisabled", () => {
+    render(
+      <CrudDialogFooter
+        destructiveLabel="Delete"
+        onDestructive={vi.fn()}
+        destructiveDisabled={false}
+        isDeleting
+      />,
+    );
+
+    const button = screen.getByRole<HTMLButtonElement>("button", {
+      name: "Delete",
+    });
+    expect(button.disabled).toBe(true);
+    expect(button.querySelector("svg")).not.toBeNull();
+  });
+
+  it("leaves the destructive button enabled when neither flag is set", () => {
+    render(
+      <CrudDialogFooter destructiveLabel="Delete" onDestructive={vi.fn()} />,
+    );
+
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", { name: "Delete" }).disabled,
+    ).toBe(false);
+  });
+});

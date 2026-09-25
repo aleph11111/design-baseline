@@ -138,3 +138,52 @@ describe("useCrudDialogController optional mutations", () => {
     errorSpy.mockRestore();
   });
 });
+
+/** Edit-mode harness that exposes Save (handlePrimary) too, for Cancel-after-Save. */
+function SaveHarness() {
+  const form = useForm<FormValues>({ defaultValues: { name: "original" } });
+  const mode = useCrudDialogMode({
+    initialMode: "edit",
+    isDirty: form.formState.isDirty,
+    onConfirmDiscard: async () => true,
+  });
+  const controller = useCrudDialogController<FormValues>({
+    form,
+    mode,
+    // The pre-save prop — a parent that has not refetched yet still passes it.
+    defaultValues: { name: "original" },
+    updateMutation: noopMutation,
+    onClose: () => {},
+  });
+
+  return (
+    <div>
+      <input aria-label="name" {...form.register("name")} />
+      <button onClick={() => void controller.handlePrimary()}>primary</button>
+      <button onClick={() => void controller.handleSecondary()}>cancel</button>
+    </div>
+  );
+}
+
+describe("useCrudDialogController Cancel after Save", () => {
+  afterEach(cleanup);
+
+  it("resets to the just-saved values, not the stale defaultValues prop", async () => {
+    render(<SaveHarness />);
+    const input = screen.getByLabelText<HTMLInputElement>("name");
+
+    fireEvent.change(input, { target: { value: "saved" } });
+    await act(async () => {
+      fireEvent.click(screen.getByText("primary")); // Save -> view
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByText("primary")); // Edit
+    });
+    fireEvent.change(input, { target: { value: "discarded" } });
+    await act(async () => {
+      fireEvent.click(screen.getByText("cancel"));
+    });
+
+    expect(input.value).toBe("saved");
+  });
+});

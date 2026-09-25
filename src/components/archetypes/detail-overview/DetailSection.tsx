@@ -1,6 +1,13 @@
 "use client";
 import * as React from "react";
+import { ChevronRight } from "lucide-react";
 import { SectionCard } from "../../layout/SectionCard";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../../ui/collapsible";
+import { cn } from "../../../lib/utils";
 import { UnifiedSurfaceContext } from "./DetailOverviewShell";
 
 export type DetailSectionProps = {
@@ -35,6 +42,14 @@ export type DetailSectionProps = {
    *   sections (reference panels).
    */
   tone?: "default" | "muted";
+  /**
+   * Behaviour: when true, the title becomes a disclosure toggle and the body
+   * shows only while open. Use for secondary sections a reader opens on demand
+   * (run history, raw payloads). Requires `title`. Defaults to false.
+   */
+  collapsible?: boolean;
+  /** Initial open state of a `collapsible` section. Defaults to false. */
+  defaultOpen?: boolean;
   children: React.ReactNode;
   className?: string;
 };
@@ -58,6 +73,8 @@ export function DetailSection({
   actions,
   flush = false,
   tone = "default",
+  collapsible = false,
+  defaultOpen = false,
   children,
   className,
 }: DetailSectionProps): React.ReactElement {
@@ -66,6 +83,44 @@ export function DetailSection({
   // Outside the rail (or outside the shell entirely), this is the bordered
   // card.
   const unified = React.useContext(UnifiedSurfaceContext);
+  const [open, setOpen] = React.useState(defaultOpen);
+
+  if (collapsible && title !== undefined) {
+    // The trigger button sits inside the section's `<h2>` (heading wraps
+    // button — the disclosure pattern that keeps it heading-navigable). The
+    // body padding rides on the content, so a closed section renders only
+    // its title bar.
+    return (
+      <Collapsible open={open} onOpenChange={setOpen}>
+        <SectionCard
+          title={
+            <CollapsibleTrigger className="inline-flex cursor-pointer items-center gap-1.5 text-left uppercase hover:text-foreground">
+              <ChevronRight
+                aria-hidden
+                className={cn(
+                  "h-4 w-4 shrink-0 transition-transform duration-150",
+                  open && "rotate-90",
+                )}
+              />
+              {title}
+            </CollapsibleTrigger>
+          }
+          actions={actions}
+          flush
+          tone={tone}
+          chrome={!unified}
+          className={className}
+        >
+          <CollapsibleContent
+            className={cn(!flush && (unified ? "px-5" : "px-5 py-4"))}
+          >
+            {children}
+          </CollapsibleContent>
+        </SectionCard>
+      </Collapsible>
+    );
+  }
+
   return (
     <SectionCard
       title={title}
