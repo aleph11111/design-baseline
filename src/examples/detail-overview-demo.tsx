@@ -33,6 +33,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { IconAvatar } from "@/components/ui/icon-avatar";
 import {
+  DetailOverviewHeader,
   DetailOverviewShell,
   DetailSection,
   KeyValueList,
@@ -437,6 +438,22 @@ export function DetailOverviewDemo(): React.ReactElement {
             </DetailSection>
           }
         />
+      </div>
+
+      {/* Mode A — standalone header with the shared back-link adapter, over a
+          collapsible section (title bar is the disclosure toggle). */}
+      <div className="space-y-4 rounded-xl bg-muted/50 p-4 sm:p-6">
+        <DetailOverviewHeader
+          title={<span className="font-mono">{o.number}</span>}
+          subtitle="Mode A — standalone header with a back link"
+          backHref="#"
+          backLabel="Orders"
+        />
+        <DetailSection title="Raw payload" collapsible>
+          <pre className="overflow-x-auto font-mono text-[11px] text-muted-foreground">
+            {JSON.stringify({ id: o.id, number: o.number, channel: o.channel }, null, 2)}
+          </pre>
+        </DetailSection>
       </div>
     </div>
   );

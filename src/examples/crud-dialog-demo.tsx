@@ -297,7 +297,13 @@ function WorkoutDialog({
 
   const destructiveProps = mode.isCreate
     ? {}
-    : { destructiveLabel: "Delete", onDestructive: () => setConfirmDeleteOpen(true) };
+    : {
+        destructiveLabel: "Delete",
+        onDestructive: () => setConfirmDeleteOpen(true),
+        // Static gate, distinct from isDeleting's spinner: Delete reads as
+        // unavailable in view mode until the user enters Edit.
+        destructiveDisabled: mode.isView,
+      };
 
   // Mode badge — indicates current mode visually. `sm:col-span-2` is a no-op
   // in flat/two-tab layouts and spans the full row under `layout="two-column"`.

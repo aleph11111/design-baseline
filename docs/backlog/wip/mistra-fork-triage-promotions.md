@@ -6,10 +6,9 @@ value: high
 model: opus
 model_reason: "five ADR-0004/rule-10 appearance-vs-capability calls plus one genuine encapsulation fork (export UnifiedSurfaceContext vs ship a collapsible variant) — real design judgment, not pattern-following"
 gate:
-  score: 4
-  passed: [title, context, what_to_do, acceptance, related]
-  failed:
-    - open_question: "item 4 (UnifiedSurfaceContext export vs collapsible DetailSection variant) auto-resolved to Recommended — confirm before /feat"
+  score: 5
+  passed: [title, context, what_to_do, acceptance, related, open_question]
+  failed: []
   graded_at: '2026-09-24T10:02:02Z'
 ---
 
@@ -114,3 +113,36 @@ vs. ship a collapsible `DetailSection` variant that composes the context interna
 private, consistent with RULES.md rule 3 — never leak a primitive's internals into what a consumer
 depends on). Auto-resolved to the collapsible-variant option (Recommended) per the headless-capture rule;
 confirm before `/feat`.
+
+Resolved 2026-09-25 (operator confirmed): collapsible variant. `UnifiedSurfaceContext` stays internal.
+
+## Outcome (v0.2.6)
+
+- **Shipped: `destructiveDisabled`** on `CrudDialogFooter`, with the gate in the shared `ActionFooterBar`
+  so `FormPageActions` can pick it up later. It disables the button with no spinner, separate from
+  `isDeleting`, and both flags are tested on their own. The crud-dialog demo now passes
+  `destructiveDisabled={mode.isView}`. Before this, the demo left Delete enabled in view mode, against
+  contract Layer 7.
+- **Shipped: the Cancel-after-Save fix.** It uses mistra's `lastSavedValues` ref, falling back to
+  `defaultValues`, and has a regression test. `handleSecondary` was the only stale reset. The save path
+  already reset to the saved `values`, and create-mode close does no reset at all.
+- **Shipped: the back link.** `DetailOverviewHeader` forwards `PageHeader`'s
+  `backHref`/`backLabel`/`renderBackLink`, the adapter rule 10 already allows, with no new slot. This
+  changes the contract: `detail-overview.md` v3.1 drops "no back link" and allows a back link only
+  through that adapter. **mistra adaptation:** replace `leading={<BackButton…/>}` with the three
+  back-link props. A `leading` ReactNode slot would fail the `archetype-appearance-slot` lint.
+- **Shipped: `DetailSection` `collapsible` / `defaultOpen`.** These are behaviour booleans. The
+  section's title turns into the disclosure trigger (a button inside the `<h2>`), and the
+  chromeless/bounded surface is still derived from `UnifiedSurfaceContext` internally. The context is
+  not exported. **mistra adaptation:** rewrite `CollapsibleSection` as
+  `<DetailSection title collapsible defaultOpen actions={summary}>`, and delete the file and its direct
+  `UnifiedSurfaceContext` import.
+- **Rejected: `DashboardGrid` `columns?: 2|3|4`.** It's a numeric-look-union with no keying rule, and
+  the component's own ADR-0004 comment already rules it out. **mistra adaptation:** none needed in
+  product code. The prop is only used in mistra's `DashboardShell.test.tsx`, so drop the prop and those
+  two cases. analytics-dashboard ships nothing, so it gets no MANIFEST bump (rule 8). The "bump all
+  three" line in What to do was wrong on that point.
+- Versions: MANIFEST `crud-dialog` 3.1→3.2 and `detail-overview` 3.3→3.4; contracts both 3.0→3.1;
+  package 0.2.5→0.2.6. `verify-exports` 8/8, `verify-manifest-versions`, tsc and 412 tests all pass.
+  Tag `v0.2.6` gets cut after merge.
+
