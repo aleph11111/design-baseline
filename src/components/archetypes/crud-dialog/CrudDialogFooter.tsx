@@ -42,6 +42,13 @@ export type CrudDialogFooterProps = {
    */
   destructiveLabel?: string;
   onDestructive?: () => void;
+  /**
+   * Renders the destructive button disabled instead of omitting it — a static
+   * gate distinct from `isDeleting`'s spinner. Pass `mode.isView` so Delete
+   * reads as unavailable until the user enters Edit mode, and OR in any
+   * business-rule gate rather than no-op-ing inside `onDestructive`.
+   */
+  destructiveDisabled?: boolean;
 
   /**
    * Optional overflow slot for secondary actions (Duplicate, Archive, Export).
@@ -92,6 +99,7 @@ export function CrudDialogFooter({
   onSecondary,
   destructiveLabel,
   onDestructive,
+  destructiveDisabled = false,
   overflowMenu,
 }: CrudDialogFooterProps): React.ReactElement {
   // Thin wrapper over the shared ActionFooterBar core: J's distinct surface is
@@ -115,6 +123,7 @@ export function CrudDialogFooter({
       onSecondary={onSecondary}
       destructiveLabel={destructiveLabel}
       onDestructive={onDestructive}
+      destructiveDisabled={destructiveDisabled}
       overflowMenu={overflowMenu}
     />
   );

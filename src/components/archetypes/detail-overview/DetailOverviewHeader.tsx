@@ -30,6 +30,16 @@ export type DetailOverviewHeaderProps = {
    * Action buttons MUST NOT be mixed into the title line — pass them here.
    */
   actions?: React.ReactNode;
+  /**
+   * Optional back link, forwarded to the wrapped `<PageHeader>` — see its
+   * `backHref` / `backLabel` / `renderBackLink` for the shared adapter. Pass
+   * only when the entity route has no breadcrumb or section nav of its own.
+   */
+  backHref?: string;
+  /** Label for the back link. Defaults to `<PageHeader>`'s "Back". */
+  backLabel?: string;
+  /** Router-link adapter for the back link, as on `<PageHeader>`. */
+  renderBackLink?: (href: string, label: string) => React.ReactNode;
   className?: string;
 };
 
@@ -56,7 +66,8 @@ export type DetailOverviewHeaderProps = {
  * layout, not the detail-overview page.
  *
  * Thin wrapper over the baseline `<PageHeader>` — it narrows the surface to
- * the detail-overview contract (no icon, no back link) while the shared
+ * the detail-overview contract (no icon; the back link is `<PageHeader>`'s
+ * shared adapter, forwarded as-is) while the shared
  * layout and typography live in one place.
  */
 export function DetailOverviewHeader({
@@ -64,6 +75,9 @@ export function DetailOverviewHeader({
   subtitle,
   badges,
   actions,
+  backHref,
+  backLabel,
+  renderBackLink,
   className,
 }: DetailOverviewHeaderProps): React.ReactElement {
   return (
@@ -72,6 +86,9 @@ export function DetailOverviewHeader({
       subtitle={subtitle}
       badges={badges}
       actions={actions}
+      backHref={backHref}
+      backLabel={backLabel}
+      renderBackLink={renderBackLink}
       className={className}
     />
   );

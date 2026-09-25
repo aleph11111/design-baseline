@@ -100,9 +100,12 @@ mistra's 2026-08 re-sync of its MANIFEST pairs. mistra's `detail-overview.baseli
   - [mistra-list-detail-settings-table-fork-promotion](../archive/mistra-list-detail-settings-table-fork-promotion.md):
     `hideBelowMd`, list `footer`, `emptyStateAction`, per-row `RowAction` label/disabled, settings
     `rowLabel`.
-  - [mistra-fork-triage-promotions](../mistra-fork-triage-promotions.md): `destructiveDisabled`, the
-    `useCrudDialogController` post-save reset fix, the detail header's leading/back-link slot,
-    `UnifiedSurfaceContext` access for mistra's `CollapsibleSection`, and `DashboardGrid` `columns`.
+  - [mistra-fork-triage-promotions](../archive/mistra-fork-triage-promotions.md) (v0.2.6):
+    `destructiveDisabled` and the post-save reset fix shipped as-is. The header back link shipped as
+    `PageHeader`'s `backHref`/`backLabel`/`renderBackLink`: re-point `leading` to those props. The
+    collapsible section shipped as `DetailSection collapsible`: rewrite `CollapsibleSection` on it and
+    drop the direct `UnifiedSurfaceContext` import. `DashboardGrid` `columns` was rejected: drop the
+    prop, which only mistra's tests use.
 - **Donor-ahead renames** (call-site mapping when re-pointing): `headerSubtitle`→`subtitle`,
   `headerIcon`→`icon`, `SELECT_NONE` for the literal `"__none__"`. The per-shell `headerFill` is dropped
   as local drift; `<AppShell>`'s `HeaderFillContext` replaces it.

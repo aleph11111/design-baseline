@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 3.0
+version: 3.1
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.6
@@ -11,6 +11,12 @@ status: locked
 
 # Archetype C — Detail Overview
 
+> **v3.1 (2026-09-25) — promoted from mistra's fork.** The standalone header
+> may carry a back link through the shared page-header back-link adapter
+> (Layer 6 header). A bounded section may be collapsible — a behaviour, not a
+> look: the title bar becomes the disclosure toggle (Layer 6c). Additive; no
+> breaking change.
+>
 > **v3.0 (2026-08-17) — the shell API closes (archetype-convergence Phase 1,
 > proof case).** The container model is **unified only**: the `surface` prop is
 > deleted and the shell renders one bounded outer frame unconditionally ("the
@@ -351,9 +357,13 @@ top-level entity routes like `/opportunities/[id]`).
 - The detail-overview header renders title (in the project's canonical
   page-title type style) and an optional right-aligned actions row. It is a
   thin wrapper over the project's canonical page-header treatment, narrowed
-  to the detail-overview contract (no icon, no back link) — the title scale
-  is the canonical page-header treatment's single source of truth, not
-  restated here.
+  to the detail-overview contract (no icon) — the title scale is the
+  canonical page-header treatment's single source of truth, not restated
+  here.
+- Back link (optional): only on an entity route with no breadcrumb or
+  section nav of its own, through the canonical page-header treatment's
+  back-link adapter (href + label, router link injected by the consumer) —
+  never a bespoke leading control beside the title.
 - Title text reflects the entity name; optional subtitle reads in the
   canonical muted small-text style and may include a link back to the parent
   entity (e.g. an order's owning customer).
@@ -513,6 +523,12 @@ detail-section boundary.
 - Surface grading: data sections use the default tone; reference panels use
   `tone="muted"`. The stat strip (6a) is flat. Three weights, fixed meaning —
   this is the page's visual hierarchy.
+- Collapsible (optional, behaviour): a secondary section the reader opens on
+  demand (run history, raw payloads) may be collapsible — the section's title
+  becomes the disclosure toggle, the body shows only while open, and the
+  section keeps the same surface as its non-collapsible neighbours (chromeless
+  inside the unified rail, bounded card elsewhere). Never a hand-rolled
+  collapsible card beside the bounded section.
 
 ### 6d. Embedded read-only table
 

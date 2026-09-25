@@ -2,7 +2,7 @@
 key: J
 slug: crud-dialog
 kind: dialog
-version: 3.0
+version: 3.1
 promoted_from: brickshop-manager
 promoted_at: 2026-08-04
 source_spec_version: 1.7
@@ -11,6 +11,13 @@ status: locked
 
 # Archetype J — Entity CRUD Dialog
 
+> **v3.1 (2026-09-25) — promoted from mistra's fork.** Cancel after a save now
+> resets the form to the last-saved values, not the pre-save record (a
+> controller bug fix). The footer's Delete gets a static disabled gate distinct
+> from the in-flight spinner, so "disabled in view mode" (Layer 7) and any
+> business-rule gate are expressed as disabled, not as a no-op handler.
+> Additive; no breaking change.
+>
 > **v3.0 (2026-08-18) — the shell API closes (archetype-convergence Phase 1,
 > archetype J).** The per-call-site appearance props are deleted or derived;
 > the shell's chrome is no longer a per-consumer choice. The `className`
@@ -260,7 +267,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 - Use the **action-flow controller** to own the action flow on top of the mode-state hook. It is the canonical owner of `handleClose`, `handlePrimary`, and `handleSecondary` — the dialog wires these to the overlay's close, the footer primary, and the footer secondary respectively, and does not reimplement the transition logic inline. The controller composes the mode-state hook, the schema-validated form hook instance, and the create/update mutations; the dialog keeps its schema, default values, mutation bodies, and form JSX.
 - `initialMode`: pass `"create"` when `entityId` is absent; pass `"view"` or `"edit"` when `entityId` is present. Caller controls the initial mode via prop.
 - **view → edit:** Call `setMode("edit")`. Fields switch from read-only display to form inputs. No confirmation needed (no data loss on forward transition).
-- **edit → view (cancel):** Call `setMode("view")` via `onConfirmDiscard`. If `isDirty` is true and `onConfirmDiscard` is provided, the mode-state hook requests confirmation before transitioning. On confirmed: transition + reset form.
+- **edit → view (cancel):** Call `setMode("view")` via `onConfirmDiscard`. If `isDirty` is true and `onConfirmDiscard` is provided, the mode-state hook requests confirmation before transitioning. On confirmed: transition + reset form to the last-saved values (the record as loaded, until the first save in this dialog session).
 - **edit → view (save success):** owned by the **action-flow controller**'s primary-action handler — it resets the form to the saved values and calls `setMode("view", { force: true })`. The dialog's update-mutation success callback only calls `invalidate<Entity>()` and shows a success toast; it must not transition the mode itself. `force` skips the dirty-discard guard: nothing is being discarded after a save, and the consumer's `isDirty` has not re-rendered yet from the form reset, so the unforced guard would prompt spuriously. Never `force` a user-initiated cancel.
 - **create → closed (success):** Call `onClose()` after mutation `onSuccess`. Call `invalidate<Entity>()` and show a success toast.
 - **any → closed (X / backdrop / Esc):** Wrap `onClose()` in a dirty-check guard. If mode is `edit` or `create` and the form is dirty, request confirmation before calling `onClose()`.
@@ -300,7 +307,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 | Edit   | Delete (outline style, destructive color, enabled)  | Cancel · **Save** |
 | Create | —                      | Cancel · **Create** |
 
-- Delete: always left-aligned. Disabled in view mode. Absent in create mode. Triggers the confirm-dialog primitive before mutation.
+- Delete: always left-aligned. Disabled in view mode — and under any business-rule gate — as a static disabled state, distinct from the in-flight spinner; never a no-op handler. Absent in create mode. Triggers the confirm-dialog primitive before mutation.
 - Primary (Edit / Save / Create): rightmost, the primary button style. When `isSubmitting`, disabled and labeled with the controller's `submittingLabel` ("Saving…" / "Creating…" by default).
 - Secondary (Close / Cancel): the secondary (outline) button style, to the left of primary.
 
