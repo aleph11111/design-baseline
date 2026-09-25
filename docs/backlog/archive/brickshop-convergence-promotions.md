@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-25'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "three independently-scoped, pattern-following ports (an opt-in render-prop, a one-line Children API swap, a module-hoist + classNames swap) with a source-repo reference implementation and existing tests to port — no open design tradeoffs"
@@ -91,5 +91,5 @@ ahead of the donor" pattern:
 
 ## Related
 
-- [archive/mistra-list-detail-settings-table-fork-promotion.md](archive/mistra-list-detail-settings-table-fork-promotion.md) — prior instance of the same "consumer fork is ahead of the donor" promotion shape
+- [archive/mistra-list-detail-settings-table-fork-promotion.md](../archive/mistra-list-detail-settings-table-fork-promotion.md) — prior instance of the same "consumer fork is ahead of the donor" promotion shape
 - `docs/archetypes/MANIFEST.json` `matrix-grid` entry (version `2.3`, `promoted_from: hk-crm`)
