@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-25'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "three independently-scoped, pattern-following ports (an opt-in render-prop, a one-line Children API swap, a module-hoist + classNames swap) with a source-repo reference implementation and existing tests to port — no open design tradeoffs"
