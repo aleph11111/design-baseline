@@ -91,5 +91,5 @@ ahead of the donor" pattern:
 
 ## Related
 
-- [archive/mistra-list-detail-settings-table-fork-promotion.md](archive/mistra-list-detail-settings-table-fork-promotion.md) — prior instance of the same "consumer fork is ahead of the donor" promotion shape
+- [archive/mistra-list-detail-settings-table-fork-promotion.md](../archive/mistra-list-detail-settings-table-fork-promotion.md) — prior instance of the same "consumer fork is ahead of the donor" promotion shape
 - `docs/archetypes/MANIFEST.json` `matrix-grid` entry (version `2.3`, `promoted_from: hk-crm`)
