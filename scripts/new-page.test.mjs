@@ -50,6 +50,48 @@ describe("new-page templates", () => {
     }
   });
 
+  // Every template renders the loading, error and empty planes, through the
+  // shell's state props or StateView, unless its contract puts that plane
+  // somewhere else. Each exemption names that contract reason; docs/PACKAGE.md
+  // mirrors this list.
+  const PLANES = {
+    loading: /isLoading=\{|variant="loading"/,
+    error: /\berror=\{|variant="error"|setError\(|role="alert"/,
+    empty: /isEmpty=\{|emptyMessage=|emptyStateMessage=|emptyState=|\bempty=\{|variant="empty"/,
+  };
+  const EXEMPT = {
+    "detail-overview": {
+      loading: "route-owned (contract Layer 7)",
+      error: "route-owned (contract Layer 7)",
+      empty: "a missing entity is the route's notFound() (contract Layer 7)",
+    },
+    "matrix-grid": {
+      loading: "route-owned (README Layer 7: M delegates it)",
+      error: "route-owned (README Layer 7: M delegates it)",
+    },
+    "form-page": {
+      loading: "initial values resolve before the form renders (contract Layer 7)",
+      empty: "a form has no empty plane",
+    },
+    "import-wizard": {
+      loading: "no page-level fetch; the wizard starts from user input",
+      empty: "no page-level fetch; the wizard starts from user input",
+    },
+    calendar: { empty: "an empty day renders emptyDayLabel; an empty range is still the grid (contract)" },
+  };
+
+  it("every exemption names a template", () => {
+    for (const slug of Object.keys(EXEMPT)) expect(archetypes).toContain(slug);
+  });
+
+  it.each(archetypes)("%s renders every state plane its contract gives the page", (slug) => {
+    const source = renderPage(slug, "Widget");
+    for (const [plane, marker] of Object.entries(PLANES)) {
+      if (EXEMPT[slug]?.[plane]) continue;
+      expect(source, `${slug} renders no ${plane} plane`).toMatch(marker);
+    }
+  });
+
   it("every generated page passes tsc against the package", () => {
     withTempDir((dir) => {
       for (const slug of archetypes) {
