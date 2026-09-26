@@ -12,6 +12,16 @@
  * "ships React source" rule. No `"use client"` either: that invariant covers
  * React source consumed from the app build, not Node config tooling.
  *
+ * The package location is derived from this file's OWN location
+ * (`import.meta.url`), never from `<root>/node_modules/design-baseline`: the
+ * helper ships inside the package (`src/vite/`), so its own path *is* the
+ * installed package's path under every layout — flat npm, hoisted workspaces
+ * (the package lives in the workspace root's `node_modules`, not the
+ * package's own), pnpm (the real dir is under `.pnpm/`), and symlink installs
+ * (Node resolves ESM imports to realpath, so the derived path cannot diverge
+ * from the package's own internal relative resolution — which is what a
+ * divergent two-copy of a context-carrying leaf would be).
+ *
  * Provenance: ported from the brickshop-manager cutover
  * (`scripts/lib/design-baseline-ui.ts`, branch
  * `feat/design-baseline-package-cutover`, 2026-09-25) — the first measured
@@ -19,8 +29,12 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const EXTS = ['.tsx', '.ts', '/index.tsx', '/index.ts'];
+
+/** The installed package's `src/components/ui` dir, from this file's location. */
+const PACKAGE_UI_DIR = fileURLToPath(new URL('../components/ui', import.meta.url));
 
 /**
  * Project-first resolver for `@/components/ui/*` (PACKAGE.md wiring line 2).
@@ -30,12 +44,13 @@ const EXTS = ['.tsx', '.ts', '/index.tsx', '/index.ts'];
  * with the consumer's normal `@` alias, which must be written so it does NOT
  * match `@/components/ui/` (it runs before every plugin, including this one).
  *
- * @param {string} root the consumer's project root (its `__dirname` / `process.cwd()`).
+ * @param {string} root the consumer's project root (its `import.meta.dirname`
+ *   / `process.cwd()`).
  */
 export function designBaselineUi(root) {
   const dirs = [
     path.join(root, 'src/components/ui'),
-    path.join(root, 'node_modules/design-baseline/src/components/ui'),
+    PACKAGE_UI_DIR,
   ];
   return {
     name: 'design-baseline-ui',
@@ -57,21 +72,25 @@ export function designBaselineUi(root) {
 }
 
 /**
- * The package's runtime deps, for `optimizeDeps.include`. The package is
- * excluded from pre-bundling (it is source — pre-bundling an archetype entry
- * would inline a second copy of the package's `ui/` leaves, duplicate React
- * contexts), so Vite never crawls it and would serve its Radix/cmdk/day-picker
- * imports un-bundled — their CJS `react/jsx-runtime` import then breaks every
- * page in dev. Read from the installed `package.json` so a tag bump that adds
- * a dep needs no edit. `tw-animate-css` is CSS-only and must not be
+ * The package's runtime deps, for `optimizeDeps.include`, in the nested
+ * `<package> > <dep>` form — the bare-name form breaks under pnpm's strict
+ * layout, where a dep is not resolvable from the consumer's own
+ * `node_modules`. The package is excluded from pre-bundling (it is source —
+ * pre-bundling an archetype entry would inline a second copy of the package's
+ * `ui/` leaves, duplicate React contexts), so Vite never crawls it and would
+ * serve its Radix/cmdk/day-picker imports un-bundled — their CJS
+ * `react/jsx-runtime` import then breaks every page in dev. Read from the
+ * installed `package.json` (via this file's own location) so a tag bump that
+ * adds a dep needs no edit. `tw-animate-css` is CSS-only and must not be
  * pre-bundled as a JS dep.
  *
- * @param {string} root the consumer's project root.
  * @returns {string[]}
  */
-export function designBaselineDeps(root) {
+export function designBaselineDeps() {
   const manifest = JSON.parse(
-    fs.readFileSync(path.join(root, 'node_modules/design-baseline/package.json'), 'utf8')
+    fs.readFileSync(fileURLToPath(new URL('../../package.json', import.meta.url)), 'utf8')
   );
-  return Object.keys(manifest.dependencies ?? {}).filter((d) => d !== 'tw-animate-css');
+  return Object.keys(manifest.dependencies ?? {})
+    .filter((d) => d !== 'tw-animate-css')
+    .map((d) => `${manifest.name} > ${d}`);
 }

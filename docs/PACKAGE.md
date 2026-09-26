@@ -12,8 +12,9 @@ Tailwind 4 consumer (tag `v0.2.0`, `@tailwindcss/postcss` pipeline) that imports
 `DetailOverviewShell` from `design-baseline/archetypes/detail-overview` and applies
 the wiring. The matrix at the bottom shows both CSS lines failing independently.
 A Vite consumer also needs the dev-server pieces documented in
-*▸ Vite consumers — dev server* — the four lines give a green `vite build` and
-green `tsc`, but `vite dev` breaks in two places this section was written for.
+*▸ Vite consumers — dev server* — the four wiring lines give a green
+`vite build` and `tsc`, but `vite dev` breaks in two places that section
+covers.
 
 > The package ships **source** (`.tsx` / `.ts`), never compiled JS or CSS. The
 > consumer's own toolchain transpiles the TypeScript and compiles every Tailwind
@@ -166,7 +167,8 @@ run that failed halfway through does not add the `<Route>` a second time.
 
 ## Vite consumers — dev server
 
-Wiring lines 1–3 give a green `vite build` and a green `tsc`. `vite dev` still
+Wiring lines 1–3 give a green `vite build` and a green `tsc` (line 4,
+`transpilePackages`, is Next-only). `vite dev` still
 breaks in two places the static checks never touch, because the dev server
 routes every bare import through a dependency pre-bundle (`optimizeDeps`) that
 `vite build` does not use — and the pre-bundler cannot express a fallback
@@ -179,10 +181,15 @@ greenfield `vite dev` proof of the whole shape is at the bottom of this file.
 ```ts
 // vite.config.ts
 import path from "path";
-import { designBaselineUi, designBaselineDeps } from "design-baseline/vite/design-baseline-ui";
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import { designBaselineDeps, designBaselineUi } from "design-baseline/vite/design-baseline-ui";
 
+// import.meta.dirname, not __dirname: a Vite 8 config loads through Node's
+// native ESM loader, which has no __dirname.
 export default defineConfig({
-  plugins: [designBaselineUi(__dirname), react(), tailwindcss()], // order: plugin, then the app's own plugins
+  plugins: [designBaselineUi(import.meta.dirname), react(), tailwindcss()], // order: plugin, then the app's own plugins
   resolve: {
     // The `@` alias must NOT match `@/components/ui/` — the alias phase runs
     // before every plugin (including enforce: "pre"), so a plain `@/ → ./src/`
@@ -191,7 +198,7 @@ export default defineConfig({
     // instead). The negative lookahead carves `@/components/ui/` out and hands
     // it to the designBaselineUi plugin; everything else keeps the ordinary
     // mapping.
-    alias: [{ find: /^@\/(?!components\/ui\/)/, replacement: path.resolve(__dirname, "./src") + "/" }],
+    alias: [{ find: /^@\/(?!components\/ui\/)/, replacement: path.resolve(import.meta.dirname, "./src") + "/" }],
     // The package is excluded from pre-bundling, so its `react` import is
     // served from source while the app's `react` is its pre-bundled instance —
     // two module instances in the browser. Without this dedupe the tree dies
@@ -200,7 +207,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ["design-baseline"],
-    include: designBaselineDeps(__dirname),
+    include: designBaselineDeps(),
   },
 });
 ```
@@ -212,10 +219,16 @@ contexts) next to the copies the resolver serves. But an excluded package is
 never crawled, so its Radix / `cmdk` / `react-day-picker` imports are then
 served un-bundled — and one of those chunks imports CJS `react/jsx-runtime`
 raw, which fails in dev with `does not provide an export named 'jsx'` (a blank
-page). The include makes Vite pre-bundle those runtime deps instead.
-`designBaselineDeps` reads the installed `dependencies` at server start, so a
-tag bump that adds a dep needs no edit; it drops `tw-animate-css` (CSS-only —
-it has nothing to pre-bundle as a JS dep).
+page). The include makes Vite pre-bundle those runtime deps instead. They must
+be the nested `<package> > <dep>` form (`design-baseline > @radix-ui/react-dialog`,
+not the bare name): under pnpm's strict layout the package's own deps are not
+resolvable from the consumer's `node_modules`, and a bare name there would be
+skipped just like the missing case. `designBaselineDeps()` reads the installed
+`dependencies` from the package's own location (the helper ships inside the
+package, so no root argument — flat npm, hoisted workspaces, and pnpm alike),
+derives the nested names from the package's own `name`, and drops
+`tw-animate-css` (CSS-only — it has nothing to pre-bundle as a JS dep), so a
+tag bump that adds a dep needs no edit.
 
 **Why `dedupe: ["react", "react-dom"]`.** The exclude and the include together
 split React across two module instances: the excluded package's `react` import
@@ -224,7 +237,9 @@ while the app's `react` resolves to the pre-bundled instance. Same version,
 two instances — each with its own `__SECRET_INTERNALS` singleton — so any
 component that mounts a package leaf inside the app tree throws
 `Invalid hook call … more than one copy of React`. `resolve.dedupe` collapses
-both spellings onto one pre-bundled instance.
+both spellings onto one pre-bundled instance. The split was first measured on a
+plain real-dir install; it is a property of the exclude/include pair, not of
+any install layout.
 
 **The project-first `ui/` resolver.** `designBaselineUi` is an
 `enforce: 'pre'` resolver that tries `src/components/ui/<name>` first and falls
@@ -503,7 +518,7 @@ its `tokens.css` varying only the two CSS lines above. CSS presence in `dist`:
 whose premise is "not a buildable app" is the wrong permanent cost). The
 repeatable check that stays behind is `scripts/verify-exports.mjs`.*
 
-## `vite dev` proof (throwaway Vite 8 consumer, tag v0.2.6)
+## `vite dev` proof (throwaway Vite 8 consumer, branch head)
 
 The matrix above exercised `vite build`. The two dev-server hazards in
 *Vite consumers — dev server* were proven by a throwaway Vite 8 +
@@ -530,14 +545,20 @@ on a fresh install each:
 - **No `jsx-runtime` page error in either phase** — the `optimizeDeps` exclude
   stops the package inlining a second `ui/` copy (duplicate React contexts) and
   the include keeps its CJS `react/jsx-runtime` import from being served raw.
-  `dedupe: ["react", "react-dom"]` is what stops the excluded package's
-  source-served `react` from standing beside the app's pre-bundled instance
-  ("Invalid hook call … more than one copy of React").
+  (The third piece, `dedupe: ["react", "react-dom"]`, fixes a third failure
+  mode the matrix does not assert: without it this same consumer dies on
+  "Invalid hook call … more than one copy of React" — the excluded package's
+  source-served `react` standing beside the app's pre-bundled instance. It was
+  measured the same way: remove it, watch the hook call break, put it back.)
 
-*Run detail: same throwaway premise as the matrix above — a `file:`-linked
-consumer in a gitignored `tasks/` dir, wired exactly from the *Vite consumers*
-section, rendered through headless chromium (the page *console* and the
-dev-server log are both asserted clean of the two error signatures, not just
-the rendered markup). The repeatable check that stays behind is the same
-`scripts/verify-exports.mjs`, which now also pins the helper's `./vite/`
-subpath in `exports` and the `src/vite` scope in `files` (invariant 9).*
+*Run detail: same throwaway premise as the matrix above — a consumer in a
+gitignored `tasks/` dir, wired exactly from the *Vite consumers* section. The
+package was installed as an `npm pack` tarball of this branch, extracted as a
+**real directory** into `node_modules/design-baseline` (not a `file:` symlink:
+a symlinked install resolves the package's `react` from the donor's own
+workspace `node_modules`, a second React copy of its own). Rendered through
+headless chromium (the page *console* and the dev-server log are both asserted
+clean of the two error signatures, not just the rendered markup). The
+repeatable check that stays behind is the same `scripts/verify-exports.mjs`,
+which now also pins the helper's `./vite/` subpath in `exports` and the
+`src/vite` scope in `files` (invariant 9).*
