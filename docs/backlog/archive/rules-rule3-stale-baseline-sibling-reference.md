@@ -1,7 +1,9 @@
 ---
 area: other
 opened: 2026-09-13
-status: ready
+status: done
+closed: 2026-09-26
+resolution: closed-subsumed
 gate:
   score: 5
   passed: [title, context, what_to_do, acceptance, related]
@@ -37,3 +39,7 @@ model_reason: mechanical text edit — target wording already exists verbatim in
 - [archetype-baseline-sibling-retire.md](../archive/archetype-baseline-sibling-retire.md) — the PR (#255) that deleted the `.baseline.md` siblings this rule still references
 - [style-archetypes-carry-baseline-sibling.md](../archive/style-archetypes-carry-baseline-sibling.md) — earlier ticket that taught tooling to carry the now-retired sibling
 - `docs/ARCHITECTURE.md` §5 "The contract and its binding"
+
+## Verdict — SUBSUMED (closed 2026-09-26)
+
+Already discharged on `origin/main` by f931db0 (#260, "docs(rules): re-point rule 3's residue destination off the retired .baseline.md sibling"). Rule 3 now names the primitive's JSDoc in `src/components/archetypes/<slug>/` and the gallery demo in `src/examples/<slug>-demo.tsx`; first sentence and *Why* clause intact. `grep -rn '\.baseline\.md' docs/ src/ CLAUDE.md README.md _adherence.json` has no hit outside `docs/backlog/`, `docs/audits/`, `docs/superpowers/specs/`. The Acceptance grep's looser form also matches unrelated `style-baseline.md` / `reference_design_baseline.md` / `vendor-stamp-design-baseline.md` filenames in ADR-0004 and a dated plan — false positives, not sibling references. No code change.
