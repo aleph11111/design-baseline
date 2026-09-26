@@ -30,24 +30,10 @@ function runBin(args, cwd) {
 describe("new-page templates", () => {
   const archetypes = listArchetypes();
 
-  // Page archetypes deliberately shipped without a template yet: no package
-  // consumer imports them today, so a template is added on first need. A new
-  // page archetype must land here or in templates/ — the test below fails
-  // otherwise, so a missing template is a reviewed decision, never silent.
-  const NO_TEMPLATE_YET = [
-    "calendar",
-    "kanban-board",
-    "report",
-    "settings-table",
-    "statement-with-filters",
-    "tabbed-settings",
-  ];
-
-  it("templates and the no-template allowlist cover exactly the page archetypes", () => {
+  // Two-way: a new page archetype cannot land without a template.
+  it("templates cover exactly the MANIFEST page archetypes", () => {
     const pages = MANIFEST.archetypes.filter((a) => a.kind === "page").map((a) => a.slug);
-    for (const slug of archetypes) expect(pages).toContain(slug);
-    for (const slug of NO_TEMPLATE_YET) expect(archetypes).not.toContain(slug);
-    expect([...archetypes, ...NO_TEMPLATE_YET].sort()).toEqual([...pages].sort());
+    expect([...archetypes].sort()).toEqual([...pages].sort());
   });
 
   // Own archetype subpath only, plus the consumer-local seams every package

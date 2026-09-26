@@ -33,15 +33,15 @@ per-archetype demos in `src/examples/*-demo.tsx` (e.g. `list-with-detail-demo.ts
 ## What to do
 
 - [x] Ship the generator as a package bin (`bin` entry in `package.json`: `design-baseline new-page <archetype> <Name>`), so every consumer gets it with the dependency and CI can run it.
-- [x] Write one minimal template per page archetype brickshop (the one live consumer) imports today: list-with-detail, grouped-list, detail-overview, matrix-grid, form-page, import-wizard, feed-inbox, analytics-dashboard. Templates are written fresh, not converted from the demos: the demos use the donor `@/` alias and render every variant side by side. The other page archetypes get a template on first consumer need. Component and dialog archetypes get none.
+- [x] Write one minimal template for each of the 14 page archetypes in `MANIFEST.json`. A two-way test keeps the templates and the page archetypes in step. Templates are written fresh, not converted from the demos: the demos use the donor `@/` alias and render every variant side by side. Component and dialog archetypes get none, because they are not pages.
 - [x] Leave route registration to the consumer through `--register <cmd>`, run after the file is written with `DESIGN_BASELINE_PAGE_{ARCHETYPE,NAME,FILE}` in its env.
 - [x] Add a test that generates each template into a temp dir and typechecks it against the package.
 
 ## Acceptance
 
-- Running the generator for any archetype that has a template writes a page that passes `tsc` against the package with no manual edits (`scripts/new-page.test.mjs`).
+- Running the generator for any exported page archetype writes a page that passes `tsc` against the package with no manual edits (`scripts/new-page.test.mjs`).
 - The generated page imports only its own `design-baseline/archetypes/<slug>` and consumer-local paths (react, react-hook-form, the project's `@/components/ui/*` alias). It does not import `design-baseline/ui/*`: consumers reach ui through that alias (project-first, package fallback, per `docs/PACKAGE.md` wiring line 2), and a direct package import would bypass a project override. It renders the loading, empty and error branches. The exception is detail-overview and matrix-grid, whose contracts give loading and error to the route; those pages take resolved data as props.
-- The brickshop route-registry check (point `--register` at its registry, then `archetypeRouteRegistry.test.ts` passes for a freshly generated route) is moved to a brickshop follow-up. It can only be tested there, after brickshop bumps its pin to the tag that ships the bin. Filed as brickshop [`design-baseline-new-page-adoption`](https://github.com/aleph11111/brickshop-manager/blob/main/docs/backlog/design-baseline-new-page-adoption.md) (PR #1182).
+- The brickshop route-registry check (point `--register` at its registry, then `archetypeRouteRegistry.test.ts` passes for a freshly generated route) is moved to a brickshop follow-up, as the operator decided in the ticket discussion on 2026-09-26. It can only be tested there, after brickshop bumps its pin to the tag that ships the bin. Filed as brickshop [`design-baseline-new-page-adoption`](https://github.com/aleph11111/brickshop-manager/blob/main/docs/backlog/design-baseline-new-page-adoption.md) (PR #1182).
 
 ## Related
 
