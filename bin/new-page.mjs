@@ -14,7 +14,7 @@
 // the file is written, with DESIGN_BASELINE_PAGE_{ARCHETYPE,NAME,FILE} in its env.
 
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -104,7 +104,10 @@ function main() {
       },
     });
     if (result.status !== 0) {
-      console.error(`new-page: --register command failed (exit ${result.status ?? result.signal})`);
+      // Remove the page so the same command can simply be re-run once the
+      // register script is fixed (otherwise the no-overwrite guard blocks it).
+      unlinkSync(file);
+      console.error(`new-page: --register command failed (exit ${result.status ?? result.signal}); removed ${file}`);
       return result.status || 1;
     }
   }

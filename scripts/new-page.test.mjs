@@ -30,9 +30,24 @@ function runBin(args, cwd) {
 describe("new-page templates", () => {
   const archetypes = listArchetypes();
 
-  it("every template is a registered page archetype", () => {
-    const pages = new Set(MANIFEST.archetypes.filter((a) => a.kind === "page").map((a) => a.slug));
+  // Page archetypes deliberately shipped without a template yet: no package
+  // consumer imports them today, so a template is added on first need. A new
+  // page archetype must land here or in templates/ — the test below fails
+  // otherwise, so a missing template is a reviewed decision, never silent.
+  const NO_TEMPLATE_YET = [
+    "calendar",
+    "kanban-board",
+    "report",
+    "settings-table",
+    "statement-with-filters",
+    "tabbed-settings",
+  ];
+
+  it("templates and the no-template allowlist cover exactly the page archetypes", () => {
+    const pages = MANIFEST.archetypes.filter((a) => a.kind === "page").map((a) => a.slug);
     for (const slug of archetypes) expect(pages).toContain(slug);
+    for (const slug of NO_TEMPLATE_YET) expect(archetypes).not.toContain(slug);
+    expect([...archetypes, ...NO_TEMPLATE_YET].sort()).toEqual([...pages].sort());
   });
 
   // Own archetype subpath only, plus the consumer-local seams every package
@@ -96,10 +111,13 @@ describe("new-page cli", () => {
     });
   });
 
-  it("propagates a failing --register command", () => {
+  it("propagates a failing --register command and removes the page so a re-run works", () => {
     withTempDir((dir) => {
       const result = runBin(["form-page", "Supplier", "--register", "exit 3"], dir);
       expect(result.status).toBe(3);
+      expect(existsSync(join(dir, "SupplierPage.tsx"))).toBe(false);
+      const retry = runBin(["form-page", "Supplier", "--register", "true"], dir);
+      expect(retry.status, retry.stderr).toBe(0);
     });
   });
 });

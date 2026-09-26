@@ -146,7 +146,8 @@ Route registration is the consumer's: pass `--register <cmd>` and the command
 runs after the file is written, with `DESIGN_BASELINE_PAGE_ARCHETYPE`,
 `DESIGN_BASELINE_PAGE_NAME` and `DESIGN_BASELINE_PAGE_FILE` in its environment
 (e.g. a script that adds the `<Route>` and the route-registry entry). A failing
-command fails the generator with its exit code.
+command fails the generator with its exit code and removes the page, so the same
+command can be re-run once the script is fixed.
 
 ## The enforcement stack — four gates, cheapest first
 
