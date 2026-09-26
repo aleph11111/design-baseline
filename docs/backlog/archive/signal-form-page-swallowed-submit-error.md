@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-09-26
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "one new rubric entry modelled on the existing form-page-missing-errorboundary co-occurrence signal; offenders already named"
@@ -46,6 +46,6 @@ exists either. The rubric's scanner is this donor's `scripts/scan-adoption-quali
 
 ## Related
 
-- [archive/test-gap-form-page-shell-no-tests.md](archive/test-gap-form-page-shell-no-tests.md)
-- [archive/fleet-audit-and-adoption-doc-retire.md](archive/fleet-audit-and-adoption-doc-retire.md) — kept `audit-signals.json` as the rubric's machine form
+- [archive/test-gap-form-page-shell-no-tests.md](../archive/test-gap-form-page-shell-no-tests.md)
+- [archive/fleet-audit-and-adoption-doc-retire.md](../archive/fleet-audit-and-adoption-doc-retire.md) — kept `audit-signals.json` as the rubric's machine form
 - ADR-0005 — adoptionQuality scan ships as a zero-dep donor script
