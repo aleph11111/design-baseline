@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-25'
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "doc + proof update with the fix already measured in brickshop; no design choice left"
@@ -48,6 +48,6 @@ The greenfield proof matrix never ran `vite dev` and never deleted a `ui/` file,
 
 ## Related
 
-- [archive/archetype-package-consumer-wiring.md](archive/archetype-package-consumer-wiring.md)
-- [archive/package-ui-ownership-and-vendored-consumer-runbook.md](archive/package-ui-ownership-and-vendored-consumer-runbook.md)
-- [archive/brickshop-manager-package-install-cutover.md](archive/brickshop-manager-package-install-cutover.md)
+- [archive/archetype-package-consumer-wiring.md](../archive/archetype-package-consumer-wiring.md)
+- [archive/package-ui-ownership-and-vendored-consumer-runbook.md](../archive/package-ui-ownership-and-vendored-consumer-runbook.md)
+- [archive/brickshop-manager-package-install-cutover.md](../archive/brickshop-manager-package-install-cutover.md)

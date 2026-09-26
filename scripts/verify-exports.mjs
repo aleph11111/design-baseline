@@ -9,7 +9,7 @@
 // against synthetic inputs, so a guard failing open (or a silent no-match
 // on the real tree) stays caught even if the donor tree is clean.
 //
-// Eight invariants of the package surface are checked:
+// Nine invariants of the package surface are checked:
 //
 //   1. No `@/` import specifier survives under the four packaged source
 //      dirs. The relativization (P1) must be total — `@/` would resolve
@@ -60,6 +60,14 @@
 //      Invariant 2 cannot catch this: it checks the targets that ARE listed
 //      resolve, never that a subpath is still listed, so a future exports
 //      edit could silently drop it.
+//   9. The Vite-consumer helper `./vite/design-baseline-ui` (the project-first
+//      `ui/` resolver + the `optimizeDeps` include list — PACKAGE.md "Vite
+//      consumers") is still declared in `exports` under `./src/vite/`, and
+//      `files` still ships its dir. Same encapsulation logic as invariant 8:
+//      dropping the subpath or the `src/vite` scope breaks `import ... from
+//      "design-baseline/vite/design-baseline-ui"` in a correctly installed
+//      consumer, and invariant 2 only checks what IS listed, never what was
+//      lost.
 //
 // Usage:  node scripts/verify-exports.mjs [--json]
 //         exit 0 all invariants hold; exit 1 at least one broken; exit 2
@@ -214,6 +222,24 @@ function exportsSelfSubpath(pkg) {
     : [`${SELF_SUBPATH} (missing from exports — consumers get ERR_PACKAGE_PATH_NOT_EXPORTED)`];
 }
 
+// Invariant 9 — see header. Pure over the parsed manifest; the target
+// file's existence is invariant 2's job. A missing scope and a retargeted
+// helper fail alike (both break the consumer import), but keep distinct
+// messages so the report names which half of the wiring broke.
+const VITE_HELPER_SUBPATH = './vite/design-baseline-ui';
+function viteUiHelperExported(pkg) {
+  const target = (pkg.exports ?? {})[VITE_HELPER_SUBPATH];
+  if (typeof target !== 'string' || !target.startsWith('./src/vite/')) {
+    return [`${VITE_HELPER_SUBPATH} (missing or retargeted — the Vite-consumer resolver is PACKAGE.md wiring; see its "Vite consumers" section)`];
+  }
+  const rel = target.slice(2); // "./src/…" → "src/…"
+  const inScope = (pkg.files ?? []).some((f) => rel.startsWith(`${String(f).replace(/^\.\//, '')}/`));
+  if (!inScope) {
+    return [`${VITE_HELPER_SUBPATH} (target ${target} is outside every "files" scope — the helper would not be published)`];
+  }
+  return [];
+}
+
 function main() {
   const root = process.cwd();
   let pkg;
@@ -237,6 +263,7 @@ function main() {
   const brandMerged = brandFileIsMergedShape(root);
   const consumerLeaves = consumerLeavesMissingDirective(root);
   const selfSubpath = exportsSelfSubpath(pkg);
+  const viteUiHelper = viteUiHelperExported(pkg);
   // The count for the ok label; a missing set already fails via the
   // predicate's message, so this must not throw on the same condition.
   let totalLeaves = 0;
@@ -254,6 +281,7 @@ function main() {
     ['brand tokens file is not the merged shape', brandMerged, brandMerged.length === 0],
     [`${totalLeaves} consumer-measured leaves carry "use client" (ADR-0006)`, consumerLeaves, consumerLeaves.length === 0],
     ['exports declares "./package.json"', selfSubpath, selfSubpath.length === 0],
+    ['Vite-consumer helper ./vite/design-baseline-ui is exported and in scope', viteUiHelper, viteUiHelper.length === 0],
   ];
   let failures = 0;
   for (const [label, items, ok] of report) {
@@ -288,4 +316,5 @@ export {
   brandFileIsMergedShape,
   consumerLeavesMissingDirective,
   exportsSelfSubpath,
+  viteUiHelperExported,
 };
