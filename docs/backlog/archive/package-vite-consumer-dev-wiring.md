@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-25'
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "doc + proof update with the fix already measured in brickshop; no design choice left"
