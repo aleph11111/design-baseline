@@ -3,8 +3,8 @@
 import {
   GroupedListShell,
   GroupedListSection,
+  type GroupedListSectionProps,
 } from "design-baseline/archetypes/grouped-list";
-import type { ListColumn } from "design-baseline/archetypes/list-with-detail";
 
 type __Name__Row = { id: string; name: string };
 type __Name__Group = { id: string; title: string; rows: __Name__Row[] };
@@ -19,7 +19,7 @@ function use__Name__Groups(): {
   return { groups: [], isLoading: false, error: null, refetch: () => {} };
 }
 
-const columns: ListColumn<__Name__Row>[] = [
+const columns: GroupedListSectionProps<__Name__Row>["columns"] = [
   { key: "name", header: "Name", cell: (row) => row.name },
 ];
 
@@ -32,7 +32,7 @@ export function __Name__Page() {
       isLoading={isLoading}
       error={error}
       onRetry={refetch}
-      isEmpty={groups.length === 0}
+      isEmpty={groups.length === 0 && error == null}
       emptyMessage="No __Name__ yet"
     >
       {groups.map((group) => (

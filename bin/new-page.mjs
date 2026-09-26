@@ -6,7 +6,7 @@
 // props instead of being copied from a neighbouring page (and inheriting its
 // drift). Zero-dependency, same shape as `scripts/*.mjs` (ADR-0003): pure
 // functions exported next to a thin `main()` that owns argv, the filesystem and
-// the exit code. `bin/new-page.test.mjs` generates every template and runs
+// the exit code. `scripts/new-page.test.mjs` generates every template and runs
 // `tsc` on the result.
 //
 // Route registration is consumer-specific (a route table, a registry test), so

@@ -35,13 +35,17 @@ describe("new-page templates", () => {
     for (const slug of archetypes) expect(pages).toContain(slug);
   });
 
-  it.each(archetypes)("%s imports only react and design-baseline archetype subpaths", (slug) => {
+  // Own archetype subpath only, plus the consumer-local seams every package
+  // consumer has: its `@/components/ui/*` alias (docs/PACKAGE.md wiring line 2)
+  // and react / react-hook-form.
+  it.each(archetypes)("%s imports only its own archetype subpath and consumer-local paths", (slug) => {
     const source = renderPage(slug, "Widget");
     expect(source).not.toContain("__Name__");
     expect(source).toContain(`from "design-baseline/archetypes/${slug}"`);
     const specifiers = [...source.matchAll(/from "([^"]+)"/g)].map((m) => m[1]);
     for (const spec of specifiers) {
-      expect(spec).toMatch(/^(react|design-baseline\/archetypes\/[a-z-]+)$/);
+      const allowed = ["react", "react-hook-form", `design-baseline/archetypes/${slug}`];
+      if (!allowed.includes(spec)) expect(spec).toMatch(/^@\/components\/ui\/[a-z-]+$/);
     }
   });
 

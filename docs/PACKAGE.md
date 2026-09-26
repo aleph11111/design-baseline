@@ -132,11 +132,14 @@ npx design-baseline new-page <archetype> <Name> [--out <dir>] [--register <cmd>]
 # e.g. npx design-baseline new-page list-with-detail Supplier --out src/pages
 ```
 
-It writes `<dir>/<Name>Page.tsx` (never overwriting). The page imports only
-`design-baseline/archetypes/*`, wires the state props its shell exposes
-(loading / error / empty where the shell owns them; a `TODO` where the contract
-gives the state to the route or the widget), and stubs its data behind a local
-`use<Name>…()` hook to replace. `npx design-baseline new-page --help` lists the
+It writes `<dir>/<Name>Page.tsx` (never overwriting). The page imports its own
+`design-baseline/archetypes/<slug>` plus consumer-local paths only (react,
+react-hook-form, and the project's `@/components/ui/*` alias from wiring line 2,
+for `state-view`). It renders the loading, error and empty branches: through the
+shell's state props where the shell owns them, through `StateView` where the
+page or widget owns them, and not at all where the contract gives them to the
+route (detail-overview, matrix-grid take resolved data as props). Its data sits
+behind a local stub (`use<Name>…()` / `save<Name>()`) to replace. `npx design-baseline new-page --help` lists the
 archetypes that have a template.
 
 Route registration is the consumer's: pass `--register <cmd>` and the command
