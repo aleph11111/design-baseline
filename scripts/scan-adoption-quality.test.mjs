@@ -163,6 +163,16 @@ function fixture() {
       "  try { beginSubmit(); } catch { toast.error('Failed'); }\n" +
       "};\n",
   );
+  // B page with the word "catch" only in a comment and a brace-less
+  // .catch(() => null) — no catch block toasts, so neither may anchor the
+  // window onto the unrelated if-block below.
+  writeFileSync(
+    join(app, "form-no-catch-block.tsx"),
+    "import { FormPageActions } from '@components/FormPageActions';\n" +
+      "// catch upload errors below\n" +
+      "load().catch(() => null)\n" +
+      "if (!file) { toast.error('Pick a file') }\n",
+  );
   // Toast-only catch in a non-B file — the gate keeps it out.
   writeFileSync(join(app, "not-b.ts"), "try { go(); } catch { toast.error('x'); }\n");
   // Backreference window: matched indents — the button sibling sits at the
