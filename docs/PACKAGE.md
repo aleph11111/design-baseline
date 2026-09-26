@@ -122,6 +122,45 @@ module.exports = {
 }
 ```
 
+## Scaffolding a new page
+
+A new page should start conformant instead of being copied from a neighbouring
+page along with that page's drift. The package ships a generator for this:
+
+```bash
+npx design-baseline new-page <archetype> <Name> [--out <dir>] [--register <cmd>]
+# e.g. npx design-baseline new-page list-with-detail Supplier --out src/pages
+```
+
+It writes `<dir>/<Name>Page.tsx` (never overwriting). The page imports its own
+`design-baseline/archetypes/<slug>` plus consumer-local paths only (react,
+react-hook-form, and the project's `@/components/ui/*` alias from wiring line 2,
+for `state-view`). It renders the loading, error and empty branches: through the
+shell's state props where the shell owns them, and through `StateView` where the
+page or widget owns them. The exceptions are the planes a contract puts
+elsewhere:
+- detail-overview and matrix-grid take resolved data as props, because their
+  loading and error are route-owned. A missing detail entity is the route's
+  `notFound()`.
+- form-page has no loading plane, because its initial values resolve before it
+  renders, and no empty plane.
+- import-wizard starts from user input, so it has no page-level loading or
+  empty plane.
+- calendar shows an empty day as `emptyDayLabel`.
+
+`scripts/new-page.test.mjs` enforces this list. Its data sits
+behind a local stub (`use<Name>…()` / `save<Name>()`) to replace. `npx design-baseline new-page --help` lists the
+archetypes that have a template.
+
+Route registration is the consumer's: pass `--register <cmd>` and the command
+runs after the file is written, with `DESIGN_BASELINE_PAGE_ARCHETYPE`,
+`DESIGN_BASELINE_PAGE_NAME` and `DESIGN_BASELINE_PAGE_FILE` in its environment
+(e.g. a script that adds the `<Route>` and the route-registry entry). A failing
+command fails the generator with its exit code and removes the page, so the same
+command can be re-run once the script is fixed. For that re-run to be safe, the
+register script must be idempotent: skip an edit that is already present, so a
+run that failed halfway through does not add the `<Route>` a second time.
+
 ## The enforcement stack — four gates, cheapest first
 
 The installed package keeps its guarantees only if the consumer can't silently
