@@ -46,6 +46,6 @@ exists either. The rubric's scanner is this donor's `scripts/scan-adoption-quali
 
 ## Related
 
-- [archive/test-gap-form-page-shell-no-tests.md](archive/test-gap-form-page-shell-no-tests.md)
-- [archive/fleet-audit-and-adoption-doc-retire.md](archive/fleet-audit-and-adoption-doc-retire.md) — kept `audit-signals.json` as the rubric's machine form
+- [archive/test-gap-form-page-shell-no-tests.md](../archive/test-gap-form-page-shell-no-tests.md)
+- [archive/fleet-audit-and-adoption-doc-retire.md](../archive/fleet-audit-and-adoption-doc-retire.md) — kept `audit-signals.json` as the rubric's machine form
 - ADR-0005 — adoptionQuality scan ships as a zero-dep donor script
