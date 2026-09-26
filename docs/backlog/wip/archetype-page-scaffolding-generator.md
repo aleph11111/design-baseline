@@ -47,7 +47,7 @@ the natural template source.
 
 ## Related
 
-- [archive/fleet-audit-and-adoption-doc-retire.md](archive/fleet-audit-and-adoption-doc-retire.md) — `docs/PACKAGE.md` is the consumer contract the templates follow
+- [archive/fleet-audit-and-adoption-doc-retire.md](../archive/fleet-audit-and-adoption-doc-retire.md) — `docs/PACKAGE.md` is the consumer contract the templates follow
 
 ## Open question
 
