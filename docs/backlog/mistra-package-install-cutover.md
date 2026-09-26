@@ -1,18 +1,25 @@
 ---
 area: archetypes
 opened: '2026-09-23'
-status: blocked
+status: ready
+gate:
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-09-23T14:30:00Z'
 depends_on:
   - mistra-list-detail-settings-table-fork-promotion
   - mistra-fork-triage-promotions
 value: normal
 model: opus
-model_reason: "cross-repo migration plus a real fork reconciliation (component-API forks across ten archetypes) that needs judgment"
-gate:
-  score: 5
-  passed: [title, context, what_to_do, acceptance, related]
-  failed: []
-  graded_at: '2026-09-23T14:30:00Z'
+model_reason: >-
+  cross-repo migration plus a real fork reconciliation (component-API forks across ten archetypes)
+  that needs judgment
 ---
 
 # Install the design-baseline package in mistra and delete its vendored archetype copies
