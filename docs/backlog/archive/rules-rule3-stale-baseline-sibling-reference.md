@@ -1,17 +1,25 @@
 ---
 area: other
-opened: 2026-09-13
+opened: '2026-09-13'
 status: done
-closed: 2026-09-26
-resolution: closed-subsumed
 gate:
   score: 5
-  passed: [title, context, what_to_do, acceptance, related]
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
   failed: []
-  graded_at: 2026-09-13T00:00:00Z
+  graded_at: '2026-09-13T00:00:00.000Z'
+closed: '2026-09-26T00:00:00.000Z'
+resolution: closed-subsumed
 value: normal
 model: sonnet
-model_reason: mechanical text edit — target wording already exists verbatim in CLAUDE.md, no design judgment left
+model_reason: >-
+  mechanical text edit — target wording already exists verbatim in CLAUDE.md, no design judgment
+  left
+roadmap: archetype-convergence
 ---
 
 # Fix stale `.baseline.md` reference in `docs/RULES.md` rule 3

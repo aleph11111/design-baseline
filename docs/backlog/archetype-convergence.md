@@ -36,6 +36,7 @@ tickets:
   - adopt-baseline-command-retire
   - hk-crm-package-install-cutover
   - copy-channel-final-delete
+  - rules-rule3-stale-baseline-sibling-reference
 phases:
   - name: p0
     title: Appearance-locality rule as ADR-0004 + RULES hard rule 12
@@ -115,6 +116,7 @@ phases:
       - archetype-baseline-sibling-retire
       - package-ships-contracts-and-plugin-actions
       - fleet-audit-and-adoption-doc-retire
+      - rules-rule3-stale-baseline-sibling-reference
     spec_anchor: '## Phase donor-docs — retire the mirrors, ship the contract'
   - name: fleet-commands
     title: >-
