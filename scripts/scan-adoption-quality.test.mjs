@@ -76,6 +76,10 @@ function fixture() {
         shouldBe: "wrap the page in <ErrorBoundary>",
         tier: "red",
       },
+      // The whole-file absence lookahead IN FRONT of a positive catch-body
+      // match — the live b-form-page-swallowed-submit-error entry, read from
+      // the live file so the fixture tests the shipped regex and gate.
+      signalsDoc.adoptionQuality.find((s) => s.id === "b-form-page-swallowed-submit-error"),
       // The indentation-matched backreference window (the live
       // list-button-row-above-shell mechanism at miniature scale): a line
       // carrying (Button) at indent N, then a line at the SAME indent carrying
@@ -130,6 +134,37 @@ function fixture() {
     "import { FormPageShell } from '@components/FormPageShell';\n" +
       "export function Form() { return <ErrorBoundary><FormPageShell>form</FormPageShell></ErrorBoundary>; }\n",
   );
+  // Toast-only catch in a B consumer — flagged at line 1 (slurp absence).
+  writeFileSync(
+    join(app, "form-toast.tsx"),
+    "import { FormPageActions } from '@components/FormPageActions';\n" +
+      "async function onSubmit() {\n" +
+      "  try { await save(); } catch (err) {\n" +
+      "    toast.error('Save failed');\n" +
+      "  }\n" +
+      "}\n",
+  );
+  // Same catch, but the error is also mapped via setError('root', …) — cleared.
+  writeFileSync(
+    join(app, "form-seterror.tsx"),
+    "import { FormPageActions } from '@components/FormPageActions';\n" +
+      "async function onSubmit() {\n" +
+      "  try { await save(); } catch (err) {\n" +
+      "    form.setError('root', { message: 'Save failed' });\n" +
+      "    toast.error('Save failed');\n" +
+      "  }\n" +
+      "}\n",
+  );
+  // Extracted submit hook: no shell name, but useFormPageState's beginSubmit
+  // opens the gate — flagged.
+  writeFileSync(
+    join(app, "useSubmission.ts"),
+    "export const useSubmission = ({ beginSubmit }) => async () => {\n" +
+      "  try { beginSubmit(); } catch { toast.error('Failed'); }\n" +
+      "};\n",
+  );
+  // Toast-only catch in a non-B file — the gate keeps it out.
+  writeFileSync(join(app, "not-b.ts"), "try { go(); } catch { toast.error('x'); }\n");
   // Backreference window: matched indents — the button sibling sits at the
   // same 2-space indent as the panel line below it.
   writeFileSync(
@@ -218,6 +253,13 @@ describe("scan-adoption-quality fixture (controlled content)", () => {
     // carries the marker somewhere is cleared.
     expect(byId["form-page-missing-errorboundary"].hits).toEqual([{ file: "app/form.tsx", line: 1 }]);
 
+    // The toast-only catch: the B page and the beginSubmit hook hit; the file
+    // that maps the error via setError and the non-B file are cleared.
+    expect(byId["b-form-page-swallowed-submit-error"].hits).toEqual([
+      { file: "app/form-toast.tsx", line: 1 },
+      { file: "app/useSubmission.ts", line: 1 },
+    ]);
+
     // The backreference window: matched indents hit, mismatched do not. The
     // reported line is the match's START (the window's opening newline — here,
     // the line above the <Button>), because the counting unit is the candidate
@@ -225,7 +267,7 @@ describe("scan-adoption-quality fixture (controlled content)", () => {
     expect(byId["fixture-backref-window"].hits).toEqual([{ file: "app/indent-match.tsx", line: 3 }]);
     expect(byId["fixture-never-fires"].hitCount).toBe(0); // measured, zero
     expect(byId["fixture-never-fires"].hits).toEqual([]); // present, not absent
-    expect(report.summary.signals).toBe(4); // every fixture entry measured
+    expect(report.summary.signals).toBe(5); // every fixture entry measured
   });
 
   it("exits 0 on red hits — a radar, not a ratchet (no threshold flag exists to gate it)", () => {
