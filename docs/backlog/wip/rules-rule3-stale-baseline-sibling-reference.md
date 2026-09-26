@@ -34,6 +34,6 @@ model_reason: mechanical text edit — target wording already exists verbatim in
 
 ## Related
 
-- [archetype-baseline-sibling-retire.md](archive/archetype-baseline-sibling-retire.md) — the PR (#255) that deleted the `.baseline.md` siblings this rule still references
-- [style-archetypes-carry-baseline-sibling.md](archive/style-archetypes-carry-baseline-sibling.md) — earlier ticket that taught tooling to carry the now-retired sibling
+- [archetype-baseline-sibling-retire.md](../archive/archetype-baseline-sibling-retire.md) — the PR (#255) that deleted the `.baseline.md` siblings this rule still references
+- [style-archetypes-carry-baseline-sibling.md](../archive/style-archetypes-carry-baseline-sibling.md) — earlier ticket that taught tooling to carry the now-retired sibling
 - `docs/ARCHITECTURE.md` §5 "The contract and its binding"
