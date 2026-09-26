@@ -122,6 +122,29 @@ module.exports = {
 }
 ```
 
+## Scaffolding a new page
+
+A new page should start conformant instead of being copied from a neighbouring
+page along with that page's drift. The package ships a generator for this:
+
+```bash
+npx design-baseline new-page <archetype> <Name> [--out <dir>] [--register <cmd>]
+# e.g. npx design-baseline new-page list-with-detail Supplier --out src/pages
+```
+
+It writes `<dir>/<Name>Page.tsx` (never overwriting). The page imports only
+`design-baseline/archetypes/*`, wires the state props its shell exposes
+(loading / error / empty where the shell owns them; a `TODO` where the contract
+gives the state to the route or the widget), and stubs its data behind a local
+`use<Name>…()` hook to replace. `npx design-baseline new-page --help` lists the
+archetypes that have a template.
+
+Route registration is the consumer's: pass `--register <cmd>` and the command
+runs after the file is written, with `DESIGN_BASELINE_PAGE_ARCHETYPE`,
+`DESIGN_BASELINE_PAGE_NAME` and `DESIGN_BASELINE_PAGE_FILE` in its environment
+(e.g. a script that adds the `<Route>` and the route-registry entry). A failing
+command fails the generator with its exit code.
+
 ## The enforcement stack — four gates, cheapest first
 
 The installed package keeps its guarantees only if the consumer can't silently

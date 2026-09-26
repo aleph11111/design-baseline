@@ -3,8 +3,8 @@
 import {
   GroupedListShell,
   GroupedListSection,
-  type ListColumn,
 } from "design-baseline/archetypes/grouped-list";
+import type { ListColumn } from "design-baseline/archetypes/list-with-detail";
 
 type __Name__Row = { id: string; name: string };
 type __Name__Group = { id: string; title: string; rows: __Name__Row[] };

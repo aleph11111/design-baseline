@@ -1,15 +1,14 @@
 ---
 area: tooling
 opened: 2026-09-26
-status: needs-enrichment
+status: ready
 value: normal
 model: opus
 model_reason: "the delivery-mechanism call (package bin vs skill step) and the consumer route-registry seam are design decisions, not slot-filling"
 gate:
-  score: 4
+  score: 5
   passed: [title, context, what_to_do, acceptance, related]
-  failed:
-    - open_question: "delivery mechanism auto-resolved to the Recommended default; confirm before /feat"
+  failed: []
   graded_at: '2026-09-26T12:00:00Z'
 ---
 
@@ -29,26 +28,25 @@ deletes its vendored `src/components/archetypes/` and archives its local archety
 shells the templates would wrap now live here, behind `exports["./archetypes/*"]` in
 `package.json`, so the generator belongs in this repo and is discarded in brickshop. The
 per-archetype demos in `src/examples/*-demo.tsx` (e.g. `list-with-detail-demo.tsx`,
-`form-page-demo.tsx`, `detail-overview-demo.tsx`) are already conformant compositions and are
-the natural template source.
+`form-page-demo.tsx`, `detail-overview-demo.tsx`) are the conformant reference compositions the templates follow.
 
 ## What to do
 
-- [ ] Ship the generator as a package bin (`bin` entry in `package.json`, e.g. `design-baseline new-page <archetype> <Name>`), so every consumer gets it with the dependency and CI can run it. See Open question.
-- [ ] Derive one template per exported archetype from its `src/examples/<slug>-demo.tsx`, importing from `design-baseline/archetypes/<slug>` (the consumer import form per `docs/PACKAGE.md`) and keeping the archetype's required loading / empty / error states.
-- [ ] Leave route registration to the consumer through a documented post-generate hook (e.g. a `--register <cmd>` flag or a consumer config entry). The route-registry test (brickshop's `src/lib/archetype-registry.ts` + `archetypeRouteRegistry.test.ts`) is consumer-specific and must not be hard-coded here.
-- [ ] Add a test that generates each template into a temp dir and typechecks it against the package.
+- [x] Ship the generator as a package bin (`bin` entry in `package.json`: `design-baseline new-page <archetype> <Name>`), so every consumer gets it with the dependency and CI can run it.
+- [x] Write one minimal template per page archetype brickshop (the one live consumer) imports today: list-with-detail, grouped-list, detail-overview, matrix-grid, form-page, import-wizard, feed-inbox, analytics-dashboard. Templates are written fresh, not converted from the demos: the demos use the donor `@/` alias and render every variant side by side. The other page archetypes get a template on first consumer need. Component and dialog archetypes get none.
+- [x] Leave route registration to the consumer through `--register <cmd>`, run after the file is written with `DESIGN_BASELINE_PAGE_{ARCHETYPE,NAME,FILE}` in its env.
+- [x] Add a test that generates each template into a temp dir and typechecks it against the package.
 
 ## Acceptance
 
-- Running the generator for any exported archetype writes a page that passes `tsc` against the package with no manual edits.
-- The generated page imports only from `design-baseline/archetypes/<slug>` and consumer-local paths, and renders the archetype's loading, empty and error branches.
-- Pointing a consumer's registration hook at its registry makes brickshop's `archetypeRouteRegistry.test.ts` pass for a freshly generated route.
+- Running the generator for any archetype that has a template writes a page that passes `tsc` against the package with no manual edits (`scripts/new-page.test.mjs`).
+- The generated page imports only `react` and `design-baseline/archetypes/*`, not `design-baseline/ui/*`, because consumers such as brickshop keep their own ui primitives. It wires every state prop its shell exposes. Where the contract gives a state to the route or the widget, the page carries a `TODO` instead.
+- The brickshop route-registry check (point `--register` at its registry, then `archetypeRouteRegistry.test.ts` passes for a freshly generated route) is moved to a brickshop follow-up. It can only be tested there, after brickshop bumps its pin to the tag that ships the bin.
 
 ## Related
 
 - [archive/fleet-audit-and-adoption-doc-retire.md](../archive/fleet-audit-and-adoption-doc-retire.md) — `docs/PACKAGE.md` is the consumer contract the templates follow
 
-## Open question
+## Resolved
 
-Delivery mechanism: **package bin (Recommended)**, which ships with the dependency, is versioned with the shells it wraps and is CI-exercisable, vs **a step in the `/style-archetypes` skill**, which can reason about the target page but lives outside any repo's CI. Auto-resolved to the package bin. Confirm before `/feat`.
+Delivery mechanism: **package bin**, confirmed by the operator on 2026-09-26. A skill step would sit outside every repo's CI, so a template drifting from its shell would go unnoticed. A skill can still call the bin.
