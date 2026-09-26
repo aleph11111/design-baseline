@@ -40,8 +40,8 @@ per-archetype demos in `src/examples/*-demo.tsx` (e.g. `list-with-detail-demo.ts
 ## Acceptance
 
 - Running the generator for any archetype that has a template writes a page that passes `tsc` against the package with no manual edits (`scripts/new-page.test.mjs`).
-- The generated page imports only `react` and `design-baseline/archetypes/*`, not `design-baseline/ui/*`, because consumers such as brickshop keep their own ui primitives. It wires every state prop its shell exposes. Where the contract gives a state to the route or the widget, the page carries a `TODO` instead.
-- The brickshop route-registry check (point `--register` at its registry, then `archetypeRouteRegistry.test.ts` passes for a freshly generated route) is moved to a brickshop follow-up. It can only be tested there, after brickshop bumps its pin to the tag that ships the bin.
+- The generated page imports only `react` and `design-baseline/archetypes/*`, not `design-baseline/ui/*`: consumers reach ui through their own `@/components/ui/*` alias (project-first, package fallback, per `docs/PACKAGE.md` wiring line 2), and a direct package import would bypass a project override. It wires every state prop its shell exposes. Where the contract gives a state to the route or the widget, the page carries a `TODO` instead.
+- The brickshop route-registry check (point `--register` at its registry, then `archetypeRouteRegistry.test.ts` passes for a freshly generated route) is moved to a brickshop follow-up. It can only be tested there, after brickshop bumps its pin to the tag that ships the bin. Filed as brickshop [`design-baseline-new-page-adoption`](https://github.com/aleph11111/brickshop-manager/blob/main/docs/backlog/design-baseline-new-page-adoption.md) (PR #1182).
 
 ## Related
 
