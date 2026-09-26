@@ -21,6 +21,7 @@ import {
   brandFileIsMergedShape,
   consumerLeavesMissingDirective,
   exportsSelfSubpath,
+  viteUiHelperExported,
 } from "./verify-exports.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -194,11 +195,38 @@ describe("exportsSelfSubpath (invariant 8)", () => {
   });
 });
 
+describe("viteUiHelperExported (invariant 9)", () => {
+  it("passes when the helper is declared under ./src/vite/ and its scope is shipped", () => {
+    const pkg = {
+      exports: { "./vite/design-baseline-ui": "./src/vite/design-baseline-ui.ts" },
+      files: ["src/vite", "src/components"],
+    };
+    expect(viteUiHelperExported(pkg)).toEqual([]);
+  });
+
+  it("flags a dropped, retargeted, or out-of-scope helper alike", () => {
+    // Dropped from exports — the consumer's import breaks silently.
+    expect(viteUiHelperExported({ exports: {}, files: ["src/vite"] })).toHaveLength(1);
+    // Retargeted outside src/vite — the shipped surface no longer matches
+    // the doc's import specifier.
+    expect(viteUiHelperExported({
+      exports: { "./vite/design-baseline-ui": "./dist/vite/design-baseline-ui.ts" },
+      files: ["src/vite"],
+    })).toHaveLength(1);
+    // Exported but its dir left `files` — published tarball would lack it.
+    expect(viteUiHelperExported({
+      exports: { "./vite/design-baseline-ui": "./src/vite/design-baseline-ui.ts" },
+      files: ["src/components"],
+    })).toHaveLength(1);
+    expect(viteUiHelperExported({})).toHaveLength(1);
+  });
+});
+
 describe("CLI exit codes", () => {
-  it("exits 0 on the clean donor tree and reports 8/8 ok", () => {
+  it("exits 0 on the clean donor tree and reports 9/9 ok", () => {
     const { status, stdout } = runScript(root);
     expect(status).toBe(0);
-    expect(stdout).toContain("verify:exports — 0 failing invariant(s), 8/8 ok");
+    expect(stdout).toContain("verify:exports — 0 failing invariant(s), 9/9 ok");
   });
 
   it("exits 1 when a barrel's directive is missing (fixture)", () => {
@@ -215,6 +243,8 @@ describe("CLI exit codes", () => {
       // An empty consumer set keeps invariant 7 quiet so this fixture fails
       // ONLY on the barrel.
       put("scripts/consumer-directive-set.json", JSON.stringify({ files: [] }));
+      // The Vite helper subpath stays declared so this fixture fails ONLY on
+      // the barrel (invariant 9 quiet).
       writeFileSync(
         join(dir, "package.json"),
         JSON.stringify({
@@ -222,8 +252,9 @@ describe("CLI exit codes", () => {
           exports: {
             "./package.json": "./package.json",
             "./layout": "./src/components/layout/index.ts",
+            "./vite/design-baseline-ui": "./src/vite/design-baseline-ui.ts",
           },
-          files: ["src/components"],
+          files: ["src/components", "src/vite"],
         }),
       );
       const { status, stdout } = runScript(dir);
@@ -247,6 +278,8 @@ describe("CLI exit codes", () => {
         JSON.stringify({ files: ["src/components/ui/sidebar.tsx"] }));
       put("src/styles/tokens.layer.css", "/* clean layer */\n@theme {\n  --radius: .5rem;\n}\n");
       put("src/styles/tokens.css", "/* brand */\n@import \"./tokens.layer.css\";\n");
+      // The Vite helper subpath stays declared so this fixture fails ONLY on
+      // the consumer-set leaf (invariant 9 quiet).
       writeFileSync(
         join(dir, "package.json"),
         JSON.stringify({
@@ -254,8 +287,9 @@ describe("CLI exit codes", () => {
           exports: {
             "./package.json": "./package.json",
             "./layout": "./src/components/layout/index.ts",
+            "./vite/design-baseline-ui": "./src/vite/design-baseline-ui.ts",
           },
-          files: ["src/components"],
+          files: ["src/components", "src/vite"],
         }),
       );
       const { status, stdout } = runScript(dir);
