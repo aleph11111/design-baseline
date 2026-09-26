@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-09-26
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "the delivery-mechanism call (package bin vs skill step) and the consumer route-registry seam are design decisions, not slot-filling"
