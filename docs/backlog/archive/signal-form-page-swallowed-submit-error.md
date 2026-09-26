@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-09-26
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "one new rubric entry modelled on the existing form-page-missing-errorboundary co-occurrence signal; offenders already named"
