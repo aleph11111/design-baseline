@@ -1,0 +1,40 @@
+---
+area: tooling
+opened: '2026-09-27'
+status: needs-enrichment
+gate:
+  score: 4
+  passed: [title, context, what-to-do, related]
+  failed:
+    - open_question: "two-step correlation design (which second signal/step shape) not yet confirmed by a human"
+  graded_at: '2026-09-27T00:00:00Z'
+value: normal
+model: opus
+model_reason: "designing a correct two-step cross-file correlation (avoiding false positives on unrelated shared modules) is a judgment call, not mechanical"
+---
+
+# chart-hex-colour-prop misses hex palettes defined in shared constant modules
+
+## Context
+
+The `chart-hex-colour-prop` signal (`docs/audit-signals.json:120`, added in #311) is gated on `coOccursWith` a chart-library import (`recharts`/`@nivo/*`/`react-chartjs-2`/`chart.js`) in the *same file* as the hex literal, so it misses a hex series palette defined in a separate shared constants module that is itself imported into a chart file (the module has no chart-library import of its own). The signal's own `smell` field already names this: "Known miss: a hex palette constant in a module that imports no chart library (a shared `colors.ts` fed into the props) — the scan under-reports it. Origin: 2026-09-27 house-look audit — controlling-app hardcodes Tailwind hex across its recharts components." Known live instance: `controlling-app frontend/src/components/dashboard/charts/shared.ts`. `docs/audit-signals.json` already has a precedent for a cross-file correlation shape (`settings-shell-board-form-wraps-carded-shell`, `docs/audit-signals.json:109`, its own note: "Only step 1 of a two-step correlation... step 2 lives in a DIFFERENT file, which the single-file scan cannot reach; the gate confirms it by opening the client").
+
+## What to do
+
+- [ ] Extend `chart-hex-colour-prop` (or add a companion signal id) to catch a hex colour array/const in a module that is imported by a file matching the existing chart-library `coOccursWith` gate — following the two-step correlation shape already documented for `settings-shell-board-form-wraps-carded-shell`: step 1 (regex, single-file) flags the chart file's relative import of a local module; step 2 (the human/LLM acceptance-gate pass, per `docs/ADOPTION-QUALITY.md`) opens that imported module and confirms a hex literal array/const is what's being fed into the chart's colour props.
+- [ ] Cover the extension with a fixture in `scripts/scan-adoption-quality.test.mjs`, in the style of the existing `describe("scan-adoption-quality chart hex colour props (ADR-0007 §8)")` block (`scripts/scan-adoption-quality.test.mjs:402`) — a chart file importing a local `shared.ts`/`colors.ts` module that itself holds a hex array, with no chart-library import in that module.
+
+## Acceptance
+
+- The new fixture module (imports no chart library, holds a hex colour array consumed by a sibling chart file) is flagged by `npm run scan:adoption-quality`, and a control fixture (an unrelated shared module with no chart-file importer) is not.
+- `npm test` passes.
+
+## Related
+
+- [archive/house-look-chart-palette.md](archive/house-look-chart-palette.md) — follow-up of this slice (#311): the ticket that shipped `chart-hex-colour-prop` and left this known miss in its own smell text
+- `docs/audit-signals.json` — `chart-hex-colour-prop` and `settings-shell-board-form-wraps-carded-shell` (the existing two-step correlation precedent)
+- ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles (§8, chart colours)
+
+## Open question
+
+Should the fix be a mechanical extension of the existing `chart-hex-colour-prop` regex (single-file, best-effort: e.g. also match a bare `colors = [...]`/hex-array const definition regardless of chart-library co-occurrence, accepting some false positives on unrelated modules), or a proper two-step correlation entry (regex flags the chart file's import of a local module; a documented second step opens that module), matching the `settings-shell-board-form-wraps-carded-shell` precedent? Recommended: the two-step correlation — it matches the one existing precedent in this signal set for exactly this "the real answer lives in a different file" shape, and avoids flagging every shared constants file that happens to hold hex strings for unrelated (non-chart) reasons. Not yet confirmed by a human.
