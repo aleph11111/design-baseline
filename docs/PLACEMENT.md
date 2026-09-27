@@ -35,9 +35,10 @@ gets in.
 
 The outermost slot of all, and the easiest to get wrong because it's written once and
 never reviewed again. **`AppShell` is the single owner of the app frame** — sidebar,
-header, and the content desk (`bg-muted/30 p-4 md:p-6 overflow-auto`). Archetype shells
-are *framed surfaces* designed to sit on that specific desk: a near-white wash and a
-modest inset, so the card border reads as a hairline frame.
+header, and the content desk (`bg-surface-canvas p-4 md:p-12 xl:p-14 overflow-auto`,
+holding a centred 1180px column). Archetype shells are *framed surfaces* designed to sit
+on that specific desk: the canvas is one tone step below the raised frame, so the frame
+reads by tone with no border (docs/STYLE.md "Surfaces").
 
 A hand-rolled `<main>` with its own padding and background is red, not yellow. The known
 failure mode (scar origin: hk-crm, 2026-07): `p-8 bg-slate-50` — double the inset on a
@@ -47,7 +48,7 @@ wrong desk, whole app feels wrong.
 | Slot | Home | Rule |
 |------|------|------|
 | **Sidebar / header chrome** | `AppShell` props | Never a hand-rolled flex frame |
-| **Content desk** | `AppShell`'s main | `bg-muted/30 p-4 md:p-6` — pages add no outer inset of their own |
+| **Content desk** | `AppShell`'s main | `bg-surface-canvas p-4 md:p-12 xl:p-14`, centred 1180px column (full-bleed only for the four working-surface archetypes) — pages add no outer inset or width of their own |
 | **Framed-surface header fill** | `headerFill` on `AppShell` | Set once per project (House Style B) |
 
 ---

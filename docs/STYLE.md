@@ -26,8 +26,7 @@ The re-skinnable tokens — the `:root` / `.dark` HSL triplets plus `--radius` �
 |-----------------------|---------------------------|---------------------------|---------------------------------------|
 | `background`          | `0 0% 100%`               | `222.2 84% 4.9%`          | App background                        |
 | `foreground`          | `222.2 84% 4.9%`          | `210 40% 98%`             | Body text                             |
-| `card`                | `0 0% 100%`               | `222.2 84% 4.9%`          | Card / surface bg                     |
-| `primary`             | `222.2 47.4% 11.2%`       | `210 40% 98%`             | Primary actions, active nav           |
+| `primary`             | `222 70% 42%`             | `222 80% 68%`             | The one brand accent: primary action, active nav, progress/selection, focus ring |
 | `secondary`           | `210 40% 96.1%`           | `217.2 32.6% 17.5%`       | Secondary buttons / pills             |
 | `muted`               | `210 40% 96.1%`           | `217.2 32.6% 17.5%`       | Muted backgrounds, disabled rows      |
 | `muted-foreground`    | `215.4 16.3% 46.9%`       | `215 20.2% 65.1%`         | Secondary text, helper text           |
@@ -36,8 +35,25 @@ The re-skinnable tokens — the `:root` / `.dark` HSL triplets plus `--radius` �
 | `success`             | `142.4 71.8% 29.2%`       | `141.9 69.2% 58%`         | Positive status, confirmations        |
 | `warning`             | `26 90.5% 37.1%`          | `43 96% 56%`              | Caution status, non-blocking problems |
 | `border` / `input`    | `214.3 31.8% 91.4%`       | `217.2 32.6% 17.5%`       | Borders, input outlines               |
-| `ring`                | `222.2 84% 4.9%`          | `212.7 26.8% 83.9%`       | Focus ring                            |
-| `sidebar-*`           | (separate palette)        | (separate palette)        | Sidebar surface + accents             |
+| `sidebar-*`           | (separate palette)        | (separate palette)        | Sidebar text, hover, border (`-foreground`, `-accent*`, `-border`) |
+
+**Fixed roles — declared in the layer, not in `tokens.css` (ADR-0007).** The layer
+wires these straight to their source, so a brand-file declaration is dead (nothing
+reads it) and the adoption-quality scan reports it (`brand-tokens-retired-role`):
+
+| Role | Follows | Notes |
+|------|---------|-------|
+| `ring`, `sidebar-primary`, `sidebar-ring` (+ `sidebar-primary-foreground`) | `--primary` (`--primary-foreground`) | The focus ring and the sidebar accent are the brand accent — a blue ring on a teal brand is impossible. |
+| `surface-sunken` / `surface-canvas` / `surface-raised` (`--db-surface-*`) | `color-mix` of `--background` / `--foreground` | See "Surfaces" below. `sidebar` = sunken, `card` = raised: the brand `--card` / `--sidebar-background` no longer exist. |
+| `--db-content-max` | `1180px` | The page column (see "Spacing & rhythm"). |
+| `text-display-title` / `text-display-stat` | `30px` / `34px` | The display step (`@theme --text-display-*`), consumed by `PageHeader` / `StatTile`. |
+
+`--db-` is donor-reserved: a brand `tokens.css` declaring any `--db-*` is a scan hit.
+
+**Dark `--primary` follows the brand hue.** It stays brand-overridable (a dark
+theme needs its own lightness) but must keep the light `--primary`'s hue (±10°) and
+stay chromatic (saturation ≥ 30%) — the scan's `brand-tokens-dark-primary-off-hue`
+compares the two triplets. The shadcn near-white slate dark primary fails both.
 
 **Semantic status color — `success` / `warning` only, and there is no `info`.**
 Any positive/caution state must route through these tokens (or a `<Badge>` /
@@ -64,7 +80,7 @@ contrast in exactly one theme.
 
 The baseline uses Tailwind's 4 px scale. A handful of values carry consistent *meaning* across archetypes — pick by intent, not by eye. New archetypes should reuse these rather than introduce a fifth rhythm.
 
-**Page inset — one owner: `AppShell`'s `<main>`.** The page inset (`p-4 md:p-6`) is applied **once**, by `AppShell`'s `<main>` (`AppShell.tsx`). **No page, archetype shell, or section layout adds its own outer `px-6`/`py-6`** — doing so double-insets, and "who adds the padding" being a per-page decision is the #1 source of cross-app drift. A page's outer container carries only its vertical rhythm (`space-y-*`) and, for reading/entry archetypes, a `max-w-*` (left-aligned). This is consistency *by construction*: every page inside the shell inherits the same inset; there is nothing for a page author to get wrong or forget.
+**Page inset — one owner: `AppShell`'s `<main>`.** The page inset (`p-4 md:p-12 xl:p-14` — 16px, 48px from `md`, 56px from `xl`) and the centred content column (`max-w-(--db-content-max)`, 1180px) are applied **once**, by `AppShell`'s `<main>` (`AppShell.tsx`). The four working-surface archetypes — `matrix-grid`, `list-with-detail`, `kanban-board`, `calendar` — render **full-bleed**: their shell root carries `FULL_BLEED_CLASS` (`layout/surface.ts`) and the column drops its max width when it contains one. Full-bleed is keyed by archetype, a closed set (ADR-0007 §1) — never a width prop at the call site. **No page, archetype shell, or section layout adds its own outer `px-6`/`py-6`** — doing so double-insets, and "who adds the padding" being a per-page decision is the #1 source of cross-app drift. A page's outer container carries only its vertical rhythm (`space-y-*`) and, for reading/entry archetypes, a `max-w-*` (left-aligned). This is consistency *by construction*: every page inside the shell inherits the same inset; there is nothing for a page author to get wrong or forget.
 
 **Vertical rhythm** — `space-y-*` between stacked blocks:
 
@@ -102,8 +118,9 @@ commented is what lets a donor-side face change reach the project on a version b
 Prose, labels, and names stay
 `font-sans`; only number cells go mono — the layout primitives (`StatTile`,
 `KeyValueRow`, `MetricRow`) already carry `font-mono` on their value, so consumers
-get it for free. The brand accent is **not** part of the house style — it stays each
-app's `--primary` override (the baseline default is neutral slate).
+get it for free. The brand accent's *value* is **not** part of the house style — it
+stays each app's `--primary` override (the baseline default is a deep blue,
+`222 70% 42%` / dark `222 80% 68%`); its *placement* is fixed (ADR-0007 §4).
 
 **Ledger type scale.** House style B runs a tight scale — every step ~1–2px below
 a conventional UI: page title `text-lg` (18px), overlines `text-[10.5px]`, ledger
@@ -122,13 +139,22 @@ ledger surfaces rather than reaching for the default `text-sm`/`text-xs`.
 
 ### Surfaces
 
-The default section surface (`SectionCard` default tone) is a **flat hairline** card
-— `border`, no shadow — so cards read as fitted panels, not floaters. Shadow
-(`shadow-sm`) is reserved for genuinely **raised** surfaces: modals, popovers, and
-the detail-overview shell's **outer frame** (the one elevated surface on the
-page). The frame depends on the page behind it being muted
-(`AppShell`'s `<main>` is `bg-muted/30`); on a white page the frame has no edge and
-the effect collapses.
+Three elevation steps in a fixed order, **separated by tone, not borders**
+(ADR-0007 §3):
+
+| Step | Utility | Where | Light | Dark |
+|------|---------|-------|-------|------|
+| sunken | `bg-surface-sunken` (= `bg-sidebar`) | the sidebar | `--background` + 6% `--foreground` | `--background` |
+| canvas | `bg-surface-canvas` | `AppShell`'s `<main>` | `--background` + 3% `--foreground` | `--background` + 4% `--foreground` |
+| raised | `bg-surface-raised` (= `bg-card`) | `SurfaceFrame`, `SectionCard`, `StatTileRow`, cards | `--background` | `--background` + 9% `--foreground` |
+
+The steps are `color-mix` values the layer derives from the brand's `--background`
+/ `--foreground` (`--db-surface-*`, fixed per theme), so the order holds under any
+palette. A raised surface on the canvas carries **no border**; a raised surface
+nested inside another raised surface carries **neither border nor fill**
+(`RaisedSurfaceContext`, `layout/surface.ts` — no card-in-card). Internal rules
+(title bars, toolbar bands, hairline dividers) stay. Shadow (`shadow-sm`) is
+reserved for overlays: modals and popovers.
 
 **Header fill (the 2-token house contract).** A framed surface's header bar
 (`DetailOverviewShell`'s Mode B header, `ReportShell`, `CalendarShell`, the
@@ -144,8 +170,8 @@ default **`solid`**) and read by every framed shell so they never diverge:
 - **`white`** — plain white, hairline border only.
 
 The two tokens are **`--primary`** (the brand accent, each app's override; the
-donor default is neutral slate) and **`--header-fill`** (per-project, default
-solid). Everything else — header-on-surface, one frame on a muted mat, mono
+donor default is a deep blue) and **`--header-fill`** (per-project, default
+solid). Everything else — header-on-surface, one frame on the canvas, mono
 figures, semantic pills — composes from those. A single shell may override with
 a `headerFill` prop. See `src/components/layout/headerFill.ts`.
 
@@ -384,8 +410,8 @@ The band's chrome is owned by the frame; a shell never spells the band itself.
 
 This is the same discipline as the page frame (one inset owner) and headings (one
 `PageHeader`): consistency by construction. The bounded surface has one owner
-too — `<SurfaceFrame>` (`layout/SurfaceFrame`): the flat `rounded-lg border bg-card`
-frame (House style B — no shadow) every framed archetype shell mounts. Shells
+too — `<SurfaceFrame>` (`layout/SurfaceFrame`): the flat `rounded-lg bg-surface-raised`
+frame (House style B — no shadow, no border) every framed archetype shell mounts. Shells
 compose it with the on-surface header + an optional `toolbar` slot; the four
 independent spellings the copy used to allow (`shadow-sm` in one shell,
 `overflow-x-auto` in another) are its named modes, not separate frames. A reviewer's test in the gallery: two
@@ -579,7 +605,8 @@ recurring machine half is the donor's zero-dep
 When applying the baseline to a new project with its own brand:
 
 1. Edit `src/styles/tokens.css`:
-   - Override `--primary`, `--secondary`, `--accent` (and dark variants) with the brand HSLs.
+   - Override `--primary`, `--secondary`, `--accent` (and dark variants) with the brand HSLs. The dark `--primary` keeps the light hue (±10°, saturation ≥ 30%).
+   - Do **not** declare `--ring`, `--sidebar-primary`, `--sidebar-ring`, `--chart-*`, `--card`, `--sidebar-background` or any `--db-*` — the layer fixes them (see "Fixed roles").
    - Bind a project's own faces (`--font-sans` / `--font-mono`) by uncommenting the FONT BINDING block near the bottom — leave it commented to inherit the house faces.
    - Override `--radius` if the brand wants squared or pill-shaped UI.
    - Leave `--success` / `--warning` alone unless the brand genuinely redefines
@@ -595,7 +622,7 @@ When applying the baseline to a new project with its own brand:
      in `.dark` for on-surface legibility but carries no `-foreground` pair;
      override the donor default only if the brand's rating marker genuinely
      needs a different hue.
-   - Tweak `--sidebar-*` for a contrasting sidebar surface if desired.
+   - Tweak `--sidebar-foreground` / `--sidebar-accent*` / `--sidebar-border` if desired; the sidebar *surface* is the fixed sunken step.
 2. Set the brand font in the project entry (Next: `next/font/google`; Vite: `<link>` in `index.html`).
 3. Replace the `brand` and `appName` props on `<AppSidebar>` with real values.
 4. Wire up `renderLink` to the project's router.
