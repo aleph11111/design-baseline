@@ -26,9 +26,10 @@ describe("NestedPageHeading", () => {
 
   it("is a distinct rung of the ladder — not the overline, not the page title", () => {
     // Guards against silently collapsing the ladder: the nested rung must stay
-    // below the h1 page title (text-lg) and above the section overline.
+    // below the h1 page title (the display step, ADR-0007 §2) and above the
+    // section overline.
     expect(NESTED_HEADING_CLASS).not.toBe(OVERLINE_CLASS);
-    expect(NESTED_HEADING_CLASS).not.toContain("text-lg");
+    expect(NESTED_HEADING_CLASS).not.toContain("text-display-title");
   });
 
   it("renders subtitle, badges and actions only when provided", () => {

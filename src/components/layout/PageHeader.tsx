@@ -10,8 +10,9 @@ import { HeadingRow } from "./HeadingRow";
 export type PageHeaderProps = {
   /**
    * Page title. Always present. Rendered as an `<h1>` at the canonical
-   * `text-lg font-semibold tracking-tight` (Plex Ledger scale) — the single
-   * title treatment shared by every archetype header in the baseline.
+   * `text-display-title font-semibold tracking-tight` (ADR-0007's display
+   * step) — the single title treatment shared by every archetype header in
+   * the baseline.
    */
   title: React.ReactNode;
   /**
@@ -65,7 +66,8 @@ export type PageHeaderProps = {
  * PageHeader — the canonical page title block for the baseline.
  *
  * This is the single source of truth for page-level header typography. The
- * h1 rung owns its element and its scale; the shared row layout comes from
+ * h1 rung owns its element and its scale — the display step (ADR-0007 §2),
+ * the fleet's one focal point on a page; the shared row layout comes from
  * `HeadingRow` — the one place the page-title family's layout markup lives,
  * so iterating the header is one edit, baseline-wide.
  * Archetype-specific headers (`FormPageHeader`, `SettingsPageHeader`,
@@ -108,7 +110,7 @@ export function PageHeader({
   return (
     <HeadingRow
       heading={
-        <h1 className="text-lg font-semibold leading-tight tracking-tight text-foreground">
+        <h1 className="text-display-title font-semibold leading-tight tracking-tight text-foreground">
           {title}
         </h1>
       }
