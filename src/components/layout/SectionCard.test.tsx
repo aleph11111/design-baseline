@@ -36,7 +36,7 @@ describe("SectionCard — chrome=true (default)", () => {
       </SectionCard>,
     );
 
-    const [outer, inner] = Array.from(container.querySelectorAll("section"));
+    const [outer, inner] = Array.from(container.querySelectorAll("section")) as [HTMLElement, HTMLElement];
     expect(outer.className).toContain("bg-surface-raised");
     expect(inner.className).not.toContain("bg-surface-raised");
     expect(inner.className).not.toMatch(/\bborder\b/);
