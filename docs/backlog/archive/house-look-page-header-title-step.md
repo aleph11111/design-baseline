@@ -21,9 +21,9 @@ ADR-0007 section 2 gives the page `<h1>` a 30px display step so a page has a foc
 
 ## What to do
 
-- [ ] Change the `PageHeader` `<h1>` class from `text-lg` to the `--text-display-title` utility (`text-display-title`), keeping weight and tracking; no size prop (fixed in the component, ADR-0004).
-- [ ] Update the `PageHeader` docstring, `docs/STYLE.md`'s "page title `text-lg`" line and heading-ladder table, and `src/components/layout/PageHeader.test.tsx` if it pins the class.
-- [ ] Check `NestedPageHeading` stays on its own step (the ladder keeps three distinct rungs).
+- [x] Change the `PageHeader` `<h1>` class from `text-lg` to the `--text-display-title` utility (`text-display-title`), keeping weight and tracking; no size prop (fixed in the component, ADR-0004).
+- [x] Update the `PageHeader` docstring, `docs/STYLE.md`'s "page title `text-lg`" line and heading-ladder table, and `src/components/layout/PageHeader.test.tsx` if it pins the class.
+- [x] Check `NestedPageHeading` stays on its own step (the ladder keeps three distinct rungs).
 
 ## Acceptance
 
