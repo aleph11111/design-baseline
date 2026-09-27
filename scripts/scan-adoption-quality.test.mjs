@@ -354,11 +354,14 @@ describe("scan-adoption-quality brand tokens (ADR-0007)", () => {
       "src/b/tokens.layer.css": ":root {\n  --db-content-max: 1180px;\n}\n",
       // --sidebar-ring-offset-ish names and comments do not count.
       "src/c/tokens.css": "/* --ring: retired */\n:root {\n  --ring-offset: 2px;\n  --sidebar-foreground: 0 0% 10%;\n}\n",
+      // The chart palette is donor-fixed: a brand --chart-2 is dead and reported.
+      "src/d/tokens.css": ":root {\n  --primary: 174 72% 35%;\n  --chart-2: 43 74% 49%;\n}\n",
     });
     try {
       expect(scanBrand(dir)["brand-tokens-retired-role"].hits).toEqual([
         { file: "src/a/tokens.css", line: 3 },
         { file: "src/b/tokens.css", line: 2 },
+        { file: "src/d/tokens.css", line: 3 },
       ]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
@@ -393,5 +396,40 @@ describe("scan-adoption-quality brand tokens (ADR-0007)", () => {
     expect(report.summary.brandTokenFiles).toBe(1);
     expect(report.brandTokens.map((s) => s.id).sort()).toEqual(signalsDoc.brandTokens.map((s) => s.id).sort());
     expect(report.brandTokens.every((s) => !s.error && s.hitCount === 0)).toBe(true);
+  });
+});
+
+describe("scan-adoption-quality chart hex colour props (ADR-0007 §8)", () => {
+  const chartSignals = {
+    artifact: "audit-signals",
+    adoptionQuality: signalsDoc.adoptionQuality.filter((s) => s.id === "chart-hex-colour-prop"),
+  };
+
+  it("flags hex literals in chart-library files only, and does not skip the file after a hit", () => {
+    const dir = mkdtempSync(join(tmpdir(), "adoption-quality-chart-"));
+    writeFileSync(join(dir, "signals.json"), JSON.stringify(chartSignals));
+    const files = {
+      // A late match, so a carried-over lastIndex would overshoot the next file's early one.
+      "src/a-chart.tsx": 'import { Bar } from "recharts";\n' + "// pad\n".repeat(40) + '<Bar dataKey="v" fill="#3b82f6" />\n',
+      "src/b-chart.tsx": 'const s = { color: "#ef4444" };\nimport { Pie } from "recharts";\n',
+      "src/c-chart.tsx": 'import { Bar } from "recharts";\n<Bar fill="var(--color-chart-2)" />\n',
+      "src/d-plain.tsx": '<div style={{ color: "#ffffff" }} />\n',
+      "src/e-nivo.tsx": 'import { ResponsiveBar } from "@nivo/bar";\n<ResponsiveBar colors={["#111111"]} />\n',
+    };
+    for (const [rel, body] of Object.entries(files)) {
+      mkdirSync(join(dir, rel, ".."), { recursive: true });
+      writeFileSync(join(dir, rel), body);
+    }
+    try {
+      const { stdout, status } = run(dir, "--json", "--signals", join(dir, "signals.json"));
+      expect(status).toBe(0);
+      expect(parse(stdout).signals[0].hits).toEqual([
+        { file: "src/a-chart.tsx", line: 42 },
+        { file: "src/b-chart.tsx", line: 1 },
+        { file: "src/e-nivo.tsx", line: 2 },
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

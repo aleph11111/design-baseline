@@ -58,7 +58,7 @@ function Sparkline({ values }: { values: number[] }) {
       <polyline
         points={pts}
         fill="none"
-        stroke="hsl(var(--primary))"
+        stroke="var(--color-chart-1)"
         strokeWidth="1.5"
         vectorEffect="non-scaling-stroke"
       />
