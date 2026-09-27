@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: '2026-09-27'
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "cross-cutting token + shell change with per-theme colour-mix tuning and a new scan check — judgment on percentages and scan parsing"

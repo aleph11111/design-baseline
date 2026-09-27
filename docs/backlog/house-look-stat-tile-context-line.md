@@ -37,4 +37,4 @@ ADR-0007 sections 2 and 6: a KPI value is a headline number at 34px and never st
 - [wip/house-look-adr.md](archive/house-look-adr.md) — the decision ticket that filed this slice
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles
 - ADR-0004 — appearance locality: global or fixed in the component
-- [house-look-tokens-layer-roles.md](wip/house-look-tokens-layer-roles.md) — must ship first: it defines the `--text-display-stat` token and the raised surface the tile row sits on
+- [house-look-tokens-layer-roles.md](archive/house-look-tokens-layer-roles.md) — must ship first: it defines the `--text-display-stat` token and the raised surface the tile row sits on
