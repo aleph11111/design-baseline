@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: '2026-09-27'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "tighten one existing primitive and route archetype empty states through it"
