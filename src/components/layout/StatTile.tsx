@@ -10,7 +10,8 @@ export type StatTileProps = {
    */
   label: React.ReactNode;
   /**
-   * Display value. Rendered at `text-2xl font-mono font-semibold tabular-nums`.
+   * Display value. Rendered at `text-display-stat` (34px, ADR-0007 §2) —
+   * the headline-figure step — `font-mono font-semibold tabular-nums`.
    * When the underlying data is unavailable, pass the em-dash string `"—"` —
    * the primitive does NOT auto-render a placeholder for falsy values; the
    * consumer is in control.
@@ -21,8 +22,11 @@ export type StatTileProps = {
    */
   value: React.ReactNode;
   /**
-   * Optional small caption rendered below the value (e.g. "vs last quarter").
-   * Reads `text-xs text-muted-foreground`.
+   * The context line: a comparison, period, or delta under the value (e.g.
+   * "+4% vs last quarter") — a KPI value never stands alone (ADR-0007 §6).
+   * Reads `text-xs text-muted-foreground`. Optional because whether a given
+   * tile *has* context is data, not appearance — the tile renders no
+   * placeholder when omitted.
    */
   hint?: React.ReactNode;
   className?: string;
@@ -34,8 +38,8 @@ export type StatTileProps = {
  * Shared layout primitive (used by detail-overview's `stats` slot and the
  * analytics-dashboard KPI row). Visual contract:
  *   [LABEL (overline)]
- *   [value (2xl mono semibold tabular)]
- *   [hint (xs muted, optional)]
+ *   [value (display-stat mono semibold tabular)]
+ *   [hint — the context line (xs muted, optional)]
  *
  * The cell carries no border of its own — the strip draws the outer boundary
  * and the hairline dividers between cells.
@@ -49,11 +53,11 @@ export function StatTile({
   return (
     <div className={cn("px-5 py-4", className)}>
       <div className={OVERLINE_CLASS}>{label}</div>
-      <div className="mt-1.5 text-2xl font-mono font-semibold leading-none text-foreground tabular-nums">
+      <div className="mt-1.5 text-display-stat font-mono font-semibold leading-none text-foreground tabular-nums">
         {value}
       </div>
       {hint && (
-        <div className="mt-1.5 text-xs text-muted-foreground">{hint}</div>
+        <div className="mt-2 text-xs text-muted-foreground">{hint}</div>
       )}
     </div>
   );
