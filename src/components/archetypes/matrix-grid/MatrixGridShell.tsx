@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { SurfaceFrame } from "../../layout/SurfaceFrame";
+import { FULL_BLEED_CLASS } from "../../layout/surface";
 import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
 import { cn } from "../../../lib/utils";
 import { MatrixCell } from "./MatrixCell";
@@ -115,7 +116,8 @@ export function MatrixGridShell<Cell>({
   // why the matrix must not mount a Tooltip Root per cell).
   const [hoveredCellKey, setHoveredCellKey] = React.useState<string | null>(null);
 
-  const frameProps = { kicker, title, headerActions, toolbar } as const;
+  // Full-bleed archetype (ADR-0007 §1): the marker lifts AppShell's column.
+  const frameProps = { kicker, title, headerActions, toolbar, className: FULL_BLEED_CLASS } as const;
 
   // The frame is the horizontal scroll container (`overflow="auto"`, the frame's
   // named structural mode): the sticky first column pins only while its scroll
