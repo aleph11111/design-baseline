@@ -371,6 +371,8 @@ consolidation pass, after an audit found each hand-rolled in 3–4 places):
 | Native colour picker (swatch + hex) | `ColorField` (`ui/color-field`) | a bare boxed `<input type="color">`, with or without a paired hex `<Input>` |
 | Native file picker (trigger + selected row) | `FileField` (`ui/file-field`) — `variant` (button/dropzone), `accept`, `multiple`, `busy`, `maxSizeBytes` | a hidden `<input type="file">` + hand-rolled trigger / `input.value=""` reset / filename+size row |
 
+`StateView`'s empty variant offers **at most one** next-step action (ADR-0007 §7 — `action` is a single slot, not a list). Whether a call site passes two actions can't be caught by the zero-dep line-pattern scanner (ADR-0003) — it has no way to count sibling elements inside a `ReactNode` prop — so this is a **manual contract-close review step**: when closing an archetype's empty-state API, confirm its `action`/`emptyStateAction` call sites pass exactly one control.
+
 One **deliberate** non-molecule (don't force it onto the owners above): the
 matrix-grid pivot `<table>` (sticky columns + group spans — not a record list). Its
 inline-cell control is no longer a carve-out — that's now the `CellSelect` molecule

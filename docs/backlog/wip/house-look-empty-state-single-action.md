@@ -20,9 +20,9 @@ ADR-0007 section 7: an empty state offers exactly one next-step action, and `src
 
 ## What to do
 
-- [ ] Document `StateView`'s `empty`-variant `action` as the single next-step action and fix its placement/styling in the component.
-- [ ] Route the archetype empty states (`ListWithDetailEmptyState`, `SettingsTableShell`, `MatrixGridShell`) through `StateView` where they hand-roll one, keeping their public props.
-- [ ] Add an adherence or adoption-quality signal for an empty state with more than one action, if expressible in the zero-dep scanner (ADR-0003); otherwise record it as a contract-close review step in `docs/STYLE.md`.
+- [x] Document `StateView`'s `empty`-variant `action` as the single next-step action and fix its placement/styling in the component.
+- [x] Route the archetype empty states (`ListWithDetailEmptyState`, `SettingsTableShell`, `MatrixGridShell`) through `StateView` where they hand-roll one, keeping their public props. (All three already delegated to `StateView` — verified, no change needed.)
+- [x] Add an adherence or adoption-quality signal for an empty state with more than one action, if expressible in the zero-dep scanner (ADR-0003); otherwise record it as a contract-close review step in `docs/STYLE.md`. (Not expressible in the line-pattern scanner — it can't count sibling elements inside a `ReactNode` prop; recorded as a manual contract-close review step in `docs/STYLE.md`.)
 
 ## Acceptance
 
