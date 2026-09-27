@@ -47,6 +47,8 @@ reads it) and the adoption-quality scan reports it (`brand-tokens-retired-role`)
 | `surface-sunken` / `surface-canvas` / `surface-raised` (`--db-surface-*`) | `color-mix` of `--background` / `--foreground` | See "Surfaces" below. `sidebar` = sunken, `card` = raised: the brand `--card` / `--sidebar-background` no longer exist. |
 | `--db-content-max` | `1180px` | The page column (see "Spacing & rhythm"). |
 | `text-display-title` / `text-display-stat` | `30px` / `34px` | The display step (`@theme --text-display-*`), consumed by `PageHeader` / `StatTile`. |
+| `chart-1` | `--primary` | The first series is the brand accent. |
+| `chart-2` … `chart-6` (`--db-chart-*`) | donor hues, per theme | The fixed series order — see "Chart palette" below. |
 
 `--db-` is donor-reserved: a brand `tokens.css` declaring any `--db-*` is a scan hit.
 
@@ -71,6 +73,53 @@ what lets one token pair serve both uses — `bg-success` as a solid chip *and*
 can only ever be legible for one of the two. When tinting (`bg-success/15`), keep
 the label on `text-foreground`: a colored `text-*` over a same-hue tint has
 contrast in exactly one theme.
+
+### Chart palette
+
+Six series colours in a **fixed order** (ADR-0007 §8), declared in the layer: a
+project neither reorders nor re-values them, and a brand `--chart-*` is dead
+(the scan reports it). A chart library reads the roles as CSS variables —
+`var(--color-chart-1)` … `var(--color-chart-6)` (`bg-chart-N` / `fill-chart-N` as
+utilities) — never hex; a hex literal in a chart component's colour prop is the
+`chart-hex-colour-prop` scan hit. Series 7+ fold into "Other" or small multiples,
+never a generated hue.
+
+| Role | Light | Dark | |
+|------|-------|------|---|
+| `chart-1` | `--primary` | `--primary` | brand accent |
+| `chart-2` | `25 85% 28%` | `25 95% 34%` | rust |
+| `chart-3` | `270 55% 64%` | `270 75% 55%` | violet |
+| `chart-4` | `320 75% 49%` | `320 65% 43%` | magenta |
+| `chart-5` | `50 85% 34%` | `50 95% 34%` | ochre |
+| `chart-6` | `355 45% 61%` | `355 55% 64%` | rose |
+
+**Why these hues.** `chart-1` is whatever the brand picks, so the five fixed hues
+stay out of the families fleet brands use — teal, cyan, blue, slate, green (hue
+120–240) — and alternate lightness (dark rust, light violet, mid magenta, …) so
+neighbours differ in lightness, not hue alone, and survive colour-vision
+deficiency.
+
+**The check (2026-09-27).** Colour distance is ΔE in OKLab ×100; CVD is the worse
+of protanopia and deuteranopia (Machado 2009, severity 1.0). Targets: ΔE ≥ 15 under
+normal vision, CVD ΔE ≥ 8 (6–8 is a floor legal only with secondary encoding —
+legend, direct labels), and ≥ 3:1 contrast against the surface.
+
+| | Light | Dark |
+|---|---|---|
+| contrast vs raised / canvas (worst) | 3.49 / 3.23 (`chart-5`) | 3.01 / 3.27 (`chart-4`) |
+| `chart-2..6`, all pairs — worst normal / CVD | 15.6 / 8.6 | 16.1 / 8.8 |
+| series 1→6 adjacent, donor blue brand — normal / CVD | 15.6 / 8.7 | 16.6 / 8.8 |
+| any brand vs any fixed hue — worst normal | 15.4 (green `142 70% 30%`) | 15.4 (slate `215 20% 65%`) |
+| any brand vs any fixed hue — worst CVD | 6.6 (donor blue vs `chart-4`) | 7.8 (mistra teal vs `chart-6`) |
+
+Brands checked: the donor blue (`222 70% 42%` / `222 80% 68%`), controlling-app
+blue (`221 83% 53%`), mistra and hk-crm teal (`186–187 100% 25%`; dark `184 100% 33%`,
+`187 70% 45%`), a slate (`215 25% 35%` / `215 20% 65%`) and a green
+(`142 70% 30%` / `142 60% 50%`). Every pair clears the normal-vision floor; a brand
+next to a non-adjacent series sits in the CVD floor band, so a chart with ≥ 2
+series always carries a legend. A brand whose own `--primary` is low-chroma (slate,
+the deep teals) reads greyer as `chart-1` than the fixed hues — that is the brand's
+call, not a palette fault. Re-run the check when a slot changes.
 
 ### Radius
 

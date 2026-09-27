@@ -166,7 +166,9 @@ const compiled = signals.map((signal) => {
   let error = null;
   try {
     gateRe = new RegExp(signal.coOccursWith ?? '');
-    re = new RegExp(pcreToJs(signal.regex), 'g');
+    // Not `g`: a global RegExp carries lastIndex from one file's hit into the
+    // next file's exec, which then starts mid-file and can miss.
+    re = new RegExp(pcreToJs(signal.regex));
   } catch (err) {
     error = `${signal.id}: ${err.message}`;
   }

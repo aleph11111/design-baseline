@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: '2026-09-27'
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "picking five fixed hues that stay distinct from any brand chart-1 in both themes is a contrast judgment"
@@ -21,10 +21,10 @@ ADR-0007 section 8: `--chart-1` … `--chart-6` become donor-fixed roles in `src
 
 ## What to do
 
-- [ ] Add `--color-chart-1: hsl(var(--primary))` and `--color-chart-2..6` from `--db-chart-2..6` (light + dark values) to the layer.
-- [ ] Choose `--chart-2..6` hues that stay distinguishable from each other and from common brand accents (teal, blue, slate, green) in both themes; record the check in `docs/STYLE.md`.
-- [ ] Show the palette in the gallery (a swatch strip in the analytics-dashboard demo) per the living-demos rule.
-- [ ] Extend the slice-1 adoption-quality check to flag hex literals passed to chart components' colour props.
+- [x] Add `--color-chart-1: hsl(var(--primary))` and `--color-chart-2..6` from `--db-chart-2..6` (light + dark values) to the layer. (Pinned by `src/styles/tokens.layer.test.ts`.)
+- [x] Choose `--chart-2..6` hues that stay distinguishable from each other and from common brand accents (teal, blue, slate, green) in both themes; record the check in `docs/STYLE.md`. (Rust, violet, magenta, ochre, rose — outside hue 120–240, alternating lightness; the ΔE / CVD / contrast table is STYLE.md's "Chart palette".)
+- [x] Show the palette in the gallery (a swatch strip in the analytics-dashboard demo) per the living-demos rule. (Light row via the `bg-chart-N` utilities; a nested `.dark` row reads the role sources, since the gallery has no theme toggle.)
+- [x] Extend the slice-1 adoption-quality check to flag hex literals passed to chart components' colour props. (`chart-hex-colour-prop`, gated on a recharts / nivo / chart.js import; the brand `--chart-*` case was already in `brand-tokens-retired-role` and now has a fixture. Also fixed the scan's `g`-flag `lastIndex` carry-over, which skipped the file after a hit.)
 
 ## Acceptance
 
@@ -34,7 +34,7 @@ ADR-0007 section 8: `--chart-1` … `--chart-6` become donor-fixed roles in `src
 
 ## Related
 
-- [wip/house-look-adr.md](archive/house-look-adr.md) — the decision ticket that filed this slice
+- [wip/house-look-adr.md](../archive/house-look-adr.md) — the decision ticket that filed this slice
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles
 - ADR-0004 — appearance locality: global or fixed in the component
-- [house-look-tokens-layer-roles.md](archive/house-look-tokens-layer-roles.md) — must ship first: it introduces the `--db-` fixed-role block and the scan check this slice extends
+- [house-look-tokens-layer-roles.md](../archive/house-look-tokens-layer-roles.md) — must ship first: it introduces the `--db-` fixed-role block and the scan check this slice extends
