@@ -105,6 +105,45 @@ function HBars({ data }: { data: { label: string; value: number }[] }) {
   );
 }
 
+// The house chart palette (ADR-0007 §8) in its fixed series order: chart-1 is
+// the brand accent (follows --primary), chart-2..6 are donor-fixed hues. Class
+// names are spelled out so Tailwind sees each one. The `--color-chart-*` roles
+// (like every `--color-*` role) resolve on :root, so the nested dark preview
+// reads each role's source — and the raised surface charts sit on — instead.
+const CHART_SWATCHES = [
+  { token: "chart-1", className: "bg-chart-1", source: "hsl(var(--primary))" },
+  { token: "chart-2", className: "bg-chart-2", source: "var(--db-chart-2)" },
+  { token: "chart-3", className: "bg-chart-3", source: "var(--db-chart-3)" },
+  { token: "chart-4", className: "bg-chart-4", source: "var(--db-chart-4)" },
+  { token: "chart-5", className: "bg-chart-5", source: "var(--db-chart-5)" },
+  { token: "chart-6", className: "bg-chart-6", source: "var(--db-chart-6)" },
+] as const;
+
+function ChartPalette({ dark = false }: { dark?: boolean }): React.ReactElement {
+  return (
+    <div
+      className={dark ? "dark rounded-md px-3 py-2" : "px-3 py-2"}
+      style={dark ? { backgroundColor: "var(--db-surface-raised)", color: "hsl(var(--muted-foreground))" } : undefined}
+    >
+      <ol aria-label={`Chart palette (${dark ? "dark" : "light"})`} className="flex flex-wrap gap-3">
+        {CHART_SWATCHES.map((s) => (
+          <li
+            key={s.token}
+            className={dark ? "flex items-center gap-1.5 text-[11px]" : "flex items-center gap-1.5 text-[11px] text-muted-foreground"}
+          >
+            <span
+              className={dark ? "size-4 rounded-sm" : `size-4 rounded-sm ${s.className}`}
+              style={dark ? { backgroundColor: s.source } : undefined}
+              aria-hidden
+            />
+            <code>{s.token}</code>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 // --- per-widget state planes ---------------------------------------------
 //
 // DashboardWidget (src/components/archetypes/analytics-dashboard/DashboardWidget.tsx)
@@ -190,6 +229,11 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
             ]}
           />
         </div>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <ChartPalette />
+        <ChartPalette dark />
       </div>
 
       {/* Plex Ledger board form: title + actions sit ON the primary bounded
