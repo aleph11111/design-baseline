@@ -123,17 +123,20 @@ stays each app's `--primary` override (the baseline default is a deep blue,
 `222 70% 42%` / dark `222 80% 68%`); its *placement* is fixed (ADR-0007 §4).
 
 **Ledger type scale.** House style B runs a tight scale — every step ~1–2px below
-a conventional UI: page title `text-lg` (18px), overlines `text-[10.5px]`, ledger
+a conventional UI: overlines `text-[10.5px]`, ledger
 body (`KeyValueRow`/`MetricRow`/embedded tables) `text-[13px]`, headline figures
 `text-base` (16px). Numbers stay mono; prose/notes keep `text-sm` for readability.
 This density is part of the Plex Ledger voice — apply the same step-down to new
-ledger surfaces rather than reaching for the default `text-sm`/`text-xs`.
+ledger surfaces rather than reaching for the default `text-sm`/`text-xs`. The page
+title is the one exception: it sits on its own **display step** (ADR-0007 §2),
+above this tight scale, so the page has a focal point — the rest of the ladder
+stays tight *because* the title doesn't.
 
 **Heading signatures** (canonical, do not hand-roll — compose the layout primitives that own them):
 
 | Level | Token | Owned by |
 |-------|-------|----------|
-| Page title (`h1`) | `text-lg font-semibold tracking-tight` | `PageHeader` |
+| Page title (`h1`) | `text-display-title font-semibold tracking-tight` (30px, ADR-0007 §2) | `PageHeader` |
 | Nested page title (`h2`) | `text-base font-medium leading-tight tracking-tight` | `NestedPageHeading` |
 | Section title (`h2`) | `text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground` ("ledger overline") | `SectionHeading` |
 
@@ -214,7 +217,7 @@ Archetypes are optional — projects that don't want the page-shape vocabulary c
 | `AppShell`    | Top-level composition — mounts `TooltipProvider`, `SidebarProvider`, and the toast viewport (`<Sonner>`). Slots: `sidebar`, `header`, `children`. |
 | `AppSidebar`  | Brand + collapsible nav groups + footer. Takes `navItems`/`groups` + a `renderLink` prop so it stays router-agnostic. Persists collapsed groups to `localStorage` — pass `collapseStorageKey={null}` to run them uncontrolled (`defaultOpen`) instead, which is what an app whose shell sits in its root layout wants. `collapsible="icon"` + `rail` opt into the `ui/sidebar` icon rail; every nav row carries the primitive's `tooltip`, which is its only readable name once collapsed. An `aboveNav` slot sits between the header and the nav for a project's own workspace/tenant/asset switcher — `footer` would pin it to the bottom of the rail instead. |
 | `AppHeader`   | Title + center slot (search) + right slot (actions, user menu). Sidebar trigger on mobile. |
-| `PageHeader`  | Canonical **page** title block (distinct from the app `AppHeader`): title + optional subtitle / icon / actions / back-link. The single source of page-title typography — `text-lg font-semibold tracking-tight`. The archetype headers (`FormPageHeader`, `SettingsPageHeader`, `DetailOverviewHeader`) are thin wrappers that narrow its prop surface to their contract. Router-agnostic via `renderBackLink`. A `badges` slot renders read-only status `<Badge>`s inline next to the title (the detail-overview "one home for status"). |
+| `PageHeader`  | Canonical **page** title block (distinct from the app `AppHeader`): title + optional subtitle / icon / actions / back-link. The single source of page-title typography — `text-display-title font-semibold tracking-tight` (the display step, ADR-0007 §2). The archetype headers (`FormPageHeader`, `SettingsPageHeader`, `DetailOverviewHeader`) are thin wrappers that narrow its prop surface to their contract. Router-agnostic via `renderBackLink`. A `badges` slot renders read-only status `<Badge>`s inline next to the title (the detail-overview "one home for status"). |
 | `NestedPageHeading` | Canonical **nested page** title — the middle rung of the heading ladder, between `PageHeader` (the `<h1>` page title) and `SectionHeading` (the overline sub-section label). Renders an `<h2>` at a single fixed scale (`text-base font-medium leading-tight tracking-tight`) with **no size/weight/variant prop** — the type scale is fixed in the component, per the appearance-locality rule (ADR 0004). Use when a parent route layout owns the `<h1>` (a tabbed sub-route like `/:resource/[id]/:section`) and the page below it still needs a title of its own (e.g. "Devices", "History", "Members"). Prop shape matches the `PageHeader` family — `title` + optional `subtitle` / `badges` / `actions` — so the three ladder rungs read as one family. |
 | `SurfaceHeader` / `SurfaceHeaderSlot` | Canonical **header on the surface** — the kicker + title (+ optional `subtitle` / `icon`) bar rendered *inside* a framed shell's one bounded card, with a right-aligned `actions` cluster. Every framed archetype shell (report, calendar, wizard, feed, settings-page, the list drawer) mounts this, so the fleet shares one header treatment, driven by `--header-fill` (see "Header fill" above). (detail-overview composes `NestedPageHeading` directly in its Mode B header instead — a different role: a nested *page* title, not a surface kicker.) Distinct from `PageHeader`, which is the *classic* unbounded title block sitting above a page. `subtitle` is compact metadata at `text-xs` (matching `PageHeader`), auto-dimmed on a solid fill; use it rather than falling back to the classic header just to get a secondary line. |
 | `SectionHeading` | Canonical **section** title — the "ledger" overline `<h2>` (`text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground`, i.e. `OVERLINE_CLASS`) + optional description / actions. The single source of sub-section title typography. Usually consumed via `SectionCard` (below); use it directly only for a bare heading with no bounding card. |

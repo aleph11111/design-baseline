@@ -148,7 +148,7 @@ describe("PageHeader", () => {
       HEADING_ROW_CLASSES.actions,
     );
     expect(heading.className).toBe(
-      "text-lg font-semibold leading-tight tracking-tight text-foreground",
+      "text-display-title font-semibold leading-tight tracking-tight text-foreground",
     );
   });
 });
