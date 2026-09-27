@@ -39,7 +39,13 @@ export type StateViewProps = {
   error?: unknown;
   /** Renders a "Try again" button in the error variant. */
   onRetry?: () => void;
-  /** Optional CTA rendered below an empty-state message (e.g. an Add-new button). */
+  /**
+   * The empty state's single next-step action (ADR-0007 §7 — e.g. an
+   * "Add new" button), rendered below the title/description with extra
+   * top spacing to read as the CTA, not another text line. An empty state
+   * offers at most one; a caller that needs two is a signal to reconsider
+   * the message, not to pass a second button here.
+   */
   action?: React.ReactNode;
   className?: string;
 };
@@ -59,7 +65,8 @@ function errorMessage(error: unknown): string {
  *
  *  - loading: centered "Loading…", `role="status"`, `p-8` — or a `loadingSkeleton`
  *    node (e.g. `<ListSkeleton>`) rendered verbatim when the row shape is known.
- *  - empty:   centered `p-8`, optional icon + optional title + description + CTA.
+ *  - empty:   centered `p-8`, optional icon + optional title + description +
+ *    a single CTA (`action` — ADR-0007 §7's one next-step action).
  *  - error:   a destructive `<Alert>` with an optional retry button.
  *
  * Both empty and error accept a `title` (foreground headline) + `description`
@@ -134,7 +141,7 @@ export function StateView({
           {body && <p className="text-sm text-muted-foreground">{body}</p>}
         </div>
       )}
-      {action}
+      {action && <div className="mt-1">{action}</div>}
     </div>
   );
 }
