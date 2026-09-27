@@ -2,6 +2,7 @@
 import * as React from "react";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../../ui/sheet";
 import { SurfaceFrame } from "../../layout/SurfaceFrame";
+import { FULL_BLEED_CLASS } from "../../layout/surface";
 import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
 import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
 import { useIsMobile } from "../../../hooks/use-mobile";
@@ -268,7 +269,7 @@ export function ListWithDetailShell<Row>(
           </SheetContent>
         </Sheet>
       ) : (
-        <div className="w-80 shrink-0 border-l bg-card">{detail}</div>
+        <div className="w-80 shrink-0 border-l">{detail}</div>
       )
     ) : null;
 
@@ -280,6 +281,9 @@ export function ListWithDetailShell<Row>(
       headerActions={headerActions}
       toolbar={toolbar}
       chrome={!chromeless}
+      // Full-bleed archetype (ADR-0007 §1) — only as the page's own surface; a
+      // shell composed into another surface leaves the column alone.
+      className={chromeless ? undefined : FULL_BLEED_CLASS}
     >
       <div className="flex">
         <div className="min-w-0 flex-1">

@@ -98,7 +98,7 @@ export type DetailOverviewShellProps = {
  * appearance).
  *
  * Notes: the unified frame relies on the page behind the frame being a muted
- * surface (e.g. AppShell's `<main>` on bg-muted/30) — a white frame on a white
+ * surface (AppShell's `<main>` on the canvas surface) — a raised frame on a raised
  * page has no contrast and the effect collapses.
  */
 export function DetailOverviewShell({

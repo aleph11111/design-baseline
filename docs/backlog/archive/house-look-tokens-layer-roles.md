@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: '2026-09-27'
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "cross-cutting token + shell change with per-theme colour-mix tuning and a new scan check — judgment on percentages and scan parsing"
@@ -37,8 +37,8 @@ ADR-0007 (`docs/adr/0007-fleet-house-look-fixed-vs-brand-roles.md`, sections 1, 
 
 ## Related
 
-- [wip/house-look-adr.md](archive/house-look-adr.md) — the decision ticket that filed this slice
+- [wip/house-look-adr.md](../archive/house-look-adr.md) — the decision ticket that filed this slice
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles
 - ADR-0004 — appearance locality: global or fixed in the component
-- [archive/tokens-brand-font-seam-and-split-guard.md](archive/tokens-brand-font-seam-and-split-guard.md) — the layer/brand split this extends
-- [archive/donor-status-token-roles-badge-alert-backport.md](archive/donor-status-token-roles-badge-alert-backport.md) — prior roles-in-layer, values-in-brand precedent
+- [archive/tokens-brand-font-seam-and-split-guard.md](../archive/tokens-brand-font-seam-and-split-guard.md) — the layer/brand split this extends
+- [archive/donor-status-token-roles-badge-alert-backport.md](../archive/donor-status-token-roles-badge-alert-backport.md) — prior roles-in-layer, values-in-brand precedent

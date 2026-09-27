@@ -169,15 +169,20 @@ function findShippedCss(root, pkg) {
   return shipped;
 }
 
-// Invariant 5 (spec T5): the donor-owned layer declares no brand selectors. A
-// `:root` or `.dark` at the start of a line means a brand value has drifted
-// into the half a `--force` re-apply will blast. The regex is line-anchored and
-// channel-agnostic — it checks the layer's *shape*, not its import specifier.
-// Returns `[file]` offenders (empty when clean).
-const LAYER_BRAND_SELECTOR_RE = /^\s*(:root|\.dark)\b/m;
+// Invariant 5 (spec T5): the donor-owned layer declares no brand values. A
+// `:root` or `.dark` block at the start of a line declaring anything but a
+// donor-reserved `--db-*` variable (ADR-0007's fixed per-theme roles) means a
+// brand value has drifted into the half a `--force` re-apply will blast. The
+// regex is line-anchored and channel-agnostic — it checks the layer's *shape*,
+// not its import specifier. Returns `[file]` offenders (empty when clean).
+const LAYER_THEME_BLOCK_RE = /^\s*(?::root|\.dark)\b[^{]*\{([^}]*)\}/gm;
 function layerDeclaresBrandValues(root) {
   const rel = 'src/styles/tokens.layer.css';
-  return LAYER_BRAND_SELECTOR_RE.test(readFileSync(join(root, rel), 'utf8')) ? [rel] : [];
+  const src = readFileSync(join(root, rel), 'utf8');
+  const leaked = [...src.matchAll(LAYER_THEME_BLOCK_RE)].some(([, body]) =>
+    [...body.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([\w-]+)\s*:/g)].some(([, prop]) => !prop.startsWith('--db-')),
+  );
+  return leaked ? [rel] : [];
 }
 
 // Invariant 6 (spec T5): the brand file is not the pre-#178 merged shape — it

@@ -55,7 +55,10 @@
 @theme {
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
+  /* Fixed roles (ADR-0007 §4): the focus ring and the sidebar accent follow
+     the brand accent by wiring, so a brand-file `--ring` / `--sidebar-primary`
+     / `--sidebar-ring` is dead — nothing reads it. */
+  --color-ring: hsl(var(--primary));
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
 
@@ -102,20 +105,34 @@
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
 
-  --color-card: hsl(var(--card));
+  /* Surface elevation (ADR-0007 §3) — fixed, derived from the brand's
+     `--background` / `--foreground` in the `--db-surface-*` block below, so
+     sunken < canvas < raised holds under any palette. `card` and `sidebar`
+     are the raised and sunken steps; the brand `--card` /
+     `--sidebar-background` no longer reach the shells. */
+  --color-surface-sunken: var(--db-surface-sunken);
+  --color-surface-canvas: var(--db-surface-canvas);
+  --color-surface-raised: var(--db-surface-raised);
+
+  --color-card: var(--db-surface-raised);
   --color-card-foreground: hsl(var(--card-foreground));
 
-  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar: var(--db-surface-sunken);
   --color-sidebar-foreground: hsl(var(--sidebar-foreground));
-  --color-sidebar-primary: hsl(var(--sidebar-primary));
-  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-primary: hsl(var(--primary));
+  --color-sidebar-primary-foreground: hsl(var(--primary-foreground));
   --color-sidebar-accent: hsl(var(--sidebar-accent));
   --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
   --color-sidebar-border: hsl(var(--sidebar-border));
-  --color-sidebar-ring: hsl(var(--sidebar-ring));
+  --color-sidebar-ring: hsl(var(--primary));
 
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  /* Display type step (ADR-0007 §2) — the page title and the headline
+     number; the rest of the ledger scale stays tight. */
+  --text-display-title: 30px;
+  --text-display-stat: 34px;
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -132,6 +149,25 @@
     from { height: var(--radix-accordion-content-height); }
     to   { height: 0; }
   }
+}
+
+/* Donor-fixed per-theme values (ADR-0007). The `--db-` prefix is reserved:
+   a brand `tokens.css` declaring any `--db-*` is an adoption-quality hit.
+   Unlayered on purpose — a layered brand override loses to these. The
+   percentages are the fixed elevation steps: light mode darkens the canvas
+   and the sidebar toward `--foreground`; dark mode lifts canvas and raised
+   surfaces toward it. */
+:root {
+  --db-content-max: 1180px;
+  --db-surface-sunken: color-mix(in oklab, hsl(var(--background)), hsl(var(--foreground)) 6%);
+  --db-surface-canvas: color-mix(in oklab, hsl(var(--background)), hsl(var(--foreground)) 3%);
+  --db-surface-raised: hsl(var(--background));
+}
+
+.dark {
+  --db-surface-sunken: hsl(var(--background));
+  --db-surface-canvas: color-mix(in oklab, hsl(var(--background)), hsl(var(--foreground)) 4%);
+  --db-surface-raised: color-mix(in oklab, hsl(var(--background)), hsl(var(--foreground)) 9%);
 }
 
 /* Tailwind 4 dropped the implicit `border-color: gray-200` default.

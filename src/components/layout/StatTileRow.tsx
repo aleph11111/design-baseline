@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { RaisedSurfaceContext } from "./surface";
 import { cn } from "../../lib/utils";
 
 const SM_COLS_MAP: Record<2 | 3 | 4, string> = {
@@ -45,16 +46,21 @@ export function StatTileRow({
     4,
   ) as 2 | 3 | 4;
 
+  // Raised surface: no outer border (tone separates it from the canvas); nested
+  // in another raised surface it drops the fill too (ADR-0007 §3).
+  const nested = React.useContext(RaisedSurfaceContext);
+
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-lg border bg-card text-card-foreground",
+        "overflow-hidden rounded-lg text-card-foreground",
+        !nested && "bg-surface-raised",
         "grid grid-cols-1 divide-y divide-border sm:divide-x sm:divide-y-0",
         SM_COLS_MAP[columns],
         className,
       )}
     >
-      {children}
+      <RaisedSurfaceContext.Provider value={true}>{children}</RaisedSurfaceContext.Provider>
     </div>
   );
 }

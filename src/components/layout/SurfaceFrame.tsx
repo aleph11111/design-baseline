@@ -5,6 +5,7 @@ import {
   SurfaceHeaderSlot,
   type SurfaceHeaderSlotProps,
 } from "./SurfaceHeaderSlot";
+import { RaisedSurfaceContext } from "./surface";
 import { cn } from "../../lib/utils";
 
 type SurfaceFrameSlotProps = Omit<SurfaceHeaderSlotProps, "className">;
@@ -30,7 +31,7 @@ export type SurfaceFrameProps = {
   overflow?: "hidden" | "auto";
   /**
    * Card chrome. `false` = chromeless — the frame drops its bounded card
-   * (border / rounding / `bg-card` / overflow) and renders its header + body
+   * (rounding / raised fill / overflow) and renders its header + body
    * in a plain layout div, keeping its slots' layout intact. For a shell
    * rendered flush inside an already-bounded surface that owns separation
    * (grouped-list's `<SectionCard flush>` supplies it via `ListChromeContext`);
@@ -46,8 +47,9 @@ export type SurfaceFrameProps = {
 
 /**
  * SurfaceFrame — the canonical bounded surface every framed archetype shell
- * mounts: a flat `overflow-hidden rounded-lg border bg-card` card (House style
- * B — no shadow; see the report / statement-with-filters contracts) with the
+ * mounts: a flat `overflow-hidden rounded-lg bg-surface-raised` card (House
+ * style B — no shadow, no border: tone separates it from the canvas, ADR-0007
+ * §3; see the report / statement-with-filters contracts) with the
  * on-surface `<SurfaceHeader>` and the ruled `border-b px-4 py-3` toolbar band
  * as slots.
  *
@@ -74,6 +76,7 @@ export function SurfaceFrame({
   icon,
   headerActions,
 }: SurfaceFrameProps): React.ReactElement {
+  const nested = React.useContext(RaisedSurfaceContext);
   const body = (
     <>
       <SurfaceHeaderSlot
@@ -96,16 +99,19 @@ export function SurfaceFrame({
     );
   }
 
+  // Raised surface: tone, not a border, separates it from the canvas; nested
+  // in another raised surface it drops the fill too (ADR-0007 §3).
   return (
     <div
       ref={ref}
       className={cn(
-        "rounded-lg border bg-card",
+        "rounded-lg",
+        !nested && "bg-surface-raised",
         overflow === "auto" ? "overflow-x-auto" : "overflow-hidden",
         className,
       )}
     >
-      {body}
+      <RaisedSurfaceContext.Provider value={true}>{body}</RaisedSurfaceContext.Provider>
     </div>
   );
 }

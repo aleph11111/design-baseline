@@ -48,8 +48,7 @@ describe("FormPageShell — board form layout (title set)", () => {
 
     const card = container.firstElementChild as HTMLElement;
     expect(card.className).toContain("rounded-lg");
-    expect(card.className).toContain("border");
-    expect(card.className).toContain("bg-card");
+    expect(card.className).toContain("bg-surface-raised");
 
     const header = container.querySelector(HEADER);
     expect(header).not.toBeNull();

@@ -116,7 +116,7 @@ function runScript(cwd) {
 }
 
 describe("token-split invariants (spec T4/T5)", () => {
-  it("layerDeclaresBrandValues: flags a :root/.dark selector in the layer, passes the clean shape", () => {
+  it("layerDeclaresBrandValues: flags a brand :root/.dark block in the layer, passes the clean and --db-* shapes", () => {
     const { dir, put } = fixtureTree();
     try {
       // Clean layer: @theme + utils, no brand selector.
@@ -128,6 +128,15 @@ describe("token-split invariants (spec T4/T5)", () => {
         "src/styles/tokens.layer.css",
         "/* brand leaked in */\n:root {\n  --primary: 210 40% 96%;\n}\n",
       );
+      expect(layerDeclaresBrandValues(dir)).toEqual(["src/styles/tokens.layer.css"]);
+      // A donor-reserved `--db-*` block (ADR-0007 fixed per-theme roles) is not a brand value.
+      put(
+        "src/styles/tokens.layer.css",
+        ":root {\n  --db-content-max: 1180px;\n}\n.dark {\n  --db-surface-raised: hsl(var(--background));\n}\n",
+      );
+      expect(layerDeclaresBrandValues(dir)).toEqual([]);
+      // …but a brand triplet beside it still is.
+      put("src/styles/tokens.layer.css", ".dark {\n  --db-surface-raised: red;\n  --primary: 210 40% 96%;\n}\n");
       expect(layerDeclaresBrandValues(dir)).toEqual(["src/styles/tokens.layer.css"]);
     } finally {
       rmSync(dir, { recursive: true, force: true });

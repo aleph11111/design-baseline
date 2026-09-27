@@ -67,6 +67,11 @@ audit" split:
    it measures every entry in the array, hitless ones included, and — like the
    tripwires themselves — it never gates: a red hit still exits clean, and the
    stage-2 walk below remains the decision layer.
+   The same script also measures `audit-signals.json → brandTokens` against every
+   brand `tokens.css` (ADR-0007): a declared retired role (`--ring`,
+   `--sidebar-primary`, `--sidebar-ring`, `--chart-*`) or any donor-reserved
+   `--db-*`, and a dark `--primary` off the light hue (> 10°) or below 30%
+   saturation. Reported under the report's `brandTokens` key, same radar semantics.
 
 2. **Per-page conformance pass** (LLM audit): for each flagged route — and every route
    the page-level pass marks `adopted` for a shell archetype — run the archetype's

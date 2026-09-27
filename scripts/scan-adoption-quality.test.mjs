@@ -326,3 +326,72 @@ describe("scan-adoption-quality fixture (controlled content)", () => {
     expect(run(dir, "--bogus").status).toBe(2);
   });
 });
+
+describe("scan-adoption-quality brand tokens (ADR-0007)", () => {
+  const brandSignals = { artifact: "audit-signals", adoptionQuality: signalsDoc.adoptionQuality.slice(0, 1), brandTokens: signalsDoc.brandTokens };
+  const TEAL_LIGHT = "@layer base {\n  :root {\n    --primary: 174 72% 35%;\n    --primary-foreground: 0 0% 100%;\n  }\n";
+
+  function brandFixture(files) {
+    const dir = mkdtempSync(join(tmpdir(), "adoption-quality-brand-"));
+    writeFileSync(join(dir, "signals.json"), JSON.stringify(brandSignals));
+    for (const [rel, body] of Object.entries(files)) {
+      mkdirSync(join(dir, rel, ".."), { recursive: true });
+      writeFileSync(join(dir, rel), body);
+    }
+    return dir;
+  }
+  const scanBrand = (dir) => {
+    const { stdout, status } = run(dir, "--json", "--signals", join(dir, "signals.json"));
+    expect(status).toBe(0);
+    return Object.fromEntries(parse(stdout).brandTokens.map((s) => [s.id, s]));
+  };
+
+  it("flags a brand tokens.css that declares a retired role or a --db-* variable", () => {
+    const dir = brandFixture({
+      "src/a/tokens.css": ":root {\n  --primary: 174 72% 35%;\n  --ring: 217 91% 60%;\n}\n",
+      "src/b/tokens.css": ":root {\n  --db-surface-raised: white;\n}\n",
+      // The donor-owned layer declares --db-* by design — never scanned.
+      "src/b/tokens.layer.css": ":root {\n  --db-content-max: 1180px;\n}\n",
+      // --sidebar-ring-offset-ish names and comments do not count.
+      "src/c/tokens.css": "/* --ring: retired */\n:root {\n  --ring-offset: 2px;\n  --sidebar-foreground: 0 0% 10%;\n}\n",
+    });
+    try {
+      expect(scanBrand(dir)["brand-tokens-retired-role"].hits).toEqual([
+        { file: "src/a/tokens.css", line: 3 },
+        { file: "src/b/tokens.css", line: 2 },
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("flags a dark --primary off the light hue or desaturated, passes a same-hue chromatic one", () => {
+    const dir = brandFixture({
+      // Slate near-white on teal: hue 36° off and saturation 40% — the hue fails.
+      "src/slate/tokens.css": TEAL_LIGHT + "  .dark {\n    --primary: 210 40% 98%;\n  }\n}\n",
+      // Same hue, but grey (saturation 12%).
+      "src/grey/tokens.css": TEAL_LIGHT + "  .dark {\n    --primary: 174 12% 70%;\n  }\n}\n",
+      // Conformant: 8° off, saturated; --sidebar-primary / --primary-foreground ignored.
+      "src/ok/tokens.css": TEAL_LIGHT + "  .dark {\n    --sidebar-primary: 0 0% 98%;\n    --primary: 166 60% 55%;\n    --primary-foreground: 0 0% 5%;\n  }\n}\n",
+      // Hue wraps around 360: 355° vs 3° is 8° apart.
+      "src/wrap/tokens.css": ":root { --primary: 355 80% 45%; }\n.dark { --primary: 3 70% 60%; }\n",
+      // No dark override at all — nothing to compare.
+      "src/light-only/tokens.css": TEAL_LIGHT + "}\n",
+    });
+    try {
+      expect(scanBrand(dir)["brand-tokens-dark-primary-off-hue"].hits).toEqual([
+        { file: "src/grey/tokens.css", line: 7 },
+        { file: "src/slate/tokens.css", line: 7 },
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("exits clean on the donor's own tokens.css", () => {
+    const report = parse(run(root, "--json").stdout);
+    expect(report.summary.brandTokenFiles).toBe(1);
+    expect(report.brandTokens.map((s) => s.id).sort()).toEqual(signalsDoc.brandTokens.map((s) => s.id).sort());
+    expect(report.brandTokens.every((s) => !s.error && s.hitCount === 0)).toBe(true);
+  });
+});

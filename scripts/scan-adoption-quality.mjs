@@ -27,6 +27,12 @@
 //     therefore NEVER gates — it exits 0 even when red-tier signals fire; it
 //     only measures and reports.
 //
+// Brand tokens (ADR-0007): the `brandTokens` array is measured against every
+// `tokens.css` under the targets — a brand file still declaring a role the
+// donor layer fixes (`--ring`, `--chart-*`, any `--db-*`, …), or a dark
+// `--primary` off the light hue. Same radar semantics, reported under its own
+// `brandTokens` key so the `signals` array stays one entry per adoptionQuality id.
+//
 // The donor runs it on itself (`npm run scan:adoption-quality`) as its own
 // tripwire smoke — the shipped signal set must compile under a plain Node
 // RegExp (the PCRE2→JS compat below), and the demo/example surfaces it flags
@@ -188,6 +194,65 @@ for (const { rel, abs } of files) {
   }
 }
 
+// --- brand tokens (ADR-0007) --------------------------------------------------
+// The `brandTokens` entries run against every `tokens.css` (the project-owned
+// brand file; the donor-owned `tokens.layer.css` never matches the name). A
+// `regex` entry runs multiline over the file; a `check` entry is one of the
+// named computations below — hue math a regex cannot do. A signals file without
+// the array (an older vendored snapshot) measures nothing here.
+const brandSignals = signalsDoc.brandTokens ?? [];
+const brandFiles = targets
+  .flatMap((t) =>
+    globSync('**/tokens.css', { cwd: join(rootResolved, t), exclude: WALK_EXCLUDES }).map((rel) => ({
+      rel: join(t, rel).split(/[\\/]/).join('/'),
+      abs: join(rootResolved, t, rel),
+    })),
+  )
+  .filter(({ rel }) => !isExcluded(rel))
+  .sort((a, b) => a.rel.localeCompare(b.rel));
+
+const lineOf = (src, index) => src.slice(0, index).split('\n').length;
+
+// `--primary: H S% L%` triplets in file order — the first is the light
+// (`:root`) value, the second the `.dark` one. The lookbehind keeps
+// `--sidebar-primary` out; `\s*:` keeps `--primary-foreground` out.
+const PRIMARY_RE = /(?<![\w-])--primary\s*:\s*(-?[\d.]+)(?:deg)?\s+([\d.]+)%\s+([\d.]+)%/g;
+const BRAND_CHECKS = {
+  'dark-primary-hue'(src, { maxHueDelta = 10, minSaturation = 30 }) {
+    const [light, dark] = [...src.matchAll(PRIMARY_RE)];
+    if (!light || !dark) return null; // no dark override: nothing to compare
+    const delta = Math.abs(Number(light[1]) - Number(dark[1])) % 360;
+    const hueOff = Math.min(delta, 360 - delta) > maxHueDelta;
+    return hueOff || Number(dark[2]) < minSaturation ? dark.index : null;
+  },
+};
+
+const brandResults = brandSignals.map((signal) => {
+  let test = null;
+  let error = null;
+  if (signal.check) {
+    const fn = BRAND_CHECKS[signal.check];
+    if (fn) test = (src) => fn(src, signal);
+    else error = `${signal.id}: unknown check "${signal.check}"`;
+  } else {
+    try {
+      const re = new RegExp(pcreToJs(signal.regex), 'm');
+      test = (src) => src.match(re)?.index ?? null;
+    } catch (err) {
+      error = `${signal.id}: ${err.message}`;
+    }
+  }
+  const hits = [];
+  if (test) {
+    for (const { rel, abs } of brandFiles) {
+      const src = readFileSync(abs, 'utf8');
+      const index = test(src);
+      if (index !== null) hits.push({ file: rel, line: lineOf(src, index) });
+    }
+  }
+  return { id: signal.id, tier: signal.tier, ...(error ? { error } : {}), hits, hitCount: hits.length };
+});
+
 const entries = results.map((r) => ({
   id: r.signal.id,
   tier: r.signal.tier,
@@ -205,6 +270,8 @@ const summary = {
   totalHits: entries.reduce((n, e) => n + e.hitCount, 0),
   redHits: entries.reduce((n, e) => n + (e.tier === 'red' ? e.hitCount : 0), 0),
   yellowHits: entries.reduce((n, e) => n + (e.tier === 'yellow' ? e.hitCount : 0), 0),
+  brandTokenFiles: brandFiles.length,
+  brandTokenHits: brandResults.reduce((n, e) => n + e.hitCount, 0),
 };
 
 if (jsonMode) {
@@ -217,6 +284,7 @@ if (jsonMode) {
     config: { targets, excludes, globs: fileSuffixes },
     summary,
     signals: entries,
+    brandTokens: brandResults,
   };
   process.stdout.write(JSON.stringify(report) + '\n');
 } else {
@@ -231,6 +299,16 @@ if (jsonMode) {
     }
     const filesList = e.hits.slice(0, 5).map((h) => `${h.file}:${h.line}`).join(', ') + (e.hitCount > 5 ? ' …' : '');
     console.log(`  ${e.tier.padEnd(6)} ${e.id.padEnd(40)}  ${String(e.hitCount).padEnd(3)} ${filesList}`);
+  }
+  if (brandResults.length) {
+    console.log(`  brand tokens — ${summary.brandTokenFiles} tokens.css file(s), ${summary.brandTokenHits} hit(s)`);
+    for (const e of brandResults) {
+      if (e.error) {
+        console.log(`  ??     ${e.id.padEnd(40)}  (skipped — ${e.error})`);
+        continue;
+      }
+      console.log(`  ${e.tier.padEnd(6)} ${e.id.padEnd(40)}  ${String(e.hitCount).padEnd(3)} ${e.hits.map((h) => `${h.file}:${h.line}`).join(', ')}`);
+    }
   }
 }
 

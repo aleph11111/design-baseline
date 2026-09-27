@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { SectionHeading } from "./SectionHeading";
+import { RaisedSurfaceContext } from "./surface";
 import { cn } from "../../lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -86,6 +87,7 @@ export function SectionCard({
   children,
   className,
 }: SectionCardProps): React.ReactElement {
+  const nested = React.useContext(RaisedSurfaceContext);
   const hasBar = title !== undefined;
   const bar = (
     <SectionHeading title={title} description={description} actions={actions} />
@@ -105,18 +107,24 @@ export function SectionCard({
     );
   }
 
+  // Raised surface on the canvas: separated by tone, no border. Nested in
+  // another raised surface it drops the fill too (no card-in-card, ADR-0007 §3).
   return (
     <section
       className={cn(
-        "overflow-hidden rounded-lg border",
-        tone === "muted" ? "bg-muted/40" : "bg-card text-card-foreground",
+        "overflow-hidden rounded-lg",
+        tone === "muted"
+          ? "bg-muted/40"
+          : !nested && "bg-surface-raised text-card-foreground",
         className,
       )}
     >
-      {hasBar && (
-        <div className="border-b border-border px-5 py-3">{bar}</div>
-      )}
-      {flush ? children : <div className="px-5 py-4">{children}</div>}
+      <RaisedSurfaceContext.Provider value={true}>
+        {hasBar && (
+          <div className="border-b border-border px-5 py-3">{bar}</div>
+        )}
+        {flush ? children : <div className="px-5 py-4">{children}</div>}
+      </RaisedSurfaceContext.Provider>
     </section>
   );
 }

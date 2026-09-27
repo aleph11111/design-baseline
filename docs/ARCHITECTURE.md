@@ -29,12 +29,12 @@ Two independent verification paths, both donor-only (never copied to targets):
 | Path | What it is |
 |---|---|
 | `src/styles/tokens.css` | Brand token file — the `:root` / `.dark` HSL palette (light + dark) + `--radius`; the project-owned re-skin surface; imports the donor-owned layer below |
-| `src/styles/tokens.layer.css` | Donor-owned token layer — the Tailwind 4 entry + `@theme` roles / keyframes, shipped as the `./tokens.layer.css` package export, which a consumer `@import`s |
+| `src/styles/tokens.layer.css` | Donor-owned token layer — the Tailwind 4 entry + `@theme` roles / keyframes + the donor-fixed `--db-*` per-theme values (surfaces, content width; ADR-0007), shipped as the `./tokens.layer.css` package export, which a consumer `@import`s |
 | `src/lib/utils.ts` | `cn()` |
 | `src/hooks/` | `use-mobile.ts` (`useIsMobile`, required by `ui/sidebar.tsx`) |
 | `src/utils/logger.ts` | console logger — `logger.debug` (gated on `NODE_ENV !== "production"`) + `info`/`warn`/`error` pass-throughs; framework-agnostic. Not an archetype and carries no per-file version: it is plain copy-source, and the invariant that governs it is **the donor surface must be a superset of what the fleet calls** (see §3a) |
 | `src/components/ui/` | 44 shadcn/ui primitives (button, dialog, table, sidebar, form, sheet, command, calendar, segmented-control, state-view, cell-input, confirmation-dialog, icon-avatar, search-input, color-field, file-field, …) |
-| `src/components/layout/` | App-shell layer: `AppShell`, `AppSidebar`/`Sidebar` (+ `NavItem`/`NavGroup` types), `AppHeader`, `PageHeader`, `SectionHeading`, `SectionCard`, `SurfaceHeader` (+ `headerFill` context/classes), `StatTile`/`StatTileRow`, `ProgressTracker`, `MetricList`, `AuthCard`, `SectionNavShell`, `BottomNav`, `ThemeToggle` |
+| `src/components/layout/` | App-shell layer: `AppShell`, `AppSidebar`/`Sidebar` (+ `NavItem`/`NavGroup` types), `AppHeader`, `PageHeader`, `SectionHeading`, `SectionCard`, `SurfaceHeader` (+ `headerFill` context/classes), `StatTile`/`StatTileRow`, `ProgressTracker`, `MetricList`, `AuthCard`, `SectionNavShell`, `BottomNav`, `ThemeToggle`; `surface.ts` (`RaisedSurfaceContext` — no card-in-card — and the full-bleed `FULL_BLEED_CLASS` marker, ADR-0007) |
 | `src/components/archetypes/<slug>/` | Reference primitives per shipped archetype (one dir each; 21 registered in MANIFEST — see §4). Plus a non-archetype `shared/` dir (`RowActionsMenu`, `interactiveRow`) holding primitives reused across archetypes — correctly absent from MANIFEST |
 | `src/examples/<slug>-demo.tsx` | Sandbox demo per archetype — the "generic-ness contract" proving the primitive has zero domain-type leakage. Donor-dev only, **never copied** to targets |
 | `src/examples/DemoNextApp.tsx` / `DemoViteApp.tsx` | Reference wiring for Next.js 16 App Router / Vite + React Router 7 consumers |

@@ -176,7 +176,7 @@ describe("ListWithDetailShell", () => {
     // The bounded-card chrome is owned by <SurfaceFrame> (the frame slot the
     // shell composes) — asserted here per-token so a shell re-spelling its own
     // frame is caught by this test, not by string match.
-    const frameChrome = ["rounded-lg", "border", "bg-card", "overflow-hidden"];
+    const frameChrome = ["rounded-lg", "bg-surface-raised", "overflow-hidden"];
 
     const { container: standalone } =
       render(
@@ -186,6 +186,8 @@ describe("ListWithDetailShell", () => {
     for (const token of frameChrome) {
       expect(standaloneRoot.className).toContain(token);
     }
+    // Full-bleed as the page's own surface (ADR-0007 §1)…
+    expect(standaloneRoot.className).toContain("db-full-bleed");
     cleanup();
 
     const { container: flush } = render(
@@ -197,6 +199,8 @@ describe("ListWithDetailShell", () => {
     for (const token of frameChrome) {
       expect(flushRoot.className).not.toContain(token);
     }
+    // …but a composed shell leaves the column alone.
+    expect(flushRoot.className).not.toContain("db-full-bleed");
   });
 
   it("forwards the ref to the root element", () => {

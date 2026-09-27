@@ -37,4 +37,4 @@ ADR-0007 section 8: `--chart-1` … `--chart-6` become donor-fixed roles in `src
 - [wip/house-look-adr.md](archive/house-look-adr.md) — the decision ticket that filed this slice
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles
 - ADR-0004 — appearance locality: global or fixed in the component
-- [house-look-tokens-layer-roles.md](house-look-tokens-layer-roles.md) — must ship first: it introduces the `--db-` fixed-role block and the scan check this slice extends
+- [house-look-tokens-layer-roles.md](archive/house-look-tokens-layer-roles.md) — must ship first: it introduces the `--db-` fixed-role block and the scan check this slice extends

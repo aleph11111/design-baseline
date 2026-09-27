@@ -45,7 +45,7 @@ describe("SettingsPageShell layout branch", () => {
     // The header and the children live inside one bounded card.
     const card = header!.parentElement;
     expect(card?.className).toContain("rounded-lg");
-    expect(card?.className).toContain("border");
+    expect(card?.className).toContain("bg-surface-raised");
     expect(card?.contains(screen.getByText("body"))).toBe(true);
   });
 });
