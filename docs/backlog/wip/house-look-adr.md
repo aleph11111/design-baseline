@@ -42,8 +42,8 @@ The 2026-09-27 visual audit of controlling-app, mistra and hk-crm (mockups: canv
 
 ## Related
 
-- [archive/donor-status-token-roles-badge-alert-backport.md](archive/donor-status-token-roles-badge-alert-backport.md) — the status-chip tier the quiet pills build on
-- [archive/tokens-brand-font-seam-and-split-guard.md](archive/tokens-brand-font-seam-and-split-guard.md) — the donor-layer / brand-file split this ADR extends
-- [mistra-package-install-cutover.md](mistra-package-install-cutover.md) — mistra's vendored copies are one of the adoption blockers
-- [archetype-convergence.md](archetype-convergence.md) — delivered roadmap whose token split made a donor-owned layer possible
+- [archive/donor-status-token-roles-badge-alert-backport.md](../archive/donor-status-token-roles-badge-alert-backport.md) — the status-chip tier the quiet pills build on
+- [archive/tokens-brand-font-seam-and-split-guard.md](../archive/tokens-brand-font-seam-and-split-guard.md) — the donor-layer / brand-file split this ADR extends
+- [mistra-package-install-cutover.md](../mistra-package-install-cutover.md) — mistra's vendored copies are one of the adoption blockers
+- [archetype-convergence.md](../archetype-convergence.md) — delivered roadmap whose token split made a donor-owned layer possible
 - ADR-0004 — appearance locality: global or fixed in the component; per-call-site only when derived
