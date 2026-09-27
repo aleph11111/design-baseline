@@ -31,7 +31,7 @@ ADR-0007 section 7: an empty state offers exactly one next-step action, and `src
 
 ## Related
 
-- [wip/house-look-adr.md](wip/house-look-adr.md) — the decision ticket that filed this slice
+- [wip/house-look-adr.md](archive/house-look-adr.md) — the decision ticket that filed this slice
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles
 - ADR-0004 — appearance locality: global or fixed in the component
 - [archive/list-with-detail-shell-presentation-split.md](archive/list-with-detail-shell-presentation-split.md)
