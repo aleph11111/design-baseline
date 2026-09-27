@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: '2026-09-27'
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "design decision with tradeoffs across three consumers — which roles become fixed vs brand-overridable is judgment, not pattern-following"
