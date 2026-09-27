@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: '2026-09-27'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "restyle of an existing prop on StatTile against a decided ADR"
