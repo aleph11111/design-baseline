@@ -32,8 +32,7 @@ describe("DetailOverviewShell — container model is single (unified)", () => {
     // the single container model: a bounded card holds everything
     const frame = container.firstElementChild as HTMLElement;
     expect(frame.className).toContain("rounded-lg");
-    expect(frame.className).toContain("border");
-    expect(frame.className).toContain("bg-card");
+    expect(frame.className).toContain("bg-surface-raised");
     // every slot still renders inside that single frame
     expect(frame.textContent).toContain("summary-slot");
     expect(frame.textContent).toContain("content-slot");

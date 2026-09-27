@@ -6,7 +6,7 @@ import { SurfaceFrame } from "./SurfaceFrame";
 // The canonical frame chrome — House style B: flat bounded card, no shadow
 // (the detail-overview `shadow-sm` it used to carry was copy drift, retired
 // with the extraction).
-const CHROME = ["overflow-hidden", "rounded-lg", "border", "bg-card"];
+const CHROME = ["overflow-hidden", "rounded-lg", "bg-surface-raised"];
 
 afterEach(() => {
   cleanup();
@@ -23,6 +23,8 @@ describe("SurfaceFrame — canonical bounded surface", () => {
       expect(frame.className).toContain(cls);
     }
     expect(frame.className).not.toContain("shadow-sm");
+    // Tone, not a border, separates the raised frame from the canvas (ADR-0007 §3).
+    expect(frame.className).not.toMatch(/\bborder\b/);
     expect(frame.className).not.toContain("text-card-foreground");
   });
 

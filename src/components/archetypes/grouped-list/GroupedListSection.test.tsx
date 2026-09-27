@@ -54,7 +54,7 @@ describe("GroupedListSection — chromeless composition through SurfaceFrame", (
     // once, on the SectionCard.
     const section = container.querySelector("section") as HTMLElement;
     expect(section).not.toBeNull();
-    for (const cls of ["rounded-lg", "border", "bg-card"]) {
+    for (const cls of ["rounded-lg", "bg-surface-raised"]) {
       expect(section.className).toContain(cls);
     }
 
@@ -65,14 +65,14 @@ describe("GroupedListSection — chromeless composition through SurfaceFrame", (
     expect(header).not.toBeNull();
     const frameRoot = header!.parentElement as HTMLElement;
     expect(frameRoot.className).not.toContain("rounded-lg");
-    expect(frameRoot.className).not.toContain("bg-card");
+    expect(frameRoot.className).not.toContain("bg-surface-raised");
     expect(frameRoot.className).toContain("flex");
     expect(frameRoot.textContent).toContain("Ada Lovelace");
 
     // Exactly one bounded card in the whole composition: the section's.
     const boundedCards = Array.from(
-      container.querySelectorAll<HTMLElement>("[class*='bg-card']"),
-    ).filter((el) => el.className.includes("rounded-lg border"));
+      container.querySelectorAll<HTMLElement>("[class*='bg-surface-raised']"),
+    ).filter((el) => el.className.includes("rounded-lg"));
     expect(boundedCards).toHaveLength(1);
   });
 });

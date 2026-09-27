@@ -14,7 +14,7 @@ function sectionOf(container: HTMLElement): HTMLElement {
 }
 
 describe("SectionCard — chrome=true (default)", () => {
-  it("renders the bordered, rounded card surface", () => {
+  it("renders the raised, rounded card surface without a border", () => {
     const { container } = render(
       <SectionCard title="Details">
         <p>body</p>
@@ -23,8 +23,23 @@ describe("SectionCard — chrome=true (default)", () => {
 
     const section = sectionOf(container);
     expect(section.className).toContain("rounded-lg");
-    expect(section.className).toContain("border");
-    expect(section.className).toContain("bg-card");
+    expect(section.className).not.toMatch(/\bborder\b/);
+    expect(section.className).toContain("bg-surface-raised");
+  });
+
+  it("drops its fill when nested in another raised surface (no card-in-card)", () => {
+    const { container } = render(
+      <SectionCard title="Outer">
+        <SectionCard title="Inner">
+          <p>body</p>
+        </SectionCard>
+      </SectionCard>,
+    );
+
+    const [outer, inner] = Array.from(container.querySelectorAll("section"));
+    expect(outer.className).toContain("bg-surface-raised");
+    expect(inner.className).not.toContain("bg-surface-raised");
+    expect(inner.className).not.toMatch(/\bborder\b/);
   });
 
   it("renders a ruled title bar when title is set", () => {
