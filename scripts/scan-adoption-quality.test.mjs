@@ -413,6 +413,17 @@ describe("scanSource", () => {
     ]);
   });
 
+  it("applies the live detail-section-wraps-shell-client signal: unstyled on the wrapped *Client clears, an unwrapped one still trips (hk-crm false-positive fix)", () => {
+    const compiled = compileSignals(signalsDoc.adoptionQuality.filter((s) => s.id === "detail-section-wraps-shell-client"));
+    const wrap = (client) => `import { DetailOverviewShell } from '@components/DetailOverviewShell';\n<DetailSection title="Tickets">\n  ${client}\n</DetailSection>\n`;
+    // hk-crm projects/[id]/page.tsx shape: the sanctioned escape hatch is present on the tag itself — cleared.
+    expect(scanSource("a.tsx", wrap('<ProjectTicketsClient projectId={id} unstyled />'), compiled)).toEqual([null]);
+    // Same shape without `unstyled` — still flagged.
+    expect(scanSource("b.tsx", wrap('<ProjectTicketsClient projectId={id} />'), compiled)).toEqual([
+      { file: "b.tsx", line: 2 },
+    ]);
+  });
+
   it("skips an uncompiled signal", () => {
     const compiled = compileSignals([sig("bad", "", "(")]);
     expect(scanSource("a.tsx", "anything", compiled)).toEqual([null]);
