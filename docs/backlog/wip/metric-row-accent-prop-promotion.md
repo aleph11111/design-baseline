@@ -29,5 +29,5 @@ hk-crm keeps a local `src/components/layout/MetricList.tsx` instead of the packa
 
 ## Related
 
-- [archive/test-gap-metric-list-no-tests.md](archive/test-gap-metric-list-no-tests.md)
-- [ADR-0007](../adr/0007-fleet-house-look-fixed-vs-brand-roles.md) — `--primary` is the one brand accent
+- [archive/test-gap-metric-list-no-tests.md](../archive/test-gap-metric-list-no-tests.md)
+- [ADR-0007](../../adr/0007-fleet-house-look-fixed-vs-brand-roles.md) — `--primary` is the one brand accent
