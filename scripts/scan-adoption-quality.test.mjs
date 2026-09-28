@@ -276,10 +276,13 @@ describe("scan-adoption-quality CLI smoke", () => {
       expect(brand["brand-tokens-retired-role"].hits).toEqual([{ file: "app/tokens.css", line: 2 }]);
     });
 
-    it("exits 0 on red hits in text mode — a radar, not a ratchet", () => {
-      const { stdout, status } = run(dir, "--signals", join(dir, "signals.json"), "--targets", "app");
+    it("walks the default src/ target in text mode and exits 0 on red hits — a radar, not a ratchet", () => {
+      // No --targets: only the src/ decoy is walked, never app/.
+      const { stdout, status } = run(dir, "--signals", join(dir, "signals.json"));
       expect(status).toBe(0); // red findings present; a scan is still a clean hand-off
-      expect(stdout).toMatch(/^scan:adoption-quality — .*file\(s\) scanned/);
+      expect(stdout).toMatch(/^scan:adoption-quality — .*: 1 file\(s\) scanned, 5 signal\(s\), 1 with 1 hit\(s\)\n/);
+      expect(stdout).toContain(`  red    ${"detail-tabbed-primary-nav".padEnd(40)}  1   src/decoy.tsx:2\n`);
+      expect(stdout).not.toContain("app/");
     });
 
     it("exits 2 on an unresolvable signals file", () => {
@@ -405,6 +408,9 @@ describe("scanSource", () => {
     expect(scanSource("b.tsx", early, compiled)).toEqual([{ file: "b.tsx", line: 1 }]);
     expect(scanSource("c.tsx", 'import { Bar } from "recharts";\n<Bar fill="var(--color-chart-2)" />\n', compiled)).toEqual([null]);
     expect(scanSource("d.tsx", '<div style={{ color: "#ffffff" }} />\n', compiled)).toEqual([null]);
+    expect(scanSource("e.tsx", 'import { ResponsiveBar } from "@nivo/bar";\n<ResponsiveBar colors={["#111111"]} />\n', compiled)).toEqual([
+      { file: "e.tsx", line: 2 },
+    ]);
   });
 
   it("skips an uncompiled signal", () => {
