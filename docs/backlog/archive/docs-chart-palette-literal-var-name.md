@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: '2026-09-28'
-status: ready
+status: done
 value: normal
 gate:
   score: 5
@@ -28,7 +28,7 @@ from the build until the reference was rewritten as literal
 
 ## What to do
 
-- [ ] Add a consumer-guidance note to `docs/PACKAGE.md` (and/or ADR-0007 §8)
+- [x] Add a consumer-guidance note to `docs/PACKAGE.md` (and/or ADR-0007 §8)
       stating that `--color-chart-1` … `--color-chart-6` must be referenced
       as literal strings (`var(--color-chart-2)`), never built dynamically
       (`` var(--color-chart-${n}) ``), because Tailwind 4 only emits theme
@@ -41,8 +41,10 @@ from the build until the reference was rewritten as literal
   templated/dynamic reference silently drops the variable from the
   Tailwind 4 build.
 
+*(Shipped with `gallery-nested-dark-mode-token-resolution` in v0.2.15. `docs/PACKAGE.md` measured caveats has the literal example. Because that ticket makes the layer `@theme inline static`, a templated `var()` now resolves too, and the note says so; a templated utility class still does not compile.)*
+
 ## Related
 
-- [archive/house-look-chart-palette.md](archive/house-look-chart-palette.md)
+- [archive/house-look-chart-palette.md](house-look-chart-palette.md)
 - ADR-0007 — the fleet house look: donor-fixed roles vs brand-overridable roles (§8, chart palette — fixed)
 - [controlling-app docs/backlog/adopt-house-look-v0-2-11.md] — the v0.2.11 adoption where this gap was found (2026-09-28, cross-repo)
