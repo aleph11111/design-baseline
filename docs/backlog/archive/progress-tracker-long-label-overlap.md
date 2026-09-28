@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-09-28
-status: needs-enrichment
+status: done
 value: normal
 gate:
   score: 4
