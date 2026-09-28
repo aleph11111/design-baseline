@@ -9,8 +9,8 @@ gate:
     - open_question: "whether @theme inline actually fixes nested .dark resolution is unverified — needs investigation before a human commits to the approach"
   graded_at: '2026-09-27T00:00:00Z'
 value: normal
-model: opus
-model_reason: "the fix depends on an unverified Tailwind-4 mechanism (@theme inline) and, either way, on designing a reusable dual-theme preview affordance — real investigation and judgment, not mechanical"
+model: sonnet
+model_reason: "the fix mechanism is now verified (@theme inline static) — this is a small, well-scoped mechanical change plus a demo cleanup, not open investigation"
 ---
 
 # Gallery can't preview a nested dark-mode scope without hand-reading raw token sources
@@ -21,14 +21,16 @@ The gallery already has a whole-app light/dark toggle (`ThemeToggle` in `gallery
 
 ## What to do
 
-- [ ] Investigate whether switching the relevant `@theme` block(s) in `src/styles/tokens.layer.css` to `@theme inline` (Tailwind 4's documented mechanism for theme values that reference other CSS variables which change under a scope/media-query, e.g. `.dark`) makes a nested `.dark` wrapper correctly resolve `--color-*`-derived utility classes like `bg-chart-2` — confirm with a manual before/after check (a nested `.dark` div using `bg-chart-2` next to a light one, inspecting computed styles) before committing to the change repo-wide, since it changes how every `@theme` role compiles.
-- [ ] If `@theme inline` resolves it: drop the hand-rolled `--db-*`-source-reading workaround in `ChartPalette` (`analytics-dashboard-demo.tsx:122-140`) in favor of the real utility classes for both rows, and extract the light+dark side-by-side swatch-row pattern into a small reusable gallery/demo helper (it's already needed twice — the chart palette today, and any future demo wanting the same simultaneous comparison) instead of each demo hand-rolling its own `dark` boolean prop and duplicated markup.
-- [ ] If `@theme inline` does NOT resolve it (a real possibility — this needs verifying, not assuming): document the actual constraint next to the `@theme` block in `tokens.layer.css` (so the next demo author doesn't waste time assuming nesting works) and keep the raw-source-reading pattern, but still extract it into the shared helper from the previous bullet so it's written once, not per-demo.
+- [ ] Change the `@theme` block in `src/styles/tokens.layer.css` (line ~55) to `@theme inline static`, with a comment explaining why: `inline` gets per-element resolution (so a nested `.dark` scope works), and `static` keeps `--color-*` emitted at `:root` for chart libraries that read the CSS var directly (ADR-0007 §8).
+- [ ] Verify with `npm run gallery:build` and a manual check that a nested `.dark`-scoped `bg-chart-2` element resolves to the dark-mode hue (computed style).
+- [ ] Drop `ChartPalette`'s raw-source workaround in `src/examples/analytics-dashboard-demo.tsx` (lines ~108-140) in favor of the real `bg-chart-N` utility classes for both the light and dark rows.
+
+Note: `var(--color-*)` readers (e.g. a chart library reading the CSS var directly rather than via a Tailwind utility class) still resolve at `:root` — a nested `.dark` scope won't re-resolve for them, only Tailwind-compiled utility classes get per-element resolution. A whole-app theme toggle (the existing `ThemeToggle`) is unaffected either way. No shared dual-theme-swatch helper is being extracted — `ChartPalette` is still the only user, so that generalization is YAGNI until a second consumer shows up.
 
 ## Acceptance
 
-- A nested `.dark`-scoped element inside a light-mode gallery page renders `bg-chart-2` (or another `@theme`-derived role) with the dark-mode hue, verified by inspecting computed styles — or, if that's confirmed infeasible, a code comment states so at the `@theme` block.
-- `ChartPalette`'s dark row either uses the real `bg-chart-N` utility classes (if the fix works) or is rewritten to call the new shared dual-theme-swatch helper (either way, no visual regression in the analytics-dashboard demo).
+- A nested `.dark`-scoped element inside a light-mode gallery page renders `bg-chart-2` with the dark-mode hue, verified by inspecting computed styles.
+- `ChartPalette`'s light and dark rows both use the real `bg-chart-N` utility classes, with no visual regression in the analytics-dashboard demo.
 - `npm test` and `npm run gallery:build` both pass.
 
 ## Related
@@ -38,6 +40,13 @@ The gallery already has a whole-app light/dark toggle (`ThemeToggle` in `gallery
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles (§8, chart colours; §3, surface elevation — also `--db-*`-sourced and subject to the same nested-scope question)
 - `docs/RULES.md` — "every documented variant axis gets a living demo" (the rule this gap is blocking for any future dual-theme demo)
 
-## Open question
+## Decision
 
-Does Tailwind 4's `@theme inline` actually make a nested `.dark` wrapper resolve `--color-*`-derived utility classes correctly, or does the constraint run deeper (e.g. Tailwind still only ever emits one utility-class rule regardless of `inline`, and the fix would have to be structural rather than a one-line directive change)? Recommended: try `@theme inline` first since it's the mechanism Tailwind's own docs name for exactly this "value depends on a runtime-overridable variable" case, and it's a small, reversible change to verify — but this has not been tested against this repo's actual token layer, so it's not asserted as a plan, only as the first thing to try.
+**Question:** Does Tailwind 4's `@theme inline` (or a variant of it) make a nested `.dark` wrapper resolve `--color-*`-derived utility classes correctly, and without breaking the `:root`-level `--color-*` contract chart libraries rely on?
+
+**Answer:** Spike answered — verified 2026-09-28 by compiling with this repo's `@tailwindcss/node`:
+- `@theme` (today): utility emits `background-color: var(--color-chart-2)`; `--color-chart-2` resolves at `:root`, so a nested `.dark` is ignored.
+- `@theme inline`: utility emits `var(--db-chart-2)` (resolves per element; nested `.dark` works) BUT `--color-chart-2` is no longer emitted at `:root` — breaks the ADR-0007 §8 contract that chart libraries read `var(--color-chart-N)` (`analytics-dashboard-demo.tsx:61` uses it today; controlling-app adoption will too).
+- `@theme inline static`: both — the utility inlines the source var AND `--color-*` is still emitted at `:root`. This is the fix.
+
+**Date:** 2026-09-28
