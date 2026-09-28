@@ -31,5 +31,5 @@ Measured in hk-crm at 1440px on design-baseline v0.2.20. The document grows to 2
 
 ## Related
 
-- [archive/detail-overview-rail-sticky-ineffective.md](archive/detail-overview-rail-sticky-ineffective.md)
-- [archive/refactor-matrix-grid-cell-and-head-extraction.md](archive/refactor-matrix-grid-cell-and-head-extraction.md)
+- [archive/detail-overview-rail-sticky-ineffective.md](../archive/detail-overview-rail-sticky-ineffective.md)
+- [archive/refactor-matrix-grid-cell-and-head-extraction.md](../archive/refactor-matrix-grid-cell-and-head-extraction.md)
