@@ -31,4 +31,11 @@ describe("ProgressTracker", () => {
     expect(screen.getByText("Packed").closest("li")?.textContent).toMatch(/current/i);
     expect(screen.getByText("Shipped").closest("li")?.textContent).toMatch(/upcoming/i);
   });
+
+  it("wraps a label with no break point inside its column", () => {
+    render(<ProgressTracker steps={steps} />);
+    const label = screen.getByText("Packed");
+    expect(label.className).toContain("[overflow-wrap:anywhere]");
+    expect(label.className).toContain("hyphens-auto");
+  });
 });

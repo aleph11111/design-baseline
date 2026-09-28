@@ -13,7 +13,10 @@
  *   - done    : filled `bg-primary` dot, `bg-primary` connector
  *   - current : `bg-primary` dot ring (hollow center), `border` connector ahead
  *   - pending : `bg-background` dot w/ `border-input`, `border` connector
- *   label: `text-sm font-medium` (pending → `text-muted-foreground`)
+ *   label: `text-sm font-medium` (pending → `text-muted-foreground`); a label
+ *          with no break point wraps inside its column instead of painting
+ *          over the next one. `hyphens-auto` only hyphenates when an
+ *          ancestor sets `lang`, so that stays the consumer's call.
  *   meta : `text-xs text-muted-foreground`
  *
  * Reads brand color automatically via `--primary`, so it re-skins with the rest
@@ -75,7 +78,7 @@ export function ProgressTracker({
             <div className="pr-4 pt-2.5">
               <div
                 className={cn(
-                  "text-sm font-medium leading-tight",
+                  "text-sm font-medium leading-tight [overflow-wrap:anywhere] hyphens-auto",
                   s.state === "pending" && "text-muted-foreground",
                 )}
               >

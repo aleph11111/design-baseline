@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-09-28
-status: needs-enrichment
+status: done
 value: normal
 gate:
   score: 4
@@ -24,9 +24,11 @@ Measured in hk-crm by patching the DOM:
 
 ## What to do
 
-- [ ] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
-- [ ] Give the `ProgressTracker` label a wrap rule so a long label never paints outside its column. Use `[overflow-wrap:anywhere]` as the minimum, plus `hyphens-auto` so a consumer that sets `lang` gets proper hyphenation. Add a demo step with a long single-word label.
-- [ ] Bump the version and cut the tag. hk-crm needs no local change beyond the pin; it tracks the consumer side in `deal-detail-layout-defects` (archived).
+- [x] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
+- [x] Give the `ProgressTracker` label a wrap rule so a long label never paints outside its column. Use `[overflow-wrap:anywhere]` as the minimum, plus `hyphens-auto` so a consumer that sets `lang` gets proper hyphenation. Add a demo step with a long single-word label.
+- [x] Bump the version and cut the tag. hk-crm needs no local change beyond the pin; it tracks the consumer side in `deal-detail-layout-defects` (archived).
+
+*(v0.2.22. Only caller is the detail-overview re-export and its demo, so the fix sits in `ProgressTracker` itself: the label gets `[overflow-wrap:anywhere] hyphens-auto`, and the demo's activity grows to 7 steps with "Consolidation/Customs". Open question settled as wrap (truncation hides stage names, scrolling hides stages). Measured on the built gallery (`/#/a/detail-overview`, headless Chrome): at 1280px (51px label boxes) and 1440px (74px), 0 of 7 labels have `scrollWidth` > `clientWidth`. Short labels stay on one line at 1440px.)*
 
 ## Acceptance
 
@@ -35,7 +37,7 @@ Measured in hk-crm by patching the DOM:
 
 ## Related
 
-- [archive/progress-stepper-aria-current.md](archive/progress-stepper-aria-current.md)
+- [archive/progress-stepper-aria-current.md](../archive/progress-stepper-aria-current.md)
 
 ## Open question
 
