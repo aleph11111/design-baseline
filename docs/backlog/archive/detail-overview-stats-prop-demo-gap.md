@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-27'
-status: ready
+status: done
 gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
@@ -20,8 +20,8 @@ model_reason: an established pattern to follow (the same fixture already renders
 
 ## What to do
 
-- [ ] Add a second demo instance in `src/examples/detail-overview-demo.tsx` exercising `layout="vertical"` with the `stats` data prop populated (2-4 `StatItem`s), since the contract recommends `stats` for the vertical layout and `MetricList` for the rail (avoiding the duplication the doc calls out) — the existing Mode A section (vertical, no rail) is the natural place to add it rather than a third top-level fixture.
-- [ ] Give at least one `StatItem` a `hint` (context-line) value, matching the `StatTile` `hint` prop already shipped in #310 (house-look stat-tile context line), so the demo also shows that axis.
+- [x] Add a second demo instance in `src/examples/detail-overview-demo.tsx` exercising `layout="vertical"` with the `stats` data prop populated (2-4 `StatItem`s), since the contract recommends `stats` for the vertical layout and `MetricList` for the rail (avoiding the duplication the doc calls out) — the existing Mode A section (vertical, no rail) is the natural place to add it rather than a third top-level fixture.
+- [x] Give at least one `StatItem` a `hint` (context-line) value, matching the `StatTile` `hint` prop already shipped in #310 (house-look stat-tile context line), so the demo also shows that axis.
 
 ## Acceptance
 
@@ -30,6 +30,10 @@ model_reason: an established pattern to follow (the same fixture already renders
 
 ## Related
 
-- [archive/house-look-stat-tile-context-line.md](archive/house-look-stat-tile-context-line.md) — #310, the slice that added `StatTile`'s hint/context-line prop this demo now exercises
-- [archive/test-gap-detail-overview-shell-no-tests.md](archive/test-gap-detail-overview-shell-no-tests.md) — sibling test-coverage gap on the same shell
+- [archive/house-look-stat-tile-context-line.md](../archive/house-look-stat-tile-context-line.md) — #310, the slice that added `StatTile`'s hint/context-line prop this demo now exercises
+- [archive/test-gap-detail-overview-shell-no-tests.md](../archive/test-gap-detail-overview-shell-no-tests.md) — sibling test-coverage gap on the same shell
 - `docs/archetypes/detail-overview.md` — slot 3 (`stats`) contract
+
+## Outcome
+
+Added a vertical-layout `DetailOverviewShell` instance to `src/examples/detail-overview-demo.tsx` inside the Mode A section (after its collapsible section) with a 3-cell `stats` strip; Revenue and Gross profit carry `hint` context lines. Verified: `npx tsc --noEmit`, `npm test` (478 passed), `npm run gallery:build` (instance present in the built detail-overview chunk).
