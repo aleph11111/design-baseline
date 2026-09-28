@@ -27,6 +27,15 @@ function renderShell(extra?: { toaster?: boolean }) {
   );
 }
 
+describe("AppShell content column", () => {
+  it("lets the column shrink (min-w-0) so wide content scrolls inside <main>", () => {
+    const { container } = renderShell();
+    const column = container.querySelector("main")!.parentElement!;
+    expect(column.className).toContain("min-w-0");
+    expect(column.className).toContain("flex-1");
+  });
+});
+
 describe("AppShell toaster", () => {
   it("renders exactly one Sonner toaster by default", () => {
     const { baseElement } = renderShell();

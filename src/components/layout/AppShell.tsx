@@ -38,7 +38,10 @@ export function AppShell({
       <SidebarProvider defaultOpen={defaultSidebarOpen}>
         <div className="h-svh flex w-full">
           {sidebar}
-          <div className="flex-1 flex flex-col">
+          {/* min-w-0: a flex item won't shrink below its content by default, so
+              without it a wide table pushes <main> past the viewport and the
+              whole page scrolls instead of the table's own overflow box. */}
+          <div className="min-w-0 flex-1 flex flex-col">
             {header}
             {/* `<main>` is the CANONICAL owner of the page inset (p-4 md:p-12
                 xl:p-14) and of the centred content column (--db-content-max).
