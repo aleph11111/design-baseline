@@ -2,7 +2,7 @@
 key: D2
 slug: settings-table
 kind: page
-version: 2.1
+version: 2.2
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -11,6 +11,12 @@ status: locked
 
 # Archetype D2 — Settings table
 
+> **v2.2 (2026-09-28) — second responsive tier.** `hideBelow` generalizes
+> `hideBelowMd` to two tiers, keyed by column role (Layer 6). Record provenance
+> takes `2xl` so the identifier doesn't wrap on a 1440px desktop; other context
+> keeps `md`. `hideBelowMd` stays as the alias for `md`. Additive; no breaking
+> change.
+>
 > **v2.1 (2026-09-24) — promoted from mistra's fork.** New keyed column rule:
 > `hideBelowMd` (the narrow-viewport column subset) is keyed to the column's
 > role — see Layer 6. The Layer 4 result count is now shell-rendered from
@@ -152,14 +158,15 @@ The page header no longer floats above the shell as a separate page-header primi
   | **Everything else** (names, descriptions, free text) | **`align="left"`** (default). |
 
   Two engineers holding the same `columns` config derive the same alignment. It is a per-column *data* prop (it describes the value the column holds), not a choice of the shell's own appearance.
-- **Narrow-viewport column subset** — `hideBelowMd` on a column hides it below the `md` breakpoint (table presentation only). **Choose by the column's role** (what the row's reader needs to pick a row on a phone):
+- **Responsive column subset** — `hideBelow` on a column hides it below a breakpoint, `md` or `2xl` (table presentation only; `hideBelowMd` is the deprecated alias for `md`). **Choose by the column's role** (what the row's reader needs to pick a row at that width):
 
-  | Column role | `hideBelowMd` |
+  | Column role | `hideBelow` |
   |---|---|
-  | **Identifier** | never — the shell ignores the flag on the identifier column; it carries the click contract. |
-  | **Row-state token** (status / priority / stage — what the reader triages by) | off. |
-  | **The one figure the list is ranked or scanned by** (due date, amount, score — at most one per table) | off. |
-  | **Context** — relational (company, project, owner), descriptive (comment, topics, email), or record metadata (created / updated, size, duration) | **on**. |
+  | **Identifier** | never — the shell ignores the tier on the identifier column; it carries the click contract. |
+  | **Row-state token** (status / priority / stage — what the reader triages by) | never. |
+  | **The one figure the list is ranked or scanned by** (due date, amount, score — at most one per table) | never. |
+  | **Record provenance** — when and how the record came to be (created / updated / recorded timestamps, the pipeline or model that produced it) | **`2xl`**: it drops out below 1536px so the identifier keeps its width on a 1440px desktop. |
+  | **Other context** — relational (company, project, owner), descriptive (comment, topics, email), or measures (size, duration) | **`md`**. |
 
   Two engineers holding the same `columns` config derive the same subset. Like `align`, it is a per-column *data* prop (it describes the column's role), not a choice of the shell's own appearance.
 - **Primary identifier cell** — rendered in the **brand/primary color with a hover underline**, with a pointer cursor. Clicking it calls `onRowEdit(row)` — the consumer opens the edit dialog. This is D2's core click contract: **row click → edit dialog, never a detail route or a detail panel**.

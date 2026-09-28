@@ -252,6 +252,24 @@ describe("ListWithDetailShell", () => {
     expect(screen.getByText("Name").className).not.toContain("hidden");
     expect(screen.getByText("Ada Lovelace").className).not.toContain("hidden");
   });
+
+  it('hideBelow="2xl" hides a record-provenance column below 2xl, but never the identifier', () => {
+    type Wide = Row & { created: string };
+    const wideColumns: ListColumn<Wide>[] = [
+      { key: "name", header: "Name", cell: (r) => r.name, isIdentifier: true, hideBelow: "2xl" },
+      { key: "created", header: "Created", cell: (r) => r.created, hideBelow: "2xl" },
+    ];
+    render(
+      <ListWithDetailShell
+        rows={[{ ...rows[0]!, created: "2026-01-01" }]}
+        columns={wideColumns}
+        getRowId={(r) => r.id}
+      />,
+    );
+    expect(screen.getByText("Created").className).toContain("hidden 2xl:table-cell");
+    expect(screen.getByText("2026-01-01").className).toContain("hidden 2xl:table-cell");
+    expect(screen.getByText("Name").className).not.toContain("hidden");
+  });
 });
 
 // ---------------------------------------------------------------------------

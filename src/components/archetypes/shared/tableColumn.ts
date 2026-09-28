@@ -44,14 +44,18 @@ export type TableColumn<Row> = {
    */
   identifierMono?: boolean;
   /**
-   * Hide the column below the `md` breakpoint (table bodies only). NOT a free
-   * look choice: the shared contract decision rule (Layer 6, both
-   * list-with-detail and settings-table) keys it to the column's role — the
-   * identifier, row-state tokens (status / priority / stage), and the one
-   * figure the list is ranked by stay; every context column (relational,
-   * descriptive, record metadata) hides. Ignored on the identifier column,
-   * which never hides.
+   * Hide the column below a breakpoint (table bodies only): `"md"` (768px) or
+   * `"2xl"` (1536px). NOT a free look choice: the shared contract decision rule
+   * (Layer 6, both list-with-detail and settings-table) keys it to the
+   * column's role. The identifier, row-state tokens (status / priority /
+   * stage) and the one figure the list is ranked by never hide. Record
+   * provenance (created / updated / recorded timestamps, the pipeline or model
+   * that produced the record) takes `"2xl"`. Every other context column
+   * (relational, descriptive, measures) takes `"md"`. Ignored on the
+   * identifier column.
    */
+  hideBelow?: "md" | "2xl";
+  /** @deprecated Use `hideBelow: "md"`. Kept as an alias; `hideBelow` wins when both are set. */
   hideBelowMd?: boolean;
 };
 
@@ -65,16 +69,22 @@ export function alignClass(align: TableColumn<unknown>["align"]): string {
 }
 
 /**
- * The narrow-viewport visibility class for one column's head and cells.
+ * The responsive visibility class for one column's head and cells.
  * The identifier column never hides — it carries the row's click contract.
+ * Class strings are spelled out so Tailwind emits both tiers.
  */
-export function hideBelowMdClass(
-  col: Pick<TableColumn<unknown>, "hideBelowMd" | "isIdentifier">,
+export function hideBelowClass(
+  col: Pick<TableColumn<unknown>, "hideBelow" | "hideBelowMd" | "isIdentifier">,
 ): string | undefined {
-  return col.hideBelowMd === true && col.isIdentifier !== true
-    ? "hidden md:table-cell"
-    : undefined;
+  if (col.isIdentifier === true) return undefined;
+  const tier = col.hideBelow ?? (col.hideBelowMd === true ? "md" : undefined);
+  if (tier === "md") return "hidden md:table-cell";
+  if (tier === "2xl") return "hidden 2xl:table-cell";
+  return undefined;
 }
+
+/** @deprecated Use `hideBelowClass` (same function; also handles `hideBelow`). */
+export const hideBelowMdClass = hideBelowClass;
 
 /**
  * Identifier-cell className + interactivity props for one table cell.

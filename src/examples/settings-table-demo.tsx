@@ -12,7 +12,7 @@
  *   - Empty state when filter produces no rows
  *   - Bulk select demonstration
  *   - Result-count line (`rowLabel`, singular/plural function form)
- *   - Narrow-viewport column subset (`hideBelowMd` on the context columns)
+ *   - Narrow-viewport column subset (`hideBelow` on the context columns)
  *   - Row-derived action gate (`disabled` as a function of the row)
  */
 
@@ -74,7 +74,7 @@ const COLUMNS: SettingsColumn<Recipe>[] = [
     key: "cuisine",
     header: "Cuisine",
     // Layer 6 role rule: descriptive context → drops out below `md`.
-    hideBelowMd: true,
+    hideBelow: "md",
     cell: (r) => CUISINE_LABELS[r.cuisine],
   },
   {
@@ -88,7 +88,7 @@ const COLUMNS: SettingsColumn<Recipe>[] = [
     header: "Servings",
     align: "right",
     // Record metadata → drops out below `md`; prep time is the ranked figure.
-    hideBelowMd: true,
+    hideBelow: "md",
     cell: (r) => r.servings,
   },
 ];
