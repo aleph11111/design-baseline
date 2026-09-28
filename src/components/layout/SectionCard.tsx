@@ -112,7 +112,8 @@ export function SectionCard({
   return (
     <section
       className={cn(
-        "overflow-hidden rounded-lg",
+        // relative: contain absolute descendants (sr-only) so the clip holds.
+        "relative overflow-hidden rounded-lg",
         tone === "muted"
           ? "bg-muted/40"
           : !nested && "bg-surface-raised text-card-foreground",

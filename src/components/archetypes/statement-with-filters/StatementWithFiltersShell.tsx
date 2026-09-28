@@ -66,7 +66,7 @@ export function StatementWithFiltersShell({
       title={title}
       headerActions={headerActions ?? actions}
     >
-      <div className="overflow-x-auto p-4">{children}</div>
+      <div className="relative overflow-x-auto p-4">{children}</div>
     </SurfaceFrame>
   );
 }

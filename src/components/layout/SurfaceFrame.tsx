@@ -107,7 +107,10 @@ export function SurfaceFrame({
     <div
       ref={ref}
       className={cn(
-        "rounded-lg",
+        // relative: the frame is the containing block of absolute descendants
+        // (sr-only labels), so its overflow clips them instead of them
+        // widening the page.
+        "relative rounded-lg",
         !nested && "bg-surface-raised",
         overflow === "auto" ? "overflow-x-auto" : "overflow-clip",
         className,

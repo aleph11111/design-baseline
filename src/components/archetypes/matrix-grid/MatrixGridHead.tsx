@@ -32,7 +32,9 @@ export function MatrixGridHead({ columns, rowHeaderLabel }: MatrixGridHeadProps)
         <tr className="bg-muted/50 border-b border-border">
           <th
             className={cn(
-              "sticky left-0 z-10 bg-muted/50 border-r border-border min-w-[180px]",
+              // Opaque: the row's muted tint mixed onto the raised surface, so
+              // headers scrolled underneath don't show through the pinned cell.
+              "sticky left-0 z-10 bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-surface-raised))] border-r border-border min-w-[180px]",
               "px-4 py-2",
             )}
           />
@@ -53,7 +55,7 @@ export function MatrixGridHead({ columns, rowHeaderLabel }: MatrixGridHeadProps)
       <tr className="bg-muted/30 border-b border-border">
         <th
           className={cn(
-            "sticky left-0 z-10 bg-muted/30 border-r border-border",
+            "sticky left-0 z-10 bg-[color-mix(in_oklab,var(--color-muted)_30%,var(--color-surface-raised))] border-r border-border",
             "px-4 py-2 text-left font-medium text-muted-foreground whitespace-nowrap",
           )}
         >

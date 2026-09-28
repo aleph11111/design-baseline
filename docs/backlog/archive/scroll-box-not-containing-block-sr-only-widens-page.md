@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-09-28
-status: ready
+status: done
 value: high
 gate:
   score: 5
@@ -20,9 +20,11 @@ Measured in hk-crm at 1440px on design-baseline v0.2.20. The document grows to 2
 
 ## What to do
 
-- [ ] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
-- [ ] Add `relative` to every horizontal scroll container in `src/components/`. That makes each one the containing block of its absolute descendants, so its overflow clips them. Covers `SurfaceFrame`'s `overflow="auto"` mode, `BoardShell` (both branches), `CalendarShell`, `ListWithDetailShell`, `SettingsTableShell` and `StatementWithFiltersShell`.
-- [ ] Add a regression test: a `SurfaceFrame overflow="auto"` with a wide child holding an `sr-only` span, asserting the frame carries `relative`.
+- [x] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
+- [x] Add `relative` to every horizontal scroll container in `src/components/`. That makes each one the containing block of its absolute descendants, so its overflow clips them. Covers `SurfaceFrame`'s `overflow="auto"` mode, `BoardShell` (both branches), `CalendarShell`, `ListWithDetailShell`, `SettingsTableShell` and `StatementWithFiltersShell`.
+- [x] Add a regression test: a `SurfaceFrame overflow="auto"` with a wide child holding an `sr-only` span, asserting the frame carries `relative`.
+
+*(v0.2.21. `relative` added at every shared scroll or clip box: the `SurfaceFrame` root (both overflow modes, since `overflow-clip` leaks the same way), `SectionCard`, `CalendarShell`, `SettingsTableShell`, `StatementWithFiltersShell`, `BoardShell` (both branches), the `ListWithDetailShell` body, and the `SectionNav` main. `ui/table` already had it. Repro in headless Chromium at 1440px (AppShell markup, 3000px box with an sr-only label at its right edge): the document is 3272px without `relative` and 1440px with it. A sweep of all 41 built-gallery pages at 1440 and 800px shows none wider than the viewport.)*
 
 ## Acceptance
 
@@ -31,5 +33,5 @@ Measured in hk-crm at 1440px on design-baseline v0.2.20. The document grows to 2
 
 ## Related
 
-- [archive/detail-overview-rail-sticky-ineffective.md](archive/detail-overview-rail-sticky-ineffective.md)
-- [archive/refactor-matrix-grid-cell-and-head-extraction.md](archive/refactor-matrix-grid-cell-and-head-extraction.md)
+- [archive/detail-overview-rail-sticky-ineffective.md](../archive/detail-overview-rail-sticky-ineffective.md)
+- [archive/refactor-matrix-grid-cell-and-head-extraction.md](../archive/refactor-matrix-grid-cell-and-head-extraction.md)

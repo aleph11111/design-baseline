@@ -214,3 +214,21 @@ describe("MatrixGridShell per-cell tooltips", () => {
     expect(countMountedTooltipTriggers()).toBe(0);
   });
 });
+
+describe("MatrixGridShell sticky first column", () => {
+  it("paints every sticky cell opaque so scrolled cells never show through", () => {
+    const grouped: MatrixColumn[] = [
+      { key: "mon", label: "Mon", group: "W1" },
+      { key: "tue", label: "Tue", group: "W1" },
+    ];
+    const { container } = render(
+      <MatrixGridShell columns={grouped} rows={rows} renderCell={(ctx) => ctx.cell} />,
+    );
+    const sticky = [...container.querySelectorAll<HTMLElement>('[class*="sticky"]')];
+    expect(sticky.length).toBeGreaterThanOrEqual(3); // group head, column head, body cell
+    for (const cell of sticky) {
+      // no `bg-<token>/<alpha>` translucency on a pinned cell
+      expect(cell.className).not.toMatch(/(^|\s)bg-[\w-]+\/\d+/);
+    }
+  });
+});

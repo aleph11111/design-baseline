@@ -45,7 +45,7 @@ export function BoardShell({
         toolbar={toolbar}
         className={fullBleed}
       >
-        <div className="flex items-start gap-4 overflow-x-auto p-4 pb-6">
+        <div className="relative flex items-start gap-4 overflow-x-auto p-4 pb-6">
           {children}
         </div>
       </SurfaceFrame>
@@ -54,7 +54,7 @@ export function BoardShell({
 
   // Full-bleed archetype (ADR-0007 §1): the marker lifts AppShell's column.
   return (
-    <div className={cn(fullBleed, "flex items-start gap-4 overflow-x-auto pb-2")}>
+    <div className={cn(fullBleed, "relative flex items-start gap-4 overflow-x-auto pb-2")}>
       {children}
     </div>
   );

@@ -132,7 +132,7 @@ export function CalendarShell({
     >
 
       {/* Grid — scrolls horizontally on narrow viewports. */}
-      <div className="overflow-x-auto">
+      <div className="relative overflow-x-auto">
         <div className="grid min-w-[640px] grid-cols-7">
           {/* Row 1 — day headers */}
           {days.map((day) => (
