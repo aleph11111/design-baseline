@@ -42,9 +42,9 @@ export type HeaderFillClasses = {
   /** Apply to a custom title element (overrides its foreground color). */
   title: string;
   /** Apply to a custom subtitle element (overrides its muted color). Matches
-   *  what `SOLID_INVERT` does to a composed `<PageHeader>`'s `<p>` subtitle —
+   *  what `SOLID_INVERT` does to a composed `<PageHeader>`'s subtitle slot —
    *  stated explicitly here so a shell rendering its own subtitle element does
-   *  not have to rely on the `[&_p]` descendant selector happening to match. */
+   *  not have to rely on a descendant selector happening to match. */
   subtitle: string;
 };
 
@@ -52,13 +52,14 @@ export type HeaderFillClasses = {
 // selectors. Buttons: outline → transparent/white border; primary → white fill
 // + accent text. `:is(button,a)` so a `<Button asChild>` link (renders as an
 // `<a>` carrying the same button classes) inverts too. Composed PageHeader
-// title (`h1`) → white, subtitle (`p`) → dimmed white. `<Badge>` status pills
+// title (`h1`) → white, subtitle (the `heading-subtitle` slot, plus any other
+// `p` such as a Radix dialog description) → dimmed white. `<Badge>` status pills
 // are intentionally untouched (semantic).
 const SOLID_INVERT =
   "[&_:is(button,a)]:text-primary-foreground " +
   "[&_:is(button,a).border-input]:border-primary-foreground/40 [&_:is(button,a).border-input]:bg-transparent [&_:is(button,a).border-input]:hover:bg-primary-foreground/10 " +
   "[&_:is(button,a).bg-primary]:bg-primary-foreground [&_:is(button,a).bg-primary]:text-primary [&_:is(button,a).bg-primary]:hover:bg-primary-foreground/90 [&_:is(button,a).bg-primary]:hover:text-primary " +
-  "[&_h1,h2]:text-primary-foreground [&_p]:text-primary-foreground/70";
+  "[&_h1,h2]:text-primary-foreground [&_p]:text-primary-foreground/70 [&_[data-slot=heading-subtitle]]:text-primary-foreground/70";
 
 export function headerFillClasses(fill: HeaderFill): HeaderFillClasses {
   switch (fill) {

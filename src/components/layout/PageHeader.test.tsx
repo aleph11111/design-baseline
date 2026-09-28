@@ -3,6 +3,8 @@ import { cleanup, render } from "@testing-library/react";
 import { HEADING_ROW_CLASSES } from "./HeadingRow";
 import { PageHeader } from "./PageHeader";
 
+const SUBTITLE = `[class="${HEADING_ROW_CLASSES.subtitle}"]`;
+
 afterEach(() => {
   cleanup();
 });
@@ -87,7 +89,7 @@ describe("PageHeader", () => {
     expect(bare.queryByTestId("icon")).toBeNull();
     expect(bare.queryByTestId("badge")).toBeNull();
     expect(bare.queryByTestId("action")).toBeNull();
-    expect(bare.container.querySelector("p")).toBeNull();
+    expect(bare.container.querySelector(SUBTITLE)).toBeNull();
     cleanup();
 
     const full = render(
@@ -102,7 +104,29 @@ describe("PageHeader", () => {
     expect(full.getByTestId("icon")).not.toBeNull();
     expect(full.getByTestId("badge")).not.toBeNull();
     expect(full.getByTestId("action")).not.toBeNull();
-    expect(full.container.querySelector("p")?.textContent).toBe("Updated just now");
+    expect(full.container.querySelector(SUBTITLE)?.textContent).toBe("Updated just now");
+  });
+
+  it("renders block subtitle content without nesting it in a <p>", () => {
+    const { container } = render(
+      <PageHeader
+        title="Orders"
+        subtitle={
+          <div>
+            <div>Line one</div>
+            <div>Line two</div>
+          </div>
+        }
+      />,
+    );
+
+    expect(container.querySelector("p")).toBeNull();
+    expect(container.querySelector(SUBTITLE)?.textContent).toBe("Line oneLine two");
+    // The solid header bar inverts the subtitle through this slot marker
+    // (headerFill's SOLID_INVERT), now that it is no longer a `<p>`.
+    expect(container.querySelector(SUBTITLE)?.getAttribute("data-slot")).toBe(
+      "heading-subtitle",
+    );
   });
 
   it("renders the title as an h1", () => {

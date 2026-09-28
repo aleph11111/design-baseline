@@ -55,7 +55,12 @@ export type HeadingRowProps = {
    * passes nothing).
    */
   beforeHeading?: React.ReactNode;
-  /** Optional secondary line below the title. */
+  /**
+   * Optional secondary content below the title. Wrapped in a `<div>`, not a
+   * `<p>`, so block content (multiple lines, nested `<div>`s, a list) nests
+   * validly; plain inline content renders unchanged. Carries
+   * `data-slot="heading-subtitle"` so a solid header bar can invert it.
+   */
   subtitle?: React.ReactNode;
   /** Optional status badges, rendered inline after the heading (same row). */
   badges?: React.ReactNode;
@@ -107,7 +112,7 @@ export function HeadingRow({
             {heading}
             {badges && <div className={HEADING_ROW_CLASSES.badges}>{badges}</div>}
           </div>
-          {subtitle && <p className={HEADING_ROW_CLASSES.subtitle}>{subtitle}</p>}
+          {subtitle && <div data-slot="heading-subtitle" className={HEADING_ROW_CLASSES.subtitle}>{subtitle}</div>}
         </div>
         {actions && <div className={HEADING_ROW_CLASSES.actions}>{actions}</div>}
       </div>

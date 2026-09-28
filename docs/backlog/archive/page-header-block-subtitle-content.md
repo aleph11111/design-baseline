@@ -1,7 +1,7 @@
 ---
 area: components
 opened: '2026-09-28'
-status: ready
+status: done
 value: normal
 gate:
   score: 5
@@ -27,11 +27,13 @@ controlling-app's adoption of v0.2.11 (PRs #1077/#1078,
 
 ## What to do
 
-- [ ] Decide: change `HeadingRow`'s subtitle wrapper from `<p>` to `<div>`
+- [x] Decide: change `HeadingRow`'s subtitle wrapper from `<p>` to `<div>`
       (accepting `ReactNode`, no block-content restriction), or add a
       separate slot on `PageHeaderProps` for block subtitle content alongside
-      the existing single-line `subtitle`.
-- [ ] Apply the change in `src/components/layout/PageHeader.tsx` and
+      the existing single-line `subtitle`. *(Decided: `<div>`, marked
+      `data-slot="heading-subtitle"` so the solid header bar's inversion,
+      which targeted `p`, still reaches it. No new prop. v0.2.12.)*
+- [x] Apply the change in `src/components/layout/PageHeader.tsx` and
       `src/components/layout/HeadingRow.tsx`, keeping the existing
       `text-xs text-muted-foreground` treatment.
 
@@ -44,6 +46,6 @@ controlling-app's adoption of v0.2.11 (PRs #1077/#1078,
 
 ## Related
 
-- [archive/frontend-pageheader-drops-title-description-icon.md](archive/frontend-pageheader-drops-title-description-icon.md)
+- [frontend-pageheader-drops-title-description-icon.md](frontend-pageheader-drops-title-description-icon.md)
 - ADR-0007 — the fleet house look: donor-fixed roles vs brand-overridable roles (`PageHeader` title step is fixed per this ADR)
 - controlling-app `docs/backlog/adopt-package-page-header.md` — the cross-repo consumer this fix unblocks (filed against controlling-app; not resolvable via `depends_on` cross-repo)
