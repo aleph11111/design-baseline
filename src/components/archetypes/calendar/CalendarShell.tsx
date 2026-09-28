@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { SurfaceFrame } from "../../layout/SurfaceFrame";
-import { FULL_BLEED_CLASS } from "../../layout/surface";
+import { useFullBleedClass } from "../../layout/surface";
 import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
 import { COL_HEADER_CLASS } from "../../layout/overline";
 import { cn } from "../../../lib/utils";
@@ -120,13 +120,15 @@ export function CalendarShell({
   days,
   emptyDayLabel,
 }: CalendarShellProps): React.ReactElement {
+  const fullBleed = useFullBleedClass();
   return (
     <SurfaceFrame
       kicker={kicker}
       title={title}
       headerActions={headerActions}
-      // Full-bleed archetype (ADR-0007 §1): the marker lifts AppShell's column.
-      className={FULL_BLEED_CLASS}
+      // Full-bleed archetype (ADR-0007 §1): the marker lifts AppShell's column
+      // (page root only; nested in a surface it leaves the column alone).
+      className={fullBleed}
     >
 
       {/* Grid — scrolls horizontally on narrow viewports. */}
