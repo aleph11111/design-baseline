@@ -29,7 +29,7 @@ export type GroupedListShellProps = {
  * optional toolbar above a vertical stack of `<GroupedListSection>` children,
  * and handles the page-level loading, empty, and error planes.
  *
- * The inner table chrome is delegated to `<ListWithDetailShell>` inside each
+ * The inner table chrome is delegated to `ListWithDetailShell` inside each
  * `<GroupedListSection>`; this component does not render any table itself.
  */
 export function GroupedListShell({

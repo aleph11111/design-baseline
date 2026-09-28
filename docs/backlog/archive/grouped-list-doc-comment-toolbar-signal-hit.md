@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-27'
-status: ready
+status: done
 gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
@@ -20,7 +20,9 @@ model_reason: rewording two doc-comment sentences to stop matching a regex liter
 
 ## What to do
 
-- [ ] Reword the two JSDoc sentences (`GroupedListShell.tsx:32`, `GroupedListSection.tsx:51`) to name the component without the `<...>` bracket notation (e.g. "the inner `ListWithDetailShell` drops its own chrome" instead of `` `<ListWithDetailShell>` ``) so they no longer match the signal's `<ListWithDetailShell\b` literal — this removes the two prose false-positive hits without narrowing the regex (which risks missing a real un-bracketed instance elsewhere) and without adding a meta/allowlist comment the scanner doesn't read.
+- [x] Reword the two JSDoc sentences (`GroupedListShell.tsx:32`, `GroupedListSection.tsx:51`) to name the component without the `<...>` bracket notation (e.g. "the inner `ListWithDetailShell` drops its own chrome" instead of `` `<ListWithDetailShell>` ``) so they no longer match the signal's `<ListWithDetailShell\b` literal — this removes the two prose false-positive hits without narrowing the regex (which risks missing a real un-bracketed instance elsewhere) and without adding a meta/allowlist comment the scanner doesn't read.
+
+*(Shipped: both JSDoc mentions de-bracketed. The donor self-scan now lists only the expected `GroupedListSection.tsx:82` residual.)*
 
 ## Acceptance
 
@@ -29,6 +31,6 @@ model_reason: rewording two doc-comment sentences to stop matching a regex liter
 
 ## Related
 
-- [archive/house-look-chart-palette.md](archive/house-look-chart-palette.md) — follow-up of this slice (#311): the `lastIndex` fix that exposed this donor self-scan hit
+- [archive/house-look-chart-palette.md](house-look-chart-palette.md) — follow-up of this slice (#311): the `lastIndex` fix that exposed this donor self-scan hit
 - `docs/audit-signals.json` — `list-shell-missing-toolbar` signal definition (already documents this exact residual shape)
 - `docs/ADOPTION-QUALITY.md` — Axis C scan contract

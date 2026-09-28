@@ -139,7 +139,7 @@
   <g>
     <line x1="656" y1="158" x2="730" y2="158" class="lead"/>
     <text x="738" y="142" class="noteB">1 · header — slot: header</text>
-    <text x="738" y="160" class="note">Title text-lg font-semibold, left. Subtitle text-xs muted below.</text>
+    <text x="738" y="160" class="note">Title text-display-title font-semibold, left. Subtitle text-xs muted below.</text>
     <text x="738" y="176" class="note">Actions ALWAYS a right-aligned row — never mixed into the title</text>
     <text x="738" y="192" class="note">line. No breadcrumbs (app shell owns them). Omit the slot when a</text>
     <text x="738" y="208" class="note">parent layout renders the title (Mode B).</text>

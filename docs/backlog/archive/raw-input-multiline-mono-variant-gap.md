@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-28'
-status: ready
+status: done
 value: low
 model: sonnet
 model_reason: "one-line JSDoc pointer on an established delegation; no design choice left"
@@ -20,8 +20,10 @@ PR #319 routed `NativeField`'s `multiline` branch (`src/components/archetypes/ra
 
 ## What to do
 
-- [ ] Extend the `multiline` JSDoc on `NativeFieldProps` to say that the code/JSON `mono` variant is reached by using `TextareaField` directly.
-- [ ] Do not add a `mono` prop to `NativeField` until a real consumer needs one. When one does, forward it at the single `TextareaField` delegation point.
+- [x] Extend the `multiline` JSDoc on `NativeFieldProps` to say that the code/JSON `mono` variant is reached by using `TextareaField` directly.
+- [x] Do not add a `mono` prop to `NativeField` until a real consumer needs one. When one does, forward it at the single `TextareaField` delegation point.
+
+*(Shipped: the `multiline` JSDoc names `TextareaField` as the mono path; no new prop.)*
 
 ## Acceptance
 

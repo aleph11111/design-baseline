@@ -48,7 +48,7 @@ export type GroupedListSectionProps<Row> = {
  * One group within a grouped-list page. Renders as a `<SectionCard>` bounded
  * block: the group title sits in a ruled overline title bar (with a row-count
  * badge) and the group's table renders flush inside the same card — the
- * section supplies the surrounding surface, so the inner `<ListWithDetailShell>`
+ * section supplies the surrounding surface, so the inner `ListWithDetailShell`
  * drops its own chrome via `ListChromeContext` (the analogue of
  * detail-overview's `UnifiedSurfaceContext`). The heading is bound to its
  * content as one block. Multiple sections share the same `Row` type per page.

@@ -20,7 +20,9 @@ export type AuthCardProps = {
  * not-authorized, generic error / 404. A layout primitive (shipped as
  * `design-baseline/layout`), NOT a page archetype — these screens have no toolbar, data
  * layer, or list/detail shape; they're a centered card with a title, a short
- * message, and one or two actions.
+ * message, and one or two actions. Its `<h1>` is deliberately excluded from the
+ * ADR-0007 §2 display-title step: it stays `text-lg`, since a 30px title would
+ * wrap most German headings in this `max-w-sm` card.
  *
  * Use for screens rendered *outside* the `AppShell` (no sidebar/header) — a login
  * page, an access wall. The `min-h` centers it in the viewport; override via
