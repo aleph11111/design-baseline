@@ -139,3 +139,12 @@ describe("FileField — onFilesDrop drag-and-drop (dropzone only)", () => {
     expect(screen.getByText("Drop files")).toBeTruthy();
   });
 });
+
+describe("FileField — inputClassName", () => {
+  it("applies inputClassName to the button trigger", () => {
+    render(<FileField onSelect={() => {}} inputClassName="h-8 px-2" />);
+    const trigger = screen.getByRole("button", { name: "Choose file…" });
+    expect(trigger.className).toContain("h-8");
+    expect(trigger.className).toContain("px-2");
+  });
+});

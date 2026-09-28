@@ -63,6 +63,8 @@ export interface FileFieldProps {
   onClear?: () => void;
   /** Dropzone variant only: enable native drag-and-drop file delivery alongside click-to-pick. */
   onFilesDrop?: (files: File[]) => void;
+  /** Button variant only: chrome for the trigger (size/density). Defaults to the standard Button. */
+  inputClassName?: string;
   /** Applied to the wrapper. */
   className?: string;
 }
@@ -88,6 +90,7 @@ export function FileField({
   selected,
   onClear,
   onFilesDrop,
+  inputClassName,
   className,
 }: FileFieldProps): React.ReactElement {
   const ref = React.useRef<HTMLInputElement>(null);
@@ -200,7 +203,7 @@ export function FileField({
             variant="outline"
             disabled={isDisabled}
             onClick={open}
-            className={cn("gap-2", errorRing)}
+            className={cn("gap-2", errorRing, inputClassName)}
             {...triggerAria}
           >
             {icon}
