@@ -1,7 +1,7 @@
 ---
 area: components
 opened: '2026-09-28'
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "the frame's overflow-hidden clips rounded corners on purpose; trading it for sticky needs a judgment call (overflow-clip vs moving the rounding)"
@@ -20,9 +20,11 @@ gate:
 
 ## What to do
 
-- [ ] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
-- [ ] Let the rail stick against the window: switch `SurfaceFrame`'s default `overflow-hidden` to `overflow-clip`, which clips the rounded corners without creating a scroll container, and give the rail a top offset for AppShell's sticky header slot, for example a `--db-sticky-top` variable that `AppShell` sets.
-- [ ] Add a headless-browser or DOM-level check that the rail's top stays at the header offset after the page scrolls.
+- [x] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
+- [x] Let the rail stick against the window: switch `SurfaceFrame`'s default `overflow-hidden` to `overflow-clip`, which clips the rounded corners without creating a scroll container, and give the rail a top offset for AppShell's sticky header slot, for example a `--db-sticky-top` variable that `AppShell` sets.
+- [x] Add a headless-browser or DOM-level check that the rail's top stays at the header offset after the page scrolls.
+
+*(v0.2.20. Changes: `SurfaceFrame`'s default clip mode renders `overflow-clip`; `AppShell` measures the sticky header slot with a `ResizeObserver` and publishes `--db-sticky-top`; the rail uses `lg:top-[var(--db-sticky-top,0px)]`. Measured on the built gallery at 1440×700 (`/a/detail-overview`): the header bottom is at 113px and so is `--db-sticky-top`. At scroll 0 the rail top is 387; at scroll 400 it is 113 (it was −13 before); at scroll 900 it releases at the end of its grid. The matrix-grid sticky first column stays pinned at x=328 after a 200px horizontal scroll at 800px width. `SectionCard`'s `overflow-hidden` is unchanged: it holds no page-level sticky content.)*
 
 ## Acceptance
 
