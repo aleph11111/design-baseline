@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-09-28
-status: ready
+status: done
 value: normal
 gate:
   score: 5
@@ -18,9 +18,9 @@ gate:
 
 ## What to do
 
-- [ ] Add a `toaster?: boolean` prop (default `true`, so current consumers are unchanged) to `AppShellProps` in `src/components/layout/AppShell.tsx`, and render `<Sonner />` only when it is true.
-- [ ] Add a case to the layout tests (`src/components/layout/*.test.tsx` pattern) asserting no Sonner region renders with `toaster={false}`.
-- [ ] Bump the package version, cut the tag, and note in `docs/PACKAGE.md` that a root-toaster consumer passes `toaster={false}`.
+- [x] Add a `toaster?: boolean` prop (default `true`, so current consumers are unchanged) to `AppShellProps` in `src/components/layout/AppShell.tsx`, and render `<Sonner />` only when it is true.
+- [x] Add a case to the layout tests (`src/components/layout/*.test.tsx` pattern) asserting no Sonner region renders with `toaster={false}`.
+- [x] Bump the package version, cut the tag, and note in `docs/PACKAGE.md` that a root-toaster consumer passes `toaster={false}`. *(v0.2.13; the tag is cut by the tag-version workflow on merge.)*
 
 ## Acceptance
 
@@ -29,5 +29,5 @@ gate:
 
 ## Related
 
-- [ADR-0007](../adr/0007-fleet-house-look-fixed-vs-brand-roles.md) — the AppShell rhythm the local copy mirrors
-- [archive/house-look-tokens-layer-roles.md](archive/house-look-tokens-layer-roles.md) — #308, which shipped that rhythm
+- [ADR-0007](../../adr/0007-fleet-house-look-fixed-vs-brand-roles.md) — the AppShell rhythm the local copy mirrors
+- [archive/house-look-tokens-layer-roles.md](../archive/house-look-tokens-layer-roles.md) — #308, which shipped that rhythm
