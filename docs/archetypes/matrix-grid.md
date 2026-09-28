@@ -2,7 +2,7 @@
 key: M
 slug: matrix-grid
 kind: page
-version: 1.4
+version: 1.5
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -102,7 +102,7 @@ The matrix toolbar is different from a list-with-detail toolbar: search and filt
 
 **Required:**
 - The **matrix-grid shell** — the single primitive that owns this archetype's chrome. The shell provides:
-  - The **canonical card chrome** (hairline border, rounded corners), with horizontal scroll instead of clipped overflow (the grid scrolls, it doesn't clip)
+  - The **canonical card chrome** (hairline border, rounded corners); the table inside it scrolls horizontally, and the surface's header band and toolbar stay in view
   - Table chrome via the project's **base table primitive**
   - A sticky first column for the row label
   - An optional column-group band above the per-column header (only rendered when at least one column has a non-empty `group`)
@@ -110,27 +110,27 @@ The matrix toolbar is different from a list-with-detail toolbar: search and filt
   - Row-level hover highlight applied to both the sticky row-label cell and each body cell
 - The shell handles horizontal scroll itself. Consumers do not add another scroll container around it.
 
-**Overflow keying rule.** Which element is the horizontal scroll container is
-**derived from whether the surface holds a sticky-edge grid**, not chosen per
-call site (ADR-0004): a sticky first column stays pinned only while the
-element it scrolls inside is the bounded surface itself, so the requirement
-picks the mode. The mapping is exhaustive — the bounded surface has exactly
-two overflow modes:
+**Overflow keying rule (v1.5).** The horizontal scroll container is **the
+table's own box inside a clipped surface**, derived from what must stay
+reachable while the grid scrolls sideways, not chosen per call site (ADR-0004).
+The title and the toolbar (e.g. the reference-date control) must stay in view,
+so they sit outside the scroller. The mapping is exhaustive:
 
-- **Clipped** (the default for every other archetype's bounded surface) — the
-  surface clips its content to its own rounding and owns no scrolling. Correct
-  when nothing inside needs to stay pinned during horizontal scroll.
-- **Scrolling** — the bounded surface *is* the horizontal scroll container.
-  Required exactly when it holds a grid with a sticky first column, i.e. this
-  archetype. A scroll container nested one level inside the surface (a body
-  wrapper) unpins the sticky column and is forbidden above.
+- **Surface** — clipped, owns no scrolling. The header band and toolbar span
+  its full width and never move horizontally.
+- **Table box** — the one horizontal scroll container, directly around the
+  grid. The sticky first column and the sticky head cells pin against it.
+  It is the containing block of its positioned descendants, so nothing inside
+  it widens the page.
+- Before v1.5 the whole surface scrolled, carrying the title and toolbar out
+  of view with the grid.
 
 **Allowed variation:**
 - A page-level flex container that lets the shell shrink and scroll rather than enforce its intrinsic width is allowed when the page composes the matrix with a fixed-width sibling (e.g. a permanent filter rail).
 
 **Forbidden:**
 - Hand-rolled `<table>` markup outside the shell.
-- Extra horizontal-scroll wrappers (the shell already provides one).
+- Extra horizontal-scroll wrappers around or inside the shell (the shell's table box is the only one).
 - Page-level `max-width` on the matrix shell. Full-width is intentional; matrices benefit from every pixel.
 
 ---

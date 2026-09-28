@@ -136,6 +136,8 @@ export function MatrixGridDemo() {
   // Toolbar axis: a grid-driving control (the term) lives in the `toolbar` band
   // under the header — not in `headerActions`. Switching to a term with no
   // entries exercises the `emptyState` slot while keeping the header + toolbar.
+  // Only the table scrolls sideways (v1.5), so the term control stays in view
+  // on a narrow viewport.
   const [term, setTerm] = useState<"spring" | "summer">("spring");
 
   function setCellGrade(studentId: string, subjectKey: string, grade: Grade) {

@@ -232,3 +232,31 @@ describe("MatrixGridShell sticky first column", () => {
     }
   });
 });
+
+describe("MatrixGridShell horizontal scroll", () => {
+  it("scrolls only the table: the header band stays outside the scroll box", () => {
+    const { container } = render(
+      <MatrixGridShell
+        title="Matrix"
+        toolbar={<span data-testid="toolbar-control">Date</span>}
+        columns={columns}
+        rows={rows}
+        renderCell={(ctx) => ctx.cell}
+      />,
+    );
+    const frame = container.firstElementChild as HTMLElement;
+    const scroller = container.querySelector<HTMLElement>('[data-slot="matrix-scroll"]')!;
+
+    expect(frame.className).not.toContain("overflow-x-auto");
+    expect(scroller.className).toContain("overflow-x-auto");
+    expect(scroller.className).toMatch(/(^|\s)relative(\s|$)/);
+    // Title and toolbar are frame children above the scroller, not inside it.
+    expect(scroller.contains(container.querySelector('[data-slot="surface-header"]'))).toBe(false);
+    expect(scroller.contains(screen.getByTestId("toolbar-control"))).toBe(false);
+    // Every sticky cell pins against the scroll box.
+    for (const cell of container.querySelectorAll('[class*="sticky"]')) {
+      expect(scroller.contains(cell)).toBe(true);
+    }
+  });
+});
+
