@@ -440,6 +440,30 @@ export function DetailOverviewDemo(): React.ReactElement {
         />
       </div>
 
+      {/* Vertical layout with the typed `stats` strip (slot 3, aggregates) —
+          the contract's default for the vertical variant; the rail fixture
+          above surfaces the same figures in `summary` via MetricList instead. */}
+      <div className="rounded-xl bg-muted/50 p-4 sm:p-6">
+        <DetailOverviewShell
+          layout="vertical"
+          title={<span className="font-mono">{o.number}</span>}
+          subtitle="Vertical — aggregates as a stat strip"
+          stats={[
+            { label: "Revenue", value: fmtEUR(o.revenue), hint: "incl. shipping" },
+            { label: "Gross profit", value: fmtEUR(o.grossProfit), hint: `margin ${o.margin}` },
+            { label: "Items", value: String(o.lineItems.reduce((n, li) => n + li.qty, 0)) },
+          ]}
+          content={
+            <DetailSection title="Details" flush>
+              <KeyValueList>
+                <KeyValueRow label="Customer" value={o.customer.name} />
+                <KeyValueRow label="Placed on" value={fmtDate(o.placedOn)} />
+              </KeyValueList>
+            </DetailSection>
+          }
+        />
+      </div>
+
       {/* Mode A — standalone header with the shared back-link adapter, over a
           collapsible section (title bar is the disclosure toggle). */}
       <div className="space-y-4 rounded-xl bg-muted/50 p-4 sm:p-6">
