@@ -25,10 +25,10 @@ export type SurfaceFrameProps = {
    * - `"hidden"` (default): clip inner content to the card's rounding. Rendered
    *   as `overflow: clip`, not `hidden`, so the frame is not a scroll container
    *   and a sticky descendant (the detail-overview rail) sticks to the page.
-   * - `"auto"`: the frame is the horizontal scroll container. Named structural
-   *   mode for frames that hold a horizontally-scrolling table with a sticky
-   *   first column (matrix-grid — a sticky cell is only pinned while its
-   *   scroll container is the frame, not a body div inside it).
+   * - `"auto"`: the frame itself is the horizontal scroll container, so its
+   *   header band and toolbar scroll with the content. No donor shell uses it
+   *   since matrix-grid v1.5, which keeps its header in view with an inner
+   *   table scroller; kept for API compatibility.
    */
   overflow?: "hidden" | "auto";
   /**

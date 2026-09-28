@@ -121,71 +121,71 @@ export function MatrixGridShell<Cell>({
   // (page root only; nested in a surface it leaves the column alone).
   const frameProps = { kicker, title, headerActions, toolbar, className: fullBleed } as const;
 
-  // The frame is the horizontal scroll container (`overflow="auto"`, the frame's
-  // named structural mode): the sticky first column pins only while its scroll
-  // container is the frame, and the header band + toolbar + table scroll together.
+  // Only the table scrolls sideways: the frame clips (default mode) and an
+  // inner `relative overflow-x-auto` box is the scroll container. The header
+  // band and toolbar stay full-width and in view, the sticky first column pins
+  // against the inner box, and `relative` keeps absolutely positioned
+  // descendants (sr-only labels) inside the clip.
   if (emptyState !== undefined && emptyState !== null) {
-    return (
-      <SurfaceFrame {...frameProps} overflow="auto">
-        {emptyState}
-      </SurfaceFrame>
-    );
+    return <SurfaceFrame {...frameProps}>{emptyState}</SurfaceFrame>;
   }
 
   return (
-    <SurfaceFrame {...frameProps} overflow="auto">
-      <table className="text-[13px] border-collapse">
-        <MatrixGridHead columns={columns} rowHeaderLabel={rowHeaderLabel} />
-        <tbody>
-          {rows.map((row) => {
-            const rowKey = rowIdOf(row);
-            return (
-              <tr key={rowKey} className="border-b border-border/60 hover:bg-muted/50">
-                <th
-                  scope="row"
-                  className={cn(
-                    "sticky left-0 z-10 bg-card border-r border-border",
-                    "px-4 py-2 text-left font-medium text-foreground whitespace-nowrap",
-                    "hover:bg-muted/50",
-                  )}
-                >
-                  {row.label}
-                </th>
-                {columns.map((col) => {
-                  const cell = row.cells[col.key];
-                  const ctx: MatrixCellContext<Cell> = {
-                    row,
-                    column: col,
-                    cell,
-                    isFilled: isFilledFn(cell),
-                  };
-                  const style = cellStyle ? cellStyle(ctx) : undefined;
-                  return (
-                    <MatrixCell
-                      key={col.key}
-                      ctx={ctx}
-                      content={
-                        ctx.isFilled
-                          ? renderCell
-                            ? renderCell(ctx)
-                            : null
-                          : renderEmptyCell
-                            ? renderEmptyCell(ctx)
-                            : null
-                      }
-                      style={style}
-                      activate={clickable ? () => onCellClick!(ctx) : undefined}
-                      cellKey={`${rowKey}::${col.key}`}
-                      hoveredCellKey={hoveredCellKey}
-                      setHoveredCellKey={setHoveredCellKey}
-                    />
-                  );
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <SurfaceFrame {...frameProps}>
+      <div data-slot="matrix-scroll" className="relative overflow-x-auto">
+        <table className="text-[13px] border-collapse">
+          <MatrixGridHead columns={columns} rowHeaderLabel={rowHeaderLabel} />
+          <tbody>
+            {rows.map((row) => {
+              const rowKey = rowIdOf(row);
+              return (
+                <tr key={rowKey} className="border-b border-border/60 hover:bg-muted/50">
+                  <th
+                    scope="row"
+                    className={cn(
+                      "sticky left-0 z-10 bg-card border-r border-border",
+                      "px-4 py-2 text-left font-medium text-foreground whitespace-nowrap",
+                      "hover:bg-muted/50",
+                    )}
+                  >
+                    {row.label}
+                  </th>
+                  {columns.map((col) => {
+                    const cell = row.cells[col.key];
+                    const ctx: MatrixCellContext<Cell> = {
+                      row,
+                      column: col,
+                      cell,
+                      isFilled: isFilledFn(cell),
+                    };
+                    const style = cellStyle ? cellStyle(ctx) : undefined;
+                    return (
+                      <MatrixCell
+                        key={col.key}
+                        ctx={ctx}
+                        content={
+                          ctx.isFilled
+                            ? renderCell
+                              ? renderCell(ctx)
+                              : null
+                            : renderEmptyCell
+                              ? renderEmptyCell(ctx)
+                              : null
+                        }
+                        style={style}
+                        activate={clickable ? () => onCellClick!(ctx) : undefined}
+                        cellKey={`${rowKey}::${col.key}`}
+                        hoveredCellKey={hoveredCellKey}
+                        setHoveredCellKey={setHoveredCellKey}
+                      />
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </SurfaceFrame>
   );
 }
