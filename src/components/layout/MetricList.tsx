@@ -22,6 +22,9 @@
  *     <MetricRow label="Rohertrag" value={fmtEur(gp)}  hint="Marge 34,2 %" emphasis />
  *   </MetricList>
  *
+ * Key figure: a deal is valued by its ARR, so that one row reads the brand:
+ *     <MetricRow label="ARR" value={fmtEur(arr)} emphasis keyFigure />
+ *
  * GUTTER: rows and the disclosure trigger own the same `px-5` gutter as
  * `KeyValueRow`, with full-width dividers, so the list sits in a `flush`
  * section (`<DetailSection flush>` / `<SectionCard flush>`) and lines up with a
@@ -47,6 +50,14 @@ export type MetricRowProps = {
   hint?: React.ReactNode;
   /** Headline row: larger value. Secondary rows omit it. */
   emphasis?: boolean;
+  /**
+   * The entity's key figure — the one metric the entity is valued by (a deal's
+   * ARR, an order's revenue). Its value reads the brand accent instead of the
+   * foreground. Not a look toggle: the detail-overview contract derives it
+   * from the data ("Key figure", compact metric readout), and at most one row
+   * per readout carries it.
+   */
+  keyFigure?: boolean;
   className?: string;
 };
 
@@ -55,6 +66,7 @@ export function MetricRow({
   value,
   hint,
   emphasis,
+  keyFigure,
   className,
 }: MetricRowProps): React.ReactElement {
   return (
@@ -79,7 +91,8 @@ export function MetricRow({
       </div>
       <div
         className={cn(
-          "shrink-0 font-mono font-semibold tabular-nums text-foreground",
+          "shrink-0 font-mono font-semibold tabular-nums",
+          keyFigure ? "text-primary" : "text-foreground",
           emphasis ? "text-base" : "text-[13px]",
         )}
       >

@@ -350,6 +350,20 @@
       "status": "watch",
       "axisB": "on-token",
       "notes": "Gap-folded from the FLEET-AUDIT-era 2026-06-13 fleet sweep (salvage for the FLEET-AUDIT.md retirement) — an unpromoted row that the sweep's deletion requires on the radar. Rule-of-2 met (3 projects), so it trips as a promotion candidate; the sweep action was a promote-or-exclude decision. The sign-in surface is partially owned already (`AuthCard`), so confirm in a re-audit whether the shape still recurs before archiving."
+    },
+    {
+      "id": "metric-row-key-figure",
+      "pattern": "MetricRow value tinted with the brand accent for the entity's value metric (hk-crm's local `accent` on the opportunity ARR row)",
+      "axisA": "promote",
+      "donorTarget": "extend MetricRow (`keyFigure`, contract-keyed in detail-overview.md \"Key figure (derived)\")",
+      "projects": [
+        "hk-crm"
+      ],
+      "count": 1,
+      "status": "promoted",
+      "promotedAt": "2026-09-28",
+      "axisB": "on-token (`--primary`)",
+      "notes": "Single-project promotion by operator decision (2026-09-28). This is the last hk-crm layout file that differed only because the consumer was ahead. The #214 `accent` flag was a free per-call-site toggle and stays deleted; it returns as `keyFigure`, which the detail-overview v3.2 contract derives from the data (at most one row, the metric the entity is valued by), so ADR-0004's derived test passes. hk-crm swaps `accent` → `keyFigure` and deletes its local MetricList.tsx."
     }
   ],
   "sanctioned": [
