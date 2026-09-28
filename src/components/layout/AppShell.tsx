@@ -48,7 +48,9 @@ export function AppShell({
                 Pages and archetype shells render content WITHOUT their own outer
                 px-6/py-6 — adding it double-insets. One owner = no per-page drift.
                 A full-bleed archetype shell carries FULL_BLEED_CLASS (layout/
-                surface.ts), which lifts the column's max width (ADR-0007 §1).
+                surface.ts), which lifts the column's max width (ADR-0007 §1);
+                only as the page's own surface, never nested in another one
+                (`useFullBleedClass`).
                 See docs/STYLE.md "Spacing & rhythm". */}
             <main className="flex-1 bg-surface-canvas p-4 md:p-12 xl:p-14 overflow-auto">
               <div className="mx-auto w-full max-w-(--db-content-max) has-[.db-full-bleed]:max-w-none">

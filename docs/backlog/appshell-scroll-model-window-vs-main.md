@@ -40,7 +40,7 @@ The v0.2.17 `min-w-0` fix (`appshell-content-column-min-w-0`) was a separate wid
 ## Related
 
 - [archive/appshell-content-column-min-w-0.md](archive/appshell-content-column-min-w-0.md) — the width half of the same AppShell adoption report (v0.2.17)
-- [list-with-detail-full-bleed-nested-leak.md](list-with-detail-full-bleed-nested-leak.md) — the other open AppShell content-column ticket
+- [list-with-detail-full-bleed-nested-leak.md](wip/list-with-detail-full-bleed-nested-leak.md) — the other open AppShell content-column ticket
 - [ADR-0007](../adr/0007-fleet-house-look-fixed-vs-brand-roles.md) — §1, the AppShell page rhythm this layout carries
 
 ## Open question

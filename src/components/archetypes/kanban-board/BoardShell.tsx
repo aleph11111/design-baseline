@@ -1,7 +1,8 @@
 "use client";
 import * as React from "react";
 import { SurfaceFrame } from "../../layout/SurfaceFrame";
-import { FULL_BLEED_CLASS } from "../../layout/surface";
+import { useFullBleedClass } from "../../layout/surface";
+import { cn } from "../../../lib/utils";
 import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
 
 export type BoardShellProps = {
@@ -34,6 +35,7 @@ export function BoardShell({
   headerActions,
   toolbar,
 }: BoardShellProps): React.ReactElement {
+  const fullBleed = useFullBleedClass();
   if (title !== undefined) {
     return (
       <SurfaceFrame
@@ -41,7 +43,7 @@ export function BoardShell({
         title={title}
         headerActions={headerActions}
         toolbar={toolbar}
-        className={FULL_BLEED_CLASS}
+        className={fullBleed}
       >
         <div className="flex items-start gap-4 overflow-x-auto p-4 pb-6">
           {children}
@@ -52,7 +54,7 @@ export function BoardShell({
 
   // Full-bleed archetype (ADR-0007 §1): the marker lifts AppShell's column.
   return (
-    <div className={`${FULL_BLEED_CLASS} flex items-start gap-4 overflow-x-auto pb-2`}>
+    <div className={cn(fullBleed, "flex items-start gap-4 overflow-x-auto pb-2")}>
       {children}
     </div>
   );

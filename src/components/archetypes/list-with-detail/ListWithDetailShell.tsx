@@ -2,7 +2,7 @@
 import * as React from "react";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../../ui/sheet";
 import { SurfaceFrame } from "../../layout/SurfaceFrame";
-import { FULL_BLEED_CLASS } from "../../layout/surface";
+import { useFullBleedClass } from "../../layout/surface";
 import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
 import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
 import { useIsMobile } from "../../../hooks/use-mobile";
@@ -154,6 +154,7 @@ export function ListWithDetailShell<Row>(
   // flush inside an already-bounded surface; the chrome decision belongs to the
   // compose-into archetype, not to the per-page caller.
   const chromeless = React.useContext(ListChromeContext);
+  const fullBleed = useFullBleedClass();
   // The detail presents as a Sheet on mobile always; rail on desktop.
   const asSheet = isMobile;
 
@@ -283,7 +284,7 @@ export function ListWithDetailShell<Row>(
       chrome={!chromeless}
       // Full-bleed archetype (ADR-0007 §1) — only as the page's own surface; a
       // shell composed into another surface leaves the column alone.
-      className={chromeless ? undefined : FULL_BLEED_CLASS}
+      className={chromeless ? undefined : fullBleed}
     >
       <div className="flex">
         <div className="min-w-0 flex-1">
