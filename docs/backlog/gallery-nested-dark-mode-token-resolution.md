@@ -1,13 +1,12 @@
 ---
 area: tooling
 opened: '2026-09-27'
-status: needs-enrichment
+status: ready
 gate:
-  score: 4
-  passed: [title, context, what-to-do, related]
-  failed:
-    - open_question: "whether @theme inline actually fixes nested .dark resolution is unverified — needs investigation before a human commits to the approach"
-  graded_at: '2026-09-27T00:00:00Z'
+  score: 5
+  passed: [title, context, what_to_do, acceptance, related]
+  failed: []
+  graded_at: '2026-09-28T09:47:33Z'
 value: normal
 model: sonnet
 model_reason: "the fix mechanism is now verified (@theme inline static) — this is a small, well-scoped mechanical change plus a demo cleanup, not open investigation"

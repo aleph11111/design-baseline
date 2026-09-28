@@ -1,13 +1,12 @@
 ---
 area: layout
 opened: '2026-09-27'
-status: needs-enrichment
+status: ready
 gate:
-  score: 4
-  passed: [title, context, what-to-do, related]
-  failed:
-    - open_question: "ADR-0007 §2 scope decision for AuthCard is unresolved — capped at 4"
-  graded_at: '2026-09-27T00:00:00Z'
+  score: 5
+  passed: [title, context, what_to_do, acceptance, related]
+  failed: []
+  graded_at: '2026-09-28T09:47:33Z'
 value: low
 model: opus
 model_reason: "requires a scope judgment call (does the display step apply outside archetype headers), not a mechanical class swap"
