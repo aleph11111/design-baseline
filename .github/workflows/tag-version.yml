@@ -6,33 +6,63 @@ on:
   push:
     branches: [main]
     paths: [package.json]
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "Commit SHA to tag (must be an ancestor of origin/main; backfills a run that failed or was never triggered)"
+        required: true
+        type: string
 
 permissions:
   contents: write
 
+# Serialises tag runs so two near-simultaneous pushes of the same version can't
+# both pass the ls-remote no-op guard and race on the tag push.
+concurrency:
+  group: tag-version
+  cancel-in-progress: false
+
 jobs:
   tag:
     runs-on: ubuntu-latest
+    # workflow_dispatch can be run from any branch selected in the UI; the sha
+    # input is what gets tagged, but this guards against dispatching the job
+    # itself from a non-main ref.
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Create v<version> tag if missing
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_SHA: ${{ github.event.inputs.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
         run: |
           set -euo pipefail
-          version=$(node -p "require('./package.json').version")
-          tag="v$version"
-          # Compare against the pre-push tip, not HEAD^: one push can carry several commits.
-          prev=$(git show "${{ github.event.before }}:package.json" 2>/dev/null | node -p "JSON.parse(require('fs').readFileSync(0)).version" 2>/dev/null || true)
-          if [ "$prev" = "$version" ]; then
-            echo "version unchanged ($version) — no tag"; exit 0
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            sha="$DISPATCH_SHA"
+            if ! git merge-base --is-ancestor "$sha" origin/main; then
+              echo "::error::$sha is not an ancestor of origin/main — refusing to tag"
+              exit 1
+            fi
+            version=$(git show "$sha:package.json" | node -p "JSON.parse(require('fs').readFileSync(0)).version")
+          else
+            sha="$GITHUB_SHA"
+            version=$(node -p "require('./package.json').version")
+            # Compare against the pre-push tip, not HEAD^: one push can carry several commits.
+            prev=$(git show "$BEFORE_SHA:package.json" 2>/dev/null | node -p "JSON.parse(require('fs').readFileSync(0)).version" 2>/dev/null || true)
+            if [ "$prev" = "$version" ]; then
+              echo "version unchanged ($version) — no tag"; exit 0
+            fi
           fi
+          tag="v$version"
           if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
             echo "$tag already exists — leaving it unchanged"; exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "$tag" -m "$tag" "$GITHUB_SHA"
+          git tag -a "$tag" -m "$tag" "$sha"
           git push origin "refs/tags/$tag"
-          echo "created $tag on $GITHUB_SHA"
+          echo "created $tag on $sha"

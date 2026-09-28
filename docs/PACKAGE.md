@@ -30,7 +30,9 @@ A git dependency against a tag, so a version bump is a one-digit change and the
 consumed commit is pinned (P7 of the spec — no registry publish).
 Tags are created automatically: `.github/workflows/tag-version.yml` pushes an
 annotated `v<version>` tag on the merge commit whenever a `package.json` `"version"`
-bump lands on `main` — never tag by hand.
+bump lands on `main` — never tag by hand. A run that failed or was never triggered
+can be backfilled via that workflow's `workflow_dispatch`, given the merged bump
+commit's SHA (rejected unless it is an ancestor of `origin/main`).
 
 ```jsonc
 // package.json
