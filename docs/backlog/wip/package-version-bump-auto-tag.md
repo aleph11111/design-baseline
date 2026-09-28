@@ -32,6 +32,6 @@ Consumers pin the donor as `github:aleph11111/design-baseline#v<version>` (`docs
 
 ## Related
 
-- [package-version-duplicate-guard.md](package-version-duplicate-guard.md) — the sibling pre-merge guard (duplicate or non-increasing version). It is complementary, and neither has to ship first.
-- [archive/package-tag-post-v0-2-0-sync.md](archive/package-tag-post-v0-2-0-sync.md) — earlier drift between `package.json` `"version"` and the git tag
-- [archive/house-look-chart-palette.md](archive/house-look-chart-palette.md) — #311, the last bump that shipped untagged
+- [package-version-duplicate-guard.md](../package-version-duplicate-guard.md) — the sibling pre-merge guard (duplicate or non-increasing version). It is complementary, and neither has to ship first.
+- [archive/package-tag-post-v0-2-0-sync.md](../archive/package-tag-post-v0-2-0-sync.md) — earlier drift between `package.json` `"version"` and the git tag
+- [archive/house-look-chart-palette.md](../archive/house-look-chart-palette.md) — #311, the last bump that shipped untagged
