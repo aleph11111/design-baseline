@@ -40,6 +40,7 @@ type Podcast = {
   host: string;
   episodeCount: number;
   lastPublishedAt: string;
+  addedAt: string;
   category: "interview" | "narrative" | "panel" | "solo";
   isActive: boolean;
 };
@@ -51,6 +52,7 @@ const PODCASTS: Podcast[] = [
     host: "Lena Pak",
     episodeCount: 142,
     lastPublishedAt: "2026-05-18",
+    addedAt: "2025-11-02",
     category: "interview",
     isActive: true,
   },
@@ -60,6 +62,7 @@ const PODCASTS: Podcast[] = [
     host: "Olu Adebayo",
     episodeCount: 23,
     lastPublishedAt: "2026-05-20",
+    addedAt: "2026-01-14",
     category: "narrative",
     isActive: true,
   },
@@ -69,6 +72,7 @@ const PODCASTS: Podcast[] = [
     host: "Mei Tanaka",
     episodeCount: 89,
     lastPublishedAt: "2026-04-11",
+    addedAt: "2025-08-30",
     category: "panel",
     isActive: false,
   },
@@ -111,18 +115,19 @@ function derivePresentation<Row>(
 // every surface renders in the gallery. Numeric columns take `align="right"`
 // (tabular figures align on units); the categorical badge takes
 // `align="center"` (a short token); free text stays left (default).
-// `hideBelowMd` follows the Layer 6 role rule: identifier, the status token and
-// the one ranked figure (last published) stay on a phone; the context columns
-// (host, episode count, category) drop out below `md`.
+// `hideBelow` follows the Layer 6 role rule: identifier, the status token and
+// the one ranked figure (last published) never hide; the context columns
+// (host, episode count, category) drop out below `md`; the record-provenance
+// column (added) drops out below `2xl`, so the show title doesn't wrap at 1440.
 const TABLE_COLUMNS: ListColumn<Podcast>[] = [
   { key: "title", header: "Show", cell: (p) => p.title, isIdentifier: true, identifierMono: false },
-  { key: "host", header: "Host", cell: (p) => p.host, hideBelowMd: true },
+  { key: "host", header: "Host", cell: (p) => p.host, hideBelow: "md" },
   {
     key: "episodes",
     header: "Episodes",
     cell: (p) => <span className="font-mono tabular-nums">{p.episodeCount}</span>,
     align: "right",
-    hideBelowMd: true,
+    hideBelow: "md",
     sortable: true,
     sortFn: (a, b) => a.episodeCount - b.episodeCount,
   },
@@ -135,6 +140,13 @@ const TABLE_COLUMNS: ListColumn<Podcast>[] = [
     sortFn: (a, b) => a.lastPublishedAt.localeCompare(b.lastPublishedAt),
   },
   {
+    key: "added",
+    header: "Added",
+    cell: (p) => <span className="font-mono tabular-nums">{p.addedAt}</span>,
+    align: "right",
+    hideBelow: "2xl",
+  },
+  {
     key: "category",
     header: "Category",
     cell: (p) => (
@@ -143,7 +155,7 @@ const TABLE_COLUMNS: ListColumn<Podcast>[] = [
       </Badge>
     ),
     align: "center",
-    hideBelowMd: true,
+    hideBelow: "md",
   },
   {
     key: "status",

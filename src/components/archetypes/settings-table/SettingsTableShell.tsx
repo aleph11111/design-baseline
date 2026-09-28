@@ -15,7 +15,7 @@ import { StateView } from "../../ui/state-view";
 import {
   RowActionsMenu,
   alignClass,
-  hideBelowMdClass,
+  hideBelowClass,
   identifierCell,
   resolveListState,
   type RowAction,
@@ -257,7 +257,7 @@ export function SettingsTableShell<Row>({
             </TableHead>
           )}
           {columns.map((col) => (
-            <TableHead key={col.key} className={cn(alignClass(col.align), hideBelowMdClass(col))}>
+            <TableHead key={col.key} className={cn(alignClass(col.align), hideBelowClass(col))}>
               {col.header}
             </TableHead>
           ))}
@@ -294,7 +294,7 @@ export function SettingsTableShell<Row>({
                     key={col.key}
                     className={cn(
                       alignClass(col.align),
-                      hideBelowMdClass(col),
+                      hideBelowClass(col),
                       cellProps?.className,
                     )}
                     {...cellProps}
