@@ -33,5 +33,5 @@ gate:
 
 ## Related
 
-- [archive/raw-input-multiline-mono-variant-gap.md](archive/raw-input-multiline-mono-variant-gap.md) — same "consumer-local variant vs donor prop" shape
-- [mistra-package-install-cutover.md](mistra-package-install-cutover.md) — mistra's fork list, where `hideBelow2xl` is one of the remaining local divergences
+- [archive/raw-input-multiline-mono-variant-gap.md](../archive/raw-input-multiline-mono-variant-gap.md) — same "consumer-local variant vs donor prop" shape
+- [mistra-package-install-cutover.md](../mistra-package-install-cutover.md) — mistra's fork list, where `hideBelow2xl` is one of the remaining local divergences
