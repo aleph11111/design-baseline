@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-09-28
-status: ready
+status: done
 value: normal
 gate:
   score: 5
@@ -18,8 +18,10 @@ gate:
 
 ## What to do
 
-- [ ] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
-- [ ] Give both sticky head cells an opaque background that keeps the current tint: layer the muted tint over the surface colour, not over transparency. Do the same for any other `sticky` cell in `src/components/archetypes/matrix-grid/`.
+- [x] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
+- [x] Give both sticky head cells an opaque background that keeps the current tint: layer the muted tint over the surface colour, not over transparency. Do the same for any other `sticky` cell in `src/components/archetypes/matrix-grid/`.
+
+*(v0.2.21, shipped with `scroll-box-not-containing-block-sr-only-widens-page`. Both sticky head cells now paint `color-mix(in oklab, var(--color-muted) 50%/30%, var(--color-surface-raised))`, the same tint but opaque. The body's sticky cell was already `bg-card`. Computed background on the built gallery: before, alpha 0.5/0.3 in light and dark; after, opaque in both. A new test asserts no `bg-*/<alpha>` on any sticky matrix cell.)*
 
 ## Acceptance
 
@@ -28,5 +30,5 @@ gate:
 
 ## Related
 
-- [archive/refactor-matrix-grid-cell-and-head-extraction.md](archive/refactor-matrix-grid-cell-and-head-extraction.md)
-- [scroll-box-not-containing-block-sr-only-widens-page.md](wip/scroll-box-not-containing-block-sr-only-widens-page.md)
+- [archive/refactor-matrix-grid-cell-and-head-extraction.md](refactor-matrix-grid-cell-and-head-extraction.md)
+- [scroll-box-not-containing-block-sr-only-widens-page.md](scroll-box-not-containing-block-sr-only-widens-page.md)

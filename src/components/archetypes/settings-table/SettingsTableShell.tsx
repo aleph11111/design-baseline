@@ -329,7 +329,7 @@ export function SettingsTableShell<Row>({
     >
       {/* The table scroll region sits INSIDE the (clipped) frame so the table
           scrolls beneath a fixed header + toolbar band, not the surface itself. */}
-      <div className="overflow-x-auto">
+      <div className="relative overflow-x-auto">
         {showLoading && loadingState}
         {showError && errorState}
         {showEmpty && emptyState}

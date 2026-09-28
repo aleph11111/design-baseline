@@ -288,7 +288,7 @@ export function ListWithDetailShell<Row>(
     >
       <div className="flex">
         <div className="min-w-0 flex-1">
-          <div className="overflow-x-auto">{bodyContent}</div>
+          <div className="relative overflow-x-auto">{bodyContent}</div>
           {footer !== undefined && <div className="border-t px-4 py-3">{footer}</div>}
         </div>
         {detailPanel}

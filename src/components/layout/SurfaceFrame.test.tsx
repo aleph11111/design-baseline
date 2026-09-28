@@ -72,6 +72,25 @@ describe("SurfaceFrame — canonical bounded surface", () => {
     expect(omitted.container.querySelector(".border-b.px-4.py-3")).toBeNull();
   });
 
+  // Tailwind's sr-only is position:absolute. Without a positioned frame its
+  // containing block sits outside the scroll box, the overflow doesn't clip
+  // it, and a label scrolled past the edge widens the whole page.
+  it("is the containing block for sr-only descendants in both overflow modes", () => {
+    for (const overflow of ["auto", "hidden"] as const) {
+      const { container } = render(
+        <SurfaceFrame title="S" overflow={overflow}>
+          <div style={{ width: 3000 }}>
+            <span className="sr-only">label</span>
+          </div>
+        </SurfaceFrame>,
+      );
+      const frame = container.firstElementChild as HTMLElement;
+      expect(frame.className).toMatch(/(^|\s)relative(\s|$)/);
+      expect(frame.contains(container.querySelector(".sr-only"))).toBe(true);
+      cleanup();
+    }
+  });
+
   it("clips by default and scrolls horizontally in the named `auto` mode", () => {
     const clipped = render(
       <SurfaceFrame title="S">b</SurfaceFrame>,
