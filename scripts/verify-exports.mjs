@@ -79,7 +79,7 @@
 // filesystem, stdout, and the exit code, and it runs only when the file
 // is the entry point — importing it scans nothing.
 
-import { existsSync, globSync, readFileSync } from 'node:fs';
+import { existsSync, globSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -307,7 +307,11 @@ function main() {
   }
 }
 
-if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
+// Node resolves the main module (import.meta.url) to its realpath, so a
+// symlinked invocation must resolve process.argv[1] the same way or this
+// guard silently never fires (ADR-0005 consumers vendor the runner via a
+// symlink).
+if (process.argv[1] && pathToFileURL(realpathSync(process.argv[1])).href === import.meta.url) {
   main();
 }
 
