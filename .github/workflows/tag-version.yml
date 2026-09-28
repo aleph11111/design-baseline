@@ -6,7 +6,6 @@ on:
   push:
     branches: [main]
     paths: [package.json]
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,15 +16,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Create v<version> tag if missing
         run: |
           set -euo pipefail
           version=$(node -p "require('./package.json').version")
           tag="v$version"
-          prev=$(git show HEAD^:package.json 2>/dev/null | node -p "JSON.parse(require('fs').readFileSync(0)).version" 2>/dev/null || true)
-          if [ "${{ github.event_name }}" = push ] && [ "$prev" = "$version" ]; then
+          # Compare against the pre-push tip, not HEAD^: one push can carry several commits.
+          prev=$(git show "${{ github.event.before }}:package.json" 2>/dev/null | node -p "JSON.parse(require('fs').readFileSync(0)).version" 2>/dev/null || true)
+          if [ "$prev" = "$version" ]; then
             echo "version unchanged ($version) — no tag"; exit 0
           fi
           if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
