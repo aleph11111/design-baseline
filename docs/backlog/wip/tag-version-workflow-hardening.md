@@ -33,5 +33,5 @@ gate:
 
 ## Related
 
-- [archive/package-version-bump-auto-tag.md](archive/package-version-bump-auto-tag.md): the parent ticket that shipped the workflow (PR #334)
+- [archive/package-version-bump-auto-tag.md](../archive/package-version-bump-auto-tag.md): the parent ticket that shipped the workflow (PR #334)
 - [package-version-duplicate-guard.md](package-version-duplicate-guard.md): the sibling pre-merge version guard

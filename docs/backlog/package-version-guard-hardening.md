@@ -35,5 +35,5 @@ gate:
 ## Related
 
 - [archive/package-version-duplicate-guard.md](archive/package-version-duplicate-guard.md) — the ticket that shipped the script (PR #335)
-- [tag-version-workflow-hardening.md](tag-version-workflow-hardening.md) — carries the broken link
+- [tag-version-workflow-hardening.md](wip/tag-version-workflow-hardening.md) — carries the broken link
 - [archive/package-version-bump-auto-tag.md](archive/package-version-bump-auto-tag.md) — sibling post-merge tagging
