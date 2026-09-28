@@ -22,6 +22,11 @@
  *     <MetricRow label="Rohertrag" value={fmtEur(gp)}  hint="Marge 34,2 %" emphasis />
  *   </MetricList>
  *
+ * GUTTER: rows and the disclosure trigger own the same `px-5` gutter as
+ * `KeyValueRow`, with full-width dividers, so the list sits in a `flush`
+ * section (`<DetailSection flush>` / `<SectionCard flush>`) and lines up with a
+ * `KeyValueList` stacked below it. Don't add an outer `px-*` around it.
+ *
  * IDIOM NOTE: values render `font-mono tabular-nums`, matching the baseline's
  * mono-figure house style (see `StatTile`). Keep this primitive's figure
  * treatment in step if that house style ever changes.
@@ -55,7 +60,7 @@ export function MetricRow({
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-4 py-2.5",
+        "flex items-center justify-between gap-4 px-5 py-2.5",
         className,
       )}
     >
@@ -115,7 +120,7 @@ export function MetricList({
               {more}
             </div>
           </CollapsibleContent>
-          <CollapsibleTrigger className="flex items-center gap-1 pt-2.5 text-xs font-semibold text-primary">
+          <CollapsibleTrigger className="flex items-center gap-1 px-5 pt-2.5 text-xs font-semibold text-primary">
             <ChevronDown
               className={cn(
                 "h-3.5 w-3.5 transition-transform",

@@ -34,6 +34,15 @@ describe("MetricList", () => {
     expect(screen.queryByText("Versand")).toBeNull();
   });
 
+  // Same px-5 gutter as KeyValueRow, so a MetricList stacked over a
+  // KeyValueList in a flush rail section lines up with it.
+  it("gives rows and the disclosure trigger KeyValueRow's px-5 gutter", () => {
+    const { container } = render(<MetricList more={secondary}>{primary}</MetricList>);
+    expect((container.firstChild as HTMLElement).className).not.toContain("px-");
+    expect(screen.getByText("Umsatz").parentElement!.parentElement!.className).toContain("px-5");
+    expect(screen.getByRole("button").className).toContain("px-5");
+  });
+
   it("honours custom moreLabel/lessLabel across the toggle", () => {
     render(
       <MetricList

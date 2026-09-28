@@ -593,7 +593,7 @@ function MetricListDemo() {
     <div className="max-w-sm space-y-8">
       <Variant label="Headline figures + disclosure (rail summary readout)">
         <SectionCard title="Financials" flush>
-          <div className="px-5 py-3">
+          <div className="py-3">
             <MetricList
               more={
                 <>
@@ -610,7 +610,7 @@ function MetricListDemo() {
       </Variant>
       <Variant label="No disclosure (headline rows only)">
         <SectionCard title="At a glance" flush>
-          <div className="px-5 py-3">
+          <div className="py-3">
             <MetricList>
               <MetricRow label="Gesamtwert" value="€12.500,00" emphasis />
               <MetricRow label="ARR" value="€4.200,00" hint="annualisiert" emphasis />

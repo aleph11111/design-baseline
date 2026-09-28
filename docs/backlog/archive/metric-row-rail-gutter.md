@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-09-28
-status: ready
+status: done
 value: normal
 gate:
   score: 5
@@ -18,9 +18,9 @@ In a `DetailOverviewShell layout="rail"` the rail stacks a `MetricList` ("Kennza
 
 ## What to do
 
-- [ ] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
-- [ ] Give `MetricRow` and the `MetricList` disclosure trigger the same `px-5` gutter as `KeyValueRow`. Keep the dividers full-width, as `KeyValueList` does.
-- [ ] Update the MetricList test and the detail-overview demo, bump the version and cut the tag. Consumers then drop their per-row `className="px-5"`.
+- [x] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
+- [x] Give `MetricRow` and the `MetricList` disclosure trigger the same `px-5` gutter as `KeyValueRow`. Keep the dividers full-width, as `KeyValueList` does.
+- [x] Update the MetricList test and the detail-overview demo, bump the version and cut the tag. Consumers then drop their per-row `className="px-5"`. *(v0.2.14. The demos now put `MetricList` in a `flush` section, like `KeyValueList`. `metric-row-accent-prop-promotion` did not ship in the same bump: it re-adds the `accent` flag that #214 deleted under ADR-0004, which needs a contract keying rule first.)*
 
 ## Acceptance
 
