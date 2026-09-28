@@ -59,6 +59,6 @@ different item than the others for the same URL.
 
 ## Related
 
-- [src/components/layout/BottomNav.tsx](../../src/components/layout/BottomNav.tsx) — the forked `BottomNavItem` and its `end` flag.
-- [src/components/layout/Sidebar.tsx](../../src/components/layout/Sidebar.tsx) — the `NavItem` type the others should share.
-- [archive/refactor-identifier-cell-column-config-duplication.md](archive/refactor-identifier-cell-column-config-duplication.md) — the same "two private copies of one rule drift apart" pattern, resolved for table columns.
+- [src/components/layout/BottomNav.tsx]() — the forked `BottomNavItem` and its `end` flag.
+- [src/components/layout/Sidebar.tsx]() — the `NavItem` type the others should share.
+- [archive/refactor-identifier-cell-column-config-duplication.md](../archive/refactor-identifier-cell-column-config-duplication.md) — the same "two private copies of one rule drift apart" pattern, resolved for table columns.
