@@ -36,4 +36,4 @@ model_reason: an established pattern to follow (the same fixture already renders
 
 ## Outcome
 
-Added a vertical-layout `DetailOverviewShell` instance to `src/examples/detail-overview-demo.tsx` (between the rail fixture and the Mode A block) with a 3-cell `stats` strip; Revenue and Gross profit carry `hint` context lines. Verified: `npx tsc --noEmit`, `npm test` (478 passed), `npm run gallery:build` (instance present in the built detail-overview chunk).
+Added a vertical-layout `DetailOverviewShell` instance to `src/examples/detail-overview-demo.tsx` inside the Mode A section (after its collapsible section) with a 3-cell `stats` strip; Revenue and Gross profit carry `hint` context lines. Verified: `npx tsc --noEmit`, `npm test` (478 passed), `npm run gallery:build` (instance present in the built detail-overview chunk).

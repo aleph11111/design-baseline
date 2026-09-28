@@ -440,10 +440,25 @@ export function DetailOverviewDemo(): React.ReactElement {
         />
       </div>
 
-      {/* Vertical layout with the typed `stats` strip (slot 3, aggregates) —
-          the contract's default for the vertical variant; the rail fixture
-          above surfaces the same figures in `summary` via MetricList instead. */}
-      <div className="rounded-xl bg-muted/50 p-4 sm:p-6">
+      {/* Mode A — standalone header with the shared back-link adapter, over a
+          collapsible section (title bar is the disclosure toggle), then the
+          vertical shell with a stats strip. */}
+      <div className="space-y-4 rounded-xl bg-muted/50 p-4 sm:p-6">
+        <DetailOverviewHeader
+          title={<span className="font-mono">{o.number}</span>}
+          subtitle="Mode A — standalone header with a back link"
+          backHref="#"
+          backLabel="Orders"
+        />
+        <DetailSection title="Raw payload" collapsible>
+          <pre className="overflow-x-auto font-mono text-[11px] text-muted-foreground">
+            {JSON.stringify({ id: o.id, number: o.number, channel: o.channel }, null, 2)}
+          </pre>
+        </DetailSection>
+        {/* Same vertical (no-rail) axis via the shell, with the typed `stats`
+            strip (slot 3, aggregates) — the contract's default for the vertical
+            variant; the rail fixture above surfaces these figures in `summary`
+            via MetricList instead. */}
         <DetailOverviewShell
           layout="vertical"
           title={<span className="font-mono">{o.number}</span>}
@@ -462,22 +477,6 @@ export function DetailOverviewDemo(): React.ReactElement {
             </DetailSection>
           }
         />
-      </div>
-
-      {/* Mode A — standalone header with the shared back-link adapter, over a
-          collapsible section (title bar is the disclosure toggle). */}
-      <div className="space-y-4 rounded-xl bg-muted/50 p-4 sm:p-6">
-        <DetailOverviewHeader
-          title={<span className="font-mono">{o.number}</span>}
-          subtitle="Mode A — standalone header with a back link"
-          backHref="#"
-          backLabel="Orders"
-        />
-        <DetailSection title="Raw payload" collapsible>
-          <pre className="overflow-x-auto font-mono text-[11px] text-muted-foreground">
-            {JSON.stringify({ id: o.id, number: o.number, channel: o.channel }, null, 2)}
-          </pre>
-        </DetailSection>
       </div>
     </div>
   );
