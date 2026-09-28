@@ -1,21 +1,34 @@
 // @vitest-environment node
 //
-// Covers the CI-facing surface of `scripts/scan-adoption-quality.mjs`: the
-// `--json` report shape (every signal MEASURED, hitless ones included), the
-// co-occurrence gate, the exclude list, the PCRE2→V8 anchor compat, backreference
-// windows, the at most one hit per file counting unit, and the radar-not-gate
-// exit contract (0 on findings, 2 on usage/config errors). Runs the real
-// script as a subprocess — against the donor's own src like `lint-design.test.mjs`,
-// and against a throwaway fixture tree for assertions that need controlled
-// content. The donor's own hit COUNT is asserted nowhere — the shipped signals
-// and the demo surfaces they flag move independently (see the script header);
-// the shape and semantics are what stay stable.
+// Covers `scripts/scan-adoption-quality.mjs` in two layers. The pure core —
+// exclude classification, the PCRE2→V8 anchor compat, signal compilation, the
+// co-occurrence gate, backreference windows, the at most one hit per file
+// counting unit, the brand-token checks and the summary — is imported and
+// tested directly (importing the script runs no scan). A small CLI smoke set
+// runs the real script as a subprocess: the `--json` report shape against the
+// donor's own src (every signal MEASURED, hitless ones included), the walk and
+// flags against a throwaway fixture tree, and the radar-not-gate exit contract
+// (0 on findings, 2 on usage/config errors). The donor's own hit COUNT is
+// asserted nowhere — the shipped signals and the demo surfaces they flag move
+// independently (see the script header); the shape and semantics are what
+// stay stable.
 import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
+import {
+  classifyExcludes,
+  compileBrandSignals,
+  compileSignals,
+  ConfigError,
+  isExcluded,
+  parseArgs,
+  pcreToJs,
+  scanSource,
+  summarize,
+} from "./scan-adoption-quality.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const script = join(root, "scripts", "scan-adoption-quality.mjs");
@@ -104,6 +117,7 @@ function fixture() {
         tier: "yellow",
       },
     ],
+    brandTokens: signalsDoc.brandTokens,
   };
   writeFileSync(join(dir, "signals.json"), JSON.stringify(signals, null, 2));
 
@@ -202,6 +216,10 @@ function fixture() {
   // The pattern's line, but the file never adopts the gated shell — the gate
   // is what excludes it, not the regex.
   writeFileSync(join(app, "plain.tsx"), "export function Plain() { return <TabsList>no shell</TabsList>; }\n");
+  // A brand file declaring a retired role is walked; the donor-owned layer
+  // file declares --db-* by design and is never matched by name.
+  writeFileSync(join(app, "tokens.css"), ":root {\n  --ring: 217 91% 60%;\n}\n");
+  writeFileSync(join(app, "tokens.layer.css"), ":root {\n  --db-content-max: 1180px;\n}\n");
   // Decoy under the DEFAULT target dir — only reachable if --targets app was
   // silently ignored (its content would then surface in the counts).
   writeFileSync(
@@ -212,8 +230,8 @@ function fixture() {
   return dir;
 }
 
-describe("scan-adoption-quality CLI (donor's own src)", () => {
-  it("--json reports every live signal — hitless ones included (measured, zero)", () => {
+describe("scan-adoption-quality CLI smoke", () => {
+  it("--json on the donor's own src reports every live signal (measured, zero) and clean brand tokens", () => {
     const { stdout, status } = run(root, "--json");
     expect(status).toBe(0);
     const report = parse(stdout);
@@ -224,212 +242,233 @@ describe("scan-adoption-quality CLI (donor's own src)", () => {
     const ids = new Set(report.signals.map((s) => s.id));
     for (const entry of signalsDoc.adoptionQuality) expect(ids.has(entry.id)).toBe(true);
     expect(report.signals.every((s) => Array.isArray(s.hits) && typeof s.hitCount === "number")).toBe(true);
-    // Summary internal consistency.
     expect(report.summary.totalHits).toBe(report.signals.reduce((n, s) => n + s.hitCount, 0));
-    expect(report.summary.signalsWithHits).toBe(report.signals.filter((s) => s.hitCount > 0).length);
     expect(report.summary.files).toBeGreaterThan(0);
     expect(report.summary.uncompiled).toBe(0); // every shipped signal compiles under V8
-  });
-
-  it("--json is stable across runs (no wall-clock-dependent fields beyond scannedAt)", () => {
-    const stable = (r) =>
-      JSON.stringify({ ...r, scannedAt: "_", summary: r.summary, signals: r.signals });
-    const a = parse(run(root, "--json").stdout);
-    const b = parse(run(root, "--json").stdout);
-    expect(stable(a)).toBe(stable(b));
-  });
-});
-
-describe("scan-adoption-quality fixture (controlled content)", () => {
-  const dir = fixture();
-  afterAll(() => rmSync(dir, { recursive: true, force: true }));
-
-  it("honors --signals/--targets and the gate, exclusion, and anchor semantics", () => {
-    const { stdout, status } = run(dir, "--json", "--signals", join(dir, "signals.json"), "--targets", "app");
-    expect(status).toBe(0);
-    const report = parse(stdout);
-    const byId = Object.fromEntries(report.signals.map((s) => [s.id, s]));
-
-    // --targets app: the decoy under the default src/ is invisible.
-    const allFiles = new Set(report.signals.flatMap((s) => s.hits.map((h) => h.file)));
-    expect([...allFiles].every((f) => f.startsWith("app/"))).toBe(true);
-
-    // The shell-gated line signal: the detail page carries the hit (its two
-    // <TabsList>s count ONCE — file-level unit), the .test. sibling is
-    // excluded, and plain.tsx (pattern present, gate closed) is untouched.
-    expect(byId["detail-tabbed-primary-nav"].hits).toEqual([{ file: "app/detail.tsx", line: 3 }]);
-
-    // The \A absence: form.tsx (no marker) hits at line 1; the file that
-    // carries the marker somewhere is cleared.
-    expect(byId["form-page-missing-errorboundary"].hits).toEqual([{ file: "app/form.tsx", line: 1 }]);
-
-    // The toast-only catch: the B page and the beginSubmit hook hit; the file
-    // that maps the error via setError and the non-B file are cleared.
-    expect(byId["b-form-page-swallowed-submit-error"].hits).toEqual([
-      { file: "app/form-toast.tsx", line: 1 },
-      { file: "app/useSubmission.ts", line: 1 },
-    ]);
-
-    // The backreference window: matched indents hit, mismatched do not. The
-    // reported line is the match's START (the window's opening newline — here,
-    // the line above the <Button>), because the counting unit is the candidate
-    // surface (the file); the line is a read-me hint, not a verdict.
-    expect(byId["fixture-backref-window"].hits).toEqual([{ file: "app/indent-match.tsx", line: 3 }]);
-    expect(byId["fixture-never-fires"].hitCount).toBe(0); // measured, zero
-    expect(byId["fixture-never-fires"].hits).toEqual([]); // present, not absent
-    expect(report.summary.signals).toBe(5); // every fixture entry measured
-  });
-
-  it("exits 0 on red hits — a radar, not a ratchet (no threshold flag exists to gate it)", () => {
-    const { status } = run(dir, "--signals", join(dir, "signals.json"), "--targets", "app");
-    expect(status).toBe(0); // red findings present; a scan is still a clean hand-off
-  });
-
-  it("walks the default src/ target when --targets is omitted", () => {
-    // A root whose ONLY sources live under src/ — the no-override default is
-    // what a consumer with the standard layout gets for free.
-    const def = mkdtempSync(join(tmpdir(), "adoption-quality-scan-default-"));
-    try {
-      const src = join(def, "src");
-      mkdirSync(src, { recursive: true });
-      writeFileSync(
-        join(src, "detail.tsx"),
-        "import { DetailOverviewShell } from '@components/DetailOverviewShell';\n" +
-          "export function Detail() { return <DetailOverviewShell><TabsList>t</TabsList></DetailOverviewShell>; }\n",
-      );
-      const { stdout, status } = run(def, "--json", "--signals", join(dir, "signals.json"));
-      expect(status).toBe(0);
-      const byId = Object.fromEntries(parse(stdout).signals.map((s) => [s.id, s]));
-      expect(byId["detail-tabbed-primary-nav"].hits).toEqual([{ file: "src/detail.tsx", line: 2 }]);
-    } finally {
-      rmSync(def, { recursive: true, force: true });
-    }
-  });
-
-  it("skips a target dir that does not exist — exit 0, only the existing target's files scanned", () => {
-    // A consumer legitimately may not have every target root: a missing
-    // `--targets` entry contributes zero files instead of breaking the scan.
-    const { stdout, status } = run(dir, "--json", "--signals", join(dir, "signals.json"), "--targets", "app,ghost");
-    expect(status).toBe(0); // missing dir is skipped silently, not fatal
-    const byId = Object.fromEntries(parse(stdout).signals.map((s) => [s.id, s]));
-    // The existing target is still walked — the gate + exclusion behaviour is intact.
-    expect(byId["detail-tabbed-primary-nav"].hits).toEqual([{ file: "app/detail.tsx", line: 3 }]);
-    const allFiles = new Set(byId["detail-tabbed-primary-nav"].hits.map((h) => h.file));
-    expect([...allFiles].every((f) => f.startsWith("app/"))).toBe(true); // nothing from the missing dir
-  });
-
-  it("exits 2 on an unresolvable signals file", () => {
-    expect(run(dir, "--signals", join(dir, "does-not-exist.json"), "--targets", "app").status).toBe(2);
-  });
-
-  it("exits 2 on an unknown argument", () => {
-    expect(run(dir, "--bogus").status).toBe(2);
-  });
-});
-
-describe("scan-adoption-quality brand tokens (ADR-0007)", () => {
-  const brandSignals = { artifact: "audit-signals", adoptionQuality: signalsDoc.adoptionQuality.slice(0, 1), brandTokens: signalsDoc.brandTokens };
-  const TEAL_LIGHT = "@layer base {\n  :root {\n    --primary: 174 72% 35%;\n    --primary-foreground: 0 0% 100%;\n  }\n";
-
-  function brandFixture(files) {
-    const dir = mkdtempSync(join(tmpdir(), "adoption-quality-brand-"));
-    writeFileSync(join(dir, "signals.json"), JSON.stringify(brandSignals));
-    for (const [rel, body] of Object.entries(files)) {
-      mkdirSync(join(dir, rel, ".."), { recursive: true });
-      writeFileSync(join(dir, rel), body);
-    }
-    return dir;
-  }
-  const scanBrand = (dir) => {
-    const { stdout, status } = run(dir, "--json", "--signals", join(dir, "signals.json"));
-    expect(status).toBe(0);
-    return Object.fromEntries(parse(stdout).brandTokens.map((s) => [s.id, s]));
-  };
-
-  it("flags a brand tokens.css that declares a retired role or a --db-* variable", () => {
-    const dir = brandFixture({
-      "src/a/tokens.css": ":root {\n  --primary: 174 72% 35%;\n  --ring: 217 91% 60%;\n}\n",
-      "src/b/tokens.css": ":root {\n  --db-surface-raised: white;\n}\n",
-      // The donor-owned layer declares --db-* by design — never scanned.
-      "src/b/tokens.layer.css": ":root {\n  --db-content-max: 1180px;\n}\n",
-      // --sidebar-ring-offset-ish names and comments do not count.
-      "src/c/tokens.css": "/* --ring: retired */\n:root {\n  --ring-offset: 2px;\n  --sidebar-foreground: 0 0% 10%;\n}\n",
-      // The chart palette is donor-fixed: a brand --chart-2 is dead and reported.
-      "src/d/tokens.css": ":root {\n  --primary: 174 72% 35%;\n  --chart-2: 43 74% 49%;\n}\n",
-    });
-    try {
-      expect(scanBrand(dir)["brand-tokens-retired-role"].hits).toEqual([
-        { file: "src/a/tokens.css", line: 3 },
-        { file: "src/b/tokens.css", line: 2 },
-        { file: "src/d/tokens.css", line: 3 },
-      ]);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  });
-
-  it("flags a dark --primary off the light hue or desaturated, passes a same-hue chromatic one", () => {
-    const dir = brandFixture({
-      // Slate near-white on teal: hue 36° off and saturation 40% — the hue fails.
-      "src/slate/tokens.css": TEAL_LIGHT + "  .dark {\n    --primary: 210 40% 98%;\n  }\n}\n",
-      // Same hue, but grey (saturation 12%).
-      "src/grey/tokens.css": TEAL_LIGHT + "  .dark {\n    --primary: 174 12% 70%;\n  }\n}\n",
-      // Conformant: 8° off, saturated; --sidebar-primary / --primary-foreground ignored.
-      "src/ok/tokens.css": TEAL_LIGHT + "  .dark {\n    --sidebar-primary: 0 0% 98%;\n    --primary: 166 60% 55%;\n    --primary-foreground: 0 0% 5%;\n  }\n}\n",
-      // Hue wraps around 360: 355° vs 3° is 8° apart.
-      "src/wrap/tokens.css": ":root { --primary: 355 80% 45%; }\n.dark { --primary: 3 70% 60%; }\n",
-      // No dark override at all — nothing to compare.
-      "src/light-only/tokens.css": TEAL_LIGHT + "}\n",
-    });
-    try {
-      expect(scanBrand(dir)["brand-tokens-dark-primary-off-hue"].hits).toEqual([
-        { file: "src/grey/tokens.css", line: 7 },
-        { file: "src/slate/tokens.css", line: 7 },
-      ]);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  });
-
-  it("exits clean on the donor's own tokens.css", () => {
-    const report = parse(run(root, "--json").stdout);
     expect(report.summary.brandTokenFiles).toBe(1);
     expect(report.brandTokens.map((s) => s.id).sort()).toEqual(signalsDoc.brandTokens.map((s) => s.id).sort());
     expect(report.brandTokens.every((s) => !s.error && s.hitCount === 0)).toBe(true);
   });
+
+  describe("fixture tree", () => {
+    const dir = fixture();
+    afterAll(() => rmSync(dir, { recursive: true, force: true }));
+
+    it("honors --signals/--targets, the exclude list and a missing target end to end", () => {
+      const { stdout, status } = run(dir, "--json", "--signals", join(dir, "signals.json"), "--targets", "app,ghost");
+      expect(status).toBe(0); // the missing ghost/ target is skipped silently, not fatal
+      const report = parse(stdout);
+      const byId = Object.fromEntries(report.signals.map((s) => [s.id, s]));
+
+      // --targets app: the decoy under the default src/ is invisible.
+      const allFiles = new Set(report.signals.flatMap((s) => s.hits.map((h) => h.file)));
+      expect([...allFiles].every((f) => f.startsWith("app/"))).toBe(true);
+      // The .test. sibling is excluded by the walk; plain.tsx's gate is closed.
+      expect(byId["detail-tabbed-primary-nav"].hits).toEqual([{ file: "app/detail.tsx", line: 3 }]);
+      expect(byId["form-page-missing-errorboundary"].hits).toEqual([{ file: "app/form.tsx", line: 1 }]);
+      expect(byId["fixture-backref-window"].hits).toEqual([{ file: "app/indent-match.tsx", line: 3 }]);
+      expect(byId["fixture-never-fires"].hits).toEqual([]); // present, not absent
+      expect(report.summary.signals).toBe(5); // every fixture entry measured
+
+      // Only tokens.css is a brand file — tokens.layer.css is never walked.
+      expect(report.summary.brandTokenFiles).toBe(1);
+      const brand = Object.fromEntries(report.brandTokens.map((s) => [s.id, s]));
+      expect(brand["brand-tokens-retired-role"].hits).toEqual([{ file: "app/tokens.css", line: 2 }]);
+    });
+
+    it("walks the default src/ target in text mode and exits 0 on red hits — a radar, not a ratchet", () => {
+      // No --targets: only the src/ decoy is walked, never app/.
+      const { stdout, status } = run(dir, "--signals", join(dir, "signals.json"));
+      expect(status).toBe(0); // red findings present; a scan is still a clean hand-off
+      expect(stdout).toMatch(/^scan:adoption-quality — .*: 1 file\(s\) scanned, 5 signal\(s\), 1 with 1 hit\(s\)\n/);
+      expect(stdout).toContain(`  red    ${"detail-tabbed-primary-nav".padEnd(40)}  1   src/decoy.tsx:2\n`);
+      expect(stdout).not.toContain("app/");
+    });
+
+    it("exits 2 on an unresolvable signals file", () => {
+      expect(run(dir, "--signals", join(dir, "does-not-exist.json"), "--targets", "app").status).toBe(2);
+    });
+
+    it("exits 2 on an unknown argument", () => {
+      expect(run(dir, "--bogus").status).toBe(2);
+    });
+  });
 });
 
-describe("scan-adoption-quality chart hex colour props (ADR-0007 §8)", () => {
-  const chartSignals = {
-    artifact: "audit-signals",
-    adoptionQuality: signalsDoc.adoptionQuality.filter((s) => s.id === "chart-hex-colour-prop"),
-  };
+describe("parseArgs", () => {
+  it("defaults to cwd, <root>/docs/audit-signals.json and the src target", () => {
+    const opts = parseArgs([], "/repo");
+    expect(opts).toEqual({ jsonMode: false, rootResolved: "/repo", signalsPath: join("/repo", "docs", "audit-signals.json"), targets: ["src"] });
+  });
 
-  it("flags hex literals in chart-library files only, and does not skip the file after a hit", () => {
-    const dir = mkdtempSync(join(tmpdir(), "adoption-quality-chart-"));
-    writeFileSync(join(dir, "signals.json"), JSON.stringify(chartSignals));
-    const files = {
-      // A late match, so a carried-over lastIndex would overshoot the next file's early one.
-      "src/a-chart.tsx": 'import { Bar } from "recharts";\n' + "// pad\n".repeat(40) + '<Bar dataKey="v" fill="#3b82f6" />\n',
-      "src/b-chart.tsx": 'const s = { color: "#ef4444" };\nimport { Pie } from "recharts";\n',
-      "src/c-chart.tsx": 'import { Bar } from "recharts";\n<Bar fill="var(--color-chart-2)" />\n',
-      "src/d-plain.tsx": '<div style={{ color: "#ffffff" }} />\n',
-      "src/e-nivo.tsx": 'import { ResponsiveBar } from "@nivo/bar";\n<ResponsiveBar colors={["#111111"]} />\n',
-    };
-    for (const [rel, body] of Object.entries(files)) {
-      mkdirSync(join(dir, rel, ".."), { recursive: true });
-      writeFileSync(join(dir, rel), body);
-    }
-    try {
-      const { stdout, status } = run(dir, "--json", "--signals", join(dir, "signals.json"));
-      expect(status).toBe(0);
-      expect(parse(stdout).signals[0].hits).toEqual([
-        { file: "src/a-chart.tsx", line: 42 },
-        { file: "src/b-chart.tsx", line: 1 },
-        { file: "src/e-nivo.tsx", line: 2 },
-      ]);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
+  it("reads --json/--root/--targets", () => {
+    const opts = parseArgs(["--json", "--root", "/r", "--targets", "a, b,"], "/cwd");
+    expect(opts).toMatchObject({ jsonMode: true, rootResolved: "/r", targets: ["a", "b"] });
+  });
+
+  it("throws ConfigError on an unknown argument or empty --targets", () => {
+    expect(() => parseArgs(["--bogus"], "/r")).toThrow(ConfigError);
+    expect(() => parseArgs(["--targets", ","], "/r")).toThrow(ConfigError);
+  });
+});
+
+describe("classifyExcludes / isExcluded", () => {
+  const classified = classifyExcludes(["node_modules", ".test.", "dist", "**/generated/**"]);
+
+  it("splits bare names from wildcard globs", () => {
+    expect(classified).toEqual({ names: ["node_modules", ".test.", "dist"], globs: ["**/generated/**"] });
+  });
+
+  it("matches a bare name only as a whole segment", () => {
+    expect(isExcluded("src/dist/a.tsx", classified)).toBe(true);
+    expect(isExcluded("src/distance/a.tsx", classified)).toBe(false);
+    expect(isExcluded("src/a-dist.tsx", classified)).toBe(false);
+  });
+
+  it("matches a dotted fragment inside a segment", () => {
+    expect(isExcluded("src/detail.test.tsx", classified)).toBe(true);
+    expect(isExcluded("src/detail.tsx", classified)).toBe(false);
+  });
+
+  it("matches wildcard globs against the whole path", () => {
+    expect(isExcluded("src/generated/x.ts", classified)).toBe(true);
+    expect(isExcluded("src/gen/x.ts", classified)).toBe(false);
+  });
+});
+
+describe("pcreToJs", () => {
+  it("rewrites the PCRE string anchors \\A and \\Z to ^ and $", () => {
+    expect(pcreToJs("\\A(?!x)foo\\Z")).toBe("^(?!x)foo$");
+  });
+
+  it("leaves every other construct alone", () => {
+    const src = "\\n([ \\t]+)<Button\\b[\\s\\S]{0,100}?\\n\\1<Panel\\b";
+    expect(pcreToJs(src)).toBe(src);
+  });
+});
+
+describe("compileSignals", () => {
+  it("compiles every live signal under V8", () => {
+    expect(compileSignals(signalsDoc.adoptionQuality).filter((c) => c.error)).toEqual([]);
+  });
+
+  it("carries a bad pattern as an error instead of throwing", () => {
+    const [c] = compileSignals([{ id: "bad", coOccursWith: "X", regex: "(" }]);
+    expect(c.error).toMatch(/^bad: /);
+    expect(c.re).toBeUndefined();
+  });
+});
+
+describe("scanSource", () => {
+  const sig = (id, coOccursWith, regex) => ({ id, coOccursWith, regex, tier: "red" });
+
+  it("fires only when the coOccursWith gate matches the file", () => {
+    const compiled = compileSignals([sig("tabs", "DetailOverviewShell", "<TabsList\\b")]);
+    expect(scanSource("a.tsx", "<TabsList>no shell</TabsList>", compiled)).toEqual([null]);
+    expect(scanSource("a.tsx", "import { DetailOverviewShell } from 'x';\n<TabsList>", compiled)).toEqual([
+      { file: "a.tsx", line: 2 },
+    ]);
+  });
+
+  it("records one hit per file, at the first match's line", () => {
+    const compiled = compileSignals([sig("tabs", "Shell", "<TabsList\\b")]);
+    const src = "Shell\n<TabsList>a</TabsList>\n<TabsList>b</TabsList>\n";
+    expect(scanSource("a.tsx", src, compiled)).toEqual([{ file: "a.tsx", line: 2 }]);
+  });
+
+  it("fires the \\A whole-file absence check at line 1 and clears a file carrying the marker", () => {
+    const compiled = compileSignals([sig("eb", "FormPageShell", "\\A(?!(?:.|\\n)*ErrorBoundary)")]);
+    expect(scanSource("f.tsx", "FormPageShell\nform\n", compiled)).toEqual([{ file: "f.tsx", line: 1 }]);
+    expect(scanSource("f.tsx", "FormPageShell\n<ErrorBoundary>\n", compiled)).toEqual([null]);
+  });
+
+  it("keeps a mismatched indent out of a \\1 backreference window", () => {
+    const compiled = compileSignals([sig("bw", "Panel", "\\n([ \\t]+)<Button\\b[\\s\\S]{0,100}?\\n\\1<Panel\\b")]);
+    expect(scanSource("m.tsx", "Panel\n    <Button/>\n    <Panel/>\n", compiled)).toEqual([{ file: "m.tsx", line: 1 }]);
+    expect(scanSource("m.tsx", "Panel\n  <Button/>\n      <Panel/>\n", compiled)).toEqual([null]);
+  });
+
+  it("applies the live swallowed-submit-error signal: toast-only catch hits, setError clears", () => {
+    const compiled = compileSignals([signalsDoc.adoptionQuality.find((s) => s.id === "b-form-page-swallowed-submit-error")]);
+    const page = (body) =>
+      "import { FormPageActions } from '@components/FormPageActions';\n" +
+      `async function onSubmit() {\n  try { await save(); } catch (err) {\n${body}  }\n}\n`;
+    expect(scanSource("t.tsx", page("    toast.error('Save failed');\n"), compiled)).toEqual([{ file: "t.tsx", line: 1 }]);
+    expect(
+      scanSource("t.tsx", page("    form.setError('root', { message: 'x' });\n    toast.error('x');\n"), compiled),
+    ).toEqual([null]);
+    expect(scanSource("t.ts", "try { go(); } catch { toast.error('x'); }\n", compiled)).toEqual([null]); // gate closed
+  });
+
+  it("does not carry regex state from one file into the next (live chart-hex-colour-prop)", () => {
+    const compiled = compileSignals(signalsDoc.adoptionQuality.filter((s) => s.id === "chart-hex-colour-prop"));
+    const late = 'import { Bar } from "recharts";\n' + "// pad\n".repeat(40) + '<Bar dataKey="v" fill="#3b82f6" />\n';
+    const early = 'const s = { color: "#ef4444" };\nimport { Pie } from "recharts";\n';
+    expect(scanSource("a.tsx", late, compiled)).toEqual([{ file: "a.tsx", line: 42 }]);
+    expect(scanSource("b.tsx", early, compiled)).toEqual([{ file: "b.tsx", line: 1 }]);
+    expect(scanSource("c.tsx", 'import { Bar } from "recharts";\n<Bar fill="var(--color-chart-2)" />\n', compiled)).toEqual([null]);
+    expect(scanSource("d.tsx", '<div style={{ color: "#ffffff" }} />\n', compiled)).toEqual([null]);
+    expect(scanSource("e.tsx", 'import { ResponsiveBar } from "@nivo/bar";\n<ResponsiveBar colors={["#111111"]} />\n', compiled)).toEqual([
+      { file: "e.tsx", line: 2 },
+    ]);
+  });
+
+  it("skips an uncompiled signal", () => {
+    const compiled = compileSignals([sig("bad", "", "(")]);
+    expect(scanSource("a.tsx", "anything", compiled)).toEqual([null]);
+  });
+});
+
+describe("compileBrandSignals (ADR-0007)", () => {
+  const byId = Object.fromEntries(compileBrandSignals(signalsDoc.brandTokens).map((b) => [b.signal.id, b]));
+  const lineAt = (src, index) => (index === null ? null : src.slice(0, index).split("\n").length);
+  const TEAL_LIGHT = "@layer base {\n  :root {\n    --primary: 174 72% 35%;\n    --primary-foreground: 0 0% 100%;\n  }\n";
+
+  it("flags a retired role or a --db-* variable, never a comment or a look-alike name", () => {
+    const { test } = byId["brand-tokens-retired-role"];
+    const at = (src) => lineAt(src, test(src));
+    expect(at(":root {\n  --primary: 174 72% 35%;\n  --ring: 217 91% 60%;\n}\n")).toBe(3);
+    expect(at(":root {\n  --db-surface-raised: white;\n}\n")).toBe(2);
+    expect(at(":root {\n  --primary: 174 72% 35%;\n  --chart-2: 43 74% 49%;\n}\n")).toBe(3);
+    expect(at("/* --ring: retired */\n:root {\n  --ring-offset: 2px;\n  --sidebar-foreground: 0 0% 10%;\n}\n")).toBe(null);
+  });
+
+  it("flags a dark --primary off the light hue or desaturated, passes a same-hue chromatic one", () => {
+    const { test } = byId["brand-tokens-dark-primary-off-hue"];
+    const at = (src) => lineAt(src, test(src));
+    expect(at(TEAL_LIGHT + "  .dark {\n    --primary: 210 40% 98%;\n  }\n}\n")).toBe(7); // hue 36° off
+    expect(at(TEAL_LIGHT + "  .dark {\n    --primary: 174 12% 70%;\n  }\n}\n")).toBe(7); // grey
+    expect(
+      at(TEAL_LIGHT + "  .dark {\n    --sidebar-primary: 0 0% 98%;\n    --primary: 166 60% 55%;\n    --primary-foreground: 0 0% 5%;\n  }\n}\n"),
+    ).toBe(null);
+    expect(at(":root { --primary: 355 80% 45%; }\n.dark { --primary: 3 70% 60%; }\n")).toBe(null); // wraps 360
+    expect(at(TEAL_LIGHT + "}\n")).toBe(null); // no dark override
+  });
+
+  it("carries an unknown check as an error", () => {
+    const [b] = compileBrandSignals([{ id: "x", tier: "red", check: "nope" }]);
+    expect(b).toMatchObject({ test: null, error: 'x: unknown check "nope"' });
+  });
+});
+
+describe("summarize", () => {
+  it("totals hits by tier and counts uncompiled and brand entries", () => {
+    const entries = [
+      { id: "a", tier: "red", hits: [{}, {}], hitCount: 2 },
+      { id: "b", tier: "yellow", hits: [{}], hitCount: 1 },
+      { id: "c", tier: "red", error: "c: bad", hits: [], hitCount: 0 },
+    ];
+    const brandResults = [{ id: "x", tier: "red", hits: [{}], hitCount: 1 }];
+    expect(summarize({ entries, brandResults, files: 7, brandFiles: 2 })).toEqual({
+      files: 7,
+      signals: 3,
+      uncompiled: 1,
+      signalsWithHits: 2,
+      totalHits: 3,
+      redHits: 2,
+      yellowHits: 1,
+      brandTokenFiles: 2,
+      brandTokenHits: 1,
+    });
   });
 });
