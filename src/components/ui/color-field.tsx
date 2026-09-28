@@ -40,6 +40,8 @@ export interface ColorFieldProps {
   disabled?: boolean;
   /** Hide the paired hex text input, leaving only the swatch. */
   hideHex?: boolean;
+  /** Accessible name for the hex input. Defaults to a derivative of `label`. */
+  hexLabel?: string;
   /** Id for the swatch input; auto-generated (and linked to the label) when omitted. */
   id?: string;
   /** Applied to the wrapper. */
@@ -58,6 +60,7 @@ export function ColorField({
   required,
   disabled,
   hideHex = false,
+  hexLabel,
   id,
   className,
 }: ColorFieldProps): React.ReactElement {
@@ -104,7 +107,7 @@ export function ColorField({
             disabled={disabled}
             maxLength={7}
             onChange={(e) => onChange(e.target.value)}
-            aria-label={label ? `${label} hex value` : "Hex colour value"}
+            aria-label={hexLabel ?? (label ? `${label} hex value` : "Hex colour value")}
             aria-describedby={describedBy}
             aria-invalid={invalid}
             className={cn("w-28 font-mono", errorRing)}
