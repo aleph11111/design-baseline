@@ -436,6 +436,27 @@ describe("scanSource", () => {
     ]);
   });
 
+  it("flags a chart file's import of a local shared/colors/palette/theme module (chart-hex-colour-shared-module, step 1 of the two-step correlation), clears an unrelated import and a module with no chart-file importer", () => {
+    const compiled = compileSignals([signalsDoc.adoptionQuality.find((s) => s.id === "chart-hex-colour-shared-module")]);
+    const chartWithShared =
+      'import { Bar } from "recharts";\nimport { chartColors } from "./shared";\n<Bar dataKey="v" fill={chartColors[0]} />\n';
+    expect(scanSource("chart.tsx", chartWithShared, compiled)).toEqual([{ file: "chart.tsx", line: 2 }]);
+
+    const chartWithPalette =
+      'import { ResponsivePie } from "@nivo/pie";\nimport palette from "../theme/palette";\n<ResponsivePie colors={palette} />\n';
+    expect(scanSource("pie.tsx", chartWithPalette, compiled)).toEqual([{ file: "pie.tsx", line: 2 }]);
+
+    const chartWithUnrelatedImport =
+      'import { Bar } from "recharts";\nimport { formatCurrency } from "./utils";\n<Bar dataKey="v" fill="var(--color-chart-1)" />\n';
+    expect(scanSource("clean.tsx", chartWithUnrelatedImport, compiled)).toEqual([null]);
+
+    // control: the shared module itself holds the hex array, but it imports no chart library
+    // of its own, so the gate never opens — the scan can't reach it, which is exactly the miss
+    // this companion signal's step 1 (the importing chart file) closes.
+    const sharedModule = 'export const chartColors = ["#3b82f6", "#22c55e", "#f97316"];\n';
+    expect(scanSource("shared.ts", sharedModule, compiled)).toEqual([null]);
+  });
+
   it("skips an uncompiled signal", () => {
     const compiled = compileSignals([sig("bad", "", "(")]);
     expect(scanSource("a.tsx", "anything", compiled)).toEqual([null]);
