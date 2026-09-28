@@ -22,7 +22,9 @@ export type SurfaceFrameProps = {
   /**
    * Frame overflow behaviour — the frame is one bounded surface, so clipping
    * is the frame's job, not a copy the shells re-make in a body div:
-   * - `"hidden"` (default): clip inner content to the card's rounding.
+   * - `"hidden"` (default): clip inner content to the card's rounding. Rendered
+   *   as `overflow: clip`, not `hidden`, so the frame is not a scroll container
+   *   and a sticky descendant (the detail-overview rail) sticks to the page.
    * - `"auto"`: the frame is the horizontal scroll container. Named structural
    *   mode for frames that hold a horizontally-scrolling table with a sticky
    *   first column (matrix-grid — a sticky cell is only pinned while its
@@ -47,7 +49,7 @@ export type SurfaceFrameProps = {
 
 /**
  * SurfaceFrame — the canonical bounded surface every framed archetype shell
- * mounts: a flat `overflow-hidden rounded-lg bg-surface-raised` card (House
+ * mounts: a flat `overflow-clip rounded-lg bg-surface-raised` card (House
  * style B — no shadow, no border: tone separates it from the canvas, ADR-0007
  * §3; see the report / statement-with-filters contracts) with the
  * on-surface `<SurfaceHeader>` and the ruled `border-b px-4 py-3` toolbar band
@@ -107,7 +109,7 @@ export function SurfaceFrame({
       className={cn(
         "rounded-lg",
         !nested && "bg-surface-raised",
-        overflow === "auto" ? "overflow-x-auto" : "overflow-hidden",
+        overflow === "auto" ? "overflow-x-auto" : "overflow-clip",
         className,
       )}
     >

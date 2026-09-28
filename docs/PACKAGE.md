@@ -504,7 +504,9 @@ directive-carrying `ui/` leaf as a project file.
   overflow of its own. Wide content therefore needs its own `overflow-x-auto`
   box. Every donor shell carries one; a bare wide table scrolls the page
   sideways. Consumers that already scroll the window (`min-h-screen`) see no
-  change.
+  change. `AppShell` publishes the header slot's height as `--db-sticky-top`
+  (v0.2.20); a page-level sticky element uses it as its top offset, so it pins
+  just below the header (the detail-overview rail does).
 - **`<AppShell>` mounts its own Sonner toaster.** A consumer that already mounts
   one at its root layout (so routes outside the shell get toasts too) passes
   `<AppShell toaster={false}>`; otherwise each toast renders twice.

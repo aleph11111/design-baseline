@@ -155,7 +155,7 @@ export function DetailOverviewShell({
           multi-section `summary` gets an inset hairline between sections. */}
       <div
         className={cn(
-          "bg-muted/20 lg:border-r lg:border-border/60 lg:sticky lg:top-0 lg:self-start",
+          "bg-muted/20 lg:border-r lg:border-border/60 lg:sticky lg:top-[var(--db-sticky-top,0px)] lg:self-start",
           railDividers,
         )}
       >

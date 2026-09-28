@@ -6,7 +6,7 @@ import { SurfaceFrame } from "./SurfaceFrame";
 // The canonical frame chrome — House style B: flat bounded card, no shadow
 // (the detail-overview `shadow-sm` it used to carry was copy drift, retired
 // with the extraction).
-const CHROME = ["overflow-hidden", "rounded-lg", "bg-surface-raised"];
+const CHROME = ["overflow-clip", "rounded-lg", "bg-surface-raised"];
 
 afterEach(() => {
   cleanup();
@@ -77,7 +77,7 @@ describe("SurfaceFrame — canonical bounded surface", () => {
       <SurfaceFrame title="S">b</SurfaceFrame>,
     );
     expect((clipped.container.firstElementChild as HTMLElement).className).toContain(
-      "overflow-hidden",
+      "overflow-clip",
     );
     expect(
       (clipped.container.firstElementChild as HTMLElement).className,
@@ -92,7 +92,7 @@ describe("SurfaceFrame — canonical bounded surface", () => {
     );
     expect(
       (scrolling.container.firstElementChild as HTMLElement).className,
-    ).not.toContain("overflow-hidden");
+    ).not.toContain("overflow-clip");
   });
 
   it("chromeless: drops the bounded card, keeps the slots, forwards the ref", () => {

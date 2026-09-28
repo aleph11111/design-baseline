@@ -176,7 +176,7 @@ describe("ListWithDetailShell", () => {
     // The bounded-card chrome is owned by <SurfaceFrame> (the frame slot the
     // shell composes) — asserted here per-token so a shell re-spelling its own
     // frame is caught by this test, not by string match.
-    const frameChrome = ["rounded-lg", "bg-surface-raised", "overflow-hidden"];
+    const frameChrome = ["rounded-lg", "bg-surface-raised", "overflow-clip"];
 
     const { container: standalone } =
       render(

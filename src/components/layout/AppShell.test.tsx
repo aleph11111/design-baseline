@@ -52,6 +52,25 @@ describe("AppShell scroll model", () => {
     expect(headerSlot.className).toContain("sticky");
     expect(headerSlot.className).toContain("top-0");
   });
+
+  it("publishes the header slot's height as --db-sticky-top for page-level sticky elements", () => {
+    const observed: Element[] = [];
+    const saved = globalThis.ResizeObserver;
+    globalThis.ResizeObserver = class {
+      observe(el: Element) { observed.push(el); }
+      unobserve() {}
+      disconnect() {}
+    } as unknown as typeof ResizeObserver;
+    try {
+      const { container } = renderShell();
+      const root = container.querySelector("main")!.parentElement!.parentElement!;
+      // jsdom has no layout, so the measured height is 0 — the wiring is what's under test.
+      expect(root.style.getPropertyValue("--db-sticky-top")).toBe("0px");
+      expect(observed[0]).toBe(container.querySelector("header")!.parentElement);
+    } finally {
+      globalThis.ResizeObserver = saved;
+    }
+  });
 });
 
 describe("AppShell toaster", () => {

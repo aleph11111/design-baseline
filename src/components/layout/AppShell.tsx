@@ -32,6 +32,22 @@ export function AppShell({
   headerFill = "solid",
   toaster = true,
 }: AppShellProps) {
+  // Publish the sticky header slot's height as --db-sticky-top, so page-level
+  // sticky elements (the detail-overview rail) pin just below it rather than
+  // under it. Measured, because the header slot's content is the consumer's.
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const headerRef = React.useRef<HTMLDivElement>(null);
+  React.useLayoutEffect(() => {
+    const header = headerRef.current;
+    if (!header || typeof ResizeObserver === "undefined") return;
+    const publish = () =>
+      rootRef.current?.style.setProperty("--db-sticky-top", `${header.offsetHeight}px`);
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <TooltipProvider>
       <HeaderFillContext.Provider value={headerFill}>
@@ -40,13 +56,15 @@ export function AppShell({
             screenshots and back/forward scroll restoration work. The desktop
             sidebar is `fixed` (ui/sidebar) and the header slot is sticky, so
             both stay in view. */}
-        <div className="min-h-svh flex w-full">
+        <div ref={rootRef} className="min-h-svh flex w-full">
           {sidebar}
           {/* min-w-0: a flex item won't shrink below its content by default, so
               without it a wide table pushes <main> past the viewport and the
               whole page scrolls instead of the table's own overflow box. */}
           <div className="min-w-0 flex-1 flex flex-col">
-            <div className="sticky top-0 z-20 bg-background">{header}</div>
+            <div ref={headerRef} className="sticky top-0 z-20 bg-background">
+              {header}
+            </div>
             {/* `<main>` is the CANONICAL owner of the page inset (p-4 md:p-12
                 xl:p-14) and of the centred content column (--db-content-max).
                 Pages and archetype shells render content WITHOUT their own outer
