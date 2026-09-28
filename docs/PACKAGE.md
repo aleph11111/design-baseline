@@ -501,6 +501,15 @@ directive-carrying `ui/` leaf as a project file.
 - **`<AppShell>` mounts its own Sonner toaster.** A consumer that already mounts
   one at its root layout (so routes outside the shell get toasts too) passes
   `<AppShell toaster={false}>`; otherwise each toast renders twice.
+- **Chart colours: write the role names literally.** A chart library reads
+  `var(--color-chart-1)` … `var(--color-chart-6)` (ADR-0007 §8), spelled out
+  in source, e.g. `stroke="var(--color-chart-2)"`. Before v0.2.15 the layer's
+  `@theme` emitted only the variables Tailwind found verbatim, so a templated
+  `` `var(--color-chart-${n})` `` silently dropped chart-2 … chart-6 from the
+  build. From v0.2.15 on (`@theme inline static`) every `--color-*` role is
+  emitted at `:root`, so the `var()` form resolves either way. A templated
+  *utility class* (`` `bg-chart-${n}` ``) still never compiles, so spell out
+  class names.
 - **`process.env.NODE_ENV` in `ui/button.tsx` needs `@types/node`** for a
   consumer that type-checks the package source (donor-dev-only, not bundled).
 

@@ -52,7 +52,14 @@
   }
 }
 
-@theme {
+/* `inline`: a utility compiles to the role's source (`bg-chart-2` →
+   `var(--db-chart-2)`) instead of `var(--color-chart-2)`, so it resolves per
+   element and a nested `.dark` scope inside a light page picks up the dark
+   value. `static`: every `--color-*` role is still emitted at `:root`, used or
+   not, so a chart library reading `var(--color-chart-N)` directly keeps working
+   (ADR-0007 §8). Such direct `var()` readers still resolve at `:root`; only
+   the utilities re-resolve under a nested scope. */
+@theme inline static {
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   /* Fixed roles (ADR-0007 §4): the focus ring and the sidebar accent follow
