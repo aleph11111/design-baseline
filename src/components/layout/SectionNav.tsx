@@ -4,6 +4,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { cn } from "../../lib/utils";
 import { OVERLINE_CLASS } from "./overline";
 import type { NavItem } from "./Sidebar";
+import { isNavPathActive } from "./navMatch";
 
 /**
  * A run of section-nav items, optionally headed by a group label. Omit `label`
@@ -38,12 +39,6 @@ export interface SectionNavShellProps {
   ariaLabel?: string;
   /** Extra classes for the outer flex container. */
   className?: string;
-}
-
-function isPathActive(pathname: string, item: NavItem) {
-  if (item.path === "/") return pathname === "/";
-  if (item.exact) return pathname === item.path;
-  return pathname === item.path || pathname.startsWith(item.path + "/");
 }
 
 /**
@@ -82,7 +77,7 @@ export function SectionNavShell({
                   </h4>
                 )}
                 {group.items.map((item) => {
-                  const active = isPathActive(pathname, item);
+                  const active = isNavPathActive(pathname, item);
                   return (
                     <React.Fragment key={item.path}>
                       {renderLink(

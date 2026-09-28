@@ -21,6 +21,7 @@ import {
 } from "../ui/collapsible";
 import { cn } from "../../lib/utils";
 import { OVERLINE_CLASS } from "./overline";
+import { isNavPathActive } from "./navMatch";
 
 export interface NavItem {
   title: string;
@@ -79,12 +80,6 @@ export interface AppSidebarProps {
    * survives client navigation and only a hard reload resets it.
    */
   collapseStorageKey?: string | null;
-}
-
-function isPathActive(pathname: string, item: NavItem) {
-  if (item.path === "/") return pathname === "/";
-  if (item.exact) return pathname === item.path;
-  return pathname === item.path || pathname.startsWith(item.path + "/");
 }
 
 function useCollapsedState(storageKey: string | null) {
@@ -178,7 +173,7 @@ export function AppSidebar({
                   <NavRow
                     key={item.path}
                     item={item}
-                    isActive={isPathActive(pathname, item)}
+                    isActive={isNavPathActive(pathname, item)}
                     renderLink={renderLink}
                   />
                 ))}
@@ -188,7 +183,7 @@ export function AppSidebar({
         )}
 
         {groups.map((group) => {
-          const hasActiveChild = group.items.some((item) => isPathActive(pathname, item));
+          const hasActiveChild = group.items.some((item) => isNavPathActive(pathname, item));
           return (
             <Collapsible
               key={group.label}
@@ -224,7 +219,7 @@ export function AppSidebar({
                         <NavRow
                           key={item.path}
                           item={item}
-                          isActive={isPathActive(pathname, item)}
+                          isActive={isNavPathActive(pathname, item)}
                           renderLink={renderLink}
                         />
                       ))}
@@ -244,7 +239,7 @@ export function AppSidebar({
                   <NavRow
                     key={item.path}
                     item={item}
-                    isActive={isPathActive(pathname, item)}
+                    isActive={isNavPathActive(pathname, item)}
                     renderLink={renderLink}
                   />
                 ))}

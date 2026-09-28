@@ -30,6 +30,7 @@ export {
   type SectionNavShellProps,
 } from "./SectionNav";
 export { BottomNav, type BottomNavItem } from "./BottomNav";
+export { isNavPathActive } from "./navMatch";
 export { ThemeToggle, type ThemeToggleProps, type ThemeToggleLabels } from "./ThemeToggle";
 export {
   HeaderFillContext,

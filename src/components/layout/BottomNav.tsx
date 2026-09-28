@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
-import { type LucideIcon, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import {
   Sheet,
   SheetClose,
@@ -10,11 +10,12 @@ import {
 } from "../ui/sheet";
 import { cn } from "../../lib/utils";
 import { OVERLINE_CLASS } from "./overline";
+import { isNavPathActive } from "./navMatch";
+import type { NavItem } from "./Sidebar";
 
-export interface BottomNavItem {
-  path: string;
-  title: string;
-  icon: LucideIcon;
+/** A `NavItem`, so one route list feeds `<AppSidebar>` and `<BottomNav>` alike. */
+export interface BottomNavItem extends NavItem {
+  /** @deprecated Use `exact` — `end` is react-router's name for the same flag. */
   end?: boolean;
 }
 
@@ -44,12 +45,6 @@ function NavCell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function isPathActive(pathname: string, item: BottomNavItem) {
-  if (item.path === "/") return pathname === "/";
-  if (item.end) return pathname === item.path;
-  return pathname === item.path || pathname.startsWith(item.path + "/");
-}
-
 const linkClass = (isActive: boolean) =>
   cn(
     "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-xs font-medium",
@@ -77,7 +72,7 @@ export function BottomNav({
         <NavCell key={item.path}>
           {renderLink(
             item,
-            <span className={linkClass(isPathActive(pathname, item))}>
+            <span className={linkClass(isNavPathActive(pathname, item))}>
               <item.icon className="h-5 w-5" />
               <span className="truncate max-w-full px-1">{item.title}</span>
             </span>,
@@ -117,7 +112,7 @@ export function BottomNav({
                           <span
                             className={cn(
                               "flex items-center gap-3 px-4 py-3 text-base",
-                              isPathActive(pathname, item)
+                              isNavPathActive(pathname, item)
                                 ? "text-primary bg-accent"
                                 : "text-foreground hover:bg-accent",
                             )}
