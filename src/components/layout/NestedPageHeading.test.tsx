@@ -4,6 +4,8 @@ import { HEADING_ROW_CLASSES } from "./HeadingRow";
 import { NestedPageHeading, NESTED_HEADING_CLASS } from "./NestedPageHeading";
 import { OVERLINE_CLASS } from "./overline";
 
+const SUBTITLE = `[class="${HEADING_ROW_CLASSES.subtitle}"]`;
+
 afterEach(() => {
   cleanup();
 });
@@ -34,7 +36,7 @@ describe("NestedPageHeading", () => {
 
   it("renders subtitle, badges and actions only when provided", () => {
     const bare = render(<NestedPageHeading title="Devices" />);
-    expect(bare.container.querySelector("p")).toBeNull();
+    expect(bare.container.querySelector(SUBTITLE)).toBeNull();
     expect(bare.container.querySelector("button")).toBeNull();
     expect(bare.container.querySelector("[data-testid='badge']")).toBeNull();
     cleanup();
@@ -47,7 +49,7 @@ describe("NestedPageHeading", () => {
         actions={<button data-testid="action" type="button">Manage</button>}
       />,
     );
-    expect(full.container.querySelector("p")?.textContent).toBe(
+    expect(full.container.querySelector(SUBTITLE)?.textContent).toBe(
       "12 connected · 2 offline",
     );
     expect(full.container.querySelector("[data-testid='badge']")).not.toBeNull();

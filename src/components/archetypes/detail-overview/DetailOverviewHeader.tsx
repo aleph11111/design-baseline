@@ -12,7 +12,8 @@ export type DetailOverviewHeaderProps = {
   /**
    * Optional secondary line below the title. Use for parent-entity links,
    * status hints, or short metadata. Rendered as the wrapped `<PageHeader>`'s
-   * `<p>` — see its `subtitle` prop for the canonical type scale.
+   * subtitle (block content allowed) — see its `subtitle` prop for the
+   * canonical type scale.
    */
   subtitle?: React.ReactNode;
   /**

@@ -16,8 +16,10 @@ export type PageHeaderProps = {
    */
   title: React.ReactNode;
   /**
-   * Optional secondary line below the title (status hint, parent-entity
-   * link, created date). Rendered as `<p>` at `text-xs text-muted-foreground`.
+   * Optional secondary content below the title (status hint, parent-entity
+   * link, created date). Rendered in a `<div>` at `text-xs
+   * text-muted-foreground`, so block content (several lines, nested `<div>`s)
+   * is valid as well as a plain string.
    */
   subtitle?: React.ReactNode;
   /**
