@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 3.1
+version: 3.2
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.6
@@ -11,6 +11,11 @@ status: locked
 
 # Archetype C — Detail Overview
 
+> **v3.2 (2026-09-28) — key figure in the compact metric readout.** The one
+> metric the entity is valued by reads the brand accent (see "Compact metric
+> readout"). Derived from the data, never a per-page choice. Additive; no
+> breaking change.
+>
 > **v3.1 (2026-09-25) — promoted from mistra's fork.** The standalone header
 > may carry a back link through the shared page-header back-link adapter
 > (Layer 6 header). A bounded section may be collapsible — a behaviour, not a
@@ -212,6 +217,15 @@ master data, still ruled rows, **no new primitive**. Because `summary` is
 rendered once and placed into both the sticky aside (desktop) and the
 canonical vertical flow (mobile), keep it presentation-only — stateful edit
 islands belong in `content`, not in `summary` or `references`.
+
+**Key figure (derived).** The readout has two tiers: headline rows and
+secondary figures. On top of that, **at most one** row is the entity's *key
+figure*: the metric the entity is valued by, i.e. its headline money measure
+(a deal's recurring value, an order's revenue). That row's value reads the
+brand accent ("positive emphasis reads the brand"); every other value reads
+the foreground. Two engineers holding the same entity mark the same row, and
+if the entity has no single value measure, no row is marked. It is never set
+to make a figure stand out.
 
 ### Responsive contract (the compliance keystone)
 

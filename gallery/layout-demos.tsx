@@ -608,12 +608,12 @@ function MetricListDemo() {
           </div>
         </SectionCard>
       </Variant>
-      <Variant label="No disclosure (headline rows only)">
+      <Variant label="No disclosure (headline rows only; ARR is the key figure)">
         <SectionCard title="At a glance" flush>
           <div className="py-3">
             <MetricList>
               <MetricRow label="Gesamtwert" value="€12.500,00" emphasis />
-              <MetricRow label="ARR" value="€4.200,00" hint="annualisiert" emphasis />
+              <MetricRow label="ARR" value="€4.200,00" hint="annualisiert" emphasis keyFigure />
             </MetricList>
           </div>
         </SectionCard>

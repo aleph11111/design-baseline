@@ -38,6 +38,7 @@ step belongs to the close-out, not "someday".
 | Overline/eyebrow/kicker label re-typed inline | promote | `Overline` (archetype O, composes `OVERLINE_CLASS` + closed tone set) | mistra, hk-crm, my-finance-app, dashboard | **promoted 2026-07-24** |
 | Single-choice mode/filter toggle hand-rolled as button row | adopt-existing | `SegmentedControl` (archetype Sg, Radix radio-group) | brickshop, hk-crm | **promoted 2026-07-24** |
 | Initials avatar for a named entity (image fallback, tone) | promote | `EntityAvatar` (archetype E, `entityInitials()`) | brickshop, mistra | **promoted 2026-07-24** |
+| Key-figure metric tinted with the brand (single project, operator decision) | promote | `MetricRow` `keyFigure` (detail-overview v3.2 keying rule) | hk-crm | **promoted 2026-09-28** |
 | Analytics dashboard (KPI stat-card row + chart widgets + period filters) | promote | archetype G (`analytics-dashboard`) | brickshop, my-finance, hk-crm, mistra | **promoted 2026-06-14** (gap-fold) |
 | Import / ingestion wizard (upload → column-mapping → verify → commit) | promote | archetype W (`import-wizard`) | controlling-app, my-finance | **promoted 2026-06-14** (gap-fold) |
 | Kanban board (sortable columns of draggable cards) | promote | archetype P (`kanban-board`) | pmo, hk-crm | **promoted 2026-06-14** (gap-fold) |

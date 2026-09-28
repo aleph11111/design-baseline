@@ -62,7 +62,7 @@ describe("MetricList", () => {
 });
 
 describe("MetricRow emphasis", () => {
-  const renderRow = (props: { emphasis?: boolean }) => {
+  const renderRow = (props: { emphasis?: boolean; keyFigure?: boolean }) => {
     const { unmount } = render(
       <MetricRow label="Rohertrag" value="420 €" {...props} />,
     );
@@ -86,11 +86,17 @@ describe("MetricRow emphasis", () => {
     expect(value).toContain("text-foreground");
   });
 
-  // The figure never carries a brand tint: the deleted `accent` flag was
-  // per-call-site discretion no contract keyed (ADR-0004), so every row's
-  // value renders `text-foreground` whatever its tier.
-  it("never tints the value with the brand token", () => {
+  // Tier alone never tints the figure (the old discretionary `accent` flag
+  // was deleted under ADR-0004); only the contract-keyed key figure does.
+  it("never tints a non-key-figure value with the brand token", () => {
     expect(renderRow({}).value).not.toContain("text-primary");
     expect(renderRow({ emphasis: true }).value).not.toContain("text-primary");
+  });
+
+  it("keyFigure renders the value in the brand accent instead of the foreground", () => {
+    const { value } = renderRow({ emphasis: true, keyFigure: true });
+    expect(value).toContain("text-primary");
+    expect(value).not.toContain("text-foreground");
+    expect(value).toContain("text-base");
   });
 });
