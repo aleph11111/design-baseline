@@ -258,6 +258,17 @@ plain `.mjs` (Node tooling, loaded from `node_modules` by the config loader)
 because Node refuses to strip types from `.ts` files under `node_modules`
 (`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`), which kills a Vite 8 consumer
 whose config loads through the native loader.
+Its types ship beside it as `design-baseline-ui.d.mts`, which TypeScript finds
+by extension substitution — a node-typed `vite.config.ts` type-checks the import
+with no ambient `declare module`.
+
+**The opt-in `layout/` resolver.** `designBaselineLayout` is the same
+resolver for `@/components/layout/*` (the runtime twin of the `layout/` array).
+Add it to `plugins` only when the `@` alias also carves out
+`@/components/layout/` — e.g. `/^@\/(?!components\/(?:ui|layout)\/)/` — so a
+consumer can delete layout leaves the package ships; with the plain
+ui-only lookahead above the alias resolves `layout/` first and the plugin is
+never consulted.
 
 ## The enforcement stack — four gates, cheapest first
 
