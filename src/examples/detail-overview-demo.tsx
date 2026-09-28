@@ -245,7 +245,7 @@ export function DetailOverviewDemo(): React.ReactElement {
           summary={
             <>
               {/* Revenue & profit at a glance — MetricList with a disclosure */}
-              <DetailSection title="Revenue & profit">
+              <DetailSection title="Revenue & profit" flush>
                 <MetricList
                   more={
                     <>
