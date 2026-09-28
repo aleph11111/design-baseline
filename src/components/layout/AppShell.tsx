@@ -16,6 +16,12 @@ export interface AppShellProps {
    * `headerFill.ts`.
    */
   headerFill?: HeaderFill;
+  /**
+   * Render the bundled Sonner toaster. Defaults to `true`. A consumer that
+   * already mounts one toaster at its root layout passes `false`, so each toast
+   * renders once.
+   */
+  toaster?: boolean;
 }
 
 export function AppShell({
@@ -24,6 +30,7 @@ export function AppShell({
   children,
   defaultSidebarOpen = true,
   headerFill = "solid",
+  toaster = true,
 }: AppShellProps) {
   return (
     <TooltipProvider>
@@ -49,7 +56,7 @@ export function AppShell({
         </div>
       </SidebarProvider>
       </HeaderFillContext.Provider>
-      <Sonner />
+      {toaster && <Sonner />}
     </TooltipProvider>
   );
 }

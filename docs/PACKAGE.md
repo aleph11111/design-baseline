@@ -498,6 +498,9 @@ directive-carrying `ui/` leaf as a project file.
   automatically; `react-router-dom` is a **donor-dev** dependency and must be
   added by the consumer (Vite/webpack) or by Next's own router. This is why the
   throwaway proof installed `react-router-dom` — the wiring line is unchanged.
+- **`<AppShell>` mounts its own Sonner toaster.** A consumer that already mounts
+  one at its root layout (so routes outside the shell get toasts too) passes
+  `<AppShell toaster={false}>`; otherwise each toast renders twice.
 - **`process.env.NODE_ENV` in `ui/button.tsx` needs `@types/node`** for a
   consumer that type-checks the package source (donor-dev-only, not bundled).
 
