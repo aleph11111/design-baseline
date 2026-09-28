@@ -31,4 +31,4 @@ PR #319 routed `NativeField`'s `multiline` branch (`src/components/archetypes/ra
 
 ## Related
 
-- [archive/refactor-native-field-multiline-second-textarea-owner.md](archive/refactor-native-field-multiline-second-textarea-owner.md): the delegation this follows up on (PR #319 reviewer follow-up).
+- [archive/refactor-native-field-multiline-second-textarea-owner.md](../archive/refactor-native-field-multiline-second-textarea-owner.md): the delegation this follows up on (PR #319 reviewer follow-up).
