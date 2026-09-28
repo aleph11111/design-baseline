@@ -32,4 +32,4 @@ The `detail-section-wraps-shell-client` entry in `docs/audit-signals.json` (`ado
 
 ## Related
 
-- [ADR-0005](../adr/0005-adoption-quality-scan-zero-dep-donor-script.md) — the Axis C adoption-quality scan (see `docs/ADOPTION-QUALITY.md`)
+- [ADR-0005](../../adr/0005-adoption-quality-scan-zero-dep-donor-script.md) — the Axis C adoption-quality scan (see `docs/ADOPTION-QUALITY.md`)
