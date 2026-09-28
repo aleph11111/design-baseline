@@ -4,7 +4,16 @@
 // lines and stayed silent). If this branch bumped `version` relative to its
 // merge-base with origin/main, the bump must be strictly greater than
 // origin/main's current version. A branch that didn't touch `version` (docs
-// tickets, main itself) passes — only a bump can collide.
+// tickets, main itself) passes.
+//
+// Known blind spot: once the losing branch REBASES onto a trunk that already
+// carries the identical bump, git drops the now-empty version hunk, the
+// merge-base moves to 0.2.9, and the branch reads as "not bumped". History
+// alone cannot tell that apart from a real non-bump. /ship covers it by
+// ordering: mode detection fetches origin, precondition 3 runs `npm test`
+// (this check) against the PRE-rebase merge-base, and only step 6 rebases.
+// Requiring every branch to bump would close it, at the cost of a bump on
+// every docs-only ticket.
 //
 // Zero-dependency by design, mirroring scripts/verify-manifest-versions.mjs.
 //
@@ -27,13 +36,14 @@ function compare(a, b) {
 
 const current = JSON.parse(readFileSync('package.json', 'utf8')).version;
 
-let main, base;
 try {
-  main = versionAt('origin/main');
+  git('rev-parse', '--verify', 'origin/main');
 } catch {
   console.log('verify:package-version — no origin/main to compare against (fresh clone? run git fetch); skipped');
   process.exit(0);
 }
+const main = versionAt('origin/main');
+let base;
 // No merge-base (shallow clone) leaves base undefined: fall through to the strict check.
 try {
   base = versionAt(git('merge-base', 'HEAD', 'origin/main'));
