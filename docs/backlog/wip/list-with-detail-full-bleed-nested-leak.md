@@ -35,7 +35,7 @@ gate:
 ## Related
 
 - [appshell-content-column-min-w-0.md](wip/appshell-content-column-min-w-0.md) — the sibling AppShell content-column fix from the same mistra report
-- [ADR-0007](../adr/0007-fleet-house-look-fixed-vs-brand-roles.md) — §1, full-bleed as a closed, archetype-derived set
+- [ADR-0007](../../adr/0007-fleet-house-look-fixed-vs-brand-roles.md) — §1, full-bleed as a closed, archetype-derived set
 
 ## Open question
 
