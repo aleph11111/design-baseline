@@ -498,6 +498,13 @@ directive-carrying `ui/` leaf as a project file.
   automatically; `react-router-dom` is a **donor-dev** dependency and must be
   added by the consumer (Vite/webpack) or by Next's own router. This is why the
   throwaway proof installed `react-router-dom` — the wiring line is unchanged.
+- **`<AppShell>` scrolls the window (v0.2.19).** The document grows with the
+  page, so full-page screenshots and back/forward scroll restoration work. The
+  header slot is sticky and the desktop sidebar is fixed; `<main>` has no
+  overflow of its own. Wide content therefore needs its own `overflow-x-auto`
+  box. Every donor shell carries one; a bare wide table scrolls the page
+  sideways. Consumers that already scroll the window (`min-h-screen`) see no
+  change.
 - **`<AppShell>` mounts its own Sonner toaster.** A consumer that already mounts
   one at its root layout (so routes outside the shell get toasts too) passes
   `<AppShell toaster={false}>`; otherwise each toast renders twice.
