@@ -43,6 +43,8 @@ export interface TextareaFieldProps
    * here — the one field where the wrapper key differs from the others').
    */
   wrapperClassName?: string;
+  /** Applied to the label. */
+  labelClassName?: string;
   /** Forwards to the `<Textarea>` atom. */
   ref?: React.Ref<HTMLTextAreaElement>;
 }
@@ -64,6 +66,7 @@ export function TextareaField({
   maxLength,
   className,
   wrapperClassName,
+  labelClassName,
   onChange,
   "aria-describedby": ariaDescribedBy,
   ref,
@@ -112,7 +115,7 @@ export function TextareaField({
   return (
     <FieldFrame className={wrapperClassName}>
       {label && (
-        <FieldLabel htmlFor={fieldId} required={required}>
+        <FieldLabel htmlFor={fieldId} className={labelClassName} required={required}>
           {label}
         </FieldLabel>
       )}

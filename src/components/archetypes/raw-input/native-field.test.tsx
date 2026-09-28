@@ -67,6 +67,40 @@ describe("NativeField — labeled native field with a11y wiring", () => {
     expect(control.tagName).toBe("TEXTAREA");
   });
 
+  it("delegates multiline to TextareaField: maxLength shows the used / max counter", () => {
+    const onChange = vi.fn();
+    render(
+      <NativeField
+        label="Notes"
+        multiline
+        value="hazy"
+        onChange={onChange}
+        maxLength={255}
+        hint="Aroma, body."
+        error="Too vague."
+        required
+        labelClassName="text-xs"
+        controlClassName="h-8"
+      />,
+    );
+    const control = screen.getByLabelText(/Notes/) as HTMLTextAreaElement;
+    expect(screen.getByText("4/255")).toBeTruthy();
+    // Hint, error and counter all describe the control; the error still sets aria-invalid.
+    const describedBy = control.getAttribute("aria-describedby")!.split(" ");
+    expect(describedBy).toHaveLength(3);
+    expect(describedBy).toContain(`${control.id}-count`);
+    expect(control.getAttribute("aria-invalid")).toBe("true");
+    expect(screen.getByText("Too vague.")).toBeTruthy();
+    expect(screen.getByText("Aroma, body.")).toBeTruthy();
+    expectRequired(control, { native: true });
+    expect(control.className).toContain("h-8");
+    expect(screen.getByText(/Notes/, { selector: "label" }).className).toContain("text-xs");
+    expect(document.querySelectorAll("label")).toHaveLength(1);
+    // Value-in / string-out contract survives the delegation.
+    fireEvent.change(control, { target: { value: "hazy, dry" } });
+    expect(onChange).toHaveBeenCalledWith("hazy, dry");
+  });
+
   it("renders a range slider with a live value readout", () => {
     render(
       <NativeField label="Temp" type="range" min={0} max={30} value={20} onChange={() => {}} />,

@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Input } from "../../ui/input";
-import { Textarea } from "../../ui/textarea";
 import { cn } from "../../../lib/utils";
 import {
   FieldError,
@@ -9,6 +8,7 @@ import {
   FieldLabel,
   useFieldIds,
 } from "../shared/fieldFrame";
+import { TextareaField } from "../raw-textarea/TextareaField";
 
 // The shared owner of a **labeled native form field** — the triad the fleet
 // hand-rolls everywhere: `<label>` + a bare native `<input>` (or `<textarea>`) +
@@ -56,7 +56,11 @@ export interface NativeFieldProps {
   maxLength?: number;
   /** Native input type. Ignored when `multiline` is set. Defaults to `"text"`. */
   type?: NativeFieldType;
-  /** Render a `<Textarea>` instead of an `<input>` (for multi-line text). */
+  /**
+   * Render the multi-line control instead of an `<input>`. Delegates to the
+   * raw-textarea `TextareaField` (the single multi-line owner), so a `maxLength`
+   * also shows its `used / max` counter.
+   */
   multiline?: boolean;
   /** Helper text under the control (linked via `aria-describedby`). */
   hint?: string;
@@ -65,10 +69,10 @@ export interface NativeFieldProps {
    *
    * A single string — the field presents *the* error and nothing else. It
    * renders alongside a `hint` (the frame's coexistence rule); the error never
-   * suppresses the hint. There is no severity variant and no counter/footer
-   * slot: a live character counter, or any other graded status line, is
-   * caller-owned presentation over caller state — a sibling `<p>` after the
-   * field, which is the same DOM a slot would produce.
+   * suppresses the hint. There is no severity variant and no footer slot: a
+   * graded status line is caller-owned presentation over caller state — a
+   * sibling `<p>` after the field. (The one exception is `multiline` +
+   * `maxLength`, whose counter is derived by the delegated TextareaField.)
    */
   error?: string;
   /** Show a required marker and set the native `required` attribute. */
@@ -141,6 +145,32 @@ export function NativeField({
   } = useFieldIds({ id, hint, error });
   const stringValue = String(value);
 
+  // The multi-line control has one owner — the raw-textarea field. Delegate the
+  // whole assembly (frame, label, hint, error, counter) to it, adapting only the
+  // value-in / string-out onChange, so textarea fixes land in one place.
+  if (multiline) {
+    return (
+      <TextareaField
+        id={id}
+        label={label}
+        hint={hint}
+        error={error}
+        required={required}
+        disabled={disabled}
+        placeholder={placeholder}
+        rows={rows}
+        maxLength={maxLength}
+        value={stringValue}
+        onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
+        onKeyDown={onKeyDown}
+        wrapperClassName={className}
+        labelClassName={labelClassName}
+        className={controlClassName}
+      />
+    );
+  }
+
   const shared = {
     id: inputId,
     value: stringValue,
@@ -149,7 +179,7 @@ export function NativeField({
     "aria-describedby": describedBy,
     "aria-invalid": invalid,
     maxLength,
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
       onChange(e.target.value),
     onBlur,
     onKeyDown,
@@ -158,16 +188,7 @@ export function NativeField({
   const errorRing = error && "border-destructive focus-visible:ring-destructive";
 
   let control: React.ReactElement;
-  if (multiline) {
-    control = (
-      <Textarea
-        {...shared}
-        placeholder={placeholder}
-        rows={rows}
-        className={cn(errorRing, controlClassName)}
-      />
-    );
-  } else if (type === "range") {
+  if (type === "range") {
     // No shadcn slider primitive — tokenized native range + a live value readout,
     // the shape mistra hand-rolled 4×. Box chrome (h-10 border) is wrong for a
     // slider, so this control is styled directly rather than via <Input>.
