@@ -1,14 +1,13 @@
 ---
 area: layout
 opened: '2026-09-27'
-status: needs-enrichment
+status: ready
 gate:
-  score: 4
-  passed: [title, context, what-to-do, related]
-  failed:
-    - open_question: "ADR-0007 §2 scope decision for AuthCard is unresolved — capped at 4"
-  graded_at: '2026-09-27T00:00:00Z'
-value: normal
+  score: 5
+  passed: [title, context, what_to_do, acceptance, related]
+  failed: []
+  graded_at: '2026-09-28T09:47:33Z'
+value: low
 model: opus
 model_reason: "requires a scope judgment call (does the display step apply outside archetype headers), not a mechanical class swap"
 ---
@@ -21,20 +20,22 @@ model_reason: "requires a scope judgment call (does the display step apply outsi
 
 ## What to do
 
-- [ ] Decide, and record the decision in this ticket's Open question below: does AuthCard's `<h1>` take `text-display-title` (visual consistency with every other top-level page heading in the house look), or does it stay on `text-lg` (ADR-0007 §2 scopes the step to archetype headers, and AuthCard's own JSDoc explicitly disclaims archetype status)?
-- [ ] Apply the decided class to `AuthCard.tsx:47`, and if the answer is "stays on `text-lg`," add a one-line JSDoc note next to the existing "NOT a page archetype" disclaimer stating it is deliberately excluded from the ADR-0007 §2 display step, so a future pass doesn't re-open this as an oversight.
-- [ ] Add a test (none exists today) that renders `AuthCard` and asserts the `<h1>`'s className, pinning whichever class is chosen so the two treatments can't silently drift apart again.
+- [ ] Add one JSDoc line next to the existing "NOT a page archetype" disclaimer in `src/components/layout/AuthCard.tsx` stating it is deliberately excluded from the ADR-0007 §2 display-title step.
 
 ## Acceptance
 
-- `AuthCard`'s `<h1>` className matches the decision recorded in `## Open question`.
-- A new `AuthCard` test asserts that className and fails if it reverts to the other treatment.
+- The JSDoc line is present next to the "NOT a page archetype" note.
+- `AuthCard`'s `<h1>` className is unchanged (`text-lg font-semibold leading-tight tracking-tight text-foreground`).
 
 ## Related
 
 - [archive/house-look-page-header-title-step.md](archive/house-look-page-header-title-step.md) — #309, the slice that moved `PageHeader`'s `<h1>` onto the display step
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles
 
-## Open question
+## Decision
 
-Does ADR-0007 §2's display-title step extend to `AuthCard`'s heading, or is AuthCard's own "NOT a page archetype" scope note a deliberate exclusion? Recommended: keep AuthCard on its own smaller heading scale (no `text-display-title`) — ADR-0007 §2 text ties the step to "every archetype header," and AuthCard is documented as explicitly not one; a sign-in/404 screen outside `AppShell` is a different visual context from an in-app page title. Not yet confirmed by a human.
+**Question:** Does ADR-0007 §2's display-title step extend to `AuthCard`'s heading, or is AuthCard's own "NOT a page archetype" scope note a deliberate exclusion?
+
+**Answer:** AuthCard stays on `text-lg`. It's a 384px (`max-w-sm`) off-app card, and a 30px display title would wrap most German headings; ADR-0007 §2 scopes the display step to archetype headers, and AuthCard's own JSDoc already disclaims archetype status.
+
+**Date:** 2026-09-28
