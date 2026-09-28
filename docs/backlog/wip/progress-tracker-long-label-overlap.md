@@ -35,7 +35,7 @@ Measured in hk-crm by patching the DOM:
 
 ## Related
 
-- [archive/progress-stepper-aria-current.md](archive/progress-stepper-aria-current.md)
+- [archive/progress-stepper-aria-current.md](../archive/progress-stepper-aria-current.md)
 
 ## Open question
 
