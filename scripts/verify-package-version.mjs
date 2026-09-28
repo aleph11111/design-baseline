@@ -15,12 +15,20 @@
 // Requiring every branch to bump would close it, at the cost of a bump on
 // every docs-only ticket.
 //
+// No merge-base with origin/main (shallow clone, or truly unrelated history)
+// fails closed instead of falling through to the strict compare: without a
+// common ancestor there is no way to tell an unbumped branch from a bumped
+// one, and the old fallback's "a parallel branch already shipped this bump"
+// message was actively misleading for that case.
+//
 // Zero-dependency by design, mirroring scripts/verify-manifest-versions.mjs.
 //
 // Usage:  node scripts/verify-package-version.mjs
 
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+
+const PREFIX = 'verify:package-version —';
 
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
 const versionAt = (ref) => JSON.parse(git('show', `${ref}:package.json`)).version;
@@ -39,22 +47,30 @@ const current = JSON.parse(readFileSync('package.json', 'utf8')).version;
 try {
   git('rev-parse', '--verify', 'origin/main');
 } catch {
-  console.log('verify:package-version — no origin/main to compare against (fresh clone? run git fetch); skipped');
+  console.log(`${PREFIX} no origin/main to compare against (fresh clone? run git fetch); skipped`);
   process.exit(0);
 }
 const main = versionAt('origin/main');
+const mainInfo = `origin/main@${git('rev-parse', '--short', 'origin/main')} (${git('show', '-s', '--format=%cs', 'origin/main')})`;
+
 let base;
-// No merge-base (shallow clone) leaves base undefined: fall through to the strict check.
+let hasMergeBase = true;
 try {
   base = versionAt(git('merge-base', 'HEAD', 'origin/main'));
-} catch {}
+} catch {
+  hasMergeBase = false;
+}
 
+if (!hasMergeBase) {
+  console.error(`${PREFIX} no merge-base with origin/main (shallow clone?) — cannot tell whether this branch bumped [${mainInfo}]`);
+  process.exit(1);
+}
 if (current === base) {
-  console.log(`verify:package-version — version ${current} not bumped on this branch; nothing to collide`);
+  console.log(`${PREFIX} version ${current} not bumped on this branch; nothing to collide [${mainInfo}]`);
   process.exit(0);
 }
 if (!(compare(current, main) > 0)) {
-  console.error(`verify:package-version — package.json version ${current} is not greater than origin/main's ${main}; a parallel branch already shipped this bump — rebump above ${main}`);
+  console.error(`${PREFIX} package.json version ${current} is not greater than origin/main's ${main}; a parallel branch already shipped this bump — rebump above ${main} [${mainInfo}]`);
   process.exit(1);
 }
-console.log(`verify:package-version — ${current} > origin/main's ${main}`);
+console.log(`${PREFIX} ${current} > origin/main's ${main} [${mainInfo}]`);
