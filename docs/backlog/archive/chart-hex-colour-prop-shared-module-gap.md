@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-27'
-status: ready
+status: done
 gate:
   score: 5
   passed: [title, context, what_to_do, acceptance, related]
@@ -22,8 +22,8 @@ The only known live instance (`controlling-app`'s `frontend/src/components/dashb
 
 ## What to do
 
-- [ ] Extend `chart-hex-colour-prop` (or add a companion signal id) to catch a hex colour array/const in a module that is imported by a file matching the existing chart-library `coOccursWith` gate — following the two-step correlation shape already documented for `settings-shell-board-form-wraps-carded-shell`: step 1 (regex, single-file) flags the chart file's relative import of a local module; step 2 (the human/LLM acceptance-gate pass, per `docs/ADOPTION-QUALITY.md`) opens that imported module and confirms a hex literal array/const is what's being fed into the chart's colour props.
-- [ ] Cover the extension with a fixture in `scripts/scan-adoption-quality.test.mjs`, in the style of the existing `describe("scan-adoption-quality chart hex colour props (ADR-0007 §8)")` block (`scripts/scan-adoption-quality.test.mjs:402`) — a chart file importing a local `shared.ts`/`colors.ts` module that itself holds a hex array, with no chart-library import in that module.
+- [x] Extend `chart-hex-colour-prop` (or add a companion signal id) to catch a hex colour array/const in a module that is imported by a file matching the existing chart-library `coOccursWith` gate — following the two-step correlation shape already documented for `settings-shell-board-form-wraps-carded-shell`: step 1 (regex, single-file) flags the chart file's relative import of a local module; step 2 (the human/LLM acceptance-gate pass, per `docs/ADOPTION-QUALITY.md`) opens that imported module and confirms a hex literal array/const is what's being fed into the chart's colour props.
+- [x] Cover the extension with a fixture in `scripts/scan-adoption-quality.test.mjs`, in the style of the existing `describe("scan-adoption-quality chart hex colour props (ADR-0007 §8)")` block (`scripts/scan-adoption-quality.test.mjs:402`) — a chart file importing a local `shared.ts`/`colors.ts` module that itself holds a hex array, with no chart-library import in that module.
 
 ## Acceptance
 
@@ -32,9 +32,11 @@ The only known live instance (`controlling-app`'s `frontend/src/components/dashb
 
 ## Related
 
-- [archive/house-look-chart-palette.md](archive/house-look-chart-palette.md) — follow-up of this slice (#311): the ticket that shipped `chart-hex-colour-prop` and left this known miss in its own smell text
+- [house-look-chart-palette.md](house-look-chart-palette.md) — follow-up of this slice (#311): the ticket that shipped `chart-hex-colour-prop` and left this known miss in its own smell text
 - `docs/audit-signals.json` — `chart-hex-colour-prop` and `settings-shell-board-form-wraps-carded-shell` (the existing two-step correlation precedent)
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles (§8, chart colours)
+
+*Shipped: added the companion signal `chart-hex-colour-shared-module` (step 1 — flags a chart-library-gated file's relative import of a local `shared`/`colors`/`palette`/`theme` module), updated `chart-hex-colour-prop`'s "Known miss" text to point at it, and covered both with fixtures in `scripts/scan-adoption-quality.test.mjs`. Read-only scan runs against hk-crm and controlling-app confirmed no other signal's hit counts changed; controlling-app's known `charts/shared.ts` instance is now caught as a step-1 candidate (3 hits) for the gate to open and clear — it was independently already remediated to CSS vars.*
 
 ## Decision
 
