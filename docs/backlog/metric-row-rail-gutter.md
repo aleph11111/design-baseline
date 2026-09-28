@@ -24,7 +24,7 @@ In a `DetailOverviewShell layout="rail"` the rail stacks a `MetricList` ("Kennza
 
 ## Acceptance
 
-- In the gallery's rail demo, `MetricRow` labels and values line up with the `KeyValueRow` labels and values below them. The disclosure trigger is inset by the same gutter, and every other `MetricList` consumer (dashboard, analytics) shows no double padding.
+- In the gallery's rail demo, `MetricRow` labels and values line up with the `KeyValueRow` labels and values below them. The disclosure trigger is inset by the same gutter, and no other `MetricList` call site (dashboard, analytics) shows double padding.
 
 ## Related
 
