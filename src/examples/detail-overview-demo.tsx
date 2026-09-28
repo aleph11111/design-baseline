@@ -123,7 +123,11 @@ const ORDER: Order = {
     { label: "Placed", meta: "12 Jun", state: "done" },
     { label: "Paid", meta: "12 Jun", state: "done" },
     { label: "Packed", meta: "In progress", state: "current" },
+    // One long single-word label: it must wrap inside its column.
+    { label: "Consolidation/Customs", state: "pending" },
     { label: "Shipped", meta: "Pending", state: "pending" },
+    { label: "Out for delivery", state: "pending" },
+    { label: "Delivered", state: "pending" },
   ],
   lineItems: [
     { id: "li-1", code: "GEB", name: "Gödel, Escher, Bach", note: "Hardcover · new", qty: 1, unitPrice: 42 },
