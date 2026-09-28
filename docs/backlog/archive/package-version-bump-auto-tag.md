@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-28'
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "small, fully specified workflow file plus one doc line; no design decision left"
