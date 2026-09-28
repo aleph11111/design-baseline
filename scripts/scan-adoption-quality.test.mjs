@@ -13,7 +13,7 @@
 // independently (see the script header); the shape and semantics are what
 // stay stable.
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath, URL } from "node:url";
@@ -248,6 +248,18 @@ describe("scan-adoption-quality CLI smoke", () => {
     expect(report.summary.brandTokenFiles).toBe(1);
     expect(report.brandTokens.map((s) => s.id).sort()).toEqual(signalsDoc.brandTokens.map((s) => s.id).sort());
     expect(report.brandTokens.every((s) => !s.error && s.hitCount === 0)).toBe(true);
+  });
+
+  it("still runs main() when invoked through a symlink (Node resolves import.meta.url to the realpath)", () => {
+    const dir = mkdtempSync(join(tmpdir(), "adoption-quality-symlink-"));
+    const link = join(dir, "scan-via-link.mjs");
+    symlinkSync(script, link);
+    try {
+      const viaLink = execFileSync("node", [link, "--json"], { cwd: root, encoding: "utf8" });
+      expect(parse(viaLink).artifact).toBe("adoption-quality-scan");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   describe("fixture tree", () => {

@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-09-28'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "mechanism established (Node resolves the main module to its realpath); one shared guard fix across three scripts with a known stdlib call"
@@ -25,9 +25,11 @@ gate:
 
 ## What to do
 
-- [ ] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
-- [ ] Compare against the resolved path in all three scripts, e.g. `pathToFileURL(realpathSync(process.argv[1])).href === import.meta.url` (stdlib `node:fs` `realpathSync`, no dependency).
-- [ ] Add one test that symlinks a script into a tmpdir, runs it through the link, and asserts it produces output.
+- [x] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
+- [x] Compare against the resolved path in all three scripts, e.g. `pathToFileURL(realpathSync(process.argv[1])).href === import.meta.url` (stdlib `node:fs` `realpathSync`, no dependency).
+- [x] Add one test that symlinks a script into a tmpdir, runs it through the link, and asserts it produces output.
+
+*Shipped: `scan-adoption-quality.mjs`, `lint-design.mjs`, and `verify-exports.mjs` now resolve `process.argv[1]` through `realpathSync` before comparing to `import.meta.url`; `bin/new-page.mjs` already did this correctly and was left untouched. Added a symlink-invocation test to `scripts/scan-adoption-quality.test.mjs`.*
 
 ## Acceptance
 
@@ -37,6 +39,6 @@ gate:
 
 ## Related
 
-- [archive/refactor-scan-adoption-quality-pure-core-thin-main.md](../archive/refactor-scan-adoption-quality-pure-core-thin-main.md) — the refactor whose review surfaced this.
+- [refactor-scan-adoption-quality-pure-core-thin-main.md](refactor-scan-adoption-quality-pure-core-thin-main.md) — the refactor whose review surfaced this.
 - [ADR-0003](../../adr/0003-adherence-lint-zero-dep-scanner.md) — the zero-dep scanner shape the guard belongs to.
 - [ADR-0005](../../adr/0005-adoption-quality-scan-zero-dep-donor-script.md) — consumers vendor the runner unforked.
