@@ -32,7 +32,7 @@ The only known live instance (`controlling-app`'s `frontend/src/components/dashb
 
 ## Related
 
-- [archive/house-look-chart-palette.md](archive/house-look-chart-palette.md) — follow-up of this slice (#311): the ticket that shipped `chart-hex-colour-prop` and left this known miss in its own smell text
+- [archive/house-look-chart-palette.md](../archive/house-look-chart-palette.md) — follow-up of this slice (#311): the ticket that shipped `chart-hex-colour-prop` and left this known miss in its own smell text
 - `docs/audit-signals.json` — `chart-hex-colour-prop` and `settings-shell-board-form-wraps-carded-shell` (the existing two-step correlation precedent)
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles (§8, chart colours)
 
