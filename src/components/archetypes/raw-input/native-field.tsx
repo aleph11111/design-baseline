@@ -59,7 +59,8 @@ export interface NativeFieldProps {
   /**
    * Render the multi-line control instead of an `<input>`. Delegates to the
    * raw-textarea `TextareaField` (the single multi-line owner), so a `maxLength`
-   * also shows its `used / max` counter.
+   * also shows its `used / max` counter. The code/JSON `mono` variant is not
+   * forwarded: a monospace multi-line field uses `TextareaField` directly.
    */
   multiline?: boolean;
   /** Helper text under the control (linked via `aria-describedby`). */

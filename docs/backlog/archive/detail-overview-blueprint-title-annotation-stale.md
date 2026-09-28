@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-27'
-status: ready
+status: done
 gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
@@ -20,7 +20,9 @@ model_reason: single-line text-node edit in a static SVG annotation, no design j
 
 ## What to do
 
-- [ ] Update the text node at `docs/archetypes/detail-overview-blueprint.svg:142` from `Title text-lg font-semibold, left.` to `Title text-display-title font-semibold, left.` (subtitle annotation is unaffected — `NestedPageHeading`/subtitle scale wasn't touched by #309).
+- [x] Update the text node at `docs/archetypes/detail-overview-blueprint.svg:142` from `Title text-lg font-semibold, left.` to `Title text-display-title font-semibold, left.` (subtitle annotation is unaffected — `NestedPageHeading`/subtitle scale wasn't touched by #309).
+
+*(Shipped: the annotation reads `text-display-title`.)*
 
 ## Acceptance
 
@@ -28,6 +30,6 @@ model_reason: single-line text-node edit in a static SVG annotation, no design j
 
 ## Related
 
-- [archive/house-look-page-header-title-step.md](archive/house-look-page-header-title-step.md) — #309, the slice that moved the title class this annotation is stale against
-- [archive/detail-overview-blueprint-rail-variant.md](archive/detail-overview-blueprint-rail-variant.md) — prior edit to the same blueprint SVG
+- [archive/house-look-page-header-title-step.md](house-look-page-header-title-step.md) — #309, the slice that moved the title class this annotation is stale against
+- [archive/detail-overview-blueprint-rail-variant.md](detail-overview-blueprint-rail-variant.md) — prior edit to the same blueprint SVG
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles

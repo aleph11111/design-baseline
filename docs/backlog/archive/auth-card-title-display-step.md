@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: '2026-09-27'
-status: ready
+status: done
 gate:
   score: 5
   passed: [title, context, what_to_do, acceptance, related]
@@ -20,7 +20,9 @@ model_reason: "requires a scope judgment call (does the display step apply outsi
 
 ## What to do
 
-- [ ] Add one JSDoc line next to the existing "NOT a page archetype" disclaimer in `src/components/layout/AuthCard.tsx` stating it is deliberately excluded from the ADR-0007 §2 display-title step.
+- [x] Add one JSDoc line next to the existing "NOT a page archetype" disclaimer in `src/components/layout/AuthCard.tsx` stating it is deliberately excluded from the ADR-0007 §2 display-title step.
+
+*(Shipped: a JSDoc line records the exclusion; the h1 class is unchanged.)*
 
 ## Acceptance
 
@@ -29,7 +31,7 @@ model_reason: "requires a scope judgment call (does the display step apply outsi
 
 ## Related
 
-- [archive/house-look-page-header-title-step.md](archive/house-look-page-header-title-step.md) — #309, the slice that moved `PageHeader`'s `<h1>` onto the display step
+- [archive/house-look-page-header-title-step.md](house-look-page-header-title-step.md) — #309, the slice that moved `PageHeader`'s `<h1>` onto the display step
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles
 
 ## Decision
