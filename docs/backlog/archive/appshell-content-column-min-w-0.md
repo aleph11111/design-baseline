@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: '2026-09-28'
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "one class on one div plus one test assertion; cause measured by the consumer"
@@ -20,10 +20,12 @@ gate:
 
 ## What to do
 
-- [ ] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
-- [ ] Add `min-w-0` to the content-column div in `src/components/layout/AppShell.tsx` (`flex-1 flex flex-col` → `min-w-0 flex-1 flex flex-col`).
-- [ ] Add an assertion to `src/components/layout/AppShell.test.tsx` that the column wrapping `<main>` carries `min-w-0`.
-- [ ] Bump the package patch version.
+- [x] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
+- [x] Add `min-w-0` to the content-column div in `src/components/layout/AppShell.tsx` (`flex-1 flex flex-col` → `min-w-0 flex-1 flex flex-col`).
+- [x] Add an assertion to `src/components/layout/AppShell.test.tsx` that the column wrapping `<main>` carries `min-w-0`.
+- [x] Bump the package patch version.
+
+*(v0.2.17. The grep found no other page-content flex column in `src/components/layout/`; the BottomNav items are nav buttons, not content wrappers.)*
 
 ## Acceptance
 
