@@ -61,7 +61,7 @@ notes"), plus two tests in `native-field.test.tsx`.
 
 ## Related
 
-- [src/components/archetypes/raw-input/native-field.tsx]() — the `multiline` branch.
-- [src/components/archetypes/raw-textarea/TextareaField.tsx]() — the dedicated owner with the counter + mono behaviour.
-- [archive/refactor-labeled-field-frame-triplication.md](../archive/refactor-labeled-field-frame-triplication.md) — unified the field frame but left the two textarea controls separate.
-- [docs/adr/0004-appearance-locality-derived-vs-inherited.md]() — why the counter is derived from `maxLength`, which the NativeField path drops.
+- [src/components/archetypes/raw-input/native-field.tsx](../../../src/components/archetypes/raw-input/native-field.tsx) — the `multiline` branch.
+- [src/components/archetypes/raw-textarea/TextareaField.tsx](../../../src/components/archetypes/raw-textarea/TextareaField.tsx) — the dedicated owner with the counter + mono behaviour.
+- [archive/refactor-labeled-field-frame-triplication.md](refactor-labeled-field-frame-triplication.md) — unified the field frame but left the two textarea controls separate.
+- [docs/adr/0004-appearance-locality-derived-vs-inherited.md](../../adr/0004-appearance-locality-derived-vs-inherited.md) — why the counter is derived from `maxLength`, which the NativeField path drops.
