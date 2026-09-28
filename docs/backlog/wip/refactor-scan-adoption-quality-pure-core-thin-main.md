@@ -65,7 +65,7 @@ the runner"), so a regression here reaches the whole fleet on the next sync.
 
 ## Related
 
-- [docs/adr/0005-adoption-quality-scan-zero-dep-donor-script.md](../adr/0005-adoption-quality-scan-zero-dep-donor-script.md) — the scanner's decision record.
-- [docs/adr/0003-adherence-lint-zero-dep-scanner.md](../adr/0003-adherence-lint-zero-dep-scanner.md) — the zero-dep scanner shape the sibling scripts follow.
-- [scripts/lint-design.mjs](../../scripts/lint-design.mjs) — the reference pure-core + guarded-`main()` layout to mirror.
-- [archive/adoption-quality-scanner.md](archive/adoption-quality-scanner.md) — the ticket that shipped the script.
+- [docs/adr/0005-adoption-quality-scan-zero-dep-donor-script.md]() — the scanner's decision record.
+- [docs/adr/0003-adherence-lint-zero-dep-scanner.md]() — the zero-dep scanner shape the sibling scripts follow.
+- [scripts/lint-design.mjs]() — the reference pure-core + guarded-`main()` layout to mirror.
+- [archive/adoption-quality-scanner.md](../archive/adoption-quality-scanner.md) — the ticket that shipped the script.
