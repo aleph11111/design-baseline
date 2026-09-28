@@ -2,7 +2,7 @@
 key: I
 slug: raw-input
 kind: component
-version: 1.0
+version: 1.1
 promoted_from: fleet synthesis (controlling-app, my-finance-app, mistra, dashboard, brickshop-manager)
 promoted_at: 2026-07-23
 source_spec_version: n/a (fleet synthesis — no single source spec)
@@ -33,9 +33,11 @@ idea should collapse onto.
 
 - **Use** for a labeled, single-value field whose control is a **native input or
   textarea** — text, number, date/time, password/url/email, a `range` slider, or
-  multi-line text. It is the one-stop assembly for the native-only types that have
-  no dedicated tokenized control, and for labeled fields in a surface that isn't
-  wired to a form library.
+  multi-line text. The multi-line variant is not a second textarea: it delegates
+  to the textarea-field role (raw-textarea), inheriting that role's `used / max`
+  counter when a maximum length is set. It is the one-stop assembly for the
+  native-only types that have no dedicated tokenized control, and for labeled
+  fields in a surface that isn't wired to a form library.
 - **Do not use** for a boolean (that is the checkbox/switch control's role), for an
   enum choice (the select/combobox control's role), or for a value flush inside a
   data-grid cell (the cell-input control's role). The field assembly is for a

@@ -1,7 +1,7 @@
 ---
 area: refactor
 opened: '2026-09-26'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -46,11 +46,11 @@ notes"), plus two tests in `native-field.test.tsx`.
 
 ## What to do
 
-- [ ] Make `TextareaField` the single multi-line control. `NativeField`'s `multiline` branch should render `TextareaField` with mapped props instead of its own `<Textarea>`, so the counter and future textarea fixes come along automatically.
-- [ ] Adapt `NativeField`'s value-in / string-out `onChange` to `TextareaField`'s native change event at that one delegation point, so `NativeField`'s public props are unchanged.
-- [ ] Make sure the delegated control still gets `NativeField`'s `id`, `hint`, `error`, `required`, `disabled`, `onBlur` / `onKeyDown`, `labelClassName` / `controlClassName` wiring, without rendering a second label or frame.
-- [ ] Add a test in `native-field.test.tsx` asserting that a `multiline` field with `maxLength` renders the `used / max` counter.
-- [ ] Bump the `raw-input` `version` in `docs/archetypes/MANIFEST.json`, because this changes a shipped deliverable (`docs/RULES.md` rule 8).
+- [x] Make `TextareaField` the single multi-line control. `NativeField`'s `multiline` branch should render `TextareaField` with mapped props instead of its own `<Textarea>`, so the counter and future textarea fixes come along automatically.
+- [x] Adapt `NativeField`'s value-in / string-out `onChange` to `TextareaField`'s native change event at that one delegation point, so `NativeField`'s public props are unchanged.
+- [x] Make sure the delegated control still gets `NativeField`'s `id`, `hint`, `error`, `required`, `disabled`, `onBlur` / `onKeyDown`, `labelClassName` / `controlClassName` wiring, without rendering a second label or frame.
+- [x] Add a test in `native-field.test.tsx` asserting that a `multiline` field with `maxLength` renders the `used / max` counter.
+- [x] Bump the `raw-input` `version` in `docs/archetypes/MANIFEST.json`, because this changes a shipped deliverable (`docs/RULES.md` rule 8).
 
 ## Acceptance
 
@@ -61,7 +61,7 @@ notes"), plus two tests in `native-field.test.tsx`.
 
 ## Related
 
-- [src/components/archetypes/raw-input/native-field.tsx](../../src/components/archetypes/raw-input/native-field.tsx) — the `multiline` branch.
-- [src/components/archetypes/raw-textarea/TextareaField.tsx](../../src/components/archetypes/raw-textarea/TextareaField.tsx) — the dedicated owner with the counter + mono behaviour.
-- [archive/refactor-labeled-field-frame-triplication.md](archive/refactor-labeled-field-frame-triplication.md) — unified the field frame but left the two textarea controls separate.
-- [docs/adr/0004-appearance-locality-derived-vs-inherited.md](../adr/0004-appearance-locality-derived-vs-inherited.md) — why the counter is derived from `maxLength`, which the NativeField path drops.
+- [src/components/archetypes/raw-input/native-field.tsx](../../../src/components/archetypes/raw-input/native-field.tsx) — the `multiline` branch.
+- [src/components/archetypes/raw-textarea/TextareaField.tsx](../../../src/components/archetypes/raw-textarea/TextareaField.tsx) — the dedicated owner with the counter + mono behaviour.
+- [archive/refactor-labeled-field-frame-triplication.md](refactor-labeled-field-frame-triplication.md) — unified the field frame but left the two textarea controls separate.
+- [docs/adr/0004-appearance-locality-derived-vs-inherited.md](../../adr/0004-appearance-locality-derived-vs-inherited.md) — why the counter is derived from `maxLength`, which the NativeField path drops.

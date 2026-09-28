@@ -115,6 +115,7 @@ export function RawInputDemo(): React.ReactElement {
           label="Tasting notes"
           multiline
           rows={3}
+          maxLength={280}
           value={batch.notes}
           onChange={(v) => set("notes", v)}
           placeholder="Aroma, body, anything to change next time…"
