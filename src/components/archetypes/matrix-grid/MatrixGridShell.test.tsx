@@ -238,7 +238,7 @@ describe("MatrixGridShell horizontal scroll", () => {
     const { container } = render(
       <MatrixGridShell
         title="Matrix"
-        toolbar={<button type="button">Date</button>}
+        toolbar={<span data-testid="toolbar-control">Date</span>}
         columns={columns}
         rows={rows}
         renderCell={(ctx) => ctx.cell}
@@ -252,7 +252,7 @@ describe("MatrixGridShell horizontal scroll", () => {
     expect(scroller.className).toMatch(/(^|\s)relative(\s|$)/);
     // Title and toolbar are frame children above the scroller, not inside it.
     expect(scroller.contains(container.querySelector('[data-slot="surface-header"]'))).toBe(false);
-    expect(scroller.contains(screen.getByRole("button", { name: "Date" }))).toBe(false);
+    expect(scroller.contains(screen.getByTestId("toolbar-control"))).toBe(false);
     // Every sticky cell pins against the scroll box.
     for (const cell of container.querySelectorAll('[class*="sticky"]')) {
       expect(scroller.contains(cell)).toBe(true);
