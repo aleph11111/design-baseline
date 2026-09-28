@@ -36,13 +36,17 @@ export function AppShell({
     <TooltipProvider>
       <HeaderFillContext.Provider value={headerFill}>
       <SidebarProvider defaultOpen={defaultSidebarOpen}>
-        <div className="h-svh flex w-full">
+        {/* Window scroll: the document grows with the page, so full-page
+            screenshots and back/forward scroll restoration work. The desktop
+            sidebar is `fixed` (ui/sidebar) and the header slot is sticky, so
+            both stay in view. */}
+        <div className="min-h-svh flex w-full">
           {sidebar}
           {/* min-w-0: a flex item won't shrink below its content by default, so
               without it a wide table pushes <main> past the viewport and the
               whole page scrolls instead of the table's own overflow box. */}
           <div className="min-w-0 flex-1 flex flex-col">
-            {header}
+            <div className="sticky top-0 z-20 bg-background">{header}</div>
             {/* `<main>` is the CANONICAL owner of the page inset (p-4 md:p-12
                 xl:p-14) and of the centred content column (--db-content-max).
                 Pages and archetype shells render content WITHOUT their own outer
@@ -52,7 +56,7 @@ export function AppShell({
                 only as the page's own surface, never nested in another one
                 (`useFullBleedClass`).
                 See docs/STYLE.md "Spacing & rhythm". */}
-            <main className="flex-1 bg-surface-canvas p-4 md:p-12 xl:p-14 overflow-auto">
+            <main className="flex-1 bg-surface-canvas p-4 md:p-12 xl:p-14">
               <div className="mx-auto w-full max-w-(--db-content-max) has-[.db-full-bleed]:max-w-none">
                 {children}
               </div>

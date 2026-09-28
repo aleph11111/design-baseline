@@ -28,11 +28,29 @@ function renderShell(extra?: { toaster?: boolean }) {
 }
 
 describe("AppShell content column", () => {
-  it("lets the column shrink (min-w-0) so wide content scrolls inside <main>", () => {
+  it("lets the column shrink (min-w-0) so wide content can't widen the page", () => {
     const { container } = renderShell();
     const column = container.querySelector("main")!.parentElement!;
     expect(column.className).toContain("min-w-0");
     expect(column.className).toContain("flex-1");
+  });
+});
+
+// Window scroll: the document grows with the page (full-page screenshots,
+// back/forward scroll restoration) and the header slot stays in view.
+describe("AppShell scroll model", () => {
+  it("scrolls the window, not <main>, and keeps the header sticky", () => {
+    const { container } = renderShell();
+    const main = container.querySelector("main")!;
+    const column = main.parentElement!;
+    const root = column.parentElement!;
+
+    expect(root.className).toContain("min-h-svh");
+    expect(root.className).not.toMatch(/(^|\s)h-svh(\s|$)/);
+    expect(main.className).not.toMatch(/overflow-/);
+    const headerSlot = column.querySelector("header")!.parentElement!;
+    expect(headerSlot.className).toContain("sticky");
+    expect(headerSlot.className).toContain("top-0");
   });
 });
 
