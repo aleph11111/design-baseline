@@ -20,4 +20,26 @@ describe("Button — icon size a11y dev warning", () => {
     expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
   });
+
+  it("does not warn when size=\"icon\" carries an sr-only label", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    render(
+      <Button size="icon">
+        ×<span className="sr-only">Close</span>
+      </Button>
+    );
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it("does not warn when an asChild icon Button's child is labeled", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    render(
+      <Button size="icon" asChild>
+        <a href="#x" aria-label="Open">×</a>
+      </Button>
+    );
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
 });

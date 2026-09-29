@@ -40,14 +40,32 @@ export interface ButtonProps
   asChild?: boolean
 }
 
+type LabelProps = {
+  "aria-label"?: string
+  "aria-labelledby"?: string
+  title?: string
+  className?: string
+  children?: React.ReactNode
+}
+
+// An accessible name: an aria/title attribute, or a visually-hidden
+// `<span className="sr-only">` child (the shadcn idiom). Under `asChild` the
+// name may sit on the child element instead of the Button.
+function hasAccessibleName(props: LabelProps, asChild: boolean): boolean {
+  if (props["aria-label"] || props["aria-labelledby"] || props.title) return true
+  return React.Children.toArray(props.children).some((child) => {
+    if (!React.isValidElement<LabelProps>(child)) return false
+    if (child.props.className?.split(/\s+/).includes("sr-only")) return true
+    return asChild && hasAccessibleName(child.props, false)
+  })
+}
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     if (
       process.env.NODE_ENV !== "production" &&
       size === "icon" &&
-      !props["aria-label"] &&
-      !props["aria-labelledby"] &&
-      !props.title
+      !hasAccessibleName(props, asChild)
     ) {
       console.warn(
         'Button size="icon" has no aria-label, aria-labelledby, or title — screen readers will announce it as an unlabeled button. Add an aria-label describing the action.'
