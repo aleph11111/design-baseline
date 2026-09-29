@@ -99,10 +99,10 @@ A single 1180px cap left a 1920 window with ~370px of empty desk and a 2560–34
 
 | `<main>` content box | column max |
 |---|---|
-| < 1552px | 1180px |
-| ≥ 1552px (a 1920 window) | 1440px |
-| ≥ 1792px (a 2560 window and up) | 1680px |
+| < 1528px | 1180px |
+| ≥ 1528px (a 1920 window) | 1440px |
+| ≥ 1768px (a 2560 window and up) | 1680px |
 
 - **Keyed to the desk, not the viewport.** `AppShell`'s `<main>` is a size container (`db-desk`), and the layer redefines `--db-content-max` on the column (`.db-content-column`) per container width. A collapsed sidebar is room the column can use; a viewport media query could not see it.
-- **The step rule:** a step applies once the desk holds it plus a 56px gutter each side (step + 112px), so the column never widens straight into the desk edge.
+- **The step rule:** a step applies once the desk holds it plus 88px (a 44px gutter each side), so the column never widens straight into the desk edge. The 88px, not a full 112px, is headroom for a classic ~17px vertical scrollbar (Windows, "always show scrollbars"): with it a 1920 window has a 1535px desk and still steps, so the width does not depend on whether the page is long enough to scroll.
 - **1680px is the ceiling.** Past it, dashboard card rows and detail sections stretch thinner than they read; the four full-bleed working surfaces are unaffected and still take the whole desk.

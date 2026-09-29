@@ -35,7 +35,7 @@ gets in.
 
 The outermost slot of all, and the easiest to get wrong because it's written once and
 never reviewed again. **`AppShell` is the single owner of the app frame** — sidebar,
-header, and the content desk (`bg-surface-canvas p-4 md:p-12 xl:p-14 overflow-auto`,
+header, and the content desk (`bg-surface-canvas p-4 md:p-12 xl:p-14`,
 holding a centred 1180px column that steps to 1440/1680px on a wide desk). Archetype shells are *framed surfaces* designed to sit
 on that specific desk: the canvas is one tone step below the raised frame, so the frame
 reads by tone with no border (docs/STYLE.md "Surfaces").
