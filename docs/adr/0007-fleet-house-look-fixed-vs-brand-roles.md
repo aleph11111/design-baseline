@@ -24,7 +24,7 @@ Per ADR 0004 these are global or fixed-in-component appearance, never per-call-s
 
 ### 1. Content width and page rhythm — fixed
 
-- **Content column: 1180px max, centred** in `AppShell`'s `<main>`. Layer token `--db-content-max: 1180px` (fixed).
+- **Content column: 1180px max, centred** in `AppShell`'s `<main>`. Layer token `--db-content-max: 1180px` (fixed). On a wide desk it widens in two fixed steps (see the Amendment 2026-09-29 section).
 - **Page padding: 48px from `md`, 56px from `xl`; 16px below `md`.** Still owned once by `AppShell`'s `<main>` (the one-owner inset rule in `docs/STYLE.md` stands; only the values change from `p-4 md:p-6`).
 - **Full-bleed is a property of the archetype, not the call site.** The page archetypes whose content is a working surface rather than a reading column — `matrix-grid`, `list-with-detail`, `kanban-board`, `calendar` — render full-bleed; every other page archetype sits in the column. This is a closed, enumerated set keyed by archetype (derived, per ADR 0004), not a width prop.
 
@@ -92,3 +92,17 @@ An empty state offers **exactly one next-step action**. `StateView`'s `empty` va
   - all three keep local copies of `components/layout/` (`PageHeader`, `AppShell`) instead of importing the package, so even a tag bump leaves their shell untouched. mistra's cutover is tracked by [mistra-package-install-cutover](../backlog/mistra-package-install-cutover.md).
 - **Rollout happens from each consumer's own session**, not from the donor: bump the tag, delete the vendored layout copies, drop the retired brand roles from `tokens.css`, fix the dark `--primary` hue, and replace hardcoded chart colours. Until then the scan reports each app's non-conformance.
 - Least-sure calls, flagged for review: binding `--chart-1` to the brand accent (a brand hue close to a fixed `--chart-2..6` hue would collide — the chart slice must check contrast against the donor hues), and deriving surfaces from `--background`/`--foreground` rather than trusting brand `--card`/`--sidebar-background` (safer ordering, but those two brand roles stop reaching the shells).
+
+## Amendment 2026-09-29 — wide-desk steps for the content column
+
+A single 1180px cap left a 1920 window with ~370px of empty desk and a 2560–3440 window with 1000px+, which is the fleet's real hardware (27" and 34" ultrawide monitors next to 14" laptops). The column now widens in **two fixed steps**, still donor-owned and still not a page or call-site choice:
+
+| `<main>` content box | column max |
+|---|---|
+| < 1552px | 1180px |
+| ≥ 1552px (a 1920 window) | 1440px |
+| ≥ 1792px (a 2560 window and up) | 1680px |
+
+- **Keyed to the desk, not the viewport.** `AppShell`'s `<main>` is a size container (`db-desk`), and the layer redefines `--db-content-max` on the column (`.db-content-column`) per container width. A collapsed sidebar is room the column can use; a viewport media query could not see it.
+- **The step rule:** a step applies once the desk holds it plus a 56px gutter each side (step + 112px), so the column never widens straight into the desk edge.
+- **1680px is the ceiling.** Past it, dashboard card rows and detail sections stretch thinner than they read; the four full-bleed working surfaces are unaffected and still take the whole desk.
