@@ -34,6 +34,15 @@ describe("AppShell content column", () => {
     expect(column.className).toContain("min-w-0");
     expect(column.className).toContain("flex-1");
   });
+
+  // The layer's wide-desk steps query the `db-desk` container and restyle
+  // `.db-content-column`; drop either hook and the column stays at 1180px.
+  it("makes <main> the db-desk container and marks the stepped column", () => {
+    const { container } = renderShell();
+    const main = container.querySelector("main")!;
+    expect(main.className).toContain("@container/db-desk");
+    expect(main.firstElementChild!.className).toContain("db-content-column");
+  });
 });
 
 // Window scroll: the document grows with the page (full-page screenshots,
