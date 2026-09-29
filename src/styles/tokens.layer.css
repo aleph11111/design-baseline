@@ -190,6 +190,18 @@
   --db-chart-6: hsl(355 45% 61%);  /* rose */
 }
 
+/* Wide-desk steps for the page column (ADR-0007 §1). Keyed to the width of
+   AppShell's <main> content box (container `db-desk`), not the viewport, so a
+   collapsed sidebar counts as room. A step applies once the desk holds it
+   plus a 56px gutter each side: 1440px from a 1552px desk (a 1920 window),
+   1680px from 1792px (a 2560 window and up). */
+@container db-desk (width >= 1552px) {
+  .db-content-column { --db-content-max: 1440px; }
+}
+@container db-desk (width >= 1792px) {
+  .db-content-column { --db-content-max: 1680px; }
+}
+
 .dark {
   --db-surface-sunken: hsl(var(--background));
   --db-surface-canvas: color-mix(in oklab, hsl(var(--background)), hsl(var(--foreground)) 4%);
