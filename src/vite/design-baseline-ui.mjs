@@ -1,5 +1,5 @@
 /**
- * Vite wiring for the project-first `ui/` array (PACKAGE.md wiring line 2) and
+ * Vite wiring for the project-first `ui/` and `layout/` arrays (PACKAGE.md wiring line 2) and
  * the package's `optimizeDeps` include list — the dev-server half of the Vite
  * consumer setup that tsconfig `paths` cannot express.
  *
@@ -33,8 +33,38 @@ import { fileURLToPath } from 'node:url';
 
 const EXTS = ['.tsx', '.ts', '/index.tsx', '/index.ts'];
 
-/** The installed package's `src/components/ui` dir, from this file's location. */
-const PACKAGE_UI_DIR = fileURLToPath(new URL('../components/ui', import.meta.url));
+/** The installed package's `src/components` dir, from this file's location. */
+const PACKAGE_COMPONENTS_DIR = fileURLToPath(new URL('../components', import.meta.url));
+
+/**
+ * Project-first resolver for `@/components/<kind>/*`: a consumer copy under
+ * `src/components/<kind>/` wins, anything else resolves to the installed
+ * package's copy; `null` for every other id.
+ */
+function projectFirst(root, kind) {
+  const dirs = [
+    path.join(root, 'src/components', kind),
+    path.join(PACKAGE_COMPONENTS_DIR, kind),
+  ];
+  const re = new RegExp(`^@/components/${kind}/([^?]+)(\\?.*)?$`);
+  return {
+    name: `design-baseline-${kind}`,
+    enforce: 'pre',
+    resolveId(id) {
+      const m = re.exec(id);
+      if (!m) return null;
+      const [, rel, query = ''] = m;
+      for (const dir of dirs) {
+        // Bare path first, so an id that already names its extension resolves.
+        for (const ext of ['', ...EXTS]) {
+          const file = path.join(dir, rel + ext);
+          if (fs.existsSync(file) && fs.statSync(file).isFile()) return file + query;
+        }
+      }
+      return null;
+    },
+  };
+}
 
 /**
  * Project-first resolver for `@/components/ui/*` (PACKAGE.md wiring line 2).
@@ -48,27 +78,19 @@ const PACKAGE_UI_DIR = fileURLToPath(new URL('../components/ui', import.meta.url
  *   / `process.cwd()`).
  */
 export function designBaselineUi(root) {
-  const dirs = [
-    path.join(root, 'src/components/ui'),
-    PACKAGE_UI_DIR,
-  ];
-  return {
-    name: 'design-baseline-ui',
-    enforce: 'pre',
-    resolveId(id) {
-      const m = /^@\/components\/ui\/([^?]+)(\?.*)?$/.exec(id);
-      if (!m) return null;
-      const [, rel, query = ''] = m;
-      for (const dir of dirs) {
-        // Bare path first, so an id that already names its extension resolves.
-        for (const ext of ['', ...EXTS]) {
-          const file = path.join(dir, rel + ext);
-          if (fs.existsSync(file) && fs.statSync(file).isFile()) return file + query;
-        }
-      }
-      return null;
-    },
-  };
+  return projectFirst(root, 'ui');
+}
+
+/**
+ * The same project-first resolver for `@/components/layout/*` — the layout
+ * half of the tsconfig `paths` array. Opt-in: only a consumer whose `@` alias
+ * also carves out `@/components/layout/` needs it (an alias that matches it
+ * resolves first and this plugin never sees the id).
+ *
+ * @param {string} root the consumer's project root.
+ */
+export function designBaselineLayout(root) {
+  return projectFirst(root, 'layout');
 }
 
 /**
