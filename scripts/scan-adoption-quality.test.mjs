@@ -515,4 +515,13 @@ describe("summarize", () => {
       brandTokenHits: 1,
     });
   });
+
+  it("flags a vendored AppShell missing the db-desk hooks (stale-vendored-appshell), clears a current copy and a package importer", () => {
+    const compiled = compileSignals([signalsDoc.adoptionQuality.find((s) => s.id === "stale-vendored-appshell")]);
+    const main = (cls, col) => `<main className="${cls} flex-1 p-4 md:p-12 xl:p-14"><div className="${col}" /></main>\n`;
+    expect(scanSource("AppShell.tsx", main("bg-surface-canvas", "mx-auto max-w-[1180px]"), compiled)).toEqual([{ file: "AppShell.tsx", line: 1 }]);
+    expect(scanSource("AppShell.tsx", main("@container/db-desk", "mx-auto"), compiled)).toEqual([{ file: "AppShell.tsx", line: 1 }]); // column hook missing
+    expect(scanSource("AppShell.tsx", main("@container/db-desk", "db-content-column mx-auto"), compiled)).toEqual([null]);
+    expect(scanSource("layout.tsx", "import { AppShell } from 'design-baseline/layout';\nexport default () => <AppShell />;\n", compiled)).toEqual([null]);
+  });
 });
