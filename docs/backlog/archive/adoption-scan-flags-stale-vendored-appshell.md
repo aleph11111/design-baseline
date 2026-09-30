@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-09-29
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "adds one signal to an existing scan with its own test file; the pattern is established"
