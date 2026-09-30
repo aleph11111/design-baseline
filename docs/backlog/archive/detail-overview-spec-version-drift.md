@@ -66,8 +66,8 @@ and never re-synced by later `/promote-archetype --update` passes.
 
 ## Related
 
-- [archive/archetype-doc-manifest-version-drift.md](archive/archetype-doc-manifest-version-drift.md)
-- [archive/archetype-spec-frontmatter-version-backfill.md](archive/archetype-spec-frontmatter-version-backfill.md)
+- [[archetype-doc-manifest-version-drift]]
+- [[archetype-spec-frontmatter-version-backfill]]
 - `docs/archetypes/README.md` (Versioning section)
 
 ## Open question

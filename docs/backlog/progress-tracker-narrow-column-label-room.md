@@ -33,5 +33,5 @@ Since v0.2.22, the label in `ProgressTracker` (`src/components/layout/ProgressTr
 
 ## Related
 
-- [archive/progress-tracker-long-label-overlap.md](archive/progress-tracker-long-label-overlap.md): the v0.2.22 wrap rule this builds on
-- [archive/progress-stepper-aria-current.md](archive/progress-stepper-aria-current.md)
+- [[progress-tracker-long-label-overlap]]: the v0.2.22 wrap rule this builds on
+- [[progress-stepper-aria-current]]

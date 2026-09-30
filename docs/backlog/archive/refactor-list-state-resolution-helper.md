@@ -39,6 +39,6 @@ Each repeats the exact guard chain: `showLoading = isLoading === true`, then `sh
 
 ## Related
 
-- [list-with-detail-shell-presentation-split.md](archive/list-with-detail-shell-presentation-split.md) — sibling extraction of an inlined concern out of the same shell.
-- [settings-table-selected-set-perf.md](archive/settings-table-selected-set-perf.md) — recent work on `SettingsTableShell`.
+- [[list-with-detail-shell-presentation-split]] — sibling extraction of an inlined concern out of the same shell.
+- [[settings-table-selected-set-perf]] — recent work on `SettingsTableShell`.
 - `src/components/ui/state-view.tsx` — the shared render primitive these shells already delegate to; this ticket does the same for the state *selection*.

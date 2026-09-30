@@ -54,5 +54,5 @@ only on spec-rule changes. → documented, not reconciled (numbers legitimately 
 
 ## Related
 
-- [decouple-archetype-contract-from-reference-impl.md](decouple-archetype-contract-from-reference-impl.md)
+- [[decouple-archetype-contract-from-reference-impl]]
 - `docs/archetypes/MANIFEST.json`, `docs/archetypes/README.md` (Versioning)

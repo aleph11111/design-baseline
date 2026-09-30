@@ -29,6 +29,6 @@ gate:
 
 ## Related
 
-- [vite-config-worktree-root-climb.md](vite-config-worktree-root-climb.md)
+- [[vite-config-worktree-root-climb]]
 - `docs/ARCHITECTURE.md` §9 — open questions / uncertainty
 - `~/.claude/commands/ticket.md` (the `/ticket` skill) — reads `docs/backlog/README.md` as schema authority when present

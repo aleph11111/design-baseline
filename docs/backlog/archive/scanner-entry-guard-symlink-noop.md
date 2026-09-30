@@ -39,6 +39,6 @@ gate:
 
 ## Related
 
-- [refactor-scan-adoption-quality-pure-core-thin-main.md](refactor-scan-adoption-quality-pure-core-thin-main.md) — the refactor whose review surfaced this.
+- [[refactor-scan-adoption-quality-pure-core-thin-main]] — the refactor whose review surfaced this.
 - [ADR-0003](../../adr/0003-adherence-lint-zero-dep-scanner.md) — the zero-dep scanner shape the guard belongs to.
 - [ADR-0005](../../adr/0005-adoption-quality-scan-zero-dep-donor-script.md) — consumers vendor the runner unforked.

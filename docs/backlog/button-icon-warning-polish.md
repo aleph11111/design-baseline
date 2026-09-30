@@ -36,4 +36,4 @@ Follow-ups from the PR #370 independent review (v0.2.25), which taught the `size
 ## Related
 
 - PR [#370](https://github.com/aleph11111/design-baseline/pull/370) — the sr-only / asChild fix these follow up on
-- [archive/progress-stepper-aria-current.md](archive/progress-stepper-aria-current.md) — prior a11y primitive fix
+- [[progress-stepper-aria-current]] — prior a11y primitive fix

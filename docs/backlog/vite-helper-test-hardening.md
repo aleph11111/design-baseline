@@ -30,4 +30,4 @@ Review of PR #369 (v0.2.27) left three small gaps around `src/vite/design-baseli
 
 ## Related
 
-- [archive/package-vite-consumer-dev-wiring.md](archive/package-vite-consumer-dev-wiring.md)
+- [[package-vite-consumer-dev-wiring]]

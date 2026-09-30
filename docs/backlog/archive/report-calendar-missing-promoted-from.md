@@ -29,8 +29,8 @@ Two entries in `docs/archetypes/MANIFEST.json` — `report` and `calendar` — a
 
 ## Related
 
-- [decouple-archetype-contract-from-reference-impl.md](archive/decouple-archetype-contract-from-reference-impl.md)
-- [archetype-doc-manifest-version-drift.md](archive/archetype-doc-manifest-version-drift.md)
+- [[decouple-archetype-contract-from-reference-impl]]
+- [[archetype-doc-manifest-version-drift]]
 - `docs/ARCHITECTURE.md` §9 — open questions / uncertainty
 - `docs/archetypes/MANIFEST.json` — the registry carrying both entries
 - `CLAUDE.md` "Project-Specific Notes" — where the exception is first flagged

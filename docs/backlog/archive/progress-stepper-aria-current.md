@@ -31,5 +31,5 @@ Severity: **medium** (accessibility). `ProgressTracker` renders an `<ol>`/`<li>`
 
 ## Related
 
-- [clickable-rows-keyboard-operability.md](clickable-rows-keyboard-operability.md) — sibling a11y gap in the shells
+- [[clickable-rows-keyboard-operability]] — sibling a11y gap in the shells
 - docs/ADOPTION-QUALITY.md — adoption-quality bar these primitives must meet

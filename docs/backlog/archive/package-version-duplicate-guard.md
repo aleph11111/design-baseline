@@ -31,6 +31,6 @@ Two parallel house-look slices (#309, #310) both bumped `package.json`'s `"versi
 
 ## Related
 
-- [package-tag-post-v0-2-0-sync.md](package-tag-post-v0-2-0-sync.md) — prior incident where `package.json`'s version field drifted from the git tag
+- [[package-tag-post-v0-2-0-sync]] — prior incident where `package.json`'s version field drifted from the git tag
 - `scripts/verify-manifest-versions.mjs` — the existing pretest-wired version-drift guard this mirrors
 - RULES.md rule 8 — version fields track different things and must not be conflated

@@ -342,11 +342,11 @@ consumers. Read against the whole fleet, D1–D3 and D5 were still partial at re
 Each piece repeats the shipped `hk-crm-package-install-cutover` template, so each is carried
 as a standalone follow-up rather than kept open on this roadmap or moved to a successor:
 
-- [controlling-app-package-install-cutover](archive/controlling-app-package-install-cutover.md)
-- [mistra-package-install-cutover](mistra-package-install-cutover.md)
-- [brickshop-manager-package-install-cutover](wip/brickshop-manager-package-install-cutover.md),
+- [[controlling-app-package-install-cutover]]
+- [[mistra-package-install-cutover]]
+- [[brickshop-manager-package-install-cutover]],
   which also runs the Phase 6 archive to `docs/archive/archetypes-2026/`
-- [hk-crm-companies-detail-single-composition](archive/hk-crm-companies-detail-single-composition.md),
+- [[hk-crm-companies-detail-single-composition]],
   Phase 4 bullet 1
 
 This settles the "separate call" left open by the spec's fleet-commands "Deferred" list: the
@@ -356,12 +356,12 @@ those four tickets ship. Full delta:
 
 ## Related
 
-- [decouple-archetype-contract-from-reference-impl.md](archive/decouple-archetype-contract-from-reference-impl.md)
+- [[decouple-archetype-contract-from-reference-impl]]
   — shipped the contract/`.baseline.md` split this roadmap partly retires: once
   the archetype is a closed component, its props are the contract.
-- [style-archetypes-methodology-distribution.md](archive/style-archetypes-methodology-distribution.md)
+- [[style-archetypes-methodology-distribution]]
   — built `/adopt-baseline`, the governance-copy layer Phase 5 retires.
-- [style-baseline-components-json-package-root.md](archive/style-baseline-components-json-package-root.md)
+- [[style-baseline-components-json-package-root]]
   — a representative copy-distribution bug: a mis-resolved `cp` destination that
   shipped to a consumer's `origin/main` and had to be removed by hand.
 - ADR-0003 — adherence lint ships as a zero-dep scanner; the lint Phase 5 keeps.

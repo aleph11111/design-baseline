@@ -21,7 +21,7 @@ gate:
 ## Context
 
 `node scripts/lint-design.mjs` reports 4 remaining `warn` hits from the
-appearance-prop rules the [archetype-convergence-appearance-prop-lint](../archive/archetype-convergence-appearance-prop-lint.md)
+appearance-prop rules the [[archetype-convergence-appearance-prop-lint]]
 ticket added to `_adherence.json`. Two sit on **component-kind** archetypes —
 leaf primitives, not page shells — promoted as `kind: "component"` MANIFEST
 entries: `src/components/archetypes/entity-circle/EntityAvatar.tsx:16`
@@ -68,7 +68,7 @@ in the component.
       passthrough. The global `archetype-shell-class-name` rule in
       `_adherence.json` is already `severity: "error"` for `*Shell.tsx`/
       `*Sheet.tsx`, and the twelve-shell className drop has shipped
-      ([archetype-shell-classname-drop.md](../archive/archetype-shell-classname-drop.md)); a
+      ([[archetype-shell-classname-drop]]); a
       contract advertising className as a sanctioned per-site deviation channel
       either contradicts that or is a documented leaf exemption — say which, in
       the contract.
@@ -101,13 +101,13 @@ in the component.
 
 ## Related
 
-- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap; this
+- [[archetype-convergence]] — parent roadmap; this
   fills the Phase-1 `?`-marked "audit the remaining twenty archetypes... in
   MANIFEST order" for the two component-kind entries the audit list didn't
   originally distinguish from page shells
-- [archetype-convergence-phase0-appearance-locality-decision.md](../archive/archetype-convergence-phase0-appearance-locality-decision.md)
+- [[archetype-convergence-phase0-appearance-locality-decision]]
   — depends on: the derived-vs-inherited discriminator this ticket applies
-- [archetype-convergence-appearance-prop-lint.md](../archive/archetype-convergence-appearance-prop-lint.md)
+- [[archetype-convergence-appearance-prop-lint]]
   — depends on: the rule and `exclude` mechanism this ticket configures
 - ADR-0004 — the decision this ticket amends
 - `docs/RULES.md` hard rule 12 — the enforceable restatement this ticket

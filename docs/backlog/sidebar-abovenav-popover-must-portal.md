@@ -32,4 +32,4 @@ gate:
 ## Related
 
 - controlling-app PR [#1169](https://github.com/aleph11111/controlling-app/pull/1169) — the clipped AssetSwitcher this came from
-- [archive/progress-stepper-aria-current.md](archive/progress-stepper-aria-current.md) — prior layout-primitive fix
+- [[progress-stepper-aria-current]] — prior layout-primitive fix

@@ -37,7 +37,7 @@ Corroborating evidence: the second test in the same file, "still resolves the co
 
 ## Related
 
-- [docs/backlog/vite-config-worktree-root-climb.md](vite-config-worktree-root-climb.md) — the other known source of spurious vitest failures in this repo under parallel worktrees; distinct root cause, same "test fails for non-code reasons" class.
-- [docs/backlog/archive/ops-health-orphaned-worktrees-branches.md](archive/ops-health-orphaned-worktrees-branches.md) — the ship whose test gate surfaced this flake.
+- [[vite-config-worktree-root-climb]] — the other known source of spurious vitest failures in this repo under parallel worktrees; distinct root cause, same "test fails for non-code reasons" class.
+- [[ops-health-orphaned-worktrees-branches]] — the ship whose test gate surfaced this flake.
 - The ten open `test-gap-*` tickets in `docs/backlog/` — this repo is actively growing its donor test suite, so flake hygiene compounds.
 - `docs/ARCHITECTURE.md` §3 "Component map" — locates `src/components/archetypes/settings-table/`.

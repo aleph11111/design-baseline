@@ -45,5 +45,5 @@ here rather than in controlling-app's backlog because the defect is the donor's.
 
 ## Related
 
-- [archive/donor-deps-violate-stack-contract.md](archive/donor-deps-violate-stack-contract.md) — sibling donor-defect ticket (same consumed-artifact class); fixed package.json but left this header directive.
+- [[donor-deps-violate-stack-contract]] — sibling donor-defect ticket (same consumed-artifact class); fixed package.json but left this header directive.
 - `docs/STACK.md` scar #1 — the Tailwind-3-plugin-on-Tailwind-4 scar this directive was meant to help consumers avoid.

@@ -45,7 +45,7 @@ per-archetype demos in `src/examples/*-demo.tsx` (e.g. `list-with-detail-demo.ts
 
 ## Related
 
-- [archive/fleet-audit-and-adoption-doc-retire.md](../archive/fleet-audit-and-adoption-doc-retire.md) — `docs/PACKAGE.md` is the consumer contract the templates follow
+- [[fleet-audit-and-adoption-doc-retire]] — `docs/PACKAGE.md` is the consumer contract the templates follow
 
 ## Resolved
 

@@ -34,6 +34,6 @@ Severity: **medium** (DRY). Two archetype reference primitives — `CrudDialogFo
 
 ## Related
 
-- [crud-dialog-footer-submitting-label.md](archive/crud-dialog-footer-submitting-label.md) — the localizable-label fix that currently has to be applied per-footer; this extraction makes it one edit.
-- [crud-dialog-delete-in-flight-state.md](archive/crud-dialog-delete-in-flight-state.md), [crud-dialog-discard-confirm-split.md](archive/crud-dialog-discard-confirm-split.md) — sibling crud-dialog footer work.
+- [[crud-dialog-footer-submitting-label]] — the localizable-label fix that currently has to be applied per-footer; this extraction makes it one edit.
+- [[crud-dialog-delete-in-flight-state]], [[crud-dialog-discard-confirm-split]] — sibling crud-dialog footer work.
 - `docs/archetypes/crud-dialog.md`, `docs/archetypes/form-page.md` — the two prop contracts the shared core must preserve.

@@ -72,10 +72,10 @@ are intentionally independent and must not be touched here.
 
 ## Related
 
-- [archive/archetype-manifest-version-verify-script.md](archive/archetype-manifest-version-verify-script.md) —
+- [[archetype-manifest-version-verify-script]] —
   shipped the `pretest`-wired check that this ticket makes green
-- [archive/detail-overview-spec-version-drift.md](archive/detail-overview-spec-version-drift.md) —
+- [[detail-overview-spec-version-drift]] —
   fixed the eighth archetype and recorded the fleet-wide fix as its Open question
-- [archive/archetype-doc-manifest-version-drift.md](archive/archetype-doc-manifest-version-drift.md) —
+- [[archetype-doc-manifest-version-drift]] —
   the resolution that made MANIFEST authoritative for `source_spec_version`
 - `docs/archetypes/README.md` (Versioning section), `scripts/verify-manifest-versions.mjs`

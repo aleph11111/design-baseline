@@ -42,6 +42,6 @@ The four props appear together in `SettingsTableShell.tsx` (`src/components/arch
 
 ## Related
 
-- [shell-header-actions-prop-naming.md](archive/shell-header-actions-prop-naming.md) — the `actions` → `headerActions` rename this extraction should land on top of (prerequisite).
-- [surface-header-compose-not-copy.md](archive/surface-header-compose-not-copy.md) — sibling "compose SurfaceHeader, don't re-declare its bar".
+- [[shell-header-actions-prop-naming]] — the `actions` → `headerActions` rename this extraction should land on top of (prerequisite).
+- [[surface-header-compose-not-copy]] — sibling "compose SurfaceHeader, don't re-declare its bar".
 - `src/components/layout/SurfaceHeader.tsx` — owns `SurfaceHeaderProps`, the type the shells should reuse.

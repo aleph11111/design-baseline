@@ -30,6 +30,6 @@ gate:
 
 ## Related
 
-- [decouple-archetype-contract-from-reference-impl.md](wip/decouple-archetype-contract-from-reference-impl.md) — split that surfaced this
+- [[decouple-archetype-contract-from-reference-impl]] — split that surfaced this
 - docs/archetypes/matrix-grid.md — the file to fix
 - docs/archetypes/list-with-detail.md — the on-surface header pattern to align to

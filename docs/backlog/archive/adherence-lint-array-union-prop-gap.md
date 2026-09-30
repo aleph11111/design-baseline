@@ -118,9 +118,9 @@ gate currently has no opinion, which is the defect.
 
 ## Related
 
-- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap
-- [adherence-lint-boolean-classvalue-gap.md](adherence-lint-boolean-classvalue-gap.md) — the session that surfaced this shape
-- [adherence-lint-union-prop-blind-spot.md](../archive/adherence-lint-union-prop-blind-spot.md) — the numeric/aliased-union gap in the same rules
-- [adherence-lint-multiline-union-alias-gap.md](../archive/adherence-lint-multiline-union-alias-gap.md) — a prior spelling gap in the same union family
-- [refactor-figure-table-grid-report-statement.md](../archive/refactor-figure-table-grid-report-statement.md) — how `FigureTable` became the shared primitive these props live on
+- [[archetype-convergence]] — parent roadmap
+- [[adherence-lint-boolean-classvalue-gap]] — the session that surfaced this shape
+- [[adherence-lint-union-prop-blind-spot]] — the numeric/aliased-union gap in the same rules
+- [[adherence-lint-multiline-union-alias-gap]] — a prior spelling gap in the same union family
+- [[refactor-figure-table-grid-report-statement]] — how `FigureTable` became the shared primitive these props live on
 - ADR-0004 — `docs/adr/0004-appearance-locality-derived-vs-inherited.md`

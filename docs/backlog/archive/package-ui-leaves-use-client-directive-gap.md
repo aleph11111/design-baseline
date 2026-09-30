@@ -23,7 +23,7 @@ application is the client-rooted gallery SPA (`gallery/main.tsx` renders via
 guards it.
 
 The dry run of the `consumer-migration` phase (2026-09-08, reported in
-[package-ui-ownership-and-vendored-consumer-runbook](wip/package-ui-ownership-and-vendored-consumer-runbook.md))
+[[package-ui-ownership-and-vendored-consumer-runbook]])
 proved the gap is load-bearing for SSR consumers: hk-crm's vendored copies of
 25 of the 28 after-normalisation-identical `ui/` files carry a consumer-side
 `"use client"` the package's copies lack. An A/B on a scratch consumer of
@@ -113,12 +113,12 @@ deliberately dropped and passes again once restored.
 
 ## Related
 
-- [package-ui-ownership-and-vendored-consumer-runbook.md](../package-ui-ownership-and-vendored-consumer-runbook.md) —
+- [[package-ui-ownership-and-vendored-consumer-runbook]] —
   the `consumer-migration` phase whose dry run measured this gap
-- [archive/archetype-package-installable.md](../archive/archetype-package-installable.md) —
+- [[archetype-package-installable]] —
   the `pkg` phase that made the donor installable and wrote the v0.2.0
   surface
-- [archetype-convergence.md](../archetype-convergence.md) — roadmap; its
+- [[archetype-convergence]] — roadmap; its
   `consumer-migration` decisions C2/C5 are this fix's consumers
 - ADR-0004 — appearance locality; the "`ui/` stays vendored" clause whose
   narrowing this defect undermines

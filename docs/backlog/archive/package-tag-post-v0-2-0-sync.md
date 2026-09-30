@@ -106,6 +106,6 @@ repos per Acceptance. hk-crm is untouched.
 
 ## Related
 
-- [package-ui-leaves-use-client-directive-gap.md](../archive/package-ui-leaves-use-client-directive-gap.md) — closed the directive gap this ticket re-validates against
-- [package-ui-ownership-and-vendored-consumer-runbook.md](../archive/package-ui-ownership-and-vendored-consumer-runbook.md) — original runbook this ticket updates
+- [[package-ui-leaves-use-client-directive-gap]] — closed the directive gap this ticket re-validates against
+- [[package-ui-ownership-and-vendored-consumer-runbook]] — original runbook this ticket updates
 - ADR-0006 — "use client" is consumer-measured per leaf, not barrel-only

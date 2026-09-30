@@ -49,8 +49,8 @@ The response shape compounds it. The endpoint returns `{"ok":true,"status":"arch
 
 ## Related
 
-- [backlog-archive-status-never-set-to-done.md](backlog-archive-status-never-set-to-done.md) — the other half of archive correctness, and **distinct**: that ticket is about the `status` field's *value* once a ticket lands in `archive/`; this one is about whether the archive move ever lands at all. Both must be fixed for the archive to be trustworthy.
-- [archive/ship-cleanup-local-orphan-reaper.md](archive/ship-cleanup-local-orphan-reaper.md) — archived via PR #50, one of the three stranded PRs that surfaced this.
-- [archive/ticket-collision-scan-misses-origin-main.md](archive/ticket-collision-scan-misses-origin-main.md) — archived via PR #46; its own subject (collision scans reading trunk) is directly degraded by stranded archive PRs, since trunk keeps showing the un-archived path.
-- [archive/ship-rest-fallback-deletes-head-ref-on-failed-merge.md](archive/ship-rest-fallback-deletes-head-ref-on-failed-merge.md) — prior defect in the same PR-automation surface.
+- [[backlog-archive-status-never-set-to-done]] — the other half of archive correctness, and **distinct**: that ticket is about the `status` field's *value* once a ticket lands in `archive/`; this one is about whether the archive move ever lands at all. Both must be fixed for the archive to be trustworthy.
+- [[ship-cleanup-local-orphan-reaper]] — archived via PR #50, one of the three stranded PRs that surfaced this.
+- [[ticket-collision-scan-misses-origin-main]] — archived via PR #46; its own subject (collision scans reading trunk) is directly degraded by stranded archive PRs, since trunk keeps showing the un-archived path.
+- [[ship-rest-fallback-deletes-head-ref-on-failed-merge]] — prior defect in the same PR-automation surface.
 - `~/.claude/CLAUDE.md`, "Parallel-Safe Workflow" — defines the `/ship` auto-merge behaviour these endpoints should mirror.

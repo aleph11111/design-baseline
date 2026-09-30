@@ -39,7 +39,7 @@ scope of the v2.1 ship (amendment §8 marks the blueprint untouched).
 
 ## Related
 
-- [archetype-doc-manifest-version-drift.md](archetype-doc-manifest-version-drift.md)
+- [[archetype-doc-manifest-version-drift]]
 - `docs/archetypes/detail-overview.md` (Layout variants — §4 rail placement)
 - `docs/archetypes/detail-overview-blueprint.svg`
 

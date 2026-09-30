@@ -33,8 +33,8 @@ Seen in light and dark mode. The sticky first column and its opaque head cells (
 
 ## Related
 
-- [archive/matrix-grid-sticky-head-cells-translucent.md](../archive/matrix-grid-sticky-head-cells-translucent.md)
-- [archive/matrix-grid-page-header-inconsistency.md](../archive/matrix-grid-page-header-inconsistency.md)
+- [[matrix-grid-sticky-head-cells-translucent]]
+- [[matrix-grid-page-header-inconsistency]]
 
 ## Decision
 

@@ -40,8 +40,8 @@ The donor is copy-source, not a buildable app, and `tokens.css` deliberately doe
 
 ## Related
 
-- [docs/backlog/archive/style-baseline-stack-aware-preflight.md](archive/style-baseline-stack-aware-preflight.md) — the sibling that hardened `/style-baseline` against divergent target stacks; this ticket fixes the same skill's *source* side.
-- [docs/backlog/archive/adherence-lint-oxlint-mechanism-nonfunctional.md](archive/adherence-lint-oxlint-mechanism-nonfunctional.md) — prior work on the scanner the deferred guard bullet would extend.
+- [[style-baseline-stack-aware-preflight]] — the sibling that hardened `/style-baseline` against divergent target stacks; this ticket fixes the same skill's *source* side.
+- [[adherence-lint-oxlint-mechanism-nonfunctional]] — prior work on the scanner the deferred guard bullet would extend.
 - ADR-0002 — Adopt the baseline-upstream methodology docs; its rationale explicitly names swapping `tw-animate-css` for `tailwindcss-animate` as the drift STACK.md exists to catch.
 - ADR-0003 — Adherence lint ships as a zero-dep scanner; scopes the mechanism the deferred bullet would extend to `package.json`.
 - `docs/STACK.md` — contract table row 3 and scar #1.

@@ -20,8 +20,8 @@ gate:
 
 ## Context
 
-Phase 1 of the [archetype-convergence roadmap](../archetype-convergence.md) continues in
-MANIFEST order after [detail-overview closed](../archive/archetype-convergence-detail-overview-close-api.md)
+Phase 1 of the [[archetype-convergence]] continues in
+MANIFEST order after [[archetype-convergence-detail-overview-close-api]]
 as archetype C. `form-page` is MANIFEST #2. Running `node scripts/lint-design.mjs` directly
 shows **two** warn hits under `src/components/archetypes/form-page/`, not the one originally
 reported: `archetype-look-union-prop` on `FormPageShell.tsx:29` (`width?: "sm" | "md" | "lg" |
@@ -109,10 +109,10 @@ requires the script to accept more than one exclude glob per rule.
 
 ## Related
 
-- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap, Phase 1
-- [archetype-convergence-detail-overview-close-api.md](../archive/archetype-convergence-detail-overview-close-api.md)
+- [[archetype-convergence]] — parent roadmap, Phase 1
+- [[archetype-convergence-detail-overview-close-api]]
   — same class of change: width-default check, `className` deletion, demo rework, and the
   spec/MANIFEST major-version pairing all precedent this ticket
-- [archetype-convergence-phase0-appearance-locality-decision.md](../archive/archetype-convergence-phase0-appearance-locality-decision.md)
+- [[archetype-convergence-phase0-appearance-locality-decision]]
   — depends on: ADR-0004/hard rule 12 is what sorts this prop
 - ADR-0004 — the rule this ticket applies

@@ -45,7 +45,7 @@ rules ban, wearing a function signature.
 **This ships as a forward guard, not a drain.** The ticket was filed expecting a triage
 pass over live violations; by the time it was worked there were none. The concrete
 instance that motivated it — `GroupedListSection.renderHeader` — was already deleted by
-[adherence-lint-appearance-slot-layout-gap](../archive/adherence-lint-appearance-slot-layout-gap.md),
+[[adherence-lint-appearance-slot-layout-gap]],
 and no other appearance render-callback exists in the tree. Guarding a class with zero
 live hits is the established posture here, not an anomaly: `archetype-shell-class-name`
 already carries its `src/components/layout/**` shell globs with no layout shell declaring
@@ -118,14 +118,14 @@ a required column-config data renderer — same class as `renderLink`, out at th
 
 ## Related
 
-- [archive/adherence-lint-boolean-classvalue-gap.md](../archive/adherence-lint-boolean-classvalue-gap.md) — the sibling "prop-shape blind spot" ticket this was filed alongside (boolean / `className?: ClassValue`); landed in #214 as `archetype-appearance-boolean-prop`, which is why that rule now appears in the family list above.
-- [archive/adherence-lint-appearance-slot-layout-gap.md](../archive/adherence-lint-appearance-slot-layout-gap.md) — deleted the concrete `GroupedListSection.renderHeader` instance (which is why this ticket found nothing to drain) and set the layout-layer widen this rule shares.
-- [archive/adherence-lint-union-prop-blind-spot.md](../archive/adherence-lint-union-prop-blind-spot.md) — the drain-ticket precedent for the triage method (delete-unkeyed / promote-then-exclude, cite the line in `message`).
-- [archive/report-calendar-appearance-prop-lint.md](../archive/report-calendar-appearance-prop-lint.md) — promote-contract-prose-then-exclude precedent, the shape `renderCell`'s exclude follows.
+- [[adherence-lint-boolean-classvalue-gap]] — the sibling "prop-shape blind spot" ticket this was filed alongside (boolean / `className?: ClassValue`); landed in #214 as `archetype-appearance-boolean-prop`, which is why that rule now appears in the family list above.
+- [[adherence-lint-appearance-slot-layout-gap]] — deleted the concrete `GroupedListSection.renderHeader` instance (which is why this ticket found nothing to drain) and set the layout-layer widen this rule shares.
+- [[adherence-lint-union-prop-blind-spot]] — the drain-ticket precedent for the triage method (delete-unkeyed / promote-then-exclude, cite the line in `message`).
+- [[report-calendar-appearance-prop-lint]] — promote-contract-prose-then-exclude precedent, the shape `renderCell`'s exclude follows.
 - ADR-0004 (`docs/adr/0004-appearance-locality-derived-vs-inherited.md`) — the derived-vs-inherited test each render-callback prop was graded against.
 - ADR-0003 — the zero-dep single-line scanner whose limits set this rule's documented ceilings.
 - RULES.md hard rule 12 — the enforcement mechanism this rule belongs to.
-- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap.
+- [[archetype-convergence]] — parent roadmap.
 
 ## Open question — resolved
 

@@ -43,6 +43,6 @@ The `.gitignore` already ignores the sibling fleet scratch paths `tasks/` (`:4`)
 
 ## Related
 
-- [archive/gitignore-node-modules-symlink-worktrees.md](../archive/gitignore-node-modules-symlink-worktrees.md) — prior .gitignore/worktree-scratch fix
-- [archive/ship-cleanup-step10-squash-misdetection.md](../archive/ship-cleanup-step10-squash-misdetection.md) — prior /ship precondition defect
-- [archive/ship-rest-fallback-deletes-head-ref-on-failed-merge.md](../archive/ship-rest-fallback-deletes-head-ref-on-failed-merge.md) — prior /ship recovery-path defect
+- [[gitignore-node-modules-symlink-worktrees]] — prior .gitignore/worktree-scratch fix
+- [[ship-cleanup-step10-squash-misdetection]] — prior /ship precondition defect
+- [[ship-rest-fallback-deletes-head-ref-on-failed-merge]] — prior /ship recovery-path defect

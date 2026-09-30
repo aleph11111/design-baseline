@@ -48,6 +48,6 @@ The greenfield proof matrix never ran `vite dev` and never deleted a `ui/` file,
 
 ## Related
 
-- [archive/archetype-package-consumer-wiring.md](../archive/archetype-package-consumer-wiring.md)
-- [archive/package-ui-ownership-and-vendored-consumer-runbook.md](../archive/package-ui-ownership-and-vendored-consumer-runbook.md)
-- [archive/brickshop-manager-package-install-cutover.md](../archive/brickshop-manager-package-install-cutover.md)
+- [[archetype-package-consumer-wiring]]
+- [[package-ui-ownership-and-vendored-consumer-runbook]]
+- [[brickshop-manager-package-install-cutover]]

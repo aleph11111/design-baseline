@@ -30,5 +30,5 @@ gate:
 
 ## Related
 
-- [archive/refactor-matrix-grid-cell-and-head-extraction.md](refactor-matrix-grid-cell-and-head-extraction.md)
-- [scroll-box-not-containing-block-sr-only-widens-page.md](scroll-box-not-containing-block-sr-only-widens-page.md)
+- [[refactor-matrix-grid-cell-and-head-extraction]]
+- [[scroll-box-not-containing-block-sr-only-widens-page]]

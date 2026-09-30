@@ -32,6 +32,6 @@ Severity: **medium** (i18n / UX). `CrudDialogFooter` derives its in-flight butto
 
 ## Related
 
-- [crud-dialog-delete-in-flight-state.md](crud-dialog-delete-in-flight-state.md) — sibling CrudDialogFooter parity gap
+- [[crud-dialog-delete-in-flight-state]] — sibling CrudDialogFooter parity gap
 - src/components/archetypes/form-page/FormPageActions.tsx — the hardened twin (submittingLabel) to mirror
 - docs/archetypes/crud-dialog.md — the localizable-labels contract

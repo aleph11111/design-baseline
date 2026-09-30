@@ -31,5 +31,5 @@ Severity: **medium** (performance). When `cellStyle` returns a `tooltip`, `Matri
 
 ## Related
 
-- [matrix-grid-page-header-inconsistency.md](matrix-grid-page-header-inconsistency.md) — same matrix-grid shell
+- [[matrix-grid-page-header-inconsistency]] — same matrix-grid shell
 - docs/archetypes/matrix-grid.md — the dense-matrix archetype contract

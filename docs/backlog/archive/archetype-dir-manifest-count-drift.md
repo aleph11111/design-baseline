@@ -29,7 +29,7 @@ gate:
 
 ## Related
 
-- [archetype-doc-manifest-version-drift.md](archive/archetype-doc-manifest-version-drift.md)
-- [archetype-spec-frontmatter-version-backfill.md](archive/archetype-spec-frontmatter-version-backfill.md)
+- [[archetype-doc-manifest-version-drift]]
+- [[archetype-spec-frontmatter-version-backfill]]
 - `docs/ARCHITECTURE.md` §9 — open questions / uncertainty
 - `docs/archetypes/MANIFEST.json` — the registry to reconcile against

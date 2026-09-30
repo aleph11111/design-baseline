@@ -46,7 +46,7 @@ backfill on any archived ticket it touches.
 
 ## Related
 
-- [backlog-archive-status-never-set-to-done.md](backlog-archive-status-never-set-to-done.md)
+- [[backlog-archive-status-never-set-to-done]]
   — established that archive tickets carry `status: done` set by the archive step,
   not the gate; this ticket is the follow-up "?" item that ticket's own What-to-do
   flagged but left out of its Acceptance.

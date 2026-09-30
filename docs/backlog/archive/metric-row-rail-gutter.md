@@ -28,5 +28,5 @@ In a `DetailOverviewShell layout="rail"` the rail stacks a `MetricList` ("Kennza
 
 ## Related
 
-- [metric-row-accent-prop-promotion.md](../wip/metric-row-accent-prop-promotion.md) — same component, same consumer, can ship in one bump
-- [archive/test-gap-metric-list-no-tests.md](../archive/test-gap-metric-list-no-tests.md)
+- [[metric-row-accent-prop-promotion]] — same component, same consumer, can ship in one bump
+- [[test-gap-metric-list-no-tests]]

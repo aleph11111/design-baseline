@@ -31,5 +31,5 @@ Severity: **medium** (i18n). Two brand-agnostic layout primitives ship hardcoded
 
 ## Related
 
-- [crud-dialog-footer-submitting-label.md](crud-dialog-footer-submitting-label.md) — sibling i18n gap in the footer
+- [[crud-dialog-footer-submitting-label]] — sibling i18n gap in the footer
 - src/components/archetypes/crud-dialog/crudStrings.ts — the language-neutral donor contract these violate

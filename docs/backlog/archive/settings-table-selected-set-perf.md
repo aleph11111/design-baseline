@@ -30,5 +30,5 @@ Severity: **low** (performance). `SettingsTableShell` keeps `selectedIds` as a p
 
 ## Related
 
-- [list-with-detail-column-filter-hoist.md](list-with-detail-column-filter-hoist.md) — sibling shell render-cost cleanup
+- [[list-with-detail-column-filter-hoist]] — sibling shell render-cost cleanup
 - docs/archetypes/settings-table.md — the settings-table archetype contract

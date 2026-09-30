@@ -49,6 +49,6 @@ a customized file, flat, and no-`package.json` layouts).
 
 ## Related
 
-- [style-baseline-stack-aware-preflight.md](archive/style-baseline-stack-aware-preflight.md) — the earlier preflight hardening of the same command
+- [[style-baseline-stack-aware-preflight]] — the earlier preflight hardening of the same command
 - mistra PR #508 (the re-broadcast that produced the stray file) and mistra PR #527 (removed it)
 - coding-dashboard PR #251 — the fix itself (command file + shell self-check)

@@ -31,6 +31,6 @@ Severity: **low** (DX / API consistency). Every framed archetype shell renders t
 
 ## Related
 
-- [surface-header-compose-not-copy.md](surface-header-compose-not-copy.md) — related SurfaceHeader consolidation
-- [app-shell-header-props-exports.md](app-shell-header-props-exports.md) — sibling layout API-consistency gap
+- [[surface-header-compose-not-copy]] — related SurfaceHeader consolidation
+- [[app-shell-header-props-exports]] — sibling layout API-consistency gap
 - src/components/layout/SurfaceHeader.tsx — the shared header these shells feed

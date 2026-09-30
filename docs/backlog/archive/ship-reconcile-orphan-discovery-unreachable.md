@@ -49,8 +49,8 @@ The two compound: even on a cycle that reaches section 3, `design-baseline` is f
 
 ## Related
 
-- [archive/ship-cleanup-local-orphan-reaper.md](archive/ship-cleanup-local-orphan-reaper.md) — the ticket that asked for section 4. **Resolved by dashboard PR #66 (`592a08e`, 2026-07-20 11:09)**, archived via design-baseline PR #50. That ticket's own body predates its resolution and never records it; this line is the resolution pointer. Its `kind: ops` was a misclassification — see `docs/lessons.md`.
-- [ship-cleanup-step10-squash-misdetection.md](ship-cleanup-step10-squash-misdetection.md) — the other live defect in the same reaper family (ancestry vs content merge detection).
-- [archive/ops-health-orphaned-worktrees-branches.md](archive/ops-health-orphaned-worktrees-branches.md) — the sweep whose four orphan cases went undetected by the automation these defects disable.
+- [[ship-cleanup-local-orphan-reaper]] — the ticket that asked for section 4. **Resolved by dashboard PR #66 (`592a08e`, 2026-07-20 11:09)**, archived via design-baseline PR #50. That ticket's own body predates its resolution and never records it; this line is the resolution pointer. Its `kind: ops` was a misclassification — see `docs/lessons.md`.
+- [[ship-cleanup-step10-squash-misdetection]] — the other live defect in the same reaper family (ancestry vs content merge detection).
+- [[ops-health-orphaned-worktrees-branches]] — the sweep whose four orphan cases went undetected by the automation these defects disable.
 - `~/.claude/lib/ship-reconcile.sh` — sections 2 (:118) and 3 (:267).
 - `~/.claude/commands/ship-cleanup.md` — step 0 delegates the mechanical loop here.

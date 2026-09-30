@@ -20,11 +20,11 @@ gate:
 
 ## Context
 
-Phase 1 of the [archetype-convergence roadmap](../archetype-convergence.md)
+Phase 1 of the [[archetype-convergence]]
 continues in MANIFEST order after
-[list-with-detail](../archive/archetype-convergence-list-with-detail-close-api.md)
-(#0), [form-page](../archive/archetype-convergence-form-page-width-prop.md)
-(#1) and [detail-overview](../archive/archetype-convergence-detail-overview-close-api.md)
+[[archetype-convergence-list-with-detail-close-api]]
+(#0), [[archetype-convergence-form-page-width-prop]]
+(#1) and [[archetype-convergence-detail-overview-close-api]]
 (#2). `settings-table` is MANIFEST #3, key `D2`. Running
 `node scripts/lint-design.mjs` shows exactly **one** warn hit under
 `src/components/archetypes/settings-table/`: `archetype-look-union-prop` on
@@ -163,19 +163,19 @@ to `2.0` per the majors-must-align rule) does not require a further MANIFEST
 
 ## Related
 
-- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap,
+- [[archetype-convergence]] — parent roadmap,
   Phase 1.
-- [archetype-convergence-list-with-detail-close-api.md](../archive/archetype-convergence-list-with-detail-close-api.md)
+- [[archetype-convergence-list-with-detail-close-api]]
   — the sibling closure this ticket mirrors most closely: the same
   `ListColumn.align` / `SettingsColumn.align` defect, the "rule on X, state
   reasoning in the PR" deferral pattern, and the exclude-list / error-rule
   ratchet mechanics.
-- [archetype-convergence-form-page-width-prop.md](../archive/archetype-convergence-form-page-width-prop.md)
+- [[archetype-convergence-form-page-width-prop]]
   — precedent for the stale-`headerFill`-doc-language defect this ticket also
   finds, and for the spec/MANIFEST major-version-pairing bookkeeping.
-- [archetype-convergence-detail-overview-close-api.md](../archive/archetype-convergence-detail-overview-close-api.md)
+- [[archetype-convergence-detail-overview-close-api]]
   — precedent for keeping a data-keyed prop (`layout`, `width`) with no new
   error rule, relevant if `align` is kept rather than deleted.
-- [archetype-convergence-phase0-appearance-locality-decision.md](../archive/archetype-convergence-phase0-appearance-locality-decision.md)
+- [[archetype-convergence-phase0-appearance-locality-decision]]
   — depends on: ADR-0004/hard rule 12 is what sorts `align` and `identifierMono`.
 - ADR-0004 — the rule this ticket applies.

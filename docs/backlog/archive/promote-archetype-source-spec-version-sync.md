@@ -61,9 +61,9 @@ needed changing — this ticket closes as doc-only (backlog move) here.
 
 ## Related
 
-- [archive/archetype-doc-manifest-version-drift.md](archive/archetype-doc-manifest-version-drift.md)
-- [archive/archetype-spec-frontmatter-version-backfill.md](archive/archetype-spec-frontmatter-version-backfill.md)
-- [archive/archetype-source-spec-version-fleet-backfill.md](archive/archetype-source-spec-version-fleet-backfill.md) — the
+- [[archetype-doc-manifest-version-drift]]
+- [[archetype-spec-frontmatter-version-backfill]]
+- [[archetype-source-spec-version-fleet-backfill]] — the
   fleet backfill that recorded this as its own Open question
-- [archive/archetype-manifest-version-verify-script.md](archive/archetype-manifest-version-verify-script.md)
+- [[archetype-manifest-version-verify-script]]
 - `docs/archetypes/README.md` (Versioning section)

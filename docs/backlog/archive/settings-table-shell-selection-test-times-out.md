@@ -53,5 +53,5 @@ worth keeping. The instrumentation is what needs replacing.
 ## Related
 
 - `01d9093` — the commit that introduced both the memoized-`Set` fix and this test.
-- [test-gap-settings-page-shell-no-tests.md](test-gap-settings-page-shell-no-tests.md) — sibling shell in the same archetype family, also missing coverage.
-- [test-gap-form-page-shell-no-tests.md](wip/test-gap-form-page-shell-no-tests.md) — the ticket whose `npm test` run surfaced this failure.
+- [[test-gap-settings-page-shell-no-tests]] — sibling shell in the same archetype family, also missing coverage.
+- [[test-gap-form-page-shell-no-tests]] — the ticket whose `npm test` run surfaced this failure.

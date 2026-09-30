@@ -31,5 +31,5 @@ Severity: **medium** (accessibility). `SegmentedControl` declares `role="radiogr
 
 ## Related
 
-- [clickable-rows-keyboard-operability.md](clickable-rows-keyboard-operability.md) — sibling keyboard-a11y gap
+- [[clickable-rows-keyboard-operability]] — sibling keyboard-a11y gap
 - docs/STYLE.md — baseline interaction conventions

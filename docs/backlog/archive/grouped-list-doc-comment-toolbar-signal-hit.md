@@ -31,6 +31,6 @@ model_reason: rewording two doc-comment sentences to stop matching a regex liter
 
 ## Related
 
-- [archive/house-look-chart-palette.md](house-look-chart-palette.md) — follow-up of this slice (#311): the `lastIndex` fix that exposed this donor self-scan hit
+- [[house-look-chart-palette]] — follow-up of this slice (#311): the `lastIndex` fix that exposed this donor self-scan hit
 - `docs/audit-signals.json` — `list-shell-missing-toolbar` signal definition (already documents this exact residual shape)
 - `docs/ADOPTION-QUALITY.md` — Axis C scan contract

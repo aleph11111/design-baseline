@@ -31,6 +31,6 @@ Severity: **medium** (architecture / DRY). `SurfaceHeader` (`src/components/layo
 
 ## Related
 
-- [shell-header-actions-prop-naming.md](shell-header-actions-prop-naming.md) — related on-surface header prop inconsistency
-- [header-fill-anchor-button-invert.md](archive/header-fill-anchor-button-invert.md) — header-fill contract the shared bar must honor
+- [[shell-header-actions-prop-naming]] — related on-surface header prop inconsistency
+- [[header-fill-anchor-button-invert]] — header-fill contract the shared bar must honor
 - docs/STYLE.md — the canonical surface-header contract

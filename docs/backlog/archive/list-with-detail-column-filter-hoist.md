@@ -30,5 +30,5 @@ Severity: **low** (performance). In the card-grid and action-row presentations, 
 
 ## Related
 
-- [list-with-detail-forwardref-dropped.md](list-with-detail-forwardref-dropped.md) — same shell, separate defect
-- [settings-table-selected-set-perf.md](settings-table-selected-set-perf.md) — sibling shell render-cost cleanup
+- [[list-with-detail-forwardref-dropped]] — same shell, separate defect
+- [[settings-table-selected-set-perf]] — sibling shell render-cost cleanup
