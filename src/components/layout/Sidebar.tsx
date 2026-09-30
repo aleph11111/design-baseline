@@ -48,6 +48,10 @@ export interface AppSidebarProps {
    * them to the bottom of the rail. The wrapper clips overflow so the node cannot
    * blow out a narrow rail; rendering a compact variant under
    * `collapsible="icon"` is the node's own job (it can read `useSidebar().state`).
+   *
+   * Because of that clip, anything that pops out of the slot (a switcher list, a
+   * menu) MUST render through a portal — `Popover` / `DropdownMenu` fit. An
+   * in-flow `absolute` panel is clipped at the slot edge and never visibly opens.
    */
   aboveNav?: React.ReactNode;
   /** Top-level items rendered above any groups. */

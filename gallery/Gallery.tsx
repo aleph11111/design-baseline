@@ -11,6 +11,7 @@ import {
   BarChart3,
   Bell,
   Box,
+  ChevronsUpDown,
   CircleUser,
   FileText,
   LayoutDashboard,
@@ -29,6 +30,15 @@ import {
   type NavItem,
 } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ARCHETYPES, findArchetype, type ArchetypeEntry } from "./registry";
 import { LAYOUT_PRIMS, findLayoutPrim, type LayoutPrim } from "./layout-demos";
 
@@ -187,6 +197,46 @@ function Overview() {
   );
 }
 
+const WORKSPACES = ["Acme GmbH", "Globex", "Initech"];
+
+// Living demo of the `aboveNav` slot's canonical case. The slot clips overflow, so
+// the list renders through Popover's portal instead of an in-flow absolute panel.
+function DemoSwitcher(): React.ReactElement {
+  const [value, setValue] = React.useState(WORKSPACES[0]);
+  const [open, setOpen] = React.useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className="mx-2 w-[calc(100%-1rem)] justify-between group-data-[collapsible=icon]:hidden">
+          <span className="truncate">{value}</span>
+          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-56 p-0">
+        <Command>
+          <CommandInput placeholder="Find workspace…" />
+          <CommandList>
+            <CommandGroup>
+              {WORKSPACES.map((w) => (
+                <CommandItem
+                  key={w}
+                  value={w}
+                  onSelect={() => {
+                    setValue(w);
+                    setOpen(false);
+                  }}
+                >
+                  {w}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export function Gallery(): React.ReactElement {
   const { pathname } = useLocation();
   const active = ARCHETYPES.find((a) => pathname === `/a/${a.slug}`);
@@ -203,6 +253,7 @@ export function Gallery(): React.ReactElement {
               <Box className="h-6 w-6" />
             </div>
           }
+          aboveNav={<DemoSwitcher />}
           collapsible="icon"
           rail
           topItems={TOP_ITEMS}

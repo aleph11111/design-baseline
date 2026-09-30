@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-09-29
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "one JSDoc paragraph plus a gallery demo switcher on existing primitives"
