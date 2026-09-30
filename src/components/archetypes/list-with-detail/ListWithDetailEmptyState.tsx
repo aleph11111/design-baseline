@@ -22,6 +22,8 @@ export type ListWithDetailLabels = {
   filteredEmpty?: string;
   /** `sr-only` label of the mobile detail Sheet's close button. Default "Close". */
   close?: string;
+  /** `sr-only` label of each row's `⋯` trigger when `rowActions` is set. Default "Row actions". */
+  rowActions?: string;
 };
 
 export type ListWithDetailEmptyStateProps = {

@@ -47,6 +47,8 @@ export type TableBodyProps<Row> = {
   getRowId: (row: Row) => string;
   selectedRowId?: string | null;
   rowActions?: RowAction<Row>[];
+  /** Accessible name of each row's `⋯` trigger (`labels.rowActions`). */
+  rowActionsLabel?: string;
   sortBy?: string;
   sortDirection?: SortDirection;
   onSortChange?: (sortBy: string, sortDirection: SortDirection) => void;
@@ -64,6 +66,7 @@ export function TableBody<Row>({
   getRowId,
   selectedRowId,
   rowActions,
+  rowActionsLabel,
   sortBy,
   sortDirection,
   onSortChange,
@@ -161,7 +164,7 @@ export function TableBody<Row>({
               })}
               {hasActions && (
                 <TableCell className="w-12">
-                  <RowActionsMenu row={row} actions={rowActions} />
+                  <RowActionsMenu row={row} actions={rowActions} triggerLabel={rowActionsLabel} />
                 </TableCell>
               )}
             </TableRow>

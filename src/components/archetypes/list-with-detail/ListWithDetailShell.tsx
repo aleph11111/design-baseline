@@ -200,6 +200,7 @@ export function ListWithDetailShell<Row>(
     getRowId,
     selectedRowId,
     rowActions,
+    rowActionsLabel: labels?.rowActions,
     // Forward undefined (not the always-defined handleRowSelect wrapper) when
     // the consumer didn't pass onRowSelect, so presentations correctly treat
     // rows as non-interactive rather than always-clickable.

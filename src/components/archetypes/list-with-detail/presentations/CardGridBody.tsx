@@ -15,6 +15,8 @@ export type CardGridBodyProps<Row> = {
   getRowId: (row: Row) => string;
   selectedRowId?: string | null;
   rowActions?: RowAction<Row>[];
+  /** Accessible name of each row's `⋯` trigger (`labels.rowActions`). */
+  rowActionsLabel?: string;
   onRowSelect?: (row: Row) => void;
 };
 
@@ -33,6 +35,7 @@ export function CardGridBody<Row>({
   getRowId,
   selectedRowId,
   rowActions,
+  rowActionsLabel,
   onRowSelect,
 }: CardGridBodyProps<Row>): React.ReactElement {
   const hasActions = rowActions !== undefined && rowActions.length > 0;
@@ -67,7 +70,7 @@ export function CardGridBody<Row>({
               </div>
               {hasActions && (
                 <div onClick={(e) => e.stopPropagation()}>
-                  <RowActionsMenu row={row} actions={rowActions} />
+                  <RowActionsMenu row={row} actions={rowActions} triggerLabel={rowActionsLabel} />
                 </div>
               )}
             </div>

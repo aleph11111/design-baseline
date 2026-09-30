@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-30'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "one more label key on the existing `labels` objects, following the v0.2.30 pattern"
