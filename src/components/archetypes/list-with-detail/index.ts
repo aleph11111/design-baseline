@@ -21,4 +21,5 @@ export { ListWithDetailEmptyState } from "./ListWithDetailEmptyState";
 export type {
   ListEmptyMode,
   ListWithDetailEmptyStateProps,
+  ListWithDetailLabels,
 } from "./ListWithDetailEmptyState";
