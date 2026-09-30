@@ -1,9 +1,7 @@
 ---
 area: tooling
 opened: 2026-09-29
-status: blocked
-blocked_reason: >-
-  Acceptance 2 is unsatisfiable as written: every import of the .mjs resolves to the .d.mts by extension substitution (also with allowJs and paths, verified 2026-09-30), so tsc cannot observe .mjs exports. Criteria 1 and 3 are met by this PR; criterion 2 is implemented as a vitest drift check. Operator: reword criterion 2 to fails npm test and move this to archive/, or drop it.
+status: done
 value: low
 gate:
   score: 5

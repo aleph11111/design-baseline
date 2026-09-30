@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Vite wiring for the project-first `ui/` and `layout/` arrays (PACKAGE.md wiring line 2) and
  * the package's `optimizeDeps` include list — the dev-server half of the Vite
@@ -40,6 +41,10 @@ const PACKAGE_COMPONENTS_DIR = fileURLToPath(new URL('../components', import.met
  * Project-first resolver for `@/components/<kind>/*`: a consumer copy under
  * `src/components/<kind>/` wins, anything else resolves to the installed
  * package's copy; `null` for every other id.
+ *
+ * @param {string} root
+ * @param {'ui' | 'layout'} kind
+ * @returns {import('vite').Plugin}
  */
 function projectFirst(root, kind) {
   const dirs = [
@@ -49,7 +54,8 @@ function projectFirst(root, kind) {
   const re = new RegExp(`^@/components/${kind}/([^?]+)(\\?.*)?$`);
   return {
     name: `design-baseline-${kind}`,
-    enforce: 'pre',
+    enforce: /** @type {const} */ ('pre'),
+    /** @param {string} id */
     resolveId(id) {
       const m = re.exec(id);
       if (!m) return null;
@@ -116,3 +122,9 @@ export function designBaselineDeps() {
     .filter((d) => d !== 'tw-animate-css')
     .map((d) => `${manifest.name} > ${d}`);
 }
+
+// Type-level drift guard, checked by `tsc --noEmit` (allowJs): the real exports
+// above must match the sibling `.d.mts` stub. A renamed export fails here
+// because this name list no longer resolves; a stub-only name fails `satisfies`.
+/** @satisfies {typeof import('./design-baseline-ui.d.mts')} */
+({ designBaselineUi, designBaselineLayout, designBaselineDeps });
