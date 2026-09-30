@@ -97,8 +97,8 @@ describe("RowActionsMenu", () => {
     const items = itemsOf(menu);
     const [edit, archive, del] = [nth(items, 0), nth(items, 1), nth(items, 2)];
 
-    expect(del.className).toContain("text-destructive");
-    expect(edit.className).not.toContain("text-destructive");
+    expect(del.className).toContain("text-status-danger-fg");
+    expect(edit.className).not.toContain("text-status-danger-fg");
 
     expect(archive.hasAttribute("data-disabled")).toBe(true);
     fireEvent.click(archive);

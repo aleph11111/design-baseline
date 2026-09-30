@@ -131,7 +131,7 @@ export function ActionFooterBar({
           <Button
             type="button"
             variant="outline"
-            className="text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+            className="text-status-danger-fg border-status-danger-fg/40 hover:bg-status-danger-bg hover:text-status-danger-fg"
             onClick={onDestructive}
             disabled={destructiveDisabled || isDeleting || isSubmitting}
           >
