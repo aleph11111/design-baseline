@@ -147,6 +147,31 @@ describe("ListWithDetailShell labels", () => {
   });
 });
 
+describe("row-actions trigger label", () => {
+  const rowActions = [{ label: "Edit", onSelect: () => {} }];
+  const presentations = ["table", "card-grid", "action-row"] as const;
+
+  it.each(presentations)("list shell (%s): override and English default", (presentation) => {
+    const props = { columns, getRowId: (r: Row) => r.id, rows, rowActions, presentation };
+    const { rerender } = render(
+      <ListWithDetailShell {...props} labels={{ rowActions: "Zeilenaktionen" }} />,
+    );
+    expect(screen.getByRole("button", { name: "Zeilenaktionen" })).toBeTruthy();
+    rerender(<ListWithDetailShell {...props} />);
+    expect(screen.getByRole("button", { name: "Row actions" })).toBeTruthy();
+  });
+
+  it("settings shell: override and English default", () => {
+    const props = { rows, columns, getRowId: (r: Row) => r.id, rowActions };
+    const { rerender } = render(
+      <SettingsTableShell {...props} labels={{ rowActions: "Zeilenaktionen" }} />,
+    );
+    expect(screen.getByRole("button", { name: "Zeilenaktionen" })).toBeTruthy();
+    rerender(<SettingsTableShell {...props} />);
+    expect(screen.getByRole("button", { name: "Row actions" })).toBeTruthy();
+  });
+});
+
 // Omitting every override renders the English default — one render per seam,
 // so a dropped default (an unnamed checkbox or close button) fails here.
 describe("English defaults when no override is passed", () => {

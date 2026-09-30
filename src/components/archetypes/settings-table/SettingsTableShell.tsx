@@ -58,6 +58,8 @@ export type SettingsTableLabels = {
   selectedCount?: (count: number) => string;
   /** Bulk-delete button. Default `Delete ${n} selected`. */
   deleteSelected?: (count: number) => string;
+  /** `sr-only` label of each row's `⋯` trigger when `rowActions` is set. Default "Row actions". */
+  rowActions?: string;
 };
 
 export type SettingsTableShellProps<Row> = {
@@ -341,6 +343,7 @@ export function SettingsTableShell<Row>({
                 <TableCell className="w-10">
                   <RowActionsMenu
                     row={row}
+                    triggerLabel={labels?.rowActions}
                     actions={
                       typeof rowActions === "function" ? rowActions(row) : rowActions!
                     }

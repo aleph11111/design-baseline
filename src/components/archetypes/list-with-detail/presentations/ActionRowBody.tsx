@@ -16,6 +16,8 @@ export type ActionRowBodyProps<Row> = {
   getRowId: (row: Row) => string;
   selectedRowId?: string | null;
   rowActions?: RowAction<Row>[];
+  /** Accessible name of each row's `⋯` trigger (`labels.rowActions`). */
+  rowActionsLabel?: string;
   onRowSelect?: (row: Row) => void;
 };
 
@@ -34,6 +36,7 @@ export function ActionRowBody<Row>({
   getRowId,
   selectedRowId,
   rowActions,
+  rowActionsLabel,
   onRowSelect,
 }: ActionRowBodyProps<Row>): React.ReactElement {
   const hasActions = rowActions !== undefined && rowActions.length > 0;
@@ -77,7 +80,7 @@ export function ActionRowBody<Row>({
             </div>
             {hasActions ? (
               <div onClick={(e) => e.stopPropagation()}>
-                <RowActionsMenu row={row} actions={rowActions} />
+                <RowActionsMenu row={row} actions={rowActions} triggerLabel={rowActionsLabel} />
               </div>
             ) : clickable ? (
               <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
