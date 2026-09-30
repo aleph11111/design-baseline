@@ -40,7 +40,7 @@ export type StateViewProps = {
   /** Renders a "Try again" button in the error variant. */
   onRetry?: () => void;
   /** Label of the error variant's retry button. Override in a non-English app. */
-  retryLabel?: React.ReactNode;
+  retryLabel?: string;
   /**
    * The empty state's single next-step action (ADR-0007 §7 — e.g. an
    * "Add new" button), rendered below the title/description with extra

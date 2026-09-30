@@ -146,3 +146,75 @@ describe("ListWithDetailShell labels", () => {
     expect(screen.getByRole("button", { name: "Schließen" })).toBeTruthy();
   });
 });
+
+// Omitting every override renders the English default — one render per seam,
+// so a dropped default (an unnamed checkbox or close button) fails here.
+describe("English defaults when no override is passed", () => {
+  it("SearchInput clear button", () => {
+    render(<SearchInput value="q" clearable />);
+    expect(screen.getByRole("button", { name: "Clear search" })).toBeTruthy();
+  });
+
+  it("crud-dialog header and sheet close buttons", () => {
+    render(
+      <CrudDialogSheet open onOpenChange={() => {}}>
+        <CrudDialogHeader title="Customer" onClose={() => {}} />
+      </CrudDialogSheet>,
+    );
+    expect(screen.getAllByRole("button", { name: "Close" })).toHaveLength(2);
+  });
+
+  it("SettingsTableShell bulk and plane copy", () => {
+    const { rerender } = render(
+      <SettingsTableShell
+        rows={rows}
+        columns={columns}
+        getRowId={(r) => r.id}
+        bulkSelectable
+        selectedIds={["a"]}
+        onBulkSelectChange={() => {}}
+        onBulkDelete={() => {}}
+      />,
+    );
+    expect(screen.getByRole("checkbox", { name: "Select all rows" })).toBeTruthy();
+    expect(screen.getByRole("checkbox", { name: "Select row" })).toBeTruthy();
+    expect(screen.getByText("1 selected")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Delete 1 selected" })).toBeTruthy();
+
+    rerender(<SettingsTableShell rows={[]} columns={columns} getRowId={(r) => r.id} isLoading />);
+    expect(screen.getByText("Loading…")).toBeTruthy();
+
+    rerender(
+      <SettingsTableShell
+        rows={[]}
+        columns={columns}
+        getRowId={(r) => r.id}
+        error={new Error("boom")}
+        onRetry={() => {}}
+      />,
+    );
+    expect(screen.getByText("Something went wrong")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
+  });
+
+  it("ListWithDetailShell planes and mobile Sheet close", () => {
+    const base = { columns, getRowId: (r: Row) => r.id };
+    const { rerender } = render(<ListWithDetailShell {...base} rows={[]} isLoading />);
+    expect(screen.getByText("Loading…")).toBeTruthy();
+
+    rerender(<ListWithDetailShell {...base} rows={[]} error={new Error("boom")} onRetry={() => {}} />);
+    expect(screen.getByText("Something went wrong")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
+
+    rerender(<ListWithDetailShell {...base} rows={[]} />);
+    expect(screen.getByText("No items yet")).toBeTruthy();
+
+    rerender(<ListWithDetailShell {...base} rows={[]} filteredEmpty />);
+    expect(screen.getByText("No matches. Try clearing filters.")).toBeTruthy();
+
+    cleanup();
+    render(<ListWithDetailShell {...base} rows={rows} onRowSelect={() => {}} detail={<p>detail</p>} />);
+    fireEvent.click(screen.getByText("Alpha"));
+    expect(screen.getByRole("button", { name: "Close" })).toBeTruthy();
+  });
+});
