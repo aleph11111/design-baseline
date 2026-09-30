@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-09-29
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "scoped test addition against an existing gallery; cause and expected widths are known"
