@@ -72,6 +72,10 @@ audit" split:
    `--sidebar-primary`, `--sidebar-ring`, `--chart-*`) or any donor-reserved
    `--db-*`, and a dark `--primary` off the light hue (> 10°) or below 30%
    saturation. Reported under the report's `brandTokens` key, same radar semantics.
+   `stale-vendored-appshell` (yellow) flags a consumer's own `<main>` with the AppShell
+   page inset (`p-4 md:p-12 xl:p-14`) that lacks `@container/db-desk` or
+   `db-content-column` — a vendored AppShell that missed the v0.2.26 width-step hooks
+   and stays at 1180px on wide desks. A package importer renders no `<main>` and never hits.
 
 2. **Per-page conformance pass** (LLM audit): for each flagged route — and every route
    the page-level pass marks `adopted` for a shell archetype — run the archetype's
