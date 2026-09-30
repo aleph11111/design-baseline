@@ -30,6 +30,12 @@ describe("ColorField — swatch + hex share one value", () => {
     expect(onChange).toHaveBeenNthCalledWith(2, "#112233");
   });
 
+  it("hexLabel overrides the derived accessible name of the hex input", () => {
+    render(<ColorField label="Brand" value="#ffffff" onChange={() => {}} hexLabel="Brand colour code" />);
+    expect(screen.getByLabelText("Brand colour code")).toBeTruthy();
+    expect(screen.queryByLabelText("Brand hex value")).toBeNull();
+  });
+
   it("hideHex drops the text input", () => {
     render(<ColorField label="Brand" value="#ffffff" onChange={() => {}} hideHex />);
     expect(screen.queryByLabelText("Brand hex value")).toBeNull();
