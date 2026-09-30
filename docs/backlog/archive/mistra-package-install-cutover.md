@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-23'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -130,3 +130,79 @@ move the three compositions out, delete `frontend/src/components/archetypes/` to
 `_adherence.json` archetype rules in one commit, then take screenshots against the pre-migration
 routes. Runbook step 5 (the radar sync row) waits for that commit, because until then the
 kept-file count is still the full vendored tree.
+
+## Progress — 2026-09-30 (increment 2)
+
+All three increment-1 blockers have landed: [[mistra-list-detail-settings-table-fork-promotion]]
+and [[mistra-fork-triage-promotions]] are archived here, and mistra merged its
+`design-baseline-package-ui-layout-triage` as #1035. The mistra side ran on branch
+`feat/design-baseline-archetypes-cutover` (mistra ticket `design-baseline-archetypes-cutover`),
+pinned to the v0.2.30 tag. It re-points every archetype import at `design-baseline/archetypes/<slug>` and deletes
+`frontend/src/components/archetypes/`.
+
+**Donor gap found by the cutover, shipped as design-baseline #383 (v0.2.30, ticket [[archetype-shell-locale-overrides]]).** mistra's vendored shells
+rendered German loading, error and empty planes because they imported mistra's
+`@/components/ui/*` locale forks. The package shells import the package's own `ui/` relatively,
+so re-pointing turned those planes English. Some strings (`"Close"`, `"Select row"`,
+`"Try again"`) had no override at all. The fix follows the existing rule of English defaults
+overridable per call site, as `sheet`/`dialog` `closeLabel` already do:
+
+- `StateView retryLabel`
+- `SearchInput`: `type="search"`, a name derived from the placeholder, and `clearLabel`
+  (promoted from mistra's locale fork)
+- `CrudDialogHeader` and `CrudDialogSheet` `closeLabel`
+- `SettingsTableShell labels` and `ListWithDetailShell labels`
+
+The list table's sort header is now a real `<button>` inside the `aria-sort` cell. mistra's
+fork had this; the package header was click-only, with no keyboard path.
+
+**Triage decisions for what the re-point changed** (each recorded, nothing dropped silently):
+
+- **DROP-LOCAL: list-with-detail desktop overlay.** mistra always opened `detail` as a modal
+  Sheet. The donor contract says "no prop that lets a page opt into the overlay on desktop".
+  `ActionItemsTable` and `HealthPage` now show the desktop rail.
+- **DROP-LOCAL: NativeField `aria-required`.** Native `required` already exposes the required
+  state, so the redundant attribute is gone.
+- **DROP-LOCAL: the `DetailOverviewHeader leading` slot.** It is replaced by
+  `backHref`/`backLabel`/`renderBackLink` (the v0.2.6 promotion). The back link now renders
+  above the title row.
+- **TAKE-DONOR: house look (ADR-0007).** Package shells are full-bleed, use a raised surface
+  with no border or shadow, have denser rows, and use the display-scale page title. mistra's
+  vendored copies were behind on all of these.
+- **TAKE-DONOR: header fill.** mistra now sets `<AppShell headerFill="white">` once. Its
+  vendored surface headers pinned `white`, and it adopts no `solid` fill.
+- **PROJECT-OWNED:** `CrudDialogSubmitOnEnter`, `SettingsTableSearchToolbar`,
+  `useEntityDialogState`, `SELECT_NONE` (the donor ships no sentinel), `CollapsibleSection`
+  (now a wrapper over `DetailSection collapsible`), and `baselineLabels.ts` (German copy).
+
+## Outcome — 2026-09-30 (done)
+
+The mistra re-point merged as **mistra #1257** (`af68797f`), pinned to design-baseline
+**v0.2.30**. The donor side merged as **#383** (`a8ec2ec`). Evidence per acceptance criterion:
+
+1. **`require.resolve` succeeds and `frontend/src/components/archetypes/` is absent.**
+   - In the mistra cutover worktree at the merged head (`7ad40fa9`),
+     `node -e "require.resolve('design-baseline/package.json')"` succeeds and reports `0.2.30`.
+   - `git -C mistra ls-tree -d origin/main frontend/src/components/archetypes` returns nothing.
+   - The `lint:design` rule `no-vendored-archetype` (error) keeps it absent. A probe file there
+     gives 1 error.
+2. **`git -C mistra show origin/main:docs/archetypes/MANIFEST.json` fails** with exit 128. The
+   file was deleted in mistra #1025 (increment 1).
+3. **`tsc` and `vite build` are clean, and routes render unchanged except deliberate drops.**
+   - At the merged head, on the pinned v0.2.30: `npx tsc -b --force` gives 0 errors.
+   - vitest: 161 files, 899 passed.
+   - `npm run build` passes, and `lint:design` gives 0 warnings, 0 errors.
+   - Screenshots came from dev servers running mistra `origin/main` (pre-cutover) and the cutover
+     branch against the same backend. They cover 18 archetype routes plus a crud dialog, and the
+     pairs are committed at `mistra/docs/screenshots/design-baseline-archetypes-cutover/`.
+   - Three routes show no diff. Every other diff is one of the recorded triage decisions in
+     increment 2: the TAKE-DONOR house look (full-bleed, raised surface, denser rows,
+     display-scale title, one-row dialog footer) and the DROP-LOCAL back link above the title row.
+   - German copy and the white header fill render unchanged.
+4. **Every `detail-overview.md` divergence section has a recorded decision.** See "Progress —
+   increment 1": three DROP-DONOR-AHEAD hunks, the `.baseline.md` sibling DROP-LOCAL, and a
+   byte-identical blueprint. Nothing was lost silently.
+
+Follow-up filed: [[row-actions-trigger-label-override]]. The `RowActionsMenu` trigger name stays
+English inside the shells because the shells have no label key for it. This was pre-existing,
+and mistra's review flagged it.
