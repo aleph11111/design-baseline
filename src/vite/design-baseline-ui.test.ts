@@ -54,7 +54,7 @@ describe("project-first resolvers", () => {
 describe("design-baseline-ui.d.mts", () => {
   it("declares exactly the exports of design-baseline-ui.mjs", () => {
     const stub = readFileSync(new URL("./design-baseline-ui.d.mts", import.meta.url), "utf8");
-    const declared = [...stub.matchAll(/^export function (\w+)/gm)].map((m) => m[1]);
+    const declared = [...stub.matchAll(/^export (?:declare )?function (\w+)/gm)].map((m) => m[1]);
     expect(declared.sort()).toEqual(Object.keys(helper).sort());
   });
 });

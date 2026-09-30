@@ -25,7 +25,7 @@ Review of PR #369 (v0.2.27) left three small gaps around `src/vite/design-baseli
 ## Acceptance
 
 - After `npm test`, no `db-vite-*` directory is left in the OS temp dir.
-- Renaming an export in `design-baseline-ui.mjs` without updating the `.d.mts` fails `npx tsc --noEmit`.
+- Renaming an export in `design-baseline-ui.mjs` without updating the `.d.mts` fails `npm test`. (Amended at ship: the original wording said `npx tsc --noEmit`, but every import of the `.mjs` resolves to the `.d.mts` by extension substitution, including with `allowJs` and `paths` — verified 2026-09-30 — so tsc cannot observe the `.mjs` exports. The vitest check compares the two export lists directly.)
 - The `ui/` shadowing test fails when the resolver stops preferring the consumer copy, and no other resolver path (`layout/`, `ui/`) lacks a shadowing case.
 
 ## Related
