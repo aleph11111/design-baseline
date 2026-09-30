@@ -54,6 +54,7 @@ npm run gallery                   # dev-serve the gallery (donor-dev only; rende
 npm run gallery:build             # build gallery-dist/ — the static surface the dashboard hub iframes
 npm run gallery:preview           # preview the built gallery
 npm run gallery:view              # gallery:build + preview on :5173
+npm run check:desk-width          # gallery:build + real-Chrome check of AppShell's wide-desk column steps (local Chrome, not in CI)
 ```
 
 ## Architecture Quick Reference
