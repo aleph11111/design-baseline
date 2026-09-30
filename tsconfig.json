@@ -10,6 +10,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "skipLibCheck": true,
+    "allowJs": true,
     "noEmit": true,
     "isolatedModules": true,
     "esModuleInterop": true,
@@ -19,6 +20,7 @@
       "@/*": ["src/*"]
     }
   },
+  "files": ["src/vite/design-baseline-ui.mjs"],
   "include": ["src/**/*", "gallery/**/*", "vite.config.ts", "vitest.config.ts"],
   "exclude": [
     "src/examples/DemoNextApp.tsx",

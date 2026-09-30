@@ -1,9 +1,9 @@
 // @vitest-environment node
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
 import { designBaselineLayout, designBaselineUi } from "./design-baseline-ui.mjs";
 
 const pkgComponents = fileURLToPath(new URL("../components", import.meta.url));
@@ -16,6 +16,10 @@ describe("project-first resolvers", () => {
   const root = mkdtempSync(path.join(tmpdir(), "db-vite-"));
   mkdirSync(path.join(root, "src/components/layout"), { recursive: true });
   writeFileSync(path.join(root, "src/components/layout/Header.tsx"), "");
+  mkdirSync(path.join(root, "src/components/ui"), { recursive: true });
+  writeFileSync(path.join(root, "src/components/ui/button.tsx"), "");
+
+  afterAll(() => rmSync(root, { recursive: true, force: true }));
 
   it("layout: package copy when the consumer has none", () => {
     expect(resolve(designBaselineLayout(root), "@/components/layout/StatTile")).toBe(
@@ -29,11 +33,17 @@ describe("project-first resolvers", () => {
     );
   });
 
+  it("ui: consumer copy shadows the package", () => {
+    expect(resolve(designBaselineUi(root), "@/components/ui/button?x")).toBe(
+      path.join(root, "src/components/ui/button.tsx?x"),
+    );
+  });
+
   it("each resolver only claims its own kind", () => {
     expect(resolve(designBaselineLayout(root), "@/components/ui/button")).toBeNull();
     expect(resolve(designBaselineUi(root), "@/components/layout/StatTile")).toBeNull();
-    expect(resolve(designBaselineUi(root), "@/components/ui/button")).toBe(
-      path.join(pkgComponents, "ui/button.tsx"),
+    expect(resolve(designBaselineUi(root), "@/components/ui/card")).toBe(
+      path.join(pkgComponents, "ui/card.tsx"),
     );
   });
 });

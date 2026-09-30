@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-09-29
-status: ready
+status: done
 value: low
 gate:
   score: 5
