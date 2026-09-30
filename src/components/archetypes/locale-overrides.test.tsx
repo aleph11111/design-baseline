@@ -149,26 +149,37 @@ describe("ListWithDetailShell labels", () => {
 
 describe("row-actions trigger label", () => {
   const rowActions = [{ label: "Edit", onSelect: () => {} }];
+  const manyRows: Row[] = [
+    { id: "a", name: "Alpha" },
+    { id: "b", name: "Beta" },
+    { id: "c", name: "Gamma" },
+  ];
   const presentations = ["table", "card-grid", "action-row"] as const;
 
+  // Every row's trigger carries the name — none left on the other one.
+  const expectAll = (present: string, absent: string) => {
+    expect(screen.getAllByRole("button", { name: present })).toHaveLength(manyRows.length);
+    expect(screen.queryAllByRole("button", { name: absent })).toHaveLength(0);
+  };
+
   it.each(presentations)("list shell (%s): override and English default", (presentation) => {
-    const props = { columns, getRowId: (r: Row) => r.id, rows, rowActions, presentation };
+    const props = { columns, getRowId: (r: Row) => r.id, rows: manyRows, rowActions, presentation };
     const { rerender } = render(
       <ListWithDetailShell {...props} labels={{ rowActions: "Zeilenaktionen" }} />,
     );
-    expect(screen.getByRole("button", { name: "Zeilenaktionen" })).toBeTruthy();
+    expectAll("Zeilenaktionen", "Row actions");
     rerender(<ListWithDetailShell {...props} />);
-    expect(screen.getByRole("button", { name: "Row actions" })).toBeTruthy();
+    expectAll("Row actions", "Zeilenaktionen");
   });
 
   it("settings shell: override and English default", () => {
-    const props = { rows, columns, getRowId: (r: Row) => r.id, rowActions };
+    const props = { rows: manyRows, columns, getRowId: (r: Row) => r.id, rowActions };
     const { rerender } = render(
       <SettingsTableShell {...props} labels={{ rowActions: "Zeilenaktionen" }} />,
     );
-    expect(screen.getByRole("button", { name: "Zeilenaktionen" })).toBeTruthy();
+    expectAll("Zeilenaktionen", "Row actions");
     rerender(<SettingsTableShell {...props} />);
-    expect(screen.getByRole("button", { name: "Row actions" })).toBeTruthy();
+    expectAll("Row actions", "Zeilenaktionen");
   });
 });
 
