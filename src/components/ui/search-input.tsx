@@ -18,6 +18,8 @@ export type SearchInputProps = Omit<
   clearable?: boolean;
   /** Match counter (or any trailing caption) — molecule owns the styling. */
   count?: React.ReactNode;
+  /** Accessible name of the clear-X button. Override in a non-English app. */
+  clearLabel?: string;
 };
 
 // Per-size geometry. The molecule owns these so a compact toolbar box and a
@@ -44,6 +46,7 @@ export function SearchInput({
   inputSize = "default",
   clearable = false,
   count,
+  clearLabel = "Clear search",
   ...rest
 }: SearchInputProps): React.ReactElement {
   const ref = React.useRef<HTMLInputElement>(null);
@@ -62,9 +65,19 @@ export function SearchInput({
       />
       <Input
         ref={ref}
-        className={cn(size.input, size.pl, hasTrailing && "pr-16")}
+        // A native search field (the `searchbox` role); `clearable` owns the
+        // clear affordance, so WebKit's own cancel X is hidden — never two X's.
+        type="search"
+        className={cn(
+          size.input,
+          size.pl,
+          hasTrailing && "pr-16",
+          "[&::-webkit-search-cancel-button]:hidden",
+        )}
         placeholder={placeholder}
-        aria-label={rest["aria-label"] ?? "Search"}
+        // The accessible name follows the placeholder ("Search…" → "Search"),
+        // so a localised placeholder localises the name with it.
+        aria-label={rest["aria-label"] ?? (placeholder.replace(/(…|\.\.\.)$/, "") || "Search")}
         value={current}
         onChange={(e) => onChange?.(e.target.value)}
         {...rest}
@@ -77,7 +90,7 @@ export function SearchInput({
           {showClear && (
             <button
               type="button"
-              aria-label="Clear search"
+              aria-label={clearLabel}
               onClick={() => {
                 onChange?.("");
                 ref.current?.focus();
