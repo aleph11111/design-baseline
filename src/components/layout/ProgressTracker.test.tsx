@@ -38,4 +38,12 @@ describe("ProgressTracker", () => {
     expect(label.className).toContain("[overflow-wrap:anywhere]");
     expect(label.className).toContain("hyphens-auto");
   });
+
+  it("drops the right gutter on the last step only", () => {
+    render(<ProgressTracker steps={steps} />);
+    const gutter = (t: string) => screen.getByText(t).parentElement?.className ?? "";
+    expect(gutter("Ordered")).toContain("pr-4");
+    expect(gutter("Packed")).toContain("pr-4");
+    expect(gutter("Shipped")).not.toContain("pr-4");
+  });
 });
