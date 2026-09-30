@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-09-30'
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "per-call-site override props following the existing `closeLabel` precedent; implementation exists on the mistra-cutover branch"
