@@ -34,10 +34,12 @@ const report = (label, ok, detail) => {
 };
 console.log(`desk-width check: ${total} measurements against ${DIST} (Chrome: ${CHROME})`);
 
-const open = async (slug, width, { collapse = false } = {}) => {
+const open = async (slug, width, { collapse = false, fullBleed = false } = {}) => {
   const page = await browser.newPage({ viewport: { width, height: 900 } });
   await page.goto(base + slug);
   await page.waitForSelector(".db-content-column");
+  // demos are lazy: wait for the shell root, or the column is measured before it mounts
+  if (fullBleed) await page.waitForSelector(".db-full-bleed", { timeout: 5000 });
   if (collapse) {
     await page.keyboard.press("Control+b");
     await page.waitForTimeout(400); // sidebar width transition
@@ -60,13 +62,13 @@ for (const s of STEPS) {
   await page.close();
 }
 
-const page = await open("matrix-grid", 1512);
+const page = await open("matrix-grid", 1512, { fullBleed: true });
 const sw = await page.evaluate(() => document.documentElement.scrollWidth);
 report("matrix-grid page scrollWidth @ 1512", sw === 1512, `${sw}px, want 1512px`);
 await page.close();
 
 for (const slug of FULL_BLEED) {
-  const p = await open(slug, 1512);
+  const p = await open(slug, 1512, { fullBleed: true });
   const { max } = await colStyle(p);
   report(`${slug} column max-width`, max === "none", max);
   await p.close();
