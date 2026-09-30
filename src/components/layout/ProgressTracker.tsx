@@ -16,7 +16,8 @@
  *   label: `text-sm font-medium` (pending → `text-muted-foreground`); a label
  *          with no break point wraps inside its column instead of painting
  *          over the next one. `hyphens-auto` only hyphenates when an
- *          ancestor sets `lang`, so that stays the consumer's call.
+ *          ancestor sets `lang` — set `lang` on the tracker or an
+ *          ancestor for real hyphenation. The last step has no `pr-4` gutter.
  *   meta : `text-xs text-muted-foreground`
  *
  * Reads brand color automatically via `--primary`, so it re-skins with the rest
@@ -75,7 +76,7 @@ export function ProgressTracker({
                 />
               )}
             </div>
-            <div className="pr-4 pt-2.5">
+            <div className={cn("pt-2.5", !last && "pr-4")}>
               <div
                 className={cn(
                   "text-sm font-medium leading-tight [overflow-wrap:anywhere] hyphens-auto",
