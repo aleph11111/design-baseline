@@ -130,3 +130,47 @@ move the three compositions out, delete `frontend/src/components/archetypes/` to
 `_adherence.json` archetype rules in one commit, then take screenshots against the pre-migration
 routes. Runbook step 5 (the radar sync row) waits for that commit, because until then the
 kept-file count is still the full vendored tree.
+
+## Progress — 2026-09-30 (increment 2)
+
+All three increment-1 blockers have landed: [[mistra-list-detail-settings-table-fork-promotion]]
+and [[mistra-fork-triage-promotions]] are archived here, and mistra merged its
+`design-baseline-package-ui-layout-triage` as #1035. The mistra side runs on branch
+`feat/design-baseline-archetypes-cutover`, which is pinned first to this branch and later to the
+tag. It re-points every archetype import at `design-baseline/archetypes/<slug>` and deletes
+`frontend/src/components/archetypes/`.
+
+**Donor gap found by the cutover, shipped in this PR (v0.2.30).** mistra's vendored shells
+rendered German loading, error and empty planes because they imported mistra's
+`@/components/ui/*` locale forks. The package shells import the package's own `ui/` relatively,
+so re-pointing turned those planes English. Some strings (`"Close"`, `"Select row"`,
+`"Try again"`) had no override at all. The fix follows the existing rule of English defaults
+overridable per call site, as `sheet`/`dialog` `closeLabel` already do:
+
+- `StateView retryLabel`
+- `SearchInput`: `type="search"`, a name derived from the placeholder, and `clearLabel`
+  (promoted from mistra's locale fork)
+- `CrudDialogHeader` and `CrudDialogSheet` `closeLabel`
+- `SettingsTableShell labels` and `ListWithDetailShell labels`
+
+The list table's sort header is now a real `<button>` inside the `aria-sort` cell. mistra's
+fork had this; the package header was click-only, with no keyboard path.
+
+**Triage decisions for what the re-point changed** (each recorded, nothing dropped silently):
+
+- **DROP-LOCAL: list-with-detail desktop overlay.** mistra always opened `detail` as a modal
+  Sheet. The donor contract says "no prop that lets a page opt into the overlay on desktop".
+  `ActionItemsTable` and `HealthPage` now show the desktop rail.
+- **DROP-LOCAL: NativeField `aria-required`.** Native `required` already exposes the required
+  state, so the redundant attribute is gone.
+- **DROP-LOCAL: the `DetailOverviewHeader leading` slot.** It is replaced by
+  `backHref`/`backLabel`/`renderBackLink` (the v0.2.6 promotion). The back link now renders
+  above the title row.
+- **TAKE-DONOR: house look (ADR-0007).** Package shells are full-bleed, use a raised surface
+  with no border or shadow, have denser rows, and use the display-scale page title. mistra's
+  vendored copies were behind on all of these.
+- **TAKE-DONOR: header fill.** mistra now sets `<AppShell headerFill="white">` once. Its
+  vendored surface headers pinned `white`, and it adopts no `solid` fill.
+- **PROJECT-OWNED:** `CrudDialogSubmitOnEnter`, `SettingsTableSearchToolbar`,
+  `useEntityDialogState`, `SELECT_NONE` (the donor ships no sentinel), `CollapsibleSection`
+  (now a wrapper over `DetailSection collapsible`), and `baselineLabels.ts` (German copy).
