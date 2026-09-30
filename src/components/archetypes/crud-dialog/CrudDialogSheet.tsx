@@ -26,6 +26,8 @@ export type CrudDialogSheetProps = {
    * On mobile the sheet is always full-viewport regardless of this setting.
    */
   width?: "sm" | "md" | "lg";
+  /** `sr-only` label of the Sheet's built-in close button. Override in a non-English app. */
+  closeLabel?: string;
   children: React.ReactNode;
 };
 
@@ -49,6 +51,7 @@ export function CrudDialogSheet({
   open,
   onOpenChange,
   width = "md",
+  closeLabel,
   children,
 }: CrudDialogSheetProps): React.ReactElement {
   const isMobile = useIsMobile();
@@ -60,6 +63,7 @@ export function CrudDialogSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
+        closeLabel={closeLabel}
         style={inlineWidth ? { width: inlineWidth, maxWidth: "100vw" } : undefined}
         className={cn(
           // Remove the default SheetContent padding so we can control padding

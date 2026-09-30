@@ -38,6 +38,28 @@ export type SettingsRowAction<Row> = RowAction<Row>;
 // `archetypes/shared`; D2 adds no extensions on top of the base.
 export type SettingsColumn<Row> = TableColumn<Row>;
 
+/**
+ * The shell's built-in copy — every string it renders on its own. English
+ * defaults; a non-English app overrides per call site (the fleet's i18n rule:
+ * English defaults, overridable, never a baked-in language).
+ */
+export type SettingsTableLabels = {
+  /** Loading-plane text. Default "Loading…". */
+  loading?: string;
+  /** Error-plane title. Default "Something went wrong". */
+  errorTitle?: string;
+  /** Error-plane retry button. Default "Try again". */
+  retry?: string;
+  /** Bulk-select header checkbox. Default "Select all rows". */
+  selectAll?: string;
+  /** Bulk-select row checkbox. Default "Select row". */
+  selectRow?: string;
+  /** Bulk-mode selection caption. Default `${n} selected`. */
+  selectedCount?: (count: number) => string;
+  /** Bulk-delete button. Default `Delete ${n} selected`. */
+  deleteSelected?: (count: number) => string;
+};
+
 export type SettingsTableShellProps<Row> = {
   /** The current (possibly filtered) rows to display. */
   rows: Row[];
@@ -80,6 +102,8 @@ export type SettingsTableShellProps<Row> = {
   onRetry?: () => void;
   /** Shown in the empty state when rows is empty and not loading/erroring. */
   emptyMessage?: string;
+  /** Overrides for the shell's built-in copy (see `SettingsTableLabels`). */
+  labels?: SettingsTableLabels;
 
   // Bulk select
   /** When true, renders a leading checkbox column. */
@@ -120,6 +144,7 @@ export function SettingsTableShell<Row>({
   error,
   onRetry,
   emptyMessage,
+  labels,
   bulkSelectable,
   selectedIds = [],
   onBulkSelectChange,
@@ -185,7 +210,7 @@ export function SettingsTableShell<Row>({
         // Bulk mode: show bulk actions, suppress regular toolbar
         <div className="flex flex-1 items-center gap-2">
           <span className="text-sm text-muted-foreground">
-            {selectedIds.length} selected
+            {labels?.selectedCount?.(selectedIds.length) ?? `${selectedIds.length} selected`}
           </span>
           {bulkActions}
           {onBulkDelete && (
@@ -194,7 +219,8 @@ export function SettingsTableShell<Row>({
               size="sm"
               onClick={handleBulkDelete}
             >
-              Delete {selectedIds.length} selected
+              {labels?.deleteSelected?.(selectedIds.length) ??
+                `Delete ${selectedIds.length} selected`}
             </Button>
           )}
         </div>
@@ -239,8 +265,16 @@ export function SettingsTableShell<Row>({
       }
     />
   );
-  const loadingState = <StateView variant="loading" />;
-  const errorState = <StateView variant="error" error={error} onRetry={onRetry} />;
+  const loadingState = <StateView variant="loading" message={labels?.loading} />;
+  const errorState = (
+    <StateView
+      variant="error"
+      title={labels?.errorTitle}
+      error={error}
+      onRetry={onRetry}
+      retryLabel={labels?.retry}
+    />
+  );
 
   // Table
   const tableContent = showTable ? (
@@ -252,7 +286,7 @@ export function SettingsTableShell<Row>({
               <Checkbox
                 checked={allSelected ? true : someSelected ? "indeterminate" : false}
                 onCheckedChange={toggleAll}
-                aria-label="Select all rows"
+                aria-label={labels?.selectAll ?? "Select all rows"}
               />
             </TableHead>
           )}
@@ -279,7 +313,7 @@ export function SettingsTableShell<Row>({
                   <Checkbox
                     checked={isSelected}
                     onCheckedChange={() => toggleRow(rowId)}
-                    aria-label="Select row"
+                    aria-label={labels?.selectRow ?? "Select row"}
                   />
                 </TableCell>
               )}
