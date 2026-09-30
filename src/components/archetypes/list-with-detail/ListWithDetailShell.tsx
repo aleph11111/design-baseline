@@ -9,6 +9,7 @@ import { useIsMobile } from "../../../hooks/use-mobile";
 import {
   ListWithDetailEmptyState,
   type ListEmptyMode,
+  type ListWithDetailLabels,
 } from "./ListWithDetailEmptyState";
 import { TableBody } from "./presentations/TableBody";
 import { CardGridBody } from "./presentations/CardGridBody";
@@ -81,6 +82,8 @@ export type ListWithDetailShellProps<Row> = {
   // header; there is no per-shell override.
 
   emptyStateMessage?: string;
+  /** Overrides for the shell's built-in copy (see `ListWithDetailLabels`). */
+  labels?: ListWithDetailLabels;
   /**
    * CTA inside the empty / filtered-empty panel (e.g. "Add {entity}") — a
    * composition slot, the same shape as settings-table's empty-state action.
@@ -137,6 +140,7 @@ export function ListWithDetailShell<Row>(
     title,
     headerActions,
     emptyStateMessage,
+    labels,
     emptyStateAction,
     filteredEmpty,
     sortBy,
@@ -206,6 +210,7 @@ export function ListWithDetailShell<Row>(
     <ListWithDetailEmptyState
       mode={emptyStateMode}
       message={emptyStateMessage}
+      labels={labels}
       error={error}
       onRetry={onRetry}
       action={emptyStateAction}
@@ -236,7 +241,11 @@ export function ListWithDetailShell<Row>(
             if (!open) onDetailClose?.();
           }}
         >
-          <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
+          <SheetContent
+            side="right"
+            closeLabel={labels?.close}
+            className="flex w-full flex-col gap-0 p-0 sm:max-w-md"
+          >
             {detailTitle !== undefined ? (
               // The shared bar chrome (padding + header-fill) with the Radix
               // SheetTitle as its title element. The built-in Sheet close button

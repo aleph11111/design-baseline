@@ -31,6 +31,8 @@ export type CrudDialogHeaderProps = {
    * when a labeled close button is required by the design.
    */
   onClose?: () => void;
+  /** Accessible name of the `onClose` X button. Override in a non-English app. */
+  closeLabel?: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -63,6 +65,7 @@ export function CrudDialogHeader({
   subtitle,
   actions,
   onClose,
+  closeLabel = "Close",
 }: CrudDialogHeaderProps): React.ReactElement {
   return (
     <SurfaceHeaderBar
@@ -77,7 +80,7 @@ export function CrudDialogHeader({
                 size="icon"
                 className="h-8 w-8"
                 onClick={onClose}
-                aria-label="Close"
+                aria-label={closeLabel}
               >
                 <X className="h-4 w-4" />
               </Button>
