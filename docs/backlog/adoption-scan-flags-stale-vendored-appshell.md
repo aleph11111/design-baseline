@@ -32,7 +32,7 @@ v0.2.26 (PR #373) moved the content column's width steps into `src/styles/tokens
 
 ## Related
 
-- [archive/appshell-sonner-opt-out.md](archive/appshell-sonner-opt-out.md)
-- [archive/package-ui-ownership-and-vendored-consumer-runbook.md](archive/package-ui-ownership-and-vendored-consumer-runbook.md)
+- [[appshell-sonner-opt-out]]
+- [[package-ui-ownership-and-vendored-consumer-runbook]]
 - ADR-0005 — adoption-quality audit (Axis C)
 - ADR-0007 — the fleet house look (§1 amendment 2026-09-29)

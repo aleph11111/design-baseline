@@ -88,13 +88,13 @@ the archetype-convergence design spec settle the shape; this ticket lands it.
 
 ## Related
 
-- [archetype-convergence.md](archetype-convergence.md) — roadmap; phase
+- [[archetype-convergence]] — roadmap; phase
   `consumer-migration`, decisions C2/C3/C5/C6/C7
-- [donor-status-token-roles-badge-alert-backport.md](archive/donor-status-token-roles-badge-alert-backport.md)
+- [[donor-status-token-roles-badge-alert-backport]]
   — lands first; its outcome is what step 1's triage table cites
-- [archive/archetype-package-consumer-wiring.md](archive/archetype-package-consumer-wiring.md)
+- [[archetype-package-consumer-wiring]]
   — wrote the greenfield `docs/PACKAGE.md` this narrows
-- [archive/archetype-package-installable.md](archive/archetype-package-installable.md)
+- [[archetype-package-installable]]
   — the relativization that makes C3's "no alias entry for internals" true
 - ADR-0004 — appearance locality; its "`ui/` stays vendored" clause is what P2,
   and now C2, narrow

@@ -33,6 +33,6 @@ Severity: **low-medium** (docs correctness / DX). The "Plex Ledger" house-style 
 
 ## Related
 
-- [archetype-specs-board-form-sync.md](archive/archetype-specs-board-form-sync.md) — the Plex Ledger sync that caused this drift
+- [[archetype-specs-board-form-sync]] — the Plex Ledger sync that caused this drift
 - docs/STYLE.md — the house-style source of truth
 - src/components/layout/overline.ts — the single overline source these docs should cite

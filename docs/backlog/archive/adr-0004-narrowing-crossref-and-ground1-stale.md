@@ -47,4 +47,4 @@ roadmap: archetype-convergence
 
 - [docs/audits/2026-09-07-pkg-ui-vendored-clause-narrowing.md](../../audits/2026-09-07-pkg-ui-vendored-clause-narrowing.md)
 - ADR-0004 — Appearance locality: global or fixed in the component; per-call-site only when derived
-- [docs/backlog/archive/archetype-package-installable.md](../archive/archetype-package-installable.md)
+- [[archetype-package-installable]]

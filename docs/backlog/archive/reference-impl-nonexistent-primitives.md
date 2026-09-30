@@ -31,6 +31,6 @@ Severity: **medium** (docs correctness). Two `*.baseline.md` reference-implement
 
 ## Related
 
-- [decouple-archetype-contract-from-reference-impl.md](archive/decouple-archetype-contract-from-reference-impl.md) — the split that surfaced these
-- [style-archetypes-carry-baseline-sibling.md](style-archetypes-carry-baseline-sibling.md) — the .baseline.md siblings this corrects
+- [[decouple-archetype-contract-from-reference-impl]] — the split that surfaced these
+- [[style-archetypes-carry-baseline-sibling]] — the .baseline.md siblings this corrects
 - docs/STYLE.md — the shared-primitive ownership these docs must match

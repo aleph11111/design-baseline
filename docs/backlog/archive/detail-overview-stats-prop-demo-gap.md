@@ -30,8 +30,8 @@ model_reason: an established pattern to follow (the same fixture already renders
 
 ## Related
 
-- [archive/house-look-stat-tile-context-line.md](../archive/house-look-stat-tile-context-line.md) — #310, the slice that added `StatTile`'s hint/context-line prop this demo now exercises
-- [archive/test-gap-detail-overview-shell-no-tests.md](../archive/test-gap-detail-overview-shell-no-tests.md) — sibling test-coverage gap on the same shell
+- [[house-look-stat-tile-context-line]] — #310, the slice that added `StatTile`'s hint/context-line prop this demo now exercises
+- [[test-gap-detail-overview-shell-no-tests]] — sibling test-coverage gap on the same shell
 - `docs/archetypes/detail-overview.md` — slot 3 (`stats`) contract
 
 ## Outcome

@@ -47,6 +47,6 @@ there — the suite gained the 15 new `SectionCard` tests in the same change.
 
 ## Related
 
-- [test-gap-section-card-no-tests.md](wip/test-gap-section-card-no-tests.md) — the ticket during which this was observed; adding a 21st test file made the contention more visible.
-- [test-gap-detail-overview-shell-no-tests.md](test-gap-detail-overview-shell-no-tests.md) — one of several open `test-gap` tickets that will each add a test file, worsening the contention until this is fixed.
-- [vite-config-worktree-root-climb.md](vite-config-worktree-root-climb.md) — the other open ticket against this repo's vite/vitest config.
+- [[test-gap-section-card-no-tests]] — the ticket during which this was observed; adding a 21st test file made the contention more visible.
+- [[test-gap-detail-overview-shell-no-tests]] — one of several open `test-gap` tickets that will each add a test file, worsening the contention until this is fixed.
+- [[vite-config-worktree-root-climb]] — the other open ticket against this repo's vite/vitest config.

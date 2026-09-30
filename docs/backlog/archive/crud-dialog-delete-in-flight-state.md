@@ -31,6 +31,6 @@ Severity: **medium** (UX / correctness). `CrudDialogFooter` renders the destruct
 
 ## Related
 
-- [crud-dialog-footer-submitting-label.md](crud-dialog-footer-submitting-label.md) — sibling CrudDialogFooter parity gap
+- [[crud-dialog-footer-submitting-label]] — sibling CrudDialogFooter parity gap
 - src/components/archetypes/form-page/FormPageActions.tsx — the reference behavior to mirror
 - docs/archetypes/crud-dialog.md — the archetype footer contract

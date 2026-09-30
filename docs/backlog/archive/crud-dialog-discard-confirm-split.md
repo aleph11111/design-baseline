@@ -32,6 +32,6 @@ Severity: **medium** (correctness / UX consistency). `useCrudDialogController` g
 
 ## Related
 
-- [decouple-archetype-contract-from-reference-impl.md](archive/decouple-archetype-contract-from-reference-impl.md) — crud-dialog archetype split
+- [[decouple-archetype-contract-from-reference-impl]] — crud-dialog archetype split
 - docs/archetypes/crud-dialog.md — the archetype contract that forbids inlining handleClose
 - src/components/archetypes/form-page/useFormPageState.ts — the consistent single-guard sibling to mirror

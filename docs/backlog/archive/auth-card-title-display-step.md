@@ -31,7 +31,7 @@ model_reason: "requires a scope judgment call (does the display step apply outsi
 
 ## Related
 
-- [archive/house-look-page-header-title-step.md](house-look-page-header-title-step.md) — #309, the slice that moved `PageHeader`'s `<h1>` onto the display step
+- [[house-look-page-header-title-step]] — #309, the slice that moved `PageHeader`'s `<h1>` onto the display step
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles
 
 ## Decision

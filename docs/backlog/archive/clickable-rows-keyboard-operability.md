@@ -32,6 +32,6 @@ Severity: **high** (accessibility). Several archetype shells expose full-row / f
 
 ## Related
 
-- [decouple-archetype-contract-from-reference-impl.md](archive/decouple-archetype-contract-from-reference-impl.md) — the archetype shells this touches
+- [[decouple-archetype-contract-from-reference-impl]] — the archetype shells this touches
 - docs/STYLE.md — baseline interaction/focus conventions
 - docs/ADOPTION-QUALITY.md — adoption-quality spine these shells must meet

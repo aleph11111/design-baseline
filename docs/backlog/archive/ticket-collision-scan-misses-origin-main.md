@@ -38,8 +38,8 @@ Concretely, 2026-07-19 in the `test-gap-logger-zero-tests` worktree (15 commits 
 
 ## Related
 
-- [stranded-test-gap-wizard-shell-branch.md](stranded-test-gap-wizard-shell-branch.md) — sibling parallel-session hygiene gap: branches invisible to the tooling that's supposed to reconcile them
-- [ship-cleanup-local-orphan-reaper.md](ship-cleanup-local-orphan-reaper.md) — same class: reconciliation logic reading incomplete local state
+- [[stranded-test-gap-wizard-shell-branch]] — sibling parallel-session hygiene gap: branches invisible to the tooling that's supposed to reconcile them
+- [[ship-cleanup-local-orphan-reaper]] — same class: reconciliation logic reading incomplete local state
 - `CLAUDE.md` § "Parallel-Safe Workflow" — the `origin/main`-as-synchronization-point rule this ticket applies to `/ticket`
 
 ## Open question

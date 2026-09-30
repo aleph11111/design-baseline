@@ -34,5 +34,5 @@ gate:
 
 ## Related
 
-- [appshell-sonner-opt-out.md](appshell-sonner-opt-out.md) — same file, adds `AppShell.test.tsx` (PR #339); fold this in if that PR is re-touched
-- [list-with-detail-full-bleed-nested-leak.md](../wip/list-with-detail-full-bleed-nested-leak.md) — the sibling AppShell content-column report from the same mistra adoption
+- [[appshell-sonner-opt-out]] — same file, adds `AppShell.test.tsx` (PR #339); fold this in if that PR is re-touched
+- [[list-with-detail-full-bleed-nested-leak]] — the sibling AppShell content-column report from the same mistra adoption

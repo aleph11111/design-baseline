@@ -49,6 +49,6 @@ The v0.3.0 methodology layer — `docs/CHOOSING-A-SURFACE.md` (v2.0), `docs/PLAC
 
 ## Related
 
-- [style-archetypes-carry-baseline-sibling.md](style-archetypes-carry-baseline-sibling.md)
-- [style-baseline-stack-aware-preflight.md](style-baseline-stack-aware-preflight.md)
+- [[style-archetypes-carry-baseline-sibling]]
+- [[style-baseline-stack-aware-preflight]]
 - ADR-0002 — Adopt the baseline-upstream methodology docs (selection, placement, stack, adoption)

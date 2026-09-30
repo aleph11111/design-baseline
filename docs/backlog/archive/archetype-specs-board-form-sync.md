@@ -45,9 +45,9 @@ produces.
 
 ## Related
 
-- [decouple-archetype-contract-from-reference-impl.md](decouple-archetype-contract-from-reference-impl.md) — the `<PageHeader>` mandate lives in the same Layer 3 being rewritten; sequence these together
-- [archetype-doc-manifest-version-drift.md](archetype-doc-manifest-version-drift.md) — the doc-vs-MANIFEST version counters are bumped here too
-- [detail-overview-blueprint-rail-variant.md](detail-overview-blueprint-rail-variant.md) — sibling spec/blueprint-sync follow-up
+- [[decouple-archetype-contract-from-reference-impl]] — the `<PageHeader>` mandate lives in the same Layer 3 being rewritten; sequence these together
+- [[archetype-doc-manifest-version-drift]] — the doc-vs-MANIFEST version counters are bumped here too
+- [[detail-overview-blueprint-rail-variant]] — sibling spec/blueprint-sync follow-up
 
 ## Resolution (2026-07-03)
 

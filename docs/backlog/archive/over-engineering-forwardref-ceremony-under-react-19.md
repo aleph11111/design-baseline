@@ -58,4 +58,4 @@ Out of scope: `src/components/ui/`. Those are vendored shadcn leaves that ADR-00
 - [docs/adr/0004-appearance-locality-derived-vs-inherited.md](../../adr/0004-appearance-locality-derived-vs-inherited.md) — the leaf-vs-composition split that keeps `src/components/ui/` out of scope here.
 - [docs/STACK.md](../../STACK.md) — pins React 19, the version that makes `ref` a plain prop.
 - [src/components/layout/SurfaceFrame.tsx](../../src/components/layout/SurfaceFrame.tsx) — the in-repo component that already uses the target pattern; copy its shape.
-- [archive/refactor-matrix-grid-cell-and-head-extraction.md](../archive/refactor-matrix-grid-cell-and-head-extraction.md) — recent work in `MatrixGridShell.tsx`, the file carrying the stale forwardRef comment.
+- [[refactor-matrix-grid-cell-and-head-extraction]] — recent work in `MatrixGridShell.tsx`, the file carrying the stale forwardRef comment.

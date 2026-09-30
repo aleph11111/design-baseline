@@ -33,7 +33,7 @@ Run against a divergent consumer, this corrupts the project silently rather than
 
 - [docs/PLUGIN-CONTRACT.md](../PLUGIN-CONTRACT.md)
 - [docs/CHOOSING-A-SURFACE.md](../CHOOSING-A-SURFACE.md)
-- [decouple-archetype-contract-from-reference-impl.md](decouple-archetype-contract-from-reference-impl.md) — the audit path this abort message should point divergent consumers toward
+- [[decouple-archetype-contract-from-reference-impl]] — the audit path this abort message should point divergent consumers toward
 - `/style-baseline` command — `~/.claude/commands/style-baseline.md`
 
 ## Open question

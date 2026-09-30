@@ -70,11 +70,11 @@ briefly unclear whether the work had actually shipped.
 
 ## Related
 
-- [archive/backlog-readme-schema-doc.md](archive/backlog-readme-schema-doc.md) — established
+- [[backlog-readme-schema-doc]] — established
   `README.md` as the schema authority this ticket reconciles the corpus against.
-- [archive/archetype-spec-frontmatter-version-backfill.md](archive/archetype-spec-frontmatter-version-backfill.md)
+- [[archetype-spec-frontmatter-version-backfill]]
   — the closest precedent: a prior one-off frontmatter backfill across many files.
-- [ship-cleanup-local-orphan-reaper.md](ship-cleanup-local-orphan-reaper.md) — sibling
+- [[ship-cleanup-local-orphan-reaper]] — sibling
   `tooling` ticket also targeting a `~/.claude/lib/` helper rather than repo code; note its
   `kind: ops`. This ticket omits `kind` because the work is mixed: the producer fix lands in
   `~/.claude/`, the backfill lands in this repo as a normal PR.

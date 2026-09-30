@@ -65,7 +65,7 @@ be an exact copy between the two files.
 
 ## Related
 
-- [detail-overview-spec-version-drift.md](detail-overview-spec-version-drift.md)
-- [archive/archetype-doc-manifest-version-drift.md](archive/archetype-doc-manifest-version-drift.md)
-- [archive/archetype-spec-frontmatter-version-backfill.md](archive/archetype-spec-frontmatter-version-backfill.md)
+- [[detail-overview-spec-version-drift]]
+- [[archetype-doc-manifest-version-drift]]
+- [[archetype-spec-frontmatter-version-backfill]]
 - `docs/archetypes/README.md` (Versioning section), `scripts/lint-design.mjs`

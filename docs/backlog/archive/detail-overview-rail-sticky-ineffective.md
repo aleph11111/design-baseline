@@ -33,5 +33,5 @@ gate:
 
 ## Related
 
-- [archive/appshell-scroll-model-window-vs-main.md](../archive/appshell-scroll-model-window-vs-main.md) — v0.2.19 window scroll, where this was measured
-- [archive/detail-overview-blueprint-rail-variant.md](../archive/detail-overview-blueprint-rail-variant.md) — the rail variant this belongs to
+- [[appshell-scroll-model-window-vs-main]] — v0.2.19 window scroll, where this was measured
+- [[detail-overview-blueprint-rail-variant]] — the rail variant this belongs to

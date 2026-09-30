@@ -44,8 +44,8 @@ The mechanical counterpart that needs the same change is `~/.claude/lib/ship-rec
 
 ## Related
 
-- [docs/backlog/archive/ops-health-orphaned-worktrees-branches.md](archive/ops-health-orphaned-worktrees-branches.md) — the sweep that produced the four-case evidence; its item 4 is this ticket.
-- [docs/backlog/ship-stranded-matrix-grid-tooltip-branch.md](ship-stranded-matrix-grid-tooltip-branch.md) — the one unmerged case from that same sweep, deliberately preserved rather than reaped.
+- [[ops-health-orphaned-worktrees-branches]] — the sweep that produced the four-case evidence; its item 4 is this ticket.
+- [[ship-stranded-matrix-grid-tooltip-branch]] — the one unmerged case from that same sweep, deliberately preserved rather than reaped.
 - `~/.claude/commands/ship-cleanup.md` — steps 0, 6, and 10 are the ones this change extends.
 - `~/.claude/lib/ship-reconcile.sh` — the mechanical script where the loop belongs.
 - `~/.claude/CLAUDE.md`, "Parallel-Safe Workflow" — defines `/ship-cleanup` as the documented reconciliation mechanism.
@@ -89,7 +89,7 @@ and `ship-cleanup.md`'s own step 11 text now contradicts them directly:
 `/ship` squash-merges, which rewrites the branch into one new commit with a fresh SHA, so
 neither test can recognise a merged branch. Implemented as written, the reaper would never
 fire on anything — the same defect as the sibling ticket
-[ship-cleanup-step10-squash-misdetection.md](ship-cleanup-step10-squash-misdetection.md).
+[[ship-cleanup-step10-squash-misdetection]].
 The correct test is the content one: `git merge-tree --write-tree origin/main <branch>`
 equal to `origin/main^{tree}`. Update these bullets before implementing, and keep
 `branch -D` (not `-d`) since `-d` cannot see a squash merge.

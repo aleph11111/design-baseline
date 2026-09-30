@@ -40,6 +40,6 @@ Whoever implements it has to break one of the two. Other findings from the same 
 
 ## Related
 
-- [brickshop-manager-package-install-cutover.md](../wip/brickshop-manager-package-install-cutover.md)
-- [archive/package-doc-retirement-ownership-and-runbook-step.md](../archive/package-doc-retirement-ownership-and-runbook-step.md)
-- [archive/hk-crm-package-install-cutover.md](../archive/hk-crm-package-install-cutover.md)
+- [[brickshop-manager-package-install-cutover]]
+- [[package-doc-retirement-ownership-and-runbook-step]]
+- [[hk-crm-package-install-cutover]]

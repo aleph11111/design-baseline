@@ -45,6 +45,6 @@ from the build until the reference was rewritten as literal
 
 ## Related
 
-- [archive/house-look-chart-palette.md](house-look-chart-palette.md)
+- [[house-look-chart-palette]]
 - ADR-0007 — the fleet house look: donor-fixed roles vs brand-overridable roles (§8, chart palette — fixed)
 - [controlling-app docs/backlog/adopt-house-look-v0-2-11.md] — the v0.2.11 adoption where this gap was found (2026-09-28, cross-repo)

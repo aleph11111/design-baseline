@@ -34,8 +34,8 @@ gate:
 
 ## Related
 
-- [package-version-duplicate-guard.md](package-version-duplicate-guard.md) — the ticket that shipped the script (PR #335)
-- [tag-version-workflow-hardening.md](tag-version-workflow-hardening.md) — sibling ticket, archived alongside this one
-- [package-version-bump-auto-tag.md](package-version-bump-auto-tag.md) — sibling post-merge tagging
+- [[package-version-duplicate-guard]] — the ticket that shipped the script (PR #335)
+- [[tag-version-workflow-hardening]] — sibling ticket, archived alongside this one
+- [[package-version-bump-auto-tag]] — sibling post-merge tagging
 
 *Shipped: `scripts/verify-package-version.test.mjs` (7 cases), a distinct no-merge-base message that fails closed, `origin/main`'s short SHA + commit date on every non-skip line, and the archive move that resolves the cross-ticket links.*

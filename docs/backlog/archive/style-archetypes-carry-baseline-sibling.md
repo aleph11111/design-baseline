@@ -33,8 +33,8 @@ The `decouple-archetype-contract-from-reference-impl` feature split every archet
 
 ## Related
 
-- [decouple-archetype-contract-from-reference-impl.md](wip/decouple-archetype-contract-from-reference-impl.md) — the split that created the siblings
-- [style-baseline-stack-aware-preflight.md](style-baseline-stack-aware-preflight.md) — sibling stack-awareness work
+- [[decouple-archetype-contract-from-reference-impl]] — the split that created the siblings
+- [[style-baseline-stack-aware-preflight]] — sibling stack-awareness work
 - docs/archetypes/README.md — the two-file convention this ticket makes the skills honor
 
 ## Implementation note — the edits live OUTSIDE this repo

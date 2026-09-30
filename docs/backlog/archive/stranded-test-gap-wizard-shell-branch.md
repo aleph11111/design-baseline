@@ -42,9 +42,9 @@ The new section-4 reaper (dashboard PR #66) correctly routes this branch to `nee
 
 ## Related
 
-- [docs/backlog/ship-cleanup-local-orphan-reaper.md](ship-cleanup-local-orphan-reaper.md) — the reaper that surfaced these two branches; dashboard PR #66 is its fix.
-- [docs/backlog/archive/ops-health-orphaned-worktrees-branches.md](archive/ops-health-orphaned-worktrees-branches.md) — the earlier sweep that found the first generation of orphans.
-- [docs/backlog/archive/test-gap-form-page-shell-no-tests.md](archive/test-gap-form-page-shell-no-tests.md) — sibling test-gap ticket, shipped.
+- [[ship-cleanup-local-orphan-reaper]] — the reaper that surfaced these two branches; dashboard PR #66 is its fix.
+- [[ops-health-orphaned-worktrees-branches]] — the earlier sweep that found the first generation of orphans.
+- [[test-gap-form-page-shell-no-tests]] — sibling test-gap ticket, shipped.
 
 ## 2026-07-20 — resolved: branch deleted, nothing lost
 

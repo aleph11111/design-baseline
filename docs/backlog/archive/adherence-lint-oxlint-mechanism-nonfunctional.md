@@ -33,6 +33,6 @@ The design-baseline ships `_adherence.oxlintrc.json` as the mechanical half of A
 
 ## Related
 
-- [style-archetypes-methodology-distribution.md](archive/style-archetypes-methodology-distribution.md) — built `/adopt-baseline`, which distributes the broken config
-- [style-baseline-stack-aware-preflight.md](archive/style-baseline-stack-aware-preflight.md) — sibling tooling/preflight work
+- [[style-archetypes-methodology-distribution]] — built `/adopt-baseline`, which distributes the broken config
+- [[style-baseline-stack-aware-preflight]] — sibling tooling/preflight work
 - ADR-0002 — Adopt the baseline-upstream methodology docs (shipped the config)

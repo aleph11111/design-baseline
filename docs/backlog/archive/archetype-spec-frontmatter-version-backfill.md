@@ -46,6 +46,6 @@ so the "which number does an amendment bump" rule holds literally for every arch
 
 ## Related
 
-- [wip/archetype-doc-manifest-version-drift.md](wip/archetype-doc-manifest-version-drift.md)
-- [decouple-archetype-contract-from-reference-impl.md](decouple-archetype-contract-from-reference-impl.md)
+- [[archetype-doc-manifest-version-drift]]
+- [[decouple-archetype-contract-from-reference-impl]]
 - `docs/archetypes/README.md` (Versioning), `docs/archetypes/MANIFEST.json`

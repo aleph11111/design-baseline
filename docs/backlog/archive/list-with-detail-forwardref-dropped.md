@@ -30,5 +30,5 @@ Severity: **low** (correctness / API-contract). `ListWithDetailShellInner` recei
 
 ## Related
 
-- [list-with-detail-column-filter-hoist.md](list-with-detail-column-filter-hoist.md) — same shell, separate defect
+- [[list-with-detail-column-filter-hoist]] — same shell, separate defect
 - src/components/archetypes/matrix-grid/MatrixGridShell.tsx — the sibling that preserves its generic without advertising ref

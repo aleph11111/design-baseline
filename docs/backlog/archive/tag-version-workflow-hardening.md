@@ -33,7 +33,7 @@ gate:
 
 ## Related
 
-- [package-version-bump-auto-tag.md](package-version-bump-auto-tag.md): the parent ticket that shipped the workflow (PR #334)
-- [package-version-duplicate-guard.md](package-version-duplicate-guard.md): the sibling pre-merge version guard
+- [[package-version-bump-auto-tag]]: the parent ticket that shipped the workflow (PR #334)
+- [[package-version-duplicate-guard]]: the sibling pre-merge version guard
 
 *Shipped: `concurrency` group, `workflow_dispatch` with a `sha` input guarded by `github.ref == 'refs/heads/main'` + `merge-base --is-ancestor`, and the `docs/PACKAGE.md` §1 backfill line — see `package-version-guard-hardening.md` for the sibling ticket archived alongside this one.*

@@ -35,9 +35,9 @@ Vite's `searchForWorkspaceRoot`/`searchForPackageRoot` (`node_modules/vite/dist/
 
 ## Related
 
-- [archive/segmented-control-radio-keyboard.md](archive/segmented-control-radio-keyboard.md) — the ticket that surfaced this while adding `vitest.config.ts`
-- [vitest-default-timeout-flaky-suite.md](vitest-default-timeout-flaky-suite.md) — sibling `vitest.config.ts` ticket; its `testTimeout`/`maxWorkers` block is the other parallel-worktree-contention fix in the same file
-- [vitest-jsdom-setup-cost.md](vitest-jsdom-setup-cost.md) — sibling ticket also editing `vitest.config.ts`; coordinate to avoid conflicting edits
+- [[segmented-control-radio-keyboard]] — the ticket that surfaced this while adding `vitest.config.ts`
+- [[vitest-default-timeout-flaky-suite]] — sibling `vitest.config.ts` ticket; its `testTimeout`/`maxWorkers` block is the other parallel-worktree-contention fix in the same file
+- [[vitest-jsdom-setup-cost]] — sibling ticket also editing `vitest.config.ts`; coordinate to avoid conflicting edits
 - `vite.config.ts` (vite ^6, already pins `root: "gallery"`), `vitest.config.ts` (vitest ^4, repo-root scoped, no explicit `root`) — the two config files loaded via the affected code path; the asymmetry in `root` is a lead worth checking first
 - CLAUDE.md, "Parallel-Safe Workflow" — the reason multiple sessions can have the main checkout mid-merge at any moment
 

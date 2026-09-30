@@ -48,7 +48,7 @@ Delivered:
 - [x] Read `grouped-list.md`: no contract keys a section-level custom-header slot (descriptive prose only) → Branch A.
 - [x] Deleted `SectionCard.header`; reworked the live call path in `GroupedListSection` (deleted `renderHeader` callback; added sanctioned `actions` right-aligned treatment channel); reworked the demo's Sichuan heat badge onto `actions`; reworked the three `SectionCard.test.tsx` header cases.
 - [x] N/A — Branch A taken, no `exclude` needed.
-- [x] `renderHeader`-shaped render-callback props get their own follow-up ticket ([`adherence-lint-render-callback-slot-gap`](adherence-lint-render-callback-slot-gap.md)); function-typed props are a distinct prop-shape class from boolean / `className?: ClassValue`, so it is filed alongside — not folded into — `adherence-lint-boolean-classvalue-gap`.
+- [x] `renderHeader`-shaped render-callback props get their own follow-up ticket ([[adherence-lint-render-callback-slot-gap]]); function-typed props are a distinct prop-shape class from boolean / `className?: ClassValue`, so it is filed alongside — not folded into — `adherence-lint-boolean-classvalue-gap`.
 - [x] `scripts/lint-design.test.mjs` gains the pinning cases (second include root reaches `layout/`; exclude still engages on the widened root).
 
 Contract impact recorded: `grouped-list.md` spec 1.2→1.3 (layer 5 allowed variation changed, renderHeader→actions, migration note rewritten), `MANIFEST.json` deliverable 2.1→3.0 (shipped-primitive prop deletion, major per the `README.md` versioning table; matches the close-API-delete precedent of #195). `source_spec_version` untouched.
@@ -60,7 +60,7 @@ Contract impact recorded: `grouped-list.md` spec 1.2→1.3 (layer 5 allowed vari
 `include: "src/components/archetypes/**"` only, so the shared chrome layer
 `src/components/layout/**` was invisible to it. It was the last of the four
 archetype-layer appearance rules with that gap:
-[adherence-lint-layout-scope-gap](../adherence-lint-layout-scope-gap.md) widened
+[[adherence-lint-layout-scope-gap]] widened
 `archetype-appearance-noun-prop`, `archetype-look-union-prop` and
 `archetype-shell-class-name` to carry `src/components/layout/**` as a second
 `include` root, and deliberately left this one out — closing it is a
@@ -80,7 +80,7 @@ header cases and the `grouped-list-demo.tsx` Sichuan section.
 `GroupedListSection`'s `renderHeader` was a **render-callback** prop escaping
 every current appearance rule's pattern — the escape hatch survived one level
 up — so a prop-shape follow-up was filed:
-[adherence-lint-render-callback-slot-gap](adherence-lint-render-callback-slot-gap.md).
+[[adherence-lint-render-callback-slot-gap]].
 
 ## What to do
 
@@ -88,7 +88,7 @@ up — so a prop-shape follow-up was filed:
 - [x] Add `"src/components/layout/**"` as a second `include` root to
       `archetype-appearance-slot` in `_adherence.json` (array form, matching
       the three siblings widened in
-      [adherence-lint-layout-scope-gap](../adherence-lint-layout-scope-gap.md)).
+      [[adherence-lint-layout-scope-gap]]).
 - [x] Read `docs/archetypes/grouped-list.md` — the only contract with a live
       caller — and determine whether it keys a section-level custom-header
       slot to anything derived (ADR-0004's derived-vs-inherited test, RULES.md
@@ -103,7 +103,7 @@ up — so a prop-shape follow-up was filed:
 - [x] If a contract did key it: exclude — **N/A (Branch A taken, nothing excluded)**.
 - [x] Decide whether `renderHeader`-shaped render-callback props get their own
       rule or fold into
-      [adherence-lint-boolean-classvalue-gap](../adherence-lint-boolean-classvalue-gap.md);
+      [[adherence-lint-boolean-classvalue-gap]];
       file the follow-up there rather than widening this ticket.
 - [x] Cover the widened root in `scripts/lint-design.test.mjs`.
 
@@ -117,12 +117,12 @@ up — so a prop-shape follow-up was filed:
 
 ## Related
 
-- [adherence-lint-layout-scope-gap.md](../adherence-lint-layout-scope-gap.md) — the parent this was split out of; widened the other three rules to the same second root and established the exact-file-path exclude convention for the layout layer.
-- [adherence-lint-render-callback-slot-gap.md](adherence-lint-render-callback-slot-gap.md) — the render-callback prop-shape follow-up filed by this work (function-typed props; distinct class from boolean / `className?: ClassValue`).
-- [adherence-lint-boolean-classvalue-gap.md](../adherence-lint-boolean-classvalue-gap.md) — the prop-shape blind-spot family this follow-up is filed alongside.
-- [adherence-lint-closed-folder-allowlist-gap.md](../adherence-lint-closed-folder-allowlist-gap.md) — sibling in flight; also edits the same rule objects in `_adherence.json`, so serialize rather than parallelize.
-- [archive/adherence-lint-union-prop-blind-spot.md](../archive/adherence-lint-union-prop-blind-spot.md) — the drain-ticket precedent for the triage method (contract-keying test, promote-then-exclude, cite the line in `message`).
-- [archive/refactor-shell-surface-header-slot-duplication.md](../archive/refactor-shell-surface-header-slot-duplication.md) — prior work on the shared header-slot shape `SectionCard.header` predates.
-- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap; Phase 1 closes archetype-layer appearance props.
+- [[adherence-lint-layout-scope-gap]] — the parent this was split out of; widened the other three rules to the same second root and established the exact-file-path exclude convention for the layout layer.
+- [[adherence-lint-render-callback-slot-gap]] — the render-callback prop-shape follow-up filed by this work (function-typed props; distinct class from boolean / `className?: ClassValue`).
+- [[adherence-lint-boolean-classvalue-gap]] — the prop-shape blind-spot family this follow-up is filed alongside.
+- [[adherence-lint-closed-folder-allowlist-gap]] — sibling in flight; also edits the same rule objects in `_adherence.json`, so serialize rather than parallelize.
+- [[adherence-lint-union-prop-blind-spot]] — the drain-ticket precedent for the triage method (contract-keying test, promote-then-exclude, cite the line in `message`).
+- [[refactor-shell-surface-header-slot-duplication]] — prior work on the shared header-slot shape `SectionCard.header` predates.
+- [[archetype-convergence]] — parent roadmap; Phase 1 closes archetype-layer appearance props.
 - ADR-0004 (`docs/adr/0004-appearance-locality-derived-vs-inherited.md`) — the derived-vs-inherited test the triage applies.
 - RULES.md hard rule 12 — the enforcement mechanism this rule belongs to.

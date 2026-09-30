@@ -40,8 +40,8 @@ variant/axis must get a visible demo in the gallery, not just a spec/prop note.
 
 ## Related
 
-- [archetype-specs-board-form-sync.md](archetype-specs-board-form-sync.md) — documents the same 2-token contract the specs need to describe
-- [decouple-archetype-contract-from-reference-impl.md](decouple-archetype-contract-from-reference-impl.md) — header-treatment lives in the contract layer being split
+- [[archetype-specs-board-form-sync]] — documents the same 2-token contract the specs need to describe
+- [[decouple-archetype-contract-from-reference-impl]] — header-treatment lives in the contract layer being split
 - living-demos-for-variants (auto-memory) — the principle this ticket satisfies
 
 ## Resolution (2026-07-03)

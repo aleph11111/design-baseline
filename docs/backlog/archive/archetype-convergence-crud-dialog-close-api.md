@@ -18,7 +18,7 @@ gate:
 
 ## Context
 
-Phase 1 of the [archetype-convergence roadmap](../archetype-convergence.md) is
+Phase 1 of the [[archetype-convergence]] is
 draining per-call-site appearance props from the remaining archetypes.
 `crud-dialog` (MANIFEST key `J`, v2.1) is next: `node scripts/lint-design.mjs`
 reports two `archetype-look-union-prop` warns —
@@ -128,22 +128,22 @@ primitives today.
 
 ## Related
 
-- [archetype-convergence.md](../archetype-convergence.md) — parent roadmap,
+- [[archetype-convergence]] — parent roadmap,
   Phase 1.
-- [archetype-convergence-form-page-width-prop.md](../archive/archetype-convergence-form-page-width-prop.md)
+- [[archetype-convergence-form-page-width-prop]]
   — closest sibling: a width-keying-rule fix plus a lint-glob/exclude change
   on a shell that was already gated only by the generic rule.
-- [archetype-convergence-list-with-detail-close-api.md](../archive/archetype-convergence-list-with-detail-close-api.md)
+- [[archetype-convergence-list-with-detail-close-api]]
   — the four-axis closure this ticket's structure mirrors, including the
   "re-read every Allowed-variation block" step.
-- [archetype-shell-classname-drop.md](../archive/archetype-shell-classname-drop.md)
+- [[archetype-shell-classname-drop]]
   — dropped `className` from the twelve `*Shell.tsx`-named shells and flipped
   the generic rule to `error`; this ticket both drops it from crud-dialog's
   non-`*Shell`-named primitives and fixes the glob gap that let them slip
   through that sweep.
-- [archetype-convergence-phase0-appearance-locality-decision.md](../archive/archetype-convergence-phase0-appearance-locality-decision.md)
+- [[archetype-convergence-phase0-appearance-locality-decision]]
   — ADR-0004, the rule every prop above is graded against.
-- [crud-dialog-footer-submitting-label.md](../archive/crud-dialog-footer-submitting-label.md),
-  [crud-dialog-discard-confirm-split.md](../archive/crud-dialog-discard-confirm-split.md),
-  [crud-dialog-delete-in-flight-state.md](../archive/crud-dialog-delete-in-flight-state.md)
+- [[crud-dialog-footer-submitting-label]],
+  [[crud-dialog-discard-confirm-split]],
+  [[crud-dialog-delete-in-flight-state]]
   — prior crud-dialog primitive work; none touched `className`/`width`/`layout`.

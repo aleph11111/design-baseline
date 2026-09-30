@@ -35,6 +35,6 @@ This is the only failing test in the suite (verified 2026-07-19: `Test Files 1 f
 
 ## Related
 
-- [refactor-shell-surface-header-slot-duplication.md](archive/refactor-shell-surface-header-slot-duplication.md) — prior work on the same shell.
-- [clickable-rows-keyboard-operability.md](archive/clickable-rows-keyboard-operability.md) — sibling settings-table/row-interaction ticket.
-- [test-gap-settings-page-shell-no-tests.md](test-gap-settings-page-shell-no-tests.md) — adjacent settings-archetype coverage gap.
+- [[refactor-shell-surface-header-slot-duplication]] — prior work on the same shell.
+- [[clickable-rows-keyboard-operability]] — sibling settings-table/row-interaction ticket.
+- [[test-gap-settings-page-shell-no-tests]] — adjacent settings-archetype coverage gap.

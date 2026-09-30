@@ -62,8 +62,8 @@ using `docs/PACKAGE.md`'s "Migrating a vendored consumer" runbook, the same way
 
 ## Related
 
-- [archive/hk-crm-package-install-cutover.md](../archive/hk-crm-package-install-cutover.md) — the template cutover.
-- [controlling-app-package-install-cutover.md](../archive/controlling-app-package-install-cutover.md) — sibling cutover.
+- [[hk-crm-package-install-cutover]] — the template cutover.
+- [[controlling-app-package-install-cutover]] — sibling cutover.
 - [[roadmap-review-archetype-convergence]] — the review that filed this.
 - ADR-0004 — appearance locality, which the donor's closed API enforces.
 
@@ -104,10 +104,10 @@ mistra's 2026-08 re-sync of its MANIFEST pairs. mistra's `detail-overview.baseli
 `design-baseline/archetypes/<slug>` produced 81 tsc errors.
 
 - **Consumer-ahead and general, needing donor promotion** (each one a rule-10 call):
-  - [mistra-list-detail-settings-table-fork-promotion](../archive/mistra-list-detail-settings-table-fork-promotion.md):
+  - [[mistra-list-detail-settings-table-fork-promotion]]:
     `hideBelowMd`, list `footer`, `emptyStateAction`, per-row `RowAction` label/disabled, settings
     `rowLabel`.
-  - [mistra-fork-triage-promotions](../archive/mistra-fork-triage-promotions.md) (v0.2.6):
+  - [[mistra-fork-triage-promotions]] (v0.2.6):
     `destructiveDisabled` and the post-save reset fix shipped as-is. The header back link shipped as
     `PageHeader`'s `backHref`/`backLabel`/`renderBackLink`: re-point `leading` to those props. The
     collapsible section shipped as `DetailSection collapsible`: rewrite `CollapsibleSection` on it and

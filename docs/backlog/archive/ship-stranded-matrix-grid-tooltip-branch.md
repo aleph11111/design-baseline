@@ -40,7 +40,7 @@ Discovered by the ops-health orphaned-worktrees sweep (`docs/backlog/archive/ops
 
 ## Related
 
-- [docs/backlog/archive/ops-health-orphaned-worktrees-branches.md](archive/ops-health-orphaned-worktrees-branches.md) — the ops-health sweep that found this branch stranded and deliberately preserved it.
-- [docs/backlog/vite-config-worktree-root-climb.md](vite-config-worktree-root-climb.md) — records the `vitest.config.ts` that landed on `main` independently, making this branch's test-infra commit redundant.
-- [docs/backlog/archive/matrix-grid-page-header-inconsistency.md](archive/matrix-grid-page-header-inconsistency.md) — the other, unrelated `matrix-grid-*` ticket; already archived, easy to confuse with this one.
+- [[ops-health-orphaned-worktrees-branches]] — the ops-health sweep that found this branch stranded and deliberately preserved it.
+- [[vite-config-worktree-root-climb]] — records the `vitest.config.ts` that landed on `main` independently, making this branch's test-infra commit redundant.
+- [[matrix-grid-page-header-inconsistency]] — the other, unrelated `matrix-grid-*` ticket; already archived, easy to confuse with this one.
 - `docs/ARCHITECTURE.md` §3 "Component map" — where `src/components/archetypes/matrix-grid/` sits.

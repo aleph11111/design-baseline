@@ -104,17 +104,17 @@ queries were slow *because of* cause 1 and worker thrashing, not inherently. Doi
 now would add config and churn tests for no measurable gain.
 
 The residual jsdom-setup cost stays out of scope, tracked in
-[vitest-jsdom-setup-cost.md](vitest-jsdom-setup-cost.md) — `environment` is still the
+[[vitest-jsdom-setup-cost]] — `environment` is still the
 dominant line in every run (19s against 4.5s of actual `tests`), it just no longer
 threatens the gate.
 
 ## Related
 
-- [test-gap-row-actions-menu-zero-tests.md](test-gap-row-actions-menu-zero-tests.md) — the ticket whose full-suite verification surfaced this; its test file demonstrates the `querySelectorAll` workaround. (Shipped; moved from `wip/` to `archive/`.)
-- [vite-config-worktree-root-climb.md](vite-config-worktree-root-climb.md) — sibling `tooling` ticket touching the same config layer.
-- [test-gap-settings-page-shell-no-tests.md](test-gap-settings-page-shell-no-tests.md) — added more tests to the suite this flakiness affects. (Shipped; now in `archive/`.)
-- [vitest-jsdom-setup-cost.md](vitest-jsdom-setup-cost.md) — **not** a duplicate: jsdom setup + module-import cost, plausibly the driver behind contributing cause 3. Fix that one and this one may soften on its own.
+- [[test-gap-row-actions-menu-zero-tests]] — the ticket whose full-suite verification surfaced this; its test file demonstrates the `querySelectorAll` workaround. (Shipped; moved from `wip/` to `archive/`.)
+- [[vite-config-worktree-root-climb]] — sibling `tooling` ticket touching the same config layer.
+- [[test-gap-settings-page-shell-no-tests]] — added more tests to the suite this flakiness affects. (Shipped; now in `archive/`.)
+- [[vitest-jsdom-setup-cost]] — **not** a duplicate: jsdom setup + module-import cost, plausibly the driver behind contributing cause 3. Fix that one and this one may soften on its own.
 - Consolidated into this ticket on 2026-07-20 (archived as duplicate reports, not as resolved):
-  [test-suite-prototype-spy-timeout-flake.md](test-suite-prototype-spy-timeout-flake.md),
-  [flaky-test-timeouts-under-parallel-run.md](flaky-test-timeouts-under-parallel-run.md),
-  [vitest-default-timeout-flaky-under-load.md](vitest-default-timeout-flaky-under-load.md).
+  [[test-suite-prototype-spy-timeout-flake]],
+  [[flaky-test-timeouts-under-parallel-run]],
+  [[vitest-default-timeout-flaky-under-load]].

@@ -16,7 +16,7 @@ gate:
 
 ## Context
 
-The status-tier backport ([archive/donor-status-token-roles-badge-alert-backport.md](archive/donor-status-token-roles-badge-alert-backport.md))
+The status-tier backport ([[donor-status-token-roles-badge-alert-backport]])
 moved `src/components/ui/alert.tsx`'s `warning`/`success`/`info` variants onto the
 `--status-*-{bg,fg}` pairs (ADR-0007 §5) but left `destructive` on the solid role:
 `border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive`. In
@@ -51,6 +51,6 @@ follow-ups (controlling-app PRs #1094 and #1095; #1095 swept that app's own on-s
 
 ## Related
 
-- [archive/donor-status-token-roles-badge-alert-backport.md](archive/donor-status-token-roles-badge-alert-backport.md): introduced the status tier and left `destructive` behind
-- [gallery-nested-dark-mode-token-resolution.md](gallery-nested-dark-mode-token-resolution.md): gallery dark-mode rendering, needed to see the fix
+- [[donor-status-token-roles-badge-alert-backport]]: introduced the status tier and left `destructive` behind
+- [[gallery-nested-dark-mode-token-resolution]]: gallery dark-mode rendering, needed to see the fix
 - ADR-0007: the fleet house look (§5 status tier)

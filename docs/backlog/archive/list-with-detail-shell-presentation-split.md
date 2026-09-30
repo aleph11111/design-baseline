@@ -35,8 +35,8 @@ Nothing is broken today — each branch is internally coherent — but this is t
 
 ## Related
 
-- [decouple-archetype-contract-from-reference-impl.md](archive/decouple-archetype-contract-from-reference-impl.md) — the contract-vs-reference-impl split precedent.
-- [crud-dialog-discard-confirm-split.md](archive/crud-dialog-discard-confirm-split.md) — sibling "extract an inlined archetype concern into a focused seam".
-- [list-with-detail-forwardref-dropped.md](archive/list-with-detail-forwardref-dropped.md), [list-with-detail-column-filter-hoist.md](archive/list-with-detail-column-filter-hoist.md) — recent work on this same shell.
+- [[decouple-archetype-contract-from-reference-impl]] — the contract-vs-reference-impl split precedent.
+- [[crud-dialog-discard-confirm-split]] — sibling "extract an inlined archetype concern into a focused seam".
+- [[list-with-detail-forwardref-dropped]], [[list-with-detail-column-filter-hoist]] — recent work on this same shell.
 - `docs/archetypes/list-with-detail.md` — the A-archetype spec / prop contract the split must preserve.
 - hk-crm adopt-side ticket `list-with-detail-revendor-upstream-split` — re-vendors this split downstream once shipped.

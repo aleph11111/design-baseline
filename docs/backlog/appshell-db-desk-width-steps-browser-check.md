@@ -35,6 +35,6 @@ The widths were checked once by hand in headless Chrome, with a Playwright scrip
 
 ## Related
 
-- [archive/appshell-content-column-min-w-0.md](archive/appshell-content-column-min-w-0.md)
-- [archive/appshell-scroll-model-window-vs-main.md](archive/appshell-scroll-model-window-vs-main.md)
+- [[appshell-content-column-min-w-0]]
+- [[appshell-scroll-model-window-vs-main]]
 - ADR-0007 — the fleet house look (§1 content width, amendment 2026-09-29)

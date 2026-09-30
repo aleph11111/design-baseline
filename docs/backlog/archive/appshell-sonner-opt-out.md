@@ -30,4 +30,4 @@ gate:
 ## Related
 
 - [ADR-0007](../../adr/0007-fleet-house-look-fixed-vs-brand-roles.md) — the AppShell rhythm the local copy mirrors
-- [archive/house-look-tokens-layer-roles.md](../archive/house-look-tokens-layer-roles.md) — #308, which shipped that rhythm
+- [[house-look-tokens-layer-roles]] — #308, which shipped that rhythm

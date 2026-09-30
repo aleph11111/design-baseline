@@ -35,5 +35,5 @@ The 405 itself is recoverable in-band — `git fetch origin && git rebase origin
 
 ## Related
 
-- [ship-cleanup-local-orphan-reaper.md](ship-cleanup-local-orphan-reaper.md) — the other `/ship`-lifecycle gap; orphaned-worktree reaping when the JSONL record is missing.
-- [ship-stranded-matrix-grid-tooltip-branch.md](ship-stranded-matrix-grid-tooltip-branch.md) — a branch stranded by a `/ship` step that never fired.
+- [[ship-cleanup-local-orphan-reaper]] — the other `/ship`-lifecycle gap; orphaned-worktree reaping when the JSONL record is missing.
+- [[ship-stranded-matrix-grid-tooltip-branch]] — a branch stranded by a `/ship` step that never fired.

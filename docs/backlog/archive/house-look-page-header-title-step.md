@@ -33,8 +33,8 @@ ADR-0007 section 2 gives the page `<h1>` a 30px display step so a page has a foc
 
 ## Related
 
-- [wip/house-look-adr.md](../archive/house-look-adr.md) — the decision ticket that filed this slice
+- [[house-look-adr]] — the decision ticket that filed this slice
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles
 - ADR-0004 — appearance locality: global or fixed in the component
-- [house-look-tokens-layer-roles.md](../archive/house-look-tokens-layer-roles.md) — must ship first: it defines the `--text-display-title` token this slice consumes
-- [archive/test-gap-page-header-no-tests.md](../archive/test-gap-page-header-no-tests.md)
+- [[house-look-tokens-layer-roles]] — must ship first: it defines the `--text-display-title` token this slice consumes
+- [[test-gap-page-header-no-tests]]

@@ -75,6 +75,6 @@ Verdict: `debug` **survives** the grep (brickshop-manager, 158 call sites — th
 
 ## Related
 
-- [archive/test-gap-logger-zero-tests.md](../archive/test-gap-logger-zero-tests.md) — added the test suite this ticket trims; the delegation tests it introduced are the evidence the delegation is empty.
+- [[test-gap-logger-zero-tests]] — added the test suite this ticket trims; the delegation tests it introduced are the evidence the delegation is empty.
 - [src/utils/logger.ts](../../src/utils/logger.ts) — the facade.
 - [src/components/ui/error-boundary.tsx](../../src/components/ui/error-boundary.tsx) — the single consumer, and the only method it uses.

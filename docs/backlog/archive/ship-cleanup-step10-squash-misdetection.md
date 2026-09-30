@@ -45,7 +45,7 @@ This is the same defect class fixed for the *local*-orphan reaper in dashboard P
 
 ## Related
 
-- [docs/backlog/ship-cleanup-local-orphan-reaper.md](ship-cleanup-local-orphan-reaper.md) — the sibling ticket whose fix (dashboard PR #66) established the `merge-tree` content test this one ports.
-- [docs/backlog/ship-rest-fallback-deletes-head-ref-on-failed-merge.md](ship-rest-fallback-deletes-head-ref-on-failed-merge.md) — another `/ship`-path correctness ticket.
-- [docs/backlog/archive/ops-health-orphaned-worktrees-branches.md](archive/ops-health-orphaned-worktrees-branches.md) — the sweep that first surfaced orphan accumulation.
+- [[ship-cleanup-local-orphan-reaper]] — the sibling ticket whose fix (dashboard PR #66) established the `merge-tree` content test this one ports.
+- [[ship-rest-fallback-deletes-head-ref-on-failed-merge]] — another `/ship`-path correctness ticket.
+- [[ops-health-orphaned-worktrees-branches]] — the sweep that first surfaced orphan accumulation.
 - `~/.claude/commands/ship-cleanup.md` — step 10 is the site to change.

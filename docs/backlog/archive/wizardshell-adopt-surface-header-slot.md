@@ -31,5 +31,5 @@ gate:
 
 ## Related
 
-- [refactor-shell-surface-header-slot-duplication.md](wip/refactor-shell-surface-header-slot-duplication.md) — added `SurfaceHeaderSlot` and migrated the other eleven shells; this ticket finishes the sweep.
+- [[refactor-shell-surface-header-slot-duplication]] — added `SurfaceHeaderSlot` and migrated the other eleven shells; this ticket finishes the sweep.
 - `src/components/layout/SurfaceHeaderSlot.tsx` — the shared slot this shell should adopt.

@@ -33,13 +33,13 @@ The prime suspect is the SettingsTableShell test's global prototype spies: it ca
 
 ## Related
 
-- [archive/settings-table-selected-set-perf.md](archive/settings-table-selected-set-perf.md) — the shipped ticket that introduced this test and the repo's vitest harness
-- [test-gap-logger-zero-tests.md](test-gap-logger-zero-tests.md) — sibling test-harness ticket
-- [vite-config-worktree-root-climb.md](vite-config-worktree-root-climb.md) — sibling vite/vitest config ticket
+- [[settings-table-selected-set-perf]] — the shipped ticket that introduced this test and the repo's vitest harness
+- [[test-gap-logger-zero-tests]] — sibling test-harness ticket
+- [[vite-config-worktree-root-climb]] — sibling vite/vitest config ticket
 
 ## 2026-07-20 — superseded
 
-Consolidated into [vitest-default-timeout-flaky-suite.md](vitest-default-timeout-flaky-suite.md),
+Consolidated into [[vitest-default-timeout-flaky-suite]],
 which now carries this ticket's diagnosis and evidence. Archived as a duplicate
 report of one symptom, not as resolved work — the underlying flakiness is still open
 there.

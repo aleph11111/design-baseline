@@ -30,5 +30,5 @@ Severity: **low** (DX / API consistency). Every other public layout primitive bo
 
 ## Related
 
-- [shell-header-actions-prop-naming.md](shell-header-actions-prop-naming.md) — sibling layout/archetype API-consistency gap
+- [[shell-header-actions-prop-naming]] — sibling layout/archetype API-consistency gap
 - src/components/layout/index.ts — the barrel to align

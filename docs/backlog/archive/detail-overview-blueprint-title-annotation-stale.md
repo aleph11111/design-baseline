@@ -30,6 +30,6 @@ model_reason: single-line text-node edit in a static SVG annotation, no design j
 
 ## Related
 
-- [archive/house-look-page-header-title-step.md](house-look-page-header-title-step.md) — #309, the slice that moved the title class this annotation is stale against
-- [archive/detail-overview-blueprint-rail-variant.md](detail-overview-blueprint-rail-variant.md) — prior edit to the same blueprint SVG
+- [[house-look-page-header-title-step]] — #309, the slice that moved the title class this annotation is stale against
+- [[detail-overview-blueprint-rail-variant]] — prior edit to the same blueprint SVG
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles

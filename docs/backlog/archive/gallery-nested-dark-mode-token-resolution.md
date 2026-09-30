@@ -34,7 +34,7 @@ Note: `var(--color-*)` readers (e.g. a chart library reading the CSS var directl
 
 ## Related
 
-- [archive/house-look-chart-palette.md](../archive/house-look-chart-palette.md) — #311, the ticket whose own acceptance note ("since the gallery has no theme toggle") is the source of this thought, and whose `ChartPalette` workaround this ticket targets
+- [[house-look-chart-palette]] — #311, the ticket whose own acceptance note ("since the gallery has no theme toggle") is the source of this thought, and whose `ChartPalette` workaround this ticket targets
 - `src/styles/tokens.layer.css` — the `@theme` block (donor token layer) this ticket investigates changing
 - ADR-0007 — The fleet house look: donor-fixed roles vs brand-overridable roles (§8, chart colours; §3, surface elevation — also `--db-*`-sourced and subject to the same nested-scope question)
 - `docs/RULES.md` — "every documented variant axis gets a living demo" (the rule this gap is blocking for any future dual-theme demo)

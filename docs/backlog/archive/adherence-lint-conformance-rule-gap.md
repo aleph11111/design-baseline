@@ -60,6 +60,6 @@ gate 2 catches (`docs/ADOPTION.md:60`), which is aspirational, not true of the c
 
 - [docs/adr/0003-adherence-lint-zero-dep-scanner.md](../adr/0003-adherence-lint-zero-dep-scanner.md) —
   the zero-dep-scanner decision this ticket extends, not replaces
-- [archive/adherence-lint-oxlint-mechanism-nonfunctional.md](archive/adherence-lint-oxlint-mechanism-nonfunctional.md) —
+- [[adherence-lint-oxlint-mechanism-nonfunctional]] —
   prior gate-2 mechanism fix (oxlint config to `lint-design.mjs`); this ticket is the next gap in
   the same mechanism
