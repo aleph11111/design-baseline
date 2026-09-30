@@ -94,11 +94,7 @@ export function TableBody<Row>({
                     ? { width: col.width }
                     : undefined
                 }
-                className={cn(
-                  alignClass(col.align),
-                  hideBelowClass(col),
-                  canSort && "cursor-pointer select-none hover:bg-muted/50",
-                )}
+                className={cn(alignClass(col.align), hideBelowClass(col))}
                 aria-sort={
                   canSort
                     ? sortBy === col.key
@@ -108,17 +104,23 @@ export function TableBody<Row>({
                       : "none"
                     : undefined
                 }
-                onClick={canSort ? () => handleSortClick(col.key) : undefined}
               >
                 {canSort ? (
-                  <div className="flex items-center gap-2">
+                  // A real button, so the sort is reachable and operable from
+                  // the keyboard (Tab + Enter/Space); `aria-sort` stays on the
+                  // header cell, where assistive tech reads it.
+                  <button
+                    type="button"
+                    className="flex cursor-pointer select-none items-center gap-2 rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    onClick={() => handleSortClick(col.key)}
+                  >
                     {col.header}
                     <SortIcon
                       columnKey={col.key}
                       sortBy={sortBy}
                       sortDirection={sortDirection}
                     />
-                  </div>
+                  </button>
                 ) : (
                   col.header
                 )}

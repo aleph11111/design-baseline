@@ -311,3 +311,26 @@ function _exportContractTripwire(props: ListWithDetailShellProps<Row>) {
   return <ListWithDetailShell {...props} />;
 }
 void _exportContractTripwire;
+
+describe("ListWithDetailShell sort header", () => {
+  it("is a keyboard-operable button inside the aria-sort header cell", () => {
+    const onSortChange = vi.fn();
+    render(
+      <ListWithDetailShell
+        rows={rows}
+        columns={[{ ...columns[0]!, sortable: true }]}
+        getRowId={(row) => row.id}
+        sortBy="name"
+        sortDirection="asc"
+        onSortChange={onSortChange}
+      />,
+    );
+    const header = screen.getByRole("columnheader", { name: /name/i });
+    expect(header.getAttribute("aria-sort")).toBe("ascending");
+
+    const button = screen.getByRole("button", { name: /name/i });
+    expect(header.contains(button)).toBe(true);
+    fireEvent.click(button);
+    expect(onSortChange).toHaveBeenCalledWith("name", "desc");
+  });
+});
