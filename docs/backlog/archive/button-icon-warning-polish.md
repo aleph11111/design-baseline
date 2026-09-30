@@ -1,7 +1,7 @@
 ---
 area: a11y
 opened: 2026-09-29
-status: ready
+status: done
 value: low
 model: sonnet
 model_reason: "four scoped edits in one primitive and its test, each with a named cause and fix"
