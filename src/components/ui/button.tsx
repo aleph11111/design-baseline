@@ -44,17 +44,21 @@ type LabelProps = {
   "aria-label"?: string
   "aria-labelledby"?: string
   title?: string
+  alt?: string
   className?: string
   children?: React.ReactNode
 }
 
-// An accessible name: an aria/title attribute, or a visually-hidden
-// `<span className="sr-only">` child (the shadcn idiom). Under `asChild` the
-// name may sit on the child element instead of the Button.
+// An accessible name: an aria/title attribute, a visually-hidden
+// `<span className="sr-only">` child (the shadcn idiom), or a self-labeling
+// child element (`<svg aria-label>`, `<img alt>`). Under `asChild` the name
+// may sit on the child element instead of the Button.
 function hasAccessibleName(props: LabelProps, asChild: boolean): boolean {
   if (props["aria-label"] || props["aria-labelledby"] || props.title) return true
   return React.Children.toArray(props.children).some((child) => {
     if (!React.isValidElement<LabelProps>(child)) return false
+    if (child.props["aria-label"] || child.props.title) return true
+    if (child.type === "img" && child.props.alt) return true
     if (child.props.className?.split(/\s+/).includes("sr-only")) return true
     return asChild && hasAccessibleName(child.props, false)
   })
@@ -62,15 +66,19 @@ function hasAccessibleName(props: LabelProps, asChild: boolean): boolean {
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    if (
+    const warnedRef = React.useRef(false)
+    const missingName =
       process.env.NODE_ENV !== "production" &&
       size === "icon" &&
       !hasAccessibleName(props, asChild)
-    ) {
-      console.warn(
-        'Button size="icon" has no aria-label, aria-labelledby, or title — screen readers will announce it as an unlabeled button. Add an aria-label describing the action.'
-      )
-    }
+    React.useEffect(() => {
+      if (missingName && !warnedRef.current) {
+        warnedRef.current = true
+        console.warn(
+          'Button size="icon" has no aria-label, aria-labelledby, title, or <span className="sr-only"> label — screen readers will announce it as an unlabeled button. Add an aria-label describing the action.'
+        )
+      }
+    }, [missingName])
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
