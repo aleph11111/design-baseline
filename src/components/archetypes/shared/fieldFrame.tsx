@@ -90,7 +90,7 @@ export function FieldLabel({
     <Label {...props}>
       {children}
       {required && (
-        <span className="ml-0.5 text-destructive" aria-hidden="true">
+        <span className="ml-0.5 text-status-danger-fg" aria-hidden="true">
           *
         </span>
       )}
@@ -119,10 +119,10 @@ export interface FieldErrorProps {
   children: React.ReactNode;
 }
 
-/** Destructive error line under the control: `text-sm font-medium text-destructive`. */
+/** Error line under the control: `text-sm font-medium text-status-danger-fg`. */
 export function FieldError({ id, children }: FieldErrorProps): React.ReactElement {
   return (
-    <p id={id} className="text-sm font-medium text-destructive">
+    <p id={id} className="text-sm font-medium text-status-danger-fg">
       {children}
     </p>
   );

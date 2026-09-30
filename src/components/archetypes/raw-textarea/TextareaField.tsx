@@ -145,7 +145,7 @@ export function TextareaField({
             id={countId}
             className={cn(
               atLimit
-                ? "text-destructive"
+                ? "text-status-danger-fg"
                 : near
                   ? "text-amber-600 dark:text-amber-500"
                   : "text-muted-foreground"

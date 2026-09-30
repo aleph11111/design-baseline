@@ -78,9 +78,9 @@ const TONE_CLASS: Record<CalendarEventTone, ToneClasses> = {
     time: "text-muted-foreground",
   },
   success: {
-    chip: "bg-success/10",
-    bar: "border-l-success",
-    time: "text-success",
+    chip: "bg-status-success-bg",
+    bar: "border-l-status-success-fg",
+    time: "text-status-success-fg",
   },
   info: {
     chip: "bg-primary/10",
@@ -88,9 +88,9 @@ const TONE_CLASS: Record<CalendarEventTone, ToneClasses> = {
     time: "text-primary",
   },
   warning: {
-    chip: "bg-warning/10",
-    bar: "border-l-warning",
-    time: "text-warning",
+    chip: "bg-status-warning-bg",
+    bar: "border-l-status-warning-fg",
+    time: "text-status-warning-fg",
   },
 };
 

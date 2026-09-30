@@ -448,8 +448,11 @@ function RowActionsMenuDemo() {
  * per tier (`--status-{tier}-{bg,fg}` pairs in tokens.css, the `--color-status-*`
  * roles in the donor layer), the soft-chip look that replaced the solid brand
  * roles on the status variants. Every tier is shown so the axis is visible,
- * not just a prop value; `default`/`destructive` stay on the solid roles
- * (filled surfaces, not chips).
+ * not just a prop value; `default` stays on the solid primary fill (a filled
+ * surface, not a chip) while `destructive` rides the soft danger tier like the
+ * rest — a tinted callout that reads in light and dark. The last variant
+ * proves the `whitespace-nowrap shrink-0` base: a badge beside a long title in
+ * a `justify-between` row holds one line instead of wrapping and collapsing.
  */
 function StatusChipTierDemo() {
   const badgeTiers: Array<[string, "default" | "secondary" | "success" | "warning" | "destructive" | "info"]> = [
@@ -493,10 +496,18 @@ function StatusChipTierDemo() {
           <Alert variant="destructive">
             <AlertTitle>Something failed</AlertTitle>
             <AlertDescription>
-              The destructive variant stays on the solid role — a full-surface
-              signal, not a chip.
+              A light danger tint with a readable foreground — legible on the
+              dark canvas, not dark red on dark.
             </AlertDescription>
           </Alert>
+        </div>
+      </Variant>
+      <Variant label="Badge — one line beside a long title (whitespace-nowrap shrink-0 base)">
+        <div className="flex items-center justify-between gap-3 rounded-lg border bg-card px-4 py-3">
+          <span className="text-sm font-medium text-foreground">
+            Portfolio — 2024 year to date performance and allocation snapshot
+          </span>
+          <Badge variant="success">22 YTD</Badge>
         </div>
       </Variant>
       <p className="max-w-prose text-[13px] leading-relaxed text-muted-foreground">

@@ -108,7 +108,7 @@ export function RowActionsMenu<Row>({
               onSelect={() => item.onSelect(row)}
               className={
                 item.destructive
-                  ? "text-destructive focus:text-destructive"
+                  ? "text-status-danger-fg focus:text-status-danger-fg"
                   : undefined
               }
             >

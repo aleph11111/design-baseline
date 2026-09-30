@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: '2026-09-28'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "mechanical class swaps onto the existing --status-* tier plus two base classes; the target pairs are the ones the sibling warning/success/info variants already use"

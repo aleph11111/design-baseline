@@ -54,7 +54,7 @@ describe("TextareaField", () => {
     rerender(
       <TextareaField label="R" maxLength={10} value={"x".repeat(10)} onChange={() => {}} />
     );
-    expect(screen.getByText("10/10").className).toMatch(/text-destructive/);
+    expect(screen.getByText("10/10").className).toMatch(/text-status-danger-fg/);
     rerender(
       <TextareaField label="R" maxLength={10} value={"x"} onChange={() => {}} />
     );
