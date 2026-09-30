@@ -1,7 +1,9 @@
 ---
 area: tooling
 opened: 2026-09-29
-status: done
+status: blocked
+blocked_reason: >-
+  Acceptance 2 is unsatisfiable as written: every import of the .mjs resolves to the .d.mts by extension substitution (also with allowJs and paths, verified 2026-09-30), so tsc cannot observe .mjs exports. Criteria 1 and 3 are met by this PR; criterion 2 is implemented as a vitest drift check. Operator: reword criterion 2 to fails npm test and move this to archive/, or drop it.
 value: low
 gate:
   score: 5
@@ -25,7 +27,7 @@ Review of PR #369 (v0.2.27) left three small gaps around `src/vite/design-baseli
 ## Acceptance
 
 - After `npm test`, no `db-vite-*` directory is left in the OS temp dir.
-- Renaming an export in `design-baseline-ui.mjs` without updating the `.d.mts` fails `npm test`. (Amended at ship: the original wording said `npx tsc --noEmit`, but every import of the `.mjs` resolves to the `.d.mts` by extension substitution, including with `allowJs` and `paths` — verified 2026-09-30 — so tsc cannot observe the `.mjs` exports. The vitest check compares the two export lists directly.)
+- Renaming an export in `design-baseline-ui.mjs` without updating the `.d.mts` fails `npx tsc --noEmit`.
 - The `ui/` shadowing test fails when the resolver stops preferring the consumer copy, and no other resolver path (`layout/`, `ui/`) lacks a shadowing case.
 
 ## Related
