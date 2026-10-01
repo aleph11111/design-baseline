@@ -54,16 +54,22 @@ function SkeletonField({
 
 function BodySkeleton(): React.ReactElement {
   return (
-    <div className="space-y-4 px-6 py-4" aria-hidden>
+    <div
+      className="space-y-4 px-6 py-4"
+      role="status"
+      aria-busy="true"
+      aria-live="polite"
+    >
+      <span className="sr-only">Loading…</span>
       {/* Simulate a two-column field section */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <SkeletonField labelWidth="w-16" />
         <SkeletonField labelWidth="w-20" />
       </div>
       {/* Simulate a full-width field */}
       <SkeletonField labelWidth="w-24" />
       {/* Simulate another field group */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <SkeletonField labelWidth="w-14" />
         <SkeletonField labelWidth="w-20" />
       </div>
