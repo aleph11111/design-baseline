@@ -161,6 +161,10 @@ describe("DetailOverviewShell — Mode B nested heading (data props)", () => {
     render(<DetailOverviewShell badges={<span>Open</span>} />);
     // @ts-expect-error subtitle without a title
     render(<DetailOverviewShell subtitle="Parent" />);
+    // a title that may be undefined (e.g. `entity?.name`) drops the header too
+    const t = "x" as string | undefined;
+    // @ts-expect-error possibly-undefined title with actions
+    render(<DetailOverviewShell title={t} actions={<b />} />);
   });
 });
 

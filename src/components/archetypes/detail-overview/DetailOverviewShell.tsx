@@ -49,7 +49,7 @@ type DetailOverviewShellHeaderProps =
        * standalone detail-overview header above the shell). The scale/weight are
        * fixed in that primitive; no prop re-picks them.
        */
-      title: React.ReactNode;
+      title: Exclude<React.ReactNode, undefined>;
       /** Secondary line under the nested title (e.g. a parent-entity link). */
       subtitle?: React.ReactNode;
       /** Read-only status badges, inline next to the nested title — the page's
