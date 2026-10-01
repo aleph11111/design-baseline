@@ -43,6 +43,36 @@ describe("DetailSection — collapsible", () => {
     );
     expect(container.querySelector("section")?.className).not.toContain("border");
   });
+
+  it("keeps vertical spacing around an open body in the rail, and a closed one stays title-only", () => {
+    const { container } = render(
+      <UnifiedSurfaceContext.Provider value={true}>
+        <DetailSection title="Run history" collapsible defaultOpen>
+          <p>body</p>
+        </DetailSection>
+        <DetailSection title="Closed" collapsible>
+          <p>hidden</p>
+        </DetailSection>
+      </UnifiedSurfaceContext.Provider>,
+    );
+    const [open, closed] = Array.from(container.querySelectorAll("section"));
+    // Rail spacing contract: the section's `py-4` pads above the title and
+    // below the body (divider side); the title wrapper's `mb-3` separates title
+    // from body. The body wrapper sits directly in the section, inside the `px-5` gutter.
+    expect(open.className).toContain("py-4");
+    const title = open.querySelector("div.mb-3");
+    const body = screen.getByText("body").parentElement as HTMLElement;
+    expect(title).toBeTruthy();
+    expect(body.parentElement).toBe(open);
+    expect(body.className).toContain("px-5");
+    // Closed: the body wrapper is `hidden` and empty, with no vertical padding,
+    // so it adds no height beyond the title bar.
+    expect(screen.queryByText("hidden")).toBeNull();
+    const closedBody = closed.lastElementChild as HTMLElement;
+    expect(closedBody.hasAttribute("hidden")).toBe(true);
+    expect(closedBody.childElementCount).toBe(0);
+    expect(closedBody.className).not.toMatch(/\bp[yb]-/);
+  });
 });
 
 describe("DetailOverviewHeader — back link", () => {
