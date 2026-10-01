@@ -43,4 +43,32 @@ describe("FormPageDemo discard guard", () => {
     fireEvent.change(tag, { target: { value: "ok-tag" } });
     await waitFor(() => expect(screen.queryByText(/Lowercase letters/)).toBeNull());
   });
+
+  describe("edit mode", () => {
+    async function openEdit() {
+      render(<FormPageDemo />);
+      fireEvent.click(cancel()); // create -> list (untouched, no prompt)
+      fireEvent.click(await screen.findByText("Sunday Carbonara"));
+      return await screen.findByDisplayValue("Sunday Carbonara");
+    }
+
+    it("prompts after a Title edit; staying keeps the form open", async () => {
+      const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+      const title = await openEdit();
+      fireEvent.change(title, { target: { value: "Other" } });
+      fireEvent.click(cancel());
+      await waitFor(() => expect(confirm).toHaveBeenCalled());
+      expect(screen.getByDisplayValue("Other")).toBeTruthy();
+    });
+
+    it("does not prompt untouched or when edited back to the original", async () => {
+      const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+      const title = await openEdit();
+      fireEvent.change(title, { target: { value: "Other" } });
+      fireEvent.change(title, { target: { value: "Sunday Carbonara" } });
+      fireEvent.click(cancel());
+      await screen.findByRole("button", { name: "New recipe" });
+      expect(confirm).not.toHaveBeenCalled();
+    });
+  });
 });
