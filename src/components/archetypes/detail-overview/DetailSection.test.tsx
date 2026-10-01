@@ -56,13 +56,23 @@ describe("DetailSection — collapsible", () => {
       </UnifiedSurfaceContext.Provider>,
     );
     const [open, closed] = Array.from(container.querySelectorAll("section"));
-    // section `py-4` pads above the title and below the body (divider side);
-    // the title wrapper's `mb-3` separates title from body.
+    // Rail spacing contract: the section's `py-4` pads above the title and
+    // below the body (divider side); the title wrapper's `mb-3` separates title
+    // from body. The body wrapper adds only the `px-5` gutter, no vertical pad.
     expect(open.className).toContain("py-4");
-    expect(open.querySelector("div.mb-3")).toBeTruthy();
-    expect(screen.getByText("body")).toBeTruthy();
+    const title = open.querySelector("div.mb-3");
+    const body = screen.getByText("body").parentElement as HTMLElement;
+    expect(title).toBeTruthy();
+    expect(body.parentElement).toBe(open);
+    expect(body.className).toContain("px-5");
+    expect(body.className).not.toMatch(/\bp[yb]-/);
+    // Closed: the body wrapper is `hidden` and empty, with no vertical padding,
+    // so it adds no height beyond the title bar.
     expect(screen.queryByText("hidden")).toBeNull();
-    expect(closed.className).toContain("py-4");
+    const closedBody = closed.lastElementChild as HTMLElement;
+    expect(closedBody.hasAttribute("hidden")).toBe(true);
+    expect(closedBody.childElementCount).toBe(0);
+    expect(closedBody.className).not.toMatch(/\bp[yb]-/);
   });
 });
 
