@@ -167,6 +167,17 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
+// Fields the schema rejects when empty — the label marker mirrors this.
+// Selects always hold a value, so only the free-text/number fields are marked.
+const REQUIRED_FIELDS = new Set<keyof FormValues>([
+  "title",
+  "serves",
+  "prepMinutes",
+  "cookMinutes",
+  "ingredients",
+]);
+const OPTIONAL_FIELDS = new Set<keyof FormValues>(["tag", "notes"]);
+
 function toFormValues(recipe: Recipe): FormValues {
   return {
     title: recipe.title,
@@ -349,8 +360,8 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
         control={form.control}
         name={name}
         render={() => (
-          <FormItem>
-            <FormLabel>{label}</FormLabel>
+          <FormItem required={REQUIRED_FIELDS.has(name)}>
+            <FormLabel optional={OPTIONAL_FIELDS.has(name)}>{label}</FormLabel>
             <FormControl>{control}</FormControl>
             {description && <FormDescription>{description}</FormDescription>}
             <FormMessage />
@@ -460,7 +471,7 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
         value={form.watch("tag")}
         onChange={(e) => setField("tag", e.target.value)}
       />,
-      "A single kebab-case label. Optional.",
+      "A single kebab-case label.",
     ),
     visibility: renderField(
       "visibility",
