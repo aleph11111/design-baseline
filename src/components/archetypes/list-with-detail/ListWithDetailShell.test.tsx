@@ -40,7 +40,7 @@ const columns: ListColumn<Row>[] = [
 ];
 
 describe("ListWithDetailShell", () => {
-  it("table presentation: identifier cell is a focusable button-role that activates on Enter/Space", () => {
+  it("table presentation: identifier cell stays a cell, is focusable, and activates on Enter/Space", () => {
     const onRowSelect = vi.fn();
     render(
       <ListWithDetailShell
@@ -51,7 +51,7 @@ describe("ListWithDetailShell", () => {
         presentation="table"
       />,
     );
-    const cell = screen.getByRole("button", { name: "Ada Lovelace" });
+    const cell = screen.getByRole("cell", { name: "Ada Lovelace" });
     expect(cell.getAttribute("tabindex")).toBe("0");
 
     fireEvent.keyDown(cell, { key: "Enter" });
@@ -97,6 +97,42 @@ describe("ListWithDetailShell", () => {
     expect(onRowSelect).toHaveBeenCalledWith(rows[0]);
   });
 
+  it("exposes the selected row to assistive tech in every presentation", () => {
+    for (const presentation of ["table", "card-grid", "action-row"] as const) {
+      const { unmount } = render(
+        <ListWithDetailShell
+          rows={rows}
+          columns={columns}
+          getRowId={(row) => row.id}
+          onRowSelect={() => {}}
+          selectedRowId="1"
+          presentation={presentation}
+        />,
+      );
+      if (presentation === "table") {
+        expect(screen.getAllByRole("row", { selected: true })).toHaveLength(1);
+      } else {
+        expect(screen.getByRole("button", { name: "Ada Lovelace", pressed: true })).toBeTruthy();
+      }
+      unmount();
+    }
+  });
+
+  it("table: actions column header has a visually hidden accessible name", () => {
+    render(
+      <ListWithDetailShell
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+        rowActions={[{ label: "Delete", onSelect: () => {} }]}
+        labels={{ rowActions: "Zeilenaktionen" }}
+        presentation="table"
+      />,
+    );
+    const head = screen.getByRole("columnheader", { name: "Zeilenaktionen" });
+    expect(head.firstElementChild?.className).toContain("sr-only");
+  });
+
   it("no onRowSelect: rows are not tab stops", () => {
     render(
       <ListWithDetailShell
@@ -126,7 +162,7 @@ describe("ListWithDetailShell", () => {
         detailActions={<button type="button">Edit</button>}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Ada Lovelace" }));
+    fireEvent.click(screen.getByRole("cell", { name: "Ada Lovelace" }));
 
     const sheetTitle = screen.getByRole("heading", { name: "Ada Lovelace" });
     const bar = sheetTitle.closest(
@@ -202,7 +238,7 @@ describe("ListWithDetailShell", () => {
         onDetailClose={onDetailClose}
       />,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Ada Lovelace" }));
+    fireEvent.click(screen.getByRole("cell", { name: "Ada Lovelace" }));
     const dialog = screen.getByRole("dialog");
     fireEvent.keyDown(dialog, { key: "Escape" });
     expect(onDetailClose).toHaveBeenCalledTimes(1);

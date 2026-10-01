@@ -57,7 +57,7 @@ describe("SettingsTableShell selection membership", () => {
     }
   });
 
-  it("identifier cell is a focusable button-role that activates onRowEdit on Enter/Space", () => {
+  it("identifier cell is a focusable cell that activates onRowEdit on Enter/Space", () => {
     const onRowEdit = vi.fn();
     const rows = makeRows(1);
 
@@ -70,7 +70,7 @@ describe("SettingsTableShell selection membership", () => {
       />,
     );
 
-    const cell = screen.getByRole("button", { name: "Row 0" });
+    const cell = screen.getByRole("cell", { name: "Row 0" });
     expect(cell.getAttribute("tabindex")).toBe("0");
 
     fireEvent.keyDown(cell, { key: "Enter" });

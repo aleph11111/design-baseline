@@ -55,6 +55,7 @@ export function CardGridBody<Row>({
           <div
             key={rowId}
             data-state={isSelected ? "selected" : undefined}
+            aria-pressed={activate ? isSelected : undefined}
             onClick={activate}
             className={cn(
               "rounded-lg border bg-card p-4 transition-colors",

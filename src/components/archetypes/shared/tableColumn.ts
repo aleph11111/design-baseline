@@ -24,8 +24,8 @@ export type TableColumn<Row> = {
    * Marks the identifier cell. Gets `text-primary hover:underline`; with
    * `identifierMono` set it renders `font-mono text-sm font-medium`. When an
    * activate handler exists it also gets `cursor-pointer` and the interactive-row
-   * focus ring, and becomes a keyboard-operable tab stop (role="button",
-   * Enter/Space). This is the archetypes' core click contract.
+   * focus ring, and becomes a keyboard-operable tab stop (Enter/Space; the
+   * cell keeps its cell role). This is the archetypes' core click contract.
    */
   isIdentifier?: boolean;
   /**
@@ -107,6 +107,9 @@ export function identifierCell<Row = unknown>(
   const gated =
     col.isClickable !== undefined && row !== undefined && !col.isClickable(row);
   const activate = gated ? undefined : onActivate;
+  // A <td> must keep its cell role (row/column announcement), so drop the
+  // button role; tabIndex + Enter/Space keep it keyboard-operable.
+  const { role: _role, ...interactive } = getInteractiveRowProps(activate);
   return {
     className: cn(
       "text-primary hover:underline",
@@ -115,6 +118,6 @@ export function identifierCell<Row = unknown>(
       mono && "font-mono text-sm font-medium",
     ),
     onClick: activate,
-    ...getInteractiveRowProps(activate),
+    ...interactive,
   };
 }
