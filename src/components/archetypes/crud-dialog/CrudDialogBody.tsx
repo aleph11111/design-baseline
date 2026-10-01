@@ -59,10 +59,39 @@ const BODY_INSET = "px-6 py-4";
 // Decorative loading shape. The visible skeleton stays aria-hidden — the
 // announcement lives in the body's persistent status region (below), not on
 // this node; mirroring ListSkeleton's `role="status"` wrapper here would put
-// a live region behind a busy region of its own. Its paired-field sections
-// reuse the loaded two-column layout class so the skeleton collapses at the
-// same breakpoint the body actually collapses at.
-function BodySkeleton(): React.ReactElement {
+// a live region behind a busy region of its own. It is keyed to the body's
+// `layout` prop so skeleton and loaded body share the same structural shape:
+// the two-column paired sections reuse the loaded layout class (so the
+// skeleton collapses at the same breakpoint the body does), and flat /
+// no-layout render a single stacked column — no paired section — so a fetch
+// finishing mid-viewport reflows nothing.
+function BodySkeleton({
+  layout,
+}: {
+  layout?: "flat" | "two-column";
+}): React.ReactElement {
+  // Same six-field rhythm as the two-column shape, without the pairing.
+  const fields = (
+    <>
+      <SkeletonField labelWidth="w-16" />
+      <SkeletonField labelWidth="w-20" />
+      <SkeletonField labelWidth="w-24" />
+      <SkeletonField labelWidth="w-14" />
+      <SkeletonField labelWidth="w-20" />
+      <SkeletonField labelWidth="w-12" controlHeight="h-24" />
+    </>
+  );
+  // The no / flat-layout shapes: a plain stack. Flat carries the loaded flat
+  // body's LAYOUT_CLASS["flat"] wrapper; no-layout (mixed / tabbed bodies)
+  // has the fields straight under the padding box — the consumer structures
+  // the layout, so no wrapper the loaded body doesn't have is invented.
+  if (layout !== "two-column") {
+    return (
+      <div className={cn("space-y-4", BODY_INSET)} aria-hidden>
+        {layout === "flat" ? <div className={LAYOUT_CLASS["flat"]}>{fields}</div> : fields}
+      </div>
+    );
+  }
   return (
     <div className={cn("space-y-4", BODY_INSET)} aria-hidden>
       {/* Simulate a two-column field section */}
@@ -130,7 +159,7 @@ export function CrudDialogBody({
           a live region inside a busy subtree holds its own announcements —
           the exact symptom this ticket fixes. */}
       <div aria-busy={isLoading ? "true" : undefined}>
-        {isLoading ? <BodySkeleton /> : (
+        {isLoading ? <BodySkeleton layout={layout} /> : (
           <div className={BODY_INSET}>
             {layout ? <div className={LAYOUT_CLASS[layout]}>{children}</div> : children}
           </div>

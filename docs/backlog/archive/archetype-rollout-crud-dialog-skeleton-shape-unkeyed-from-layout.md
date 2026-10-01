@@ -1,7 +1,7 @@
 ---
 area: archetype-rollout
 opened: '2026-10-01'
-status: ready
+status: done
 value: normal
 gate:
   score: 5
