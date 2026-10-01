@@ -280,7 +280,21 @@ export function ListWithDetailShell<Row>(
           </SheetContent>
         </Sheet>
       ) : (
-        <div className="w-80 shrink-0 border-l">{detail}</div>
+        <div className="w-80 shrink-0 border-l">
+          {detailTitle !== undefined && (
+            // Same shared bar as the mobile Sheet; plain h2 (no Radix dialog here).
+            <SurfaceHeaderBar
+              actions={
+                detailActions ? (
+                  <div className="flex shrink-0 items-center gap-2">{detailActions}</div>
+                ) : undefined
+              }
+            >
+              <h2 className="min-w-0 flex-1 truncate text-base font-semibold">{detailTitle}</h2>
+            </SurfaceHeaderBar>
+          )}
+          {detail}
+        </div>
       )
     ) : null;
 

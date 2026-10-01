@@ -150,6 +150,42 @@ describe("ListWithDetailShell", () => {
     expect(actionsRow.textContent).toContain("Edit");
   });
 
+  it("desktop rail: detailTitle + detailActions render in the shared bar above the detail", () => {
+    render(
+      <ListWithDetailShell
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+        selectedRowId="1"
+        detail={<div>Details for Ada</div>}
+        detailTitle="Ada Lovelace"
+        detailActions={<button type="button">Edit</button>}
+      />,
+    );
+    const title = screen.getByRole("heading", { name: "Ada Lovelace" });
+    const bar = title.closest('[data-slot="surface-header"]') as HTMLElement;
+    expect(bar).not.toBeNull();
+    expect(bar.textContent).toContain("Edit");
+    expect(
+      bar.compareDocumentPosition(screen.getByText("Details for Ada")) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("desktop rail: no detailTitle renders only the detail", () => {
+    const { container } = render(
+      <ListWithDetailShell
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+        detail={<div>Details for Ada</div>}
+        detailActions={<button type="button">Edit</button>}
+      />,
+    );
+    expect(container.querySelector('[data-slot="surface-header"]')).toBeNull();
+    expect(screen.getByText("Details for Ada")).toBeTruthy();
+  });
+
   it("mobile: the detail renders as the overlay (Sheet) and dismissing it (Esc) calls onDetailClose", () => {
     // On narrow viewports the detail surface is the mobile overlay (Sheet);
     // there is no desktop opt-in axis for it.
