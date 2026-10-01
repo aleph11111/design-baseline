@@ -1,7 +1,7 @@
 ---
 area: code-health
 opened: '2026-10-02'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "one shared module list or a drift check between two existing files; pattern is clear"
