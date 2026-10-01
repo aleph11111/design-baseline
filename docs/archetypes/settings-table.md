@@ -2,7 +2,7 @@
 key: D2
 slug: settings-table
 kind: page
-version: 2.2
+version: 2.7
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -11,6 +11,30 @@ status: locked
 
 # Archetype D2 — Settings table
 
+> **v2.7 (2026-09-30) — row-actions trigger name.** `labels.rowActions`
+> overrides the accessible name of each row's `⋯` trigger (Layer 10). Additive;
+> no breaking change.
+>
+> **v2.6 (2026-09-30) — overridable built-in copy.** The new `labels` prop
+> overrides every string the shell renders on its own — loading, error title,
+> retry, the empty-state and add-new CTA labels, and the bulk-select
+> checkboxes, captions, and delete button (Layers 4, 7, and 10). English
+> defaults stay; a non-English consumer overrides per call site. Additive; no
+> breaking change.
+>
+> **v2.5 — second responsive tier.** The change the contract first labelled
+> "v2.2" below. The contract's own numbering ran behind the deliverable version
+> from the mistra promotion on (the entries at the bottom keep their original
+> labels).
+>
+> **v2.4 — mistra promotion.** The change the contract first labelled "v2.1"
+> below (role-keyed `hideBelowMd`, `rowLabel`-rendered result count, row-derived
+> row-action `label` / `disabled`).
+>
+> **v2.3 — internal only.** The shared column descriptor and identifier-cell
+> recipe extracted under `archetypes/shared` (shared with list-with-detail);
+> no prop or behavior change, so it needs no Layer edit.
+>
 > **v2.2 (2026-09-28) — second responsive tier.** `hideBelow` generalizes
 > `hideBelowMd` to two tiers, keyed by column role (Layer 6). Record provenance
 > takes `2xl` so the identifier doesn't wrap on a 1440px desktop; other context
@@ -103,7 +127,7 @@ The page header no longer floats above the shell as a separate page-header primi
 
 **Required:**
 - Toolbar renders as the shell's `toolbar` slot, not above or below the shell.
-- **Primary create action** — single button (small), the default/primary style, leading "add" icon. Label: "Add {entity}". Opens the add dialog. Canonical home: the shell's `headerActions` (the on-surface header bar, Layer 3 — it inverts on a brand-filled header). The legacy `onAddNew` toolbar button remains supported on existing pages, but new pages put the create action in the header — the toolbar owns data controls, not writes.
+- **Primary create action** — single button (small), the default/primary style, leading "add" icon. Label: "Add {entity}". Opens the add dialog. The toolbar button's label comes from `addNewLabel` (default "Add new"). Canonical home: the shell's `headerActions` (the on-surface header bar, Layer 3 — it inverts on a brand-filled header). The legacy `onAddNew` toolbar button remains supported on existing pages, but new pages put the create action in the header — the toolbar owns data controls, not writes.
 - **Result count** — in the **canonical muted small-text style**, right-aligned, format: `{n} results` or `{n} {entity-plural}`. The shell renders it from `rowLabel` — the noun, or a function of the count for singular/plural nouns; `n` is the length of the (filtered) `rows`. Hidden while bulk selection is active (the "{n} selected" count replaces it).
 
 **Allowed variation:**
@@ -203,6 +227,7 @@ The page header no longer floats above the shell as a separate page-header primi
 
 **Allowed variation:**
 - **Empty-state icon** — optional decoration centered above the empty text.
+- **`labels`** — overrides for the shell's own copy: `loading`, `errorTitle`, `retry` (the planes above), plus the add-new and empty-state CTA (`addNewLabel`), the bulk-select checkboxes (`selectAll`, `selectRow`), the bulk-mode caption (`selectedCount`) and delete button (`deleteSelected`), and each row's `⋯` trigger name (`rowActions`) — English defaults stay; a non-English consumer overrides per call site.
 
 ---
 
@@ -212,6 +237,8 @@ The primitive does not wire data. It expects consumer-provided props. No assumpt
 
 **Required props the consumer must provide:**
 - `rows: Row[]` — the current filtered view's rows.
+- `columns: SettingsColumn<Row>[]` — the column descriptors (Layer 6); mark exactly one column `isIdentifier`.
+- `getRowId: (row: Row) => string` — the stable, unique identity of a row; keys rendering and row selection.
 - `isLoading: boolean` — true while the initial fetch is in flight.
 - `error: unknown | null` — any fetch error; `null` when healthy.
 - `onRetry?: () => void` — called by the error panel's "Try again" button.
