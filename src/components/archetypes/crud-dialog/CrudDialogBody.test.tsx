@@ -171,28 +171,27 @@ describe("CrudDialogBody — skeleton mobile collapse", () => {
   it("renders no paired two-column section for a flat body", () => {
     const { loadedRoot, skeletonRoot } = renderBoth("flat");
 
-    // the loaded flat body's layout wrapper is a space-y-4 stack, not a grid
-    const loadedStack = loadedRoot.querySelector<HTMLElement>(".space-y-4.grid");
-    expect(loadedStack).toBeNull();
+    // the loaded flat body's layout wrapper is a single stack, never a grid
     expect(loadedRoot.querySelector<HTMLElement>(".grid")).toBeNull();
 
-    // the skeleton shows the same: no paired two-column grid section…
+    // the skeleton shows the same: no paired two-column grid section
     expect(skeletonRoot.querySelectorAll<HTMLElement>(".grid").length).toBe(0);
-    // …and every layout wrapper the loaded body carries is matched by the
-    // skeleton's same-position wrapper with the same class list
-    for (const [i, loadedWrapper] of Array.from(
-      loadedRoot.querySelectorAll<HTMLElement>(".space-y-4"),
-    ).entries()) {
-      const skeletonWrapper = skeletonRoot.querySelectorAll<HTMLElement>(".space-y-4")[i]!;
-      for (const cls of Array.from(loadedWrapper.classList)) {
-        expect(
-          skeletonWrapper.classList.contains(cls),
-          `skeleton wrapper ${i} missing "${cls}"`,
-        ).toBe(true);
-      }
-    }
-    // and the padding box is still shared (no shift on load)
-    const loadedInset = loadedRoot.querySelector<HTMLElement>(".space-y-4")!.parentElement!;
+
+    // class-list match at the layout-wrapper level, selected by structure on
+    // BOTH sides: the flat wrapper is the loaded body's only space-y-4 element,
+    // and the skeleton's inner wrapper is the direct child of the aria-hidden
+    // padding root — which ALSO carries space-y-4, so selecting the padding
+    // root would compare the wrong level and mask a divergence here.
+    const loadedWrapper = loadedRoot.querySelector<HTMLElement>(".space-y-4")!;
+    const skeletonWrapper = skeletonRoot
+      .querySelector<HTMLElement>("[aria-hidden]")!
+      .firstElementChild as HTMLElement;
+    expect(Array.from(skeletonWrapper.classList).sort()).toEqual(
+      Array.from(loadedWrapper.classList).sort(),
+    );
+
+    // the padding box is still shared (no shift on load)
+    const loadedInset = loadedWrapper.parentElement!;
     const skeletonInset = skeletonRoot.querySelector<HTMLElement>("[aria-hidden]")!;
     for (const cls of Array.from(loadedInset.classList)) {
       expect(skeletonInset.classList.contains(cls), `skeleton inset missing "${cls}"`).toBe(true);

@@ -562,7 +562,9 @@ export function CrudDialogDemo(): React.ReactElement {
           (flat stack / two-column grid / two-tab with a read-only History
           tab). The slide-in <strong>Width</strong> is derived from the layout
           (two-tab → wide; other shapes → narrower) and is not a free choice.
-          Open a workout to see them applied.
+          The loading skeleton adopts the body's layout shape, so a fetch
+          finishing mid-viewport reflows nothing. Open a workout to see them
+          applied.
         </p>
         <SegmentedControl
           aria-label="Dialog body layout"
