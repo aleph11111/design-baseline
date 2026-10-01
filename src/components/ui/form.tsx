@@ -58,6 +58,7 @@ const useFormField = () => {
 
   return {
     id,
+    required: itemContext.required,
     name: fieldContext.name,
     formItemId: `${id}-form-item`,
     formDescriptionId: `${id}-form-item-description`,
@@ -68,20 +69,23 @@ const useFormField = () => {
 
 type FormItemContextValue = {
   id: string
+  required?: boolean
 }
 
 const FormItemContext = React.createContext<FormItemContextValue | null>(
   null
 )
 
+// `required` marks the field mandatory: FormLabel shows an asterisk and
+// FormControl sets aria-required (the asterisk itself is aria-hidden).
 const FormItem = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & { required?: boolean }
+>(({ className, required, ...props }, ref) => {
   const id = React.useId()
 
   return (
-    <FormItemContext.Provider value={{ id }}>
+    <FormItemContext.Provider value={{ id, required }}>
       {/* space-y-1.5 — the baseline's canonical field gap (label→control),
           identical to the manual <Label>+<Input> stack used in dialogs so an RHF
           form-page field and a crud-dialog field render the same. */}
@@ -93,9 +97,12 @@ FormItem.displayName = "FormItem"
 
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
->(({ className, ...props }, ref) => {
-  const { error, formItemId } = useFormField()
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & {
+    /** Append explicit "Optional" text (use where a form mixes required and optional fields). */
+    optional?: boolean
+  }
+>(({ className, children, optional, ...props }, ref) => {
+  const { error, formItemId, required } = useFormField()
 
   return (
     <Label
@@ -103,7 +110,17 @@ const FormLabel = React.forwardRef<
       className={cn(error && "text-status-danger-fg", className)}
       htmlFor={formItemId}
       {...props}
-    />
+    >
+      {children}
+      {required && (
+        <span aria-hidden="true" className="ml-0.5 text-status-danger-fg">
+          *
+        </span>
+      )}
+      {optional && !required && (
+        <span className="ml-1 font-normal text-muted-foreground">(Optional)</span>
+      )}
+    </Label>
   )
 })
 FormLabel.displayName = "FormLabel"
@@ -112,7 +129,8 @@ const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
 >(({ ...props }, ref) => {
-  const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
+  const { error, required, formItemId, formDescriptionId, formMessageId } =
+    useFormField()
 
   return (
     <Slot
@@ -124,6 +142,7 @@ const FormControl = React.forwardRef<
           : `${formDescriptionId} ${formMessageId}`
       }
       aria-invalid={!!error}
+      aria-required={required || undefined}
       {...props}
     />
   )
