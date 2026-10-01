@@ -43,7 +43,7 @@ export type SettingsColumn<Row> = TableColumn<Row>;
  * defaults; a non-English app overrides per call site (the fleet's i18n rule:
  * English defaults, overridable, never a baked-in language).
  */
-export type SettingsTableLabels = {
+export type SettingsTableLabels<Row> = {
   /** Loading-plane text. Default "Loading…". */
   loading?: string;
   /** Error-plane title. Default "Something went wrong". */
@@ -52,8 +52,14 @@ export type SettingsTableLabels = {
   retry?: string;
   /** Bulk-select header checkbox. Default "Select all rows". */
   selectAll?: string;
-  /** Bulk-select row checkbox. Default "Select row". */
-  selectRow?: string;
+  /**
+   * Bulk-select row checkbox. Either a fixed string applied to every row
+   * (the localisable default stays overridable), or a function receiving the
+   * row — the default is `"Select row: {name}"` where `{name}` is the
+   * identifier column's cell value, so a screen-reader user hears which
+   * record a checkbox opens. Pass a function to customise.
+   */
+  selectRow?: string | ((row: Row) => string);
   /** Bulk-mode selection caption. Default `${n} selected`. */
   selectedCount?: (count: number) => string;
   /** Bulk-delete button. Default `Delete ${n} selected`. */
@@ -110,7 +116,7 @@ export type SettingsTableShellProps<Row> = {
    */
   isFiltered?: boolean;
   /** Overrides for the shell's built-in copy (see `SettingsTableLabels`). */
-  labels?: SettingsTableLabels;
+  labels?: SettingsTableLabels<Row>;
 
   // Bulk select
   /** When true, renders a leading checkbox column. */
@@ -166,15 +172,39 @@ export function SettingsTableShell<Row>({
     typeof rowActions === "function" ||
     (rowActions !== undefined && rowActions.length > 0);
   const hasBulk = bulkSelectable === true;
-  const hasBulkSelection = hasBulk && selectedIds.length > 0;
 
-  // Bulk select helpers
+  // Bulk select helpers. The selection is consumer-owned (selectedIds), but on
+  // every bulk path the shell only ever emits ids of the rows it is showing:
+  // the caption, the bulk actions, and toggleAll/toggleRow all operate on the
+  // visible set, never on the raw prop. When the consumer filters a row out
+  // its id silently drops on the next interaction — the selection outlives the
+  // filter in the consumer's state, but the shell's UI never acts on the
+  // invisible part.
   const selectedSet = React.useMemo(() => new Set(selectedIds), [selectedIds]);
   const allIds = rows.map(getRowId);
+  const visibleSelected = allIds.filter((id) => selectedSet.has(id));
+  const hasBulkSelection = hasBulk && visibleSelected.length > 0;
   const allSelected =
-    hasBulk && allIds.length > 0 && allIds.every((id) => selectedSet.has(id));
+    hasBulk && allIds.length > 0 && visibleSelected.length === allIds.length;
   const someSelected =
-    hasBulk && selectedIds.length > 0 && !allSelected;
+    hasBulk && visibleSelected.length > 0 && !allSelected;
+
+  // Identifier column — used for the default row-checkbox aria-label so a
+  // screen-reader user hears which record each checkbox opens.
+  const identifierCol = columns.find((c) => c.isIdentifier);
+  // Default row-checkbox label: "Select row: {identifier cell value}". The
+  // localisable default stays overridable through labels.selectRow as a fixed
+  // string or as a function of the row.
+  const defaultRowSelectLabel: (row: Row) => string = identifierCol
+    ? (row) => `Select row: ${identifierCol.cell(row)}`
+    : () => "Select row";
+
+  function resolveRowSelectLabel(row: Row): string {
+    const sel = labels?.selectRow;
+    if (sel === undefined) return defaultRowSelectLabel(row);
+    if (typeof sel === "function") return sel(row);
+    return sel;
+  }
 
   function toggleAll() {
     if (!onBulkSelectChange) return;
@@ -187,10 +217,11 @@ export function SettingsTableShell<Row>({
 
   function toggleRow(rowId: string) {
     if (!onBulkSelectChange) return;
+    const base = visibleSelected;
     if (selectedSet.has(rowId)) {
-      onBulkSelectChange(selectedIds.filter((id) => id !== rowId));
+      onBulkSelectChange(base.filter((id) => id !== rowId));
     } else {
-      onBulkSelectChange([...selectedIds, rowId]);
+      onBulkSelectChange([...base, rowId]);
     }
   }
 
@@ -210,16 +241,29 @@ export function SettingsTableShell<Row>({
 
   // Toolbar row content — the ruled band chrome is owned by the <SurfaceFrame>
   // `toolbar` slot below; the shell composes only the row's INNER layout.
-  // Top row: custom slot + bulk actions (when active) + Add new.
+  // Top row: consumer toolbar slot + selection caption / result count + Add new.
+  // In bulk mode the consumer toolbar (search, filters, …) stays visible so the
+  // user can still refine the list while rows are ticked; only the count line
+  // swaps from `{n} {rowLabel}` to `{n} selected` + the bulk actions.
   // gap-3 matches the toolbar gap used by list-with-detail / feed.
+  const showBulkActions = hasBulkSelection && (bulkActions || onBulkDelete);
+  const countSpan = showBulkActions ? (
+    <span className="text-sm text-muted-foreground">
+      {labels?.selectedCount?.(visibleSelected.length) ??
+        `${visibleSelected.length} selected`}
+    </span>
+  ) : rowLabel !== undefined ? (
+    <span className="shrink-0 text-sm text-muted-foreground">
+      {rows.length}{" "}
+      {typeof rowLabel === "function" ? rowLabel(rows.length) : rowLabel}
+    </span>
+  ) : null;
   const toolbarRow = (
     <div className="flex items-center gap-3">
-      {hasBulkSelection && (bulkActions || onBulkDelete) ? (
-        // Bulk mode: show bulk actions, suppress regular toolbar
-        <div className="flex flex-1 items-center gap-2">
-          <span className="text-sm text-muted-foreground">
-            {labels?.selectedCount?.(selectedIds.length) ?? `${selectedIds.length} selected`}
-          </span>
+      <div className="flex flex-1 items-center gap-2">{toolbar}</div>
+      {showBulkActions && (
+        <>
+          {countSpan}
           {bulkActions}
           {onBulkDelete && (
             <Button
@@ -227,23 +271,13 @@ export function SettingsTableShell<Row>({
               size="sm"
               onClick={handleBulkDelete}
             >
-              {labels?.deleteSelected?.(selectedIds.length) ??
-                `Delete ${selectedIds.length} selected`}
+              {labels?.deleteSelected?.(visibleSelected.length) ??
+                `Delete ${visibleSelected.length} selected`}
             </Button>
-          )}
-        </div>
-      ) : (
-        // Normal mode: show consumer toolbar slot + the result count
-        <>
-          <div className="flex flex-1 items-center gap-2">{toolbar}</div>
-          {rowLabel !== undefined && (
-            <span className="shrink-0 text-sm text-muted-foreground">
-              {rows.length}{" "}
-              {typeof rowLabel === "function" ? rowLabel(rows.length) : rowLabel}
-            </span>
           )}
         </>
       )}
+      {!showBulkActions && countSpan}
       {onAddNew && (
         <Button
           variant="default"
@@ -321,7 +355,7 @@ export function SettingsTableShell<Row>({
                   <Checkbox
                     checked={isSelected}
                     onCheckedChange={() => toggleRow(rowId)}
-                    aria-label={labels?.selectRow ?? "Select row"}
+                    aria-label={resolveRowSelectLabel(row)}
                   />
                 </TableCell>
               )}
