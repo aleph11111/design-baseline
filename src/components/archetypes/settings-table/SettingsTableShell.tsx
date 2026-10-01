@@ -104,6 +104,11 @@ export type SettingsTableShellProps<Row> = {
   onRetry?: () => void;
   /** Shown in the empty state when rows is empty and not loading/erroring. */
   emptyMessage?: string;
+  /**
+   * True when a search/filter produced the empty rows. The empty state then
+   * shows only `emptyMessage` — the "Add" CTA is for the no-items-at-all case.
+   */
+  isFiltered?: boolean;
   /** Overrides for the shell's built-in copy (see `SettingsTableLabels`). */
   labels?: SettingsTableLabels;
 
@@ -146,6 +151,7 @@ export function SettingsTableShell<Row>({
   error,
   onRetry,
   emptyMessage,
+  isFiltered,
   labels,
   bulkSelectable,
   selectedIds = [],
@@ -258,7 +264,7 @@ export function SettingsTableShell<Row>({
       variant="empty"
       message={emptyMessage ?? "No items yet."}
       action={
-        onAddNew && (
+        onAddNew && !isFiltered && (
           <Button variant="default" size="sm" onClick={onAddNew}>
             <Plus className="mr-1 h-4 w-4" />
             {addNewLabel}

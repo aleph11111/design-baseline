@@ -197,7 +197,7 @@ The page header no longer floats above the shell as a separate page-header primi
 - **Loading** — provided by the shell via the shared **state-view primitive** (loading variant) — the single owner of the loading/empty/error visual planes across settings-table, list-with-detail, and grouped-list. Text loader is the default; a **skeleton** (the `skeleton-loader` archetype) may be passed through the loading plane's skeleton override when this table's column shape is known ahead of the fetch. Never a full-page spinner.
 - **Empty state** — state-view (empty variant), inline, query-dependent copy:
   - Filter / search active: `"No {things} match {query}."`
-  - No items at all: `"No {things} yet."` + a primary CTA button ("Add {entity}") calling `onAddNew`. The CTA is the entry point to the first record.
+  - No items at all: `"No {things} yet."` + a primary CTA button ("Add {entity}") calling `onAddNew`. The CTA is the entry point to the first record. A consumer whose rows are empty because of a filter passes `isFiltered` so the CTA is withheld.
 - **Error state (required)** — when `error` is non-null, state-view (error variant) renders the canonical load-error visual (a **destructive alert** with title, icon, message) and — when `onRetry` is provided — a "Try again" button. The `isEmpty` condition must be gated with `&& !error` so a failed query does not render as "empty".
 - **Mutation errors** — surface through the app-wide toast. Render crashes are caught by the page's render-error boundary (Layer 2).
 
