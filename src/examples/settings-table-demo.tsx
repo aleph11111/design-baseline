@@ -9,7 +9,7 @@
  *   - Identifier cell (name) click → onRowEdit
  *   - "Add new" button click → onAddNew
  *   - Row action ("Duplicate")
- *   - Empty state when filter produces no rows
+ *   - Empty states: filtered-empty (no CTA) and truly empty (Add CTA)
  *   - Bulk select demonstration
  *   - Result-count line (`rowLabel`, singular/plural function form)
  *   - Narrow-viewport column subset (`hideBelow` on the context columns)
@@ -191,15 +191,15 @@ export function SettingsTableDemo() {
               <Button variant="outline" size="sm">
                 Import
               </Button>
-              <Button size="sm" onClick={handleAddNew}>
-                Add recipe
-              </Button>
             </>
           }
           rows={filtered}
           columns={COLUMNS}
           getRowId={(r) => r.id}
           onRowEdit={handleRowEdit}
+          onAddNew={handleAddNew}
+          addNewLabel="Add recipe"
+          isFiltered={query.trim() !== ""}
           toolbar={toolbarContent}
           rowLabel={(n) => (n === 1 ? "recipe" : "recipes")}
           rowActions={rowActions}
