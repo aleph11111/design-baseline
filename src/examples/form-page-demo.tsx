@@ -621,7 +621,7 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
               around the form body for extra visual emphasis, on top of the
               classic floating header. */}
           <Card>
-            <CardContent className="p-5">{formBody}</CardContent>
+            <CardContent className="p-5 [--form-inset:1.25rem]">{formBody}</CardContent>
           </Card>
         </FormPageShell>
       )}

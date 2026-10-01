@@ -83,7 +83,7 @@ export function FormPageShell({
         headerActions={headerActions}
         className={WIDTH_MAP[width]}
       >
-        <div className="p-5 space-y-5">{children}</div>
+        <div className="p-5 space-y-5 [--form-inset:1.25rem]">{children}</div>
       </SurfaceFrame>
     );
   }
