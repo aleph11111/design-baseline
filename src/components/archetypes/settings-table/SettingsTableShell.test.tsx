@@ -132,3 +132,25 @@ describe("SettingsTableShell selection membership", () => {
     expect(screen.getByText("1 agent")).toBeTruthy();
   });
 });
+
+describe("SettingsTableShell empty-state CTA", () => {
+  const empty = (isFiltered: boolean) => (
+    <SettingsTableShell
+      rows={[]}
+      columns={columns}
+      getRowId={(r) => r.id}
+      onAddNew={() => {}}
+      addNewLabel="Add thing"
+      isFiltered={isFiltered}
+    />
+  );
+
+  it("offers the Add CTA in the body only when the list is truly empty", () => {
+    const { rerender } = render(empty(false));
+    // toolbar button + empty-state CTA
+    expect(screen.getAllByRole("button", { name: "Add thing" })).toHaveLength(2);
+
+    rerender(empty(true));
+    expect(screen.getAllByRole("button", { name: "Add thing" })).toHaveLength(1);
+  });
+});
