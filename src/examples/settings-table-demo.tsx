@@ -138,6 +138,7 @@ export function SettingsTableDemo() {
     setLastAction(
       ids.length === 1 ? `Deleted: ${pendingDelete[0]?.name}` : `Deleted ${ids.length} recipes`,
     );
+    setPendingDelete(null);
   }
 
   const rowActions: SettingsRowAction<Recipe>[] = [
@@ -163,7 +164,7 @@ export function SettingsTableDemo() {
   );
 
   const bulkActions = (
-    <Button variant="destructive" size="sm" 
+    <Button variant="destructive" size="sm"
       onClick={() => setPendingDelete(recipes.filter((r) => selectedIds.includes(r.id)))}
       disabled={selectedIds.length === 0}
     >
