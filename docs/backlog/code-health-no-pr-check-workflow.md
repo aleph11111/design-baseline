@@ -1,7 +1,8 @@
 ---
 area: code-health
 opened: '2026-10-01'
-status: ready
+status: blocked
+blocked_reason: "needs admin ruleset on origin: register `check` as a required status on main (ruleset POST was denied in the unattended session). Workflow check.yml shipped in PR #396. To discharge: gh api repos/aleph11111/design-baseline/rulesets -X POST with a required_status_checks rule, context `check`, target ~DEFAULT_BRANCH."
 gate:
   score: 5
   passed:
@@ -36,9 +37,9 @@ If this finding is wrong, a required check is configured outside the repo. Look 
 
 ## What to do
 
-- [ ] Add `.github/workflows/check.yml`, triggered on `pull_request` targeting `main`. It should use Node 22 (matching `engines.node` in `package.json`), run `npm ci`, then `npx tsc --noEmit`, `npm test` and `npm run verify:exports`.
-- [ ] Make `origin/main` available in the checkout (`fetch-depth: 0`, or an explicit fetch), because `scripts/verify-package-version.mjs` reads `origin/main:package.json`.
-- [ ] Pin every action to a commit SHA, as [[hygiene-security-tag-version-action-unpinned]] does for the tag workflow.
+- [x] Add `.github/workflows/check.yml`, triggered on `pull_request` targeting `main`. It should use Node 22 (matching `engines.node` in `package.json`), run `npm ci`, then `npx tsc --noEmit`, `npm test` and `npm run verify:exports`.
+- [x] Make `origin/main` available in the checkout (`fetch-depth: 0`, or an explicit fetch), because `scripts/verify-package-version.mjs` reads `origin/main:package.json`.
+- [x] Pin every action to a commit SHA, as [[hygiene-security-tag-version-action-unpinned]] does for the tag workflow.
 - [ ] Register the job as a required status check on `main`, so auto-merge waits for it. This belongs with the ruleset from [[hygiene-security-release-tags-and-main-unprotected]].
 
 ## Acceptance
