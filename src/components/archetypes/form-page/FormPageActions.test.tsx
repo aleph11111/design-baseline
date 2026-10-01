@@ -162,3 +162,13 @@ describe("FormPageActions — button `type` attributes", () => {
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("FormPageActions — sticky bleed follows the surface inset", () => {
+  it("bleeds by --form-inset, not a fixed amount", () => {
+    const { container } = render(<FormPageActions mode="create" primaryLabel="Create" />);
+    const cls = (container.firstElementChild as HTMLElement).className;
+    expect(cls).toContain("-mx-[var(--form-inset,0px)]");
+    expect(cls).toContain("px-[var(--form-inset,0px)]");
+    expect(cls).not.toContain("-mx-6");
+  });
+});

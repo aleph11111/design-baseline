@@ -1,5 +1,5 @@
 "use client";
-export { FormPageShell } from "./FormPageShell";
+export { FormPageShell, FORM_INSET_CLASS } from "./FormPageShell";
 export type { FormPageShellProps } from "./FormPageShell";
 
 export { FormPageHeader } from "./FormPageHeader";
