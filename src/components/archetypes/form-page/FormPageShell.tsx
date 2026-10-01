@@ -14,6 +14,14 @@ const WIDTH_MAP: Record<"sm" | "md" | "lg" | "xl", string> = {
   xl: "max-w-4xl",  // ~56rem — wide multi-column layouts
 };
 
+/**
+ * Padding class for any padded form surface (the board body, a Card body
+ * wrapping the form). It publishes the padding as `--form-inset` so the
+ * sticky mobile `<FormPageActions>` bar bleeds by exactly that amount and
+ * spans the surface edge to edge. A surface without it gets a 0 bleed.
+ */
+export const FORM_INSET_CLASS = "p-[var(--form-inset)] [--form-inset:1.25rem]";
+
 // ---------------------------------------------------------------------------
 // Public types
 // ---------------------------------------------------------------------------
@@ -83,7 +91,7 @@ export function FormPageShell({
         headerActions={headerActions}
         className={WIDTH_MAP[width]}
       >
-        <div className="space-y-5 p-[var(--form-inset)] [--form-inset:1.25rem]">{children}</div>
+        <div className={cn("space-y-5", FORM_INSET_CLASS)}>{children}</div>
       </SurfaceFrame>
     );
   }

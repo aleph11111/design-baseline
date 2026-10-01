@@ -61,6 +61,7 @@ import {
   FormPageShell,
   FormPageHeader,
   FormPageActions,
+  FORM_INSET_CLASS,
   useFormPageState,
 } from "@/components/archetypes/form-page";
 
@@ -624,7 +625,7 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
             formBody
           ) : (
             <Card>
-              <CardContent className="p-[var(--form-inset)] [--form-inset:1.25rem]">
+              <CardContent className={FORM_INSET_CLASS}>
                 {formBody}
               </CardContent>
             </Card>
@@ -671,7 +672,7 @@ function PhonePreviews(): React.ReactElement | null {
           <iframe
             key={c}
             title={`Phone preview: ${c}`}
-            src={`${base}#/a/form-page?chrome=${c}`}
+            src={`${base}${window.location.hash.split("?")[0] || "#/a/form-page"}?chrome=${c}`}
             className="h-[560px] w-[375px] rounded-lg border bg-background"
           />
         ))}
