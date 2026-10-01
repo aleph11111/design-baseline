@@ -52,24 +52,28 @@ function SkeletonField({
   );
 }
 
+// The body's padding box, shared by the loading skeleton and the loaded
+// content so a fetch finishing mid-viewport can't shift the layout.
+const BODY_INSET = "px-6 py-4";
+
+// Decorative loading shape. The visible skeleton stays aria-hidden — the
+// announcement lives in the body's persistent status region (below), not on
+// this node; mirroring ListSkeleton's `role="status"` wrapper here would put
+// a live region behind a busy region of its own. Its paired-field sections
+// reuse the loaded two-column layout class so the skeleton collapses at the
+// same breakpoint the body actually collapses at.
 function BodySkeleton(): React.ReactElement {
   return (
-    <div
-      className="space-y-4 px-6 py-4"
-      role="status"
-      aria-busy="true"
-      aria-live="polite"
-    >
-      <span className="sr-only">Loading…</span>
+    <div className={cn("space-y-4", BODY_INSET)} aria-hidden>
       {/* Simulate a two-column field section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className={LAYOUT_CLASS["two-column"]}>
         <SkeletonField labelWidth="w-16" />
         <SkeletonField labelWidth="w-20" />
       </div>
       {/* Simulate a full-width field */}
       <SkeletonField labelWidth="w-24" />
       {/* Simulate another field group */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className={LAYOUT_CLASS["two-column"]}>
         <SkeletonField labelWidth="w-14" />
         <SkeletonField labelWidth="w-20" />
       </div>
@@ -107,13 +111,25 @@ export function CrudDialogBody({
 }: CrudDialogBodyProps): React.ReactElement {
   return (
     <ScrollArea className="flex-1 overflow-hidden">
-      {isLoading ? (
-        <BodySkeleton />
-      ) : (
-        <div className="px-6 py-4">
-          {layout ? <div className={LAYOUT_CLASS[layout]}>{children}</div> : children}
-        </div>
-      )}
+      {/* aria-busy on the persistent container (present in both states) tells
+          assistive tech to hold off on individual child changes while the fetch
+          is in-flight, then release that hold when the flag disappears. It is
+          deliberately NOT on the role="status" node — a live region that is
+          itself marked busy suppresses its own announcements. */}
+      <div aria-busy={isLoading ? "true" : undefined}>
+        {isLoading ? <BodySkeleton /> : (
+          <div className={BODY_INSET}>
+            {layout ? <div className={LAYOUT_CLASS[layout]}>{children}</div> : children}
+          </div>
+        )}
+        {/* Persistent status region: mounted in both states and toggles text
+            (empty → "Loading…") so screen readers that only announce changes
+            to an *existing* region hear the announcement, not an unmount-only
+            one. */}
+        <span role="status" aria-live="polite" className="sr-only">
+          {isLoading ? "Loading…" : ""}
+        </span>
+      </div>
     </ScrollArea>
   );
 }
