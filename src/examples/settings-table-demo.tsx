@@ -20,6 +20,7 @@ import * as React from "react";
 import { SettingsTableShell } from "@/components/archetypes/settings-table";
 import type { SettingsColumn, SettingsRowAction } from "@/components/archetypes/settings-table";
 import { Button } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { SearchInput } from "@/components/ui/search-input";
 import { OVERLINE_CLASS } from "@/components/layout/overline";
 import { cn } from "@/lib/utils";
@@ -101,6 +102,7 @@ export function SettingsTableDemo() {
   const [recipes, setRecipes] = React.useState<Recipe[]>(SEED_RECIPES);
   const [query, setQuery] = React.useState("");
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+  const [pendingDelete, setPendingDelete] = React.useState<Recipe[] | null>(null);
   const [lastAction, setLastAction] = React.useState<string | null>(null);
 
   const filtered = query.trim()
@@ -127,10 +129,16 @@ export function SettingsTableDemo() {
     setLastAction(`Duplicated: ${recipe.name}`);
   }
 
-  function handleBulkDelete() {
-    setRecipes((prev) => prev.filter((r) => !selectedIds.includes(r.id)));
-    setLastAction(`Deleted ${selectedIds.length} recipe(s)`);
-    setSelectedIds([]);
+  // Layer 10: every delete (row or bulk) waits for the shared confirmation dialog.
+  function confirmDelete() {
+    if (!pendingDelete) return;
+    const ids = pendingDelete.map((r) => r.id);
+    setRecipes((prev) => prev.filter((r) => !ids.includes(r.id)));
+    setSelectedIds((prev) => prev.filter((id) => !ids.includes(id)));
+    setLastAction(
+      ids.length === 1 ? `Deleted: ${pendingDelete[0]?.name}` : `Deleted ${ids.length} recipes`,
+    );
+    setPendingDelete(null);
   }
 
   const rowActions: SettingsRowAction<Recipe>[] = [
@@ -140,16 +148,10 @@ export function SettingsTableDemo() {
       disabled: (recipe) => recipe.id.includes("-copy-"),
       onSelect: handleDuplicate,
     },
-    // NOTE: real consumers must gate destructive actions through <AlertDialog>
-    // per the spec (Layer 10, "Confirm destructive actions"). This demo skips it
-    // because the J/crud-dialog archetype primitives are not promoted yet.
     {
       label: "Delete",
       destructive: true,
-      onSelect: (recipe) => {
-        setRecipes((prev) => prev.filter((r) => r.id !== recipe.id));
-        setLastAction(`Deleted: ${recipe.name}`);
-      },
+      onSelect: (recipe) => setPendingDelete([recipe]),
     },
   ];
 
@@ -162,7 +164,10 @@ export function SettingsTableDemo() {
   );
 
   const bulkActions = (
-    <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
+    <Button variant="destructive" size="sm"
+      onClick={() => setPendingDelete(recipes.filter((r) => selectedIds.includes(r.id)))}
+      disabled={selectedIds.length === 0}
+    >
       Delete selected
     </Button>
   );
@@ -234,6 +239,22 @@ export function SettingsTableDemo() {
           </div>
         ))}
       </div>
+
+      <ConfirmationDialog
+        isOpen={pendingDelete !== null}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={confirmDelete}
+        title={
+          pendingDelete?.length === 1
+            ? `Delete ${pendingDelete[0]?.name}?`
+            : `Delete ${pendingDelete?.length ?? 0} recipes?`
+        }
+        description={`${
+          pendingDelete?.length === 1 ? "1 recipe" : `${pendingDelete?.length ?? 0} recipes`
+        } will be deleted. This action cannot be undone.`}
+        confirmText="Delete"
+        variant="destructive"
+      />
     </div>
   );
 }
