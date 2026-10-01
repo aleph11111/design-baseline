@@ -55,7 +55,7 @@ describe("DetailSection — collapsible", () => {
         </DetailSection>
       </UnifiedSurfaceContext.Provider>,
     );
-    const [open, closed] = Array.from(container.querySelectorAll("section"));
+    const [open, closed] = Array.from(container.querySelectorAll("section")) as [HTMLElement, HTMLElement];
     // Rail spacing contract: the section's `py-4` pads above the title and
     // below the body (divider side); the title wrapper's `mb-3` separates title
     // from body. The body wrapper sits directly in the section, inside the `px-5` gutter.
