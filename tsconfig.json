@@ -17,11 +17,12 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "design-baseline": [".design-sync/typecheck-entry.ts"]
     }
   },
   "files": ["src/vite/design-baseline-ui.mjs"],
-  "include": ["src/**/*", "gallery/**/*", "vite.config.ts", "vitest.config.ts"],
+  "include": ["src/**/*", "gallery/**/*", "vite.config.ts", "vitest.config.ts", ".design-sync/previews/**/*"],
   "exclude": [
     "src/examples/DemoNextApp.tsx",
     "src/examples/DemoViteApp.tsx",
