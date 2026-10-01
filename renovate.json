@@ -1,0 +1,44 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
+  "enabledManagers": ["npm", "github-actions"],
+  "dependencyDashboard": true,
+  "packageRules": [
+    {
+      "description": "Radix family moves in one PR",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["@radix-ui/*"],
+      "groupName": "radix-ui"
+    },
+    {
+      "description": "Build toolchain moves in one PR",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["vite", "@vitejs/plugin-react", "@tailwindcss/vite", "tailwindcss"],
+      "groupName": "vite-tailwind"
+    },
+    {
+      "description": "Test toolchain moves in one PR",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["vitest", "jsdom", "@testing-library/*"],
+      "groupName": "test-toolchain"
+    },
+    {
+      "description": "Auto-merge only patch/minor devDependencies; runtime deps and majors stay for review (runtime bumps also need a package.json version bump: verify:package-version)",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    },
+    {
+      "description": "Never auto-merge runtime deps or majors (listed last so it wins)",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["dependencies", "peerDependencies"],
+      "automerge": false
+    }
+  ]
+}
