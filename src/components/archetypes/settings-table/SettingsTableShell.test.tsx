@@ -280,4 +280,32 @@ describe("SettingsTableShell row-checkbox accessible names", () => {
     expect(screen.getByRole("checkbox", { name: "Wähle Row 0" })).toBeTruthy();
     expect(screen.getByRole("checkbox", { name: "Wähle Row 1" })).toBeTruthy();
   });
+
+  it("a JSX identifier cell falls back to the flat default, not [object Object]", () => {
+    // A consumer whose identifier cell renders a React element (e.g. a styled
+    // name or a link) must not get "Select row: [object Object]" — the shell
+    // falls back to the flat "Select row" rather than interpolating a node.
+    const jsxColumns: SettingsColumn<Row>[] = [
+      {
+        key: "name",
+        header: "Name",
+        isIdentifier: true,
+        cell: (row) => <span className="font-medium">{row.name}</span>,
+      },
+    ];
+    render(
+      <SettingsTableShell
+        rows={makeRows(2)}
+        columns={jsxColumns}
+        getRowId={(row) => row.id}
+        bulkSelectable
+      />,
+    );
+    const names = screen
+      .getAllByRole("checkbox")
+      .map((cb) => cb.getAttribute("aria-label"));
+    expect(names).not.toContain("[object Object]");
+    // Both row checkboxes carry the flat default (the header keeps its own).
+    expect(names.filter((n) => n === "Select row")).toHaveLength(2);
+  });
 });

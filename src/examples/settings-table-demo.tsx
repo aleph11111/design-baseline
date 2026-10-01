@@ -118,6 +118,20 @@ export function SettingsTableDemo() {
       )
     : recipes;
 
+  // Prune the selection to the rows the new filter actually shows. Without
+  // this, clearing a query that was hiding some ticked rows would silently
+  // re-show them as ticked — the selection outlived the filter without the
+  // user ever re-selecting those rows. Bails early (returning the same
+  // reference) when the prune removed nothing, so the effect does not
+  // trigger an extra re-render on an unchanged selection.
+  React.useEffect(() => {
+    const visible = new Set(filtered.map((r) => r.id));
+    setSelectedIds((prev) => {
+      const pruned = prev.filter((id) => visible.has(id));
+      return pruned.length === prev.length ? prev : pruned;
+    });
+  }, [filtered]);
+
   function handleRowEdit(recipe: Recipe) {
     setLastAction(`Edit opened for: ${recipe.name}`);
   }

@@ -64,11 +64,39 @@ describe("SettingsTableDemo filter-safe bulk selection", () => {
     // After confirm, only tikka is deleted.
     expect(screen.getByText(/Deleted: Chicken Tikka Masala/)).toBeTruthy();
 
-    // Clear the filter: carbonara returns (hidden at delete time, its id was
-    // NOT in the candidate set), tikka is gone.
+    // Clear the filter: the prune effect dropped carbonara from the selection
+    // when the query was "tikka" (its row was hidden), so it is back but
+    // UNTICKED — the user never re-selected it, and the caption is back to the
+    // result count (nothing selected). tikka is gone for good.
     fireEvent.change(search(), { target: { value: "" } });
-    expect(screen.getByRole("checkbox", { name: "Select row: Pasta Carbonara" })).toBeTruthy();
+    const carbonaraAfter = screen.getByRole("checkbox", { name: "Select row: Pasta Carbonara" });
+    expect(carbonaraAfter.getAttribute("data-state")).not.toBe("checked");
     expect(screen.queryByRole("checkbox", { name: "Select row: Chicken Tikka Masala" })).toBeNull();
+  });
+
+  it("clearing a query unticks the rows it had hidden (selection does not outlive the filter)", () => {
+    render(<SettingsTableDemo />);
+
+    const carbonara = screen.getByRole("checkbox", { name: "Select row: Pasta Carbonara" });
+    const tikka = screen.getByRole("checkbox", { name: "Select row: Chicken Tikka Masala" });
+    const sushi = screen.getByRole("checkbox", { name: "Select row: Sushi Rolls" });
+    fireEvent.click(carbonara);
+    fireEvent.click(tikka);
+    fireEvent.click(sushi);
+    expect(screen.getByText("3 selected")).toBeTruthy();
+
+    // "carbo" hides everything except Pasta Carbonara.
+    fireEvent.change(search(), { target: { value: "carbo" } });
+    expect(screen.getByText("1 selected")).toBeTruthy();
+
+    // Clear the query WITHOUT touching any checkbox: the pruned selection holds
+    // only Pasta Carbonara. Tikka and Sushi are ticked again in the table, but
+    // they must NOT be selected — they were dropped when the filter hid them.
+    fireEvent.change(search(), { target: { value: "" } });
+    expect(screen.getByText("1 selected")).toBeTruthy();
+    expect(screen.getByRole("checkbox", { name: "Select row: Pasta Carbonara" }).getAttribute("data-state")).toBe("checked");
+    expect(screen.getByRole("checkbox", { name: "Select row: Chicken Tikka Masala" }).getAttribute("data-state")).not.toBe("checked");
+    expect(screen.getByRole("checkbox", { name: "Select row: Sushi Rolls" }).getAttribute("data-state")).not.toBe("checked");
   });
 
   it("exposes a per-row accessible name containing that row's name", () => {

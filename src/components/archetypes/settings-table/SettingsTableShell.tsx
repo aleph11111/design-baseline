@@ -43,7 +43,7 @@ export type SettingsColumn<Row> = TableColumn<Row>;
  * defaults; a non-English app overrides per call site (the fleet's i18n rule:
  * English defaults, overridable, never a baked-in language).
  */
-export type SettingsTableLabels<Row> = {
+export type SettingsTableLabels<Row = unknown> = {
   /** Loading-plane text. Default "Loading…". */
   loading?: string;
   /** Error-plane title. Default "Something went wrong". */
@@ -55,9 +55,11 @@ export type SettingsTableLabels<Row> = {
   /**
    * Bulk-select row checkbox. Either a fixed string applied to every row
    * (the localisable default stays overridable), or a function receiving the
-   * row — the default is `"Select row: {name}"` where `{name}` is the
-   * identifier column's cell value, so a screen-reader user hears which
-   * record a checkbox opens. Pass a function to customise.
+   * row. When omitted, the default is `"Select row: {name}"` where `{name}`
+   * is the identifier column's cell value — but only when that cell renders a
+   * plain string/number; a JSX identifier cell falls back to the flat
+   * `"Select row"` rather than an "[object Object]" label. Pass a function
+   * to customise.
    */
   selectRow?: string | ((row: Row) => string);
   /** Bulk-mode selection caption. Default `${n} selected`. */
@@ -190,20 +192,24 @@ export function SettingsTableShell<Row>({
     hasBulk && visibleSelected.length > 0 && !allSelected;
 
   // Identifier column — used for the default row-checkbox aria-label so a
-  // screen-reader user hears which record each checkbox opens.
+  // screen-reader user hears which record each checkbox opens. The label is
+  // only rendered from the cell value when it is a primitive (string|number):
+  // a JSX cell would interpolate to "Select row: [object Object]", which is
+  // worse than the flat default, so the default falls back to "Select row".
   const identifierCol = columns.find((c) => c.isIdentifier);
-  // Default row-checkbox label: "Select row: {identifier cell value}". The
-  // localisable default stays overridable through labels.selectRow as a fixed
-  // string or as a function of the row.
-  const defaultRowSelectLabel: (row: Row) => string = identifierCol
-    ? (row) => `Select row: ${identifierCol.cell(row)}`
-    : () => "Select row";
 
   function resolveRowSelectLabel(row: Row): string {
     const sel = labels?.selectRow;
-    if (sel === undefined) return defaultRowSelectLabel(row);
-    if (typeof sel === "function") return sel(row);
-    return sel;
+    if (sel === undefined) {
+      if (identifierCol) {
+        const cellVal = identifierCol.cell(row);
+        if (typeof cellVal === "string" || typeof cellVal === "number") {
+          return `Select row: ${cellVal}`;
+        }
+      }
+      return "Select row";
+    }
+    return typeof sel === "function" ? sel(row) : sel;
   }
 
   function toggleAll() {
