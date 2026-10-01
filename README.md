@@ -41,14 +41,15 @@ design-baseline/
 
 ### Methodology
 
-Four cross-archetype methodology docs sit upstream of the individual archetype specs — they decide *which* surface a job gets, *where* things go inside it, *what* stack it runs on, and *how* a project adopts and stays on the baseline. Registered in `docs/archetypes/MANIFEST.json` under the `methodology` key.
+Five cross-archetype methodology docs sit upstream of the individual archetype specs — they decide *which* surface a job gets, *where* things go inside it, *what* stack it runs on, and *how* a project adopts and stays on the baseline. Registered in `docs/archetypes/MANIFEST.json` under the `methodology` key.
 
 | Doc | Owns |
 |-----|------|
 | [`docs/CHOOSING-A-SURFACE.md`](docs/CHOOSING-A-SURFACE.md) | Selection — which surface/archetype for which job (the CRUD ladder + collection chooser). Every archetype spec defers to it. |
 | [`docs/PLACEMENT.md`](docs/PLACEMENT.md) | Placement — what goes where inside any archetype; each recurring slot → its owning primitive; green/yellow/red grid. |
 | [`docs/STACK.md`](docs/STACK.md) | The pinned package contract + known trip points; diverging from a row requires an ADR. |
-| [`docs/PACKAGE.md`](docs/PACKAGE.md) | Package consumption — four wiring lines, the six-step migration runbook, proof matrix, and the 4-gate enforcement stack. The zero-dep `scripts/lint-design.mjs` (rules in `_adherence.json`) is its mechanical gate 2. |
+| [`docs/ADOPTION-QUALITY.md`](docs/ADOPTION-QUALITY.md) | Adoption quality — the Axis C audit contract; the zero-dep `npm run scan:adoption-quality` scan over `docs/audit-signals.json`. |
+| [`docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md`](docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md) | The teardown-first playbook for adopting the detail-page archetype. |
 
 ## How to apply it
 
