@@ -2,7 +2,7 @@
 key: A
 slug: list-with-detail
 kind: page
-version: 2.2
+version: 2.8
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.9
@@ -11,6 +11,33 @@ status: locked
 
 # Archetype A — List-with-detail
 
+> **v2.8 (2026-09-30) — row-actions trigger name.** `labels.rowActions`
+> overrides the accessible name of each row's `⋯` trigger (all three
+> presentations). Additive; no breaking change.
+>
+> **v2.7 (2026-09-30) — overridable built-in copy.** The new `labels` prop
+> overrides every string the shell renders itself — loading, error title,
+> retry, empty, filtered-empty, and the detail overlay's close label (Layer 7).
+> English defaults stay; a non-English consumer overrides per call site. The
+> table's sortable header becomes a real button inside the `aria-sort` cell, so
+> sorting is keyboard-operable. Additive; no breaking change.
+>
+> **v2.6 — second responsive tier.** The change the contract first labelled
+> "v2.2" below (the `hideBelow` tiers); the contract's own numbering ran behind
+> the manifest from v2.1 on, and the entries below keep their original labels.
+>
+> **v2.5 (2026-09-27) — house look, no API change.** The shell's surface tokens
+> and spacing rhythm follow the donor's layered roles. Nothing for a consumer
+> to change; it needs no Layer edit.
+>
+> **v2.4 — mistra promotion.** The change the contract first labelled "v2.1"
+> below (`footer`, `emptyStateAction`, role-keyed `hideBelowMd`, derived
+> row-action `label`/`disabled`).
+>
+> **v2.3 — internal only.** Shared column descriptor and identifier-cell recipe
+> extracted (shared with settings-table); no prop or behavior change, so it
+> needs no Layer edit.
+>
 > **v2.2 (2026-09-28) — second responsive tier.** `hideBelow` generalizes
 > `hideBelowMd` to two tiers, keyed by column role (Layer 6). Record provenance
 > takes `2xl` so the identifier doesn't wrap on a 1440px desktop; other context
@@ -94,6 +121,7 @@ The page header does not float above the shell as a separate page-header primiti
 
 **Allowed variation:**
 - **`kicker`** — optional overline above the title (the entity class, e.g. "Podcasts", "Records"), in the **canonical overline/kicker style**. Use in place of the old subtitle when the title alone doesn't convey scope.
+- **`subtitle`** / **`icon`** — optional secondary metadata line below the title and an optional decorative icon left of it.
 - **`headerActions`** — optional right-aligned small buttons: a secondary-style button for secondary actions (e.g. "Import"), the default/primary style for the primary creation action (e.g. "New show"). At most one primary action.
 
 **Forbidden:**
@@ -213,6 +241,7 @@ The page header does not float above the shell as a separate page-header primiti
 
 **Allowed variation:**
 - **Empty-state icon** — optional decoration (e.g. a domain-relevant icon, centered above the empty text).
+- **`labels`** — overrides for the shell's own copy: `loading`, `errorTitle`, `retry`, `empty`, `filteredEmpty`, `close` (the detail overlay's close button), `rowActions` (each row's `⋯` trigger name). English defaults; a non-English consumer overrides per call site. `emptyStateMessage` overrides the empty text for one page.
 - **Empty-state CTA** — `emptyStateAction` renders a primary action inside the empty panel (e.g. "Add {entity}"), the same shape as settings-table's empty-state CTA.
 - **`filtered-empty` mode** — an optional fourth mode for the empty slot when a consumer wants distinct copy for "search produced no results" vs "table is genuinely empty". Identical visual treatment; only the message differs.
 
@@ -224,6 +253,8 @@ The primitive does not wire data. It expects consumer-provided props. No assumpt
 
 **Required props the consumer must provide:**
 - `rows: Row[]` — the current page's or filtered view's rows.
+- `columns` — the column descriptors (Layer 6).
+- `getRowId: (row: Row) => string` — the stable identity of a row; keys rendering and selection.
 - `isLoading: boolean` — true while the initial fetch is in flight.
 - `error: unknown | null` — any fetch error; `null` when healthy.
 - `onRetry?: () => void` — called by the error panel's "Try again" button.
@@ -257,6 +288,7 @@ The primitive does not wire data. It expects consumer-provided props. No assumpt
 Mutations are out of the primitive's scope. The consumer's row-click handler or row-action menu owns all write operations.
 
 **Required primitive surface:**
+- `selectedRowId?: string | null` — the id (from `getRowId`) of the row whose detail is open; marks that row selected.
 - `onRowSelect(row: Row): void` — called when a row's primary identifier cell is clicked. Consumer decides whether to navigate, open a panel, or open a modal.
 - `rowActions?: RowAction<Row>[]` — optional array of per-row action descriptors, rendered via the shared **row-actions overflow menu** — the single owner of the row-level `⋯` overflow trigger, shared byte-for-byte with settings-table. Each `RowAction` carries a `label`, optional `icon`, an `onSelect(row: Row): void` callback, and an optional `destructive?: boolean` flag.
 
