@@ -1,4 +1,3 @@
-import * as React from "react";
 import { MetricList, MetricRow, SectionCard } from "design-baseline";
 
 // Emphasis + accent contrast — the headline money row (emphasis, accent) next
@@ -10,7 +9,7 @@ export function EmphasisVsSecondary() {
       <SectionCard title="Invoice #4821" flush>
         <div className="px-5 py-3">
           <MetricList>
-            <MetricRow label="Amount due" value="€1,240.00" hint="due 14 Jul" emphasis accent />
+            <MetricRow label="Amount due" value="€1,240.00" hint="due 14 Jul" emphasis keyFigure />
             <MetricRow label="Tax (19%)" value="€198.06" />
           </MetricList>
         </div>

@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Label, SectionCard, Textarea } from "design-baseline";
 
 // A description field the way a form-page uses it: label + multi-line

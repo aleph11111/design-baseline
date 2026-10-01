@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Progress } from "design-baseline";
 
 // Several bars at different values, each labeled — a storage/quota panel.

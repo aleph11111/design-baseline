@@ -1,4 +1,3 @@
-import * as React from "react";
 import { WizardShell } from "design-baseline";
 
 // WizardStepper is read-only chrome the shell renders internally — it only

@@ -1,4 +1,3 @@
-import * as React from "react";
 import { SearchInput } from "design-baseline";
 
 // The default toolbar search box, in its toolbar context (not floating bare).

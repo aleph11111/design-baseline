@@ -1,4 +1,3 @@
-import * as React from "react";
 import { ConfirmationDialog } from "design-baseline";
 
 // ConfirmationDialog wraps AlertDialog behind an isOpen/onClose/onConfirm

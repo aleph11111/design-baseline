@@ -1,3 +1,4 @@
+import type { ReactElement } from "react";
 import { ErrorBoundary } from "design-baseline";
 
 // Happy path — children render straight through untouched.
@@ -17,7 +18,7 @@ export function Children() {
 
 // Component that throws during render, so the boundary's own default
 // fallback UI (Alert + retry button) is what's on screen.
-function Explode(): JSX.Element {
+function Explode(): ReactElement {
   throw new Error("Failed to load account overview");
 }
 

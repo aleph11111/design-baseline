@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useState } from "react";
 import { SettingsTableShell, Button, SearchInput, type SettingsColumn, type SettingsRowAction } from "design-baseline";
 

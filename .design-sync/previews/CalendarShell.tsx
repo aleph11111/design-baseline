@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   CalendarShell,
   type CalendarDay,
@@ -70,7 +69,7 @@ export function CommunityCentreWeek() {
           <span className="font-mono tabular-nums">Week 26</span>
         </>
       }
-      actions={
+      headerActions={
         <>
           <Button variant="outline" size="sm" className="px-2" aria-label="Previous week">
             <ChevronLeft className="h-4 w-4" />
@@ -93,9 +92,9 @@ export function CommunityCentreWeek() {
   );
 }
 
-// A quieter week: no nav actions, a "tint" header treatment, and a couple of
+// A quieter week: no nav actions, and a couple of
 // fully empty days showing the emptyDayLabel copy.
-export function TintHeaderSparseWeek() {
+export function SparseWeek() {
   const sparseWeek: CalendarDay[] = [
     { id: "2026-07-06", dow: "Mon", date: "6", events: [{ id: "p1", time: "09:30", title: "Repair Café", tone: "success" }] },
     { id: "2026-07-07", dow: "Tue", date: "7", events: [] },
@@ -118,7 +117,6 @@ export function TintHeaderSparseWeek() {
       title="July 2026 · Week 28"
       days={sparseWeek}
       emptyDayLabel="No sessions"
-      headerFill="tint"
     />
   );
 }

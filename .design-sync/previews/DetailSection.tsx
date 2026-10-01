@@ -1,4 +1,3 @@
-import * as React from "react";
 import { DetailSection, KeyValueList, KeyValueRow, Badge, Button } from "design-baseline";
 
 // Default padded surface with a title-bar action — the common data-section

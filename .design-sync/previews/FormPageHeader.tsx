@@ -1,4 +1,3 @@
-import * as React from "react";
 import { ChefHat } from "lucide-react";
 import {
   FormPageShell,

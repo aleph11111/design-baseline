@@ -1,4 +1,3 @@
-import * as React from "react";
 import { DashboardShell, StatTile, StatTileRow } from "design-baseline";
 
 // DashboardShell is the primary bounded surface for the analytics-dashboard
@@ -16,7 +15,7 @@ export function RevenueOverview() {
           </span>
         }
       >
-        <StatTileRow columns={4}>
+        <StatTileRow>
           <StatTile label="Revenue" value="€58.9k" hint="vs last month" />
           <StatTile label="Orders" value="812" hint="paid + fulfilled" />
           <StatTile label="Avg order value" value="€72" hint="net of refunds" />
@@ -32,7 +31,7 @@ export function CompactNoActions() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <DashboardShell kicker="Overview" title="Store Performance">
-        <StatTileRow columns={2}>
+        <StatTileRow>
           <StatTile label="Active customers" value="1,512" hint="last 30 days" />
           <StatTile label="Churn" value="2.1%" hint="month over month" />
         </StatTileRow>

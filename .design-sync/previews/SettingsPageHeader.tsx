@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Settings2 } from "lucide-react";
 import {
   SettingsPageShell,

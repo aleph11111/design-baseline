@@ -1,4 +1,3 @@
-import * as React from "react";
 import { DashboardWidget, Skeleton, StateView } from "design-baseline";
 
 function Sparkline({ values }: { values: number[] }) {
@@ -17,6 +16,7 @@ function Sparkline({ values }: { values: number[] }) {
 export function WithDescriptionAndActions() {
   return (
     <DashboardWidget
+      span={3}
       title="Revenue over time"
       description="Trailing 12 months, net of refunds"
       actions={<span className="text-[11px] font-medium text-muted-foreground">Monthly</span>}
@@ -29,7 +29,7 @@ export function WithDescriptionAndActions() {
 // Loading plane — a skeleton stands in for the chart body while data loads.
 export function LoadingState() {
   return (
-    <DashboardWidget title="Orders by channel">
+    <DashboardWidget title="Orders by channel" span={1}>
       <Skeleton className="h-32 w-full" aria-hidden />
     </DashboardWidget>
   );
@@ -38,7 +38,7 @@ export function LoadingState() {
 // Empty plane — the widget body composes the canonical StateView.
 export function EmptyState() {
   return (
-    <DashboardWidget title="Top categories">
+    <DashboardWidget title="Top categories" span={1}>
       <StateView variant="empty" message="No data for this period." />
     </DashboardWidget>
   );

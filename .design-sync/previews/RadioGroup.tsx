@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Label, RadioGroup, RadioGroupItem, SectionCard } from "design-baseline";
 
 // A shipping-method picker — each option is a Radio + label + description

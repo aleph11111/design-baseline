@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Separator } from "design-baseline";
 
 // Horizontal — dividing a profile block's identity from its metadata, the

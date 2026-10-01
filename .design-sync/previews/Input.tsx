@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Input, Label, SectionCard } from "design-baseline";
 
 // A labeled field stack the way a profile form actually composes it: each

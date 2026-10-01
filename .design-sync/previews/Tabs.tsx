@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "design-baseline";
 
 export function Default() {

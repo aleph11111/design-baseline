@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Skeleton } from "design-baseline";
 
 // A profile card mid-load — avatar circle + name/subtitle lines, the exact

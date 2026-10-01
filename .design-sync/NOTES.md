@@ -101,3 +101,13 @@ Repo-specific gotchas a future re-sync must know. Committed alongside config.jso
   all component utilities.
 - **subpart pruning is prefix-based** — a new compound whose subpart isn't name-prefixed by its parent
   (e.g. MetricList/MetricRow) will card the subpart too. Harmless, just an extra card.
+
+## Previews are typechecked (2026-10-02)
+- **Decision: the sync is kept** (config, build-pkg, fonts and 91 previews are maintained; nobody retired it). Recorded
+  unattended — delete `.design-sync/` instead if the operator says the `claude.ai/design` sync is dead.
+- `npx tsc --noEmit` now covers `previews/**/*`. The bare `"design-baseline"` import resolves via a tsconfig `paths`
+  entry to `.design-sync/typecheck-entry.ts` (`export *` of every ui/layout/archetype module, mirroring build-pkg's
+  barrel). Renaming/removing a prop now fails the typecheck wherever a preview uses it.
+- **Adding a ui/layout/archetype module → add its `export *` line to `typecheck-entry.ts`** (else previews using it fail to resolve).
+- Stale previews fixed in the same change: `surface`, `columns`, `headerFill`, `accent`, `renderHeader`, `hideCount`
+  and the `header={<DetailOverviewHeader/>}` slot were all retired; stories that only showed a retired axis were deleted.

@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Button } from "design-baseline";
 
 export function Variants() {

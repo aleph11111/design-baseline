@@ -1,4 +1,3 @@
-import * as React from "react";
 import { DetailSection, KeyValueList, KeyValueRow } from "design-baseline";
 
 // The ledger idiom: master-data facts, one field per row. Composed inside a

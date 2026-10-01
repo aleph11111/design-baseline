@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Checkbox, Label, SectionCard } from "design-baseline";
 
 // A realistic checklist — notification preferences, mixed checked/unchecked.

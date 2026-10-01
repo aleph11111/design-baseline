@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Label, SectionCard, Switch } from "design-baseline";
 
 // The canonical settings-row shape: title + description on the left, Switch

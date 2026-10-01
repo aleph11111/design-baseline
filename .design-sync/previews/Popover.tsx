@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Popover, PopoverTrigger, PopoverContent, Button, Label, Input } from "design-baseline";
 
 // Popover shown open with a small filter form composed inside — the common

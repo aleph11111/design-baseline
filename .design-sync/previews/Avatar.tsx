@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "design-baseline";
 
 // A stacked row of avatars — an image src that fails over to its initials

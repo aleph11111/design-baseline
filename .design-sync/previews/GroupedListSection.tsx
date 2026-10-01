@@ -1,12 +1,4 @@
-import * as React from "react";
 import { GroupedListShell, GroupedListSection, Badge } from "design-baseline";
-
-// Mirrors the baseline's canonical overline signature (SectionHeading /
-// StatTile / GroupedListSection's own default title bar) — not itself an
-// exported design-baseline part, so a consumer overriding the header
-// re-declares it locally, same as here.
-const OVERLINE_CLASS =
-  "text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground";
 
 // GroupedListSection only renders meaningfully inside a <GroupedListShell> —
 // the section is a bounded SectionCard block within the shell's stack, so
@@ -51,8 +43,7 @@ export function DefaultCount() {
   );
 }
 
-// renderHeader override — a dense custom title bar (a heat badge in place
-// of the default row-count badge).
+// actions override — a heat badge in place of the default row-count badge.
 export function CustomHeader() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
@@ -63,37 +54,7 @@ export function CustomHeader() {
           rows={SICHUAN}
           columns={columns}
           getRowId={(r) => r.id}
-          renderHeader={({ title, description, rowCount }) => (
-            <div className="flex flex-1 items-center justify-between gap-3">
-              <div className="min-w-0">
-                <h2 className={OVERLINE_CLASS}>{title}</h2>
-                {description && (
-                  <p className="mt-0.5 text-sm font-normal normal-case tracking-normal text-muted-foreground">
-                    {description}
-                  </p>
-                )}
-              </div>
-              <Badge variant="warning">{rowCount} · high heat</Badge>
-            </div>
-          )}
-        />
-      </GroupedListShell>
-    </div>
-  );
-}
-
-// hideCount — the row-count badge suppressed entirely.
-export function HideCount() {
-  return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <GroupedListShell kicker="Catalog" title="Recipe Book">
-        <GroupedListSection<Recipe>
-          title="Oaxacan"
-          description="From Mexico"
-          rows={OAXACAN}
-          columns={columns}
-          getRowId={(r) => r.id}
-          hideCount
+          actions={<Badge variant="warning">{SICHUAN.length} · high heat</Badge>}
         />
       </GroupedListShell>
     </div>

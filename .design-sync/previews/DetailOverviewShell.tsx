@@ -1,7 +1,5 @@
-import * as React from "react";
 import {
   DetailOverviewShell,
-  DetailOverviewHeader,
   DetailSection,
   KeyValueList,
   KeyValueRow,
@@ -13,7 +11,7 @@ import {
   IconAvatar,
 } from "design-baseline";
 
-// The canonical Command Rail pairing: layout="rail" surface="unified" — one
+// The canonical Command Rail pairing: layout="rail" — one
 // bounded frame holds a chromeless, sticky rail (figures + identity + facts)
 // beside a flattened main column (activity + note). Ported from the bookshop
 // order demo. Needs the muted mat behind it for the unified frame to read.
@@ -22,32 +20,27 @@ export function CommandRailUnified() {
     <div className="rounded-xl bg-muted/50 p-4 sm:p-6">
       <DetailOverviewShell
         layout="rail"
-        surface="unified"
-        header={
-          <DetailOverviewHeader
-            title={<span className="font-mono">SO-2025-00417</span>}
-            subtitle={
-              <>
-                <span>Orders</span>
-                <span className="mx-2 text-border">·</span>
-                <span>Web shop</span>
-              </>
-            }
-            badges={
-              <>
-                <Badge variant="success">Paid</Badge>
-                <Badge variant="warning">Packing</Badge>
-              </>
-            }
-            actions={<Button size="sm">Mark as shipped</Button>}
-          />
+        title={<span className="font-mono">SO-2025-00417</span>}
+        subtitle={
+          <>
+            <span>Orders</span>
+            <span className="mx-2 text-border">·</span>
+            <span>Web shop</span>
+          </>
         }
+        badges={
+          <>
+            <Badge variant="success">Paid</Badge>
+            <Badge variant="warning">Packing</Badge>
+          </>
+        }
+        actions={<Button size="sm">Mark as shipped</Button>}
         summary={
           <>
             <DetailSection title="Revenue & profit">
               <MetricList>
                 <MetricRow label="Revenue" value="€162.00" hint="incl. shipping" emphasis />
-                <MetricRow label="Gross profit" value="€55.08" hint="margin 34.0%" emphasis accent />
+                <MetricRow label="Gross profit" value="€55.08" hint="margin 34.0%" emphasis keyFigure />
               </MetricList>
             </DetailSection>
             <DetailSection title="Customer">
@@ -105,22 +98,17 @@ export function CommandRailUnified() {
   );
 }
 
-// Vertical + separated — the zero-churn default: bordered SectionCards stacked
-// top to bottom, no rail, no unified frame. Bounded width via `width="md"`.
+// Vertical — the zero-churn default: bordered SectionCards stacked
+// top to bottom, no rail. Bounded width via `width="md"`.
 export function VerticalSeparated() {
   return (
     <DetailOverviewShell
       layout="vertical"
-      surface="separated"
       width="md"
-      header={
-        <DetailOverviewHeader
-          title="Jonas Berger"
-          subtitle="Customer since Mar 2024"
-          badges={<Badge variant="secondary">Active</Badge>}
-          actions={<Button size="sm">Edit customer</Button>}
-        />
-      }
+      title="Jonas Berger"
+      subtitle="Customer since Mar 2024"
+      badges={<Badge variant="secondary">Active</Badge>}
+      actions={<Button size="sm">Edit customer</Button>}
       summary={
         <DetailSection title="Contact" flush>
           <KeyValueList>

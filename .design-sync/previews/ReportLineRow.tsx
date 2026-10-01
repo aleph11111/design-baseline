@@ -1,4 +1,3 @@
-import * as React from "react";
 import { ReportLineTable, ReportLineRow } from "design-baseline";
 
 // ReportLineRow only renders meaningfully inside a ReportLineTable (the

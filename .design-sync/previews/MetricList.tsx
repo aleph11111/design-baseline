@@ -1,4 +1,3 @@
-import * as React from "react";
 import { MetricList, MetricRow, SectionCard } from "design-baseline";
 
 // Headline figures + disclosure — the rail-summary readout this primitive was
@@ -24,7 +23,7 @@ export function OrderFinancials() {
               value="€2,228.00"
               hint="margin 37.6%"
               emphasis
-              accent
+              keyFigure
             />
           </MetricList>
         </div>
@@ -41,7 +40,7 @@ export function DealAtAGlance() {
         <div className="px-5 py-3">
           <MetricList>
             <MetricRow label="Gesamtwert" value="€12.500,00" emphasis />
-            <MetricRow label="ARR" value="€4.200,00" hint="annualisiert" emphasis accent />
+            <MetricRow label="ARR" value="€4.200,00" hint="annualisiert" emphasis keyFigure />
           </MetricList>
         </div>
       </SectionCard>

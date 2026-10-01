@@ -1,4 +1,3 @@
-import * as React from "react";
 import { ListWithDetailShell, ListWithDetailToolbar, Badge, Button, type ListColumn } from "design-baseline";
 import { Plus } from "lucide-react";
 

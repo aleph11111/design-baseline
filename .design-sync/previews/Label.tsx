@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Checkbox, Input, Label, SectionCard } from "design-baseline";
 
 // The canonical pairing: Label's htmlFor bound to an Input's id, stacked
