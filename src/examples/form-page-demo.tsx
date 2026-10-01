@@ -272,6 +272,15 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
 
   const [isDeleting, setIsDeleting] = React.useState(false);
 
+  // Every field write marks the field dirty (so the Cancel guard sees edits and
+  // an edit back to the original value clears) and, once a submit has been
+  // attempted, revalidates so a shown error clears when the value is fixed.
+  const setField: typeof form.setValue = (name, value) =>
+    form.setValue(name, value, {
+      shouldDirty: true,
+      shouldValidate: form.formState.isSubmitted,
+    });
+
   async function onSubmit(values: FormValues) {
     page.beginSubmit();
     try {
@@ -358,14 +367,14 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
       <Input
         placeholder="Sunday Carbonara"
         value={form.watch("title")}
-        onChange={(e) => form.setValue("title", e.target.value)}
+        onChange={(e) => setField("title", e.target.value)}
       />,
     ),
     cuisine: renderField(
       "cuisine",
       "Cuisine",
       <Select
-        onValueChange={(v) => form.setValue("cuisine", v as Cuisine)}
+        onValueChange={(v) => setField("cuisine", v as Cuisine)}
         value={form.watch("cuisine")}
       >
         <FormControl>
@@ -389,14 +398,14 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
         type="number"
         min={1}
         value={form.watch("serves")}
-        onChange={(e) => form.setValue("serves", e.target.value)}
+        onChange={(e) => setField("serves", e.target.value)}
       />,
     ),
     difficulty: renderField(
       "difficulty",
       "Difficulty",
       <Select
-        onValueChange={(v) => form.setValue("difficulty", v as Difficulty)}
+        onValueChange={(v) => setField("difficulty", v as Difficulty)}
         value={form.watch("difficulty")}
       >
         <FormControl>
@@ -420,7 +429,7 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
         type="number"
         min={1}
         value={form.watch("prepMinutes")}
-        onChange={(e) => form.setValue("prepMinutes", e.target.value)}
+        onChange={(e) => setField("prepMinutes", e.target.value)}
       />,
     ),
     cookMinutes: renderField(
@@ -430,7 +439,7 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
         type="number"
         min={1}
         value={form.watch("cookMinutes")}
-        onChange={(e) => form.setValue("cookMinutes", e.target.value)}
+        onChange={(e) => setField("cookMinutes", e.target.value)}
       />,
     ),
     ingredients: renderField(
@@ -440,7 +449,7 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
         rows={3}
         placeholder="One per line…"
         value={form.watch("ingredients")}
-        onChange={(e) => form.setValue("ingredients", e.target.value)}
+        onChange={(e) => setField("ingredients", e.target.value)}
       />,
     ),
     tag: renderField(
@@ -449,7 +458,7 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
       <Input
         placeholder="weeknight-classic"
         value={form.watch("tag")}
-        onChange={(e) => form.setValue("tag", e.target.value)}
+        onChange={(e) => setField("tag", e.target.value)}
       />,
       "A single kebab-case label. Optional.",
     ),
@@ -457,7 +466,7 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
       "visibility",
       "Visibility",
       <Select
-        onValueChange={(v) => form.setValue("visibility", v as Visibility)}
+        onValueChange={(v) => setField("visibility", v as Visibility)}
         value={form.watch("visibility")}
       >
         <FormControl>
@@ -480,7 +489,7 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
       <Textarea
         rows={3}
         value={form.watch("notes")}
-        onChange={(e) => form.setValue("notes", e.target.value)}
+        onChange={(e) => setField("notes", e.target.value)}
       />,
     ),
   };
