@@ -43,6 +43,27 @@ describe("DetailSection — collapsible", () => {
     );
     expect(container.querySelector("section")?.className).not.toContain("border");
   });
+
+  it("keeps vertical spacing around an open body in the rail, and a closed one stays title-only", () => {
+    const { container } = render(
+      <UnifiedSurfaceContext.Provider value={true}>
+        <DetailSection title="Run history" collapsible defaultOpen>
+          <p>body</p>
+        </DetailSection>
+        <DetailSection title="Closed" collapsible>
+          <p>hidden</p>
+        </DetailSection>
+      </UnifiedSurfaceContext.Provider>,
+    );
+    const [open, closed] = Array.from(container.querySelectorAll("section"));
+    // section `py-4` pads above the title and below the body (divider side);
+    // the title wrapper's `mb-3` separates title from body.
+    expect(open.className).toContain("py-4");
+    expect(open.querySelector("div.mb-3")).toBeTruthy();
+    expect(screen.getByText("body")).toBeTruthy();
+    expect(screen.queryByText("hidden")).toBeNull();
+    expect(closed.className).toContain("py-4");
+  });
 });
 
 describe("DetailOverviewHeader — back link", () => {
