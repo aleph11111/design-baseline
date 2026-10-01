@@ -2,7 +2,7 @@
 key: J
 slug: crud-dialog
 kind: dialog
-version: 3.1
+version: 3.3
 promoted_from: brickshop-manager
 promoted_at: 2026-08-04
 source_spec_version: 1.7
@@ -11,7 +11,13 @@ status: locked
 
 # Archetype J — Entity CRUD Dialog
 
-> **v3.1 (2026-09-25) — promoted from mistra's fork.** Cancel after a save now
+> **v3.3 (2026-09-30) — overridable close label.** The dialog shell and the
+> dialog-header's X button each take an optional `closeLabel` (the accessible
+> name of the close affordance, English default) so a non-English consumer
+> localizes it per call site instead of forking the primitive. Additive; no
+> breaking change.
+>
+> **v3.2 (2026-09-25) — promoted from mistra's fork.** Cancel after a save now
 > resets the form to the last-saved values, not the pre-save record (a
 > controller bug fix). The footer's Delete gets a static disabled gate distinct
 > from the in-flight spinner, so "disabled in view mode" (Layer 7) and any
@@ -73,6 +79,7 @@ J is the first non-page archetype in the baseline. It extends the twelve-layer p
   - `"md"` — standard entity form: 5+ form fields, single section (no tabs).
   - `"lg"` — tabbed or complex entity: a two-tab body (Tab 1 + Tab 2 per Layer 6) or an entity whose form spans multiple logically distinct sections.
 - Derive the width from the body's **tab count** (two-tab body → `"lg"`) and **field count** (3–4 fields → `"sm"`; 5+ fields → `"md"`), not from a per-consumer preference. The call site that owns the entity knows its shape; pass the derived value.
+- Optional `closeLabel`: the accessible name of the shell's built-in close affordance; override in a non-English app.
 - Desktop: right-side slide-in at the derived width. Mobile: full-viewport (handled automatically by the CRUD-dialog shell via the **viewport-breakpoint hook**).
 
 **Forbidden:**
@@ -95,7 +102,7 @@ J is the first non-page archetype in the baseline. It extends the twelve-layer p
 
 **Allowed variation:**
 - `subtitle` prop for secondary identifying info (e.g. created date, status string). Rendered via the overlay-surface primitive's description element per the accessible-name contract above.
-- `onClose` prop on the dialog-header primitive to render an explicit close button in the header alongside the `actions` slot.
+- `onClose` prop on the dialog-header primitive to render an explicit close button in the header alongside the `actions` slot; its accessible name is the optional `closeLabel` (English default, override in a non-English app).
 
 **Forbidden:**
 - A header `title` rendered as a bare element (e.g. a plain `<h2>` or `<div>`) instead of the overlay-surface primitive's title element, or overlay content with no title-element descendant — this leaves the dialog with no accessible name and a dangling `aria-describedby`.
@@ -387,6 +394,9 @@ When a target project applies this archetype, it wires the generic primitives to
 - **2026-08-04 — v2.0 (major).** Promoted mistra's forced mode-transition fix: the mode-state hook's `setMode` gains an optional `{ force?: boolean }` that skips the dirty-discard guard, and the action-flow controller's `handlePrimary` now awaits the save, resets the form, and splits Layer 13's two outcomes itself — create closes, edit returns to view via `setMode("view", { force: true })` — instead of leaving the post-save transition to the dialog's own `onSuccess`. `CrudDialogMutation` now requires `mutateAsync` (was a fire-and-forget `mutate`) so the controller can sequence the reset and transition after the save resolves — a breaking rename for any existing consumer's mutation shape, hence the major bump. Layer 13 documents the new bullet and adds a Forbidden entry against closing the dialog on a successful edit save. `source_spec_version` reconciled to 1.7 (mistra).
 - **2026-08-04 — v2.1.** `createMutation` and `updateMutation` are now **optional** on the action-flow controller, for dialogs whose entity has an external creation path (import, sync, matcher, provisioning) or is create-only. `handlePrimary` resolves the mutation its mode needs and, when it was not supplied, logs an explicit console error and submits nothing rather than falling through to the other mutation. It deliberately does not `throw` — call sites invoke `handlePrimary` as `void handlePrimary()`, so a throw would surface as an unhandled rejection with no toast. Layer 13 gains the edit-only allowed variation and a Forbidden entry against passing a mutation the dialog never intends to run (an aliased update mutation, or a `mutationFn` that only throws) to satisfy the option shape. Additive and backward-compatible: consumers passing both options compile unchanged.
 - **2026-08-18 — v3.0 (major).** The shell API closes — archetype-convergence Phase 1 (archetype J), applying ADR-0004 / RULES.md hard rule 12 to every per-call-site appearance prop on the shell. The `className` prop is **deleted** from the CRUD-dialog shell, the dialog-header primitive, the dialog-body primitive, and the dialog-footer primitive — the same unenumerable superset escape hatch the `detail-overview` / `form-page` / `list-with-detail` close-API tickets removed, and the `*Sheet.tsx`-named overlay shell this archetype uses was the one the prior `*Shell`-only gate had missed. The `width` axis is **kept but no longer a free choice**: Layer 2 now carries an exhaustive keying rule that derives the step from the rendered body's tab count and field count (two-tab body → `lg`; 3–4 fields minimal form → `sm`; 5+ fields standard form → `md`), and the Layer 2 Allowed-variation bullet "Width variant choice per consumer" that re-opened the step the Required section just closed is deleted. The reference demo (`src/examples/crud-dialog-demo.tsx`) reworks the free-choice `width` toggle into a `deriveDialogWidth({ tabs, fieldCount })` helper computed from the body JSX — the body layout picker is kept because it still demonstrates all three body shapes. The lint ratchet for this class is engaged in the same pass: the generic `archetype-shell-class-name` rule's `include` is widened to an array covering `*Shell.tsx` **and** `*Sheet.tsx` (a shell not named `*Shell` no longer slips the gate), the `archetype-look-union-prop` drain now excludes `crud-dialog/**` (the kept `width` / `layout` union props are contract-derived), and a folder-scoped `crud-dialog-shell-class-name` `error` rule re-gates the deleted `className` axis across the whole archetype directory. Deliberate breaking change — the deleted `className` props were the contract's documented escape hatch (ADR-0004 / RULES.md hard rule 12), and a consumer passing a hand-typed width or a `className` now fails `tsc --noEmit` / `lint-design.mjs`.
+- **2026-08-26 — v3.1.** Internal refactor only: the header primitive's bar chrome is extracted into a shared surface-header bar. No contract change.
+- **2026-09-25 — v3.2.** Promoted mistra's fork fixes: Cancel after a save resets the form to the last-saved values; the footer's Delete takes a static disabled gate distinct from the in-flight spinner (Layers 7 and 14). Additive.
+- **2026-09-30 — v3.3.** Optional `closeLabel` on the dialog shell and the dialog-header primitive (Layers 2–3) so the close affordance's accessible name is overridable per call site. Additive.
 
 ---
 
