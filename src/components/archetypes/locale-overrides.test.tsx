@@ -89,6 +89,8 @@ describe("SettingsTableShell labels", () => {
     );
     expect(screen.getByRole("checkbox", { name: "Alle Zeilen auswählen" })).toBeTruthy();
     expect(screen.getByRole("checkbox", { name: "Zeile auswählen" })).toBeTruthy();
+    // A fixed-string override replaces the per-row default for every row.
+    expect(screen.queryByRole("checkbox", { name: /Select row: .*Alpha/ })).toBeNull();
     expect(screen.getByText("1 ausgewählt")).toBeTruthy();
     expect(screen.getByRole("button", { name: "1 löschen" })).toBeTruthy();
 
@@ -213,7 +215,9 @@ describe("English defaults when no override is passed", () => {
       />,
     );
     expect(screen.getByRole("checkbox", { name: "Select all rows" })).toBeTruthy();
-    expect(screen.getByRole("checkbox", { name: "Select row" })).toBeTruthy();
+    // The default row-checkbox label names the row's identifier — a
+    // screen-reader user hears which record the checkbox opens.
+    expect(screen.getByRole("checkbox", { name: "Select row: Alpha" })).toBeTruthy();
     expect(screen.getByText("1 selected")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Delete 1 selected" })).toBeTruthy();
 

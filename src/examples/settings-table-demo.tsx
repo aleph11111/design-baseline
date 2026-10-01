@@ -9,11 +9,18 @@
  *   - Identifier cell (name) click → onRowEdit
  *   - "Add new" button click → onAddNew
  *   - Row action ("Duplicate")
- *   - Empty states: filtered-empty (no CTA) and truly empty (Add CTA)
- *   - Bulk select demonstration
+ *   - Empty state when filter produces no rows (filter-caused empty list, no
+ *     Add CTA; truly empty shows the CTA)
+ *   - Bulk select with filter-safe selection — the selected count and the
+ *     destructive delete only ever act on rows currently visible; rows hidden
+ *     by the search query drop out of the selection, and the selection is
+ *     pruned when the filter changes so it does not outlive the filter
+ *   - Per-row checkbox accessible name names the row ("Select row: {name}")
  *   - Result-count line (`rowLabel`, singular/plural function form)
  *   - Narrow-viewport column subset (`hideBelow` on the context columns)
  *   - Row-derived action gate (`disabled` as a function of the row)
+ *   - Layer 10 delete confirmation — every destructive action (row or bulk)
+ *     waits for the shared ConfirmationDialog
  */
 
 import * as React from "react";
@@ -111,6 +118,20 @@ export function SettingsTableDemo() {
       )
     : recipes;
 
+  // Prune the selection to the rows the new filter actually shows. Without
+  // this, clearing a query that was hiding some ticked rows would silently
+  // re-show them as ticked — the selection outlived the filter without the
+  // user ever re-selecting those rows. Bails early (returning the same
+  // reference) when the prune removed nothing, so the effect does not
+  // trigger an extra re-render on an unchanged selection.
+  React.useEffect(() => {
+    const visible = new Set(filtered.map((r) => r.id));
+    setSelectedIds((prev) => {
+      const pruned = prev.filter((id) => visible.has(id));
+      return pruned.length === prev.length ? prev : pruned;
+    });
+  }, [filtered]);
+
   function handleRowEdit(recipe: Recipe) {
     setLastAction(`Edit opened for: ${recipe.name}`);
   }
@@ -163,9 +184,11 @@ export function SettingsTableDemo() {
     />
   );
 
+  // The candidate set is `filtered` (what the user sees), not `recipes` — a
+  // row the search query hides must not be silently deleted by a bulk action.
   const bulkActions = (
     <Button variant="destructive" size="sm"
-      onClick={() => setPendingDelete(recipes.filter((r) => selectedIds.includes(r.id)))}
+      onClick={() => setPendingDelete(filtered.filter((r) => selectedIds.includes(r.id)))}
       disabled={selectedIds.length === 0}
     >
       Delete selected
