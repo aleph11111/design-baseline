@@ -55,6 +55,7 @@ export function ActionRowBody<Row>({
           <div
             key={rowId}
             data-state={isSelected ? "selected" : undefined}
+            aria-pressed={activate ? isSelected : undefined}
             onClick={activate}
             className={cn(
               "flex items-center gap-3 px-4 py-3",

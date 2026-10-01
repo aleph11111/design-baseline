@@ -130,7 +130,11 @@ export function TableBody<Row>({
               </TableHead>
             );
           })}
-          {hasActions && <TableHead className="w-12" />}
+          {hasActions && (
+            <TableHead className="w-12">
+              <span className="sr-only">{rowActionsLabel ?? "Row actions"}</span>
+            </TableHead>
+          )}
         </TableRow>
       </TableHeader>
       <UiTableBody>
@@ -141,6 +145,7 @@ export function TableBody<Row>({
             <TableRow
               key={rowId}
               data-state={isSelected ? "selected" : undefined}
+              aria-selected={isSelected}
             >
               {columns.map((col) => {
                 const activate =
