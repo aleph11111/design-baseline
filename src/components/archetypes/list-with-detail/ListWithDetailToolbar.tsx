@@ -7,6 +7,18 @@ export type ListWithDetailToolbarProps = {
   searchValue?: string;
   onSearchChange?: (value: string) => void;
   searchPlaceholder?: string;
+  /**
+   * Number of rows currently listed *after* search and filters are applied.
+   * When the search box renders and this is provided, the search box shows
+   * `{resultCount} {resultCountLabel}` (muted small text) in its trailing
+   * counter slot — so it tracks the list live: "2 results" while a query
+   * matches two rows, the full filtered-list count after the query is cleared,
+   * and "0 results" (alongside the filtered-empty panel) when nothing matches.
+   * Omit to hide the caption.
+   */
+  resultCount?: number;
+  /** Count wording. English default "results"; a non-English app overrides per call site. */
+  resultCountLabel?: string;
   filters?: ReactNode;
   quickFilters?: ReactNode;
   pageActions?: ReactNode;
@@ -17,6 +29,8 @@ export function ListWithDetailToolbar({
   searchValue,
   onSearchChange,
   searchPlaceholder = "Search…",
+  resultCount,
+  resultCountLabel = "results",
   filters,
   quickFilters,
   pageActions,
@@ -31,6 +45,11 @@ export function ListWithDetailToolbar({
           value={searchValue}
           onChange={onSearchChange}
           placeholder={searchPlaceholder}
+          count={
+            resultCount !== undefined
+              ? `${resultCount} ${resultCountLabel}`
+              : undefined
+          }
         />
       )}
       {filters && <div className="flex items-center gap-2">{filters}</div>}
