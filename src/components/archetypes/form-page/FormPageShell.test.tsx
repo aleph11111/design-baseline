@@ -56,7 +56,8 @@ describe("FormPageShell — board form layout (title set)", () => {
 
     // Children live in the padded body BELOW the header, not inside it.
     const body = card.lastElementChild as HTMLElement;
-    expect(body.className).toContain("p-5");
+    expect(body.className).toContain("p-[var(--form-inset)]");
+    expect(body.className).toContain("[--form-inset:1.25rem]");
     expect(body.className).toContain("space-y-5");
     expect(body.contains(getByText("form body"))).toBe(true);
     expect(header?.contains(getByText("form body"))).toBe(false);
