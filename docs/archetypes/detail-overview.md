@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 3.2
+version: 3.3
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.6
@@ -11,6 +11,18 @@ status: locked
 
 # Archetype C — Detail Overview
 
+> **v3.3 (2026-10-01) — contract/manifest reconciliation.** The wide-viewport
+> rail pins just below the app shell's sticky header, never under it (Layer 6
+> "Responsive contract") — the behaviour shipped with the shell in manifest
+> 3.6; this states it as a rule. Per RULES rule 8 the contract `version` and
+> the MANIFEST `version` (3.6) count different things; this is the map of
+> deliverable versions to contract rules: manifest 3.3 changed no contract
+> rule (adherence-lint pass); 3.4 is contract v3.1 (back link, collapsible
+> section); 3.5 changed no contract rule (the stat tile's headline-figure
+> step and context line are fixed appearance); 3.6 is contract v3.2 (key
+> figure). Later primitive-only fixes (block-content page-header subtitle,
+> app-shell rhythm) changed no contract rule. No API change.
+>
 > **v3.2 (2026-09-28) — key figure in the compact metric readout.** The one
 > metric the entity is valued by reads the brand accent (see "Compact metric
 > readout"). Derived from the data, never a per-page choice. Additive; no
@@ -235,8 +247,8 @@ purely a wide-viewport reflow of the same ordered slots; it never introduces a
 second scroll region, and it degrades to the vertical layout exactly. This is
 what keeps the rail variant *the same archetype* rather than a fork.
 
-- The aside uses sticky positioning near the top of the viewport on wide
-  viewports, its own `~300px` column; full-width, stacked above main, on
+- The aside uses sticky positioning on wide viewports, pinned just below
+  the app shell's sticky header (never under it), its own `~300px` column; full-width, stacked above main, on
   narrow viewports.
 - **No nested scroll containers** — the page scrolls; the rail uses sticky
   positioning, not independent scrolling. The rail must never become a
