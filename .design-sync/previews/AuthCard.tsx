@@ -1,4 +1,3 @@
-import * as React from "react";
 import { AuthCard, Button, Input, Label } from "design-baseline";
 import { KeyRound, ShieldAlert } from "lucide-react";
 

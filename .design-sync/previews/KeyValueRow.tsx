@@ -1,4 +1,3 @@
-import * as React from "react";
 import { DetailSection, KeyValueList, KeyValueRow } from "design-baseline";
 
 // Standard single-line rows: label left, mono tabular value right — composed

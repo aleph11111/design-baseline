@@ -1,4 +1,3 @@
-import * as React from "react";
 import { ProgressTracker } from "design-baseline";
 
 // Order lifecycle — done/done/current/pending, the canonical fulfilment flow.

@@ -1,4 +1,3 @@
-import * as React from "react";
 import { AlertTriangle, Terminal } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "design-baseline";
 

@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, Button } from "design-baseline";
 
 // Tooltip requires a TooltipProvider ancestor or the Radix portal fails to

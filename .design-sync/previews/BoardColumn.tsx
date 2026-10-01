@@ -1,4 +1,3 @@
-import * as React from "react";
 import { BoardShell, BoardColumn, BoardCard, Badge, IconAvatar, Button } from "design-baseline";
 import { Plus } from "lucide-react";
 

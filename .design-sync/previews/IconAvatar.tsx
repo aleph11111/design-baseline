@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Bell, Check, MessageSquare, UserPlus } from "lucide-react";
 import { IconAvatar } from "design-baseline";
 

@@ -1,4 +1,3 @@
-import * as React from "react";
 import { BoardColumn, BoardCard, Badge, IconAvatar } from "design-baseline";
 
 // Tagged cards — title + category badge + assignee avatar, the default card

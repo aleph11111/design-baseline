@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Badge, SectionCard } from "design-baseline";
 
 // Default tone, padded body — a free-form key fact block.

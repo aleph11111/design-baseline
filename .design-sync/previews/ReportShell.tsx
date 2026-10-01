@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   ReportShell,
   ReportLineTable,
@@ -45,7 +44,7 @@ export function Invoice() {
     <ReportShell
       kicker="Beleg"
       title={<>Rechnung <span className="font-mono">RE-2025-0417</span></>}
-      actions={
+      headerActions={
         <>
           <Button variant="outline" size="sm">PDF</Button>
           <Button size="sm">Senden</Button>

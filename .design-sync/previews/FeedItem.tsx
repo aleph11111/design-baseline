@@ -1,4 +1,3 @@
-import * as React from "react";
 import { FeedItem, SectionCard, Button } from "design-baseline";
 import { AtSign, Image as ImageIcon, Settings, X } from "lucide-react";
 

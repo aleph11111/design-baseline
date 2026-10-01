@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Inbox } from "lucide-react";
 import { Button, StateView } from "design-baseline";
 

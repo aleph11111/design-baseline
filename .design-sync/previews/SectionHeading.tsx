@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Button, SectionHeading } from "design-baseline";
 
 // Bare overline in a bordered surface — title only, no chrome of its own.

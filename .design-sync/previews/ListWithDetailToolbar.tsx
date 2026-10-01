@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useState } from "react";
 import { ListWithDetailToolbar, Badge, Button } from "design-baseline";
 

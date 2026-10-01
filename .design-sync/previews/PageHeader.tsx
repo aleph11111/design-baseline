@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Package } from "lucide-react";
 import { Badge, Button, PageHeader } from "design-baseline";
 

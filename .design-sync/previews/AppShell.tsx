@@ -70,43 +70,10 @@ export function Default() {
           subtitle="128 open orders"
           actions={<Button size="sm">New order</Button>}
         />
-        <StatTileRow columns={3}>
+        <StatTileRow>
           <StatTile label="Revenue" value="€58.9k" hint="vs last month" />
           <StatTile label="Orders" value="812" hint="paid + fulfilled" />
           <StatTile label="Avg order" value="€72" />
-        </StatTileRow>
-      </div>
-    </AppShell>
-  );
-}
-
-// Same frame with the "tint" header treatment — the alternate House Style B
-// fill, set once per project via `headerFill`.
-export function TintHeaderFill() {
-  return (
-    <AppShell
-      headerFill="tint"
-      sidebar={
-        <AppSidebar
-          appName="Ledger"
-          brand={
-            <div className="rounded-md bg-primary p-1 text-primary-foreground">
-              <FileText className="h-6 w-6" />
-            </div>
-          }
-          topItems={TOP_ITEMS}
-          groups={GROUPS}
-          pathname="/"
-          renderLink={renderLink}
-        />
-      }
-      header={<AppHeader title="Dashboard" right={<ThemeToggle />} />}
-    >
-      <div className="space-y-6">
-        <PageHeader title="Dashboard" subtitle="Store performance at a glance" />
-        <StatTileRow columns={2}>
-          <StatTile label="Active customers" value="1,512" hint="last 30 days" />
-          <StatTile label="Churn" value="2.1%" hint="month over month" />
         </StatTileRow>
       </div>
     </AppShell>

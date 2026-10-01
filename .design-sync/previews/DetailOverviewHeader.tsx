@@ -1,4 +1,3 @@
-import * as React from "react";
 import { DetailOverviewHeader, Badge, Button } from "design-baseline";
 
 // Full contract: mono order-id title, subtitle breadcrumb-ish line, inline

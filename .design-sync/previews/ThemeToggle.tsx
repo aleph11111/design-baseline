@@ -1,4 +1,3 @@
-import * as React from "react";
 import { ThemeToggle } from "design-baseline";
 
 // The toggle alone — a single small icon button, genuinely tiny by design.

@@ -1,4 +1,3 @@
-import * as React from "react";
 import { ListWithDetailEmptyState } from "design-baseline";
 
 // Loading plane.

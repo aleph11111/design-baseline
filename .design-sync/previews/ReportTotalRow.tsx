@@ -1,4 +1,3 @@
-import * as React from "react";
 import { ReportTotalRow } from "design-baseline";
 
 function fmtEUR(amount: number): string {

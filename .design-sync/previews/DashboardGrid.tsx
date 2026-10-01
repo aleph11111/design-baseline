@@ -1,4 +1,3 @@
-import * as React from "react";
 import { DashboardGrid, DashboardWidget } from "design-baseline";
 
 // Placeholder chart bits — no chart lib shipped; the archetype owns the
@@ -44,11 +43,11 @@ function HBars({ data }: { data: { label: string; value: number }[] }) {
 // 3-column grid, one widget spanning 2 columns — the canonical widget-grid shape.
 export function ThreeColumn() {
   return (
-    <DashboardGrid columns={3}>
-      <DashboardWidget title="Revenue over time" description="Trailing 12 months" span={2}>
+    <DashboardGrid>
+      <DashboardWidget title="Revenue over time" description="Trailing 12 months" span={3}>
         <Bars data={[{ label: "Jan", value: 40 }, { label: "Feb", value: 55 }, { label: "Mar", value: 48 }, { label: "Apr", value: 62 }, { label: "May", value: 70 }]} />
       </DashboardWidget>
-      <DashboardWidget title="Orders by channel">
+      <DashboardWidget title="Orders by channel" span={1}>
         <HBars data={[{ label: "Web", value: 540 }, { label: "Retail", value: 210 }, { label: "Wholesale", value: 62 }]} />
       </DashboardWidget>
     </DashboardGrid>
@@ -58,11 +57,11 @@ export function ThreeColumn() {
 // 2-column grid — narrower widget-grid variant.
 export function TwoColumn() {
   return (
-    <DashboardGrid columns={2}>
-      <DashboardWidget title="Top categories">
+    <DashboardGrid>
+      <DashboardWidget title="Top categories" span={1}>
         <Bars data={[{ label: "Sets", value: 38 }, { label: "Parts", value: 27 }, { label: "Minifigs", value: 19 }, { label: "Books", value: 9 }]} />
       </DashboardWidget>
-      <DashboardWidget title="Conversion funnel">
+      <DashboardWidget title="Conversion funnel" span={2}>
         <HBars data={[{ label: "Visits", value: 100 }, { label: "Cart", value: 42 }, { label: "Checkout", value: 28 }, { label: "Purchased", value: 21 }]} />
       </DashboardWidget>
     </DashboardGrid>
