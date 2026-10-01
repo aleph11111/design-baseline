@@ -35,22 +35,37 @@ export type StatItem = {
   hint?: React.ReactNode;
 };
 
-export type DetailOverviewShellProps = {
-  /**
-   * Mode B — nested page title. When set, the shell renders its on-surface
-   * header as the canonical nested page heading (an `<h2>` at a single fixed
-   * scale) instead of the page's own top-level page title (Mode A — use the
-   * standalone detail-overview header above the shell). The scale/weight are
-   * fixed in that primitive; no prop re-picks them.
-   */
-  title?: React.ReactNode;
-  /** Secondary line under the nested title (e.g. a parent-entity link). */
-  subtitle?: React.ReactNode;
-  /** Read-only status badges, inline next to the nested title — the page's
-   *  one home for status. */
-  badges?: React.ReactNode;
-  /** Right-aligned actions row (link/buttons). Never mixed into the title. */
-  actions?: React.ReactNode;
+/**
+ * Mode B header props. `subtitle`/`badges`/`actions` hang off the nested title,
+ * so they are only accepted together with a `title` — passing them alone would
+ * render no header and silently drop the entity's status and actions.
+ */
+type DetailOverviewShellHeaderProps =
+  | {
+      /**
+       * Mode B — nested page title. When set, the shell renders its on-surface
+       * header as the canonical nested page heading (an `<h2>` at a single fixed
+       * scale) instead of the page's own top-level page title (Mode A — use the
+       * standalone detail-overview header above the shell). The scale/weight are
+       * fixed in that primitive; no prop re-picks them.
+       */
+      title: React.ReactNode;
+      /** Secondary line under the nested title (e.g. a parent-entity link). */
+      subtitle?: React.ReactNode;
+      /** Read-only status badges, inline next to the nested title — the page's
+       *  one home for status. */
+      badges?: React.ReactNode;
+      /** Right-aligned actions row (link/buttons). Never mixed into the title. */
+      actions?: React.ReactNode;
+    }
+  | {
+      title?: undefined;
+      subtitle?: never;
+      badges?: never;
+      actions?: never;
+    };
+
+export type DetailOverviewShellProps = DetailOverviewShellHeaderProps & {
   /**
    * Structure, keyed to the entity by the contract (Amendment v2.1).
    * - "vertical" (default): the canonical single column.
