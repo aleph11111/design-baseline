@@ -109,27 +109,39 @@ export function CrudDialogBody({
   isLoading = false,
   layout,
 }: CrudDialogBodyProps): React.ReactElement {
+  // The loading text enters the status region only AFTER the region is in
+  // the DOM: screen readers announce changes to an *existing* live region,
+  // not content present at first mount — and the normal open path mounts
+  // the body with isLoading already true (entity fetch in-flight). The
+  // effect guarantees the empty → "Loading…" change lands post-mount for
+  // both the initial-render-already-loading case and a later transition
+  // into loading, and clears when the fields arrive.
+  const [loadingAnnounced, setLoadingAnnounced] = React.useState(false);
+  React.useEffect(() => {
+    setLoadingAnnounced(isLoading);
+  }, [isLoading]);
+
   return (
     <ScrollArea className="flex-1 overflow-hidden">
-      {/* aria-busy on the persistent container (present in both states) tells
-          assistive tech to hold off on individual child changes while the fetch
-          is in-flight, then release that hold when the flag disappears. It is
-          deliberately NOT on the role="status" node — a live region that is
-          itself marked busy suppresses its own announcements. */}
+      {/* The aria-busy hold sits on the persistent content container
+          (present in both states; the hold releases when the flag
+          disappears). It is an ANCESTOR only of the content, never of the
+          status region below: aria-busy applies to the whole subtree, and
+          a live region inside a busy subtree holds its own announcements —
+          the exact symptom this ticket fixes. */}
       <div aria-busy={isLoading ? "true" : undefined}>
         {isLoading ? <BodySkeleton /> : (
           <div className={BODY_INSET}>
             {layout ? <div className={LAYOUT_CLASS[layout]}>{children}</div> : children}
           </div>
         )}
-        {/* Persistent status region: mounted in both states and toggles text
-            (empty → "Loading…") so screen readers that only announce changes
-            to an *existing* region hear the announcement, not an unmount-only
-            one. */}
-        <span role="status" aria-live="polite" className="sr-only">
-          {isLoading ? "Loading…" : ""}
-        </span>
       </div>
+      {/* Persistent live region: mounted in both states; its text toggles
+          empty ↔ "Loading…" as the announcement. Sibling of the busy
+          container, so it is never inside the busy subtree. */}
+      <span role="status" aria-live="polite" className="sr-only">
+        {loadingAnnounced ? "Loading…" : ""}
+      </span>
     </ScrollArea>
   );
 }

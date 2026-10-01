@@ -1,5 +1,6 @@
+import * as React from "react";
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import { CrudDialogBody } from "./CrudDialogBody";
 
 afterEach(() => {
@@ -7,59 +8,90 @@ afterEach(() => {
 });
 
 describe("CrudDialogBody — loading announcement", () => {
-  it("keeps the status region mounted across both states and toggles its text", () => {
-    // jsdom has no live-region semantics, so the behavioral contract is: the
-    // region exists and carries the loading text while loading, keeps its
-    // identity after load, and clears its text — the pattern screen readers
-    // (which only announce CHANGES to an existing region) can actually act on.
-    const { rerender } = render(
-      <CrudDialogBody isLoading>
-        <div>fields</div>
-      </CrudDialogBody>,
+  it("announces as a post-mount change to the region, not as first-paint content", () => {
+    // The normal open path mounts the body with isLoading already true
+    // (entity fetch in-flight). If "Loading…" were in the region at its
+    // mount commit, most screen readers would never announce it. Spy the
+    // commits: first must be empty, the text must land later.
+    const textsAtCommits: string[] = [];
+    const root = document.createElement("div");
+    document.body.appendChild(root);
+    render(
+      <React.Profiler
+        id="body"
+        onRender={() => {
+          const el = root.querySelector<HTMLElement>("[role=status]");
+          textsAtCommits.push(el?.textContent ?? "");
+        }}
+      >
+        <CrudDialogBody isLoading>
+          <div>fields</div>
+        </CrudDialogBody>
+      </React.Profiler>,
+      { container: root },
     );
 
-    const region = screen.getByRole<HTMLSpanElement>("status");
-    expect(region.textContent).toBe("Loading…");
-    expect(region.getAttribute("aria-live")).toBe("polite");
-    // busy must NOT sit on the live region — a live region that is itself
-    // marked busy suppresses its own announcements (the exact symptom the
-    // ticket reports: a screen-reader user hears the title, then nothing).
-    expect(region.getAttribute("aria-busy")).toBeNull();
-
-    rerender(
-      <CrudDialogBody>
-        <div>fields</div>
-      </CrudDialogBody>,
-    );
-
-    const regionAfter = screen.getByRole<HTMLSpanElement>("status");
-    // same node, text cleared — the announcement is a change, not an unmount
-    expect(regionAfter).toBe(region);
-    expect(regionAfter.textContent).toBe("");
-    expect(screen.getByText("fields")).toBeDefined();
+    expect(textsAtCommits.length).toBeGreaterThanOrEqual(2);
+    // commit 1: region is in the DOM with no text
+    expect(textsAtCommits[0]).toBe("");
+    // a later commit: the text has landed — that change is what gets announced
+    expect(textsAtCommits[textsAtCommits.length - 1]).toBe("Loading…");
   });
 
-  it("exposes aria-busy on the persistent body container and clears it after load", () => {
+  it("toggles the text through a full loading → loaded → loading cycle", () => {
     const { rerender } = render(
       <CrudDialogBody isLoading>
         <div>fields</div>
       </CrudDialogBody>,
     );
+    act(() => {});
+    const region = screen.getByRole<HTMLSpanElement>("status");
+    expect(region.textContent).toBe("Loading…");
 
-    const region = screen.getByRole("status");
-    const busyContainer = region.parentElement!;
-    expect(busyContainer.getAttribute("aria-busy")).toBe("true");
-
+    // fields arrive: the announcement clears
     rerender(
       <CrudDialogBody>
         <div>fields</div>
       </CrudDialogBody>,
     );
+    act(() => {});
+    expect(region.textContent).toBe("");
+    expect(screen.getByText("fields")).toBeDefined();
 
-    // the container outlives the skeleton: the loaded content renders inside
-    // the very same node, and the busy hold is released
-    expect(busyContainer.contains(screen.getByText("fields"))).toBe(true);
-    expect(busyContainer.hasAttribute("aria-busy")).toBe(false);
+    // a later transition into loading re-announces through the SAME region
+    rerender(
+      <CrudDialogBody isLoading>
+        <div>fields</div>
+      </CrudDialogBody>,
+    );
+    act(() => {});
+    expect(region.textContent).toBe("Loading…");
+  });
+
+  it("keeps the status region OUT of every aria-b_busy subtree and releases the hold after load", () => {
+    const { container, rerender } = render(
+      <CrudDialogBody isLoading>
+        <div>fields</div>
+      </CrudDialogBody>,
+    );
+    act(() => {});
+
+    // the busy hold exists while loading…
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+
+    // …but the live region is not inside it (aria-busy applies to the whole
+    // subtree — a busy live region suppresses its own announcements, the
+    // exact symptom this ticket fixes)
+    const region = screen.getByRole<HTMLSpanElement>("status");
+    expect(region.closest('[aria-busy="true"]')).toBeNull();
+
+    // and the hold releases when the fields arrive
+    rerender(
+      <CrudDialogBody>
+        <div>fields</div>
+      </CrudDialogBody>,
+    );
+    expect(container.querySelector('[aria-busy="true"]')).toBeNull();
   });
 
   it("suppresses children while loading", () => {
@@ -69,6 +101,7 @@ describe("CrudDialogBody — loading announcement", () => {
       </CrudDialogBody>,
     );
 
+    act(() => {});
     expect(screen.queryByText("fields")).toBeNull();
     expect(screen.getByText("Loading…")).toBeDefined();
   });
@@ -77,9 +110,9 @@ describe("CrudDialogBody — loading announcement", () => {
 describe("CrudDialogBody — skeleton mobile collapse", () => {
   // jsdom can't resolve media queries, so the guarantee asserted here is the
   // one that makes that true in the browser: the skeleton's paired-field
-  // sections use the SAME class list as the loaded two-column layout, so both
-  // break at the same width. Both states are rendered in one fixture and the
-  // classes are compared against each other.
+  // sections use the SAME class list as the loaded two-column layout, so
+  // both break at the same width. Both states are rendered in one fixture
+  // and the classes are compared against each other.
   function renderBoth() {
     const { container } = render(
       <>
