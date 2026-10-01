@@ -26,6 +26,7 @@ import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
+import { listModules } from './modules.mjs';
 
 const REPO = dirname(dirname(fileURLToPath(import.meta.url)));           // repo root
 const SRC = join(REPO, 'src');
@@ -38,22 +39,7 @@ const require = createRequire(join(REPO, '.ds-sync', 'package.json'));
 const { Project, Node } = require('ts-morph');
 
 // ── 0. the barrel modules (bundle + list share these) ──────────────────────
-// ui: each primitive .tsx. layout + each archetype: a curated index barrel.
-const uiFiles = readdirSync(join(SRC, 'components/ui'))
-  .filter((f) => f.endsWith('.tsx')).map((f) => f.replace(/\.tsx$/, '')).sort();
-const archetypeDirs = readdirSync(join(SRC, 'components/archetypes'), { withFileTypes: true })
-  .filter((d) => d.isDirectory() && existsSync(join(SRC, 'components/archetypes', d.name, 'index.ts')))
-  .map((d) => d.name).sort();
-
-// { rel: re-export specifier (./-form), srcFile: module to read exports from }
-const modules = [
-  ...uiFiles.map((n) => ({ rel: `./components/ui/${n}`, srcFile: join(SRC, `components/ui/${n}.tsx`) })),
-  { rel: './components/layout', srcFile: join(SRC, 'components/layout/index.ts') },
-  ...archetypeDirs.map((n) => ({
-    rel: `./components/archetypes/${n}`,
-    srcFile: join(SRC, `components/archetypes/${n}/index.ts`),
-  })),
-];
+const modules = listModules(SRC);
 
 // ── 1. reset scratch pkg ────────────────────────────────────────────────────
 rmSync(PKG, { recursive: true, force: true });
