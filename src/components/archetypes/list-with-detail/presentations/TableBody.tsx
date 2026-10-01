@@ -132,7 +132,7 @@ export function TableBody<Row>({
           })}
           {hasActions && (
             <TableHead className="w-12">
-              <span className="sr-only">{rowActionsLabel ?? "Row actions"}</span>
+              <span className="sr-only">{rowActionsLabel || "Row actions"}</span>
             </TableHead>
           )}
         </TableRow>
@@ -145,7 +145,7 @@ export function TableBody<Row>({
             <TableRow
               key={rowId}
               data-state={isSelected ? "selected" : undefined}
-              aria-selected={isSelected}
+              aria-selected={onRowSelect ? isSelected : undefined}
             >
               {columns.map((col) => {
                 const activate =
