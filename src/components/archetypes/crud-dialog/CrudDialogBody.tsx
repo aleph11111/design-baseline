@@ -52,18 +52,28 @@ function SkeletonField({
   );
 }
 
+// The body's padding box, shared by the loading skeleton and the loaded
+// content so a fetch finishing mid-viewport can't shift the layout.
+const BODY_INSET = "px-6 py-4";
+
+// Decorative loading shape. The visible skeleton stays aria-hidden — the
+// announcement lives in the body's persistent status region (below), not on
+// this node; mirroring ListSkeleton's `role="status"` wrapper here would put
+// a live region behind a busy region of its own. Its paired-field sections
+// reuse the loaded two-column layout class so the skeleton collapses at the
+// same breakpoint the body actually collapses at.
 function BodySkeleton(): React.ReactElement {
   return (
-    <div className="space-y-4 px-6 py-4" aria-hidden>
+    <div className={cn("space-y-4", BODY_INSET)} aria-hidden>
       {/* Simulate a two-column field section */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className={LAYOUT_CLASS["two-column"]}>
         <SkeletonField labelWidth="w-16" />
         <SkeletonField labelWidth="w-20" />
       </div>
       {/* Simulate a full-width field */}
       <SkeletonField labelWidth="w-24" />
       {/* Simulate another field group */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className={LAYOUT_CLASS["two-column"]}>
         <SkeletonField labelWidth="w-14" />
         <SkeletonField labelWidth="w-20" />
       </div>
@@ -99,15 +109,39 @@ export function CrudDialogBody({
   isLoading = false,
   layout,
 }: CrudDialogBodyProps): React.ReactElement {
+  // The loading text enters the status region only AFTER the region is in
+  // the DOM: screen readers announce changes to an *existing* live region,
+  // not content present at first mount — and the normal open path mounts
+  // the body with isLoading already true (entity fetch in-flight). The
+  // effect guarantees the empty → "Loading…" change lands post-mount for
+  // both the initial-render-already-loading case and a later transition
+  // into loading, and clears when the fields arrive.
+  const [loadingAnnounced, setLoadingAnnounced] = React.useState(false);
+  React.useEffect(() => {
+    setLoadingAnnounced(isLoading);
+  }, [isLoading]);
+
   return (
     <ScrollArea className="flex-1 overflow-hidden">
-      {isLoading ? (
-        <BodySkeleton />
-      ) : (
-        <div className="px-6 py-4">
-          {layout ? <div className={LAYOUT_CLASS[layout]}>{children}</div> : children}
-        </div>
-      )}
+      {/* The aria-busy hold sits on the persistent content container
+          (present in both states; the hold releases when the flag
+          disappears). It is an ANCESTOR only of the content, never of the
+          status region below: aria-busy applies to the whole subtree, and
+          a live region inside a busy subtree holds its own announcements —
+          the exact symptom this ticket fixes. */}
+      <div aria-busy={isLoading ? "true" : undefined}>
+        {isLoading ? <BodySkeleton /> : (
+          <div className={BODY_INSET}>
+            {layout ? <div className={LAYOUT_CLASS[layout]}>{children}</div> : children}
+          </div>
+        )}
+      </div>
+      {/* Persistent live region: mounted in both states; its text toggles
+          empty ↔ "Loading…" as the announcement. Sibling of the busy
+          container, so it is never inside the busy subtree. */}
+      <span role="status" aria-live="polite" className="sr-only">
+        {loadingAnnounced ? "Loading…" : ""}
+      </span>
     </ScrollArea>
   );
 }
