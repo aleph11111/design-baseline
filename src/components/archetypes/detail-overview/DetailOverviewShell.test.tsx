@@ -151,6 +151,21 @@ describe("DetailOverviewShell — Mode B nested heading (data props)", () => {
     expect(container.querySelector('[data-slot="surface-header"]')).toBeNull();
     expect(container.querySelector("h2")).toBeNull();
   });
+
+  it("rejects header data without a title at the type level", () => {
+    // `actions`/`badges`/`subtitle` hang off the title; without one they would
+    // render no header and vanish silently, so the props type forbids it.
+    // @ts-expect-error actions without a title
+    render(<DetailOverviewShell actions={<button>Edit</button>} />);
+    // @ts-expect-error badges without a title
+    render(<DetailOverviewShell badges={<span>Open</span>} />);
+    // @ts-expect-error subtitle without a title
+    render(<DetailOverviewShell subtitle="Parent" />);
+    // a title that may be undefined (e.g. `entity?.name`) drops the header too
+    const t = "x" as string | undefined;
+    // @ts-expect-error possibly-undefined title with actions
+    render(<DetailOverviewShell title={t} actions={<b />} />);
+  });
 });
 
 describe("DetailOverviewShell — stats as StatItem[]", () => {
