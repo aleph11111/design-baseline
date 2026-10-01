@@ -65,7 +65,7 @@ import {
 } from "@/components/archetypes/form-page";
 
 type FormWidth = "sm" | "md" | "lg" | "xl";
-type FormChrome = "board" | "classic";
+type FormChrome = "board" | "classic" | "classic-card";
 /** Body layout — the demo's single user-facing choice. The shell's `width`
  * step is DERIVED from this (contract Layer 2, v2.0): a 1-column body of 3–4
  * fields → `sm`, a 1-column body of 5+ fields → `md`, a 2-column body →
@@ -222,7 +222,7 @@ type RecipeFormCommonProps = {
   layout: FormLayout;
   /**
    * "board" = the on-surface header (title on FormPageShell, current default).
-   * "classic" = the classic floating `<FormPageHeader>` + the documented
+   * "classic" = bare classic floating header; "classic-card" = the classic floating `<FormPageHeader>` + the documented
    * "Card chrome wrapper around the form body" allowed variation
    * (docs/archetypes/form-page.md Layer 2).
    */
@@ -620,9 +620,15 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
           {/* Allowed variation (form-page.md Layer 2): a Card chrome wrapper
               around the form body for extra visual emphasis, on top of the
               classic floating header. */}
-          <Card>
-            <CardContent className="p-5 [--form-inset:1.25rem]">{formBody}</CardContent>
-          </Card>
+          {chrome === "classic" ? (
+            formBody
+          ) : (
+            <Card>
+              <CardContent className="p-[var(--form-inset)] [--form-inset:1.25rem]">
+                {formBody}
+              </CardContent>
+            </Card>
+          )}
         </FormPageShell>
       )}
     </div>
@@ -638,7 +644,44 @@ type DemoMode =
   | { kind: "create" }
   | { kind: "edit"; id: string };
 
+const CHROMES: FormChrome[] = ["board", "classic", "classic-card"];
+
+// Embedded phone previews pick their chrome from `#/a/form-page?chrome=…`.
+function initialChromeFromHash(): FormChrome {
+  const q = window.location.hash.split("?")[1] ?? "";
+  const c = new URLSearchParams(q).get("chrome");
+  return CHROMES.find((x) => x === c) ?? "board";
+}
+
+/**
+ * Real 375px viewports (an iframe of this gallery page) so the `sm:` sticky
+ * footer breakpoint fires — one per chrome variant. Hidden when already
+ * embedded, so previews never nest.
+ */
+function PhonePreviews(): React.ReactElement | null {
+  if (window.self !== window.top) return null;
+  const base = window.location.pathname + window.location.search;
+  return (
+    <div className="space-y-2">
+      <p className="text-sm text-muted-foreground">
+        Phone viewport (375px) — sticky footer in each chrome variant.
+      </p>
+      <div className="flex flex-wrap gap-4">
+        {CHROMES.map((c) => (
+          <iframe
+            key={c}
+            title={`Phone preview: ${c}`}
+            src={`${base}#/a/form-page?chrome=${c}`}
+            className="h-[560px] w-[375px] rounded-lg border bg-background"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function FormPageDemo(): React.ReactElement {
+  const initialChrome = React.useMemo(initialChromeFromHash, []);
   const [recipes, setRecipes] = React.useState<Recipe[]>([SEED_RECIPE]);
   // Default to the create form so the gallery shows the archetype (the
   // multi-section form) rather than the list scaffold used to reach it.
@@ -647,7 +690,7 @@ export function FormPageDemo(): React.ReactElement {
   // The demo's only width-adjacent choice is the BODY layout; the shell's
   // `width` step derives from it (contract Layer 2, v2.0) — no `width` state.
   const [layout, setLayout] = React.useState<FormLayout>("md-1col");
-  const [chrome, setChrome] = React.useState<FormChrome>("board");
+  const [chrome, setChrome] = React.useState<FormChrome>(initialChrome);
   const [simulateError, setSimulateError] = React.useState(false);
 
   function handleCreated(recipe: Recipe) {
@@ -703,7 +746,8 @@ export function FormPageDemo(): React.ReactElement {
           onValueChange={setChrome}
           options={[
             { value: "board", label: "Board" },
-            { value: "classic", label: "Classic + Card" },
+            { value: "classic", label: "Classic" },
+            { value: "classic-card", label: "Classic + Card" },
           ]}
         />
         <label className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
@@ -718,6 +762,7 @@ export function FormPageDemo(): React.ReactElement {
     return (
       <div className="space-y-5">
         {controls}
+        <PhonePreviews />
         <RecipeForm
           mode="create"
           layout={layout}
