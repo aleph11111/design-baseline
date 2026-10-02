@@ -230,50 +230,49 @@ export function ListWithDetailShell<Row>(
   // reads `HeaderFillContext`.
   const detailPanel =
     detail !== undefined ? (
-        <Sheet
-          open={sheetOpen}
-          onOpenChange={(open) => {
-            setSheetOpen(open);
-            if (!open) onDetailClose?.();
-          }}
+      <Sheet
+        open={sheetOpen}
+        onOpenChange={(open) => {
+          setSheetOpen(open);
+          if (!open) onDetailClose?.();
+        }}
+      >
+        <SheetContent
+          side="right"
+          closeLabel={labels?.close}
+          className="flex w-full flex-col gap-0 p-0 sm:max-w-md"
         >
-          <SheetContent
-            side="right"
-            closeLabel={labels?.close}
-            className="flex w-full flex-col gap-0 p-0 sm:max-w-md"
-          >
-            {detailTitle !== undefined ? (
-              // The shared bar chrome (padding + header-fill) with the Radix
-              // SheetTitle as its title element. The built-in Sheet close button
-              // (absolute, top-4 right-4) floats over the bar's right edge, so
-              // the actions row clears it (structural, not appearance).
-              <SurfaceHeaderBar
-                actionsClassName="pr-8"
-                actions={
-                  detailActions ? (
-                    <div className="flex shrink-0 items-center gap-2">{detailActions}</div>
-                  ) : undefined
-                }
-              >
-                {/* SheetTitle so Radix Dialog gets an accessible name (aria-labelledby).
-                    SheetDescription is screen-reader-only fallback so Content never
-                    renders without a description — matching the J archetype fix. */}
-                <div className="min-w-0 flex-1">
-                  <SheetTitle className="truncate">{detailTitle}</SheetTitle>
-                  <SheetDescription className="sr-only" />
-                </div>
-              </SurfaceHeaderBar>
-            ) : (
-              <>
-                {/* No title — inject sr-only SheetTitle + SheetDescription so
-                     Radix doesn't warn about a missing accessible name or description. */}
-                <SheetTitle className="sr-only" />
+          {detailTitle !== undefined ? (
+            // The shared bar chrome (padding + header-fill) with the Radix
+            // SheetTitle as its title element. The built-in Sheet close button
+            // (absolute, top-4 right-4) floats over the bar's right edge, so
+            // the actions row clears it (structural, not appearance).
+            <SurfaceHeaderBar
+              actionsClassName="pr-8"
+              actions={
+                detailActions ? (
+                  <div className="flex shrink-0 items-center gap-2">{detailActions}</div>
+                ) : undefined
+              }
+            >
+              {/* SheetTitle so Radix Dialog gets an accessible name (aria-labelledby).
+                  SheetDescription is screen-reader-only fallback so Content never
+                  renders without a description — matching the J archetype fix. */}
+              <div className="min-w-0 flex-1">
+                <SheetTitle className="truncate">{detailTitle}</SheetTitle>
                 <SheetDescription className="sr-only" />
-              </>
-            )}
-            <div className="min-h-0 flex-1 overflow-y-auto">{detail}</div>
-          </SheetContent>
-        </Sheet>
+              </div>
+            </SurfaceHeaderBar>
+          ) : (
+            <>
+              {/* No title — inject sr-only SheetTitle + SheetDescription so
+                   Radix doesn't warn about a missing accessible name or description. */}
+              <SheetTitle className="sr-only" />
+              <SheetDescription className="sr-only" />
+            </>
+          )}
+          <div className="min-h-0 flex-1 overflow-y-auto">{detail}</div>
+        </SheetContent>
       </Sheet>
     ) : null;
 

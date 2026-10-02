@@ -8,27 +8,8 @@ import {
   type ListWithDetailShellProps,
 } from "./ListWithDetailShell";
 
-// jsdom has no matchMedia; ListWithDetailShell reads it (via useIsMobile) on
-// every mount to decide rail vs. sheet presentation.
-if (!window.matchMedia) {
-  window.matchMedia = ((query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    addListener: () => {},
-    removeListener: () => {},
-    dispatchEvent: () => false,
-  })) as unknown as typeof window.matchMedia;
-}
-// useIsMobile keys on window.innerWidth < 768, not matchMedia.matches; keep a
-// stable desktop width unless a test asserts the mobile overlay path.
-window.innerWidth = 1024;
-
 afterEach(() => {
   cleanup();
-  window.innerWidth = 1024;
 });
 
 type Row = { id: string; name: string };
@@ -149,7 +130,6 @@ describe("ListWithDetailShell", () => {
     // On narrow viewports the detail surface is the mobile overlay (Sheet);
     // its header bar must be the one shared implementation (`data-slot=
     // surface-header`) — not a hand-rolled padding + header-fill wrapper.
-    window.innerWidth = 375;
     render(
       <ListWithDetailShell
         rows={rows}
@@ -186,7 +166,31 @@ describe("ListWithDetailShell", () => {
     expect(actionsRow.textContent).toContain("Edit");
   });
 
-  it("desktop rail: detailTitle + detailActions render in the shared bar above the detail", () => {
+  it("desktop: the detail never renders in-flow beside the list — a row click opens the Sheet", () => {
+    // v3.0: no rail. An in-flow panel sits at the top of the list, so a row
+    // selected far down a long list showed its detail off-screen.
+    const { container } = render(
+      <ListWithDetailShell
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+        onRowSelect={() => {}}
+        detail={<div>Details for Ada</div>}
+        detailTitle="Ada Lovelace"
+        detailActions={<button type="button">Edit</button>}
+      />,
+    );
+    expect(container.textContent).not.toContain("Details for Ada");
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    fireEvent.click(screen.getByRole("cell", { name: "Ada Lovelace" }));
+    const dialog = screen.getByRole("dialog");
+    expect(dialog.textContent).toContain("Details for Ada");
+    expect(dialog.textContent).toContain("Edit");
+    expect(container.textContent).not.toContain("Details for Ada");
+  });
+
+  it("a selection set from outside (deep link) opens the Sheet on mount", () => {
     render(
       <ListWithDetailShell
         rows={rows}
@@ -194,38 +198,28 @@ describe("ListWithDetailShell", () => {
         getRowId={(row) => row.id}
         selectedRowId="1"
         detail={<div>Details for Ada</div>}
-        detailTitle="Ada Lovelace"
-        detailActions={<button type="button">Edit</button>}
       />,
     );
-    const title = screen.getByRole("heading", { name: "Ada Lovelace" });
-    const bar = title.closest('[data-slot="surface-header"]') as HTMLElement;
-    expect(bar).not.toBeNull();
-    expect(bar.textContent).toContain("Edit");
-    expect(
-      bar.compareDocumentPosition(screen.getByText("Details for Ada")) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    expect(screen.getByRole("dialog").textContent).toContain("Details for Ada");
   });
 
-  it("desktop rail: no detailTitle renders only the detail", () => {
-    const { container } = render(
+  it("no detailTitle renders only the detail in the Sheet", () => {
+    render(
       <ListWithDetailShell
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
+        selectedRowId="1"
         detail={<div>Details for Ada</div>}
         detailActions={<button type="button">Edit</button>}
       />,
     );
-    expect(container.querySelector('[data-slot="surface-header"]')).toBeNull();
-    expect(screen.getByText("Details for Ada")).toBeTruthy();
+    const dialog = screen.getByRole("dialog");
+    expect(dialog.querySelector('[data-slot="surface-header"]')).toBeNull();
+    expect(dialog.textContent).toContain("Details for Ada");
   });
 
-  it("mobile: the detail renders as the overlay (Sheet) and dismissing it (Esc) calls onDetailClose", () => {
-    // On narrow viewports the detail surface is the mobile overlay (Sheet);
-    // there is no desktop opt-in axis for it.
-    window.innerWidth = 375;
+  it("dismissing the Sheet (Esc) calls onDetailClose", () => {
     const onDetailClose = vi.fn();
     render(
       <ListWithDetailShell

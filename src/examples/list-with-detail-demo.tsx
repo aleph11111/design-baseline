@@ -246,9 +246,9 @@ export function ListWithDetailDemo() {
   // source (always non-empty) or on query presence.
   const filteredEmpty = !isEmpty && filtered.length === 0;
 
-  // The shell's detail surface: a right rail on desktop (the `detail` slot),
-  // a Sheet on mobile (the overlay, handled by `useIsMobile` inside the
-  // shell). `detailTitle`/`detailActions` are data, not appearance.
+  // The shell's detail surface: the `detail` slot opens as a Sheet overlay on
+  // every width (no in-flow rail). `detailTitle`/`detailActions` are data, not
+  // appearance.
   const detail = selected ? (
     <div className="space-y-4 p-5">
       <div>
@@ -269,11 +269,8 @@ export function ListWithDetailDemo() {
         {CATEGORY_LABELS[selected.category]}
       </Badge>
     </div>
-  ) : (
-    <div className="p-5 text-muted-foreground text-[13px]">
-      Select a show to see details.
-    </div>
-  );
+  ) : undefined;
+
 
   const shellProps = {
     rows: filtered,
