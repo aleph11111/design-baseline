@@ -91,17 +91,17 @@ describe("ListWithDetailToolbar result count", () => {
   });
 
   it("supports a non-English label with a different word order via the formatter", () => {
-    // A language that places the figure after the noun (e.g. Arabic/Spanish
-    // "resultados: 3" style) — the formatter gives the consumer full freedom.
+    // A language that places the figure after the noun — the formatter gives
+    // the consumer full freedom over word order, not just the noun itself.
     render(
       <ListWithDetailToolbar
         searchValue="co"
         onSearchChange={() => {}}
         resultCount={3}
-        resultCountLabel={(n) => `${n} Treffer`}
+        resultCountLabel={(n) => `Treffer: ${n}`}
       />,
     );
-    expect(screen.getByText("3 Treffer")).toBeTruthy();
+    expect(screen.getByText("Treffer: 3")).toBeTruthy();
   });
 
   it("omits the caption when no count is provided", () => {

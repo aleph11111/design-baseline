@@ -239,16 +239,12 @@ export function ListWithDetailDemo() {
   const selected = filtered.find((p) => p.id === selectedId) ?? null;
   const isLoading = state === "loading";
   const error = state === "error" ? new Error("Failed to load podcasts.") : null;
-  // The search box carries the live result count (each panel's filtered row
-  // length): type "co" → "2 results", type gibberish → "0 results" beside the
-  // filtered-empty panel, clear the query → the full filtered-list count.
-  // `filteredEmpty` is keyed on the row counts — unfiltered non-empty and
-  // filtered empty — not on whether the query box has text. That is the
-  // Layer-7 "No matches" plane: it is reached whenever *any* search or filter
-  // reduces the list to nothing (here the search is the filter), and NOT in
-  // the demo's artificially `empty` state (where the unfiltered source still
-  // has rows, so the bare "New show" CTA stays).
-  const filteredEmpty = PODCASTS.length > 0 && filtered.length === 0;
+  // The "No matches" (filtered-empty) plane, reached only when a live
+  // search/filter empties a real load: a no-match query shows it beside
+  // "0 results"; the demo's artificially `empty` state keeps the Layer-7
+  // "New show" CTA, so it is excluded via `isEmpty`, not keyed on the static
+  // source (always non-empty) or on query presence.
+  const filteredEmpty = !isEmpty && filtered.length === 0;
 
   // The shell's detail surface: a right rail on desktop (the `detail` slot),
   // a Sheet on mobile (the overlay, handled by `useIsMobile` inside the
@@ -294,12 +290,6 @@ export function ListWithDetailDemo() {
     detail,
     isLoading,
     error,
-    // "0 results" lands beside *this* plane, not the bare empty CTA: any
-    // search or filter with no matches is a filtered-empty, so the shell
-    // shows "No matches. Try clearing filters." instead of the New-show CTA.
-    // Keyed on row counts (not query presence) — a filter-only no-match
-    // still reaches the "No matches" plane, and the demo's artificial
-    // `empty` state (unfiltered source still has rows) stays bare-empty.
     filteredEmpty,
     onRetry: () => setState("loaded"),
     // The empty-state CTA (Layer 7) — visible in the "empty" state.
@@ -420,10 +410,8 @@ export function ListWithDetailDemo() {
                       searchValue={search}
                       onSearchChange={setSearch}
                       searchPlaceholder="Search shows…"
-                      // The count mirrors what the shell actually lists for this
-                      // presentation (the filtered row length), so it tracks the
-                      // live result set: "2 results" while a query matches, the
-                      // full count once cleared, "0 results" on a no-match query.
+                      // The filtered row length of this panel's own list — the
+                      // caption tracks whatever the shell actually shows.
                       resultCount={isEmpty ? undefined : panel.rows.length}
                     />
                   }
