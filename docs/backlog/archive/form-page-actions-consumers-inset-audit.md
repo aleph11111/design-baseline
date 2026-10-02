@@ -51,4 +51,16 @@ gate:
 
 `FORM_INSET_CLASS` = `p-[var(--form-inset)] [--form-inset:1.25rem]` (`FormPageShell.tsx:23`): it applies the padding AND publishes the variable; 1.25rem = the old `p-5`, so spacing is unchanged. The bar sits inside that div, so it now bleeds to the card edge.
 
-Fleet consumers are out of scope for the donor: they pick the change up via the package and self-heal from their own project sessions (playbook), and this repo never writes to them.
+### Fleet consumers (read-only `git grep` of sibling checkouts under `~/Documents/dev`, 2026-10-02; static read, no 375px render)
+
+| Project / file | Surface around `FormPageActions` | Verdict |
+|---|---|---|
+| brickshop-manager `pages/ItemMasterEditor.tsx` | `FormPageShell` board body (`kicker`/`title`) | OK, shell publishes the inset |
+| brickshop-manager `components/orders/create/OrderCreationForm.tsx` | bare `<form className="space-y-6">`; padding comes from the host page, not inspected | unverified; no padded wrapper in the file |
+| mistra `ProfilePage.tsx` | classic `FormPageShell` (no padding) | OK, bleed 0 |
+| mistra `admin/SettingsPage.tsx` | classic `FormPageShell`; the `Card className="p-6"` blocks close before the actions, which sit at form level | OK |
+| mistra `admin/SkillBlockEditorPage.tsx` | no longer uses `FormPageActions` (own sticky div; stale comment mentions the old `-mx-6`) | n/a |
+| hk-crm `holding/lookup/project-phase/service-assignment-renewal/user-form.tsx` | form islands inside `CrudDialog` bodies (the audit signal on forms owning their footer), not a board/Card surface | not this contract; tracked by that signal |
+| hk-crm `project-form.tsx` | `useFormPageState` form; host page not inspected | unverified |
+
+No fleet consumer was found placing `FormPageActions` inside a padded container (default `CardContent`, `p-6`) without publishing `--form-inset`. Two entries (brickshop `OrderCreationForm`, hk-crm `project-form`) could not be settled from the file alone because their padded host sits in another file; the donor never writes to fleet repos, so each project's own session confirms them when it next adopts the package (fleet-adoption playbook).
