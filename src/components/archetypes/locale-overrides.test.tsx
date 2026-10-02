@@ -113,6 +113,32 @@ describe("SettingsTableShell labels", () => {
     expect(screen.getByText("Etwas ist schiefgelaufen")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Erneut versuchen" })).toBeTruthy();
   });
+
+  it("falls back to the built-in strings for an explicit undefined override", () => {
+    // A wrapper forwarding an unset optional prop would pass explicit
+    // `undefined` — the merged defaults must not be replaced by it.
+    render(
+      <SettingsTableShell
+        rows={rows}
+        columns={columns}
+        getRowId={(r) => r.id}
+        bulkSelectable
+        selectedIds={["a"]}
+        onBulkSelectChange={() => {}}
+        onBulkDelete={() => {}}
+        labels={{
+          selectAll: undefined,
+          selectRow: undefined,
+          selectedCount: undefined,
+          deleteSelected: undefined,
+        }}
+      />,
+    );
+    expect(screen.getByRole("checkbox", { name: "Select all rows" })).toBeTruthy();
+    expect(screen.getByRole("checkbox", { name: "Select row: Alpha" })).toBeTruthy();
+    expect(screen.getByText("1 selected")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Delete 1 selected" })).toBeTruthy();
+  });
 });
 
 describe("ListWithDetailShell labels", () => {
@@ -169,6 +195,13 @@ describe("GroupedListShell labels", () => {
 
     rerender(
       <GroupedListShell isEmpty emptyMessage="Keine Einträge vorhanden." />,
+    );
+    expect(screen.getByText("Keine Einträge vorhanden.")).toBeTruthy();
+
+    // The `labels.empty` path (not just `emptyMessage`) is the shared
+    // renderer's own — like the other two shells.
+    rerender(
+      <GroupedListShell isEmpty labels={{ empty: "Keine Einträge vorhanden." }} />,
     );
     expect(screen.getByText("Keine Einträge vorhanden.")).toBeTruthy();
   });

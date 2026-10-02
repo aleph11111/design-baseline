@@ -71,13 +71,14 @@ export type SettingsTableLabels<Row = unknown> = {
 };
 
 /**
- * The shell's built-in bulk-select copy — one defaults object merged over the
- * consumer's `labels` once (the same pattern `useCrudDialogController` uses
- * with `DEFAULT_CRUD_DIALOG_LABELS`), so adding a key or changing a default
- * is a one-line edit, not a scatter of `??` literals. The row-checkbox name
- * additionally has a row-derived default ("Select row: {identifier cell}")
- * that only yields to a consumer override; a non-primitive identifier cell
- * falls back to the flat `selectRow` default below.
+ * The shell's built-in bulk-select copy — the consumer's `labels` is merged
+ * over it per key with `??` (not a spread, which would let an explicit
+ * `undefined` override replace a default), so adding a key or changing a
+ * default is a one-line edit and an unset override falls back to the
+ * built-in string. The row-checkbox name additionally has a row-derived
+ * default ("Select row: {identifier cell}") that only yields to a consumer
+ * override; a non-primitive identifier cell falls back to the flat
+ * `selectRow` default below.
  */
 const DEFAULT_SETTINGS_TABLE_LABELS = {
   selectAll: "Select all rows",
@@ -191,9 +192,17 @@ export function SettingsTableShell<Row>({
     (rowActions !== undefined && rowActions.length > 0);
   const hasBulk = bulkSelectable === true;
 
-  // Shell copy: one defaults object merged over the consumer's `labels` once,
-  // so every built-in string resolves against `allLabels` below.
-  const allLabels = { ...DEFAULT_SETTINGS_TABLE_LABELS, ...labels };
+  // Shell copy: the built-in defaults merged over the consumer's `labels`
+  // per key with `??` — a spread would copy an explicit `undefined` onto a
+  // default, so a wrapper forwarding an unset prop would make
+  // `selectedCount`/`deleteSelected` throw and drop the select-all
+  // `aria-label` instead of falling back to the built-in strings.
+  const allLabels = {
+    selectAll: labels?.selectAll ?? DEFAULT_SETTINGS_TABLE_LABELS.selectAll,
+    selectedCount: labels?.selectedCount ?? DEFAULT_SETTINGS_TABLE_LABELS.selectedCount,
+    deleteSelected:
+      labels?.deleteSelected ?? DEFAULT_SETTINGS_TABLE_LABELS.deleteSelected,
+  };
 
   // Bulk select helpers. The selection is consumer-owned (selectedIds), but on
   // every bulk path the shell only ever emits ids of the rows it is showing:
@@ -319,7 +328,7 @@ export function SettingsTableShell<Row>({
       phase={listState}
       error={error}
       onRetry={onRetry}
-      labels={{ loading: allLabels.loading, errorTitle: allLabels.errorTitle, retry: allLabels.retry }}
+      labels={labels}
       emptyMessage={emptyMessage}
       emptyAction={
         onAddNew && !isFiltered && (

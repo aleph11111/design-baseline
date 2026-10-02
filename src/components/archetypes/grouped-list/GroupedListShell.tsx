@@ -1,19 +1,15 @@
 "use client";
 import * as React from "react";
-import { ListStateView, resolveListState } from "../shared";
+import { ListStateView, resolveListState, type ListStateLabels } from "../shared";
 import {
   SurfaceHeaderSlot,
   type SurfaceHeaderSlotProps,
 } from "../../layout/SurfaceHeaderSlot";
 
-export type GroupedListShellLabels = {
-  /** Loading-plane text. Default "Loading…". */
-  loading?: string;
-  /** Error-plane title. Default "Something went wrong". */
-  errorTitle?: string;
-  /** Error-plane retry button. Default "Try again". */
-  retry?: string;
-};
+// The shared renderer's own labels type — one owner of the key set, so the
+// three list shells' `labels` props can't drift. Re-exported under the shell's
+// name for existing import sites.
+export type GroupedListShellLabels = ListStateLabels;
 
 export type GroupedListShellProps = {
   /** Page-level toolbar slot. Rendered as a bare flex row above the sections region. */

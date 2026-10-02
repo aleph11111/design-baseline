@@ -49,7 +49,10 @@ export type ListWithDetailEmptyStateProps = {
  * Thin adapter over the shared `<ListStateView>` — keeps the list archetype's
  * `mode` API (incl. "filtered-empty") while the actual loading/empty/error
  * planes are owned by one shared renderer, so they match settings-table and
- * grouped-list exactly.
+ * grouped-list exactly. The `labels` pass straight through (their
+ * `loading`/`errorTitle`/`retry`/`empty` keys are the shared renderer's own);
+ * the only mapping is `"filtered-empty"` folded into a message override with
+ * this archetype's own default.
  */
 export function ListWithDetailEmptyState({
   mode,
@@ -60,22 +63,23 @@ export function ListWithDetailEmptyState({
   action,
   className,
 }: ListWithDetailEmptyStateProps) {
-  // The shared renderer's `"empty"` phase; this component folds its own
+  // The shared renderer owns the `"empty"` phase; this component folds its
   // `"filtered-empty"` sub-mode into a message override (its own default
-  // "No matches. Try clearing filters."). The no-filter empty message is left
-  // to the shared renderer's single default ("No items yet").
+  // "No matches. Try clearing filters."). The no-filter empty message comes
+  // from the shared renderer — `labels.empty` or its single default
+  // ("No items yet").
   const phase: ListStatePhase = mode === "loading" || mode === "error" ? mode : "empty";
   const emptyMessage =
     mode === "filtered-empty"
       ? (message ?? labels?.filteredEmpty ?? "No matches. Try clearing filters.")
-      : (message ?? labels?.empty);
+      : message;
 
   return (
     <ListStateView
       phase={phase}
       error={error}
       onRetry={onRetry}
-      labels={{ loading: labels?.loading, errorTitle: labels?.errorTitle, retry: labels?.retry }}
+      labels={labels}
       emptyMessage={emptyMessage}
       emptyAction={action}
       className={className}

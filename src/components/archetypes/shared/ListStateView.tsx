@@ -16,6 +16,8 @@ export type ListStateLabels = {
   errorTitle?: string;
   /** Error-plane retry button. Default "Try again". */
   retry?: string;
+  /** Empty-plane text. Default "No items yet" (the `emptyMessage` prop wins). */
+  empty?: string;
 };
 
 export type ListStateViewProps = {
@@ -76,7 +78,7 @@ export function ListStateView({
   return (
     <StateView
       variant="empty"
-      message={emptyMessage ?? "No items yet"}
+      message={emptyMessage ?? labels?.empty ?? "No items yet"}
       action={emptyAction}
       className={className}
     />
