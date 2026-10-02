@@ -308,4 +308,30 @@ describe("SettingsTableShell row-checkbox accessible names", () => {
     // Both row checkboxes carry the flat default (the header keeps its own).
     expect(names.filter((n) => n === "Select row")).toHaveLength(2);
   });
+
+  it("getRowLabel names JSX-identifier rows distinctly", () => {
+    const jsxColumns: SettingsColumn<Row>[] = [
+      {
+        key: "name",
+        header: "Name",
+        isIdentifier: true,
+        cell: (row) => <span>{row.name}</span>,
+      },
+    ];
+    render(
+      <SettingsTableShell
+        rows={makeRows(2)}
+        columns={jsxColumns}
+        getRowId={(row) => row.id}
+        getRowLabel={(row) => row.name}
+        bulkSelectable
+      />,
+    );
+    const names = screen
+      .getAllByRole("checkbox")
+      .map((cb) => cb.getAttribute("aria-label"));
+    expect(names).toContain("Select row: Row 0");
+    expect(names).toContain("Select row: Row 1");
+    expect(names.join()).not.toContain("[object Object]");
+  });
 });
