@@ -164,13 +164,32 @@ export function DetailOverviewShell({
     "[&>*+*]:relative [&>*+*]:before:absolute [&>*+*]:before:inset-x-5 " +
     "[&>*+*]:before:top-0 [&>*+*]:before:h-px [&>*+*]:before:bg-border/60";
 
+  // Publish the rail's own height as --db-rail-h so its sticky `top` can clamp
+  // to `100dvh - height`: a rail taller than the viewport scrolls with the
+  // page until its foot is in view, then pins there — the foot (references)
+  // stays reachable without an inner scroll box. A rail that fits keeps
+  // pinning just below the app shell's header. Measured, because the rail's
+  // content is the consumer's.
+  const railRef = React.useRef<HTMLDivElement>(null);
+  React.useLayoutEffect(() => {
+    const el = railRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const publish = () => el.style.setProperty("--db-rail-h", `${el.offsetHeight}px`);
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [layout]);
+
   const rail = (
     <UnifiedSurfaceContext.Provider value={true}>
       {/* Slot children render DIRECTLY into the rail container so a
           multi-section `summary` gets an inset hairline between sections. */}
       <div
+        ref={railRef}
         className={cn(
-          "bg-muted/20 lg:border-r lg:border-border/60 lg:sticky lg:top-[var(--db-sticky-top,0px)] lg:self-start",
+          "bg-muted/20 lg:border-r lg:border-border/60 lg:sticky lg:self-start",
+          "lg:top-[min(var(--db-sticky-top,0px),calc(100dvh_-_var(--db-rail-h,0px)))]",
           railDividers,
         )}
       >

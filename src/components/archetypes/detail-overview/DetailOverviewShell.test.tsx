@@ -52,6 +52,30 @@ describe("DetailOverviewShell — container model is single (unified)", () => {
     ).toBeNull();
   });
 
+  it("clamps the rail's sticky top by its published height so a tall rail's foot stays reachable", () => {
+    const observed: Element[] = [];
+    const saved = globalThis.ResizeObserver;
+    globalThis.ResizeObserver = class {
+      observe(el: Element) { observed.push(el); }
+      unobserve() {}
+      disconnect() {}
+    } as unknown as typeof ResizeObserver;
+    try {
+      const { container } = render(<DetailOverviewShell {...slots} layout="rail" />);
+      const rail = container.querySelector('[class*="lg:sticky"]') as HTMLElement;
+      // jsdom has no layout, so the measured height is 0 — the wiring is what's under test.
+      expect(rail.style.getPropertyValue("--db-rail-h")).toBe("0px");
+      expect(observed[0]).toBe(rail);
+      expect(rail.className).toContain(
+        "lg:top-[min(var(--db-sticky-top,0px),calc(100dvh_-_var(--db-rail-h,0px)))]",
+      );
+      // no inner scroll box: the page scrolls, never the rail
+      expect(rail.className).not.toMatch(/overflow-(y-)?(auto|scroll)|max-h-/);
+    } finally {
+      globalThis.ResizeObserver = saved;
+    }
+  });
+
   it("provides UnifiedSurfaceContext=true in the rail, not the main (rail)", () => {
     const { getByTestId } = render(
       <DetailOverviewShell
