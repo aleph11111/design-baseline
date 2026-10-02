@@ -53,8 +53,10 @@ function SkeletonField({
 }
 
 // The body's padding box, shared by the loading skeleton and the loaded
-// content so a fetch finishing mid-viewport can't shift the layout.
-const BODY_INSET = "px-6 py-4";
+// content so a fetch finishing mid-viewport can't shift the layout. It also
+// publishes the horizontal padding as `--form-inset` (= px-6), so a
+// `FormPageActions` bar rendered inside the body bleeds to the body edge.
+const BODY_INSET = "px-6 py-4 [--form-inset:1.5rem]";
 
 // Decorative loading shape. The visible skeleton stays aria-hidden — the
 // announcement lives in the body's persistent status region (below), not on
