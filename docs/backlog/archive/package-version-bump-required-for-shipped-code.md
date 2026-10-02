@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-10-02
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "extends one zero-dep script and its vitest file along the pattern PR #335 set; the exemption list is decided below"
