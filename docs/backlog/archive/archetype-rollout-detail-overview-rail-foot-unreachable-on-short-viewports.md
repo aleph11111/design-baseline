@@ -1,7 +1,7 @@
 ---
 area: archetype-rollout
 opened: '2026-10-01'
-status: needs-enrichment
+status: done
 gate:
   score: 4
   passed:

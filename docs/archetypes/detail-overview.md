@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 3.3
+version: 3.4
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.6
@@ -11,6 +11,12 @@ status: locked
 
 # Archetype C — Detail Overview
 
+> **v3.4 (2026-10-02) — a tall rail keeps its foot reachable.** A rail taller
+> than the viewport scrolls with the page until its foot (`references`, the
+> last master-data rows) is in view, then pins there; a rail that fits still
+> pins just below the app shell's header (Layer 6 "Responsive contract").
+> Still one scroll surface. Ships in manifest 3.7. No API change.
+>
 > **v3.3 (2026-10-01) — contract/manifest reconciliation.** The wide-viewport
 > rail pins just below the app shell's sticky header, never under it (Layer 6
 > "Responsive contract") — the behaviour shipped with the shell in manifest
@@ -250,6 +256,10 @@ what keeps the rail variant *the same archetype* rather than a fork.
 - The aside uses sticky positioning on wide viewports, pinned just below
   the app shell's sticky header (never under it), its own `~300px` column; full-width, stacked above main, on
   narrow viewports.
+- A rail **taller than the viewport** never hides its foot: it scrolls with
+  the page until its last row is in view, then pins with its foot at the
+  viewport bottom. Every rail row — `references` included — is reachable by
+  scrolling the page alone, before the main column ends.
 - **No nested scroll containers** — the page scrolls; the rail uses sticky
   positioning, not independent scrolling. The rail must never become a
   second scroll surface; that rule preserves the single-surface mental model
