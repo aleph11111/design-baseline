@@ -614,11 +614,15 @@ export function CrudDialogDemo(): React.ReactElement {
             <TableBody>
               {workouts.map((w) => (
                 <TableRow key={w.id}>
-                  <TableCell
-                    className="font-medium font-mono text-primary hover:underline cursor-pointer"
-                    onClick={() => openView(w.id)}
-                  >
-                    {w.date}
+                  <TableCell>
+                    <Button
+                      variant="link"
+                      className="h-auto p-0 font-mono"
+                      aria-label={`View workout ${w.date}`}
+                      onClick={() => openView(w.id)}
+                    >
+                      {w.date}
+                    </Button>
                   </TableCell>
                   <TableCell>{KIND_LABELS[w.kind]}</TableCell>
                   <TableCell className="text-right font-mono tabular-nums">{w.durationMinutes} min</TableCell>
