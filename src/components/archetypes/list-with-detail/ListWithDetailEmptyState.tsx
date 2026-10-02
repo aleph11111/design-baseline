@@ -1,7 +1,15 @@
 "use client";
 import type * as React from "react";
-import { StateView } from "../../ui/state-view";
+import { ListStateView } from "../shared";
+import type { ListStatePhase } from "../shared";
 
+/**
+ * `filtered-empty` is this archetype's own sub-mode of the shared `"empty"`
+ * phase: the same empty plane with a filter-active message (an explicit
+ * `message` override inside this component). The phase-aware planes all come
+ * from the shared `<ListStateView>`, so every list shell renders the same
+ * planes.
+ */
 export type ListEmptyMode = "empty" | "loading" | "error" | "filtered-empty";
 
 /**
@@ -32,15 +40,15 @@ export type ListWithDetailEmptyStateProps = {
   labels?: ListWithDetailLabels;
   error?: unknown;
   onRetry?: () => void;
-  /** CTA inside the empty / filtered-empty panel (e.g. an "Add {entity}" button). */
+  /** CTA inside the empty plane (e.g. an "Add {entity}" button). */
   action?: React.ReactNode;
   className?: string;
 };
 
 /**
- * Thin adapter over the shared `<StateView>` — keeps the list archetype's
+ * Thin adapter over the shared `<ListStateView>` — keeps the list archetype's
  * `mode` API (incl. "filtered-empty") while the actual loading/empty/error
- * planes are owned by one primitive, so they match settings-table and
+ * planes are owned by one shared renderer, so they match settings-table and
  * grouped-list exactly.
  */
 export function ListWithDetailEmptyState({
@@ -52,31 +60,24 @@ export function ListWithDetailEmptyState({
   action,
   className,
 }: ListWithDetailEmptyStateProps) {
-  if (mode === "loading") {
-    return <StateView variant="loading" message={labels?.loading} className={className} />;
-  }
-  if (mode === "error") {
-    return (
-      <StateView
-        variant="error"
-        title={labels?.errorTitle}
-        error={error}
-        onRetry={onRetry}
-        retryLabel={labels?.retry}
-        className={className}
-      />
-    );
-  }
+  // The shared renderer's `"empty"` phase; this component folds its own
+  // `"filtered-empty"` sub-mode into a message override (its own default
+  // "No matches. Try clearing filters."). The no-filter empty message is left
+  // to the shared renderer's single default ("No items yet").
+  const phase: ListStatePhase = mode === "loading" || mode === "error" ? mode : "empty";
+  const emptyMessage =
+    mode === "filtered-empty"
+      ? (message ?? labels?.filteredEmpty ?? "No matches. Try clearing filters.")
+      : (message ?? labels?.empty);
+
   return (
-    <StateView
-      variant="empty"
-      message={
-        message ??
-        (mode === "filtered-empty"
-          ? (labels?.filteredEmpty ?? "No matches. Try clearing filters.")
-          : (labels?.empty ?? "No items yet"))
-      }
-      action={action}
+    <ListStateView
+      phase={phase}
+      error={error}
+      onRetry={onRetry}
+      labels={{ loading: labels?.loading, errorTitle: labels?.errorTitle, retry: labels?.retry }}
+      emptyMessage={emptyMessage}
+      emptyAction={action}
       className={className}
     />
   );

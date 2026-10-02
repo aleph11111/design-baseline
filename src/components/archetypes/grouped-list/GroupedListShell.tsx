@@ -1,11 +1,19 @@
 "use client";
 import * as React from "react";
-import { StateView } from "../../ui/state-view";
-import { resolveListState } from "../shared";
+import { ListStateView, resolveListState } from "../shared";
 import {
   SurfaceHeaderSlot,
   type SurfaceHeaderSlotProps,
 } from "../../layout/SurfaceHeaderSlot";
+
+export type GroupedListShellLabels = {
+  /** Loading-plane text. Default "Loading…". */
+  loading?: string;
+  /** Error-plane title. Default "Something went wrong". */
+  errorTitle?: string;
+  /** Error-plane retry button. Default "Try again". */
+  retry?: string;
+};
 
 export type GroupedListShellProps = {
   /** Page-level toolbar slot. Rendered as a bare flex row above the sections region. */
@@ -20,6 +28,8 @@ export type GroupedListShellProps = {
   isEmpty?: boolean;
   /** Copy shown in the page-level empty state. */
   emptyMessage?: string;
+  /** Overrides for the page-level state-plane copy (loading, error title, retry). */
+  labels?: GroupedListShellLabels;
   /** `<GroupedListSection>` instances. */
   children?: React.ReactNode;
 } & SurfaceHeaderSlotProps;
@@ -39,15 +49,13 @@ export function GroupedListShell({
   onRetry,
   isEmpty,
   emptyMessage,
+  labels,
   children,
   kicker,
   title,
   headerActions,
 }: GroupedListShellProps): React.ReactElement {
   const listState = resolveListState({ isLoading, error, isEmpty: isEmpty === true });
-  const showLoading = listState === "loading";
-  const showError = listState === "error";
-  const showEmpty = listState === "empty";
   const showSections = listState === "content";
 
   return (
@@ -65,11 +73,13 @@ export function GroupedListShell({
         <div className="flex flex-wrap items-center gap-3">{toolbar}</div>
       )}
 
-      {showLoading && <StateView variant="loading" />}
-      {showError && <StateView variant="error" error={error} onRetry={onRetry} />}
-      {showEmpty && (
-        <StateView variant="empty" message={emptyMessage ?? "No items yet"} />
-      )}
+      <ListStateView
+        phase={listState}
+        error={error}
+        onRetry={onRetry}
+        labels={labels}
+        emptyMessage={emptyMessage}
+      />
 
       {showSections && <div className="space-y-5">{children}</div>}
     </div>
