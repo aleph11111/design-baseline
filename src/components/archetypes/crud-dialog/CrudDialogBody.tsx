@@ -2,6 +2,8 @@
 import * as React from "react";
 import { ScrollArea } from "../../ui/scroll-area";
 import { Skeleton } from "../../ui/skeleton";
+import { InlineError } from "../../ui/state-view";
+import { CRUD_ERRORS } from "./crudStrings";
 import { cn } from "../../../lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -15,6 +17,22 @@ export type CrudDialogBodyProps = {
    * Use while the entity fetch is in-flight (enabled: open && !!entityId).
    */
   isLoading?: boolean;
+  /**
+   * The entity fetch's error. When truthy, the body renders the compact
+   * inline-error box in place of the fields (and the skeleton) — the
+   * "Error (fetch)" state. Keep the footer's primary action unavailable
+   * meanwhile (`primaryDisabled`); the body cannot reach the footer.
+   */
+  error?: unknown;
+  /** Human-readable fetch-error message. Default `CRUD_ERRORS.load`. */
+  errorMessage?: React.ReactNode;
+  /**
+   * Renders a retry button in the error box. The consumer refetches and
+   * passes `isLoading` again, which brings the skeleton back.
+   */
+  onRetry?: () => void;
+  /** Label of the retry button. Default "Try again". */
+  retryLabel?: string;
   /**
    * Body presentation — the dialog's graded "richness" axis (see
    * docs/CHOOSING-A-SURFACE.md). This is a variant, NOT a separate component:
@@ -126,6 +144,7 @@ function BodySkeleton({
  *   - ScrollArea (Radix) for cross-browser consistent scroll behavior
  *   - Consistent padding: px-6 py-4 (applied inside the viewport)
  *   - Loading skeleton rendered when isLoading={true}; children suppressed
+ *   - Fetch-error box rendered when `error` is set; wins over loading
  *
  * Do NOT add extra py-* padding inside the immediate children of CrudDialogBody.
  * The body already supplies px-6 py-4 — adding more creates double-inset.
@@ -137,9 +156,17 @@ const LAYOUT_CLASS: Record<"flat" | "two-column", string> = {
 
 export function CrudDialogBody({
   children,
-  isLoading = false,
+  isLoading: isLoadingProp = false,
+  error,
+  errorMessage = CRUD_ERRORS.load,
+  onRetry,
+  retryLabel,
   layout,
 }: CrudDialogBodyProps): React.ReactElement {
+  const hasError = Boolean(error);
+  // A failed fetch is no longer in flight: the error wins over a stale
+  // isLoading so the box never sits behind a skeleton.
+  const isLoading = isLoadingProp && !hasError;
   // The loading text enters the status region only AFTER the region is in
   // the DOM: screen readers announce changes to an *existing* live region,
   // not content present at first mount — and the normal open path mounts
@@ -161,7 +188,11 @@ export function CrudDialogBody({
           a live region inside a busy subtree holds its own announcements —
           the exact symptom this ticket fixes. */}
       <div aria-busy={isLoading ? "true" : undefined}>
-        {isLoading ? <BodySkeleton layout={layout} /> : (
+        {hasError ? (
+          <div className={BODY_INSET}>
+            <InlineError message={errorMessage} onRetry={onRetry} retryLabel={retryLabel} />
+          </div>
+        ) : isLoading ? <BodySkeleton layout={layout} /> : (
           <div className={BODY_INSET}>
             {layout ? <div className={LAYOUT_CLASS[layout]}>{children}</div> : children}
           </div>
