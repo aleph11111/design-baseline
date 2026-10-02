@@ -17,8 +17,10 @@ status: locked
 > so selecting a row far down a long list rendered its detail off-screen and
 > the user had to scroll back up to read it. A selection set from outside
 > (`selectedRowId` on mount — a deep link) now opens the overlay too. No prop
-> changes; consumers who passed `detail` get the overlay without a code edit.
-> Behavioral breaking change; see Layer 11 and forbidden pattern 5.
+> changes; consumers who passed `detail` get the overlay without a code edit,
+> but a desktop page that never wired `onDetailClose` must wire it now, or its
+> `selectedRowId` stays set after the overlay is dismissed.
+> Behavioral breaking change; see Layer 11 and forbidden pattern 10.
 >
 > **v2.8 (2026-09-30) — row-actions trigger name.** `labels.rowActions`
 > overrides the accessible name of each row's `⋯` trigger (all three
@@ -319,7 +321,7 @@ Mutations are out of the primitive's scope. The consumer's row-click handler or 
 **Required:**
 - No dedicated `/mobile/...` route for list-with-detail pages. The same route serves all viewports.
 - **Table body** — stays the base table primitive on all viewport widths. The primitive's content wrapper provides horizontal scroll so the table scrolls on narrow viewports rather than overflowing. Consumers do not add their own scroll wrapper. Context columns drop out below `md` per the Layer 6 narrow-viewport column subset rule.
-- **Detail panel slot** — whatever element the consumer passes as the `detail` prop renders inside an **overlay surface** (sheet) anchored to the viewport's trailing edge, on every width — full-screen on mobile, a side sheet on desktop. Selecting a row opens it; a `selectedRowId` set from outside (a deep link) opens it on mount. There is no in-flow presentation: the detail never renders inside the list's own column (see forbidden pattern 5), and there is no prop to choose one.
+- **Detail panel slot** — whatever element the consumer passes as the `detail` prop renders inside an **overlay surface** (sheet) anchored to the viewport's trailing edge, on every width — full-screen on mobile, a side sheet on desktop. Selecting a row opens it; a `selectedRowId` set from outside (a deep link) opens it on mount. There is no in-flow presentation: the detail never renders inside the list's own column (see forbidden pattern 10), and there is no prop to choose one.
 - **Overlay dismissal** — dismissing the overlay (Esc, backdrop click, close button) is reported back to the consumer via a dismissal callback. Required whenever a consumer relies on the overlay to reflect a cleared selection — otherwise the consumer's own selection state can go stale after the surface closes.
 - **Header fill** — when `detailTitle` is provided, the overlay's header bar follows the same **header-fill contract** as the master surface header (three modes — brand-filled / muted tint / hairline). It is a closed project context, set once at the top-level app shell; there is no per-shell override — the overlay's header bar reads the context, the same as the master on-surface header.
 
@@ -352,12 +354,12 @@ The following patterns are never permitted in a list-with-detail page, regardles
 2. **Row drag-reorder.** Drag-to-reorder is not part of this archetype's contract. If a consumer genuinely needs ordering, opt in via an explicit `allowRowReorder` prop and a documented extension — it does not ship by default.
 3. **Embedded settings tables.** A settings-table (archetype D2) inside a list-with-detail conflicts with the list semantics. Use a separate page or a modal.
 4. **Hand-rolled card wrappers.** Always use the list-with-detail shell. Do not copy-paste the card chrome.
-5. **In-flow detail rail.** A detail panel rendered beside the list inside the page flow (a right column next to the table). It sits at the top of the list, so a row selected far down a long list shows its detail off-screen and the user scrolls back up to read it. Detail opens in the overlay (the `detail` slot) or on its own route — never in-flow, and never as a hand-built side column next to the shell.
 5. **Action buttons in a floating page header.** All write actions live on the shell (header actions or, on legacy pages, the toolbar).
 6. **Status dropdowns as the default.** Prefer the segmented control (pill row) for a small status enum (≤3 values) that is the page's primary filter axis. A dropdown select is permitted only for a large status enum (>3 values) or a toolbar with 2+ other filter dimensions (see Layer 4, Allowed variation).
 7. **Raw ISO date or number strings in cells.** Always route through consumer-provided formatters.
 8. **Static (non-lazy) page imports.** Always lazy-import list-with-detail pages.
 9. **Missing render-error boundary.** Every list-with-detail page must have one at the page-component level.
+10. **In-flow detail rail.** A detail panel rendered beside the list inside the page flow (a right column next to the table). It sits at the top of the list, so a row selected far down a long list shows its detail off-screen and the user scrolls back up to read it. Detail opens in the overlay (the `detail` slot) or on its own route — never in-flow, and never as a hand-built side column next to the shell.
 
 ---
 

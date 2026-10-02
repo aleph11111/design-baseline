@@ -150,7 +150,7 @@ export function ListWithDetailShell<Row>(
     ref,
   }: ListWithDetailShellProps<Row>,
 ) {
-  const [sheetOpen, setSheetOpen] = React.useState(false);
+  const [sheetOpen, setSheetOpen] = React.useState(Boolean(selectedRowId));
   // A composing archetype (grouped-list's section card) declares chrome-suppression
   // through `ListChromeContext` so the frame renders chromeless (`chrome={false}`)
   // flush inside an already-bounded surface; the chrome decision belongs to the

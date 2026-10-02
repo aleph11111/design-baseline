@@ -127,7 +127,7 @@ describe("ListWithDetailShell", () => {
   });
 
   it("detail Sheet: the Sheet's bar is the shared surface bar and inverts on solid", () => {
-    // On narrow viewports the detail surface is the mobile overlay (Sheet);
+    // The detail surface is the overlay (Sheet), opened by `selectedRowId`;
     // its header bar must be the one shared implementation (`data-slot=
     // surface-header`) — not a hand-rolled padding + header-fill wrapper.
     render(
