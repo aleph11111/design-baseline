@@ -206,7 +206,7 @@ The page header no longer floats above the shell as a separate page-header primi
 **Forbidden:**
 - Explicit "Edit" icon column — identifier-cell click is the only edit trigger.
 - Navigating to a detail route on identifier-cell click (that is Archetype A's behavior).
-- Opening a right-rail detail panel on click (also Archetype A's behavior).
+- Opening a detail overlay on click (Archetype A's behavior).
 - Inline editing of cells (clicking a cell to edit in place).
 - Inline status color maps duplicated per page — categorical statuses go through a shared variant.
 - Raw number formatting in cells.
@@ -295,7 +295,7 @@ Mutations are out of the primitive's scope. Callbacks surface the intent; the co
 **Required:**
 - No dedicated `/mobile/...` route. The same route serves all viewports.
 - **Table body** — stays the base table primitive on all viewports. The content wrapper provides horizontal scroll on overflow so the table scrolls on narrow viewports. Context columns drop out below `md` per the Layer 6 narrow-viewport column subset rule.
-- **Edit dialog** — opens as a full-screen **overlay surface** on mobile (same adaptive pattern as Archetype A's detail panel). D2's edit dialog composes the J (`crud-dialog`) archetype's dialog-shell family — the header/body/footer sub-primitives plus a mode hook — which handles the desktop-width / mobile-full-viewport swap automatically.
+- **Edit dialog** — opens as a full-screen **overlay surface** on mobile (the same overlay surface Archetype A's detail opens in). D2's edit dialog composes the J (`crud-dialog`) archetype's dialog-shell family — the header/body/footer sub-primitives plus a mode hook — which handles the desktop-width / mobile-full-viewport swap automatically.
 
 **Extension points (not in baseline v1.0 — consumer may add):**
 - Card-collapse layout — replacing the table with stacked row cards on narrow viewports.
@@ -322,7 +322,7 @@ Permissions are out of the primitive's scope. The consumer controls who reaches 
 The following patterns are never permitted in a settings-table page, regardless of the domain:
 
 1. **Inline edit.** Editing a row's fields in-place within a table cell. Always open a dialog.
-2. **Detail panel slot.** D2 has no right-rail detail panel (that is Archetype A's behavior). Clicking a row opens an edit dialog.
+2. **Detail panel slot.** D2 has no detail overlay (that is Archetype A's behavior). Clicking a row opens an edit dialog.
 3. **Detail route navigation on click.** D2's click contract is dialog — never navigate to a detail route.
 4. **Deeply nested rows.** Settings tables are flat. No tree or hierarchy in the table.
 5. **Explicit "Edit" icon column.** Identifier-cell click is the only edit trigger.
@@ -368,8 +368,8 @@ When a target project applies this archetype, it wires the generic primitives to
 
 **REQUIRED**
 
-- [ ] **Row click opens an edit dialog** (the D2 click contract) — **no** right-rail
-      detail panel (that's archetype A). *Wrapper tell:* a detail panel bolted on.
+- [ ] **Row click opens an edit dialog** (the D2 click contract) — **no** detail
+      overlay (that's archetype A). *Wrapper tell:* a detail panel bolted on.
 - [ ] **Write actions live on the shell** — in `headerActions` (canonical, board
       form) or, on legacy pages, the `toolbar` slot — never floating above the shell.
 - [ ] **One settings-table shell** owns the card + table + row-actions dropdown; no

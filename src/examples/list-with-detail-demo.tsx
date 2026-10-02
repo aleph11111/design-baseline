@@ -271,7 +271,6 @@ export function ListWithDetailDemo() {
     </div>
   ) : undefined;
 
-
   const shellProps = {
     rows: filtered,
     getRowId: (p: Podcast) => p.id,

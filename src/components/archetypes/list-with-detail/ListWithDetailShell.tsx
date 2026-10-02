@@ -157,12 +157,11 @@ export function ListWithDetailShell<Row>(
   // compose-into archetype, not to the per-page caller.
   const chromeless = React.useContext(ListChromeContext);
   const fullBleed = useFullBleedClass();
-  // Sync sheet visibility with selectedRowId: if the consumer clears the selection
-  // (e.g. after a delete), close the sheet so stale detail is not shown.
+  // Sync sheet visibility with selectedRowId: a selection set from outside (a
+  // deep link, a restored URL) opens the sheet; clearing it (e.g. after a
+  // delete) closes it so stale detail is not shown.
   React.useEffect(() => {
-    if (!selectedRowId) {
-      setSheetOpen(false);
-    }
+    setSheetOpen(Boolean(selectedRowId));
   }, [selectedRowId]);
 
   // Selecting a row opens the sheet. Opened unconditionally: a consumer that
