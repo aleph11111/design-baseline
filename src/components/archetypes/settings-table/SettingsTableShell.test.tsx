@@ -265,6 +265,7 @@ describe("SettingsTableShell row-checkbox accessible names", () => {
     expect(screen.getByRole("checkbox", { name: "Select row: Row 1" })).toBeTruthy();
     // The header checkbox keeps its own, non-row-specific name.
     expect(screen.getByRole("checkbox", { name: "Select all rows" })).toBeTruthy();
+    expect(screen.queryAllByRole("checkbox", { name: /\[object Object\]/ })).toHaveLength(0);
   });
 
   it("a function selectRow override customises the row name", () => {
@@ -279,6 +280,7 @@ describe("SettingsTableShell row-checkbox accessible names", () => {
     );
     expect(screen.getByRole("checkbox", { name: "Wähle Row 0" })).toBeTruthy();
     expect(screen.getByRole("checkbox", { name: "Wähle Row 1" })).toBeTruthy();
+    expect(screen.queryAllByRole("checkbox", { name: /\[object Object\]/ })).toHaveLength(0);
   });
 
   it("a JSX identifier cell falls back to the flat default, not [object Object]", () => {
@@ -301,12 +303,9 @@ describe("SettingsTableShell row-checkbox accessible names", () => {
         bulkSelectable
       />,
     );
-    const names = screen
-      .getAllByRole("checkbox")
-      .map((cb) => cb.getAttribute("aria-label"));
-    expect(names).not.toContain("[object Object]");
     // Both row checkboxes carry the flat default (the header keeps its own).
-    expect(names.filter((n) => n === "Select row")).toHaveLength(2);
+    expect(screen.getAllByRole("checkbox", { name: "Select row" })).toHaveLength(2);
+    expect(screen.queryAllByRole("checkbox", { name: /\[object Object\]/ })).toHaveLength(0);
   });
 
   it("getRowLabel names JSX-identifier rows distinctly", () => {
@@ -327,11 +326,8 @@ describe("SettingsTableShell row-checkbox accessible names", () => {
         bulkSelectable
       />,
     );
-    const names = screen
-      .getAllByRole("checkbox")
-      .map((cb) => cb.getAttribute("aria-label"));
-    expect(names).toContain("Select row: Row 0");
-    expect(names).toContain("Select row: Row 1");
-    expect(names.join()).not.toContain("[object Object]");
+    expect(screen.getByRole("checkbox", { name: "Select row: Row 0" })).toBeTruthy();
+    expect(screen.getByRole("checkbox", { name: "Select row: Row 1" })).toBeTruthy();
+    expect(screen.queryAllByRole("checkbox", { name: /\[object Object\]/ })).toHaveLength(0);
   });
 });
