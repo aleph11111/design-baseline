@@ -5,7 +5,6 @@ import { SurfaceFrame } from "../../layout/SurfaceFrame";
 import { useFullBleedClass } from "../../layout/surface";
 import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
 import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
-import { useIsMobile } from "../../../hooks/use-mobile";
 import {
   ListWithDetailEmptyState,
   type ListEmptyMode,
@@ -69,8 +68,8 @@ export type ListWithDetailShellProps<Row> = {
   /** Optional right-aligned actions in the detail surface's header (e.g. an Edit button). */
   detailActions?: React.ReactNode;
   /**
-   * Called when the detail surface renders as the overlay (the Sheet, which is
-   * always the case on mobile) and that Sheet closes — Esc, backdrop click, or
+   * Called when the detail overlay (the Sheet — the only detail surface, on
+   * every width) closes — Esc, backdrop click, or
    * the close button. The shell already tracks its own open/close state; wire
    * this to clear the consumer's selection so it doesn't go stale once the
    * Sheet is gone.
@@ -151,34 +150,29 @@ export function ListWithDetailShell<Row>(
     ref,
   }: ListWithDetailShellProps<Row>,
 ) {
-  const isMobile = useIsMobile();
-  const [sheetOpen, setSheetOpen] = React.useState(false);
+  const [sheetOpen, setSheetOpen] = React.useState(Boolean(selectedRowId));
   // A composing archetype (grouped-list's section card) declares chrome-suppression
   // through `ListChromeContext` so the frame renders chromeless (`chrome={false}`)
   // flush inside an already-bounded surface; the chrome decision belongs to the
   // compose-into archetype, not to the per-page caller.
   const chromeless = React.useContext(ListChromeContext);
   const fullBleed = useFullBleedClass();
-  // The detail presents as a Sheet on mobile always; rail on desktop.
-  const asSheet = isMobile;
-
-  // Sync sheet visibility with selectedRowId: if the consumer clears the selection
-  // (e.g. after a delete) while on mobile, close the sheet so stale detail is not shown.
+  // Sync sheet visibility with selectedRowId: a selection set from outside (a
+  // deep link, a restored URL) opens the sheet; clearing it (e.g. after a
+  // delete) closes it so stale detail is not shown.
   React.useEffect(() => {
-    if (!selectedRowId) {
-      setSheetOpen(false);
-    }
+    setSheetOpen(Boolean(selectedRowId));
   }, [selectedRowId]);
 
-  // When a row is selected on mobile, open the sheet.
+  // Selecting a row opens the sheet. Opened unconditionally: a consumer that
+  // only builds `detail` once a row is selected passes it on the next render.
+  // A consumer that navigates instead never passes `detail`, so nothing shows.
   const handleRowSelect = React.useCallback(
     (row: Row) => {
-      if (asSheet && detail !== undefined) {
-        setSheetOpen(true);
-      }
+      setSheetOpen(true);
       onRowSelect?.(row);
     },
-    [asSheet, detail, onRowSelect],
+    [onRowSelect],
   );
 
   // Determine body content
@@ -229,73 +223,56 @@ export function ListWithDetailShell<Row>(
     />
   );
 
-  // Detail panel: rail on desktop, always a Sheet on mobile (the overlay is
-  // the shared mobile detail container — a responsive-structure decision, not a
-  // per-page appearance choice). The Sheet's header bar reads `HeaderFillContext`.
+  // Detail panel: always the overlay Sheet, on every width. An in-flow rail is
+  // forbidden (v3.0): it sits at the top of the list, so selecting a row far
+  // down a long list renders the detail off-screen. The Sheet's header bar
+  // reads `HeaderFillContext`.
   const detailPanel =
     detail !== undefined ? (
-      asSheet ? (
-        <Sheet
-          open={sheetOpen}
-          onOpenChange={(open) => {
-            setSheetOpen(open);
-            if (!open) onDetailClose?.();
-          }}
+      <Sheet
+        open={sheetOpen}
+        onOpenChange={(open) => {
+          setSheetOpen(open);
+          if (!open) onDetailClose?.();
+        }}
+      >
+        <SheetContent
+          side="right"
+          closeLabel={labels?.close}
+          className="flex w-full flex-col gap-0 p-0 sm:max-w-md"
         >
-          <SheetContent
-            side="right"
-            closeLabel={labels?.close}
-            className="flex w-full flex-col gap-0 p-0 sm:max-w-md"
-          >
-            {detailTitle !== undefined ? (
-              // The shared bar chrome (padding + header-fill) with the Radix
-              // SheetTitle as its title element. The built-in Sheet close button
-              // (absolute, top-4 right-4) floats over the bar's right edge, so
-              // the actions row clears it (structural, not appearance).
-              <SurfaceHeaderBar
-                actionsClassName="pr-8"
-                actions={
-                  detailActions ? (
-                    <div className="flex shrink-0 items-center gap-2">{detailActions}</div>
-                  ) : undefined
-                }
-              >
-                {/* SheetTitle so Radix Dialog gets an accessible name (aria-labelledby).
-                    SheetDescription is screen-reader-only fallback so Content never
-                    renders without a description — matching the J archetype fix. */}
-                <div className="min-w-0 flex-1">
-                  <SheetTitle className="truncate">{detailTitle}</SheetTitle>
-                  <SheetDescription className="sr-only" />
-                </div>
-              </SurfaceHeaderBar>
-            ) : (
-              <>
-                {/* No title — inject sr-only SheetTitle + SheetDescription so
-                     Radix doesn't warn about a missing accessible name or description. */}
-                <SheetTitle className="sr-only" />
-                <SheetDescription className="sr-only" />
-              </>
-            )}
-            <div className="min-h-0 flex-1 overflow-y-auto">{detail}</div>
-          </SheetContent>
-        </Sheet>
-      ) : (
-        <div className="w-80 shrink-0 border-l">
-          {detailTitle !== undefined && (
-            // Same shared bar as the mobile Sheet; plain h2 (no Radix dialog here).
+          {detailTitle !== undefined ? (
+            // The shared bar chrome (padding + header-fill) with the Radix
+            // SheetTitle as its title element. The built-in Sheet close button
+            // (absolute, top-4 right-4) floats over the bar's right edge, so
+            // the actions row clears it (structural, not appearance).
             <SurfaceHeaderBar
+              actionsClassName="pr-8"
               actions={
                 detailActions ? (
                   <div className="flex shrink-0 items-center gap-2">{detailActions}</div>
                 ) : undefined
               }
             >
-              <h2 className="min-w-0 flex-1 truncate text-base font-semibold">{detailTitle}</h2>
+              {/* SheetTitle so Radix Dialog gets an accessible name (aria-labelledby).
+                  SheetDescription is screen-reader-only fallback so Content never
+                  renders without a description — matching the J archetype fix. */}
+              <div className="min-w-0 flex-1">
+                <SheetTitle className="truncate">{detailTitle}</SheetTitle>
+                <SheetDescription className="sr-only" />
+              </div>
             </SurfaceHeaderBar>
+          ) : (
+            <>
+              {/* No title — inject sr-only SheetTitle + SheetDescription so
+                   Radix doesn't warn about a missing accessible name or description. */}
+              <SheetTitle className="sr-only" />
+              <SheetDescription className="sr-only" />
+            </>
           )}
-          {detail}
-        </div>
-      )
+          <div className="min-h-0 flex-1 overflow-y-auto">{detail}</div>
+        </SheetContent>
+      </Sheet>
     ) : null;
 
   return (
@@ -310,13 +287,9 @@ export function ListWithDetailShell<Row>(
       // shell composed into another surface leaves the column alone.
       className={chromeless ? undefined : fullBleed}
     >
-      <div className="flex">
-        <div className="min-w-0 flex-1">
-          <div className="relative overflow-x-auto">{bodyContent}</div>
-          {footer !== undefined && <div className="border-t px-4 py-3">{footer}</div>}
-        </div>
-        {detailPanel}
-      </div>
+      <div className="relative overflow-x-auto">{bodyContent}</div>
+      {footer !== undefined && <div className="border-t px-4 py-3">{footer}</div>}
+      {detailPanel}
     </SurfaceFrame>
   );
 }

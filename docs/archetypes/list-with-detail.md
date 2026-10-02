@@ -2,7 +2,7 @@
 key: A
 slug: list-with-detail
 kind: page
-version: 2.8
+version: 3.0
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.9
@@ -11,6 +11,17 @@ status: locked
 
 # Archetype A — List-with-detail
 
+> **v3.0 (2026-10-02) — the desktop rail is forbidden.** `detail` no longer
+> renders as an in-flow right rail beside the list on desktop; it opens as the
+> overlay surface (Sheet) on every width. The rail sat at the top of the list,
+> so selecting a row far down a long list rendered its detail off-screen and
+> the user had to scroll back up to read it. A selection set from outside
+> (`selectedRowId` on mount — a deep link) now opens the overlay too. No prop
+> changes; consumers who passed `detail` get the overlay without a code edit,
+> but a desktop page that never wired `onDetailClose` must wire it now, or its
+> `selectedRowId` stays set after the overlay is dismissed.
+> Behavioral breaking change; see Layer 11 and forbidden pattern 10.
+>
 > **v2.8 (2026-09-30) — row-actions trigger name.** `labels.rowActions`
 > overrides the accessible name of each row's `⋯` trigger (all three
 > presentations). Additive; no breaking change.
@@ -181,7 +192,7 @@ The page header does not float above the shell as a separate page-header primiti
 - **Number formatting** — monetary values routed through a consumer-provided formatter (e.g. `formatCurrency(value)`). No raw currency symbols or `.toFixed(2)` in table cells.
 - **Date formatting** — every date cell renders through a consumer-provided formatter (e.g. `formatDate(value)` or `formatDateTime(value)` when the time component is meaningful). No raw ISO strings in the UI. The primitive does not format; the consumer passes a formatter or pre-formatted string.
 - **Identifier columns** (record #, internal ID, reference code, etc.) — in the **monospace identifier style**.
-- **Primary identifier cell** is clickable, in the **monospace identifier style** rendered in the **brand/primary color with a hover underline** so it reads as interactive before hover. If a dedicated detail route exists, clicking navigates to it; if no detail route exists, clicking opens an edit modal or side panel.
+- **Primary identifier cell** is clickable, in the **monospace identifier style** rendered in the **brand/primary color with a hover underline** so it reads as interactive before hover. If a dedicated detail route exists, clicking navigates to it; if no detail route exists, clicking opens an edit modal or the detail overlay.
 
 **Allowed variation:**
 - **Presentation variant** — `presentation="table | card-grid | action-row"`. Same `rows`/`columns`/row-interaction; only the rendering differs. This is the archetype's variant axis (see `docs/CHOOSING-A-SURFACE.md`): a card grid is **not** drift from "the table archetype" — it's a conformant variant. **Choose by the row's data shape** (count of non-identifier data columns the row exposes in `columns` / `rows`):
@@ -289,7 +300,7 @@ Mutations are out of the primitive's scope. The consumer's row-click handler or 
 
 **Required primitive surface:**
 - `selectedRowId?: string | null` — the id (from `getRowId`) of the row whose detail is open; marks that row selected.
-- `onRowSelect(row: Row): void` — called when a row's primary identifier cell is clicked. Consumer decides whether to navigate, open a panel, or open a modal.
+- `onRowSelect(row: Row): void` — called when a row's primary identifier cell is clicked. Consumer decides whether to navigate, open the detail overlay (by passing `detail`), or open a modal.
 - `rowActions?: RowAction<Row>[]` — optional array of per-row action descriptors, rendered via the shared **row-actions overflow menu** — the single owner of the row-level `⋯` overflow trigger, shared byte-for-byte with settings-table. Each `RowAction` carries a `label`, optional `icon`, an `onSelect(row: Row): void` callback, and an optional `destructive?: boolean` flag.
 
 **Consumer contracts:**
@@ -310,8 +321,8 @@ Mutations are out of the primitive's scope. The consumer's row-click handler or 
 **Required:**
 - No dedicated `/mobile/...` route for list-with-detail pages. The same route serves all viewports.
 - **Table body** — stays the base table primitive on all viewport widths. The primitive's content wrapper provides horizontal scroll so the table scrolls on narrow viewports rather than overflowing. Consumers do not add their own scroll wrapper. Context columns drop out below `md` per the Layer 6 narrow-viewport column subset rule.
-- **Detail panel slot** — the primitive uses an internal **viewport-breakpoint hook** to swap the presentation of whatever element the consumer passes as the `detail` prop. On desktop, `detail` renders as a right rail alongside the list. On mobile, the same `detail` element always renders inside a full-screen **overlay surface** (sheet). Consumers pass one `detail` element; the primitive handles the swap automatically. The mobile overlay is a responsive-structure decision (the mobile container of detail content), not a page-facing appearance axis — there is no prop that lets a page opt into the overlay on desktop.
-- **Overlay dismissal** — when `detail` renders as the overlay surface (mobile — the only place the overlay ships), dismissing it (Esc, backdrop click, close button) is reported back to the consumer via a dismissal callback. Required whenever a consumer relies on the overlay to reflect a cleared selection — otherwise the consumer's own selection state can go stale after the surface closes.
+- **Detail panel slot** — whatever element the consumer passes as the `detail` prop renders inside an **overlay surface** (sheet) anchored to the viewport's trailing edge, on every width — full-screen on mobile, a side sheet on desktop. Selecting a row opens it; a `selectedRowId` set from outside (a deep link) opens it on mount. There is no in-flow presentation: the detail never renders inside the list's own column (see forbidden pattern 10), and there is no prop to choose one.
+- **Overlay dismissal** — dismissing the overlay (Esc, backdrop click, close button) is reported back to the consumer via a dismissal callback. Required whenever a consumer relies on the overlay to reflect a cleared selection — otherwise the consumer's own selection state can go stale after the surface closes.
 - **Header fill** — when `detailTitle` is provided, the overlay's header bar follows the same **header-fill contract** as the master surface header (three modes — brand-filled / muted tint / hairline). It is a closed project context, set once at the top-level app shell; there is no per-shell override — the overlay's header bar reads the context, the same as the master on-surface header.
 
 **Extension points (not shipped in baseline; consumer may add):**
@@ -348,6 +359,7 @@ The following patterns are never permitted in a list-with-detail page, regardles
 7. **Raw ISO date or number strings in cells.** Always route through consumer-provided formatters.
 8. **Static (non-lazy) page imports.** Always lazy-import list-with-detail pages.
 9. **Missing render-error boundary.** Every list-with-detail page must have one at the page-component level.
+10. **In-flow detail rail.** A detail panel rendered beside the list inside the page flow (a right column next to the table). It sits at the top of the list, so a row selected far down a long list shows its detail off-screen and the user scrolls back up to read it. Detail opens in the overlay (the `detail` slot) or on its own route — never in-flow, and never as a hand-built side column next to the shell.
 
 ---
 
@@ -394,8 +406,9 @@ When a target project applies this archetype, it wires the generic primitives to
       variant, **not** an excuse for a hand-rolled grid of cards.
 - [ ] **Identifier cell is the click target** (brand/primary color + hover underline),
       driving `onRowSelect`; row interaction isn't a stray per-row button column.
-- [ ] **Detail surface uses the `detail` slot** (auto overlay-swaps on mobile) — not a
-      parallel hand-built right panel.
+- [ ] **Detail surface uses the `detail` slot** (the overlay, on every width) or a
+      route — not a parallel hand-built right panel beside the list.
+      *Wrapper tell:* a side column next to the table that scrolls with the page.
 - [ ] **[spine] S1–S6.**
 
 **SHOULD** (yellow, not red)
