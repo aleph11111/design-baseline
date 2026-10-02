@@ -840,11 +840,15 @@ export function FormPageDemo(): React.ReactElement {
             <TableBody>
               {recipes.map((r) => (
                 <TableRow key={r.id}>
-                  <TableCell
-                    className="font-medium text-primary hover:underline cursor-pointer"
-                    onClick={() => setMode({ kind: "edit", id: r.id })}
-                  >
-                    {r.title}
+                  <TableCell>
+                    <Button
+                      variant="link"
+                      className="h-auto p-0"
+                      aria-label={`Edit ${r.title}`}
+                      onClick={() => setMode({ kind: "edit", id: r.id })}
+                    >
+                      {r.title}
+                    </Button>
                   </TableCell>
                   <TableCell>{CUISINE_LABELS[r.cuisine]}</TableCell>
                   <TableCell className="text-right font-mono tabular-nums">{r.serves}</TableCell>
@@ -877,7 +881,7 @@ export function FormPageDemo(): React.ReactElement {
             prompt (window.confirm; real consumers use AlertDialog).
           </li>
           <li>
-            Click a recipe title → form mounts in EDIT mode. Footer shows
+            Click (or Tab to + Enter) a recipe title → form mounts in EDIT mode. Footer shows
             Delete (left) + Cancel + Save (right).
           </li>
           <li>

@@ -48,7 +48,7 @@ describe("FormPageDemo discard guard", () => {
     async function openEdit() {
       render(<FormPageDemo />);
       fireEvent.click(cancel()); // create -> list (untouched, no prompt)
-      fireEvent.click(await screen.findByText("Sunday Carbonara"));
+      fireEvent.click(await screen.findByRole("button", { name: "Edit Sunday Carbonara" }));
       return await screen.findByDisplayValue("Sunday Carbonara");
     }
 
