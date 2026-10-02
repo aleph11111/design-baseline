@@ -17,7 +17,7 @@
 // (this check) against the PRE-rebase merge-base, and only step 6 rebases.
 // Bumping is required only for shipped paths, so the blind spot stays open for
 // them only when the rebase also dropped the hunk (the shipped-path check then
-// fails loudly, which is the safe direction).
+// fails loudly, which is the safe direction). A docs-only branch still slips through.
 //
 // No merge-base with origin/main (shallow clone, or truly unrelated history)
 // fails closed instead of falling through to the strict compare: without a
@@ -74,7 +74,7 @@ const isShipped = (f) =>
   (f.startsWith('src/') && !f.startsWith('src/examples/') && !/\.test\.[^/]*$/.test(f));
 
 if (current === base) {
-  const changed = git('diff', '--name-only', `${git('merge-base', 'HEAD', 'origin/main')}...HEAD`).split('\n');
+  const changed = git('diff', '--name-only', '--no-renames', `${git('merge-base', 'HEAD', 'origin/main')}...HEAD`).split('\n');
   const shipped = changed.find(isShipped);
   if (shipped) {
     console.error(`${PREFIX} ${shipped} is shipped code but package.json version ${current} was not bumped on this branch — bump it (docs/RULES.md rule 11) [${mainInfo}]`);

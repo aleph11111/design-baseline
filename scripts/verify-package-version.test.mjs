@@ -180,6 +180,18 @@ describe("verify-package-version", () => {
       expect(run(dir).status).toBe(1);
     });
 
+    it("rename out of a shipped path (src/ -> src/examples/) + no bump fails", () => {
+      const dir = initRepo("1.0.0");
+      commitFile(dir, "src/components/ui/card.tsx", "export const Card = 1;\n");
+      git(dir, "push", "-q", "origin", "main");
+      mkdirSync(join(dir, "src/examples"), { recursive: true });
+      git(dir, "mv", "src/components/ui/card.tsx", "src/examples/card-demo.tsx");
+      git(dir, "commit", "-q", "-m", "move");
+      const { status, stderr } = run(dir);
+      expect(status).toBe(1);
+      expect(stderr).toContain("src/components/ui/card.tsx");
+    });
+
     it("shipped change + bump passes", () => {
       const dir = initRepo("1.0.0");
       commitFile(dir, "src/components/ui/button.tsx");
