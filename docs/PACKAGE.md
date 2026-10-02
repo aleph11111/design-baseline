@@ -34,6 +34,13 @@ bump lands on `main` — never tag by hand. A run that failed or was never trigg
 can be backfilled via that workflow's `workflow_dispatch`, given the merged bump
 commit's SHA (rejected unless it is an ancestor of `origin/main`).
 
+Tag immutability is enforced by GitHub, not only by the workflow's `ls-remote`
+guard: repository ruleset `release-tags-immutable` blocks update and deletion of
+`refs/tags/v*` (creation stays open for the workflow), and `main-protected` blocks
+force-push and deletion of `main` and requires a pull request (0 required
+approvals, so `/ship` auto-merge works). Neither has a bypass actor; to correct a
+bad release, bump to a new version rather than moving a tag.
+
 ```jsonc
 // package.json
 "design-baseline": "github:aleph11111/design-baseline#v0.2.3"
