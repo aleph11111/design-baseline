@@ -81,6 +81,15 @@ type Order = {
 // Local formatters (pre-format values; primitives never format)
 // ---------------------------------------------------------------------------
 
+/** Extra master-data rows for the long-rail demo case. */
+const LONG_RAIL_ROWS: [string, string][] = [
+  ["Ship to", "Jonas Berger"],
+  ["Street", "Lindenstraße 14"],
+  ["Carrier", "DHL Paket"],
+  ["Tracking", "00340434161094042557"],
+  ["Payment", "Card ending 4242"],
+];
+
 function fmtEUR(amount: number): string {
   return new Intl.NumberFormat("de-DE", {
     style: "currency",
@@ -152,6 +161,7 @@ export function DetailOverviewDemo(): React.ReactElement {
   const o = ORDER;
   const [layout, setLayout] = React.useState<"vertical" | "rail">("rail");
   const [width, setWidth] = React.useState<"none" | "md" | "lg" | "xl">("md");
+  const [railLength, setRailLength] = React.useState<"standard" | "long">("standard");
   const [editingNote, setEditingNote] = React.useState(false);
   const [note, setNote] = React.useState(ORDER.note);
 
@@ -167,7 +177,9 @@ export function DetailOverviewDemo(): React.ReactElement {
           breakdown. One bounded container model — the unified frame. Toggle{" "}
           <strong>Layout</strong> (rail keeps the sticky identity rail) and{" "}
           <strong>Width</strong> (Width only bounds the <em>vertical</em> layout —
-          the rail is sticky-full and ignores it).
+          the rail is sticky-full and ignores it). <strong>Rail</strong> → Long
+          makes the rail taller than a laptop viewport: it scrolls with the page
+          until its foot (Documents) is in view, then pins there.
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <SegmentedControl
@@ -188,6 +200,15 @@ export function DetailOverviewDemo(): React.ReactElement {
               { value: "md", label: "Md" },
               { value: "lg", label: "Lg" },
               { value: "xl", label: "Xl" },
+            ]}
+          />
+          <SegmentedControl
+            aria-label="Detail-overview rail length"
+            value={railLength}
+            onValueChange={setRailLength}
+            options={[
+              { value: "standard", label: "Standard rail" },
+              { value: "long", label: "Long rail" },
             ]}
           />
         </div>
@@ -299,6 +320,17 @@ export function DetailOverviewDemo(): React.ReactElement {
                   <KeyValueRow label="Fulfilment" value={o.fulfilment} />
                 </KeyValueList>
               </DetailSection>
+
+              {/* Long-rail case: enough master data to outgrow a laptop viewport */}
+              {railLength === "long" && (
+                <DetailSection title="Shipping & billing" flush>
+                  <KeyValueList>
+                    {LONG_RAIL_ROWS.map(([label, value]) => (
+                      <KeyValueRow key={label} label={label} value={value} />
+                    ))}
+                  </KeyValueList>
+                </DetailSection>
+              )}
             </>
           }
           content={
