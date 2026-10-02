@@ -3,8 +3,11 @@
 // (the #309/#310 incident: both bumped to 0.2.9, the rebase saw byte-identical
 // lines and stayed silent). If this branch bumped `version` relative to its
 // merge-base with origin/main, the bump must be strictly greater than
-// origin/main's current version. A branch that didn't touch `version` (docs
-// tickets, main itself) passes.
+// origin/main's current version. A branch that didn't touch `version` passes
+// unless it changes a SHIPPED path (docs/RULES.md rule 11): tag-version.yml only
+// tags on a bump, so an unbumped shipped change is unpinnable by consumers.
+// Shipped = src/** minus src/examples/** and test files, plus
+// docs/archetypes/MANIFEST.json. Docs, backlog, scripts, workflows are exempt.
 //
 // Known blind spot: once the losing branch REBASES onto a trunk that already
 // carries the identical bump, git drops the now-empty version hunk, the
@@ -12,8 +15,9 @@
 // alone cannot tell that apart from a real non-bump. /ship covers it by
 // ordering: mode detection fetches origin, precondition 3 runs `npm test`
 // (this check) against the PRE-rebase merge-base, and only step 6 rebases.
-// Requiring every branch to bump would close it, at the cost of a bump on
-// every docs-only ticket.
+// Bumping is required only for shipped paths, so the blind spot stays open for
+// them only when the rebase also dropped the hunk (the shipped-path check then
+// fails loudly, which is the safe direction).
 //
 // No merge-base with origin/main (shallow clone, or truly unrelated history)
 // fails closed instead of falling through to the strict compare: without a
@@ -65,7 +69,17 @@ if (!hasMergeBase) {
   console.error(`${PREFIX} no merge-base with origin/main (shallow clone?) — cannot tell whether this branch bumped [${mainInfo}]`);
   process.exit(1);
 }
+const isShipped = (f) =>
+  f === 'docs/archetypes/MANIFEST.json' ||
+  (f.startsWith('src/') && !f.startsWith('src/examples/') && !/\.test\.[^/]*$/.test(f));
+
 if (current === base) {
+  const changed = git('diff', '--name-only', `${git('merge-base', 'HEAD', 'origin/main')}...HEAD`).split('\n');
+  const shipped = changed.find(isShipped);
+  if (shipped) {
+    console.error(`${PREFIX} ${shipped} is shipped code but package.json version ${current} was not bumped on this branch — bump it (docs/RULES.md rule 11) [${mainInfo}]`);
+    process.exit(1);
+  }
   console.log(`${PREFIX} version ${current} not bumped on this branch; nothing to collide [${mainInfo}]`);
   process.exit(0);
 }

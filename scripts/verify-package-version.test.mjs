@@ -6,9 +6,9 @@
 // in CI. Every repo gets a real `origin` remote and `git push`, so
 // `refs/remotes/origin/main` is populated exactly like a real checkout.
 //
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import { execFileSync } from "node:child_process";
 import { describe, expect, it, afterEach } from "vitest";
@@ -155,5 +155,49 @@ describe("verify-package-version", () => {
     expect(stdout).toContain(`origin/main@${mainSha}`);
     // ISO date, e.g. 2026-09-28.
     expect(stdout).toMatch(/\(\d{4}-\d{2}-\d{2}\)/);
+  });
+
+  describe("shipped-path bump requirement", () => {
+    function commitFile(dir, path, content = "x\n") {
+      mkdirSync(dirname(join(dir, path)), { recursive: true });
+      writeFileSync(join(dir, path), content);
+      git(dir, "add", path);
+      git(dir, "commit", "-q", "-m", `edit ${path}`);
+    }
+
+    it("shipped change + no bump fails, naming the path", () => {
+      const dir = initRepo("1.0.0");
+      commitFile(dir, "src/components/ui/button.tsx");
+      const { status, stderr } = run(dir);
+      expect(status).toBe(1);
+      expect(stderr).toContain("src/components/ui/button.tsx");
+      expect(stderr).toContain("rule 11");
+    });
+
+    it("MANIFEST.json change + no bump fails", () => {
+      const dir = initRepo("1.0.0");
+      commitFile(dir, "docs/archetypes/MANIFEST.json", "{}\n");
+      expect(run(dir).status).toBe(1);
+    });
+
+    it("shipped change + bump passes", () => {
+      const dir = initRepo("1.0.0");
+      commitFile(dir, "src/components/ui/button.tsx");
+      bump(dir, "1.0.1");
+      expect(run(dir).status).toBe(0);
+    });
+
+    it.each([
+      "docs/note.md",
+      "docs/backlog/x.md",
+      "scripts/tool.mjs",
+      ".github/workflows/x.yml",
+      "src/examples/foo-demo.tsx",
+      "src/components/ui/button.test.tsx",
+    ])("exempt path %s + no bump passes", (path) => {
+      const dir = initRepo("1.0.0");
+      commitFile(dir, path);
+      expect(run(dir).status).toBe(0);
+    });
   });
 });
