@@ -239,6 +239,12 @@ export function ListWithDetailDemo() {
   const selected = filtered.find((p) => p.id === selectedId) ?? null;
   const isLoading = state === "loading";
   const error = state === "error" ? new Error("Failed to load podcasts.") : null;
+  // The "No matches" (filtered-empty) plane, reached only when a live
+  // search/filter empties a real load: a no-match query shows it beside
+  // "0 results"; the demo's artificially `empty` state keeps the Layer-7
+  // "New show" CTA, so it is excluded via `isEmpty`, not keyed on the static
+  // source (always non-empty) or on query presence.
+  const filteredEmpty = !isEmpty && filtered.length === 0;
 
   // The shell's detail surface: a right rail on desktop (the `detail` slot),
   // a Sheet on mobile (the overlay, handled by `useIsMobile` inside the
@@ -284,6 +290,7 @@ export function ListWithDetailDemo() {
     detail,
     isLoading,
     error,
+    filteredEmpty,
     onRetry: () => setState("loaded"),
     // The empty-state CTA (Layer 7) — visible in the "empty" state.
     emptyStateAction: (
@@ -403,6 +410,9 @@ export function ListWithDetailDemo() {
                       searchValue={search}
                       onSearchChange={setSearch}
                       searchPlaceholder="Search shows…"
+                      // The filtered row length of this panel's own list — the
+                      // caption tracks whatever the shell actually shows.
+                      resultCount={isEmpty ? undefined : panel.rows.length}
                     />
                   }
                   {...shellProps}
