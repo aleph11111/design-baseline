@@ -5,7 +5,6 @@ import { SurfaceFrame } from "../../layout/SurfaceFrame";
 import { useFullBleedClass } from "../../layout/surface";
 import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
 import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
-import { useIsMobile } from "../../../hooks/use-mobile";
 import {
   ListWithDetailEmptyState,
   type ListEmptyMode,
@@ -69,8 +68,8 @@ export type ListWithDetailShellProps<Row> = {
   /** Optional right-aligned actions in the detail surface's header (e.g. an Edit button). */
   detailActions?: React.ReactNode;
   /**
-   * Called when the detail surface renders as the overlay (the Sheet, which is
-   * always the case on mobile) and that Sheet closes — Esc, backdrop click, or
+   * Called when the detail overlay (the Sheet — the only detail surface, on
+   * every width) closes — Esc, backdrop click, or
    * the close button. The shell already tracks its own open/close state; wire
    * this to clear the consumer's selection so it doesn't go stale once the
    * Sheet is gone.
@@ -151,7 +150,6 @@ export function ListWithDetailShell<Row>(
     ref,
   }: ListWithDetailShellProps<Row>,
 ) {
-  const isMobile = useIsMobile();
   const [sheetOpen, setSheetOpen] = React.useState(false);
   // A composing archetype (grouped-list's section card) declares chrome-suppression
   // through `ListChromeContext` so the frame renders chromeless (`chrome={false}`)
@@ -159,26 +157,23 @@ export function ListWithDetailShell<Row>(
   // compose-into archetype, not to the per-page caller.
   const chromeless = React.useContext(ListChromeContext);
   const fullBleed = useFullBleedClass();
-  // The detail presents as a Sheet on mobile always; rail on desktop.
-  const asSheet = isMobile;
-
   // Sync sheet visibility with selectedRowId: if the consumer clears the selection
-  // (e.g. after a delete) while on mobile, close the sheet so stale detail is not shown.
+  // (e.g. after a delete), close the sheet so stale detail is not shown.
   React.useEffect(() => {
     if (!selectedRowId) {
       setSheetOpen(false);
     }
   }, [selectedRowId]);
 
-  // When a row is selected on mobile, open the sheet.
+  // Selecting a row opens the sheet. Opened unconditionally: a consumer that
+  // only builds `detail` once a row is selected passes it on the next render.
+  // A consumer that navigates instead never passes `detail`, so nothing shows.
   const handleRowSelect = React.useCallback(
     (row: Row) => {
-      if (asSheet && detail !== undefined) {
-        setSheetOpen(true);
-      }
+      setSheetOpen(true);
       onRowSelect?.(row);
     },
-    [asSheet, detail, onRowSelect],
+    [onRowSelect],
   );
 
   // Determine body content
@@ -229,12 +224,12 @@ export function ListWithDetailShell<Row>(
     />
   );
 
-  // Detail panel: rail on desktop, always a Sheet on mobile (the overlay is
-  // the shared mobile detail container — a responsive-structure decision, not a
-  // per-page appearance choice). The Sheet's header bar reads `HeaderFillContext`.
+  // Detail panel: always the overlay Sheet, on every width. An in-flow rail is
+  // forbidden (v3.0): it sits at the top of the list, so selecting a row far
+  // down a long list renders the detail off-screen. The Sheet's header bar
+  // reads `HeaderFillContext`.
   const detailPanel =
     detail !== undefined ? (
-      asSheet ? (
         <Sheet
           open={sheetOpen}
           onOpenChange={(open) => {
@@ -279,23 +274,7 @@ export function ListWithDetailShell<Row>(
             <div className="min-h-0 flex-1 overflow-y-auto">{detail}</div>
           </SheetContent>
         </Sheet>
-      ) : (
-        <div className="w-80 shrink-0 border-l">
-          {detailTitle !== undefined && (
-            // Same shared bar as the mobile Sheet; plain h2 (no Radix dialog here).
-            <SurfaceHeaderBar
-              actions={
-                detailActions ? (
-                  <div className="flex shrink-0 items-center gap-2">{detailActions}</div>
-                ) : undefined
-              }
-            >
-              <h2 className="min-w-0 flex-1 truncate text-base font-semibold">{detailTitle}</h2>
-            </SurfaceHeaderBar>
-          )}
-          {detail}
-        </div>
-      )
+      </Sheet>
     ) : null;
 
   return (
@@ -310,13 +289,9 @@ export function ListWithDetailShell<Row>(
       // shell composed into another surface leaves the column alone.
       className={chromeless ? undefined : fullBleed}
     >
-      <div className="flex">
-        <div className="min-w-0 flex-1">
-          <div className="relative overflow-x-auto">{bodyContent}</div>
-          {footer !== undefined && <div className="border-t px-4 py-3">{footer}</div>}
-        </div>
-        {detailPanel}
-      </div>
+      <div className="relative overflow-x-auto">{bodyContent}</div>
+      {footer !== undefined && <div className="border-t px-4 py-3">{footer}</div>}
+      {detailPanel}
     </SurfaceFrame>
   );
 }
