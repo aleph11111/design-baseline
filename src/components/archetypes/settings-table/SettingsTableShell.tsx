@@ -11,8 +11,8 @@ import {
 } from "../../ui/table";
 import { Button } from "../../ui/button";
 import { Checkbox } from "../../ui/checkbox";
-import { StateView } from "../../ui/state-view";
 import {
+  ListStateView,
   RowActionsMenu,
   alignClass,
   hideBelowClass,
@@ -68,6 +68,23 @@ export type SettingsTableLabels<Row = unknown> = {
   deleteSelected?: (count: number) => string;
   /** `sr-only` label of each row's `⋯` trigger when `rowActions` is set. Default "Row actions". */
   rowActions?: string;
+};
+
+/**
+ * The shell's built-in bulk-select copy — the consumer's `labels` is merged
+ * over it per key with `??` (not a spread, which would let an explicit
+ * `undefined` override replace a default), so adding a key or changing a
+ * default is a one-line edit and an unset override falls back to the
+ * built-in string. The row-checkbox name additionally has a row-derived
+ * default ("Select row: {identifier cell}") that only yields to a consumer
+ * override; a non-primitive identifier cell falls back to the flat
+ * `selectRow` default below.
+ */
+const DEFAULT_SETTINGS_TABLE_LABELS = {
+  selectAll: "Select all rows",
+  selectRow: "Select row",
+  selectedCount: (count: number) => `${count} selected`,
+  deleteSelected: (count: number) => `Delete ${count} selected`,
 };
 
 export type SettingsTableShellProps<Row> = {
@@ -175,6 +192,18 @@ export function SettingsTableShell<Row>({
     (rowActions !== undefined && rowActions.length > 0);
   const hasBulk = bulkSelectable === true;
 
+  // Shell copy: the built-in defaults merged over the consumer's `labels`
+  // per key with `??` — a spread would copy an explicit `undefined` onto a
+  // default, so a wrapper forwarding an unset prop would make
+  // `selectedCount`/`deleteSelected` throw and drop the select-all
+  // `aria-label` instead of falling back to the built-in strings.
+  const allLabels = {
+    selectAll: labels?.selectAll ?? DEFAULT_SETTINGS_TABLE_LABELS.selectAll,
+    selectedCount: labels?.selectedCount ?? DEFAULT_SETTINGS_TABLE_LABELS.selectedCount,
+    deleteSelected:
+      labels?.deleteSelected ?? DEFAULT_SETTINGS_TABLE_LABELS.deleteSelected,
+  };
+
   // Bulk select helpers. The selection is consumer-owned (selectedIds), but on
   // every bulk path the shell only ever emits ids of the rows it is showing:
   // the caption, the bulk actions, and toggleAll/toggleRow all operate on the
@@ -207,7 +236,7 @@ export function SettingsTableShell<Row>({
           return `Select row: ${cellVal}`;
         }
       }
-      return "Select row";
+      return DEFAULT_SETTINGS_TABLE_LABELS.selectRow;
     }
     return typeof sel === "function" ? sel(row) : sel;
   }
@@ -240,10 +269,7 @@ export function SettingsTableShell<Row>({
 
   // Body content resolution
   const listState = resolveListState({ isLoading, error, isEmpty: rows.length === 0 });
-  const showLoading = listState === "loading";
-  const showError = listState === "error";
   const showTable = listState === "content";
-  const showEmpty = listState === "empty";
 
   // Toolbar row content — the ruled band chrome is owned by the <SurfaceFrame>
   // `toolbar` slot below; the shell composes only the row's INNER layout.
@@ -255,8 +281,7 @@ export function SettingsTableShell<Row>({
   const showBulkActions = hasBulkSelection && (bulkActions || onBulkDelete);
   const countSpan = showBulkActions ? (
     <span className="text-sm text-muted-foreground">
-      {labels?.selectedCount?.(visibleSelected.length) ??
-        `${visibleSelected.length} selected`}
+      {allLabels.selectedCount(visibleSelected.length)}
     </span>
   ) : rowLabel !== undefined ? (
     <span className="shrink-0 text-sm text-muted-foreground">
@@ -277,8 +302,7 @@ export function SettingsTableShell<Row>({
               size="sm"
               onClick={handleBulkDelete}
             >
-              {labels?.deleteSelected?.(visibleSelected.length) ??
-                `Delete ${visibleSelected.length} selected`}
+              {allLabels.deleteSelected(visibleSelected.length)}
             </Button>
           )}
         </>
@@ -298,12 +322,15 @@ export function SettingsTableShell<Row>({
     </div>
   );
 
-  // Loading / empty / error planes are owned by the shared <StateView>.
-  const emptyState = (
-    <StateView
-      variant="empty"
-      message={emptyMessage ?? "No items yet."}
-      action={
+  // Loading / empty / error planes are owned by the shared <ListStateView>.
+  const listStatePlane = (
+    <ListStateView
+      phase={listState}
+      error={error}
+      onRetry={onRetry}
+      labels={labels}
+      emptyMessage={emptyMessage}
+      emptyAction={
         onAddNew && !isFiltered && (
           <Button variant="default" size="sm" onClick={onAddNew}>
             <Plus className="mr-1 h-4 w-4" />
@@ -311,16 +338,6 @@ export function SettingsTableShell<Row>({
           </Button>
         )
       }
-    />
-  );
-  const loadingState = <StateView variant="loading" message={labels?.loading} />;
-  const errorState = (
-    <StateView
-      variant="error"
-      title={labels?.errorTitle}
-      error={error}
-      onRetry={onRetry}
-      retryLabel={labels?.retry}
     />
   );
 
@@ -334,7 +351,7 @@ export function SettingsTableShell<Row>({
               <Checkbox
                 checked={allSelected ? true : someSelected ? "indeterminate" : false}
                 onCheckedChange={toggleAll}
-                aria-label={labels?.selectAll ?? "Select all rows"}
+                aria-label={allLabels.selectAll}
               />
             </TableHead>
           )}
@@ -413,9 +430,7 @@ export function SettingsTableShell<Row>({
       {/* The table scroll region sits INSIDE the (clipped) frame so the table
           scrolls beneath a fixed header + toolbar band, not the surface itself. */}
       <div className="relative overflow-x-auto">
-        {showLoading && loadingState}
-        {showError && errorState}
-        {showEmpty && emptyState}
+        {listStatePlane}
         {tableContent}
       </div>
     </SurfaceFrame>

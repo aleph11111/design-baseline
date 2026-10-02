@@ -5,6 +5,7 @@ import { SearchInput } from "../ui/search-input";
 import { CrudDialogHeader, CrudDialogSheet } from "./crud-dialog";
 import { SettingsTableShell } from "./settings-table";
 import { ListWithDetailShell } from "./list-with-detail";
+import { GroupedListShell } from "./grouped-list";
 
 // The list shell's detail renders as a Sheet on mobile only — force that path
 // so its close button (and so its label) is in the tree.
@@ -112,6 +113,32 @@ describe("SettingsTableShell labels", () => {
     expect(screen.getByText("Etwas ist schiefgelaufen")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Erneut versuchen" })).toBeTruthy();
   });
+
+  it("falls back to the built-in strings for an explicit undefined override", () => {
+    // A wrapper forwarding an unset optional prop would pass explicit
+    // `undefined` — the merged defaults must not be replaced by it.
+    render(
+      <SettingsTableShell
+        rows={rows}
+        columns={columns}
+        getRowId={(r) => r.id}
+        bulkSelectable
+        selectedIds={["a"]}
+        onBulkSelectChange={() => {}}
+        onBulkDelete={() => {}}
+        labels={{
+          selectAll: undefined,
+          selectRow: undefined,
+          selectedCount: undefined,
+          deleteSelected: undefined,
+        }}
+      />,
+    );
+    expect(screen.getByRole("checkbox", { name: "Select all rows" })).toBeTruthy();
+    expect(screen.getByRole("checkbox", { name: "Select row: Alpha" })).toBeTruthy();
+    expect(screen.getByText("1 selected")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Delete 1 selected" })).toBeTruthy();
+  });
 });
 
 describe("ListWithDetailShell labels", () => {
@@ -146,6 +173,37 @@ describe("ListWithDetailShell labels", () => {
     );
     fireEvent.click(screen.getByText("Alpha"));
     expect(screen.getByRole("button", { name: "Schließen" })).toBeTruthy();
+  });
+});
+
+describe("GroupedListShell labels", () => {
+  it("overrides the loading, error and empty planes", () => {
+    const { rerender } = render(
+      <GroupedListShell isLoading labels={{ loading: "Lädt…" }} />,
+    );
+    expect(screen.getByText("Lädt…")).toBeTruthy();
+
+    rerender(
+      <GroupedListShell
+        error={new Error("boom")}
+        onRetry={() => {}}
+        labels={{ errorTitle: "Etwas ist schiefgelaufen", retry: "Erneut versuchen" }}
+      />,
+    );
+    expect(screen.getByText("Etwas ist schiefgelaufen")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Erneut versuchen" })).toBeTruthy();
+
+    rerender(
+      <GroupedListShell isEmpty emptyMessage="Keine Einträge vorhanden." />,
+    );
+    expect(screen.getByText("Keine Einträge vorhanden.")).toBeTruthy();
+
+    // The `labels.empty` path (not just `emptyMessage`) is the shared
+    // renderer's own — like the other two shells.
+    rerender(
+      <GroupedListShell isEmpty labels={{ empty: "Keine Einträge vorhanden." }} />,
+    );
+    expect(screen.getByText("Keine Einträge vorhanden.")).toBeTruthy();
   });
 });
 
@@ -235,6 +293,9 @@ describe("English defaults when no override is passed", () => {
     );
     expect(screen.getByText("Something went wrong")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
+
+    rerender(<SettingsTableShell rows={[]} columns={columns} getRowId={(r) => r.id} />);
+    expect(screen.getByText("No items yet")).toBeTruthy();
   });
 
   it("ListWithDetailShell planes and mobile Sheet close", () => {
@@ -256,5 +317,18 @@ describe("English defaults when no override is passed", () => {
     render(<ListWithDetailShell {...base} rows={rows} onRowSelect={() => {}} detail={<p>detail</p>} />);
     fireEvent.click(screen.getByText("Alpha"));
     expect(screen.getByRole("button", { name: "Close" })).toBeTruthy();
+  });
+
+  it("GroupedListShell planes and the shared empty default", () => {
+    const { rerender } = render(<GroupedListShell isLoading />);
+    expect(screen.getByText("Loading…")).toBeTruthy();
+
+    rerender(<GroupedListShell error={new Error("boom")} onRetry={() => {}} />);
+    expect(screen.getByText("Something went wrong")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
+
+    // All three list shells now render the same default empty string.
+    rerender(<GroupedListShell isEmpty />);
+    expect(screen.getByText("No items yet")).toBeTruthy();
   });
 });
