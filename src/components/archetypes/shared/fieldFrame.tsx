@@ -55,6 +55,9 @@ export function useFieldIds(opts: {
   };
 }
 
+/** Invalid-control treatment; apply when `error` is set (pairs with `useFieldIds`'s `aria-invalid`). */
+export const FIELD_ERROR_RING = "border-destructive focus-visible:ring-destructive";
+
 export interface FieldFrameProps {
   /** Applied to the wrapper `<div>`. */
   className?: string;

@@ -2,6 +2,7 @@ import * as React from "react";
 import { Input } from "./input";
 import { cn } from "../../lib/utils";
 import {
+  FIELD_ERROR_RING,
   FieldError,
   FieldFrame,
   FieldHint,
@@ -74,7 +75,7 @@ export function ColorField({
   // `type=color` warns on anything that isn't `#rrggbb`; fall back to black for
   // display while leaving the real (possibly mid-edit) value in the hex field.
   const swatchValue = HEX.test(value) ? value : "#000000";
-  const errorRing = error && "border-destructive focus-visible:ring-destructive";
+  const errorRing = error && FIELD_ERROR_RING;
 
   return (
     <FieldFrame className={className}>
