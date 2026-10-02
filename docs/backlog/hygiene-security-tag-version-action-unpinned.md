@@ -2,7 +2,7 @@
 area: hygiene-security
 opened: '2026-10-01'
 status: blocked
-blocked_reason: "needs admin to enable Actions SHA pinning (acceptance criterion 2, sha_pinning_required: true): the settings write was denied in the unattended session. To discharge: gh api -X PUT repos/aleph11111/design-baseline/actions/permissions -F enabled=true -f allowed_actions=all -F sha_pinning_required=true"
+blocked_reason: "needs admin to enable Actions SHA pinning (acceptance criterion 2, sha_pinning_required: true): the settings write was denied in the unattended session. To discharge: gh api -X PUT repos/aleph11111/design-baseline/actions/permissions -F enabled=true -f allowed_actions=all -F sha_pinning_required=true. Also criterion 3 is post-merge only: after the next package.json version bump merges to main, verify the pinned checkout still tags with `git ls-remote --tags origin v<next>` (or a workflow_dispatch run of tag-version on main with a backfill sha)."
 gate:
   score: 5
   passed:
@@ -47,6 +47,6 @@ Threat actor: an upstream action maintainer compromise or tag retarget. The expl
 
 ## Status (2026-10-02)
 
-- Done: checkout pinned to `11d5960a…7262 # v4` in tag-version.yml (same SHA as check.yml); `persist-credentials` kept default because the tag push authenticates via the checkout token (comment in workflow). `grep -nE "uses: [^@]+@v[0-9]" .github/workflows/*.yml` has no match.
+- Done: checkout pinned to `11d5960a…7262 # v4.4.0` in tag-version.yml (same SHA as check.yml); `persist-credentials` kept default because the tag push authenticates via the checkout token (comment in workflow). `grep -nE "uses: [^@]+@v[0-9]" .github/workflows/*.yml` has no match.
 - Blocked: `sha_pinning_required` is still `false`. The unattended session's permission classifier denied the settings write (`gh api -X PUT repos/aleph11111/design-baseline/actions/permissions -F enabled=true -f allowed_actions=all -F sha_pinning_required=true`). Operator must run it (needs admin token), then confirm `"sha_pinning_required":true`.
 - Pending: third acceptance bullet (next `package.json` bump on main still tags) is verified only after that bump merges.
