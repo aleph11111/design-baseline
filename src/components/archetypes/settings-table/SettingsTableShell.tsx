@@ -24,6 +24,10 @@ import {
 import { SurfaceFrame } from "../../layout/SurfaceFrame";
 import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
 import { cn } from "../../../lib/utils";
+import { logger } from "../../../utils/logger";
+
+// Ambient so the donor typechecks without @types/node; consumers bring their own.
+declare const process: { env: { NODE_ENV?: string } };
 
 // The row overflow menu + its action shape are shared with list-with-detail.
 // `SettingsRowAction` stays exported as an alias for back-compat.
@@ -94,6 +98,13 @@ export type SettingsTableShellProps<Row> = {
   columns: SettingsColumn<Row>[];
   /** Stable, unique string key for each row. */
   getRowId: (row: Row) => string;
+  /**
+   * Plain-text name of a row, used for the default row-checkbox label
+   * (`"Select row: {name}"`) when the identifier column's cell is not a
+   * string/number (e.g. JSX). Skip it and such rows share the flat
+   * `"Select row"` label (dev warning).
+   */
+  getRowLabel?: (row: Row) => string;
 
   // Callbacks
   /** Called when the identifier cell is clicked — consumer opens the edit dialog. */
@@ -166,6 +177,7 @@ export function SettingsTableShell<Row>({
   rows,
   columns,
   getRowId,
+  getRowLabel,
   onRowEdit,
   onAddNew,
   addNewLabel = "Add new",
@@ -236,10 +248,32 @@ export function SettingsTableShell<Row>({
           return `Select row: ${cellVal}`;
         }
       }
+      const name = getRowLabel?.(row);
+      if (name) return `Select row: ${name}`;
       return DEFAULT_SETTINGS_TABLE_LABELS.selectRow;
     }
     return typeof sel === "function" ? sel(row) : sel;
   }
+
+  // Dev-only: a JSX identifier cell with no getRowLabel / labels.selectRow
+  // leaves every row checkbox with the identical flat "Select row" name.
+  const firstCell =
+    rows[0] && identifierCol ? identifierCol.cell(rows[0]) : undefined;
+  const flatLabelFallback =
+    hasBulk &&
+    labels?.selectRow === undefined &&
+    !getRowLabel &&
+    rows.length > 1 &&
+    !!identifierCol &&
+    typeof firstCell !== "string" &&
+    typeof firstCell !== "number";
+  React.useEffect(() => {
+    if (flatLabelFallback && process.env.NODE_ENV !== "production") {
+      logger.warn(
+        "SettingsTableShell: identifier cell is not text, so every row checkbox is named \"Select row\". Pass `getRowLabel` or `labels.selectRow`.",
+      );
+    }
+  }, [flatLabelFallback]);
 
   function toggleAll() {
     if (!onBulkSelectChange) return;
