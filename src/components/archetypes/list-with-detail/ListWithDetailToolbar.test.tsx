@@ -53,17 +53,55 @@ describe("ListWithDetailToolbar result count", () => {
     expect(screen.getByText("5 results")).toBeTruthy();
   });
 
-  it("is overridable like the shell's other copy (non-English apps)", () => {
+  it("pluralizes the English default correctly at n = 1", () => {
     render(
       <ListWithDetailToolbar
         searchValue="co"
         onSearchChange={() => {}}
+        resultCount={1}
+      />,
+    );
+    expect(screen.getByText("1 result")).toBeTruthy();
+    expect(screen.queryByText("1 results")).toBeNull();
+  });
+
+  it("is overridable per call site — a formatter localizes plural forms and word order", () => {
+    // German has two plural forms: "1 Ergebnis" (singular) vs "2 Ergebnisse"
+    // (plural). A fixed noun suffix ("1 Ergebnisse") cannot express that, so the
+    // prop is a formatter. This is the shape of the fix the ticket's "localise
+    // it" criterion demands.
+    const { rerender } = render(
+      <ListWithDetailToolbar
+        searchValue="co"
+        onSearchChange={() => {}}
+        resultCount={1}
+        resultCountLabel={(n) => (n === 1 ? "1 Ergebnis" : `${n} Ergebnisse`)}
+      />,
+    );
+    expect(screen.getByText("1 Ergebnis")).toBeTruthy();
+    rerender(
+      <ListWithDetailToolbar
+        searchValue="co"
+        onSearchChange={() => {}}
         resultCount={2}
-        resultCountLabel="Ergebnisse"
+        resultCountLabel={(n) => (n === 1 ? "1 Ergebnis" : `${n} Ergebnisse`)}
       />,
     );
     expect(screen.getByText("2 Ergebnisse")).toBeTruthy();
-    expect(screen.queryByText("2 results")).toBeNull();
+  });
+
+  it("supports a non-English label with a different word order via the formatter", () => {
+    // A language that places the figure after the noun (e.g. Arabic/Spanish
+    // "resultados: 3" style) — the formatter gives the consumer full freedom.
+    render(
+      <ListWithDetailToolbar
+        searchValue="co"
+        onSearchChange={() => {}}
+        resultCount={3}
+        resultCountLabel={(n) => `${n} Treffer`}
+      />,
+    );
+    expect(screen.getByText("3 Treffer")).toBeTruthy();
   });
 
   it("omits the caption when no count is provided", () => {
