@@ -1,7 +1,7 @@
 ---
 area: test-gap
 opened: '2026-10-01'
-status: ready
+status: done
 gate:
   score: 5
   passed:
