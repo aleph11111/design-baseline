@@ -2,6 +2,7 @@ import * as React from "react";
 import { Input } from "../../ui/input";
 import { cn } from "../../../lib/utils";
 import {
+  FIELD_ERROR_RING,
   FieldError,
   FieldFrame,
   FieldHint,
@@ -186,7 +187,7 @@ export function NativeField({
     onKeyDown,
   };
 
-  const errorRing = error && "border-destructive focus-visible:ring-destructive";
+  const errorRing = error && FIELD_ERROR_RING;
 
   let control: React.ReactElement;
   if (type === "range") {

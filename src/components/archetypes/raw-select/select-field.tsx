@@ -8,6 +8,7 @@ import {
 } from "../../ui/select";
 import { cn } from "../../../lib/utils";
 import {
+  FIELD_ERROR_RING,
   FieldError,
   FieldFrame,
   FieldHint,
@@ -117,7 +118,7 @@ export function SelectField({
           aria-labelledby={labelId}
           aria-describedby={describedBy}
           aria-invalid={invalid}
-          className={cn(error && "border-destructive focus-visible:ring-destructive")}
+          className={cn(error && FIELD_ERROR_RING)}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>

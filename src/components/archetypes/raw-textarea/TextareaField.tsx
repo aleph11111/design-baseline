@@ -2,6 +2,7 @@ import * as React from "react";
 import { Textarea } from "../../ui/textarea";
 import { cn } from "../../../lib/utils";
 import {
+  FIELD_ERROR_RING,
   FieldError,
   FieldFrame,
   FieldHint,
@@ -132,7 +133,7 @@ export function TextareaField({
         spellCheck={mono ? false : undefined}
         className={cn(
           mono && "font-mono text-xs",
-          error && "border-destructive focus-visible:ring-destructive",
+          error && FIELD_ERROR_RING,
           className
         )}
         {...props}

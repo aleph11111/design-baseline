@@ -4,6 +4,7 @@ import { FileText, Loader2, Upload, X } from "lucide-react";
 import { Button } from "./button";
 import { cn } from "../../lib/utils";
 import {
+  FIELD_ERROR_RING,
   FieldError,
   FieldFrame,
   FieldHint,
@@ -109,7 +110,7 @@ export function FileField({
     "aria-describedby": describedBy,
     "aria-invalid": invalid,
   };
-  const errorRing = error && "border-destructive focus-visible:ring-destructive";
+  const errorRing = error && FIELD_ERROR_RING;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
