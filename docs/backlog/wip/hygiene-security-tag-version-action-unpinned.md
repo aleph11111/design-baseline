@@ -1,7 +1,7 @@
 ---
 area: hygiene-security
 opened: '2026-10-01'
-status: ready
+status: blocked
 gate:
   score: 5
   passed:
@@ -43,3 +43,9 @@ Threat actor: an upstream action maintainer compromise or tag retarget. The expl
 - [.github/workflows/tag-version.yml](/.github/workflows/tag-version.yml): the workflow carrying the unpinned action.
 - [[hygiene-security-release-tags-and-main-unprotected]]: the ruleset that keeps even a compromised writer from moving existing tags.
 - [[tag-version-workflow-hardening]]: the prior hardening pass on the same workflow.
+
+## Status (2026-10-02)
+
+- Done: checkout pinned to `11d5960a…7262 # v4` in tag-version.yml (same SHA as check.yml); `persist-credentials` kept default because the tag push authenticates via the checkout token (comment in workflow). `grep -nE "uses: [^@]+@v[0-9]" .github/workflows/*.yml` has no match.
+- Blocked: `sha_pinning_required` is still `false`. The unattended session's permission classifier denied the settings write (`gh api -X PUT repos/aleph11111/design-baseline/actions/permissions -F enabled=true -f allowed_actions=all -F sha_pinning_required=true`). Operator must run it (needs admin token), then confirm `"sha_pinning_required":true`.
+- Pending: third acceptance bullet (next `package.json` bump on main still tags) is verified only after that bump merges.
