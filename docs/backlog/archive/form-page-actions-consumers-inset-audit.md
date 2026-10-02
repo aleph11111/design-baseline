@@ -56,11 +56,11 @@ gate:
 | Project / file | Surface around `FormPageActions` | Verdict |
 |---|---|---|
 | brickshop-manager `pages/ItemMasterEditor.tsx` | `FormPageShell` board body (`kicker`/`title`) | OK, shell publishes the inset |
-| brickshop-manager `components/orders/create/OrderCreationForm.tsx` | bare `<form className="space-y-6">`; padding comes from the host page, not inspected | unverified; no padded wrapper in the file |
+| brickshop-manager `components/orders/create/OrderCreationForm.tsx` | sole host `pages/CreateOrder.tsx`: `<FormPageShell width="xl" kicker title>` board body, no Card | OK, shell publishes the inset |
 | mistra `ProfilePage.tsx` | classic `FormPageShell` (no padding) | OK, bleed 0 |
 | mistra `admin/SettingsPage.tsx` | classic `FormPageShell`; the `Card className="p-6"` blocks close before the actions, which sit at form level | OK |
 | mistra `admin/SkillBlockEditorPage.tsx` | no longer uses `FormPageActions` (own sticky div; stale comment mentions the old `-mx-6`) | n/a |
 | hk-crm `holding/lookup/project-phase/service-assignment-renewal/user-form.tsx` | form islands inside `CrudDialog` bodies (the audit signal on forms owning their footer), not a board/Card surface | not this contract; tracked by that signal |
-| hk-crm `project-form.tsx` | `useFormPageState` form; host page not inspected | unverified |
+| hk-crm `project-form.tsx` | hosts `app/(app)/projects/{new,[id]/edit}/page.tsx`: `<FormPageShell title>` board body, no Card | OK, shell publishes the inset |
 
-No fleet consumer was found placing `FormPageActions` inside a padded container (default `CardContent`, `p-6`) without publishing `--form-inset`. Two entries (brickshop `OrderCreationForm`, hk-crm `project-form`) could not be settled from the file alone because their padded host sits in another file; the donor never writes to fleet repos, so each project's own session confirms them when it next adopts the package (fleet-adoption playbook).
+No fleet consumer places `FormPageActions` in a padded container without publishing `--form-inset`: every row is OK or n/a (hk-crm dialog-embedded forms are a different contract, tracked by the footer-ownership audit signal). The mistra `SkillBlockEditorPage.tsx` sticky div is its own markup with the bleed already dropped (no `-mx-*` class; only a stale comment), so it is not a `FormPageActions` consumer. Static read of sibling checkouts at their current HEAD; no 375px render.
