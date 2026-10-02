@@ -48,15 +48,15 @@ describe("ListSkeleton — loading placeholder with status semantics", () => {
     render(<ListSkeleton rows={2} showHeader />);
     const rows = rowsOf(screen.getByRole("status"));
     expect(rows).toHaveLength(3);
-    expect(rows[0].className).toContain("w-40");
+    expect(rows[0]!.className).toContain("w-40");
   });
 
   it("adds a header row of `columns` cells in grid mode", () => {
     render(<ListSkeleton rows={2} columns={3} showHeader />);
     const rows = rowsOf(screen.getByRole("status"));
     expect(rows).toHaveLength(3);
-    expect(rows[0].children).toHaveLength(3);
-    expect(rows[0].className).toContain("pb-1");
+    expect(rows[0]!.children).toHaveLength(3);
+    expect(rows[0]!.className).toContain("pb-1");
   });
 
   it("adds an avatar placeholder per row, ignored in grid mode", () => {
