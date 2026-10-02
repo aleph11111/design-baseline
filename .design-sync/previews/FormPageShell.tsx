@@ -2,6 +2,7 @@ import {
   FormPageShell,
   FormPageHeader,
   FormPageActions,
+  FORM_INSET_CLASS,
   Label,
   Input,
   Textarea,
@@ -171,7 +172,7 @@ export function ClassicWithCard() {
           backHref="#"
           backLabel="Back to recipes"
         />
-        <div className="rounded-lg border bg-card p-5 space-y-4">
+        <div className={`rounded-lg border bg-card space-y-4 ${FORM_INSET_CLASS}`}>
           <div className="space-y-1.5">
             <Label htmlFor="fp-title-classic">Title</Label>
             <Input id="fp-title-classic" placeholder="Weeknight Mujadara" />
