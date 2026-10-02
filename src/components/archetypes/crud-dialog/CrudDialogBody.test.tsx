@@ -168,6 +168,12 @@ describe("CrudDialogBody — skeleton mobile collapse", () => {
     expect(skeletonInset.classList.contains("py-4")).toBe(true);
   });
 
+  it("publishes its px-6 padding as --form-inset for an in-body FormPageActions bar", () => {
+    const { loadedRoot } = renderBoth("flat");
+    const inset = loadedRoot.querySelector<HTMLElement>(".px-6")!;
+    expect(inset.classList.contains("[--form-inset:1.5rem]")).toBe(true);
+  });
+
   it("renders no paired two-column section for a flat body", () => {
     const { loadedRoot, skeletonRoot } = renderBoth("flat");
 

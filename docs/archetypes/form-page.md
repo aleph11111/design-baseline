@@ -277,7 +277,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes the 
 
 - No dedicated `/mobile/...` route. The same route + same component serves all viewports.
 - The form-page shell uses the same max-width container on all viewports. Field grids collapse to single-column on narrow viewports — the only allowed responsive override.
-- The actions-footer primitive becomes sticky to the bottom of the viewport on narrow screens so the primary action remains reachable without scrolling past the form. The primitive handles this automatically. To span the surface edge to edge, the bar bleeds by the surface's padding, which the surface publishes as `--form-inset`; the shell's board body does this, and any other padded surface wrapping the form (the Card chrome body) must use the exported `FORM_INSET_CLASS`. A surface that does not publish it gets no bleed.
+- The actions-footer primitive becomes sticky to the bottom of the viewport on narrow screens so the primary action remains reachable without scrolling past the form. The primitive handles this automatically. To span the surface edge to edge, the bar bleeds by the surface's padding, which the surface publishes as `--form-inset`; the shell's board body does this, and `CrudDialogBody` does the same for a form hosted in a dialog; any other padded surface wrapping the form (the Card chrome body) must use the exported `FORM_INSET_CLASS`. A surface that does not publish it gets no bleed.
 
 **Allowed variation:**
 
