@@ -2,7 +2,7 @@
 key: B
 slug: form-page
 kind: page
-version: 2.0
+version: 2.1
 promoted_from: hk-crm
 promoted_at: 2026-05-24
 source_spec_version: 1.7
@@ -175,7 +175,7 @@ Form pages do not have a toolbar layer. This layer number is reserved to keep pa
 - **Submitting** — the primary button in the actions-footer primitive disables and shows a spinner / "Saving…" / "Creating…" text. Other interactive elements (secondary buttons, fields) remain enabled so the user can read the form during the async window.
 - **Loading (initial data)** — handled by the server-component data fetch (Layer 8). The client form never sees a loading state for its `initial` values.
 - **Field validation errors** — the **form-message primitive** renders the RHF error message below each field. Required for every form-field.
-- **Form-level errors** — submission errors that don't map to a specific field surface via `form.setError('root', { message })` and render in a fixed slot above the actions-footer primitive. Use the canonical **compact inline-error box** treatment (shared with the J crud-dialog inline error; see README "Layer 7 — canonical state treatments"). Not the shell's full **destructive alert** load-error treatment, and not an ad hoc muted-red tint.
+- **Form-level errors** — submission errors that don't map to a specific field surface via `form.setError('root', { message })` and render in a fixed slot above the actions-footer primitive. Use the shared **inline-error primitive** (the canonical compact inline-error box, shared with the J crud-dialog fetch error; see README "Layer 7 — canonical state treatments"). It announces itself to assistive tech the moment the save fails, without moving focus, and carries an icon beside the tint. Not the shell's full **destructive alert** load-error treatment, and not an ad hoc muted-red tint.
 - **Success** — toast on save / create via the project's toast library (Sonner `toast()` recommended). The page does not render an inline success banner; success is signaled by toast + navigation.
 
 **Allowed variation:**

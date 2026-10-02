@@ -1,6 +1,6 @@
 import * as React from "react";
-import { afterEach, describe, expect, it } from "vitest";
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { CrudDialogBody } from "./CrudDialogBody";
 
 afterEach(() => {
@@ -214,5 +214,51 @@ describe("CrudDialogBody — skeleton mobile collapse", () => {
     const skeletonInset = skeletonRoot.querySelector<HTMLElement>("[aria-hidden]")!;
     expect(skeletonInset.classList.contains("px-6")).toBe(true);
     expect(skeletonInset.classList.contains("py-4")).toBe(true);
+  });
+});
+
+describe("CrudDialogBody — fetch-error state", () => {
+  it("replaces the fields with an announced error box and a retry action", () => {
+    const onRetry = vi.fn();
+    render(
+      <CrudDialogBody error={new Error("boom")} onRetry={onRetry}>
+        <div>fields</div>
+      </CrudDialogBody>,
+    );
+    const box = screen.getByRole("alert");
+    // the human-readable default, not the raw error message
+    expect(box.textContent).toContain("Could not load. Please try again.");
+    expect(box.textContent).not.toContain("boom");
+    expect(screen.queryByText("fields")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(onRetry).toHaveBeenCalledOnce();
+  });
+
+  it("wins over a stale isLoading: no skeleton, no busy hold, no loading announcement", () => {
+    const { container } = render(
+      <CrudDialogBody isLoading error="failed">
+        <div>fields</div>
+      </CrudDialogBody>,
+    );
+    act(() => {});
+    expect(screen.getByRole("alert")).toBeDefined();
+    expect(container.querySelector("[aria-busy]")).toBeNull();
+    expect(screen.getByRole("status").textContent).toBe("");
+  });
+
+  it("returns to the loading skeleton once the consumer retries", () => {
+    const { rerender } = render(
+      <CrudDialogBody error="failed" onRetry={() => {}}>
+        <div>fields</div>
+      </CrudDialogBody>,
+    );
+    rerender(
+      <CrudDialogBody isLoading>
+        <div>fields</div>
+      </CrudDialogBody>,
+    );
+    act(() => {});
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByRole("status").textContent).toBe("Loading…");
   });
 });

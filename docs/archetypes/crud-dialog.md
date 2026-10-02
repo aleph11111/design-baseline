@@ -2,7 +2,7 @@
 key: J
 slug: crud-dialog
 kind: dialog
-version: 3.3
+version: 3.4
 promoted_from: brickshop-manager
 promoted_at: 2026-08-04
 source_spec_version: 1.7
@@ -124,8 +124,11 @@ Dialogs do not have a toolbar layer. This layer number is reserved to keep parit
 - Pass `isLoading={true}` while the entity fetch is pending. The body renders a skeleton automatically; children are suppressed.
 - The body provides the **canonical dialog-body padding and scroll treatment** — do not add extra padding inside direct children of the dialog-body primitive.
 
+- Pass the entity fetch's `error` when the load fails. The body renders the fetch-error state (Layer 7) in place of the fields, and it wins over a still-set `isLoading`. Pass `onRetry` so the user can reload; the consumer refetches and sets `isLoading` again, which brings the skeleton back.
+
 **Allowed variation:**
 - `isLoading` omitted (defaults `false`) for dialogs that receive entity data via prop (no in-dialog fetch).
+- `errorMessage` / `retryLabel` overridden for a non-English app (the defaults are neutral English).
 
 **Forbidden:**
 - Extra vertical padding inside the body's immediate children.
@@ -162,7 +165,7 @@ to a detail page (C) when the entity outgrows a dialog (owns collections, etc.).
 
 **Required:**
 - **Loading:** the dialog-body primitive with `isLoading` renders a skeleton. Required for any dialog that fetches data on open.
-- **Error (fetch):** render the **compact inline-error box** treatment with a human-readable message. Not a hardcoded ad-hoc color.
+- **Error (fetch):** the dialog-body primitive's `error` prop renders the shared **inline-error primitive** (the compact inline-error box): a human-readable message (not the raw error text), a retry action, announced to assistive tech as it appears, and an icon beside the tint so colour is never the only signal. While it shows, the footer's primary action is unavailable (`primaryDisabled`).
 - **Saving:** pass `isSubmitting={true}` to the dialog-footer primitive. The footer disables and relabels the primary button automatically.
 - **Empty (Tab 2):** if Tab 2's connected-entity list is empty, render the shared **state-view primitive** (empty variant) with an icon and "No {things} yet." title — not `null`, not a blank area, and not a hand-rolled centered-icon container.
 
@@ -173,6 +176,7 @@ to a detail page (C) when the entity outgrows a dialog (owns collections, etc.).
 - Centered spinner as the primary loading state.
 - Saving indicator via text replacement on the button label ("Updating…", "Creating…"). Use `isSubmitting` on the dialog-footer primitive.
 - No saving indicator at all on mutation buttons.
+- A failed entity load rendered as an empty form or an endless skeleton, or a consumer-built error box in place of the body's `error` prop.
 
 ---
 
@@ -397,6 +401,7 @@ When a target project applies this archetype, it wires the generic primitives to
 - **2026-08-26 — v3.1.** Internal refactor only: the header primitive's bar chrome is extracted into a shared surface-header bar. No contract change.
 - **2026-09-25 — v3.2.** Promoted mistra's fork fixes: Cancel after a save resets the form to the last-saved values; the footer's Delete takes a static disabled gate distinct from the in-flight spinner (Layers 7 and 14). Additive.
 - **2026-09-30 — v3.3.** Optional `closeLabel` on the dialog shell and the dialog-header primitive (Layers 2–3) so the close affordance's accessible name is overridable per call site. Additive.
+- **2026-10-02 — v3.4.** Fetch-error state: the dialog-body primitive takes `error`, `errorMessage`, `onRetry` and `retryLabel`, and renders the shared inline-error primitive (announced, icon plus tint, retry) in place of the fields (Layers 5 and 7). The reference demo gains a "Simulate load failure" toggle. Additive.
 
 ---
 
