@@ -2,6 +2,7 @@
 area: hygiene-security
 opened: '2026-10-01'
 status: blocked
+blocked_reason: "needs admin to enable Actions SHA pinning (acceptance criterion 2, sha_pinning_required: true): the settings write was denied in the unattended session. To discharge: gh api -X PUT repos/aleph11111/design-baseline/actions/permissions -F enabled=true -f allowed_actions=all -F sha_pinning_required=true"
 gate:
   score: 5
   passed:
