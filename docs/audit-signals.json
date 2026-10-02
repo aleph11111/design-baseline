@@ -11,6 +11,7 @@
     { "id": "skeleton-loader", "regex": "animate-pulse", "shouldUse": "ListSkeleton / Skeleton" },
     { "id": "native-color-file", "regex": "type=[\"'](color|file)[\"']", "shouldUse": "ColorField / FileField (wrap)" },
     { "id": "segmented-toggle", "regex": "rounded-md border[^\"']*p-0\\.5", "shouldUse": "SegmentedControl" },
+    { "id": "segmented-toggle-button-variant", "regex": "variant=\\{[\\w.]+ === [^}?]+\\? \"default\" : \"(?:outline|secondary)\"\\}", "shouldUse": "SegmentedControl", "smell": "a single-choice mode switch hand-rolled from Buttons — `variant={mode === \"x\" ? \"default\" : \"outline\"}` (or `\"secondary\"`) — instead of SegmentedControl; the equality test separates it from boolean filter chips (`values.flag ? \"default\" : \"outline\"`), which are legitimately not segmented. Line-scoped, no -U. Candidate, not verdict: an equality test can also mark a status Badge or a single current-page/dialog-footer button, so triage each hit at the gate. Origin: mistra RecordPage, TranscriptDetail, RecordingSpeakers, SkillBlockEditorPage" },
     { "id": "entity-circle", "regex": "rounded-full[^\"']*bg-muted", "shouldUse": "IconAvatar" },
     { "id": "overline-typed", "regex": "uppercase[^\"']*tracking-wider|tracking-wider[^\"']*uppercase", "shouldUse": "OVERLINE_CLASS" },
     { "id": "media-feed", "regex": "role=[\"']feed[\"']", "shouldUse": "FeedShell / FeedItem (archetype H)" },
