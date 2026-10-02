@@ -126,7 +126,7 @@ describe("ListWithDetailShell", () => {
     expect(screen.queryByRole("button", { name: "Ada Lovelace" })).toBeNull();
   });
 
-  it("mobile detail Sheet: the Sheet's bar is the shared surface bar and inverts on solid", () => {
+  it("detail Sheet: the Sheet's bar is the shared surface bar and inverts on solid", () => {
     // On narrow viewports the detail surface is the mobile overlay (Sheet);
     // its header bar must be the one shared implementation (`data-slot=
     // surface-header`) — not a hand-rolled padding + header-fill wrapper.
@@ -142,7 +142,6 @@ describe("ListWithDetailShell", () => {
         detailActions={<button type="button">Edit</button>}
       />,
     );
-    fireEvent.click(screen.getByRole("cell", { name: "Ada Lovelace" }));
 
     const sheetTitle = screen.getByRole("heading", { name: "Ada Lovelace" });
     const bar = sheetTitle.closest(
@@ -227,7 +226,6 @@ describe("ListWithDetailShell", () => {
         columns={columns}
         getRowId={(row) => row.id}
         onRowSelect={() => {}}
-        selectedRowId="1"
         detail={<div>Details for Ada</div>}
         onDetailClose={onDetailClose}
       />,
