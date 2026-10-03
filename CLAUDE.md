@@ -49,7 +49,7 @@ The generic skills read this block to find the project's documentation artifacts
 
 ```bash
 npm install && npx tsc --noEmit   # donor verification: strict typecheck (no build — donor isn't an app)
-npm test                          # vitest run — donor-owned component tests (e.g. SurfaceHeader)
+npm test                          # vitest run — donor-owned component tests (e.g. PageFrame)
 npm run gallery                   # dev-serve the gallery (donor-dev only; renders every archetype demo)
 npm run gallery:build             # build gallery-dist/ — the static surface the dashboard hub iframes
 npm run gallery:preview           # preview the built gallery
