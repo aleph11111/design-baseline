@@ -24,7 +24,6 @@
     "src/components/archetypes/entity-circle/EntityAvatar.tsx",
     "src/components/archetypes/feed-inbox/FeedItem.tsx",
     "src/components/archetypes/form-page/FormPageActions.tsx",
-    "src/components/archetypes/form-page/FormPageHeader.tsx",
     "src/components/archetypes/form-page/useFormPageState.ts",
     "src/components/archetypes/grouped-list/GroupedListSection.tsx",
     "src/components/archetypes/grouped-list/GroupedListShell.tsx",

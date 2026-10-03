@@ -16,6 +16,9 @@
  *     column layout (the "Body layout" toggle switches columns; `width`
  *     derives per the contract's keying rule, and a compact 4-field form
  *     derives the `sm` step).
+ *   - One page frame (ADR-0008): the title (with a back link) renders once
+ *     as the page header above the form's one raised surface; save/cancel
+ *     stay in the footer — the header carries no actions.
  *
  * NOTE: This demo uses window.confirm for the discard-confirmation dialog.
  * Real consumers should use shadcn <AlertDialog> for an accessible UX. The
@@ -53,21 +56,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Switch } from "@/components/ui/switch";
 import { InlineError } from "@/components/ui/state-view";
-import { SectionCard } from "@/components/layout";
+import { PageFrame, SectionCard } from "@/components/layout";
 import {
   FormPageShell,
-  FormPageHeader,
   FormPageActions,
-  FORM_INSET_CLASS,
   useFormPageState,
 } from "@/components/archetypes/form-page";
 
 type FormWidth = "sm" | "md" | "lg" | "xl";
-type FormChrome = "board" | "classic" | "classic-card";
 /** Body layout — the demo's single user-facing choice. The shell's `width`
  * step is DERIVED from this (contract Layer 2, v2.0): a 1-column body of 3–4
  * fields → `sm`, a 1-column body of 5+ fields → `md`, a 2-column body →
@@ -222,13 +221,6 @@ type RecipeFormCommonProps = {
    * Layer 2, v2.0) — it is never passed through as a free choice.
    */
   layout: FormLayout;
-  /**
-   * "board" = the on-surface header (title on FormPageShell, current default).
-   * "classic" = bare classic floating header; "classic-card" = the classic floating `<FormPageHeader>` + the documented
-   * "Card chrome wrapper around the form body" allowed variation
-   * (docs/archetypes/form-page.md Layer 2).
-   */
-  chrome: FormChrome;
   /** When true, onSubmit throws so the root-level error box is reachable. */
   simulateError: boolean;
 };
@@ -251,7 +243,7 @@ type RecipeFormProps = RecipeFormCommonProps &
   );
 
 function RecipeForm(props: RecipeFormProps): React.ReactElement {
-  const { mode, layout, chrome, simulateError } = props;
+  const { mode, layout, simulateError } = props;
   // Contract Layer 2, v2.0 — the shell's `width` step is a CONSEQUENCE of the
   // body layout (field count / column arrangement) the demo renders, never a
   // free choice.
@@ -611,27 +603,9 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
 
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      {chrome === "board" ? (
-        <FormPageShell width={width} kicker="Recipes" title={title}>
-          {formBody}
-        </FormPageShell>
-      ) : (
-        <FormPageShell width={width}>
-          <FormPageHeader title={title} />
-          {/* Allowed variation (form-page.md Layer 2): a Card chrome wrapper
-              around the form body for extra visual emphasis, on top of the
-              classic floating header. */}
-          {chrome === "classic" ? (
-            formBody
-          ) : (
-            <Card>
-              <CardContent className={FORM_INSET_CLASS}>
-                {formBody}
-              </CardContent>
-            </Card>
-          )}
-        </FormPageShell>
-      )}
+      <FormPageShell width={width} title={title} backHref="#" backLabel="Recipes">
+        {formBody}
+      </FormPageShell>
     </div>
   );
 }
@@ -645,44 +619,29 @@ type DemoMode =
   | { kind: "create" }
   | { kind: "edit"; id: string };
 
-const CHROMES: FormChrome[] = ["board", "classic", "classic-card"];
-
-// Embedded phone previews pick their chrome from `#/a/form-page?chrome=…`.
-function initialChromeFromHash(): FormChrome {
-  const q = window.location.hash.split("?")[1] ?? "";
-  const c = new URLSearchParams(q).get("chrome");
-  return CHROMES.find((x) => x === c) ?? "board";
-}
-
 /**
- * Real 375px viewports (an iframe of this gallery page) so the `sm:` sticky
- * footer breakpoint fires — one per chrome variant. Hidden when already
- * embedded, so previews never nest.
+ * A real 375px viewport (an iframe of this gallery page) so the `sm:` sticky
+ * footer breakpoint fires. Hidden when already embedded, so previews never
+ * nest.
  */
-function PhonePreviews(): React.ReactElement | null {
+function PhonePreview(): React.ReactElement | null {
   if (window.self !== window.top) return null;
   const base = window.location.pathname + window.location.search;
   return (
     <div className="space-y-2">
       <p className="text-sm text-muted-foreground">
-        Phone viewport (375px) — sticky footer in each chrome variant.
+        Phone viewport (375px) — sticky footer.
       </p>
-      <div className="flex flex-wrap gap-4">
-        {CHROMES.map((c) => (
-          <iframe
-            key={c}
-            title={`Phone preview: ${c}`}
-            src={`${base}${window.location.hash.split("?")[0] || "#/a/form-page"}?chrome=${c}`}
-            className="h-[560px] w-[375px] rounded-lg border bg-background"
-          />
-        ))}
-      </div>
+      <iframe
+        title="Phone preview"
+        src={`${base}${window.location.hash || "#/a/form-page"}`}
+        className="h-[560px] w-[375px] rounded-lg border bg-background"
+      />
     </div>
   );
 }
 
 export function FormPageDemo(): React.ReactElement {
-  const initialChrome = React.useMemo(initialChromeFromHash, []);
   const [recipes, setRecipes] = React.useState<Recipe[]>([SEED_RECIPE]);
   // Default to the create form so the gallery shows the archetype (the
   // multi-section form) rather than the list scaffold used to reach it.
@@ -691,7 +650,6 @@ export function FormPageDemo(): React.ReactElement {
   // The demo's only width-adjacent choice is the BODY layout; the shell's
   // `width` step derives from it (contract Layer 2, v2.0) — no `width` state.
   const [layout, setLayout] = React.useState<FormLayout>("md-1col");
-  const [chrome, setChrome] = React.useState<FormChrome>(initialChrome);
   const [simulateError, setSimulateError] = React.useState(false);
 
   function handleCreated(recipe: Recipe) {
@@ -715,7 +673,7 @@ export function FormPageDemo(): React.ReactElement {
   }
 
   // Toggle row shared by the create/edit form views — drives the body layout
-  // (the shell's `width` step follows from it), board-vs-classic chrome, and
+  // (the shell's `width` step follows from it) and
   // a deterministic root-error trigger.
   const controls = (
     <div className="flex flex-wrap items-center justify-between gap-4">
@@ -724,10 +682,9 @@ export function FormPageDemo(): React.ReactElement {
         arrangement the form renders. The shell's <strong>width</strong> step
         <em> derives</em> from it (contract Layer 2, v2.0): narrow 4-field
         single column → sm, standard single-column form → md, 2-column field
-        grid → lg, 3-column body → xl. Also toggle <strong>Chrome</strong>{" "}
-        (on-surface board header vs. the classic floating header + Card
-        wrapper) and <strong>Simulate server error</strong> to surface the
-        root-level error banner on submit.
+        grid → lg, 3-column body → xl. Also toggle{" "}
+        <strong>Simulate server error</strong> to surface the root-level
+        error banner on submit.
       </p>
       <div className="flex flex-wrap items-center gap-3">
         <SegmentedControl
@@ -739,16 +696,6 @@ export function FormPageDemo(): React.ReactElement {
             { value: "md-1col", label: "1-column (md)" },
             { value: "lg-2col", label: "2-column (lg)" },
             { value: "xl-3col", label: "3-column (xl)" },
-          ]}
-        />
-        <SegmentedControl
-          aria-label="Form chrome"
-          value={chrome}
-          onValueChange={setChrome}
-          options={[
-            { value: "board", label: "Board" },
-            { value: "classic", label: "Classic" },
-            { value: "classic-card", label: "Classic + Card" },
           ]}
         />
         <label className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
@@ -763,11 +710,10 @@ export function FormPageDemo(): React.ReactElement {
     return (
       <div className="space-y-5">
         {controls}
-        <PhonePreviews />
+        <PhonePreview />
         <RecipeForm
           mode="create"
           layout={layout}
-          chrome={chrome}
           simulateError={simulateError}
           onSubmitSuccess={handleCreated}
           onCancel={() => setMode({ kind: "list" })}
@@ -793,7 +739,6 @@ export function FormPageDemo(): React.ReactElement {
           id={recipe.id}
           initial={recipe}
           layout={layout}
-          chrome={chrome}
           simulateError={simulateError}
           onSubmitSuccess={handleSaved}
           onDelete={handleDeleted}
@@ -812,55 +757,56 @@ export function FormPageDemo(): React.ReactElement {
         </div>
       )}
 
+      {/* The list the form returns to — itself a framed page (title once,
+          the create verb in the header, the count in the band). */}
       <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <div className="rounded-lg border bg-card overflow-hidden">
-        <div className="border-b px-4 py-3 flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">
-            {recipes.length} recipe{recipes.length !== 1 ? "s" : ""}
-          </span>
-          <Button size="sm" onClick={() => setMode({ kind: "create" })}>
-            New recipe
-          </Button>
-        </div>
-
-        {recipes.length === 0 ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">
-            No recipes yet.
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Cuisine</TableHead>
-                <TableHead className="text-right">Serves</TableHead>
-                <TableHead>Tag</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recipes.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell>
-                    <Button
-                      variant="link"
-                      className="h-auto p-0"
-                      aria-label={`Edit ${r.title}`}
-                      onClick={() => setMode({ kind: "edit", id: r.id })}
-                    >
-                      {r.title}
-                    </Button>
-                  </TableCell>
-                  <TableCell>{CUISINE_LABELS[r.cuisine]}</TableCell>
-                  <TableCell className="text-right font-mono tabular-nums">{r.serves}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {r.tag || "—"}
-                  </TableCell>
+        <PageFrame
+          title="Recipes"
+          actions={
+            <Button size="sm" onClick={() => setMode({ kind: "create" })}>
+              New recipe
+            </Button>
+          }
+          count={`${recipes.length} recipe${recipes.length !== 1 ? "s" : ""}`}
+        >
+          {recipes.length === 0 ? (
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              No recipes yet.
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Cuisine</TableHead>
+                  <TableHead className="text-right">Serves</TableHead>
+                  <TableHead>Tag</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </div>
+              </TableHeader>
+              <TableBody>
+                {recipes.map((r) => (
+                  <TableRow key={r.id}>
+                    <TableCell>
+                      <Button
+                        variant="link"
+                        className="h-auto p-0"
+                        aria-label={`Edit ${r.title}`}
+                        onClick={() => setMode({ kind: "edit", id: r.id })}
+                      >
+                        {r.title}
+                      </Button>
+                    </TableCell>
+                    <TableCell>{CUISINE_LABELS[r.cuisine]}</TableCell>
+                    <TableCell className="text-right font-mono tabular-nums">{r.serves}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {r.tag || "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </PageFrame>
       </div>
 
       <div className="rounded-md border bg-muted/30 px-4 py-3 text-xs text-muted-foreground space-y-1">

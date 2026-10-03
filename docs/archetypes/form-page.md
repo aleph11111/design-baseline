@@ -2,7 +2,7 @@
 key: B
 slug: form-page
 kind: page
-version: 2.1
+version: 3.0
 promoted_from: hk-crm
 promoted_at: 2026-05-24
 source_spec_version: 1.7
@@ -11,6 +11,16 @@ status: locked
 
 # Archetype B — Form Page
 
+> **v3.0 (2026-10-03) — one page frame (ADR-0008).** The form page is always
+> framed: the shell takes the page header directly — `title` (required),
+> `subtitle`, `icon`, `backHref` / `backLabel` / `renderBackLink` — and renders
+> it once above the form's one raised surface. The board/classic split, the
+> on-surface title (`kicker`), the `headerActions` slot and the separate
+> floating-header component are deleted; the shell exposes no header
+> `actions` — save / cancel / delete stay in the actions footer, their one
+> home. The card-surface wrapper around the form body is retired (the frame
+> is the page's one raised surface). Ships in manifest 3.0. Breaking.
+>
 > **v2.0 (2026-08-18) — width and className API closes (archetype-convergence
 > Phase 1, archetype B).** The shell's `className` prop is deleted — an
 > unenumerable superset escape hatch on a `*Shell`, re-adding it reopens the
@@ -77,18 +87,18 @@ B is **not** the right choice for:
       - `"lg"` — a **wider single-column form** (longer field labels / description slots that read too cramped at `md` width), **or** a form body laid out as a **two-column field grid** — the paired-short-field shape (firstName + lastName, city + zip) that collapses to single-column on narrow viewports.
       - `"xl"` — a **wide multi-column layout**: a form body using a **3+ column field grid**, or **multiple two-column sections** stacked (each section a two-column grid, several of them) such that the combined body no longer reads at `lg` width.
     - The key reads **field count / column layout → step**, one direction only. The column layout is a *consequence* of the step the rule assigns, never an independent permission to widen.
-  - The **canonical vertical rhythm** between header and form body.
+  - The **page header** (Layer 3) above the form's **one raised surface**, which holds the form body with the canonical vertical rhythm.
   - **No page inset** — the app shell's main region supplies it; the shell adds none (re-insetting here would double-inset).
 - A **render-error boundary** (or framework equivalent) wraps the page content at the page-component level.
 
 **Allowed variation:**
 
-- A **card-surface** chrome wrapper around the form body when visual emphasis is desired (e.g. tenant-onboarding forms). Default is no card; form sits directly inside the shell.
 - A **two-column field grid** inside the form body — permitted *because* the width keying rule assigns such a form the `"lg"` (or `"xl"`) step, never independently. Sections collapse to single-column on narrow viewports.
 
 **Forbidden:**
 
 - Inline hand-rolled max-width/inset wrappers. Always use the form-page shell.
+- A second raised surface — a card wrapped around the form body. The shell's frame is the page's one raised surface.
 - Centering the form horizontally on the page when the project's layout already left-aligns content. The shell respects whatever alignment the surrounding app shell imposes.
 - Multiple `<form>` elements on a single form page. One page, one form.
 
@@ -96,25 +106,22 @@ B is **not** the right choice for:
 
 ## Layer 3 — Page header
 
-The form-page header is **purely informational** — title, optional subtitle, optional icon. Action buttons live in the footer (Layer 14), not in the header.
+The form-page header is **purely informational**. The page passes it to the form-page shell once; it is the page's only title.
 
-**Required (board form — via the form-page shell's `kicker`/`title`/`headerActions` props):**
+**Required:**
 
-- **Title on the surface.** Pass `title` (and optionally `kicker`, `headerActions`) to the form-page shell and it renders the shared **on-surface header bar** (the title bar that sits ON the content surface, driven by shell props) at the top of its bounded card — a `kicker` overline (the entity class, e.g. "Recipes") over the `title`, in the project's **canonical page-title type style**; embed an entity identifier in the **monospace identifier style**, e.g. `"Edit Recipe — Sunday Carbonara"`. This is the same on-surface header every framed archetype shell mounts; there is no separate floating page header above the card.
-- `headerActions` — optional right-aligned secondary actions in the bar. The form's Save/Cancel/Delete stay in the **actions-footer primitive** (the sticky-or-inline footer owning the destructive/secondary/primary write actions) at the footer regardless of what's in `headerActions`.
-- **Header fill.** The bar renders per the shared **header-fill contract** — three modes: brand-filled (default), muted tint, and hairline-border-only — set once per project via the top-level app shell's header-fill setting. It is a **closed context: there is no per-page or per-shell override.**
+- `title` names the write: an entity-context phrase (`"New Task"`, `"Edit Recipe — Sunday Carbonara"`); in edit mode embed the entity identifier in the **monospace identifier style** so the user confirms they are editing the right record.
 
 **Allowed variation:**
 
-- **Classic floating header** — when the form-page shell is used without a `title` prop, it reverts to the unstyled column layout; compose the **floating page-header treatment** (the canonical page-header treatment, in the same canonical page-title type style) as the first child instead. Use this path when the page needs a `subtitle`, decorative `icon`, or `backHref` — the on-surface header bar carries `kicker`/`title`/`headerActions` only, no subtitle/icon/back-link slots.
-- **Subtitle** — classic header only. Use for secondary identifying info (e.g. created date, status, "Editing as administrator"). Rendered in a **muted extra-small supporting-text style** directly below the title.
-- **Icon** — classic header only, decorative. If used, a small icon sized to the header scale, placed inside the floating page-header treatment before the title.
-- **Back link** — classic header only. Optional `backHref` prop on the floating page-header treatment renders a small "← Back to {list}" link above the title.
+- `subtitle` — secondary identifying info (created date, status, "Editing as administrator").
+- `icon` — decorative.
+- `backHref` / `backLabel` — a "back to {list}" link; `renderBackLink` injects the router link.
 
 **Forbidden:**
 
-- Action buttons (Save, Cancel, Delete) placed in the header or its actions slot. All form-write actions belong in the footer (Layer 14). This is what separates B from a list-detail page.
-- Inline `<h1>` markup, or a hand-rolled title bar, bypassing the form-page shell's on-surface header bar / floating page-header treatment. The shared header is what gives every form page the same chrome.
+- Header actions. The shell has no `actions` slot: Save, Cancel and Delete belong in the actions footer (Layer 14) — that is what separates B from a list-detail page.
+- A second title — a titled card, heading or hand-rolled title bar on the form surface repeating the page title.
 
 ---
 
@@ -134,8 +141,7 @@ Form pages do not have a toolbar layer. This layer number is reserved to keep pa
 
 **Allowed variation:**
 
-- **Section grouping** — when the form has 3+ logical groups (e.g. "Contact info" / "Address" / "Preferences"), wrap each group in the shared **card / section-card surface** (with a `title`) so the group heading is bound to its fields as one titled bounded block — the same titled-section shape used by detail-overview (the **detail-section** primitive) and grouped-list groups. The fields render in the card's padded (non-`flush`) body. Do not float a bare heading above an unbounded `<div>` of fields, and do not hand-roll the card/heading chrome. Forms with fewer than 3 groups stay flat (no card/section-card surface) — a single bounded section adds chrome without earning it.
-- **Card-grouped sections** — a card-surface wrapper around each section when visual separation is desired (e.g. compliance forms with optional sub-collections).
+- **Section grouping** — when the form has 3+ logical groups (e.g. "Contact info" / "Address" / "Preferences"), wrap each group in the shared **section-card** (with a `title`) so the group heading is bound to its fields as one titled block — inside the frame it renders as a section, never a card of its own — the same titled-section shape used by detail-overview (the **detail-section** primitive) and grouped-list groups. The fields render in the card's padded (non-`flush`) body. Do not float a bare heading above an unbounded `<div>` of fields, and do not hand-roll the card/heading chrome. Forms with fewer than 3 groups stay flat (no card/section-card surface) — a single bounded section adds chrome without earning it.
 - **Two-column field grids** — a two-column grid for paired short fields (firstName + lastName, city + zip). Collapse to single-column on narrow viewports.
 
 **Forbidden:**
@@ -277,7 +283,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes the 
 
 - No dedicated `/mobile/...` route. The same route + same component serves all viewports.
 - The form-page shell uses the same max-width container on all viewports. Field grids collapse to single-column on narrow viewports — the only allowed responsive override.
-- The actions-footer primitive becomes sticky to the bottom of the viewport on narrow screens so the primary action remains reachable without scrolling past the form. The primitive handles this automatically. To span the surface edge to edge, the bar bleeds by the surface's padding, which the surface publishes as `--form-inset`; the shell's board body does this, and `CrudDialogBody` does the same for a form hosted in a dialog; any other padded surface wrapping the form (the Card chrome body) must use the exported `FORM_INSET_CLASS`. A surface that does not publish it gets no bleed.
+- The actions-footer primitive becomes sticky to the bottom of the viewport on narrow screens so the primary action remains reachable without scrolling past the form. The primitive handles this automatically. To span the surface edge to edge, the bar bleeds by the surface's padding, which the surface publishes as `--form-inset`; the shell's frame body does this, and the crud-dialog body does the same for a form hosted in a dialog. A surface that does not publish it gets no bleed.
 
 **Allowed variation:**
 
@@ -361,7 +367,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes the 
 
 **Forbidden:**
 
-- Action buttons placed in the floating page-header treatment. Footer is the only home.
+- Action buttons placed in the page header. Footer is the only home.
 - Primary button on the left, destructive on the right. Reversed order breaks the cross-archetype convention (matches J's footer).
 - Delete button visible in create mode. The actions-footer primitive enforces this automatically.
 - Using the dialog-footer or card-footer chrome primitives — those are for dialog / card surfaces, not form pages.
@@ -399,7 +405,7 @@ The following patterns are never permitted in a form page, regardless of domain:
 3. **Bare `<input>` outside the form-field primitive.** Every field flows through RHF + the form-provider bridge.
 4. **`useState` per field.** All form state lives in RHF.
 5. **Form-values type re-declared apart from the Zod schema.** Drift waiting to happen.
-6. **Action buttons in the floating page-header treatment.** Footer is the only home.
+6. **Action buttons in the page header.** Footer is the only home.
 7. **Primary button on the left, destructive on the right.** Reversed order breaks the cross-archetype convention.
 8. **Delete button visible in create mode.** The actions-footer primitive enforces.
 9. **Mounting B's primitives inside an overlay-surface shell.** If you need one, migrate to J.
@@ -449,6 +455,8 @@ When a target project applies this archetype, it wires the generic primitives to
       in the header.
 - [ ] **One form-page-shell column.** No hand-rolled max-width/inset wrapper;
       no horizontal centering when the app left-aligns content.
+- [ ] **One title, one surface.** The title renders once, as the page header;
+      no titled card or second raised surface around the form body.
 - [ ] **Fields are atoms** — form-field primitives/labelled atoms with standard error text,
       not raw `<input>`/`<select>` or bespoke label markup.
 - [ ] **One destructive confirm path** for discard/delete (dialog), not an inline raw button.
@@ -456,7 +464,6 @@ When a target project applies this archetype, it wires the generic primitives to
 
 **SHOULD** (yellow, not red)
 
-- [ ] Multi-section forms use a titled card/section-card rhythm, not flat stacks of 20 inputs.
-- [ ] Card-surface chrome around the body only when emphasis is intended (default: none).
+- [ ] Multi-section forms use a titled section-card rhythm, not flat stacks of 20 inputs.
 
 ---

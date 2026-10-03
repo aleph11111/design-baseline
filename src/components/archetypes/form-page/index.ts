@@ -2,9 +2,6 @@
 export { FormPageShell, FORM_INSET_CLASS } from "./FormPageShell";
 export type { FormPageShellProps } from "./FormPageShell";
 
-export { FormPageHeader } from "./FormPageHeader";
-export type { FormPageHeaderProps } from "./FormPageHeader";
-
 export { FormPageActions } from "./FormPageActions";
 export type { FormPageActionsProps, FormPageMode } from "./FormPageActions";
 
