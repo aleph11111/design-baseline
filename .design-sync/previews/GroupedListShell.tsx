@@ -47,11 +47,10 @@ const toolbar = (
 // Loaded — toolbar, header actions, two grouped sections.
 export function Loaded() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <GroupedListShell
-        kicker="Catalog"
         title="Recipe Book"
-        headerActions={headerActions}
+        actions={headerActions}
         toolbar={toolbar}
       >
         <GroupedListSection<Recipe>
@@ -76,11 +75,10 @@ export function Loaded() {
 // Loading plane — page-level StateView, sections not rendered.
 export function Loading() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <GroupedListShell
-        kicker="Catalog"
         title="Recipe Book"
-        headerActions={headerActions}
+        actions={headerActions}
         toolbar={toolbar}
         isLoading
       >
@@ -93,11 +91,10 @@ export function Loading() {
 // Empty plane — zero sections and zero ungrouped rows.
 export function Empty() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <GroupedListShell
-        kicker="Catalog"
         title="Recipe Book"
-        headerActions={headerActions}
+        actions={headerActions}
         toolbar={toolbar}
         isEmpty
         emptyMessage="No recipes yet. Add one to get started."
@@ -111,11 +108,10 @@ export function Empty() {
 // Error plane — fetch failure with a retry affordance.
 export function ErrorState() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <GroupedListShell
-        kicker="Catalog"
         title="Recipe Book"
-        headerActions={headerActions}
+        actions={headerActions}
         toolbar={toolbar}
         error={new Error("Failed to load the recipe book.")}
         onRetry={() => {}}

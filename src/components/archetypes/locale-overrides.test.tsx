@@ -72,7 +72,7 @@ describe("crud-dialog", () => {
 describe("SettingsTableShell labels", () => {
   it("overrides the bulk-select, bulk-delete and plane copy", () => {
     const { rerender } = render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(r) => r.id}
@@ -96,12 +96,12 @@ describe("SettingsTableShell labels", () => {
     expect(screen.getByRole("button", { name: "1 löschen" })).toBeTruthy();
 
     rerender(
-      <SettingsTableShell rows={[]} columns={columns} getRowId={(r) => r.id} isLoading labels={{ loading: "Laden…" }} />,
+      <SettingsTableShell title="T" rows={[]} columns={columns} getRowId={(r) => r.id} isLoading labels={{ loading: "Laden…" }} />,
     );
     expect(screen.getByText("Laden…")).toBeTruthy();
 
     rerender(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={[]}
         columns={columns}
         getRowId={(r) => r.id}
@@ -118,7 +118,7 @@ describe("SettingsTableShell labels", () => {
     // A wrapper forwarding an unset optional prop would pass explicit
     // `undefined` — the merged defaults must not be replaced by it.
     render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(r) => r.id}
@@ -153,23 +153,23 @@ describe("ListWithDetailShell labels", () => {
   const base = { columns, getRowId: (r: Row) => r.id, labels };
 
   it("overrides the loading, error and both empty planes", () => {
-    const { rerender } = render(<ListWithDetailShell {...base} rows={[]} isLoading />);
+    const { rerender } = render(<ListWithDetailShell title="T" {...base} rows={[]} isLoading />);
     expect(screen.getByText("Laden…")).toBeTruthy();
 
-    rerender(<ListWithDetailShell {...base} rows={[]} error={new Error("boom")} onRetry={() => {}} />);
+    rerender(<ListWithDetailShell title="T" {...base} rows={[]} error={new Error("boom")} onRetry={() => {}} />);
     expect(screen.getByText("Etwas ist schiefgelaufen")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Erneut versuchen" })).toBeTruthy();
 
-    rerender(<ListWithDetailShell {...base} rows={[]} />);
+    rerender(<ListWithDetailShell title="T" {...base} rows={[]} />);
     expect(screen.getByText("Keine Einträge vorhanden.")).toBeTruthy();
 
-    rerender(<ListWithDetailShell {...base} rows={[]} filteredEmpty />);
+    rerender(<ListWithDetailShell title="T" {...base} rows={[]} filteredEmpty />);
     expect(screen.getByText("Keine Treffer. Filter zurücksetzen.")).toBeTruthy();
   });
 
   it("labels the mobile detail Sheet's close button", () => {
     render(
-      <ListWithDetailShell {...base} rows={rows} onRowSelect={() => {}} detail={<p>detail</p>} />,
+      <ListWithDetailShell title="T" {...base} rows={rows} onRowSelect={() => {}} detail={<p>detail</p>} />,
     );
     fireEvent.click(screen.getByText("Alpha"));
     expect(screen.getByRole("button", { name: "Schließen" })).toBeTruthy();
@@ -179,12 +179,12 @@ describe("ListWithDetailShell labels", () => {
 describe("GroupedListShell labels", () => {
   it("overrides the loading, error and empty planes", () => {
     const { rerender } = render(
-      <GroupedListShell isLoading labels={{ loading: "Lädt…" }} />,
+      <GroupedListShell title="T" isLoading labels={{ loading: "Lädt…" }} />,
     );
     expect(screen.getByText("Lädt…")).toBeTruthy();
 
     rerender(
-      <GroupedListShell
+      <GroupedListShell title="T"
         error={new Error("boom")}
         onRetry={() => {}}
         labels={{ errorTitle: "Etwas ist schiefgelaufen", retry: "Erneut versuchen" }}
@@ -194,14 +194,14 @@ describe("GroupedListShell labels", () => {
     expect(screen.getByRole("button", { name: "Erneut versuchen" })).toBeTruthy();
 
     rerender(
-      <GroupedListShell isEmpty emptyMessage="Keine Einträge vorhanden." />,
+      <GroupedListShell title="T" isEmpty emptyMessage="Keine Einträge vorhanden." />,
     );
     expect(screen.getByText("Keine Einträge vorhanden.")).toBeTruthy();
 
     // The `labels.empty` path (not just `emptyMessage`) is the shared
     // renderer's own — like the other two shells.
     rerender(
-      <GroupedListShell isEmpty labels={{ empty: "Keine Einträge vorhanden." }} />,
+      <GroupedListShell title="T" isEmpty labels={{ empty: "Keine Einträge vorhanden." }} />,
     );
     expect(screen.getByText("Keine Einträge vorhanden.")).toBeTruthy();
   });
@@ -225,20 +225,20 @@ describe("row-actions trigger label", () => {
   it.each(presentations)("list shell (%s): override and English default", (presentation) => {
     const props = { columns, getRowId: (r: Row) => r.id, rows: manyRows, rowActions, presentation };
     const { rerender } = render(
-      <ListWithDetailShell {...props} labels={{ rowActions: "Zeilenaktionen" }} />,
+      <ListWithDetailShell title="T" {...props} labels={{ rowActions: "Zeilenaktionen" }} />,
     );
     expectAll("Zeilenaktionen", "Row actions");
-    rerender(<ListWithDetailShell {...props} />);
+    rerender(<ListWithDetailShell title="T" {...props} />);
     expectAll("Row actions", "Zeilenaktionen");
   });
 
   it("settings shell: override and English default", () => {
     const props = { rows: manyRows, columns, getRowId: (r: Row) => r.id, rowActions };
     const { rerender } = render(
-      <SettingsTableShell {...props} labels={{ rowActions: "Zeilenaktionen" }} />,
+      <SettingsTableShell title="T" {...props} labels={{ rowActions: "Zeilenaktionen" }} />,
     );
     expectAll("Zeilenaktionen", "Row actions");
-    rerender(<SettingsTableShell {...props} />);
+    rerender(<SettingsTableShell title="T" {...props} />);
     expectAll("Row actions", "Zeilenaktionen");
   });
 });
@@ -262,7 +262,7 @@ describe("English defaults when no override is passed", () => {
 
   it("SettingsTableShell bulk and plane copy", () => {
     const { rerender } = render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(r) => r.id}
@@ -279,11 +279,11 @@ describe("English defaults when no override is passed", () => {
     expect(screen.getByText("1 selected")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Delete 1 selected" })).toBeTruthy();
 
-    rerender(<SettingsTableShell rows={[]} columns={columns} getRowId={(r) => r.id} isLoading />);
+    rerender(<SettingsTableShell title="T" rows={[]} columns={columns} getRowId={(r) => r.id} isLoading />);
     expect(screen.getByText("Loading…")).toBeTruthy();
 
     rerender(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={[]}
         columns={columns}
         getRowId={(r) => r.id}
@@ -294,41 +294,41 @@ describe("English defaults when no override is passed", () => {
     expect(screen.getByText("Something went wrong")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
 
-    rerender(<SettingsTableShell rows={[]} columns={columns} getRowId={(r) => r.id} />);
+    rerender(<SettingsTableShell title="T" rows={[]} columns={columns} getRowId={(r) => r.id} />);
     expect(screen.getByText("No items yet")).toBeTruthy();
   });
 
   it("ListWithDetailShell planes and mobile Sheet close", () => {
     const base = { columns, getRowId: (r: Row) => r.id };
-    const { rerender } = render(<ListWithDetailShell {...base} rows={[]} isLoading />);
+    const { rerender } = render(<ListWithDetailShell title="T" {...base} rows={[]} isLoading />);
     expect(screen.getByText("Loading…")).toBeTruthy();
 
-    rerender(<ListWithDetailShell {...base} rows={[]} error={new Error("boom")} onRetry={() => {}} />);
+    rerender(<ListWithDetailShell title="T" {...base} rows={[]} error={new Error("boom")} onRetry={() => {}} />);
     expect(screen.getByText("Something went wrong")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
 
-    rerender(<ListWithDetailShell {...base} rows={[]} />);
+    rerender(<ListWithDetailShell title="T" {...base} rows={[]} />);
     expect(screen.getByText("No items yet")).toBeTruthy();
 
-    rerender(<ListWithDetailShell {...base} rows={[]} filteredEmpty />);
+    rerender(<ListWithDetailShell title="T" {...base} rows={[]} filteredEmpty />);
     expect(screen.getByText("No matches. Try clearing filters.")).toBeTruthy();
 
     cleanup();
-    render(<ListWithDetailShell {...base} rows={rows} onRowSelect={() => {}} detail={<p>detail</p>} />);
+    render(<ListWithDetailShell title="T" {...base} rows={rows} onRowSelect={() => {}} detail={<p>detail</p>} />);
     fireEvent.click(screen.getByText("Alpha"));
     expect(screen.getByRole("button", { name: "Close" })).toBeTruthy();
   });
 
   it("GroupedListShell planes and the shared empty default", () => {
-    const { rerender } = render(<GroupedListShell isLoading />);
+    const { rerender } = render(<GroupedListShell title="T" isLoading />);
     expect(screen.getByText("Loading…")).toBeTruthy();
 
-    rerender(<GroupedListShell error={new Error("boom")} onRetry={() => {}} />);
+    rerender(<GroupedListShell title="T" error={new Error("boom")} onRetry={() => {}} />);
     expect(screen.getByText("Something went wrong")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
 
     // All three list shells now render the same default empty string.
-    rerender(<GroupedListShell isEmpty />);
+    rerender(<GroupedListShell title="T" isEmpty />);
     expect(screen.getByText("No items yet")).toBeTruthy();
   });
 });
