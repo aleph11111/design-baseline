@@ -15,7 +15,7 @@ const steps: WizardStep[] = [
 
 function renderShell(props: Partial<React.ComponentProps<typeof WizardShell>> = {}) {
   return render(
-    <WizardShell steps={steps} current={0} {...props}>
+    <WizardShell title="Import members" steps={steps} current={0} {...props}>
       <div>step body</div>
     </WizardShell>,
   );
@@ -83,17 +83,21 @@ describe("WizardShell footer state", () => {
   });
 });
 
-describe("WizardShell surface wrapper", () => {
-  it("renders the board-form wrapper with an on-surface header when title is set", () => {
-    const { container } = renderShell({ title: "Import members", kicker: "Members" });
-    const header = container.querySelector('[data-slot="surface-header"]');
-    expect(header).not.toBeNull();
-    expect(header?.textContent).toContain("Import members");
-    expect(header?.textContent).toContain("Members");
+describe("WizardShell page frame", () => {
+  it("renders the title once, as the page h1, with no on-surface title", () => {
+    const { container } = renderShell({ subtitle: "From CSV" });
+    const h1s = screen.getAllByRole("heading", { level: 1 });
+    expect(h1s).toHaveLength(1);
+    expect(h1s[0]?.textContent).toBe("Import members");
+    expect(screen.getAllByText("Import members")).toHaveLength(1);
+    expect(screen.getByText("From CSV")).toBeTruthy();
+    expect(container.querySelector('[data-slot="surface-header"]')).toBeNull();
   });
 
-  it("renders the plain wrapper when title is omitted", () => {
-    const { container } = renderShell();
-    expect(container.querySelector('[data-slot="surface-header"]')).toBeNull();
+  it("flattens the step section inside the frame (no card-in-card)", () => {
+    renderShell({ current: 1 });
+    const section = screen.getByText("step body").closest("section");
+    expect(section).not.toBeNull();
+    expect(section?.className).not.toContain("bg-surface-raised");
   });
 });

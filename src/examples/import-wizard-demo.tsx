@@ -90,113 +90,111 @@ export function ImportWizardDemo(): React.ReactElement {
   }
 
   return (
-    /* Plex Ledger board form: title sits ON the bounded surface (SurfaceHeader),
-       one frame on a muted mat. Wizard Back/Next/Commit stay in the wizard footer. */
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <WizardShell
-        kicker="Import"
-        title="Import transactions"
-        steps={STEPS}
-        current={step}
-        onBack={() => setStep((s) => Math.max(0, s - 1))}
-        onNext={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}
-        onCommit={commit}
-        canProceed={step !== 0 || uploaded}
-        busy={busy}
-      >
-        {step === 0 && (
-          <div className="flex flex-col items-center gap-3 rounded-md border border-dashed py-10 text-center">
-            <UploadCloud className="h-8 w-8 text-muted-foreground" />
-            {uploaded ? (
-              <p className="text-sm text-foreground">
-                <span className="font-medium">transactions.csv</span> · 128 rows
+    /* One page frame (ADR-0008): the title is the page heading above the
+       frame; Back/Next/Commit stay in the wizard footer. */
+    <WizardShell
+      title="Import transactions"
+      subtitle="CSV · Checking account"
+      steps={STEPS}
+      current={step}
+      onBack={() => setStep((s) => Math.max(0, s - 1))}
+      onNext={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}
+      onCommit={commit}
+      canProceed={step !== 0 || uploaded}
+      busy={busy}
+    >
+      {step === 0 && (
+        <div className="flex flex-col items-center gap-3 rounded-md border border-dashed py-10 text-center">
+          <UploadCloud className="h-8 w-8 text-muted-foreground" />
+          {uploaded ? (
+            <p className="text-sm text-foreground">
+              <span className="font-medium">transactions.csv</span> · 128 rows
+            </p>
+          ) : (
+            <>
+              <p className="text-sm text-muted-foreground">
+                Drop a CSV here, or choose a file.
               </p>
-            ) : (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  Drop a CSV here, or choose a file.
-                </p>
-                <Button size="sm" onClick={() => setUploaded(true)}>
-                  Choose file
-                </Button>
-              </>
-            )}
-          </div>
-        )}
+              <Button size="sm" onClick={() => setUploaded(true)}>
+                Choose file
+              </Button>
+            </>
+          )}
+        </div>
+      )}
 
-        {step === 1 && (
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">
-              Match each CSV column to a field.
-            </p>
-            {SOURCE_COLUMNS.map((col) => (
-              <div key={col} className="flex items-center gap-3 text-sm">
-                <span className="w-32 shrink-0 font-mono text-xs">{col}</span>
-                <span className="text-muted-foreground">→</span>
-                <Select
-                  value={mapping[col] ?? "— ignore —"}
-                  onValueChange={(v) =>
-                    setMapping((m) => ({ ...m, [col]: v }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TARGET_FIELDS.map((f) => (
-                      <SelectItem key={f} value={f}>
-                        {f}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            ))}
-          </div>
-        )}
+      {step === 1 && (
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">
+            Match each CSV column to a field.
+          </p>
+          {SOURCE_COLUMNS.map((col) => (
+            <div key={col} className="flex items-center gap-3 text-sm">
+              <span className="w-32 shrink-0 font-mono text-xs">{col}</span>
+              <span className="text-muted-foreground">→</span>
+              <Select
+                value={mapping[col] ?? "— ignore —"}
+                onValueChange={(v) =>
+                  setMapping((m) => ({ ...m, [col]: v }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {TARGET_FIELDS.map((f) => (
+                    <SelectItem key={f} value={f}>
+                      {f}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ))}
+        </div>
+      )}
 
-        {step === 2 && (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              128 rows · <span className="text-foreground">126 valid</span> · 2
-              skipped (missing amount).
-            </p>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Category</TableHead>
+      {step === 2 && (
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            128 rows · <span className="text-foreground">126 valid</span> · 2
+            skipped (missing amount).
+          </p>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead>Category</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {PREVIEW.map((r, i) => (
+                <TableRow key={i}>
+                  <TableCell className="font-mono tabular-nums">{r.date}</TableCell>
+                  <TableCell>{r.description}</TableCell>
+                  <TableCell className="text-right font-mono tabular-nums">{r.amount}</TableCell>
+                  <TableCell>{r.category}</TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {PREVIEW.map((r, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="font-mono tabular-nums">{r.date}</TableCell>
-                    <TableCell>{r.description}</TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">{r.amount}</TableCell>
-                    <TableCell>{r.category}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
-        {step === 3 && (
-          <div className="space-y-1 text-sm">
-            <p>
-              <span className="font-medium">126 transactions</span> will be
-              imported into <span className="font-medium">Checking</span>.
-            </p>
-            <p className="text-muted-foreground">
-              2 rows will be skipped. This action can be re-run safely — rows
-              already imported are de-duplicated.
-            </p>
-          </div>
-        )}
-      </WizardShell>
-    </div>
+      {step === 3 && (
+        <div className="space-y-1 text-sm">
+          <p>
+            <span className="font-medium">126 transactions</span> will be
+            imported into <span className="font-medium">Checking</span>.
+          </p>
+          <p className="text-muted-foreground">
+            2 rows will be skipped. This action can be re-run safely — rows
+            already imported are de-duplicated.
+          </p>
+        </div>
+      )}
+    </WizardShell>
   );
 }

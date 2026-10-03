@@ -2,8 +2,7 @@
 import * as React from "react";
 import { Button } from "../../ui/button";
 import { SectionCard } from "../../layout/SectionCard";
-import { SurfaceFrame } from "../../layout/SurfaceFrame";
-import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
+import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 import { WizardStepper, type WizardStep } from "./WizardStepper";
 
 export type WizardShellProps = {
@@ -25,7 +24,7 @@ export type WizardShellProps = {
   commitLabel?: string;
   /** The current step's body. */
   children: React.ReactNode;
-} & Omit<SurfaceHeaderSlotProps, "headerActions">;
+} & Pick<PageFrameProps, "title" | "subtitle" | "badges">;
 
 /**
  * WizardShell — the import-wizard (W) archetype shell: a step indicator, the
@@ -34,9 +33,11 @@ export type WizardShellProps = {
  * per-step state; the shell renders chrome and emits navigation intents. The
  * terminal step swaps Next for a single Commit action (idempotent — see spec).
  *
- * When `title` is set, the shell adopts the Plex Ledger board form: an on-surface
- * `<SurfaceHeader>` at the top of one bounded card, with the stepper + step body
- * + footer below. The wizard's navigation actions always stay in the footer.
+ * Renders through `PageFrame` (ADR-0008): the title is the page heading; the
+ * stepper opens the body (it is read-only progress, not a scoping control, so
+ * it is not toolbar content); the step's titled `SectionCard` flattens inside
+ * the frame. Navigation actions stay in the footer — the shell takes no
+ * `actions`.
  */
 export function WizardShell({
   steps,
@@ -49,49 +50,38 @@ export function WizardShell({
   nextLabel = "Next",
   commitLabel = "Commit import",
   children,
-  kicker,
   title,
+  subtitle,
+  badges,
 }: WizardShellProps): React.ReactElement {
   const isLast = current >= steps.length - 1;
   const isFirst = current <= 0;
   const stepLabel = steps[current]?.label;
 
-  const body = (
-    <div className="space-y-5">
-      <WizardStepper steps={steps} current={current} />
+  return (
+    <PageFrame title={title} subtitle={subtitle} badges={badges}>
+      <div className="space-y-5 p-5">
+        <WizardStepper steps={steps} current={current} />
 
-      <SectionCard title={stepLabel}>{children}</SectionCard>
+        <SectionCard title={stepLabel}>{children}</SectionCard>
 
-      <div className="flex items-center justify-between gap-2">
-        <Button
-          variant="outline"
-          onClick={onBack}
-          disabled={isFirst || busy}
-        >
-          Back
-        </Button>
-        {isLast ? (
-          <Button onClick={onCommit} disabled={!canProceed || busy}>
-            {busy ? "Importing…" : commitLabel}
+        <div className="flex items-center justify-between gap-2">
+          <Button variant="outline" onClick={onBack} disabled={isFirst || busy}>
+            Back
           </Button>
-        ) : (
-          <Button onClick={onNext} disabled={!canProceed || busy}>
-            {nextLabel}
-          </Button>
-        )}
+          {isLast ? (
+            <Button onClick={onCommit} disabled={!canProceed || busy}>
+              {busy ? "Importing…" : commitLabel}
+            </Button>
+          ) : (
+            <Button onClick={onNext} disabled={!canProceed || busy}>
+              {nextLabel}
+            </Button>
+          )}
+        </div>
       </div>
-    </div>
+    </PageFrame>
   );
-
-  if (title !== undefined) {
-    return (
-      <SurfaceFrame kicker={kicker} title={title}>
-        <div className="p-5">{body}</div>
-      </SurfaceFrame>
-    );
-  }
-
-  return <div className="space-y-5">{body}</div>;
 }
 
 WizardShell.displayName = "WizardShell";
