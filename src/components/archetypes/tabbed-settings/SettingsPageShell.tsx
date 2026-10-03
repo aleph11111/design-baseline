@@ -1,102 +1,99 @@
 "use client";
 import * as React from "react";
 import { ErrorBoundary } from "../../ui/error-boundary";
-import { SurfaceFrame } from "../../layout/SurfaceFrame";
-import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
-import {
-  SettingsPageHeader,
-  type SettingsPageHeaderProps,
-} from "./SettingsPageHeader";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
+import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 
 // ---------------------------------------------------------------------------
 // Public types
 // ---------------------------------------------------------------------------
 
-// On-surface header (Plex Ledger board form). When `kicker` or `headerActions`
-// is set, the shell switches to board form: `SettingsPageHeader` is suppressed
-// and a `SurfaceHeader` renders at the top of a bounded card wrapping the
-// children. The existing `title` prop (from `SettingsPageHeaderProps`) is
-// used as the surface title.
-export type SettingsPageShellProps = Omit<SettingsPageHeaderProps, "title"> &
-  Omit<SurfaceHeaderSlotProps, "title"> & {
-    /**
-     * Page title. Omit it on a settings-table (D2) page: the settings-table
-     * shell owns the card and its own on-surface header, so this shell
-     * contributes only the error boundary, the breadcrumb slot and the vertical
-     * rhythm. Passing one there would draw a second header above the card.
-     */
-    title?: React.ReactNode;
-    /**
-     * Optional breadcrumb trail rendered above the header.
-     *
-     * Kept as a slot rather than auto-derived from the router: breadcrumb
-     * derivation is framework-specific (it needs the current location), so the
-     * consuming project wires its own router-aware breadcrumb component here.
-     */
-    breadcrumbs?: React.ReactNode;
-    /**
-     * Page body. This slot is the only structural variation between the three
-     * settings consumers that share this shell:
-     *   - tabbed settings (F2): pass a `<Tabs>` element
-     *   - settings form    (D1): pass a `<form>` element
-     *   - settings table   (D2): pass a settings-table shell
-     */
-    children: React.ReactNode;
-  };
+/** One settings category: its tab trigger and the body it reveals. */
+export type SettingsTab = {
+  value: string;
+  /** Trigger label (an icon may lead it). It is the body's heading. */
+  label: React.ReactNode;
+  /** The tab body — a list-with-detail, settings-form or settings-table body. */
+  content: React.ReactNode;
+};
+
+/**
+ * The page header — passed once, rendered by `PageFrame` (ADR-0008). No
+ * `actions`: a tabbed-settings page has no page-level verbs; actions are per
+ * tab and live in each tab body.
+ */
+type SettingsPageHeaderProps = Pick<PageFrameProps, "title" | "subtitle">;
+
+export type SettingsPageShellProps = SettingsPageHeaderProps & {
+  /** The settings categories, in tab order. The tab strip is the toolbar. */
+  tabs: SettingsTab[];
+  /** Initially selected tab (uncontrolled). Defaults to the first tab. */
+  defaultTab?: string;
+  /** Selected tab (controlled) — for a page that syncs the tab to the URL. */
+  tab?: string;
+  onTabChange?: (value: string) => void;
+  /**
+   * Optional breadcrumb trail rendered above the header. A slot rather than
+   * router-derived: breadcrumb derivation is framework-specific.
+   */
+  breadcrumbs?: React.ReactNode;
+  /** Persistent section below every tab body (applies to all tabs); the shell
+   *  divides it from the tab body. */
+  belowTabs?: React.ReactNode;
+};
 
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 /**
- * SettingsPageShell — the shared chrome for every settings page. It is the
- * primitive the tabbed-settings (F2) archetype owns, and is reused by the
- * settings-form (D1) and settings-table (D2) archetypes.
+ * SettingsPageShell — the tabbed-settings (F2) archetype shell. Renders
+ * through `PageFrame` (ADR-0008): the page header (title once) above the
+ * page's one raised surface, whose toolbar band is the tab strip and whose
+ * body is the selected tab. Rendered inside another `PageFrame` (a settings
+ * sub-route under a layout that owns the page) it nests automatically.
  *
- * Provides:
- *   - <ErrorBoundary> wrapping all page content
- *   - an optional breadcrumb slot
- *   - <SettingsPageHeader> (title + optional subtitle / icon / actions)
- *   - a `space-y-5` body container with no outer padding
- *
- * The outer container intentionally omits padding — `<AppShell>`'s `<main>`
- * supplies the page inset (docs/STYLE.md); adding it here would double-inset.
- *
- * Consumer shapes:
- *   F2 tabbed settings: <SettingsPageShell title="…"><Tabs>…</Tabs></SettingsPageShell>
- *   D1 settings form:   <SettingsPageShell title="…" actions={<SaveButton/>}><form>…</form></SettingsPageShell>
- *   D2 settings table:  <SettingsPageShell breadcrumbs={…}><SettingsTableShell title="…" …/></SettingsPageShell>
+ * Wraps everything in an `<ErrorBoundary>`; adds no page inset (the app
+ * shell's main region owns it).
  */
 export function SettingsPageShell({
+  tabs,
+  defaultTab = tabs[0]?.value,
+  tab,
+  onTabChange,
   breadcrumbs,
-  children,
-  kicker,
-  headerActions,
+  belowTabs,
   ...header
 }: SettingsPageShellProps): React.ReactElement {
-  const boardForm = kicker !== undefined || headerActions !== undefined;
-
   return (
     <ErrorBoundary>
       <div className="space-y-5">
         {breadcrumbs}
-        {boardForm ? (
-          // Board form: SurfaceHeader on the bounded card; SettingsPageHeader suppressed.
-          <SurfaceFrame
-            kicker={kicker}
-            title={header.title}
-            headerActions={headerActions}
+        <Tabs value={tab} defaultValue={defaultTab} onValueChange={onTabChange}>
+          <PageFrame
+            {...header}
+            toolbar={
+              <TabsList>
+                {tabs.map((t) => (
+                  <TabsTrigger key={t.value} value={t.value}>
+                    {t.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            }
           >
-            <div className="p-5">{children}</div>
-          </SurfaceFrame>
-        ) : (
-          <>
-            {header.title !== undefined && (
-              <SettingsPageHeader {...header} title={header.title} />
-            )}
-            {children}
-          </>
-        )}
+            <div className="p-5">
+              {tabs.map((t) => (
+                <TabsContent key={t.value} value={t.value} className="mt-0">
+                  {t.content}
+                </TabsContent>
+              ))}
+              {belowTabs != null && (
+                <div className="mt-5 border-t pt-4">{belowTabs}</div>
+              )}
+            </div>
+          </PageFrame>
+        </Tabs>
       </div>
     </ErrorBoundary>
   );

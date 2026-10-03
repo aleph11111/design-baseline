@@ -51,7 +51,6 @@
     "src/components/archetypes/skeleton-loader/ListSkeleton.tsx",
     "src/components/archetypes/statement-with-filters/StatementTable.tsx",
     "src/components/archetypes/statement-with-filters/StatementWithFiltersShell.tsx",
-    "src/components/archetypes/tabbed-settings/SettingsPageHeader.tsx",
     "src/components/archetypes/tabbed-settings/SettingsPageShell.tsx",
     "src/components/layout/AppShell.tsx",
     "src/components/layout/MetricList.tsx",
