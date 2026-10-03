@@ -150,3 +150,56 @@ export function StateView({
 }
 
 StateView.displayName = "StateView";
+
+export type InlineErrorProps = {
+  /** The human-readable message. Falls back to `error`'s message. */
+  message?: React.ReactNode;
+  /** Error object; its message is shown when `message` is omitted. */
+  error?: unknown;
+  /** Renders a retry button below the message. */
+  onRetry?: () => void;
+  /** Label of the retry button. Override in a non-English app. */
+  retryLabel?: string;
+  className?: string;
+};
+
+/**
+ * InlineError — the compact inline-error box for an error inside a form body
+ * or a narrow dialog (a failed save, a dialog's own entity fetch), where the
+ * full destructive `<Alert>` of StateView's error plane is too heavy. One
+ * treatment shared by J (crud-dialog) and B (form-page root error) — see
+ * docs/archetypes/README.md, "Layer 7 — canonical state treatments".
+ *
+ * `role="alert"` announces it the moment it renders (no focus move needed),
+ * and the leading icon carries "error" beside the tint, so colour is never
+ * the only signal.
+ */
+export function InlineError({
+  message,
+  error,
+  onRetry,
+  retryLabel = "Try again",
+  className,
+}: InlineErrorProps): React.ReactElement {
+  return (
+    <div
+      role="alert"
+      className={cn(
+        "flex gap-2 rounded bg-destructive/10 p-4 text-sm text-destructive",
+        className,
+      )}
+    >
+      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+      <div className="flex flex-col gap-2">
+        <span>{message ?? errorMessage(error)}</span>
+        {onRetry && (
+          <Button variant="outline" size="sm" className="w-fit" onClick={onRetry}>
+            {retryLabel}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+InlineError.displayName = "InlineError";

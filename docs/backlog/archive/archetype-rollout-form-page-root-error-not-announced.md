@@ -1,7 +1,7 @@
 ---
 area: archetype-rollout
 opened: '2026-10-01'
-status: needs-enrichment
+status: done
 gate:
   score: 4
   passed:
@@ -24,9 +24,9 @@ Layer 7 requires submission errors that don't map to a field to appear in a fixe
 
 ## What to do
 
-- [ ] When a submit fails with a form-level error, the error is announced immediately without the user moving focus.
-- [ ] The error box states that it is an error in text (not only through colour).
-- [ ] The treatment is the single canonical inline-error box shared with the crud-dialog, so both archetypes announce identically.
+- [x] When a submit fails with a form-level error, the error is announced immediately without the user moving focus.
+- [x] The error box states that it is an error in text (not only through colour).
+- [x] The treatment is the single canonical inline-error box shared with the crud-dialog, so both archetypes announce identically.
 
 ## Acceptance
 
@@ -38,3 +38,7 @@ Layer 7 requires submission errors that don't map to a field to appear in a fixe
 
 - [src/examples/form-page-demo.tsx](/src/examples/form-page-demo.tsx)
 - [docs/archetypes/README.md](/docs/archetypes/README.md)
+
+## Resolution
+
+Folded into `archetype-rollout-crud-dialog-fetch-error-state-missing`: the form-page root error now renders the shared `<InlineError>` (`role="alert"`, leading icon beside the tint), the same primitive the crud-dialog fetch error uses.

@@ -56,6 +56,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Switch } from "@/components/ui/switch";
+import { InlineError } from "@/components/ui/state-view";
 import { SectionCard } from "@/components/layout";
 import {
   FormPageShell,
@@ -587,11 +588,10 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
               dialog inline error is the compact tinted box — NOT the full
               destructive <Alert>, which is reserved for a shell/page load
               failure. See docs/archetypes/README.md, "Layer 7 — canonical
-              state treatments". Shared verbatim with J (crud-dialog). */}
+              state treatments". Shared with J (crud-dialog) via <InlineError>,
+              which announces itself (role="alert") as soon as the save fails. */}
           {form.formState.errors.root && (
-            <div className="rounded bg-destructive/10 p-4 text-sm text-destructive">
-              {form.formState.errors.root.message}
-            </div>
+            <InlineError message={form.formState.errors.root.message} />
           )}
 
           <FormPageActions

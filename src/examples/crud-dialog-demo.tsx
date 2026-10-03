@@ -59,6 +59,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StateView } from "@/components/ui/state-view";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Switch } from "@/components/ui/switch";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import {
   CrudDialogSheet,
@@ -156,6 +157,8 @@ type WorkoutDialogProps = {
   onDelete: (id: string) => void;
   /** Drives `<CrudDialogBody layout>` — "two-tab" composes shadcn `<Tabs>` manually. */
   bodyLayout: DialogBodyLayout;
+  /** Fail the first entity load, so the fetch-error state + retry are visible. */
+  simulateLoadError: boolean;
 };
 
 function WorkoutDialog({
@@ -167,6 +170,7 @@ function WorkoutDialog({
   onCreate,
   onDelete,
   bodyLayout,
+  simulateLoadError,
 }: WorkoutDialogProps): React.ReactElement {
   // Derive the shell width from the body shape (Layer 2 keying rule): a two-tab
   // body is the complex-entity case → lg; the flat / two-column shapes are the
@@ -178,6 +182,9 @@ function WorkoutDialog({
   // Simulate a fetch delay when opening an existing workout in view mode.
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  // The entity fetch's error + a retry counter that re-runs the load.
+  const [loadError, setLoadError] = React.useState<Error | null>(null);
+  const [loadAttempt, setLoadAttempt] = React.useState(0);
   // The values handleSecondary resets to when cancelling an edit — the last
   // loaded entity (EMPTY_FORM in create mode).
   const [loadedValues, setLoadedValues] = React.useState<WorkoutFormValues>(EMPTY_FORM);
@@ -258,6 +265,12 @@ function WorkoutDialog({
     if (!open || isCreateMode) return;
     setIsLoading(true);
     const timer = setTimeout(() => {
+      // The simulated failure hits the first attempt only, so Retry succeeds.
+      if (simulateLoadError && loadAttempt === 0) {
+        setLoadError(new Error("Simulated load failure"));
+        setIsLoading(false);
+        return;
+      }
       const found = workouts.find((w) => w.id === entityId);
       if (found) {
         const { id: _id, ...rest } = found;
@@ -268,7 +281,13 @@ function WorkoutDialog({
     }, 800);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, entityId]);
+  }, [open, entityId, loadAttempt]);
+
+  // Retry: clear the error and re-run the load — the skeleton returns.
+  function retryLoad() {
+    setLoadError(null);
+    setLoadAttempt((n) => n + 1);
+  }
 
   // Delete is the consumer's concern — the controller owns create/update/edit +
   // close, never deletion. Shown in view/edit, never in create. onDestructive
@@ -428,7 +447,7 @@ function WorkoutDialog({
         // Two-tab shape — shadcn <Tabs>, `layout` omitted and composed
         // manually (Layer 6). Tab 1 owns mode state (the entity form); Tab 2
         // is read-only (other logged workouts of the same kind).
-        <CrudDialogBody isLoading={isLoading}>
+        <CrudDialogBody isLoading={isLoading} error={loadError} onRetry={retryLoad}>
           <div className="mb-4">
             <Badge variant="outline" className="capitalize">{mode.mode}</Badge>
           </div>
@@ -467,7 +486,12 @@ function WorkoutDialog({
       ) : (
         // Flat stack / two-column grid — the pure shapes, driven by the real
         // `layout` prop (Layer 6).
-        <CrudDialogBody isLoading={isLoading} layout={bodyLayout}>
+        <CrudDialogBody
+          isLoading={isLoading}
+          error={loadError}
+          onRetry={retryLoad}
+          layout={bodyLayout}
+        >
           {modeBadge}
           <Form {...form}>{fields}</Form>
         </CrudDialogBody>
@@ -481,6 +505,8 @@ function WorkoutDialog({
         onSecondary={controller.handleSecondary}
         isSubmitting={controller.isSubmitting}
         submittingLabel={controller.submittingLabel}
+        // Nothing to edit or save while the entity failed to load.
+        primaryDisabled={loadError !== null}
         {...destructiveProps}
       />
 
@@ -513,6 +539,7 @@ export function CrudDialogDemo(): React.ReactElement {
   // each time — no stale mode/dirty state leaking across opens.
   const [openSeq, setOpenSeq] = React.useState(0);
   const [bodyLayout, setBodyLayout] = React.useState<DialogBodyLayout>("flat");
+  const [simulateLoadError, setSimulateLoadError] = React.useState(false);
 
   function openView(id: string) {
     setSelectedId(id);
@@ -564,18 +591,25 @@ export function CrudDialogDemo(): React.ReactElement {
           (two-tab → wide; other shapes → narrower) and is not a free choice.
           The loading skeleton adopts the body's layout shape, so a fetch
           finishing mid-viewport reflows nothing. Open a workout to see them
-          applied.
+          applied. Flip <strong>Simulate load failure</strong> to see the
+          fetch-error state: the first load fails, Try again reloads.
         </p>
-        <SegmentedControl
-          aria-label="Dialog body layout"
-          value={bodyLayout}
-          onValueChange={setBodyLayout}
-          options={[
-            { value: "flat", label: "Flat" },
-            { value: "two-column", label: "Two-column" },
-            { value: "two-tab", label: "Two-tab" },
-          ]}
-        />
+        <div className="flex flex-wrap items-center gap-3">
+          <SegmentedControl
+            aria-label="Dialog body layout"
+            value={bodyLayout}
+            onValueChange={setBodyLayout}
+            options={[
+              { value: "flat", label: "Flat" },
+              { value: "two-column", label: "Two-column" },
+              { value: "two-tab", label: "Two-tab" },
+            ]}
+          />
+          <label className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+            <Switch checked={simulateLoadError} onCheckedChange={setSimulateLoadError} />
+            Simulate load failure
+          </label>
+        </div>
       </div>
 
       {lastAction && (
@@ -668,6 +702,7 @@ export function CrudDialogDemo(): React.ReactElement {
         onCreate={handleCreate}
         onDelete={handleDelete}
         bodyLayout={bodyLayout}
+        simulateLoadError={simulateLoadError}
       />
     </div>
   );

@@ -4,6 +4,7 @@
 // `message` argument). i18n is the consumer's concern, not the baseline's.
 
 export const CRUD_ERRORS = {
+  load: "Could not load. Please try again.",
   create: "Could not create. Please try again.",
   update: "Could not save. Please try again.",
   delete: "Could not delete. Please try again.",
