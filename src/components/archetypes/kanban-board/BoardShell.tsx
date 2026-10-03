@@ -1,62 +1,36 @@
 "use client";
 import * as React from "react";
-import { SurfaceFrame } from "../../layout/SurfaceFrame";
+import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
-import { cn } from "../../../lib/utils";
-import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
 
-export type BoardShellProps = {
+export type BoardShellProps = Pick<
+  PageFrameProps,
+  "title" | "subtitle" | "badges" | "actions" | "toolbar"
+> & {
   /** `<BoardColumn>` children, laid out as a horizontally-scrolling row. */
   children: React.ReactNode;
-
-  /**
-   * Optional filter/search toolbar row, rendered below the on-surface header
-   * and above the column area (titled branch only). Same shape as
-   * `ListWithDetailShell`'s `toolbar` prop.
-   */
-  toolbar?: React.ReactNode;
-} & SurfaceHeaderSlotProps;
+};
 
 /**
- * BoardShell — the horizontally-scrolling column row for a kanban-board (P)
- * archetype. Presentational only: it owns no drag-and-drop. The baseline ships no
- * DnD library (same stance as charts) — the consumer wires its own (dnd-kit,
- * native HTML5 DnD, …) onto the `<BoardColumn>` / `<BoardCard>` chrome, which
- * forward refs and spread props for exactly that.
- *
- * When `title` is set, the shell adopts the Plex Ledger board form: an on-surface
- * `<SurfaceHeader>` bar spans the top of one bounded card, with the column scroll
- * area below it.
+ * BoardShell — the kanban-board (P) page: the page title on the canvas, then
+ * one raised surface (toolbar band → horizontally-scrolling column row), per
+ * ADR-0008. Presentational only: it owns no drag-and-drop. The baseline ships
+ * no DnD library — the consumer wires its own (dnd-kit, native HTML5 DnD, …)
+ * onto the `<BoardColumn>` / `<BoardCard>` chrome, which forward refs and
+ * spread props for exactly that.
  */
 export function BoardShell({
   children,
-  kicker,
-  title,
-  headerActions,
-  toolbar,
+  ...frame
 }: BoardShellProps): React.ReactElement {
-  const fullBleed = useFullBleedClass();
-  if (title !== undefined) {
-    return (
-      <SurfaceFrame
-        kicker={kicker}
-        title={title}
-        headerActions={headerActions}
-        toolbar={toolbar}
-        className={fullBleed}
-      >
-        <div className="relative flex items-start gap-4 overflow-x-auto p-4 pb-6">
-          {children}
-        </div>
-      </SurfaceFrame>
-    );
-  }
-
   // Full-bleed archetype (ADR-0007 §1): the marker lifts AppShell's column.
+  const fullBleed = useFullBleedClass();
   return (
-    <div className={cn(fullBleed, "relative flex items-start gap-4 overflow-x-auto pb-2")}>
-      {children}
-    </div>
+    <PageFrame {...frame} className={fullBleed}>
+      <div className="relative flex items-start gap-4 overflow-x-auto p-4 pb-6">
+        {children}
+      </div>
+    </PageFrame>
   );
 }
 

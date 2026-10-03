@@ -20,15 +20,14 @@ const CARDS: Card[] = [
   { id: "t6", title: "Tooltip portal fix", column: "done", tag: "bug", who: "TM" },
 ];
 
-// Full delivery board — on-surface header (kicker + title + Filter/Add card
+// Full delivery board — page title + Filter/Add card header
 // actions) over four columns, ported from the kanban-board demo's seed data.
 export function DeliveryBoard() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <BoardShell
-        kicker="Board"
         title="Delivery board"
-        headerActions={
+        actions={
           <>
             <Button variant="outline" size="sm">
               <Filter className="mr-1 h-4 w-4" />
@@ -75,8 +74,8 @@ export function DeliveryBoard() {
 // empty, showing the column's own dashed drop affordance next to real cards.
 export function PersonalBacklog() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <BoardShell kicker="My work" title="This sprint">
+    <div>
+      <BoardShell title="This sprint">
         <BoardColumn title="Doing" count={1}>
           <BoardCard>
             <div className="font-medium text-foreground">Finish onboarding checklist copy</div>

@@ -3,11 +3,11 @@ import { Plus } from "lucide-react";
 
 // Two populated columns side by side inside the board's horizontal scroll
 // row — the overline header (title + count + trailing add-card action) over
-// a card stack, as it renders inside <BoardShell>.
+// a card stack, as it renders inside <BoardShell title="Board">.
 export function ActiveColumns() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <BoardShell>
+    <div>
+      <BoardShell title="Board">
         <BoardColumn
           title="In progress"
           count={2}
@@ -50,8 +50,8 @@ export function ActiveColumns() {
 // filled "Done" column — the column's own empty affordance in context.
 export function EmptyAndDoneColumns() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <BoardShell>
+    <div>
+      <BoardShell title="Board">
         <BoardColumn title="Blocked">
           <div className="rounded-md border border-dashed py-6 text-center text-xs text-muted-foreground">
             Drop here
