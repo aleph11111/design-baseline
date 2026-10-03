@@ -31,11 +31,10 @@ const columns: ListColumn<Row>[] = [
 
 // Every full-bleed archetype shell (ADR-0007 §1).
 const shells: [string, () => React.ReactElement][] = [
-  ["ListWithDetailShell", () => <ListWithDetailShell rows={[{ id: "1", name: "Ada" }]} columns={columns} getRowId={(r) => r.id} />],
+  ["ListWithDetailShell", () => <ListWithDetailShell title="People" rows={[{ id: "1", name: "Ada" }]} columns={columns} getRowId={(r) => r.id} />],
   ["CalendarShell", () => <CalendarShell title="Week" days={[{ id: "mon", dow: "Mo", date: "22", events: [] }]} />],
-  ["BoardShell (titled)", () => <BoardShell title="Board"><div /></BoardShell>],
-  ["BoardShell (bare)", () => <BoardShell><div /></BoardShell>],
-  ["MatrixGridShell", () => <MatrixGridShell columns={[{ key: "mon", label: "Mon" }]} rows={[{ id: "1", label: "Ada", cells: { mon: "P" } }]} renderCell={(c) => c.cell} />],
+  ["BoardShell", () => <BoardShell title="Board"><div /></BoardShell>],
+  ["MatrixGridShell", () => <MatrixGridShell title="Grid" columns={[{ key: "mon", label: "Mon" }]} rows={[{ id: "1", label: "Ada", cells: { mon: "P" } }]} renderCell={(c) => c.cell} />],
 ];
 
 const bleeds = (el: HTMLElement) => el.querySelector(`.${FULL_BLEED_CLASS}`) !== null;
@@ -53,7 +52,7 @@ describe("full-bleed marker is scoped to the page's own surface", () => {
 
       const inDetail = render(
         <TooltipProvider>
-          <DetailOverviewShell summary={<div />} content={shell()} />
+          <DetailOverviewShell title="Record" summary={<div />} content={shell()} />
         </TooltipProvider>,
       );
       expect(bleeds(inDetail.container)).toBe(false);

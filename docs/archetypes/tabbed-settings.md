@@ -67,16 +67,15 @@ distinctions from a domain hub (F1) are:
 ### Layer 2 — Page shell
 
 **Required (via the settings-page shell):**
-- One page frame: the breadcrumbs (when supplied), the page header, then the
+- One page frame: the page header, then the
   page's one raised surface holding the tab strip and the selected tab body.
 - A **render-error boundary** wraps all page content (provided by the shell).
 - No outer **page inset** on the page component itself — the app shell (or
   the surrounding settings layout) supplies it.
 
 **Allowed variation:**
-- **Breadcrumb derivation is project-specific.** The shell takes `breadcrumbs`
-  as a slot rather than deriving them from the router, so the consuming
-  project wires its own router-aware breadcrumb component.
+- **Breadcrumbs are project-specific and ride the subtitle.** A consumer
+  passes its own router-aware breadcrumb trail as the page header's subtitle.
 - **Nested (derived, not chosen).** Rendered under a settings layout that owns
   the page through its own page frame, the shell titles itself as the nested
   heading and joins the parent's surface. No prop selects this.
@@ -232,7 +231,7 @@ A page is conformant when **every required rule** above is satisfied:
 - [ ] **Layer 1** — Route is lazy + suspense-wrapped; auth guard applied
       correctly (inherited or inline)
 - [ ] **Layer 2** — Uses the settings-page shell; no outer page inset; error
-      boundary + breadcrumbs present; one raised surface
+      boundary present; one raised surface
 - [ ] **Layer 3** — the title renders once, as the page header; no action
       buttons in the header
 - [ ] **Layer 4** — Categories passed as the shell's `tabs`; the tab strip is

@@ -3,19 +3,12 @@ import * as React from "react";
 import { SidebarProvider } from "../ui/sidebar";
 import { TooltipProvider } from "../ui/tooltip";
 import { Toaster as Sonner } from "../ui/sonner";
-import { HeaderFillContext, type HeaderFill } from "./headerFill";
 
 export interface AppShellProps {
   sidebar: React.ReactNode;
   header: React.ReactNode;
   children: React.ReactNode;
   defaultSidebarOpen?: boolean;
-  /**
-   * The house header treatment for every framed surface below (House Style B).
-   * Set once per project; defaults to "solid" (accent-filled headers). See
-   * `headerFill.ts`.
-   */
-  headerFill?: HeaderFill;
   /**
    * Render the bundled Sonner toaster. Defaults to `true`. A consumer that
    * already mounts one toaster at its root layout passes `false`, so each toast
@@ -29,7 +22,6 @@ export function AppShell({
   header,
   children,
   defaultSidebarOpen = true,
-  headerFill = "solid",
   toaster = true,
 }: AppShellProps) {
   // Publish the sticky header slot's height as --db-sticky-top, so page-level
@@ -50,7 +42,6 @@ export function AppShell({
 
   return (
     <TooltipProvider>
-      <HeaderFillContext.Provider value={headerFill}>
       <SidebarProvider defaultOpen={defaultSidebarOpen}>
         {/* Window scroll: the document grows with the page, so full-page
             screenshots and back/forward scroll restoration work. The desktop
@@ -83,7 +74,6 @@ export function AppShell({
           </div>
         </div>
       </SidebarProvider>
-      </HeaderFillContext.Provider>
       {toaster && <Sonner />}
     </TooltipProvider>
   );

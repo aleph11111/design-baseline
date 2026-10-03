@@ -10,14 +10,14 @@ import {
 } from "design-baseline";
 
 // FormPageActions only renders meaningfully as a form's footer — every cell
-// mounts it inside a <FormPageShell> board form, below a couple of fields.
+// mounts it inside a <FormPageShell>, below a couple of fields.
 
 // Create mode, submitting — spinner + "Creating…" on the primary button, no
 // destructive button (create mode never shows Delete).
 export function CreateSubmitting() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <FormPageShell kicker="Recipes" title="New Recipe" width="sm">
+      <FormPageShell title="New Recipe" width="sm">
         <div className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="fpa-title">Title</Label>
@@ -40,7 +40,6 @@ export function EditWithDelete() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <FormPageShell
-        kicker="Recipes"
         title={
           <>
             Edit Recipe — <span className="font-mono">Sunday Carbonara</span>
@@ -73,7 +72,6 @@ export function DeletingWithError() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <FormPageShell
-        kicker="Recipes"
         title={
           <>
             Edit Recipe — <span className="font-mono">Mole Negro</span>

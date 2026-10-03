@@ -29,12 +29,12 @@ export const FORM_INSET_CLASS = "p-[var(--form-inset)] [--form-inset:1.25rem]";
  * `actions`: a form page's commit actions (save / cancel / delete) live in
  * `<FormPageActions>` at the form's foot, their one home.
  */
-type FormPageHeaderProps = Pick<
+type FormPageTitleProps = Pick<
   PageFrameProps,
   "title" | "subtitle" | "icon" | "backHref" | "backLabel" | "renderBackLink"
 >;
 
-export type FormPageShellProps = FormPageHeaderProps & {
+export type FormPageShellProps = FormPageTitleProps & {
   children: React.ReactNode;
   /**
    * Max-width preset for the form container. Derived per the contract's width

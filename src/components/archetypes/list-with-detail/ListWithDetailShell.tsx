@@ -263,7 +263,7 @@ export function ListWithDetailBody<Row>(
           className="flex w-full flex-col gap-0 p-0 sm:max-w-md"
         >
           {detailTitle !== undefined ? (
-            // The shared bar chrome (padding + header-fill) with the Radix
+            // The shared bar chrome (padding + neutral fill) with the Radix
             // SheetTitle as its title element. The built-in Sheet close button
             // (absolute, top-4 right-4) floats over the bar's right edge, so
             // the actions row clears it (structural, not appearance).

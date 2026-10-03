@@ -1,9 +1,5 @@
 import {
   SettingsPageShell,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
   Table,
   TableHeader,
   TableBody,
@@ -25,118 +21,86 @@ const CHANNELS = [
 ];
 const STATUS_VARIANT = { live: "default", pending: "outline" } as const;
 
-// F2 board form — kicker sets the on-surface header; a <Tabs> body shares the
-// shell across categories (General / Distribution / Team).
+function ChannelTable() {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Channel</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead className="text-right">Episodes</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {CHANNELS.map((c) => (
+          <TableRow key={c.id}>
+            <TableCell className="font-medium">{c.name}</TableCell>
+            <TableCell>
+              <Badge variant={STATUS_VARIANT[c.status]}>{c.status}</Badge>
+            </TableCell>
+            <TableCell className="text-right font-mono tabular-nums">{c.episodes}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
+const GENERAL_FORM = (
+  <div className="max-w-lg space-y-4">
+    <div className="space-y-1.5">
+      <Label htmlFor="sps-show-name">Show name</Label>
+      <Input id="sps-show-name" defaultValue="The Long Echo" />
+    </div>
+    <div className="flex items-center justify-between rounded-md border px-4 py-3">
+      <div>
+        <p className="text-sm font-medium">Mark new episodes explicit</p>
+        <p className="text-[11px] text-muted-foreground">
+          Applied to every newly published episode by default.
+        </p>
+      </div>
+      <Switch defaultChecked={false} />
+    </div>
+    <Button size="sm">Save changes</Button>
+  </div>
+);
+
+const TABS = [
+  { value: "general", label: "General", content: GENERAL_FORM },
+  { value: "distribution", label: "Distribution", content: <ChannelTable /> },
+  {
+    value: "team",
+    label: "Team",
+    content: <p className="text-sm text-muted-foreground">3 members · Ada Reyes (Owner)</p>,
+  },
+];
+
+// The title renders once, as the page header; the tab strip is the frame's
+// toolbar band and the selected tab is the body (ADR-0008). Per-tab actions
+// (Save) live in the tab body — the page header carries none.
 export function TabbedSettings() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <SettingsPageShell title="Workspace" kicker="Settings">
-        <Tabs defaultValue="distribution">
-          <TabsList>
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="distribution">Distribution</TabsTrigger>
-            <TabsTrigger value="team">Team</TabsTrigger>
-          </TabsList>
-          <TabsContent value="general" className="pt-4">
-            <p className="text-sm text-muted-foreground">The Long Echo · studio@thelongecho.fm</p>
-          </TabsContent>
-          <TabsContent value="distribution" className="pt-4">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Channel</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Episodes</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {CHANNELS.map((c) => (
-                  <TableRow key={c.id}>
-                    <TableCell className="font-medium">{c.name}</TableCell>
-                    <TableCell>
-                      <Badge variant={STATUS_VARIANT[c.status]}>{c.status}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">{c.episodes}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TabsContent>
-          <TabsContent value="team" className="pt-4">
-            <p className="text-sm text-muted-foreground">3 members · Ada Reyes (Owner)</p>
-          </TabsContent>
-        </Tabs>
-      </SettingsPageShell>
+      <SettingsPageShell title="Workspace" tabs={TABS} defaultTab="distribution" />
     </div>
   );
 }
 
-// D1 settings-form reuse — board form with `headerActions` (a Save button
-// on the surface bar itself), children is a plain form body.
-export function SettingsFormWithHeaderAction() {
-  return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <SettingsPageShell
-        title="General"
-        kicker="Settings"
-        headerActions={<Button size="sm">Save changes</Button>}
-      >
-        <div className="max-w-lg space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="sps-show-name">Show name</Label>
-            <Input id="sps-show-name" defaultValue="The Long Echo" />
-          </div>
-          <div className="flex items-center justify-between rounded-md border px-4 py-3">
-            <div>
-              <p className="text-sm font-medium">Mark new episodes explicit</p>
-              <p className="text-[11px] text-muted-foreground">
-                Applied to every newly published episode by default.
-              </p>
-            </div>
-            <Switch defaultChecked={false} />
-          </div>
-        </div>
-      </SettingsPageShell>
-    </div>
-  );
-}
-
-// Classic layout — no kicker/headerActions, so `<SettingsPageHeader>` renders
-// above the body instead of the on-surface bar; a breadcrumb trail sits above it.
-export function ClassicWithBreadcrumbs() {
+// A breadcrumb trail rides the page header's subtitle position.
+export function WithBreadcrumbs() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <SettingsPageShell
         title="Distribution"
-        subtitle="Where The Long Echo is published"
-        breadcrumbs={
-          <nav className="text-sm text-muted-foreground" aria-label="Breadcrumb">
+        subtitle={
+          <nav aria-label="Breadcrumb">
             Settings <span className="px-1">/</span>{" "}
             <span className="text-foreground">Distribution</span>
           </nav>
         }
-      >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Channel</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Episodes</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {CHANNELS.map((c) => (
-              <TableRow key={c.id}>
-                <TableCell className="font-medium">{c.name}</TableCell>
-                <TableCell>
-                  <Badge variant={STATUS_VARIANT[c.status]}>{c.status}</Badge>
-                </TableCell>
-                <TableCell className="text-right font-mono tabular-nums">{c.episodes}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </SettingsPageShell>
+        tabs={TABS}
+        defaultTab="general"
+      />
     </div>
   );
 }

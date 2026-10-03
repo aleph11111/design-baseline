@@ -33,11 +33,4 @@ export {
 export { BottomNav, type BottomNavItem } from "./BottomNav";
 export { isNavPathActive } from "./navMatch";
 export { ThemeToggle, type ThemeToggleProps, type ThemeToggleLabels } from "./ThemeToggle";
-export {
-  HeaderFillContext,
-  useHeaderFill,
-  headerFillClasses,
-  type HeaderFill,
-} from "./headerFill";
-export { SurfaceHeader, type SurfaceHeaderProps } from "./SurfaceHeader";
 export { SurfaceHeaderBar, type SurfaceHeaderBarProps } from "./SurfaceHeaderBar";

@@ -40,7 +40,7 @@ export type StatItem = {
  * `PageFrame` (an entity tab under a layout that owns the page) the frame
  * derives the nested heading itself — there is no mode prop.
  */
-type DetailOverviewHeaderProps = Pick<
+type DetailOverviewTitleProps = Pick<
   PageFrameProps,
   | "title"
   | "subtitle"
@@ -52,7 +52,7 @@ type DetailOverviewHeaderProps = Pick<
   | "renderBackLink"
 >;
 
-export type DetailOverviewShellProps = DetailOverviewHeaderProps & {
+export type DetailOverviewShellProps = DetailOverviewTitleProps & {
   /**
    * Structure, keyed to the entity by the contract (Amendment v2.1).
    * - "vertical" (default): the canonical single column.

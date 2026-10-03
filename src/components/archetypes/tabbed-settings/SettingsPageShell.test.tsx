@@ -41,19 +41,19 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     expect(screen.getByText("footer note")).toBeTruthy();
   });
 
-  it("renders breadcrumbs above the header", () => {
+  it("renders a breadcrumb trail passed as the subtitle under the h1", () => {
     render(
       <SettingsPageShell
         title="Workspace"
         tabs={tabs}
-        breadcrumbs={<nav aria-label="Breadcrumb">crumbs</nav>}
+        subtitle={<nav aria-label="Breadcrumb">crumbs</nav>}
       />,
     );
 
     const crumbs = screen.getByLabelText("Breadcrumb");
     const heading = screen.getByRole("heading", { level: 1 });
     expect(
-      crumbs.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING,
+      heading.compareDocumentPosition(crumbs) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
   });
 

@@ -5,23 +5,28 @@
  */
 
 import * as React from "react";
-import { Bell, Box, CreditCard, Inbox, Plus, Settings, User } from "lucide-react";
+import { Bell, Box, Inbox, Plus, Settings, User } from "lucide-react";
 import {
   AuthCard,
-  HeaderFillContext,
   MetricList,
   MetricRow,
   NestedPageHeading,
+  PageFrame,
   PageHeader,
   ProgressTracker,
   SectionCard,
   SectionHeading,
   StatTile,
   StatTileRow,
-  SurfaceHeader,
 } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SearchInput } from "@/components/ui/search-input";
@@ -86,7 +91,7 @@ function PageHeaderDemo() {
 }
 
 /**
- * The Mode B nested page heading — the run in the heading ladder that sits
+ * The nested page heading — the run in the heading ladder that sits
  * between PageHeader (h1) and SectionHeading (the overline h2). A tabbed
  * sub-route whose parent owns the <h1> titles its own sub-area with this, at a
  * single fixed scale (no size/weight prop).
@@ -633,96 +638,94 @@ function MetricListDemo() {
   );
 }
 
-function SurfaceHeaderDemo() {
-  const body = (
-    <div className="px-5 py-4 text-[13px] text-muted-foreground">
-      Surface body — the framed content the header bar belongs to.
-    </div>
-  );
-  const actions = (
-    <>
-      <Badge variant="success">Aktiv</Badge>
-      <Button variant="outline" size="sm" asChild>
-        <a href="#surface-header">Bearbeiten</a>
-      </Button>
-      <Button size="sm">
-        <Plus /> Anlegen
-      </Button>
-    </>
+function PageFrameDemo() {
+  const [decimals, setDecimals] = React.useState(true);
+  const [density, setDensity] = React.useState("comfortable");
+  const rows = (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Auftrag</TableHead>
+          <TableHead className="text-right">Betrag</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {[
+          ["#1042", 1250.5],
+          ["#1043", 980],
+        ].map(([id, amount]) => (
+          <TableRow key={id}>
+            <TableCell>{id}</TableCell>
+            <TableCell className="text-right tabular-nums">
+              {Number(amount).toFixed(decimals ? 2 : 0)} €
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
   return (
-    <div className="max-w-3xl space-y-8">
-      <Variant label='--header-fill: solid (the per-project default — accent bar, inverted actions; the semantic Badge and the asChild link both keep their contract)'>
-        <div className="overflow-hidden rounded-lg border bg-card">
-          <HeaderFillContext.Provider value="solid">
-            <SurfaceHeader kicker="Aufträge" title="Order #1042" actions={actions} />
-          </HeaderFillContext.Provider>
-          {body}
-        </div>
+    <div className="max-w-4xl space-y-8">
+      <Variant label="title + actions · toolbar (scoping) · count · View menu (display options) — every control has one home (ADR-0008)">
+        <PageFrame
+          title="Aufträge"
+          subtitle="Q3 2026"
+          badges={<Badge variant="success">Aktiv</Badge>}
+          actions={
+            <>
+              <Button variant="outline" size="sm">Exportieren</Button>
+              <Button size="sm">
+                <Plus /> Anlegen
+              </Button>
+            </>
+          }
+          toolbar={<SearchInput placeholder="Aufträge suchen…" className="w-64" />}
+          count="2 Ergebnisse"
+          viewOptions={
+            <>
+              <DropdownMenuCheckboxItem
+                checked={decimals}
+                onCheckedChange={(v) => setDecimals(v === true)}
+              >
+                Nachkommastellen
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup value={density} onValueChange={setDensity}>
+                <DropdownMenuRadioItem value="comfortable">Komfortabel</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="compact">Kompakt</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </>
+          }
+        >
+          {rows}
+        </PageFrame>
       </Variant>
-      <Variant label="--header-fill: tint (soft bg-muted bar, normal text)">
-        <div className="overflow-hidden rounded-lg border bg-card">
-          <HeaderFillContext.Provider value="tint">
-            <SurfaceHeader kicker="Aufträge" title="Order #1042" actions={actions} />
-          </HeaderFillContext.Provider>
-          {body}
-        </div>
+      <Variant label="nested PageFrame (derived, no prop) — titles itself with NestedPageHeading and joins the parent's surface">
+        <PageFrame
+          title="Einstellungen"
+          toolbar={
+            <SegmentedControl
+              aria-label="Bereich"
+              value="a"
+              onValueChange={() => {}}
+              options={[
+                { value: "a", label: "Abrechnung" },
+                { value: "b", label: "Team" },
+              ]}
+            />
+          }
+        >
+          <PageFrame title="Abrechnung" subtitle="Zuletzt geändert vor 2 Tagen" count="2 Ergebnisse">
+            {rows}
+          </PageFrame>
+        </PageFrame>
       </Variant>
-      <Variant label="--header-fill: white (hairline border only — the quietest)">
-        <div className="overflow-hidden rounded-lg border bg-card">
-          <HeaderFillContext.Provider value="white">
-            <SurfaceHeader kicker="Aufträge" title="Order #1042" actions={actions} />
-          </HeaderFillContext.Provider>
-          {body}
-        </div>
-      </Variant>
-      <Variant label="subtitle + icon (compact metadata at text-xs, matching PageHeader — dimmed automatically on a solid fill)">
-        <div className="space-y-3">
-          <div className="overflow-hidden rounded-lg border bg-card">
-            <HeaderFillContext.Provider value="solid">
-              <SurfaceHeader
-                kicker="Einstellungen"
-                title="Abrechnung"
-                subtitle="Zuletzt geändert vor 2 Tagen"
-                icon={CreditCard}
-                actions={actions}
-              />
-            </HeaderFillContext.Provider>
-            {body}
-          </div>
-          <div className="overflow-hidden rounded-lg border bg-card">
-            <HeaderFillContext.Provider value="white">
-              <SurfaceHeader
-                kicker="Einstellungen"
-                title="Abrechnung"
-                subtitle="Zuletzt geändert vor 2 Tagen"
-                icon={CreditCard}
-                actions={actions}
-              />
-            </HeaderFillContext.Provider>
-            {body}
-          </div>
-        </div>
-      </Variant>
-      <p className="max-w-prose text-[13px] leading-relaxed text-muted-foreground">
-        Set once per project via <code>{"<AppShell headerFill=\"…\">"}</code>; every framed
-        shell (detail-overview unified, report, calendar, the list drawer, the crud-dialog
-        header) reads the same context, so the treatment never diverges within an app.
-      </p>
-      <p className="max-w-prose text-[13px] leading-relaxed text-muted-foreground">
-        The <code>subtitle</code> / <code>icon</code> slots exist so a shell needing a
-        secondary line no longer has to fall back to the classic{" "}
-        <code>{"<PageHeader>"}</code> and lose the on-surface treatment — that fallback
-        was the only reason tabbed-settings kept two header paths. Subtitle is compact{" "}
-        <em>metadata</em> at <code>text-xs</code>; prose descriptions stay on{" "}
-        <code>text-sm</code> via <code>SectionHeading</code>.
-      </p>
     </div>
   );
 }
 
 export const LAYOUT_PRIMS: LayoutPrim[] = [
-  { slug: "surface-header", displayName: "SurfaceHeader / header fill", Demo: SurfaceHeaderDemo },
+  { slug: "page-frame", displayName: "PageFrame", Demo: PageFrameDemo },
   { slug: "page-header", displayName: "PageHeader", Demo: PageHeaderDemo },
   { slug: "nested-page-heading", displayName: "NestedPageHeading", Demo: NestedPageHeadingDemo },
   { slug: "heading-ladder", displayName: "Heading ladder (page · nested · section)", Demo: HeadingLadderDemo },

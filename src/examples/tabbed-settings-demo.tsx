@@ -273,7 +273,7 @@ export function TabbedSettingsDemo() {
       <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
         <SettingsPageShell
           title="Workspace"
-          breadcrumbs={breadcrumbs}
+          subtitle={breadcrumbs}
           tabs={tabs}
           /* Persistent below-tab section (allowed variation) — applies to all tabs */
           belowTabs={

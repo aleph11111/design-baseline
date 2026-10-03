@@ -700,11 +700,11 @@ describe("render-callback rule (`archetype-render-callback-prop`) — appearance
   });
 
   it("leaves every live structural render callback green", () => {
-    // The four structural callbacks that exist in the tree today, verbatim. Nothing
+    // The three structural callbacks that exist in the tree today, verbatim. Nothing
     // here may report: `renderLink` is REQUIRED (no `?`), so the optional-only pattern
     // drops it without needing a name in the lookahead — including the aliased
     // re-declaration on `AppSidebar`. `renderBackLink?` IS optional, so the lookahead
-    // is what keeps it out, in both the layout copy and the form-page one. This is the
+    // is what keeps it out of the layout copy. This is the
     // test that fails if someone "simplifies" the pattern by dropping either mechanism.
     const files = {
       "src/components/layout/Sidebar.tsx":
@@ -713,8 +713,6 @@ describe("render-callback rule (`archetype-render-callback-prop`) — appearance
       "src/components/layout/SectionNav.tsx":
         "export type P = {\n  renderLink: (item: NavItem, children: React.ReactNode) => React.ReactNode;\n};\n",
       "src/components/layout/PageHeader.tsx":
-        "export type P = {\n  renderBackLink?: (href: string, label: string) => React.ReactNode;\n};\n",
-      "src/components/archetypes/form-page/FormPageHeader.tsx":
         "export type P = {\n  renderBackLink?: (href: string, label: string) => React.ReactNode;\n};\n",
     };
     const { stdout } = runFilesFixture([renderRule()], files, "--json");

@@ -18,10 +18,8 @@ import { OVERLINE_CLASS } from "../../layout/overline";
 // tone set this promotion shipped with was retired as a non-derivable appearance axis
 // (emphasis is a per-page judgement, not a value derivable from the entity or its
 // data; a closed recolor set behind a backwards-compatible default is the
-// inherited-default defect the archetype-convergence roadmap retires). The two
-// documented channels: a surface contract's binding recolors its own labels on an
-// accent-filled surface (`headerFillClasses().kicker`), and a *single* site passes a
-// one-off color through the `className` passthrough (a documented leaf exemption
+// inherited-default defect the archetype-convergence roadmap retires). The one
+// documented channel: a *single* site passes a one-off color through the `className` passthrough (a documented leaf exemption
 // from the `*Shell`/`*Sheet` className ban — that ban scopes to page/overlay shells,
 // never over a leaf label). A *set* of per-category recolors is drift: it belongs to
 // a badge or a local fork, not to this label.

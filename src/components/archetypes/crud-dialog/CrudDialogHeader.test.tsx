@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import { Sheet, SheetContent } from "../../ui/sheet";
-import { HeaderFillContext } from "../../layout/headerFill";
 import { CrudDialogHeader, type CrudDialogHeaderProps } from "./CrudDialogHeader";
 
 afterEach(() => {
@@ -106,8 +105,8 @@ describe("CrudDialogHeader — the shared bar chrome", () => {
   });
 });
 
-describe("CrudDialogHeader — the header-fill contract (one edit point)", () => {
-  it("solid header: the bar's fill inverts both the SheetTitle (h2) and the SheetDescription (p)", () => {
+describe("CrudDialogHeader — the one neutral bar treatment", () => {
+  it("renders the fixed neutral bar: no accent fill, no inversion", () => {
     renderHeader({
       title: "Workout · Run",
       subtitle: "2026-05-19",
@@ -116,27 +115,9 @@ describe("CrudDialogHeader — the header-fill contract (one edit point)", () =>
     const bar = document.querySelector(
       '[data-slot="surface-header"]',
     ) as HTMLElement;
-    // default fill is solid — the accent fill plus the h2/p inversions are
-    // the same hfc.bar every shell reads; this header adds no classes of its own
-    expect(bar.className).toContain("bg-primary");
-    expect(bar.className).toContain("[&_h1,h2]:text-primary-foreground");
-    expect(bar.className).toContain("[&_p]:text-primary-foreground/70");
-  });
-
-  it("tint header: the quieter muted fill shows up in this header's bar", () => {
-    render(
-      <HeaderFillContext.Provider value="tint">
-        <Sheet open>
-          <SheetContent side="right" showCloseButton={false}>
-            <CrudDialogHeader title="Workout · Run" />
-          </SheetContent>
-        </Sheet>
-      </HeaderFillContext.Provider>,
-    );
-
-    const bar = document.querySelector(
-      '[data-slot="surface-header"]',
-    ) as HTMLElement;
-    expect(bar.className).toContain("bg-muted");
+    // the bar's treatment is SurfaceHeaderBar's; this header adds no classes
+    expect(bar.className).toContain("bg-surface-raised");
+    expect(bar.className).toContain("border-b");
+    expect(bar.className).not.toContain("bg-primary");
   });
 });

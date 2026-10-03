@@ -28,7 +28,7 @@ function PartyBlock({ label, name, lines }: { label: string; name: string; lines
   );
 }
 
-// The full document — kicker + title + PDF/Senden actions, parties row, a
+// The full document — title + PDF/Senden actions, parties row, a
 // line-item table, and a right-aligned totals stack with a tinted Gesamt.
 export function Invoice() {
   const items = [
@@ -42,9 +42,8 @@ export function Invoice() {
 
   return (
     <ReportShell
-      kicker="Beleg"
       title={<>Rechnung <span className="font-mono">RE-2025-0417</span></>}
-      headerActions={
+      actions={
         <>
           <Button variant="outline" size="sm">PDF</Button>
           <Button size="sm">Senden</Button>
@@ -92,7 +91,7 @@ export function CompactReceipt() {
   const net = items.reduce((sum, li) => sum + li.qty * li.unitPrice, 0);
 
   return (
-    <ReportShell kicker="Beleg" title="Quittung Nr. 118" width="sm">
+    <ReportShell title="Quittung Nr. 118" width="sm">
       <ReportLineTable columns={["Position", "Mng", "Einzel", "Summe"]}>
         {items.map((li) => (
           <ReportLineRow

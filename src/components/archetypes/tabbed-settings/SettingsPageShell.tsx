@@ -22,9 +22,9 @@ export type SettingsTab = {
  * `actions`: a tabbed-settings page has no page-level verbs; actions are per
  * tab and live in each tab body.
  */
-type SettingsPageHeaderProps = Pick<PageFrameProps, "title" | "subtitle">;
+type SettingsPageTitleProps = Pick<PageFrameProps, "title" | "subtitle">;
 
-export type SettingsPageShellProps = SettingsPageHeaderProps & {
+export type SettingsPageShellProps = SettingsPageTitleProps & {
   /** The settings categories, in tab order. The tab strip is the toolbar. */
   tabs: SettingsTab[];
   /** Initially selected tab (uncontrolled). Defaults to the first tab. */
@@ -32,11 +32,6 @@ export type SettingsPageShellProps = SettingsPageHeaderProps & {
   /** Selected tab (controlled) — for a page that syncs the tab to the URL. */
   tab?: string;
   onTabChange?: (value: string) => void;
-  /**
-   * Optional breadcrumb trail rendered above the header. A slot rather than
-   * router-derived: breadcrumb derivation is framework-specific.
-   */
-  breadcrumbs?: React.ReactNode;
   /** Persistent section below every tab body (applies to all tabs); the shell
    *  divides it from the tab body. */
   belowTabs?: React.ReactNode;
@@ -61,40 +56,36 @@ export function SettingsPageShell({
   defaultTab = tabs[0]?.value,
   tab,
   onTabChange,
-  breadcrumbs,
   belowTabs,
   ...header
 }: SettingsPageShellProps): React.ReactElement {
   return (
     <ErrorBoundary>
-      <div className="space-y-5">
-        {breadcrumbs}
-        <Tabs value={tab} defaultValue={defaultTab} onValueChange={onTabChange}>
-          <PageFrame
-            {...header}
-            toolbar={
-              <TabsList>
-                {tabs.map((t) => (
-                  <TabsTrigger key={t.value} value={t.value}>
-                    {t.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            }
-          >
-            <div className="p-5">
+      <Tabs value={tab} defaultValue={defaultTab} onValueChange={onTabChange}>
+        <PageFrame
+          {...header}
+          toolbar={
+            <TabsList>
               {tabs.map((t) => (
-                <TabsContent key={t.value} value={t.value} className="mt-0">
-                  {t.content}
-                </TabsContent>
+                <TabsTrigger key={t.value} value={t.value}>
+                  {t.label}
+                </TabsTrigger>
               ))}
-              {belowTabs != null && (
-                <div className="mt-5 border-t pt-4">{belowTabs}</div>
-              )}
-            </div>
-          </PageFrame>
-        </Tabs>
-      </div>
+            </TabsList>
+          }
+        >
+          <div className="p-5">
+            {tabs.map((t) => (
+              <TabsContent key={t.value} value={t.value} className="mt-0">
+                {t.content}
+              </TabsContent>
+            ))}
+            {belowTabs != null && (
+              <div className="mt-5 border-t pt-4">{belowTabs}</div>
+            )}
+          </div>
+        </PageFrame>
+      </Tabs>
     </ErrorBoundary>
   );
 }

@@ -15,14 +15,13 @@ export function InboxWithFilters() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <FeedShell
-        kicker="Inbox"
         title="Notifications"
-        headerActions={
+        actions={
           <Button variant="outline" size="sm">
             Mark all read
           </Button>
         }
-        filters={
+        toolbar={
           <SegmentedControl
             value="all"
             onValueChange={() => {}}
@@ -77,7 +76,7 @@ export function InboxWithFilters() {
 export function TimelineNoActions() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <FeedShell kicker="Feed" title="Activity">
+      <FeedShell title="Activity">
         <SectionCard title="Today" flush>
           <div className="divide-y divide-border">
             <FeedItem
@@ -105,9 +104,8 @@ export function EmptyState() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <FeedShell
-        kicker="Inbox"
         title="Notifications"
-        filters={
+        toolbar={
           <SegmentedControl
             value="unread"
             onValueChange={() => {}}

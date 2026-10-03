@@ -146,18 +146,16 @@ describe("ListWithDetailShell", () => {
       '[data-slot="surface-header"]',
     ) as HTMLElement;
     expect(bar).not.toBeNull();
-    // the bar owns the canonical padding; the shell re-types no header-fill or
+    // the bar owns the canonical padding; the shell re-types no fill or
     // title-scale classes — the title carries only the primitive's defaults
     // plus its structural truncate
     expect(bar.className).toContain("px-5");
     expect(bar.className).toContain("py-4");
     expect(sheetTitle.className).toContain("truncate");
     expect(sheetTitle.className).not.toContain("leading-tight");
-    // default fill is solid: the accent fill + h2/p inversions reach the Radix
-    // title + the sr-only description through the bar's fill
-    expect(bar.className).toContain("bg-primary");
-    expect(bar.className).toContain("[&_h1,h2]:text-primary-foreground");
-    expect(bar.className).toContain("[&_p]:text-primary-foreground/70");
+    // one fixed neutral treatment — no accent fill, no inversion (ADR-0008)
+    expect(bar.className).toContain("bg-surface-raised");
+    expect(bar.className).not.toContain("bg-primary");
     // the actions row clears the Sheet's built-in close button (structural)
     const actionsRow = bar.querySelector(".pr-8") as HTMLElement;
     expect(actionsRow.textContent).toContain("Edit");

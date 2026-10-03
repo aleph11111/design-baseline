@@ -35,7 +35,7 @@ const PREVIEW = [
 export function UploadStep() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <WizardShell kicker="Import" title="Import transactions" steps={STEPS} current={0} canProceed={false}>
+      <WizardShell title="Import transactions" steps={STEPS} current={0} canProceed={false}>
         <div className="flex flex-col items-center gap-3 rounded-md border border-dashed py-10 text-center">
           <UploadCloud className="h-8 w-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">Drop a CSV here, or choose a file.</p>
@@ -56,7 +56,7 @@ export function MapColumnsStep() {
   };
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <WizardShell kicker="Import" title="Import transactions" steps={STEPS} current={1}>
+      <WizardShell title="Import transactions" steps={STEPS} current={1}>
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">Match each CSV column to a field.</p>
           {SOURCE_COLUMNS.map((col) => (
@@ -87,7 +87,7 @@ export function MapColumnsStep() {
 export function VerifyStep() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <WizardShell kicker="Import" title="Import transactions" steps={STEPS} current={2}>
+      <WizardShell title="Import transactions" steps={STEPS} current={2}>
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
             128 rows · <span className="text-foreground">126 valid</span> · 2 skipped (missing amount).
@@ -123,7 +123,7 @@ export function VerifyStep() {
 export function CommitStep() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <WizardShell kicker="Import" title="Import transactions" steps={STEPS} current={3} busy>
+      <WizardShell title="Import transactions" steps={STEPS} current={3} busy>
         <div className="space-y-1 text-sm">
           <p>
             <span className="font-medium">126 transactions</span> will be imported into{" "}

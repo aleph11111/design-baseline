@@ -122,8 +122,7 @@ describe("PageHeader", () => {
 
     expect(container.querySelector("p")).toBeNull();
     expect(container.querySelector(SUBTITLE)?.textContent).toBe("Line oneLine two");
-    // The solid header bar inverts the subtitle through this slot marker
-    // (headerFill's SOLID_INVERT), now that it is no longer a `<p>`.
+    // The subtitle slot carries a stable marker now that it is no longer a `<p>`.
     expect(container.querySelector(SUBTITLE)?.getAttribute("data-slot")).toBe(
       "heading-subtitle",
     );

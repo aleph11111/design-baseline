@@ -16,7 +16,7 @@ const STEPS = [
 export function AtStart() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <WizardShell kicker="Import" title="Import transactions" steps={STEPS} current={0}>
+      <WizardShell title="Import transactions" steps={STEPS} current={0}>
         <p className="text-sm text-muted-foreground">Drop a CSV here, or choose a file.</p>
       </WizardShell>
     </div>
@@ -28,7 +28,7 @@ export function AtStart() {
 export function MidFlow() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <WizardShell kicker="Import" title="Import transactions" steps={STEPS} current={2}>
+      <WizardShell title="Import transactions" steps={STEPS} current={2}>
         <p className="text-sm text-muted-foreground">
           128 rows · 126 valid · 2 skipped (missing amount).
         </p>
@@ -41,7 +41,7 @@ export function MidFlow() {
 export function AtEnd() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <WizardShell kicker="Import" title="Import transactions" steps={STEPS} current={3}>
+      <WizardShell title="Import transactions" steps={STEPS} current={3}>
         <p className="text-sm text-muted-foreground">
           126 transactions will be imported into Checking.
         </p>

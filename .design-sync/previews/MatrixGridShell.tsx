@@ -89,9 +89,8 @@ export function StudentGrades() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <MatrixGridShell<GradeEntry>
-        kicker="Gradebook"
         title="Student Grades"
-        headerActions={
+        actions={
           <Button variant="outline" size="sm">
             <Download className="mr-1 h-4 w-4" />
             Export
@@ -138,7 +137,6 @@ export function StudentGradesInline() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <MatrixGridShell<GradeEntry>
-        kicker="Gradebook"
         title="Student Grades"
         columns={columns}
         rows={rows}
@@ -173,7 +171,6 @@ export function NoGradesForTerm() {
   return (
     <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <MatrixGridShell<GradeEntry>
-        kicker="Gradebook"
         title="Student Grades"
         toolbar={
           <div className="flex items-end gap-2">

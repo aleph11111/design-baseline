@@ -62,14 +62,13 @@ const FULL_WEEK: CalendarDay[] = [
 export function CommunityCentreWeek() {
   return (
     <CalendarShell
-      kicker="Schedule"
       title={
         <>
           June 2026 <span className="mx-1.5 text-border">·</span>
           <span className="font-mono tabular-nums">Week 26</span>
         </>
       }
-      headerActions={
+      actions={
         <>
           <Button variant="outline" size="sm" className="px-2" aria-label="Previous week">
             <ChevronLeft className="h-4 w-4" />
@@ -113,7 +112,6 @@ export function SparseWeek() {
 
   return (
     <CalendarShell
-      kicker="Schedule"
       title="July 2026 · Week 28"
       days={sparseWeek}
       emptyDayLabel="No sessions"
