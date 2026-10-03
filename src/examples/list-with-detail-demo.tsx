@@ -322,7 +322,6 @@ export function ListWithDetailDemo() {
           {[
             {
               label: "Table (dense, 4+ data cols)",
-              kicker: "Podcasts · full",
               title: "Podcast Library",
               columns: TABLE_COLUMNS,
               presentation: PRESENTATION_TABLE,
@@ -358,7 +357,6 @@ export function ListWithDetailDemo() {
             },
             {
               label: "Card grid (browse-y, 2–3 data cols)",
-              kicker: "Podcasts · grid",
               title: "Browse Podcasts",
               columns: CARD_COLUMNS,
               presentation: PRESENTATION_CARD_GRID,
@@ -366,7 +364,6 @@ export function ListWithDetailDemo() {
             },
             {
               label: "Action row (pick-an-item, 1 data col)",
-              kicker: "Podcasts · pick",
               title: "Continue listening",
               columns: ACTION_ROW_COLUMNS,
               presentation: PRESENTATION_ACTION_ROW,
@@ -377,11 +374,10 @@ export function ListWithDetailDemo() {
               <h3 className="text-xs font-medium text-muted-foreground">
                 {panel.label}
               </h3>
-              <div className="rounded-xl bg-muted/30 p-4 sm:p-5">
+              <div>
                 <ListWithDetailShell<Podcast>
-                  kicker={panel.kicker}
                   title={panel.title}
-                  headerActions={
+                  actions={
                     panel.presentation === "table" ? (
                       <>
                         <Button variant="outline" size="sm">
@@ -406,10 +402,14 @@ export function ListWithDetailDemo() {
                       searchValue={search}
                       onSearchChange={setSearch}
                       searchPlaceholder="Search shows…"
-                      // The filtered row length of this panel's own list — the
-                      // caption tracks whatever the shell actually shows.
-                      resultCount={isEmpty ? undefined : panel.rows.length}
                     />
+                  }
+                  // The filtered row length of this panel's own list — the
+                  // count tracks whatever the shell actually shows.
+                  count={
+                    isEmpty
+                      ? undefined
+                      : `${panel.rows.length} ${panel.rows.length === 1 ? "result" : "results"}`
                   }
                   {...shellProps}
                   rows={isEmpty ? [] : panel.rows}

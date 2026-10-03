@@ -1,10 +1,9 @@
 "use client";
 import * as React from "react";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../../ui/sheet";
-import { SurfaceFrame } from "../../layout/SurfaceFrame";
+import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
 import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
-import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
 import {
   ListWithDetailEmptyState,
   type ListEmptyMode,
@@ -20,16 +19,6 @@ import { resolveListState, type RowAction, type TableColumn } from "../shared";
 // render an identical menu. Re-exported here for back-compat with consumers that
 // import `RowAction` from this archetype.
 export type { RowAction };
-
-// The shell draws its own bounded-card chrome (border + surface) by default.
-// A composing archetype that already supplies the surrounding surface (e.g.
-// grouped-list's section card) declares chrome-suppression with this context;
-// the shell then drops its own card chrome and renders flush. This is the
-// list-with-detail analogue of detail-overview's `UnifiedSurfaceContext` — an
-// internal context the *composing* shell supplies, not a per-page appearance
-// prop. Exported from this module (not the barrel) so a composing archetype can
-// import it without it becoming documented per-page API.
-export const ListChromeContext = React.createContext(false);
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -47,7 +36,11 @@ export type ListColumn<Row> = TableColumn<Row> & {
 
 export type SortDirection = "asc" | "desc";
 
-export type ListWithDetailShellProps<Row> = {
+/**
+ * The list body's props — rows, presentation, states, footer, and the detail
+ * Sheet. Everything but the page frame.
+ */
+export type ListWithDetailBodyProps<Row> = {
   rows: Row[];
   columns: ListColumn<Row>[];
   getRowId: (row: Row) => string;
@@ -57,12 +50,10 @@ export type ListWithDetailShellProps<Row> = {
   onRowSelect?: (row: Row) => void;
   selectedRowId?: string | null;
   rowActions?: RowAction<Row>[];
-  toolbar?: React.ReactNode;
   detail?: React.ReactNode;
   /**
-   * Optional title for the detail surface's header bar (rendered with the house
-   * `headerFill` treatment). When omitted, the detail surface renders only
-   * `detail`.
+   * Optional title for the detail Sheet's header bar. When omitted, the Sheet
+   * renders only `detail`.
    */
   detailTitle?: React.ReactNode;
   /** Optional right-aligned actions in the detail surface's header (e.g. an Edit button). */
@@ -75,10 +66,6 @@ export type ListWithDetailShellProps<Row> = {
    * Sheet is gone.
    */
   onDetailClose?: () => void;
-
-  // The drawer/sheet header bar (below) reads `HeaderFillContext` set once at
-  // `<AppShell headerFill=…>` — the same treatment as the master on-surface
-  // header; there is no per-shell override.
 
   emptyStateMessage?: string;
   /** Overrides for the shell's built-in copy (see `ListWithDetailLabels`). */
@@ -106,20 +93,65 @@ export type ListWithDetailShellProps<Row> = {
    */
   presentation?: "table" | "card-grid" | "action-row";
   /**
-   * A band inside the card below the body (hairline top rule), for list-level
-   * controls that follow the rows — e.g. a "Load more" row. A composition slot:
-   * the band's chrome is fixed here; the slot varies content only.
+   * A band below the body (hairline top rule), for list-level controls that
+   * follow the rows — e.g. a "Load more" row. A composition slot: the band's
+   * chrome is fixed here; the slot varies content only.
    */
   footer?: React.ReactNode;
-  /** Forwards to the root `<SurfaceFrame>` div. */
-  ref?: React.Ref<HTMLDivElement>;
-} & SurfaceHeaderSlotProps;
+};
+
+/**
+ * The page (ADR-0008): `title` / `subtitle` / `badges` / `actions` (the create
+ * action, export) in the page header; `toolbar` (search, filters — e.g. a
+ * `<ListWithDetailToolbar>`) and `count` (the result count) in the frame's
+ * toolbar band; the list body inside the page's one surface.
+ */
+export type ListWithDetailShellProps<Row> = Pick<
+  PageFrameProps,
+  "title" | "subtitle" | "badges" | "actions" | "toolbar" | "count"
+> &
+  ListWithDetailBodyProps<Row>;
 
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
-export function ListWithDetailShell<Row>(
+export function ListWithDetailShell<Row>({
+  title,
+  subtitle,
+  badges,
+  actions,
+  toolbar,
+  count,
+  ...body
+}: ListWithDetailShellProps<Row>) {
+  // Full-bleed archetype (ADR-0007 §1) — only as the page's own surface; the
+  // hook yields nothing inside another surface.
+  const fullBleed = useFullBleedClass();
+  return (
+    <PageFrame
+      title={title}
+      subtitle={subtitle}
+      badges={badges}
+      actions={actions}
+      toolbar={toolbar}
+      count={count}
+      className={fullBleed}
+    >
+      <ListWithDetailBody<Row> {...body} />
+    </PageFrame>
+  );
+}
+
+ListWithDetailShell.displayName = "ListWithDetailShell";
+
+/**
+ * The list body without a page frame: the rows in their presentation, the
+ * state planes, the footer band, and the detail Sheet. For composing archetypes
+ * that render lists inside their own frame (grouped-list's sections) — exported
+ * from this module, not the barrel.
+ */
+export function ListWithDetailBody<Row>(
   {
     rows,
     columns,
@@ -130,14 +162,10 @@ export function ListWithDetailShell<Row>(
     onRowSelect,
     selectedRowId,
     rowActions,
-    toolbar,
     detail,
     detailTitle,
     detailActions,
     onDetailClose,
-    kicker,
-    title,
-    headerActions,
     emptyStateMessage,
     labels,
     emptyStateAction,
@@ -147,16 +175,9 @@ export function ListWithDetailShell<Row>(
     onSortChange,
     presentation = "table",
     footer,
-    ref,
-  }: ListWithDetailShellProps<Row>,
+  }: ListWithDetailBodyProps<Row>,
 ) {
   const [sheetOpen, setSheetOpen] = React.useState(Boolean(selectedRowId));
-  // A composing archetype (grouped-list's section card) declares chrome-suppression
-  // through `ListChromeContext` so the frame renders chromeless (`chrome={false}`)
-  // flush inside an already-bounded surface; the chrome decision belongs to the
-  // compose-into archetype, not to the per-page caller.
-  const chromeless = React.useContext(ListChromeContext);
-  const fullBleed = useFullBleedClass();
   // Sync sheet visibility with selectedRowId: a selection set from outside (a
   // deep link, a restored URL) opens the sheet; clearing it (e.g. after a
   // delete) closes it so stale detail is not shown.
@@ -225,8 +246,8 @@ export function ListWithDetailShell<Row>(
 
   // Detail panel: always the overlay Sheet, on every width. An in-flow rail is
   // forbidden (v3.0): it sits at the top of the list, so selecting a row far
-  // down a long list renders the detail off-screen. The Sheet's header bar
-  // reads `HeaderFillContext`.
+  // down a long list renders the detail off-screen. A drawer is not a page: it
+  // keeps its own header bar with the Radix SheetTitle (ADR-0008 §1).
   const detailPanel =
     detail !== undefined ? (
       <Sheet
@@ -276,22 +297,12 @@ export function ListWithDetailShell<Row>(
     ) : null;
 
   return (
-    <SurfaceFrame
-      ref={ref}
-      kicker={kicker}
-      title={title}
-      headerActions={headerActions}
-      toolbar={toolbar}
-      chrome={!chromeless}
-      // Full-bleed archetype (ADR-0007 §1) — only as the page's own surface; a
-      // shell composed into another surface leaves the column alone.
-      className={chromeless ? undefined : fullBleed}
-    >
+    <>
       <div className="relative overflow-x-auto">{bodyContent}</div>
       {footer !== undefined && <div className="border-t px-4 py-3">{footer}</div>}
       {detailPanel}
-    </SurfaceFrame>
+    </>
   );
 }
 
-ListWithDetailShell.displayName = "ListWithDetailShell";
+ListWithDetailBody.displayName = "ListWithDetailBody";

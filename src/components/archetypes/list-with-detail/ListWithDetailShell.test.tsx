@@ -1,9 +1,7 @@
-import { createRef } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
   ListWithDetailShell,
-  ListChromeContext,
   type ListColumn,
   type ListWithDetailShellProps,
 } from "./ListWithDetailShell";
@@ -24,7 +22,7 @@ describe("ListWithDetailShell", () => {
   it("table presentation: identifier cell stays a cell, is focusable, and activates on Enter/Space", () => {
     const onRowSelect = vi.fn();
     render(
-      <ListWithDetailShell
+      <ListWithDetailShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
@@ -45,7 +43,7 @@ describe("ListWithDetailShell", () => {
   it("card-grid presentation: row is a focusable button-role that activates on Enter/Space", () => {
     const onRowSelect = vi.fn();
     render(
-      <ListWithDetailShell
+      <ListWithDetailShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
@@ -63,7 +61,7 @@ describe("ListWithDetailShell", () => {
   it("action-row presentation: row is a focusable button-role that activates on Enter/Space", () => {
     const onRowSelect = vi.fn();
     render(
-      <ListWithDetailShell
+      <ListWithDetailShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
@@ -81,7 +79,7 @@ describe("ListWithDetailShell", () => {
   it("exposes the selected row to assistive tech in every presentation", () => {
     for (const presentation of ["table", "card-grid", "action-row"] as const) {
       const { unmount } = render(
-        <ListWithDetailShell
+        <ListWithDetailShell title="T"
           rows={rows}
           columns={columns}
           getRowId={(row) => row.id}
@@ -101,7 +99,7 @@ describe("ListWithDetailShell", () => {
 
   it("table: actions column header has a visually hidden accessible name", () => {
     render(
-      <ListWithDetailShell
+      <ListWithDetailShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
@@ -116,7 +114,7 @@ describe("ListWithDetailShell", () => {
 
   it("no onRowSelect: rows are not tab stops", () => {
     render(
-      <ListWithDetailShell
+      <ListWithDetailShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
@@ -131,7 +129,7 @@ describe("ListWithDetailShell", () => {
     // its header bar must be the one shared implementation (`data-slot=
     // surface-header`) — not a hand-rolled padding + header-fill wrapper.
     render(
-      <ListWithDetailShell
+      <ListWithDetailShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
@@ -169,7 +167,7 @@ describe("ListWithDetailShell", () => {
     // v3.0: no rail. An in-flow panel sits at the top of the list, so a row
     // selected far down a long list showed its detail off-screen.
     const { container } = render(
-      <ListWithDetailShell
+      <ListWithDetailShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
@@ -191,7 +189,7 @@ describe("ListWithDetailShell", () => {
 
   it("a selection set from outside (deep link) opens the Sheet on mount", () => {
     render(
-      <ListWithDetailShell
+      <ListWithDetailShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
@@ -204,7 +202,7 @@ describe("ListWithDetailShell", () => {
 
   it("no detailTitle renders only the detail in the Sheet", () => {
     render(
-      <ListWithDetailShell
+      <ListWithDetailShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
@@ -221,7 +219,7 @@ describe("ListWithDetailShell", () => {
   it("dismissing the Sheet (Esc) calls onDetailClose", () => {
     const onDetailClose = vi.fn();
     render(
-      <ListWithDetailShell
+      <ListWithDetailShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
@@ -236,48 +234,32 @@ describe("ListWithDetailShell", () => {
     expect(onDetailClose).toHaveBeenCalledTimes(1);
   });
 
-  it("draws the bounded card by default, and renders flush under ListChromeContext", () => {
-    // The bounded-card chrome is owned by <SurfaceFrame> (the frame slot the
-    // shell composes) — asserted here per-token so a shell re-spelling its own
-    // frame is caught by this test, not by string match.
-    const frameChrome = ["rounded-lg", "bg-surface-raised", "overflow-clip"];
-
-    const { container: standalone } =
-      render(
-        <ListWithDetailShell rows={rows} columns={columns} getRowId={(row) => row.id} />,
-      );
-    const standaloneRoot = standalone.firstElementChild as HTMLElement;
-    for (const token of frameChrome) {
-      expect(standaloneRoot.className).toContain(token);
-    }
-    // Full-bleed as the page's own surface (ADR-0007 §1)…
-    expect(standaloneRoot.className).toContain("db-full-bleed");
-    cleanup();
-
-    const { container: flush } = render(
-      <ListChromeContext.Provider value>
-        <ListWithDetailShell rows={rows} columns={columns} getRowId={(row) => row.id} />
-      </ListChromeContext.Provider>,
+  it("page frame (ADR-0008): one h1, no on-surface title; actions in the header, toolbar + count in the band", () => {
+    const { container } = render(
+      <ListWithDetailShell
+        title="People"
+        actions={<button type="button">Add person</button>}
+        toolbar={<input aria-label="Search" />}
+        count="1 result"
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+      />,
     );
-    const flushRoot = flush.firstElementChild as HTMLElement;
-    for (const token of frameChrome) {
-      expect(flushRoot.className).not.toContain(token);
-    }
-    // …but a composed shell leaves the column alone.
-    expect(flushRoot.className).not.toContain("db-full-bleed");
-  });
-
-  it("forwards the ref to the root element", () => {
-    const ref = createRef<HTMLDivElement>();
-    render(
-      <ListWithDetailShell ref={ref} rows={rows} columns={columns} getRowId={(row) => row.id} />,
-    );
-    expect(ref.current).toBeInstanceOf(HTMLDivElement);
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getAllByText("People")).toHaveLength(1);
+    expect(container.querySelector('[data-slot="surface-header"]')).toBeNull();
+    expect(screen.getByRole("button", { name: "Add person" }).closest(".bg-surface-raised")).toBeNull();
+    const band = screen.getByRole("textbox", { name: "Search" }).closest(".border-b") as HTMLElement;
+    expect(band.textContent).toContain("1 result");
+    // One raised surface; full-bleed as the page's own frame (ADR-0007 §1).
+    expect(container.querySelectorAll(".bg-surface-raised")).toHaveLength(1);
+    expect((container.firstElementChild as HTMLElement).className).toContain("db-full-bleed");
   });
 
   it("renders the footer band below the body, and the empty-state action", () => {
     const { rerender } = render(
-      <ListWithDetailShell
+      <ListWithDetailShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(r) => r.id}
@@ -287,7 +269,7 @@ describe("ListWithDetailShell", () => {
     expect(screen.getByRole("button", { name: "Load more" })).toBeTruthy();
 
     rerender(
-      <ListWithDetailShell
+      <ListWithDetailShell title="T"
         rows={[]}
         columns={columns}
         getRowId={(r) => r.id}
@@ -298,25 +280,6 @@ describe("ListWithDetailShell", () => {
     expect(screen.getByRole("button", { name: "Add person" })).toBeTruthy();
   });
 
-  it("hideBelowMd hides a context column below md, but never the identifier", () => {
-    type Wide = Row & { created: string };
-    const wideColumns: ListColumn<Wide>[] = [
-      { key: "name", header: "Name", cell: (r) => r.name, isIdentifier: true, hideBelowMd: true },
-      { key: "created", header: "Created", cell: (r) => r.created, hideBelowMd: true },
-    ];
-    render(
-      <ListWithDetailShell
-        rows={[{ ...rows[0]!, created: "2026-01-01" }]}
-        columns={wideColumns}
-        getRowId={(r) => r.id}
-      />,
-    );
-    expect(screen.getByText("Created").className).toContain("hidden md:table-cell");
-    expect(screen.getByText("2026-01-01").className).toContain("hidden md:table-cell");
-    expect(screen.getByText("Name").className).not.toContain("hidden");
-    expect(screen.getByText("Ada Lovelace").className).not.toContain("hidden");
-  });
-
   it('hideBelow="2xl" hides a record-provenance column below 2xl, but never the identifier', () => {
     type Wide = Row & { created: string };
     const wideColumns: ListColumn<Wide>[] = [
@@ -324,7 +287,7 @@ describe("ListWithDetailShell", () => {
       { key: "created", header: "Created", cell: (r) => r.created, hideBelow: "2xl" },
     ];
     render(
-      <ListWithDetailShell
+      <ListWithDetailShell title="T"
         rows={[{ ...rows[0]!, created: "2026-01-01" }]}
         columns={wideColumns}
         getRowId={(r) => r.id}
@@ -341,7 +304,8 @@ describe("ListWithDetailShell", () => {
 //
 // The acceptance for closing this API is that `ListWithDetailShellProps`
 // declares none of `detailPresentation` / `unstyled` / `className` — the three
-// axes deleted in the archetype-convergence close-API. If any retired axis
+// axes deleted in the archetype-convergence close-API — nor the header props
+// ADR-0008 retired (`kicker`, `headerActions`) or the dropped root `ref`. If any retired axis
 // leaks back into the props type, one of the `_Guard` entries collapses to
 // `never` and the assignment below fails to compile — the break is caught at
 // typecheck time. `presentation` and `align` stay legal (contract-keyed).
@@ -353,7 +317,10 @@ type _ClosedAxesGuard = [
   Absent<ListWithDetailShellProps<Row>, "detailPresentation">,
   Absent<ListWithDetailShellProps<Row>, "unstyled">,
   Absent<ListWithDetailShellProps<Row>, "className">,
-] extends [true, true, true]
+  Absent<ListWithDetailShellProps<Row>, "kicker">,
+  Absent<ListWithDetailShellProps<Row>, "headerActions">,
+  Absent<ListWithDetailShellProps<Row>, "ref">,
+] extends [true, true, true, true, true, true]
   ? true
   : never;
 
@@ -380,7 +347,7 @@ describe("ListWithDetailShell sort header", () => {
   it("is a keyboard-operable button inside the aria-sort header cell", () => {
     const onSortChange = vi.fn();
     render(
-      <ListWithDetailShell
+      <ListWithDetailShell title="T"
         rows={rows}
         columns={[{ ...columns[0]!, sortable: true }]}
         getRowId={(row) => row.id}

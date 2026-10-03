@@ -60,11 +60,10 @@ const columns: ListColumn<Podcast>[] = [
 export function PodcastLibraryTable() {
   const selected = PODCASTS[0]!;
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <ListWithDetailShell<Podcast>
-        kicker="Podcasts"
         title="Podcast Library"
-        headerActions={
+        actions={
           <>
             <Button variant="outline" size="sm">
               Import
@@ -115,9 +114,8 @@ export function PodcastLibraryTable() {
 // columns as label/value pairs), for browse-y lists.
 export function PodcastLibraryCardGrid() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <ListWithDetailShell<Podcast>
-        kicker="Podcasts"
         title="Podcast Library"
         rows={PODCASTS}
         columns={columns}
@@ -139,9 +137,8 @@ export function PodcastLibraryCardGrid() {
 // mobile / pick-an-item shape.
 export function PodcastLibraryActionRow() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <ListWithDetailShell<Podcast>
-        kicker="Podcasts"
         title="Podcast Library"
         rows={PODCASTS}
         columns={columns}
