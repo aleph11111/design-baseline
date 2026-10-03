@@ -2,7 +2,7 @@
 key: D2
 slug: settings-table
 kind: page
-version: 2.7
+version: 3.0
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -11,6 +11,15 @@ status: locked
 
 # Archetype D2 — Settings table
 
+> **v3.0 (2026-10-03) — one page frame (ADR-0008).** Breaking. `title` is
+> required and renders once, as the page title; `kicker` / `headerActions` and
+> the on-surface header are gone. Slots: `actions` (the create action — the
+> shell renders `onAddNew` first — plus the page's other whole-page and write
+> verbs, and bulk actions while rows are selected), `toolbar` (search,
+> filters), the result count (or "{n} selected"). No toolbar Add button. The
+> `SettingsRowAction` alias is removed — use `RowAction`; `hideBelowMd` is
+> removed — use `hideBelow: "md"`.
+>
 > **v2.7 (2026-09-30) — row-actions trigger name.** `labels.rowActions`
 > overrides the accessible name of each row's `⋯` trigger (Layer 10). Additive;
 > no breaking change.
@@ -91,9 +100,9 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
 
 **Required:**
 - The page renders inside the project's **top-level app shell** — the outer layout frame that mounts the global providers (tooltip, sidebar, toast surfaces), the nav/sidebar, and the main content region, via the parent route's layout. Those providers are always in the tree by the time a settings-table page renders; the page does not re-mount them.
-- Outer container uses the **canonical vertical rhythm** to space the title block from the table card — **no page inset**; the settings layout's main region supplies all inset.
+- **No page inset** — the settings layout's main region supplies all inset.
 - A **render-error boundary** wrapping page content at the page-component level.
-- A **breadcrumb trail** rendered at the top of the page shell, above the settings-table shell's on-surface header (see Layer 3) — there is no separate floating page header.
+- A **breadcrumb trail** at the top of the page, above the page title (Layer 3).
 
 **Allowed variation:**
 - A page-level state-provider is optional. Introduce one only when filter or selection state is consumed by more than one child component tree; do not add one for single-tree state.
@@ -107,57 +116,48 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
 
 ## Layer 3 — Page header
 
-The page header no longer floats above the shell as a separate page-header primitive. The settings-table shell mounts the shared **on-surface header bar** at the top of its one bounded card — the title bar sits ON the surface, driven entirely by shell props.
-
-**Required (via shell props):**
-- **`title`** — always present when the on-surface header renders, in the project's **canonical page-title type style**.
-- The bar follows the **header-fill contract**: brand-filled (default) fills the bar with the brand accent and inverts the title/kicker/action buttons to white; a quieter muted-tint step; and a hairline-border-only mode.
+**Required:**
+- **`title`** — the page title, passed once to the shell. There is no second title on the table surface and no other header markup.
 
 **Allowed variation:**
-- **`kicker`** — optional overline above the title (e.g. "Settings", "Catalog"), in the **canonical overline/kicker style**.
-- **`headerActions`** — optional right-aligned small buttons (e.g. "Import", "Add {entity}"): a secondary-style button for secondary actions, the default/primary style for the primary action. At most one primary action.
-- **Sync / refresh action** — some D2 pages back their data from an external system and expose a "Sync" action. When present, place it in the toolbar (Layer 4) as an async action button.
+- **`subtitle`** / **`badges`** — compact metadata and read-only status next to the title.
+- **`actions`** — verbs on the whole page: the one primary action plus at most two secondary ones (e.g. "Import", "Sync" as an async action button). The create action comes from `onAddNew` (label `addNewLabel`, default "Add new"), which the shell renders first; don't also pass an Add button.
 
 **Forbidden:**
-- Inline `<h1>` or custom header markup — always the shell's `kicker`/`title`/`headerActions` props.
+- A hand-rolled page title or header — always the shell's props.
 
 ---
 
-## Layer 4 — Toolbar
+## Layer 4 — Toolbar and count
 
 **Required:**
-- Toolbar renders as the shell's `toolbar` slot, not above or below the shell.
-- **Primary create action** — single button (small), the default/primary style, leading "add" icon. Label: "Add {entity}". Opens the add dialog. The toolbar button's label comes from `addNewLabel` (default "Add new"). Canonical home: the shell's `headerActions` (the on-surface header bar, Layer 3 — it inverts on a brand-filled header). The legacy `onAddNew` toolbar button remains supported on existing pages, but new pages put the create action in the header — the toolbar owns data controls, not writes.
-- **Result count** — in the **canonical muted small-text style**, right-aligned, format: `{n} results` or `{n} {entity-plural}`. The shell renders it from `rowLabel` — the noun, or a function of the count for singular/plural nouns; `n` is the length of the (filtered) `rows`. Hidden while bulk selection is active (the "{n} selected" count replaces it).
+- **Result count** — `rowLabel` (the entity-plural noun, or a function of the count for singular/plural nouns) makes the shell render `{n} {entity-plural}`, `n` being the length of the (filtered) `rows`. While bulk selection is active, "{n} selected" replaces it.
 
-**Allowed variation:**
+**Allowed variation** (all in the `toolbar` slot — it holds controls that **scope** the rows, never writes):
 - **Search input** — the shared **search-input molecule**; never hand-rolled. Required when the dataset is not intrinsically small (threshold: more than ~10 rows). Omit for pages where search adds no value (e.g. a fixed list of ≤10 numbering series).
 - **Filter pill bar** — for categorical filters (e.g. status), via the shared **one-of-N segmented control** — a pill row — not a dropdown select.
 - **Binary filter switches** — for toggle-style filters (e.g. "Show archived").
-- **Async action button** — for long-running operations like Sync / Enrich. Show an inline spinner during the run. The J archetype's async-button primitive or an equivalent wrapper is recommended.
-- **Bulk actions** — when rows are selected, a bulk-action affordance (e.g. "Delete selected") appears in the toolbar. Renders only while `selectedIds.length > 0`.
+- **Bulk actions** — `bulkActions` / `onBulkDelete` are write actions on the selection: they join the page `actions` only while a visible row is selected.
 
 **Forbidden:**
 - Status filters rendered as dropdown selects (use the segmented control).
 - Hand-rolled search inputs — always compose via the shared search-input molecule.
-- Toolbars rendered outside the shell.
-- Action buttons placed anywhere other than the toolbar or the shell's `headerActions`.
+- Create or write actions in the `toolbar`.
 
 ---
 
 ## Layer 5 — Content wrapper
 
 **Required:**
-- The **settings-table shell** — the single primitive that owns this archetype's chrome. The shell provides:
-  - The **canonical card chrome** (hairline border, subtle shadow, rounded corners, clipped overflow)
-  - A toolbar slot with a bottom-border separator
+- The **settings-table shell** — the single primitive that owns this archetype's page frame. The shell provides:
+  - The page's one surface, with the toolbar band above the table
   - A body with horizontal scroll on overflow
   - Loading, empty, and error states rendered inline
   - Optional bulk-select checkbox column
   - Row-level hover highlight
 
 **Allowed variation — split-pane editing:**
-- When users edit rows in rapid succession and a dialog's open/close cycle creates friction, a two-column layout with left = table card and right = edit form card is permitted. Both cards use the same **canonical card chrome** as the settings-table shell. Document the reason inline. This is an uncommon variation; use only when the UX case is clear.
+- When users edit rows in rapid succession and a dialog's open/close cycle creates friction, a two-column layout with the table left and the edit form right is permitted. Document the reason inline. This is an uncommon variation; use only when the UX case is clear.
 
 **Forbidden:**
 - Hand-rolled card wrappers. Always use the settings-table shell (or the split-pane variation above).
@@ -182,7 +182,7 @@ The page header no longer floats above the shell as a separate page-header primi
   | **Everything else** (names, descriptions, free text) | **`align="left"`** (default). |
 
   Two engineers holding the same `columns` config derive the same alignment. It is a per-column *data* prop (it describes the value the column holds), not a choice of the shell's own appearance.
-- **Responsive column subset** — `hideBelow` on a column hides it below a breakpoint, `md` or `2xl` (table presentation only; `hideBelowMd` is the deprecated alias for `md`). **Choose by the column's role** (what the row's reader needs to pick a row at that width):
+- **Responsive column subset** — `hideBelow` on a column hides it below a breakpoint, `md` or `2xl` (table presentation only). **Choose by the column's role** (what the row's reader needs to pick a row at that width):
 
   | Column role | `hideBelow` |
   |---|---|
@@ -270,9 +270,9 @@ Mutations are out of the primitive's scope. Callbacks surface the intent; the co
 
 **Required primitive surface:**
 - `onRowEdit?: (row: Row) => void` — called when the identifier cell is clicked. Consumer opens the edit dialog.
-- `onAddNew?: () => void` — called when the "Add new" button (toolbar) or the empty-state CTA is clicked.
-- `rowActions?: SettingsRowAction<Row>[]` — optional per-row secondary actions. Each carries a label, `onSelect` callback, and optional `destructive` flag. Rendered via the shared **row-actions overflow menu**. Do not include "Edit" here.
-- Optional bulk surface: `onBulkSelectChange?(selectedIds: string[]) => void` + `bulkActions?: React.ReactNode` (rendered in the toolbar while rows are selected).
+- `onAddNew?: () => void` — called when the "Add new" page action or the empty-state CTA is clicked.
+- `rowActions?: RowAction<Row>[] | ((row: Row) => RowAction<Row>[])` — optional per-row secondary actions. Each carries a label, `onSelect` callback, and optional `destructive` flag. Rendered via the shared **row-actions overflow menu**. Do not include "Edit" here.
+- Optional bulk surface: `onBulkSelectChange?(selectedIds: string[]) => void` + `bulkActions?: React.ReactNode` (page actions while rows are selected).
 - Optional: `onBulkDelete?(rows: Row[]) => void` for convenience when bulk delete is the only bulk action.
 
 **Consumer contracts:**
@@ -327,7 +327,7 @@ The following patterns are never permitted in a settings-table page, regardless 
 4. **Deeply nested rows.** Settings tables are flat. No tree or hierarchy in the table.
 5. **Explicit "Edit" icon column.** Identifier-cell click is the only edit trigger.
 6. **Hand-rolled card wrappers.** Always use the settings-table shell.
-7. **Action buttons in a floating page header.** All write actions live in the toolbar.
+7. **Write actions in the toolbar.** Create and write actions are page `actions`; the toolbar only scopes.
 8. **Status dropdowns.** Use pill bars or toggle switches (see Layer 4 Allowed variations).
 9. **`window.confirm` for delete.** Use the confirm-dialog primitive.
 10. **Static (non-lazy) page imports.** Always lazy-import D2 pages.
@@ -341,7 +341,7 @@ When a target project applies this archetype, it wires the generic primitives to
 
 **Allowed project extensions:**
 - **Project-specific cell renderers.** Pass custom column render functions (image thumbnail, compound badge, color swatch) via the column configuration prop. The primitive renders them in the cell; it does not inspect their output.
-- **Project-specific row actions.** Extend `SettingsRowAction` with domain-specific labels (e.g. "Make default", "Archive", "Duplicate"). Any non-Edit action is valid in the per-row dropdown.
+- **Project-specific row actions.** Extend `RowAction` with domain-specific labels (e.g. "Make default", "Archive", "Duplicate"). Any non-Edit action is valid in the per-row dropdown.
 - **Edit dialog composition.** Use the J (`crud-dialog`) archetype's dialog-shell family (header/body/footer sub-primitives plus a mode hook) for the edit surface. Consumers that intentionally want a plain **overlay-surface** primitive (modal) may use it instead.
 - **Project-specific empty-state copy.** Pass `emptyMessage` prop to the settings-table shell.
 - **Server-side pagination.** The primitive accepts an optional `pagination` prop; wire it to the paginated query hook.
@@ -370,9 +370,9 @@ When a target project applies this archetype, it wires the generic primitives to
 
 - [ ] **Row click opens an edit dialog** (the D2 click contract) — **no** detail
       overlay (that's archetype A). *Wrapper tell:* a detail panel bolted on.
-- [ ] **Write actions live on the shell** — in `headerActions` (canonical, board
-      form) or, on legacy pages, the `toolbar` slot — never floating above the shell.
-- [ ] **One settings-table shell** owns the card + table + row-actions dropdown; no
+- [ ] **Create + write actions are page `actions`** (create via `onAddNew`);
+      filters and search are the `toolbar`; no second home for either.
+- [ ] **One settings-table shell** owns the page frame + table + row-actions dropdown; no
       hand-rolled card. (Split-pane table+form variant allowed only with an inline-documented reason.)
 - [ ] **[spine] S1–S6.**
 

@@ -7,7 +7,7 @@
  * Exercises:
  *   - Table render with all columns
  *   - Identifier cell (name) click → onRowEdit
- *   - "Add new" button click → onAddNew
+ *   - "Add new" button (page header `actions`, before the page's own) → onAddNew
  *   - Row action ("Duplicate")
  *   - Empty state when filter produces no rows (filter-caused empty list, no
  *     Add CTA; truly empty shows the CTA)
@@ -25,12 +25,10 @@
 
 import * as React from "react";
 import { SettingsTableShell } from "@/components/archetypes/settings-table";
-import type { SettingsColumn, SettingsRowAction } from "@/components/archetypes/settings-table";
+import type { SettingsColumn, RowAction } from "@/components/archetypes/settings-table";
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { SearchInput } from "@/components/ui/search-input";
-import { OVERLINE_CLASS } from "@/components/layout/overline";
-import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
 // Domain type
@@ -162,7 +160,7 @@ export function SettingsTableDemo() {
     setPendingDelete(null);
   }
 
-  const rowActions: SettingsRowAction<Recipe>[] = [
+  const rowActions: RowAction<Recipe>[] = [
     {
       label: "Duplicate",
       // Row-derived gate: a copy cannot be duplicated again.
@@ -203,18 +201,16 @@ export function SettingsTableDemo() {
         </div>
       )}
 
-      {/* Plex Ledger board form: the title + actions sit ON the bounded
-          surface (SurfaceHeader), one frame on a muted mat. */}
-      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+      {/* ADR-0008 page frame: the title is the page h1; Add recipe + Import
+          are header actions, search is the toolbar, the count (or
+          "{n} selected") sits in the toolbar band. */}
+      <div>
         <SettingsTableShell
-          kicker="Catalog"
           title="Recipe Collection"
-          headerActions={
-            <>
-              <Button variant="outline" size="sm">
-                Import
-              </Button>
-            </>
+          actions={
+            <Button variant="outline" size="sm">
+              Import
+            </Button>
           }
           rows={filtered}
           columns={COLUMNS}
@@ -254,12 +250,7 @@ export function SettingsTableDemo() {
             props: { onAddNew: handleAddNew, addNewLabel: "Add recipe", emptyMessage: "No recipes yet." },
           },
         ].map(({ label, props }) => (
-          <div key={label}>
-            <p className={cn(OVERLINE_CLASS, "mb-2")}>
-              {label}
-            </p>
-            <SettingsTableShell rows={[]} columns={COLUMNS} getRowId={(r) => r.id} {...props} />
-          </div>
+          <SettingsTableShell key={label} title={label} rows={[]} columns={COLUMNS} getRowId={(r) => r.id} {...props} />
         ))}
       </div>
 
