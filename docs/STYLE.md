@@ -208,24 +208,7 @@ nested inside another raised surface carries **neither border nor fill**
 (title bars, toolbar bands, hairline dividers) stay. Shadow (`shadow-sm`) is
 reserved for overlays: modals and popovers.
 
-**Header fill (the 2-token house contract).** A framed surface's header bar
-(`DetailOverviewShell`'s Mode B header, `ReportShell`, `CalendarShell`, the
-`ListWithDetailShell` drawer) renders one of three ways via `--header-fill`,
-set once per project on `<AppShell headerFill="…">` (a `HeaderFillContext`,
-default **`solid`**) and read by every framed shell so they never diverge:
-
-- **`solid`** (default) — the bar is filled with the brand accent (`--primary`),
-  white title/kicker, **inverted** action buttons (outline → transparent/white
-  border; primary → white fill + accent text). Semantic status `<Badge>`s are
-  **not** inverted — they stay semantic.
-- **`tint`** — a soft muted fill (`bg-muted`), normal dark text.
-- **`white`** — plain white, hairline border only.
-
-The two tokens are **`--primary`** (the brand accent, each app's override; the
-donor default is a deep blue) and **`--header-fill`** (per-project, default
-solid). Everything else — header-on-surface, one frame on the canvas, mono
-figures, semantic pills — composes from those. A single shell may override with
-a `headerFill` prop. See `src/components/layout/headerFill.ts`.
+**One page frame.** A page is its `PageHeader` title over one untitled raised surface — `PageFrame`, owned there; where every control goes is its slot table (ADR-0008, `docs/PLACEMENT.md`). There is no on-surface page title and no header fill: the display-step `h1` is the page's one focal point (ADR-0007 §2).
 
 ## Component inventory (`src/components/ui/`)
 
@@ -266,9 +249,9 @@ Archetypes are optional — projects that don't want the page-shape vocabulary c
 | `AppShell`    | Top-level composition — mounts `TooltipProvider`, `SidebarProvider`, and the toast viewport (`<Sonner>`). Slots: `sidebar`, `header`, `children`. |
 | `AppSidebar`  | Brand + collapsible nav groups + footer. Takes `navItems`/`groups` + a `renderLink` prop so it stays router-agnostic. Persists collapsed groups to `localStorage` — pass `collapseStorageKey={null}` to run them uncontrolled (`defaultOpen`) instead, which is what an app whose shell sits in its root layout wants. `collapsible="icon"` + `rail` opt into the `ui/sidebar` icon rail; every nav row carries the primitive's `tooltip`, which is its only readable name once collapsed. An `aboveNav` slot sits between the header and the nav for a project's own workspace/tenant/asset switcher — `footer` would pin it to the bottom of the rail instead. |
 | `AppHeader`   | Title + center slot (search) + right slot (actions, user menu). Sidebar trigger on mobile. |
-| `PageHeader`  | Canonical **page** title block (distinct from the app `AppHeader`): title + optional subtitle / icon / actions / back-link. The single source of page-title typography — `text-display-title font-semibold tracking-tight` (the display step, ADR-0007 §2). The archetype headers (`FormPageHeader`, `SettingsPageHeader`, `DetailOverviewHeader`) are thin wrappers that narrow its prop surface to their contract. Router-agnostic via `renderBackLink`. A `badges` slot renders read-only status `<Badge>`s inline next to the title (the detail-overview "one home for status"). |
+| `PageHeader`  | Canonical **page** title block (distinct from the app `AppHeader`): title + optional subtitle / icon / actions / back-link. The single source of page-title typography — `text-display-title font-semibold tracking-tight` (the display step, ADR-0007 §2). Pages get it through `PageFrame` (the shells), never beside a shell. Router-agnostic via `renderBackLink`. A `badges` slot renders read-only status `<Badge>`s inline next to the title (the detail-overview "one home for status"). |
 | `NestedPageHeading` | Canonical **nested page** title — the middle rung of the heading ladder, between `PageHeader` (the `<h1>` page title) and `SectionHeading` (the overline sub-section label). Renders an `<h2>` at a single fixed scale (`text-base font-medium leading-tight tracking-tight`) with **no size/weight/variant prop** — the type scale is fixed in the component, per the appearance-locality rule (ADR 0004). Use when a parent route layout owns the `<h1>` (a tabbed sub-route like `/:resource/[id]/:section`) and the page below it still needs a title of its own (e.g. "Devices", "History", "Members"). Prop shape matches the `PageHeader` family — `title` + optional `subtitle` / `badges` / `actions` — so the three ladder rungs read as one family. |
-| `SurfaceHeader` / `SurfaceHeaderSlot` | Canonical **header on the surface** — the kicker + title (+ optional `subtitle` / `icon`) bar rendered *inside* a framed shell's one bounded card, with a right-aligned `actions` cluster. Every framed archetype shell (report, calendar, wizard, feed, settings-page, the list drawer) mounts this, so the fleet shares one header treatment, driven by `--header-fill` (see "Header fill" above). (detail-overview composes `NestedPageHeading` directly in its Mode B header instead — a different role: a nested *page* title, not a surface kicker.) Distinct from `PageHeader`, which is the *classic* unbounded title block sitting above a page. `subtitle` is compact metadata at `text-xs` (matching `PageHeader`), auto-dimmed on a solid fill; use it rather than falling back to the classic header just to get a secondary line. |
+| `PageFrame` | The **one page frame** (ADR-0008): `PageHeader` + one untitled `SurfaceFrame` whose first band holds `toolbar` / `count` / `viewOptions`. Every page archetype shell renders through it; nested inside another `PageFrame` it titles itself with `NestedPageHeading` and joins the parent surface. |
 | `SectionHeading` | Canonical **section** title — the "ledger" overline `<h2>` (`text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground`, i.e. `OVERLINE_CLASS`) + optional description / actions. The single source of sub-section title typography. Usually consumed via `SectionCard` (below); use it directly only for a bare heading with no bounding card. |
 | `SectionCard` | Canonical **titled bounded section** — a card with an optional ruled `SectionHeading` title bar (+ description / actions slot) and a flush-or-padded body, graded by `tone`. The single source of the "heading bound to its content as one block" shape. Composed by `DetailSection` (detail-overview), grouped-list groups, and form-page field groups. A section heading should never float as plain text above a detached card — wrap the block in `SectionCard`. `chrome={false}` renders it chromeless (title bar + padding, no border/shadow) for embedding inside an already-bounded surface (e.g. the detail-overview shell's rail). |
 | `StatTileRow` / `StatTile` | Canonical **KPI / aggregate strip** — one bounded surface with hairline-divided cells (`StatTile`: overline label + `text-display-stat font-mono tabular-nums` value + an optional context line — a comparison, period, or delta, ADR-0007 §6). Shared across archetypes: detail-overview's `stats` slot and the analytics-dashboard KPI row. (Re-exported from `@/components/archetypes/detail-overview` for back-compat.) |
@@ -454,17 +437,12 @@ consolidation pass, after an audit found each hand-rolled in 3–4 places):
 One **deliberate** non-molecule (don't force it onto the owners above): the
 matrix-grid pivot `<table>` (sticky columns + group spans — not a record list). Its
 inline-cell control is no longer a carve-out — that's now the `CellSelect` molecule
-(`ui/cell-input`), the shared owner of any editable control sitting flush in a cell. Standalone page toolbars (grouped-list,
-feed) are a bare `flex gap-3` row; toolbars *inside* a bounded surface (list,
-settings, kanban, matrix) are rendered by the `<SurfaceFrame>` `toolbar` slot as
-the ruled `border-b px-4 py-3` band — same gap, different chrome by context.
-The band's chrome is owned by the frame; a shell never spells the band itself.
+(`ui/cell-input`), the shared owner of any editable control sitting flush in a cell. The toolbar band is `PageFrame`'s; a shell never spells it.
 
 This is the same discipline as the page frame (one inset owner) and headings (one
 `PageHeader`): consistency by construction. The bounded surface has one owner
 too — `<SurfaceFrame>` (`layout/SurfaceFrame`): the flat `rounded-lg bg-surface-raised`
-frame (House style B — no shadow, no border) every framed archetype shell mounts. Shells
-compose it with the on-surface header + an optional `toolbar` slot; the four
+frame (House style B — no shadow, no border) `PageFrame` mounts for every page; the four
 independent spellings the copy used to allow (`shadow-sm` in one shell,
 `overflow-x-auto` in another) are its named modes, not separate frames. A reviewer's test in the gallery: two
 tables, two fields, or two of any molecule above, in *different* archetypes must be
