@@ -2,7 +2,6 @@
 // Contract: node_modules/design-baseline/docs/archetypes/tabbed-settings.md
 import { SettingsPageShell } from "design-baseline/archetypes/tabbed-settings";
 import { StateView } from "@/components/ui/state-view";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type __Name__Settings = { id: string };
 
@@ -19,22 +18,21 @@ function use__Name__Settings(): {
 export function __Name__Page() {
   const { settings, isLoading, error, refetch } = use__Name__Settings();
 
+  const general =
+    isLoading ? (
+      <StateView variant="loading" />
+    ) : error != null ? (
+      <StateView variant="error" error={error} onRetry={refetch} />
+    ) : settings == null ? (
+      <StateView variant="empty" message="No __Name__ settings yet" />
+    ) : (
+      <>{/* TODO: settings form for this tab */}</>
+    );
+
   return (
-    <SettingsPageShell title="__Name__">
-      {isLoading ? (
-        <StateView variant="loading" />
-      ) : error != null ? (
-        <StateView variant="error" error={error} onRetry={refetch} />
-      ) : settings == null ? (
-        <StateView variant="empty" message="No __Name__ settings yet" />
-      ) : (
-        <Tabs defaultValue="general">
-          <TabsList>
-            <TabsTrigger value="general">General</TabsTrigger>
-          </TabsList>
-          <TabsContent value="general">{/* TODO: settings form for this tab */}</TabsContent>
-        </Tabs>
-      )}
-    </SettingsPageShell>
+    <SettingsPageShell
+      title="__Name__"
+      tabs={[{ value: "general", label: "General", content: general }]}
+    />
   );
 }
