@@ -2,7 +2,7 @@
 key: Cal
 slug: calendar
 kind: page
-version: 1.2
+version: 2.0
 status: locked
 ---
 
@@ -24,7 +24,7 @@ Use this archetype when:
 - Days are the fixed primary axis (always seven across for a week; the consumer
   supplies the columns), and events stack inside each day.
 - The user navigates the period (previous / next / today) and creates events
-  from a single primary action in the header.
+  from a single primary action.
 
 If the page is a single-axis list of records, use archetype A
 (list-with-detail). If it is a fixed rows × columns intersection grid with
@@ -64,39 +64,30 @@ densifies.
 
 **Forbidden:**
 - Outer padding classes that double-inset inside the app layout.
-- A second **card surface** wrapping the **calendar shell** — the shell **is**
-  the one card boundary (nested chrome).
+- A second **card surface** wrapping the **calendar shell**, or cards inside
+  it — the page has one raised surface.
 
 ---
 
-## Layer 3 — Header bar
-
-The calendar's header is **integral to the shell's card**, not a detached
-floating page header. It carries both the period identity and the period
-controls in one ruled band.
+## Layer 3 — Header, toolbar, actions
 
 **Required (via the calendar shell):**
-- **Title** — always present, in the project's **canonical page-title type
-  style**. Names the visible period (e.g. "June 2026 · Week 26"). Any numeric
-  run in the title (week number, date span) renders in the **canonical
-  monospace identifier style**.
-- **Kicker** — the overline above the title, in the **canonical
-  overline/kicker style**.
-- **Header fill** — the bar renders per the **header-fill contract**: `solid`
-  (accent-filled, default) / `tint` (muted tint) / `white` (hairline only).
-  Set once per project on the app shell, overridable per page via the
-  calendar shell's `headerFill` prop.
-
-**Allowed variation:**
-- **Nav / create cluster** (`actions` slot) — right-aligned small **buttons**:
-  a `‹` previous, a "Today", a `›` next (icon-only buttons use `aria-label`),
-  and a single primary `+ Event` create action (primary/default style). At
-  most one primary creation action.
+- **`title`** — always present, passed once; it is the page title (e.g. "Room
+  schedule"). `subtitle` and `badges` are optional page metadata.
+- **`toolbar`** — the period / view navigation, which re-scopes the grid: a
+  `‹` previous, a "Today", a `›` next (icon-only buttons carry an accessible
+  label), the visible period's label (e.g. "June 2026 · Week 26", numeric runs
+  in the **canonical monospace identifier style**), and a week/month view
+  switch when the project offers one.
+- **`actions`** — page verbs: the single primary create action (`+ Event`),
+  plus export / print if offered.
 
 **Forbidden:**
-- A separate floating page header above the card — the period title lives in
-  the shell's header bar (one home for the period identity).
-- More than one primary button in the cluster.
+- A second title (on the surface, or the period label promoted to a heading)
+  — the page title exists once.
+- The create action anywhere but `actions`; period navigation anywhere but
+  `toolbar`.
+- More than one primary action.
 - A baked brand accent on the primary — it stays the donor-neutral default; a
   consuming app re-skins it via its **brand/primary color** token.
 
@@ -109,11 +100,10 @@ controls in one ruled band.
   passes seven `CalendarDay` columns in display order; the shell never
   computes the period.
 - **Day header cell** — centred: a dow overline in the **canonical
-  overline/kicker style** over a day-number in the **canonical monospace
+  overline style** over a day-number in the **canonical monospace
   identifier style**. The day flagged `today` tints its header cell (a muted
   tint) and brightens its number to the foreground.
-- **Hairlines** — grid lines render as a faint hairline; the header bar
-  carries a hairline bottom border.
+- **Hairlines** — grid lines render as a faint hairline.
 - **Day column** — tall enough to hold a few stacked event chips, stacking
   them top-down with tight gap.
 
@@ -207,13 +197,13 @@ type CalendarDay = {
 
 ## Forbidden patterns
 
-1. **A detached page header above the card.** The period title lives in the
-   shell's header bar.
-2. **Nested card chrome.** The calendar shell is the one card boundary.
+1. **Two titles.** The page title is passed once; the period label is toolbar
+   content, not a heading.
+2. **Nested card chrome.** The page has one raised surface.
 3. **Literal-hex tone maps.** Tones resolve to tokens.
 4. **Reflowing the 7 columns on mobile.** Scroll-x; keep the period shape.
 5. **Formatting inside the primitive.** Consumers pre-format times and dates.
-6. **More than one primary create action** in the header cluster.
+6. **More than one primary create action**, or one outside `actions`.
 
 ---
 
@@ -231,11 +221,11 @@ type CalendarDay = {
 
 **REQUIRED**
 
-- [ ] **One calendar shell** owns the header bar + the seven-column grid —
-      **no** hand-rolled grid, no second card wrapping it. *Wrapper tell:* a
-      floating page header bolted above a bare grid.
-- [ ] **Period title + nav/create live in the shell header bar**, not a
-      detached page header. At most one primary create action.
+- [ ] **One calendar shell** owns the page — title, period toolbar and the
+      seven-column grid — **no** hand-rolled grid, no second card wrapping it.
+      *Wrapper tell:* a hand-built page header bolted above a bare grid.
+- [ ] **Period navigation is `toolbar`, the create action is `actions`**; the
+      title exists once. At most one primary create action.
 - [ ] **Tones are token-backed** (the calendar tone tokens) — no literal-hex
       chip colour maps.
 - [ ] **Day-numbers + event times render in the canonical monospace
@@ -250,3 +240,11 @@ type CalendarDay = {
 - [ ] Grid scrolls horizontally on narrow viewports rather than reflowing the
       seven columns.
 - [ ] Empty days carry a faint `emptyDayLabel` rather than a bare column.
+
+---
+
+## Version log
+- **2.0** (ADR-0008) — one page frame: `title` is the page title, rendered once;
+  `kicker`, `headerActions` and the per-shell header-fill override removed;
+  period navigation moved to `toolbar`, the create action to `actions`;
+  `subtitle` / `badges` added.

@@ -7,12 +7,13 @@
  * repair café, council meetings.
  *
  * Exercises the full vocabulary mirroring the calendar reference mockup:
- *   - CalendarShell with a `kicker` + `title` header bar over the 7-col grid,
- *     and a nav/create `headerActions` cluster (‹ · Today · › · + Event).
+ *   - CalendarShell: the page title above the frame, the period navigation
+ *     (‹ · Today · › · period label) in the `toolbar` band, the one primary
+ *     `+ Event` in `actions`, over the 7-col grid.
  *   - Seven `CalendarDay` columns; one marked `today` (header tints, number
  *     brightens); a handful of `CalendarEvent` chips across all four tones.
  *   - House style B: every time/day-number mono + tabular; titles + button
- *     labels stay sans; flat carded surface, no shadow.
+ *     labels stay sans; one raised surface, full-bleed.
  *
  * Types are LOCAL with zero reference to any source project's domain.
  */
@@ -130,22 +131,18 @@ export function CalendarDemo(): React.ReactElement {
   return (
     <div className="space-y-5">
       <p className="max-w-prose text-sm text-muted-foreground">
-        A week scheduling grid in one bounded card. The header bar pins the
-        period title beside a nav/create cluster; the 7-column grid heads each
-        day with a mono day-number (today's cell tinted) over a column of event
-        chips. Tones (<strong>default · success · info · warning</strong>) carry
-        a little colour variety, all token-backed.
+        A week scheduling grid in the page&apos;s one surface. The toolbar band
+        carries the period navigation and label; the one primary create action
+        sits in the page header. The 7-column grid heads each day with a mono
+        day-number (today&apos;s cell tinted) over a column of event chips.
+        Tones (<strong>default · success · info · warning</strong>) carry a
+        little colour variety, all token-backed.
       </p>
 
       <CalendarShell
-        kicker="Schedule"
-        title={
-          <>
-            June 2026 <span className="mx-1.5 text-border">·</span>
-            <span className="font-mono tabular-nums">Week 26</span>
-          </>
-        }
-        headerActions={
+        title="Room schedule"
+        subtitle="Community centre · all rooms"
+        toolbar={
           <>
             <Button variant="outline" size="sm" className="px-2" aria-label="Previous week">
               <ChevronLeft className="h-4 w-4" />
@@ -156,11 +153,17 @@ export function CalendarDemo(): React.ReactElement {
             <Button variant="outline" size="sm" className="px-2" aria-label="Next week">
               <ChevronRight className="h-4 w-4" />
             </Button>
-            <Button size="sm">
-              <Plus className="mr-1 h-4 w-4" />
-              Event
-            </Button>
+            <span className="ml-2 text-sm font-medium">
+              June 2026 <span className="mx-1.5 text-border">·</span>
+              <span className="font-mono tabular-nums">Week 26</span>
+            </span>
           </>
+        }
+        actions={
+          <Button size="sm">
+            <Plus className="mr-1 h-4 w-4" />
+            Event
+          </Button>
         }
         days={days}
         emptyDayLabel="—"

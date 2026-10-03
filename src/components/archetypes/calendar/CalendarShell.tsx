@@ -1,8 +1,7 @@
 "use client";
 import * as React from "react";
-import { SurfaceFrame } from "../../layout/SurfaceFrame";
+import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
-import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
 import { COL_HEADER_CLASS } from "../../layout/overline";
 import { cn } from "../../../lib/utils";
 
@@ -55,10 +54,10 @@ export type CalendarDay = {
   events: CalendarEvent[];
 };
 
-export type CalendarShellProps = Omit<SurfaceHeaderSlotProps, "title"> & {
-  /** The period title (e.g. "June 2026 · Week 26"). Unlike the other framed
-   *  shells, a calendar's header is never optional. */
-  title: React.ReactNode;
+export type CalendarShellProps = Pick<
+  PageFrameProps,
+  "title" | "subtitle" | "badges" | "actions" | "toolbar"
+> & {
   /** The seven day columns in display order. */
   days: CalendarDay[];
   /** Empty-column copy, centred faintly when a day has no events. Default: none. */
@@ -99,38 +98,42 @@ const TONE_CLASS: Record<CalendarEventTone, ToneClasses> = {
 // ---------------------------------------------------------------------------
 
 /**
- * The calendar archetype's reference primitive — a single bounded card holding
- * a ruled header bar (kicker + title left, nav/create cluster right) over a
- * 7-column scheduling grid. Row 1 is the day headers (dow overline + mono day
- * number, today's cell tinted); row 2 is the day columns, each stacking event
- * chips (left accent bar + faint tint, mono time + semibold title).
+ * The calendar archetype's reference primitive — a 7-column scheduling grid,
+ * rendered through `PageFrame` (ADR-0008): `title` is the page heading,
+ * `toolbar` holds the period/view navigation (‹ · Today · › · the period
+ * label), `actions` the one primary create action. Row 1 is the day headers
+ * (dow overline + mono day number, today's cell tinted); row 2 is the day
+ * columns, each stacking event chips (left accent bar + faint tint, mono time +
+ * semibold title).
  *
- * House style B: flat carded surface (no shadow), faint hairlines, every figure
- * mono/tabular, token-pure tones. The grid scrolls horizontally on narrow
- * viewports rather than reflowing — a week stays a week.
+ * Every figure mono/tabular, token-pure tones. Full-bleed. The grid scrolls
+ * horizontally on narrow viewports rather than reflowing — a week stays a week.
  *
  * Event interaction (open / create) is consumer-owned: the shell renders the
- * chips and the header actions, and the consumer wires their click handlers.
- * The shell exposes no `onClick` on day cells or event chips.
+ * chips and the slots, and the consumer wires their click handlers. The shell
+ * exposes no `onClick` on day cells or event chips.
  */
 export function CalendarShell({
-  kicker,
   title,
-  headerActions,
+  subtitle,
+  badges,
+  actions,
+  toolbar,
   days,
   emptyDayLabel,
 }: CalendarShellProps): React.ReactElement {
   const fullBleed = useFullBleedClass();
   return (
-    <SurfaceFrame
-      kicker={kicker}
+    <PageFrame
       title={title}
-      headerActions={headerActions}
+      subtitle={subtitle}
+      badges={badges}
+      actions={actions}
+      toolbar={toolbar}
       // Full-bleed archetype (ADR-0007 §1): the marker lifts AppShell's column
       // (page root only; nested in a surface it leaves the column alone).
       className={fullBleed}
     >
-
       {/* Grid — scrolls horizontally on narrow viewports. */}
       <div className="relative overflow-x-auto">
         <div className="grid min-w-[640px] grid-cols-7">
@@ -198,7 +201,7 @@ export function CalendarShell({
           ))}
         </div>
       </div>
-    </SurfaceFrame>
+    </PageFrame>
   );
 }
 
