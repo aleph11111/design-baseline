@@ -12,3 +12,4 @@ Architecture Decision Records for design-baseline. One file per decision:
 | [0005](0005-adoption-quality-scan-zero-dep-donor-script.md) | The adoptionQuality (Axis-C) scan ships as a zero-dep donor script, not a consumer-local scanner | Accepted |
 | [0006](0006-consumer-measured-use-client-leaves.md) | "use client" is consumer-measured per leaf, not barrel-only — with `verify-exports` invariant 7 | Accepted |
 | [0007](0007-fleet-house-look-fixed-vs-brand-roles.md) | The fleet house look: donor-fixed roles vs brand-overridable roles | Accepted |
+| [0008](0008-one-page-frame-slot-owned-placement.md) | One page frame, slot-owned placement — one title, one untitled frame, fixed slots | Accepted |
