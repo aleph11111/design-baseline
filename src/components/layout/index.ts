@@ -3,6 +3,7 @@ export { AppShell, type AppShellProps } from "./AppShell";
 export { AppSidebar, type NavItem, type NavGroup, type AppSidebarProps } from "./Sidebar";
 export { AppHeader, type AppHeaderProps } from "./Header";
 export { PageHeader, type PageHeaderProps } from "./PageHeader";
+export { PageFrame, type PageFrameProps } from "./PageFrame";
 export {
   NestedPageHeading,
   NESTED_HEADING_CLASS,
