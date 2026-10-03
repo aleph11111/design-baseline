@@ -17,7 +17,6 @@
     "src/components/archetypes/crud-dialog/CrudDialogHeader.tsx",
     "src/components/archetypes/crud-dialog/CrudDialogSheet.tsx",
     "src/components/archetypes/crud-dialog/useCrudDialogMode.ts",
-    "src/components/archetypes/detail-overview/DetailOverviewHeader.tsx",
     "src/components/archetypes/detail-overview/DetailOverviewShell.tsx",
     "src/components/archetypes/detail-overview/DetailSection.tsx",
     "src/components/archetypes/detail-overview/KeyValueList.tsx",

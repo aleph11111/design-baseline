@@ -1,9 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn } from "../../../lib/utils";
-import { SurfaceFrame } from "../../layout/SurfaceFrame";
-import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
-import { NestedPageHeading } from "../../layout/NestedPageHeading";
+import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 import { StatTile } from "../../layout/StatTile";
 import { StatTileRow } from "../../layout/StatTileRow";
 
@@ -36,36 +34,25 @@ export type StatItem = {
 };
 
 /**
- * Mode B header props. `subtitle`/`badges`/`actions` hang off the nested title,
- * so they are only accepted together with a `title` — passing them alone would
- * render no header and silently drop the entity's status and actions.
+ * The page header — passed once, rendered by `PageFrame` (ADR-0008). `badges`
+ * is the page's one home for status; `actions` holds the whole-record verbs
+ * (≤ 1 primary + 2 secondary, the rest in a `⋯` menu). Nested under a parent
+ * `PageFrame` (an entity tab under a layout that owns the page) the frame
+ * derives the nested heading itself — there is no mode prop.
  */
-type DetailOverviewShellHeaderProps =
-  | {
-      /**
-       * Mode B — nested page title. When set, the shell renders its on-surface
-       * header as the canonical nested page heading (an `<h2>` at a single fixed
-       * scale) instead of the page's own top-level page title (Mode A — use the
-       * standalone detail-overview header above the shell). The scale/weight are
-       * fixed in that primitive; no prop re-picks them.
-       */
-      title: Exclude<React.ReactNode, undefined>;
-      /** Secondary line under the nested title (e.g. a parent-entity link). */
-      subtitle?: React.ReactNode;
-      /** Read-only status badges, inline next to the nested title — the page's
-       *  one home for status. */
-      badges?: React.ReactNode;
-      /** Right-aligned actions row (link/buttons). Never mixed into the title. */
-      actions?: React.ReactNode;
-    }
-  | {
-      title?: undefined;
-      subtitle?: never;
-      badges?: never;
-      actions?: never;
-    };
+type DetailOverviewHeaderProps = Pick<
+  PageFrameProps,
+  | "title"
+  | "subtitle"
+  | "badges"
+  | "actions"
+  | "icon"
+  | "backHref"
+  | "backLabel"
+  | "renderBackLink"
+>;
 
-export type DetailOverviewShellProps = DetailOverviewShellHeaderProps & {
+export type DetailOverviewShellProps = DetailOverviewHeaderProps & {
   /**
    * Structure, keyed to the entity by the contract (Amendment v2.1).
    * - "vertical" (default): the canonical single column.
@@ -99,34 +86,23 @@ export type DetailOverviewShellProps = DetailOverviewShellHeaderProps & {
 /**
  * DetailOverviewShell — the C (detail-overview) archetype container.
  *
- * ONE bounded outer frame holds header + (rail layout) a chromeless,
- * hairline-divided, tinted identity rail beside a main column of carded
- * sections flattened to sit as fitted panels in the frame. Cohesion comes from
- * the frame; there is no separate container model and no per-call-site axis
- * that picks one over the other. Appearance is either global (the page's
- * header-fill context, set once at `<AppShell>`) or fixed in the primitives —
- * the shell exposes `layout` (keyed to entity density) and `width` (keyed to
- * wide tables) as the only structure/data props, plus typed header + stats
- * data (`title`/`subtitle`/`badges`/`actions`, `stats: StatItem[]`) and
- * ReactNode slots for the composed master-data / transactional / reference
- * sections (composing documented section primitives is structure, not
- * appearance).
- *
- * Notes: the unified frame relies on the page behind the frame being a muted
- * surface (AppShell's `<main>` on the canvas surface) — a raised frame on a raised
- * page has no contrast and the effect collapses.
+ * Renders through `PageFrame` (ADR-0008): the record's header on the canvas,
+ * then the page's one raised surface holding (rail layout) a chromeless,
+ * hairline-divided, tinted identity rail beside the main column, or (vertical)
+ * the summary band above it. Sections inside the frame flatten automatically
+ * (no card-in-card). The shell exposes `layout` (keyed to entity density) and
+ * `width` (keyed to wide tables) as its only structure props, plus the header
+ * data, typed `stats`, and ReactNode slots for the composed master-data /
+ * transactional / reference sections.
  */
 export function DetailOverviewShell({
-  title,
-  subtitle,
-  badges,
-  actions,
   layout = "vertical",
   width = "md",
   summary,
   stats,
   content,
   references,
+  ...header
 }: DetailOverviewShellProps): React.ReactElement {
   // The aggregate strip is rendered from typed data; the strip derives its own
   // cell count from the tiles it is handed, so no call site passes one.
@@ -139,23 +115,6 @@ export function DetailOverviewShell({
       </StatTileRow>
     ) : null;
 
-  // Mode B: the shared bar chrome (padding + header-fill) with the fixed-scale
-  // <NestedPageHeading> as its title block — the shell never reads the
-  // header-fill class table itself.
-  const header =
-    title !== undefined ? (
-      <SurfaceHeaderBar>
-        <NestedPageHeading
-          title={title}
-          subtitle={subtitle}
-          badges={badges}
-          actions={actions}
-        />
-      </SurfaceHeaderBar>
-    ) : null;
-
-  // flatten the carded children in the main column so they sit as panels, not floaters
-  const mainFlatten = "[&_section]:shadow-none [&_section]:border-border/70";
   // Rail section dividers: an INSET hairline between sibling sections (a faint
   // pseudo-element aligned to the 20px content gutter), NOT a full-bleed
   // `divide-y` rule striking edge-to-edge across the rail. `*+*` targets every
@@ -203,7 +162,6 @@ export function DetailOverviewShell({
     <div
       className={cn(
         "border-t border-border/60 p-5 lg:border-t-0 space-y-4",
-        mainFlatten,
       )}
     >
       {statStrip && <div>{statStrip}</div>}
@@ -225,10 +183,7 @@ export function DetailOverviewShell({
           <div className={cn("bg-muted/20", railDividers)}>{summary}</div>
         </UnifiedSurfaceContext.Provider>
         <div
-          className={cn(
-            "border-t border-border/60 p-5 space-y-4",
-            mainFlatten,
-          )}
+          className="border-t border-border/60 p-5 space-y-4"
         >
           {statStrip && <div>{statStrip}</div>}
           {content}
@@ -237,19 +192,10 @@ export function DetailOverviewShell({
       </div>
     );
 
-  // One bounded frame (the canonical `<SurfaceFrame>` chrome — flat, no shadow:
-  // the lone `shadow-sm` here was copy drift, not a documented mode). Mode B's
-  // nested page heading replaces the frame's on-surface header slot (the slot
-  // renders nothing when the shell carries no `title`).
   return (
-    <SurfaceFrame
-      className={cn(
-        layout !== "rail" && WIDTH_MAP[width],
-      )}
-    >
-      {header}
+    <PageFrame {...header} className={layout !== "rail" && WIDTH_MAP[width]}>
       {body}
-    </SurfaceFrame>
+    </PageFrame>
   );
 }
 

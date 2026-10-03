@@ -1,8 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { DetailOverviewHeader } from "./DetailOverviewHeader";
 import { DetailSection } from "./DetailSection";
-import { UnifiedSurfaceContext } from "./DetailOverviewShell";
+import { DetailOverviewShell, UnifiedSurfaceContext } from "./DetailOverviewShell";
 
 afterEach(() => {
   cleanup();
@@ -75,10 +74,10 @@ describe("DetailSection — collapsible", () => {
   });
 });
 
-describe("DetailOverviewHeader — back link", () => {
+describe("DetailOverviewShell — back link", () => {
   it("renders PageHeader's back link when backHref is passed", () => {
     render(
-      <DetailOverviewHeader title="Acme" backHref="/companies" backLabel="Companies" />,
+      <DetailOverviewShell title="Acme" backHref="/companies" backLabel="Companies" />,
     );
     expect(
       screen.getByRole("link", { name: "Companies" }).getAttribute("href"),
@@ -87,7 +86,7 @@ describe("DetailOverviewHeader — back link", () => {
 
   it("routes the back link through renderBackLink", () => {
     render(
-      <DetailOverviewHeader
+      <DetailOverviewShell
         title="Acme"
         backHref="/companies"
         renderBackLink={(href, label) => <a data-router href={href}>{label}</a>}
@@ -97,7 +96,7 @@ describe("DetailOverviewHeader — back link", () => {
   });
 
   it("renders no back link without backHref", () => {
-    render(<DetailOverviewHeader title="Acme" />);
+    render(<DetailOverviewShell title="Acme" />);
     expect(screen.queryByRole("link")).toBeNull();
   });
 });

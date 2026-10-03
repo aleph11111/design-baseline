@@ -1,7 +1,7 @@
 import * as React from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
-import { HeaderFillContext } from "../../layout/headerFill";
+import { PageFrame } from "../../layout/PageFrame";
 import {
   DetailOverviewShell,
   UnifiedSurfaceContext,
@@ -20,6 +20,7 @@ function SurfaceProbe({ label }: { label: string }): React.ReactElement {
 }
 
 const slots = {
+  title: "Order #1042",
   summary: <div>summary-slot</div>,
   content: <div>content-slot</div>,
   references: <div>references-slot</div>,
@@ -29,10 +30,11 @@ describe("DetailOverviewShell — container model is single (unified)", () => {
   it("always renders one bounded outer frame", () => {
     const { container } = render(<DetailOverviewShell {...slots} />);
 
-    // the single container model: a bounded card holds everything
-    const frame = container.firstElementChild as HTMLElement;
+    // the single container model: one raised surface holds everything
+    const frames = container.querySelectorAll(".bg-surface-raised");
+    expect(frames).toHaveLength(1);
+    const frame = frames[0] as HTMLElement;
     expect(frame.className).toContain("rounded-lg");
-    expect(frame.className).toContain("bg-surface-raised");
     // every slot still renders inside that single frame
     expect(frame.textContent).toContain("summary-slot");
     expect(frame.textContent).toContain("content-slot");
@@ -111,84 +113,42 @@ describe("DetailOverviewShell — container model is single (unified)", () => {
   });
 });
 
-describe("DetailOverviewShell — Mode B nested heading (data props)", () => {
-  it("renders the nested title as a nested-page heading (h2), not an h1", () => {
-    const { container, getByRole } = render(
+describe("DetailOverviewShell — one header path (PageFrame, ADR-0008)", () => {
+  it("renders the title once, as the page h1, with no on-surface title", () => {
+    const { container, getByRole, getAllByText } = render(
       <DetailOverviewShell
-        title="Devices"
+        title="Order #1042"
         subtitle="Parent entity"
         badges={<span>badge</span>}
         actions={<span>action</span>}
+        backHref="/orders"
+        backLabel="Orders"
         content={<div>content-slot</div>}
       />,
     );
 
-    // Mode B: the shell's on-surface header is a nested page title (h2),
-    // and the shell itself never emits a standalone page title element.
-    const heading = getByRole("heading", { level: 2, name: "Devices" });
-    expect(heading).toBeTruthy();
-    expect(container.querySelector("h1")).toBeNull();
-    // The full Mode B bar is the shared surface bar (`data-slot=surface-header`,
-    // the marker every framed shell mounts) and carries all four data props:
-    // title + subtitle + badges + actions.
-    const bar = heading.closest('[data-slot="surface-header"]') as HTMLElement;
-    expect(bar).not.toBeNull();
-    expect(bar.textContent).toContain("Parent entity");
-    expect(bar.textContent).toContain("badge");
-    expect(bar.textContent).toContain("action");
-  });
-
-  it("fills the shared bar from the project headerFill context (no override prop)", () => {
-    const { container } = render(
-      <HeaderFillContext.Provider value="tint">
-        <DetailOverviewShell title="Devices" content={<div>body</div>} />
-      </HeaderFillContext.Provider>,
-    );
-
-    const h2 = container.querySelector("h2") as HTMLElement;
-    const bar = h2.closest('[data-slot="surface-header"]') as HTMLElement;
-    expect(bar).not.toBeNull();
-    expect(bar.className).toContain("bg-muted");
-    expect(bar.textContent).toContain("Devices");
-  });
-
-  it("inverts the nested title on a solid header via the bar's fill", () => {
-    const { getByRole } = render(
-      <HeaderFillContext.Provider value="solid">
-        <DetailOverviewShell title="Devices" content={<div>body</div>} />
-      </HeaderFillContext.Provider>,
-    );
-
-    const heading = getByRole("heading", { level: 2, name: "Devices" });
-    const bar = heading.closest('[data-slot="surface-header"]') as HTMLElement;
-    expect(bar.className).toContain("bg-primary");
-    // the solid bar's h2 inversion reaches the fixed-scale nested heading
-    expect(bar.className).toContain("[&_h1,h2]:text-primary-foreground");
-    expect(heading.className).toContain("text-foreground");
-  });
-
-  it("omits the framed header when no title is given", () => {
-    const { container } = render(
-      <DetailOverviewShell content={<div>body</div>} />,
-    );
-
+    expect(container.querySelectorAll("h1")).toHaveLength(1);
+    expect(getByRole("heading", { level: 1 }).textContent).toBe("Order #1042");
+    expect(getAllByText("Order #1042")).toHaveLength(1);
     expect(container.querySelector('[data-slot="surface-header"]')).toBeNull();
-    expect(container.querySelector("h2")).toBeNull();
+    // header data renders above the surface, not on it
+    const frame = container.querySelector(".bg-surface-raised") as HTMLElement;
+    for (const text of ["Parent entity", "badge", "action", "Orders"]) {
+      expect(container.textContent).toContain(text);
+      expect(frame.textContent).not.toContain(text);
+    }
   });
 
-  it("rejects header data without a title at the type level", () => {
-    // `actions`/`badges`/`subtitle` hang off the title; without one they would
-    // render no header and vanish silently, so the props type forbids it.
-    // @ts-expect-error actions without a title
-    render(<DetailOverviewShell actions={<button>Edit</button>} />);
-    // @ts-expect-error badges without a title
-    render(<DetailOverviewShell badges={<span>Open</span>} />);
-    // @ts-expect-error subtitle without a title
-    render(<DetailOverviewShell subtitle="Parent" />);
-    // a title that may be undefined (e.g. `entity?.name`) drops the header too
-    const t = "x" as string | undefined;
-    // @ts-expect-error possibly-undefined title with actions
-    render(<DetailOverviewShell title={t} actions={<b />} />);
+  it("nests under a parent PageFrame: an h2, no second h1, no second surface", () => {
+    const { container, getByRole } = render(
+      <PageFrame title="Customer">
+        <DetailOverviewShell title="Devices" content={<div>body</div>} />
+      </PageFrame>,
+    );
+
+    expect(container.querySelectorAll("h1")).toHaveLength(1);
+    expect(getByRole("heading", { level: 2, name: "Devices" })).toBeTruthy();
+    expect(container.querySelectorAll(".bg-surface-raised")).toHaveLength(1);
   });
 });
 
@@ -196,6 +156,7 @@ describe("DetailOverviewShell — stats as StatItem[]", () => {
   it("renders a stat strip with one tile per item and no columns passed at the site", () => {
     const { container, getByText } = render(
       <DetailOverviewShell
+        title="T"
         content={<div>content-slot</div>}
         stats={[
           { label: "Revenue", value: "€120" },
@@ -218,6 +179,7 @@ describe("DetailOverviewShell — stats as StatItem[]", () => {
   it("caps the strip at 4 columns and floors at 2 for a single item", () => {
     const four = render(
       <DetailOverviewShell
+        title="T"
         stats={[
           { label: "a", value: "1" },
           { label: "b", value: "2" },
@@ -232,7 +194,7 @@ describe("DetailOverviewShell — stats as StatItem[]", () => {
     cleanup();
 
     const one = render(
-      <DetailOverviewShell stats={[{ label: "a", value: "1" }]} />,
+      <DetailOverviewShell title="T" stats={[{ label: "a", value: "1" }]} />,
     );
     expect((one.container.querySelector(".grid") as HTMLElement).className).toContain(
       "sm:grid-cols-2",
@@ -241,7 +203,7 @@ describe("DetailOverviewShell — stats as StatItem[]", () => {
 
   it("renders no strip when stats is omitted", () => {
     const { container } = render(
-      <DetailOverviewShell content={<div>content-slot</div>} />,
+      <DetailOverviewShell title="T" content={<div>content-slot</div>} />,
     );
     expect(container.querySelector(".grid")).toBeNull();
   });
@@ -314,7 +276,7 @@ describe("DetailOverviewShell — closed prop surface", () => {
 //
 // The acceptance for closing this API is that `DetailOverviewShellProps`
 // declares none of `surface` / `rhythm` / `headerFill` / `className` (and no
-// appearance-bearing `header` slot), and that `stats` is typed data
+// appearance-bearing `header` slot, no `kicker` / `headerActions`), and that `stats` is typed data
 // (`StatItem[]`), not a `ReactNode`. A bare grep for `surface` still matches
 // the internal `UnifiedSurfaceContext`, so the guard is written against the
 // TYPE, not the file: if any retired axis leaks back into `DetailOverviewShellProps`,
@@ -330,7 +292,9 @@ type _RetiredAxesGuard = [
   Absent<DetailOverviewShellProps, "headerFill">,
   Absent<DetailOverviewShellProps, "className">,
   Absent<DetailOverviewShellProps, "header">,
-] extends [true, true, true, true, true]
+  Absent<DetailOverviewShellProps, "kicker">,
+  Absent<DetailOverviewShellProps, "headerActions">,
+] extends [true, true, true, true, true, true, true]
   ? true
   : never;
 

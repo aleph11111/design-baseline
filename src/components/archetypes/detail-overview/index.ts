@@ -5,9 +5,6 @@ export type {
   StatItem,
 } from "./DetailOverviewShell";
 
-export { DetailOverviewHeader } from "./DetailOverviewHeader";
-export type { DetailOverviewHeaderProps } from "./DetailOverviewHeader";
-
 export { DetailSection } from "./DetailSection";
 export type { DetailSectionProps } from "./DetailSection";
 

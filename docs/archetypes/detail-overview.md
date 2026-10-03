@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 3.4
+version: 4.0
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.6
@@ -11,6 +11,18 @@ status: locked
 
 # Archetype C — Detail Overview
 
+> **v4.0 (2026-10-03) — one page frame (ADR-0008).** One header path. The
+> shell takes the page header directly — `title` (required), `subtitle`,
+> `badges`, `actions`, `icon`, `backHref` / `backLabel` / `renderBackLink` —
+> and renders the page's one frame: the header above, one raised surface
+> holding summary/rail + main. The Mode A / Mode B split and the separate
+> standalone header component are deleted. Nesting is derived: rendered under
+> a parent page frame (an entity tab under a layout that owns the page), the
+> shell titles itself as the nested heading and joins the parent's surface —
+> no prop. Header actions follow ADR-0008 §2: at most one primary and two
+> secondary, the rest in `⋯`. The header-fill paragraph is gone (ADR-0008
+> retires header fill). Ships in manifest 4.0. Breaking.
+>
 > **v3.4 (2026-10-02) — a tall rail keeps its foot reachable.** A rail taller
 > than the viewport scrolls with the page until its foot (`references`, the
 > last master-data rows) is in view, then pins there; a rail that fits still
@@ -161,7 +173,7 @@ then **transactional data** (what happened), then references.
 
 | # | Slot | Required content | Omit when |
 |---|------|------------------|-----------|
-| 1 | `header` | the detail-overview header — Mode A: the standalone header above the shell (title + right-aligned actions); Mode B: the shell's own nested-page header (the `title` data prop + `subtitle`/`badges`/`actions` — see Layer 3) | Mode A — standalone |
+| 1 | `header` | the page header: `title` (the entity) + `subtitle` / `badges` / `actions` / back link — see Layer 3 | never — `title` is required |
 | 2 | `summary` | master data: a detail section (typically titled "Details", flush) wrapping a key-value list of ruled rows, including categorical chip attributes | the page is purely metric/tabular |
 | 3 | `stats` | aggregates: the stat-tile strip of 2–4 cells, rendered by the shell from the `stats` data (one cell per item) | the entity has no headline metrics |
 | 4 | `content` | transactional data: embedded read-only lists/tables and read-write islands, each in its own detail section | nothing beyond the summary exists |
@@ -200,8 +212,8 @@ transactional body, use the rail. Otherwise stay vertical.
 
 ### Rail slot placement (wide viewports)
 
-The header spans full width as a top bar. The remaining slots split across two
-columns; **reading order is preserved** — rail top→bottom, then main
+The header sits above the frame. The remaining slots split across two
+columns inside it; **reading order is preserved** — rail top→bottom, then main
 top→bottom, tells the same story.
 
 ```
@@ -221,7 +233,7 @@ top→bottom, tells the same story.
 
 | Slot | Rail placement |
 |---|---|
-| `header` | Mode B only: the frame's full-width top bar — the nested-page header (`title` + `badges` + `actions` data). In Mode A the page's standalone header sits above the frame and is not part of it. |
+| `header` | Above the frame, full width — the page header (`title` + `badges` + `actions` data). |
 | `summary` | **Aside** — master-data key-value list + an optional compact metric readout (see note). Sticky on wide viewports. |
 | `stats` | **Main**, top — the stat-tile row. *May be omitted* when its 2–4 metrics are surfaced as the rail's compact readout instead (recommended for the rail variant, to avoid duplication). |
 | `content` | **Main** — the transactional sections in declaration order |
@@ -269,29 +281,17 @@ what keeps the rail variant *the same archetype* rather than a fork.
 
 ### Container model — one frame
 
-The shell renders the record in **one bounded outer frame** holding header +
-rail + main — there is no second container model to choose between. The
-cohesion comes from the *frame*, not from stripping every card:
+The record renders on the page's **one raised surface** (ADR-0008 §3) holding
+rail + main, with the page header above it — there is no second container
+model to choose between. The cohesion comes from the *frame*, not from
+stripping every section:
 
 - the **rail** (aside) renders *chromeless* — flush, hairline-divided,
-  lightly tinted. Its detail sections drop their card chrome (keeping
-  padding so the hairline floats in whitespace) via a chrome-suppression
-  mechanism scoped to the rail subtree only (an internal shell detail, not
-  part of the API).
-- the **main** column keeps its **carded** detail sections / stat-tile row,
-  flattened to sit as panels inside the frame — the suppression does not
-  apply there.
-
-Stripping chrome from the main column too is the over-application a measured
-reference corrected. The frame applies under both layouts; the canonical
-pairing for dense record pages is **`layout="rail"`**.
-
-**Header fill.** The frame's header bar renders per the shared **header-fill
-contract** — three modes, brand-filled (default) / muted tint /
-hairline-border-only — set once per project via the top-level app shell's
-header-fill setting. It is a closed context: there is no per-page or
-per-shell override. Mode A's standalone header (above the frame) is the bare
-canonical page-header treatment with no fill.
+  lightly tinted. Its detail sections keep their padding so the hairline
+  floats in whitespace (an internal shell detail, not part of the API).
+- the **main** column keeps its detail sections and stat-tile row as panels
+  with their title bars; nested in the frame they never become cards of their
+  own.
 
 The acceptance gate's **"One outer frame, not a card scatter"** REQUIRED box
 scores this: a page is a wrapper adoption if it is loose cards on the bare
@@ -303,12 +303,8 @@ The detail-overview shell's props — a closed surface. Every prop is either
 typed data or carries a contract decision rule that determines its value from
 the entity:
 
-- `title={…}` — Mode B: the on-surface nested-page header (see Layer 3).
-  Omit under Mode A.
-- `subtitle={…}` — Mode B: secondary line under the nested title.
-- `badges={…}` — Mode B: read-only status badges inline next to the nested
-  title (the page's one home for status).
-- `actions={…}` — Mode B: right-aligned actions row inside the frame header.
+- `title` (required), `subtitle`, `badges`, `actions`, `icon`, `backHref` /
+  `backLabel` / `renderBackLink` — the page header (see Layer 3).
 - `layout` — `"vertical"` (default) | `"rail"` — keyed to entity density
   (dense/transactional → rail; light → vertical).
 - `width` — `"md"` (default) | `"none"` | `"lg"` | `"xl"` — keyed to table
@@ -321,10 +317,8 @@ the entity:
 - `content={…}` — → main (transactional data)
 - `references={…}` — → rail foot / page end
 
-Appearance is never picked per call site: the header-fill axis is the
-top-level app shell's closed context, and everything else is fixed in the
-primitives. Layout iterations are a single-file change to the shell that
-propagates baseline-wide by a package tag bump.
+There is no `toolbar`, `count` or `viewOptions` (Layer 4). Appearance is never
+picked per call site; it is fixed in the primitives.
 
 ---
 
@@ -350,8 +344,8 @@ propagates baseline-wide by a package tag bump.
 
 **Required:**
 - Outer container: a single detail-overview shell (or an equivalent element
-  matching its contract: one bounded frame, the canonical section stack
-  inside it — no other layout treatment).
+  matching its contract: the page header, then one raised surface with the
+  canonical section stack inside it — no other layout treatment).
 - The stack's vertical spacing is fixed in the shell. There is no
   per-page rhythm prop: a "compact measure for short pages" axis had no
   threshold two readers could agree on, and page length is a property of the
@@ -382,65 +376,37 @@ propagates baseline-wide by a package tag bump.
 
 ## Layer 3 — Page header
 
-The header has **two modes**, both first-class:
-
-### Mode A — standalone
-
-The page renders its own header because no parent layout owns it (typical for
-top-level entity routes like `/opportunities/[id]`).
+One header path. The page passes its header to the shell once; it is the
+page's only title.
 
 **Required:**
-- The detail-overview header renders title (in the project's canonical
-  page-title type style) and an optional right-aligned actions row. It is a
-  thin wrapper over the project's canonical page-header treatment, narrowed
-  to the detail-overview contract (no icon) — the title scale is the
-  canonical page-header treatment's single source of truth, not restated
-  here.
-- Back link (optional): only on an entity route with no breadcrumb or
-  section nav of its own, through the canonical page-header treatment's
-  back-link adapter (href + label, router link injected by the consumer) —
-  never a bespoke leading control beside the title.
-- Title text reflects the entity name; optional subtitle reads in the
-  canonical muted small-text style and may include a link back to the parent
-  entity (e.g. an order's owning customer).
+- `title` reflects the entity name. `subtitle` is compact metadata and may
+  include a link back to the parent entity (e.g. an order's owning customer).
+- **Status badges (`badges`).** An entity's status dimensions (order: paid /
+  shipped; deal: stage / forecast) are read-only status badges next to the
+  title. This is the archetype's **one home for status** — the acceptance gate
+  fails a page that also repeats status in the rail or a content band.
+  Interactive controls go in `actions`.
+- **`actions`** holds verbs on the whole record: at most **one** primary
+  action and two secondary ones; anything more collapses into a `⋯` menu
+  (ADR-0008 §2). An action may be a navigation link (e.g. "Edit" routing to
+  a form-page) or a button whose visibility depends on entity state (e.g.
+  "Convert" only in a pre-conversion state).
+- Back link (optional): only on an entity route with no breadcrumb or section
+  nav of its own — `backHref` / `backLabel`, with `renderBackLink` injecting
+  the router link. Never a bespoke leading control beside the title.
 
-**Allowed variation:**
-- Actions row: zero or more buttons. Each is either an inline navigation link
-  (e.g. "Edit" routing to a form-page) or a button whose visibility depends
-  on entity state (e.g. "Convert" only when `status === 'PENDING'`).
-- **Status badges (`badges` slot).** An entity's status dimensions (order:
-  paid / shipped; deal: stage / forecast) render as read-only status badges
-  inline next to the title, via the detail-overview header's `badges` prop
-  (a `badges` slot on the canonical page-header treatment). This is the
-  archetype's **one home for status** — the acceptance gate fails a page that
-  also repeats status in the rail or a content band. Badges are read-only;
-  interactive controls go in `actions`.
+**Nested (derived, not chosen).** When a parent route layout already owns the
+page — it renders the entity title and any tab nav (a tabbed sub-route like
+`/:resource/[id]/:section`) through its own page frame — the shell rendered
+inside it titles itself as the nested-page heading (the sub-area: "Devices",
+"History") and joins the parent's surface. No prop selects this; where the
+shell renders decides it. The page still renders exactly one top-level title.
 
-### Mode B — nested
-
-The page omits the standalone header because a parent route layout already
-renders the entity title (h1) and any tab nav (typical for tabbed sub-routes
-like `/:resource/[id]/:section`).
-
-**Required:**
-- The page renders **no** `<h1>` or top-level page title.
-- The page renders its sub-area title (e.g. "Devices", "History", "Members")
-  through the shell's on-surface header: the `title` prop, with the shell
-  rendering it as the canonical **nested-page heading** — an `<h2>` at the
-  single fixed nested scale (the rung of the heading scale between the
-  standalone page title and the section overline label, whose scale and weight
-  are fixed in the primitive and cannot be re-picked per call site). The
-  `subtitle` / `badges` / `actions` props fill the secondary line, the
-  status badges (the page's one home for status), and the right-aligned
-  actions row respectively. A free-standing heading at an ad-hoc scale —
-  the "may introduce a section-level heading with whatever scale reads
-  right" freedom — is the drift this mode existed to close; the heading is
-  the role's fixed shape now.
-- The actions row, when present, sits right-aligned inside the frame header,
-  visually distinct from the title.
-
-**Forbidden (both modes):**
-- Action buttons mixed into the title line (use a separate actions row).
+**Forbidden:**
+- A second title for the record (a titled card or heading inside the frame
+  repeating the page title).
+- Action buttons mixed into the title line, or more than one primary action.
 - Crumbs rendered by the page component itself — breadcrumbs belong to the app
   shell or the parent layout, not to the detail-overview page.
 
@@ -458,11 +424,9 @@ toolbar, it is the wrong archetype.
 
 **Required:**
 - Sections are passed to the shell via its **named slots** (`summary`, `stats`,
-  `content`, `references`) — see "Canonical slot order" — and the frame's
-  header, when present, is the shell's own nested-page header (`title` +
-  `subtitle`/`badges`/`actions` data — Layer 3; Mode A's standalone header
-  renders **above** the shell, outside the slot system). The shell renders
-  them in canonical order; the page does not control ordering.
+  `content`, `references`) — see "Canonical slot order" — and the header is
+  the shell's `title` + `subtitle`/`badges`/`actions` data (Layer 3). The
+  shell renders them in canonical order; the page does not control ordering.
 - Within the `content` slot, sections follow declaration order: read-only
   lists/tables before read-write islands, unless the domain clearly dictates
   otherwise. Each is its own detail section. No nested column layouts; no
@@ -482,8 +446,8 @@ Mix per section as the domain needs; the slot order and section chrome are uncha
 **Forbidden:**
 - Passing sections as free-form children of the shell (the v2.0 API has no
   `children` prop — this no longer compiles).
-- Wrapping the entire page in a single card surface (cards belong to
-  individual sections, not the whole page).
+- A second raised surface: a hand-rolled card around the page or around a
+  section — the shell's frame is the page's one raised surface.
 - Hand-rolled flex/grid containers at the shell level. The shell owns its
   layout: a vertical stack (`layout="vertical"`) or the Command Rail
   (`layout="rail"`). Consumers never add their own page-level columns — the only
@@ -511,7 +475,7 @@ detail-section boundary.
   **follows the data's length** (2–4 cells → 2–4 columns); a call site never
   passes a hand-matched column count, so the count can't drift from the
   items.
-- Each cell: an overline label (in the canonical overline/kicker style,
+- Each cell: an overline label (in the canonical overline style,
   muted), a large value in the canonical tabular-figure style, an optional
   small muted hint. When data is unavailable, render `—`.
 - Responsive collapse: single-column stacked with horizontal hairlines on
@@ -746,8 +710,8 @@ domain:
 5. **Inline error fallback UI.** Use `error.tsx`.
 6. **Fixed multi-column layout without a responsive ramp.** Always collapse to
    one column on narrow viewports.
-7. **Wrapping the whole page body in one card surface.** Cards are per-section,
-   not page-wide.
+7. **A second raised surface.** No hand-rolled card around the body or a
+   section; the shell's frame is the page's one raised surface.
 8. **Embedded settings-table (archetype D2).** A page-level settings shape does
    not belong inside a detail-overview. Promote that surface to its own route
    or modal.
@@ -814,20 +778,22 @@ domain:
 - [ ] **Primary records are visible without interaction.** The main line collection
       (items/positions/…) renders directly in a detail section, not behind a tab
       or accordion. (Omit only if the entity has no line collection.)
-- [ ] **Actions are ranked.** The header carries **one** filled primary action + an
-      overflow `⋯` menu. No row of ≥ 3 equal-weight action buttons.
+- [ ] **Actions are ranked.** The header carries at most **one** filled primary
+      action and two secondary actions; the rest collapse into an overflow `⋯`
+      menu (ADR-0008 §2). No row of ≥ 3 equal-weight action buttons.
 - [ ] **Shell owns the inset.** The page adds no outer padding of its own; the
       shell owns the section stack (and, in vertical layout, the contained
       measure it renders by default — see Layer 2). The top-level app shell's
       main region is the sole inset owner.
-- [ ] **One outer frame, not a card scatter.** Every detail-overview page is
-      wrapped in a single bounded surface (frame) holding its header + main —
-      and, in `layout="rail"`, the rail. The **rail** is a flush,
-      hairline-divided strip (chromeless sections, padding kept); the **main**
-      keeps its carded detail sections **inside** the frame. *Fails when:*
-      the page is loose card surfaces floating on the bare page background
-      with no outer frame (the "scatter" drift), OR the rail is carded
-      instead of flush.
+- [ ] **One outer frame, not a card scatter.** Every detail-overview page has
+      exactly one title (the page header, above the frame) and one raised
+      surface (the frame) holding summary + main — and, in `layout="rail"`,
+      the rail. The **rail** is a flush, hairline-divided strip (chromeless
+      sections, padding kept); the **main** keeps its detail sections as
+      panels **inside** the frame. *Fails when:* the page is loose card
+      surfaces floating on the bare page background with no outer frame (the
+      "scatter" drift), the record is titled twice (header + a titled card),
+      OR the rail is carded instead of flush.
 
 ### REQUIRED — slot order & roles
 
