@@ -2,7 +2,7 @@
 key: H
 slug: feed-inbox
 kind: page
-version: 1.0
+version: 2.0
 promoted_from: fleet-audit-2026-06-13 (brickshop-manager, hk-crm)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -26,7 +26,7 @@ brickshop's existing naming.
 ### Two sub-shapes — same molecule
 
 H has two recurring sub-shapes. They share the *same* primitives (the feed shell +
-the feed-item primitive + time-group card/section-card surfaces) and must read as
+the feed-item primitive + time-group sections) and must read as
 the same molecule — choose by which slots you fill, not by hand-rolling a second
 component:
 
@@ -50,21 +50,21 @@ The project's top-level app shell plus a narrow content column (a feed reads as
 one column, not full width). A render-error boundary around content.
 
 ## Layer 3 — Page header
-The feed shell (`kicker`, `title`, `headerActions`) renders the on-surface header
-bar at the top of the bounded card — kicker + title left, actions right — not a
-detached floating page header above the surface. The on-surface header bar has no
-subtitle slot; fold an unread count ("3 unread" / "You're all caught up") into the
-kicker, or surface it as a `headerActions` badge.
+`title` is **required** and passed once to the feed shell — it is the page
+title; there is no other title and no untitled form. `subtitle` carries a
+one-line description; `badges` carry read-only status. `actions` holds the
+page's verbs — "Mark all read" on the inbox sub-shape (the timeline has
+none). The read state's summary ("3 unread" / "All caught up") is the `count`.
 
 ## Layer 4 — Toolbar (filters)
-Filter chips / the shared one-of-N segmented control (a pill row; All · Unread ·
-by type) at the start of the feed shell's toolbar row — rendered below the
-on-surface header, inside the same bounded card; a "Mark all read" action at the
-end. Filter state is consumer-owned and URL-syncable.
+`toolbar` holds everything that scopes the feed: filter chips / the shared
+one-of-N segmented control (All · Unread · by type), tabs. Nothing else goes
+there — page verbs are `actions`, never toolbar content. Filter state is
+consumer-owned and URL-syncable.
 
 ## Layer 5/6 — The feed
-Time-grouped instances of the project's card / section-card surface, made up of
-instances of the feed-item primitive. Each item: a leading type icon (or actor
+Time-grouped sections of the page's one surface (never cards of their own),
+made up of instances of the feed-item primitive. Each item: a leading type icon (or actor
 avatar) in a circular icon/avatar treatment, the event text (actor rendered with
 emphasis), a meta line (actor · relative time), and — depending on sub-shape — an
 unread dot + one inline action (inbox) or a `body` excerpt + a trailing `media`
@@ -110,11 +110,17 @@ viewer; never leak another user's items.
 
 **REQUIRED**
 
-- [ ] **One feed shell** owns the bounded surface — on-surface header + filter
-      row + time-grouped item stack via the shell — not a parallel hand-built
-      card + list.
+- [ ] **One feed shell** owns the page — title, filter `toolbar` and the
+      time-grouped item stack via the shell — not a parallel hand-built card +
+      list.
 - [ ] **Items are a single row primitive** (avatar/title/preview/meta/unread dot),
       not per-type bespoke markup.
 - [ ] **Unread/selected state via tokens** (brand/`muted`), not literal colors or bold-only.
 - [ ] **Actions ranked** — primary on the item/reading pane + overflow; no equal-weight button row.
 - [ ] **[spine] S1, S2, S3, S4, S5, S6.**
+
+## Version log
+- **2.0** (ADR-0008) — one page frame: `title` required and rendered once as the
+  page title; the untitled/unframed form, `kicker` and `headerActions` removed;
+  `filters` renamed `toolbar`; `actions` moved from the toolbar row to the page
+  header; `subtitle` / `badges` / `count` added.

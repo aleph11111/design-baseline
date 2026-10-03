@@ -154,68 +154,64 @@ function InboxDemo(): React.ReactElement {
         />
       </div>
 
-      {/* Plex Ledger board form: title + actions sit ON the bounded surface
-          (SurfaceHeader), one frame on a muted mat. */}
-      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-        <FeedShell
-          kicker="Inbox"
-          title="Notifications"
-          headerActions={
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={markAllRead}
-                disabled={unreadCount === 0}
-              >
-                Mark all read
-              </Button>
-            </>
-          }
-          filters={
-            <SegmentedControl
-              value={filter}
-              onValueChange={(v) => setFilter(v as FilterKey)}
-              options={FILTERS.map((f) => ({ value: f.key, label: f.label }))}
-              aria-label="Filter notifications"
-            />
-          }
-          empty={
-            state === "Loaded" && visible.length === 0 ? (
-              <StateView variant="empty" icon={Bell} message="Nothing here." />
-            ) : undefined
-          }
-        >
-          {state === "Loading" ? (
-            <div className="divide-y divide-border rounded-md border border-border/70">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <FeedItemSkeleton key={i} />
-              ))}
-            </div>
-          ) : (
-            GROUP_ORDER.map((group) => {
-              const groupItems = visible.filter((n) => n.group === group);
-              if (groupItems.length === 0) return null;
-              return (
-                <SectionCard key={group} title={group} flush>
-                  <div className="divide-y divide-border">
-                    {groupItems.map((n) => (
-                      <FeedItem
-                        key={n.id}
-                        icon={ICON[n.type]}
-                        title={n.title}
-                        meta={n.meta}
-                        unread={n.unread}
-                        onClick={() => markRead(n.id)}
-                      />
-                    ))}
-                  </div>
-                </SectionCard>
-              );
-            })
-          )}
-        </FeedShell>
-      </div>
+      {/* One page frame (ADR-0008): title + "Mark all read" in the page
+          header, filters + unread count in the toolbar band. */}
+      <FeedShell
+        title="Notifications"
+        actions={
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={markAllRead}
+            disabled={unreadCount === 0}
+          >
+            Mark all read
+          </Button>
+        }
+        count={unreadCount === 0 ? "All caught up" : `${unreadCount} unread`}
+        toolbar={
+          <SegmentedControl
+            value={filter}
+            onValueChange={(v) => setFilter(v as FilterKey)}
+            options={FILTERS.map((f) => ({ value: f.key, label: f.label }))}
+            aria-label="Filter notifications"
+          />
+        }
+        empty={
+          state === "Loaded" && visible.length === 0 ? (
+            <StateView variant="empty" icon={Bell} message="Nothing here." />
+          ) : undefined
+        }
+      >
+        {state === "Loading" ? (
+          <div className="divide-y divide-border">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <FeedItemSkeleton key={i} />
+            ))}
+          </div>
+        ) : (
+          GROUP_ORDER.map((group) => {
+            const groupItems = visible.filter((n) => n.group === group);
+            if (groupItems.length === 0) return null;
+            return (
+              <SectionCard key={group} title={group} flush>
+                <div className="divide-y divide-border">
+                  {groupItems.map((n) => (
+                    <FeedItem
+                      key={n.id}
+                      icon={ICON[n.type]}
+                      title={n.title}
+                      meta={n.meta}
+                      unread={n.unread}
+                      onClick={() => markRead(n.id)}
+                    />
+                  ))}
+                </div>
+              </SectionCard>
+            );
+          })
+        )}
+      </FeedShell>
     </section>
   );
 }
@@ -223,35 +219,30 @@ function InboxDemo(): React.ReactElement {
 function TimelineDemo(): React.ReactElement {
   return (
     <section className="space-y-5">
-      {/* Plex Ledger board form — timeline sub-shape: no read state, no header
-          actions; kicker + title only. */}
-      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-        <FeedShell
-          kicker="Feed"
-          title="Activity"
-        >
-          {GROUP_ORDER.map((group) => {
-            const groupItems = MEDIA_SEED.filter((m) => m.group === group);
-            if (groupItems.length === 0) return null;
-            return (
-              <SectionCard key={group} title={group} flush>
-                <div className="divide-y divide-border">
-                  {groupItems.map((m) => (
-                    <FeedItem
-                      key={m.id}
-                      icon={MEDIA_ICON[m.type]}
-                      title={m.title}
-                      meta={m.meta}
-                      body={m.body}
-                      media={<img src={m.thumb} alt="" />}
-                    />
-                  ))}
-                </div>
-              </SectionCard>
-            );
-          })}
-        </FeedShell>
-      </div>
+      {/* Timeline sub-shape: no read state, no actions, no toolbar — just the
+          title and subtitle. */}
+      <FeedShell title="Activity" subtitle="Photos, episodes and events">
+        {GROUP_ORDER.map((group) => {
+          const groupItems = MEDIA_SEED.filter((m) => m.group === group);
+          if (groupItems.length === 0) return null;
+          return (
+            <SectionCard key={group} title={group} flush>
+              <div className="divide-y divide-border">
+                {groupItems.map((m) => (
+                  <FeedItem
+                    key={m.id}
+                    icon={MEDIA_ICON[m.type]}
+                    title={m.title}
+                    meta={m.meta}
+                    body={m.body}
+                    media={<img src={m.thumb} alt="" />}
+                  />
+                ))}
+              </div>
+            </SectionCard>
+          );
+        })}
+      </FeedShell>
     </section>
   );
 }

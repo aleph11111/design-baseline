@@ -1,16 +1,7 @@
 import * as React from "react";
-import { SurfaceFrame } from "../../layout/SurfaceFrame";
-import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
-import { cn } from "../../../lib/utils";
+import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 
 export type FeedShellProps = {
-  /**
-   * Filter chips / segmented control (All · Unread · Mentions · …). Consumer-owned
-   * filter state; the shell just lays them out at the start of the toolbar.
-   */
-  filters?: React.ReactNode;
-  /** Trailing toolbar controls — typically a "Mark all read" button. */
-  actions?: React.ReactNode;
   /**
    * Time-grouped content: a stack of `<SectionCard title="Today" flush>` blocks,
    * each holding `<FeedItem>`s separated by `divide-y`. Omit groups for a flat feed.
@@ -18,44 +9,42 @@ export type FeedShellProps = {
   children: React.ReactNode;
   /** Shown (centered, muted) when there are no items — pass for the empty state. */
   empty?: React.ReactNode;
-} & SurfaceHeaderSlotProps;
+} & Pick<
+  PageFrameProps,
+  "title" | "subtitle" | "badges" | "actions" | "toolbar" | "count"
+>;
 
 /**
- * FeedShell — the container for a feed/inbox (H) surface: a toolbar (filter chips
- * + actions) above a time-grouped stack of feed items. A feed is a chronological
+ * FeedShell — the container for a feed/inbox (H) surface: a chronological
  * stream of events with read state and filters — distinct from list-with-detail
- * (a sortable table of records). Groups reuse `<SectionCard>`; rows are `<FeedItem>`.
+ * (a sortable table of records). Groups reuse `<SectionCard>` (flattened inside
+ * the frame); rows are `<FeedItem>`.
  *
- * When `title` is set, the shell adopts the Plex Ledger board form: an on-surface
- * `<SurfaceHeader>` at the top of one bounded card, toolbar + content below.
+ * Renders through `PageFrame` (ADR-0008): `toolbar` holds the filter chips /
+ * tabs, `count` the unread or result count, `actions` the page verbs
+ * ("Mark all read").
  */
 export function FeedShell({
-  filters,
-  actions,
   children,
   empty,
-  kicker,
   title,
-  headerActions,
+  subtitle,
+  badges,
+  actions,
+  toolbar,
+  count,
 }: FeedShellProps): React.ReactElement {
-  const body = (
-    <div className={cn(title !== undefined && "p-5 space-y-5")}>
-      {(filters || actions) && (
-        <div className="flex flex-wrap items-center gap-3">
-          {filters}
-          {actions && <div className="ml-auto">{actions}</div>}
-        </div>
-      )}
-      {empty ?? children}
-    </div>
-  );
-
-  if (title === undefined) return <div className="space-y-5">{body}</div>;
-
   return (
-    <SurfaceFrame kicker={kicker} title={title} headerActions={headerActions}>
-      {body}
-    </SurfaceFrame>
+    <PageFrame
+      title={title}
+      subtitle={subtitle}
+      badges={badges}
+      actions={actions}
+      toolbar={toolbar}
+      count={count}
+    >
+      <div className="space-y-5 p-5">{empty ?? children}</div>
+    </PageFrame>
   );
 }
 
