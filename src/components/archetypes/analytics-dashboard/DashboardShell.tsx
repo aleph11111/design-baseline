@@ -1,49 +1,42 @@
 "use client";
 import * as React from "react";
-import { SurfaceFrame } from "../../layout/SurfaceFrame";
-import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
+import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 
 // ---------------------------------------------------------------------------
 // Public types
 // ---------------------------------------------------------------------------
 
-export type DashboardShellProps = {
+export type DashboardShellProps = Pick<
+  PageFrameProps,
+  "title" | "subtitle" | "badges" | "actions" | "toolbar"
+> & {
   /**
-   * The primary surface body — typically a `<StatTileRow>` of KPI tiles.
-   * Rendered with `px-5 py-4` padding below the header bar.
+   * The dashboard body — a `<StatTileRow>` of KPI tiles, then a
+   * `<DashboardGrid>` of widgets. Both render as hairline-divided cells inside
+   * the page's one surface; the shell rules a hairline between them.
    */
   children: React.ReactNode;
-} & SurfaceHeaderSlotProps;
+};
 
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 /**
- * DashboardShell — the primary bounded surface for the analytics-dashboard (G)
- * archetype. Hosts the on-surface `<SurfaceHeader>` (kicker + title + actions)
- * at the top of the card, and the KPI / stat tile row in the body below.
- *
- * Widget cards (`<DashboardWidget>` / `<DashboardGrid>`) sit as sibling cards
- * in the same muted mat outside this shell.
- *
- * Board form pattern: wrap `<DashboardShell>` + `<DashboardGrid>` in a
- * `<div className="rounded-xl bg-muted/30 p-4 sm:p-6 space-y-4">` mat.
+ * DashboardShell — the G (analytics-dashboard) page, built through the one
+ * `PageFrame` (ADR-0008): the title on the canvas with export/share as
+ * `actions`, then one raised surface whose toolbar band carries the filters
+ * (`toolbar`), then the KPI row and the widget grid as hairline-divided cells
+ * — no card-in-card, no mat.
  */
 export function DashboardShell({
-  kicker,
-  title,
-  headerActions,
   children,
+  ...frame
 }: DashboardShellProps): React.ReactElement {
   return (
-    <SurfaceFrame
-      kicker={kicker}
-      title={title}
-      headerActions={headerActions}
-    >
-      <div className="px-5 py-4">{children}</div>
-    </SurfaceFrame>
+    <PageFrame {...frame}>
+      <div className="divide-y divide-border">{children}</div>
+    </PageFrame>
   );
 }
 

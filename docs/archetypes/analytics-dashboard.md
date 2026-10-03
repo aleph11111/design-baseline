@@ -2,7 +2,7 @@
 key: G
 slug: analytics-dashboard
 kind: page
-version: 1.1
+version: 4.0
 promoted_from: fleet-audit-2026-06-13 (brickshop-manager, my-finance-app, hk-crm, mistra)
 promoted_at: 2026-06-14
 source_spec_version: 1.3
@@ -22,7 +22,7 @@ no archetype to adopt — a clear rule-of-2 gap.
 
 > **Chart-agnostic by design.** The baseline ships **no chart library** (see
 > `STYLE.md` — charts are a per-project pick). This archetype owns the *frame* —
-> the KPI row, the widget grid, the widget card chrome, the filter bar — and the
+> the KPI row, the widget grid, the widget cells, the filter bar — and the
 > consumer drops its own chart components (recharts / nivo / visx / …) into the
 > widget bodies. A baseline that mandated a chart lib would not be re-skinnable.
 
@@ -35,28 +35,20 @@ routes hang off it.
 
 ## Layer 2 — Page shell
 Renders inside the project's **top-level app shell** (the app shell's main region
-supplies the page inset; the page adds none). Outer container uses the **canonical
-vertical rhythm**. A **render-error boundary** wraps content; per-widget fetch
+supplies the page inset; the page adds none). A **render-error boundary** wraps content; per-widget fetch
 errors degrade to a per-widget message, never a blank page.
 
 ## Layer 3 — Page header
-The archetype's **content-shell primitive**, with its `kicker`/`title`/`headerActions`
-props, renders the shared **on-surface header bar** at the top of the primary
-bounded surface — kicker + title left, actions right — not a separate floating
-page header above the card. No page-level write actions (the page is read-only);
-an export/share affordance sits in `headerActions`.
+The dashboard's name is the page `title`, passed once. No page-level write
+actions (the page is read-only); export/share are `actions`.
 
 ## Layer 4 — Toolbar (filter bar)
-The archetype's **content-shell primitive** exposes no dedicated `toolbar`/`filters`
-slot (unlike list-with-detail (A), settings-table (D2), kanban-board (P), or
-matrix-grid (M), which do). The filter bar — a **period** control (the shared
-**one-of-N segmented control** for `Week / Month / Quarter / Year`, or a
-date-range picker) and zero or more **segment** filters (channel, category,
-region) as selects/pills — is page-composed and passed into the shell's
-`headerActions`, so it renders inline in the **on-surface header bar**'s actions
-row alongside any export/share action. Changing a filter re-scopes the KPIs and
-every widget. Filter state is consumer-owned (URL-synced is encouraged so a
-dashboard view is shareable).
+Everything that re-scopes the dashboard goes in `toolbar`: a **period** control
+(the shared **one-of-N segmented control** for `Week / Month / Quarter / Year`,
+or a date-range picker) and zero or more **segment** filters (channel, category,
+region) as selects/pills. Changing a filter re-scopes the KPIs and every widget.
+Filter state is consumer-owned (URL-synced is encouraged so a dashboard view is
+shareable). **Forbidden:** filters in `actions`, or a filter row per widget.
 
 ## Layer 5 — KPI row
 A row of the shared **stat-tile / KPI-tile primitives** — the headline numbers,
@@ -67,13 +59,14 @@ single stacked column on narrow viewports), so no page picks a column count that
 can disagree with its own content.
 
 ## Layer 6 — Widget grid
-The archetype's **widget-grid** primitive containing the **widget-card** primitive
-for each widget. Each widget: a short title, optional in-bar control (a range
+The archetype's **widget-grid** primitive containing the **widget** primitive
+for each widget. The dashboard is one surface: the KPI row and the widgets are
+cells of it, never cards inside it (no card-in-card, no mat around them). Each widget: a short title, optional in-bar control (a range
 toggle), and a body that is a chart, a number, or a small ranked list/table. The
 grid's own column count is **fixed by the archetype**, not chosen per page: it
 collapses to one column on narrow viewports, two at the mid breakpoint, and three
-at the wide breakpoint. **Forbidden:** a hand-rolled grid of bare cards — use the
-**widget-card** primitive so widgets share the section chrome; embedding an
+at the wide breakpoint. **Forbidden:** a hand-rolled grid of cards — use the
+**widget** primitive so widgets share one cell treatment; embedding an
 interactive data *table* that belongs to list-with-detail (A) — link out instead.
 
 **Widget span keying rule.** How wide a widget sits in the grid is selected from
@@ -97,7 +90,7 @@ its own page.
 - **Loading** — per-widget skeletons (a widget loads independently); never a
   single page-level spinner that blanks the whole dashboard.
 - **Empty** — a widget with no data shows an inline "No data for this period"
-  inside its card, not a removed widget (keep the grid stable).
+  inside its cell, not a removed widget (keep the grid stable).
 - **Error** — per-widget destructive inline message; the rest of the grid stays up.
 
 ## Layers 8–12
@@ -127,15 +120,26 @@ can't see a metric.
 - [ ] **KPI row via the stat-tile / KPI-tile primitives** — headline metrics in
       the canonical tiles (mono/tabular), **not** hand-built metric cards.
       *Wrapper tell:* a grid of bespoke stat cards next to/instead of the tile row.
-- [ ] **Charts in titled section cards** with consistent chrome; one chart lib/token
-      palette, no literal series colors.
+- [ ] **Charts in titled widgets** via the widget primitive — cells of the one
+      dashboard surface, no card-in-card; one chart lib/token palette, no
+      literal series colors.
 - [ ] **Loading/empty/error per widget** use canonical states, not per-chart spinners.
 - [ ] **Single inset; no nested page padding** around the widget grid. **[spine] S1–S6.**
 
 **SHOULD** (yellow, not red)
 
-- [ ] Filter/date-range controls sit in one toolbar, not scattered per widget.
+- [ ] Filter/date-range controls sit in `toolbar`, not scattered per widget.
 - [ ] Number formatting (currency, %, deltas) is consistent and mono.
 - [ ] `span` follows Layer 6's widget span keying rule (primary trend full width ·
       comparison/breakdown wide · everything else one column) — not a free choice,
       and no widget inherits a width it did not state.
+
+---
+
+## Version log
+
+- **4.0** (ADR-0008) — one page frame. The dashboard's name is the page
+  `title` (once); filters are `toolbar`, export/share `actions`; the KPI row
+  and the widget grid render inside the one surface as hairline-divided cells.
+  Removed: `kicker`, `headerActions` (filters → `toolbar`, export → `actions`),
+  the on-surface header bar, the board-form mat, widget cards.
