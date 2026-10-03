@@ -2,7 +2,7 @@
 key: F
 slug: statement-with-filters
 kind: page
-version: 1.1
+version: 2.0
 promoted_from: controlling-app
 promoted_at: 2026-08-19
 source_spec_version: 1.0
@@ -43,27 +43,22 @@ read-only ledger report" donor gap recorded in that fleet's archetype page-map
 
 ## Structure
 
-Two zones, in document order:
+One page, built through the one page frame (ADR-0008); the page supplies
+content into named slots and the shell decides where each renders:
 
-**1 — Toolbar band** (the page header's actions region, right-aligned)
-- The canonical page header: `title` (+ optional `description`) and a
-  right-aligned **actions** region.
-- The **filter/selector toolbar** lives in the actions region — a horizontal
-  composition of the statement's independent scoping selectors. It is the
-  page's single interactive band; there is no second, hand-rolled selector row
-  between the header and the statement.
-- Each selector re-scopes the **whole** governed statement (the fetch depends
-  on the full selector tuple), not a subset of its sections.
-
-**2 — Governed statement** (the bounded report surface, full-bleed within the
-page column)
-- A **read-only** table of computed figures: fixed column headers, row
-  grouping/indentation where useful, optional totals rows.
-- Numeric figures render right-aligned in the **canonical monospace
-  tabular figure style**; labels stay in the canonical sans text style.
-- The statement component owns its own columns and cell rendering; the page
-  owns the toolbar + the fetch. There is no rail, no row-action menu, no
-  inline cell editing.
+- **`title`** — the statement's name, passed once (the page's only title).
+- **`toolbar`** — the statement's scoping selectors (scenario / period /
+  view-or-structure / unit). Each re-scopes the **whole** statement (the
+  fetch depends on the full selector tuple), not a subset of its sections.
+- **`viewOptions`** — display-only toggles that change *how* the statement
+  shows without re-scoping it (decimals, KPI rows, show-zero rows).
+- **`actions`** — verbs on the whole document: export, print/PDF, and where
+  the statement has one, a page-level action such as a freeze.
+- **body** — the governed statement: a **read-only** table of computed
+  figures with fixed column headers, row grouping/indentation where useful,
+  optional totals rows. The statement component owns its columns and cell
+  rendering; the page owns the selectors + the fetch. There is no rail, no
+  row-action menu, no inline cell editing.
 
 There is no search input (the selectors are *view-scoping*, not row-filtering —
 that is A's contract), no per-row navigation, and no inline editing (the
@@ -102,16 +97,14 @@ read-only rule is the archetype's defining boundary).
 ## Layer 3 — Page header
 
 **Required:**
-- Title via the project's canonical page-header primitive (one header, one
-  `actions` region).
-- The **filter/selector toolbar renders in the header's `actions` region** — a
-  single right-aligned composition of the scoping selectors (plus, where
-  present, a page-level action of the *allowed-variation* kind, e.g. a freeze).
-- The header is purely the scoping band: it never interleaves document
-  actions inside the statement.
+- The statement's name as the page `title`, passed once.
+- Document verbs (export, print/PDF, a freeze) in `actions`.
 
 **Forbidden:**
-- A second selector row hand-rolled between the header and the statement.
+- A second title for the same statement (e.g. the name repeated on the
+  statement surface).
+- Scoping selectors or display toggles in `actions` — they belong in
+  `toolbar` / `viewOptions`.
 - Native `alert()`/`prompt()` from a selector; errors surface through the
   app-wide toast.
 
@@ -120,25 +113,27 @@ read-only rule is the archetype's defining boundary).
 The toolbar is the archetype's signature layer.
 
 **Required:**
-- One or more independent **scoping selectors**, each an independent
-  controlled control (a labeled **select**, a **segmented toggle**, a custom
-  report-selector, or a **decimal/figure toggle**) that feeds the data fetch.
+- One or more independent **scoping selectors** in `toolbar`, each an
+  independent controlled control (a labeled **select**, a **segmented
+  toggle**, a custom report-selector) that feeds the data fetch.
 - The selectors are *view-scoping*: together they decide **which** computed
   statement is shown (scenario / period / view-or-structure / unit). Changing
   any selector invalidates the current selector tuple and re-fetches.
 - The **selector tuple** is the page's single source of "which statement am I
   showing": one small object, passed both to the controls (controlled) and to
   the fetch.
+- Display-only toggles (decimals, KPI rows, show-zero rows) go in
+  `viewOptions`, not `toolbar`: they never enter the selector tuple or the
+  fetch.
 
 **Allowed variation:**
 - The **set** of selectors is page-specific (a cashflow page may carry five;
-  a variance page two). A toolbar may additionally carry a page-level
-  **action** in the same band (a freeze / publish toggle) when the statement
-  has one.
+  a variance page two).
 - A headline-number row (stat tiles) directly above the statement is allowed
   when it is driven by the same selector tuple.
 
 **Forbidden:**
+- A second selector row anywhere outside `toolbar`.
 - A selector that re-scopes only part of the body while other sections stay
   static (the fetch must depend on the full tuple).
 - Row-filtering controls masquerading as scoping selectors (a search input /
@@ -147,13 +142,11 @@ The toolbar is the archetype's signature layer.
 ## Layer 5 — Content wrapper
 
 **Required:**
-- The governed statement renders directly in the page body, inside a single
-  flat bounded card where a bordered surface is wanted.
-- The page owns nothing between the toolbar and the statement — no inner
-  chrome, no nested card, no wrapper with its own padding.
+- The governed statement is the shell's body; the page adds nothing between
+  the selectors and the statement.
 
 **Forbidden:**
-- A hand-rolled wrapper card that duplicates the shell's inset or border.
+- A hand-rolled wrapper card around the statement.
 
 ## Layer 6 — Table / grid (the governed surface)
 
@@ -186,7 +179,7 @@ never from the call site's taste. The mapping is exhaustive:
 **Forbidden:**
 - Inline cell editing of any figure.
 - A second selector row rendered inside the statement component (selectors
-  belong to the page header).
+  belong to `toolbar`).
 - Multiple statements on one route; each statement view is its own page.
 
 ## Layer 7 — Empty / loading / error states
@@ -263,9 +256,9 @@ never from the call site's taste. The mapping is exhaustive:
 > A statement-with-filters page is **conformant** when every REQUIRED box
 > passes; it is a 🔴 wrapper adoption when it fails any.
 
-- [ ] **One scoping band.** All selectors render in the page header's `actions`
-      region — a single right-aligned composition, never a hand-rolled selector
-      row between the header and the statement.
+- [ ] **Slot-owned controls.** Scoping selectors in `toolbar`, display
+      toggles in `viewOptions`, document verbs in `actions` — no hand-rolled
+      control row, one title.
 - [ ] **Full-tuple re-scoping.** Every selector re-scopes the **whole**
       governed statement; the fetch depends on the full selector tuple.
 - [ ] **Read-only statement.** No inline editing of any figure in the table.
@@ -277,3 +270,12 @@ never from the call site's taste. The mapping is exhaustive:
       treatments (a skeleton is allowed — the shape is known).
 - [ ] **Single source of the tuple.** The selector tuple is one named object
       shared by the controls (controlled) and the fetch.
+
+---
+
+## Version log
+
+- **2.0** (ADR-0008) — one page frame. Selectors move from the header's
+  actions region to `toolbar`; display toggles get `viewOptions`; `actions`
+  holds document verbs only. Removed: `kicker`, `headerActions` (and its
+  `headerActions ?? actions` alias), the on-surface title.
