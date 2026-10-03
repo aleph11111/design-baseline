@@ -133,9 +133,9 @@ export function MatrixGridDemo() {
   // each filled cell, per the contract (matrix-grid.md, Layer 6: "not a bare
   // native `<select>`").
   const [mode, setMode] = useState<"click" | "inline">("click");
-  // Toolbar axis: a grid-driving control (the term) lives in the `toolbar` band
-  // under the header — not in `headerActions`. Switching to a term with no
-  // entries exercises the `emptyState` slot while keeping the header + toolbar.
+  // Toolbar axis: a grid-scoping control (the term) is `toolbar`, never
+  // `actions`. Switching to a term with no entries exercises the `emptyState`
+  // slot while keeping the title + toolbar.
   // Only the table scrolls sideways (v1.5), so the term control stays in view
   // on a narrow viewport.
   const [term, setTerm] = useState<"spring" | "summer">("spring");
@@ -216,45 +216,45 @@ export function MatrixGridDemo() {
       : STUDENTS.find((s) => s.id === sheet.studentId)?.name ?? "";
 
   return (
-    <div className="space-y-4">
-      {/* Plex Ledger board form: title + actions sit ON the bounded surface
-          (SurfaceHeader), one frame on a muted mat. */}
-      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div className="space-y-5">
+      {/* Demo control, not page chrome: switches between the contract's two
+          documented cell-editing variants. */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="max-w-prose text-sm text-muted-foreground">
+          The <strong>matrix-grid</strong> archetype — the <strong>Term</strong>{" "}
+          selector scopes the grid from the toolbar; <strong>Export CSV</strong>{" "}
+          acts on the whole grid from the page header. Toggle the cell-editing
+          variant.
+        </p>
+        <SegmentedControl
+          value={mode}
+          onValueChange={(v) => setMode(v as "click" | "inline")}
+          options={[
+            { value: "click", label: "click to edit" },
+            { value: "inline", label: "inline edit" },
+          ]}
+          aria-label="Edit mode"
+        />
+      </div>
+
       <MatrixGridShell<GradeEntry>
-        kicker="Gradebook"
         title="Student Grades"
-        headerActions={
-          <>
-            <SegmentedControl
-              value={mode}
-              onValueChange={(v) => setMode(v as "click" | "inline")}
-              options={[
-                { value: "click", label: "click to edit" },
-                { value: "inline", label: "inline edit" },
-              ]}
-              aria-label="Edit mode"
-            />
-            <Button variant="outline" size="sm">
-              <Download className="mr-1 h-4 w-4" />
-              Export
-            </Button>
-          </>
+        actions={
+          <Button variant="outline" size="sm">
+            <Download className="h-4 w-4" />
+            Export CSV
+          </Button>
         }
         toolbar={
-          <div className="flex items-end gap-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="term">Term</Label>
-              <Select value={term} onValueChange={(v) => setTerm(v as "spring" | "summer")}>
-                <SelectTrigger id="term" className="w-44">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="spring">Spring 2026</SelectItem>
-                  <SelectItem value="summer">Summer 2026</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <Select value={term} onValueChange={(v) => setTerm(v as "spring" | "summer")}>
+            <SelectTrigger size="sm" className="w-40" aria-label="Term">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="spring">Spring 2026</SelectItem>
+              <SelectItem value="summer">Summer 2026</SelectItem>
+            </SelectContent>
+          </Select>
         }
         emptyState={
           visibleRows.length === 0 ? (
@@ -317,7 +317,6 @@ export function MatrixGridDemo() {
             : (ctx) => openCell(ctx.row.id, ctx.column.key, ctx.cell)
         }
       />
-      </div>
 
       <Sheet
         open={sheet.kind !== "closed"}

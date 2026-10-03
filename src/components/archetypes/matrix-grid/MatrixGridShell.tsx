@@ -1,8 +1,7 @@
 "use client";
 import * as React from "react";
-import { SurfaceFrame } from "../../layout/SurfaceFrame";
+import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
-import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
 import { cn } from "../../../lib/utils";
 import { MatrixCell } from "./MatrixCell";
 import { MatrixGridHead } from "./MatrixGridHead";
@@ -69,20 +68,14 @@ export type MatrixGridShellProps<Cell> = {
   onCellClick?: (ctx: MatrixCellContext<Cell>) => void;
 
   /**
-   * Optional toolbar rendered by the `<SurfaceFrame>` as a ruled band directly
-   * under the on-surface header — the home for controls that drive the grid
-   * (an as-of date, filters, a scope toggle). Mirrors `ListWithDetailShell`'s
-   * `toolbar` slot so a data-driving matrix keeps its controls on the
-   * surface, not floating above it.
-   */
-  toolbar?: React.ReactNode;
-  /**
    * Rendered in the body in place of the grid when set — typically an empty-state
-   * message. Kept inside the bounded surface so the header and `toolbar` still
+   * message. Kept inside the page frame so the title and `toolbar` still
    * show (e.g. an as-of control remains usable when the current date has no rows).
    */
   emptyState?: React.ReactNode;
-} & SurfaceHeaderSlotProps;
+} & Pick<PageFrameProps, "title" | "subtitle" | "badges" | "actions" | "toolbar" | "count">;
+// `actions` = verbs on the whole grid (export CSV, bulk actions);
+// `toolbar` = what scopes it (an as-of date / period, filters); `count` = rows.
 
 // ---------------------------------------------------------------------------
 // Component
@@ -102,11 +95,8 @@ export function MatrixGridShell<Cell>({
   renderEmptyCell,
   cellStyle,
   onCellClick,
-  kicker,
-  title,
-  headerActions,
-  toolbar,
   emptyState,
+  ...header
 }: MatrixGridShellProps<Cell>) {
   const fullBleed = useFullBleedClass();
   const isFilledFn = isFilled ?? defaultIsFilled;
@@ -119,19 +109,19 @@ export function MatrixGridShell<Cell>({
 
   // Full-bleed archetype (ADR-0007 §1): the marker lifts AppShell's column
   // (page root only; nested in a surface it leaves the column alone).
-  const frameProps = { kicker, title, headerActions, toolbar, className: fullBleed } as const;
+  const frameProps = { ...header, className: fullBleed };
 
   // Only the table scrolls sideways: the frame clips (default mode) and an
   // inner `relative overflow-x-auto` box is the scroll container. The header
-  // band and toolbar stay full-width and in view, the sticky first column pins
+  // toolbar band stays full-width and in view, the sticky first column pins
   // against the inner box, and `relative` keeps absolutely positioned
   // descendants (sr-only labels) inside the clip.
   if (emptyState !== undefined && emptyState !== null) {
-    return <SurfaceFrame {...frameProps}>{emptyState}</SurfaceFrame>;
+    return <PageFrame {...frameProps}>{emptyState}</PageFrame>;
   }
 
   return (
-    <SurfaceFrame {...frameProps}>
+    <PageFrame {...frameProps}>
       <div data-slot="matrix-scroll" className="relative overflow-x-auto">
         <table className="text-[13px] border-collapse">
           <MatrixGridHead columns={columns} rowHeaderLabel={rowHeaderLabel} />
@@ -186,7 +176,7 @@ export function MatrixGridShell<Cell>({
           </tbody>
         </table>
       </div>
-    </SurfaceFrame>
+    </PageFrame>
   );
 }
 
