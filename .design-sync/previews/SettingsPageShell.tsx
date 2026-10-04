@@ -80,7 +80,7 @@ const TABS = [
 // (Save) live in the tab body — the page header carries none.
 export function TabbedSettings() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <SettingsPageShell title="Workspace" tabs={TABS} defaultTab="distribution" />
     </div>
   );
@@ -89,7 +89,7 @@ export function TabbedSettings() {
 // A breadcrumb trail rides the page header's subtitle position.
 export function WithBreadcrumbs() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <SettingsPageShell
         title="Distribution"
         subtitle={

@@ -34,7 +34,7 @@ const PREVIEW = [
 // `canProceed`. First step, so Back is also disabled.
 export function UploadStep() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <WizardShell title="Import transactions" steps={STEPS} current={0} canProceed={false}>
         <div className="flex flex-col items-center gap-3 rounded-md border border-dashed py-10 text-center">
           <UploadCloud className="h-8 w-8 text-muted-foreground" />
@@ -55,7 +55,7 @@ export function MapColumnsStep() {
     Category: "category",
   };
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <WizardShell title="Import transactions" steps={STEPS} current={1}>
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">Match each CSV column to a field.</p>
@@ -86,7 +86,7 @@ export function MapColumnsStep() {
 // Step 2 — verify, a table preview of the parsed rows.
 export function VerifyStep() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <WizardShell title="Import transactions" steps={STEPS} current={2}>
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
@@ -122,7 +122,7 @@ export function VerifyStep() {
 // busy/importing state.
 export function CommitStep() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <WizardShell title="Import transactions" steps={STEPS} current={3} busy>
         <div className="space-y-1 text-sm">
           <p>

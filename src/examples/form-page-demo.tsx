@@ -602,7 +602,7 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
   );
 
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <FormPageShell width={width} title={title} backHref="#" backLabel="Recipes">
         {formBody}
       </FormPageShell>
@@ -759,7 +759,7 @@ export function FormPageDemo(): React.ReactElement {
 
       {/* The list the form returns to — itself a framed page (title once,
           the create verb in the header, the count in the band). */}
-      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+      <div>
         <PageFrame
           title="Recipes"
           actions={

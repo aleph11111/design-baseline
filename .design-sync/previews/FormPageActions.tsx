@@ -16,7 +16,7 @@ import {
 // destructive button (create mode never shows Delete).
 export function CreateSubmitting() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <FormPageShell title="New Recipe" width="sm">
         <div className="space-y-4">
           <div className="space-y-1.5">
@@ -38,7 +38,7 @@ export function CreateSubmitting() {
 // Edit mode — Delete on the leading edge, Cancel + Save trailing.
 export function EditWithDelete() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <FormPageShell
         title={
           <>
@@ -70,7 +70,7 @@ export function EditWithDelete() {
 // with the destructive button mid-delete (spinner + disabled primary/secondary).
 export function DeletingWithError() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <FormPageShell
         title={
           <>

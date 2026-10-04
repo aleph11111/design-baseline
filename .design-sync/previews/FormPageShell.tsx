@@ -1,7 +1,6 @@
 import {
   FormPageShell,
   FormPageActions,
-  FORM_INSET_CLASS,
   Label,
   Input,
   Textarea,
@@ -20,7 +19,7 @@ import {
 // CREATE mode — no Delete button, footer reads Cancel / Create.
 export function CreateRecipe() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <FormPageShell title="New Recipe" width="md">
         <div className="space-y-5">
           <SectionCard title="Basics">
@@ -83,7 +82,7 @@ export function CreateRecipe() {
 // EDIT mode — pre-filled values, Delete button on the leading edge.
 export function EditRecipe() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <FormPageShell
         title={
           <>
@@ -161,7 +160,7 @@ export function EditRecipe() {
 // "sm" width.
 export function WithSubtitleAndBackLink() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <FormPageShell
         width="sm"
         title="New Recipe"
@@ -169,7 +168,7 @@ export function WithSubtitleAndBackLink() {
         backHref="#"
         backLabel="Back to recipes"
       >
-        <div className={`space-y-4 ${FORM_INSET_CLASS}`}>
+        <div className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="fp-title-classic">Title</Label>
             <Input id="fp-title-classic" placeholder="Weeknight Mujadara" />

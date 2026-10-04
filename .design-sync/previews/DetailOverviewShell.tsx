@@ -14,10 +14,10 @@ import {
 // The canonical Command Rail pairing: layout="rail" — one
 // bounded frame holds a chromeless, sticky rail (figures + identity + facts)
 // beside a flattened main column (activity + note). Ported from the bookshop
-// order demo. Needs the muted mat behind it for the unified frame to read.
+// order demo.
 export function CommandRailUnified() {
   return (
-    <div className="rounded-xl bg-muted/50 p-4 sm:p-6">
+    <div>
       <DetailOverviewShell
         layout="rail"
         title={<span className="font-mono">SO-2025-00417</span>}

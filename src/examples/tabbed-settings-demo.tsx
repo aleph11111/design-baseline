@@ -270,7 +270,7 @@ export function TabbedSettingsDemo() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+      <div>
         <SettingsPageShell
           title="Workspace"
           subtitle={breadcrumbs}
@@ -297,7 +297,7 @@ export function TabbedSettingsDemo() {
       {/* Nested — a settings sub-route under a layout that owns the page: the
           shell titles itself as the nested heading and joins the parent's
           surface, derived from where it renders. */}
-      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+      <div>
         <PageFrame title="Settings" subtitle="Parent layout owns the page">
           <SettingsPageShell
             title="Notifications"

@@ -6,8 +6,9 @@ import {
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 // CalendarShell — the week scheduling grid reference primitive (ported from
-// calendar-demo.tsx). Domain: a community centre's room timetable. Full week
-// with a nav/create actions cluster and all four event tones represented.
+// calendar-demo.tsx). Domain: a community centre's room timetable. Full week:
+// period nav + label in the toolbar, the create action in the header, and all
+// four event tones represented.
 const FULL_WEEK: CalendarDay[] = [
   {
     id: "2026-06-22",
@@ -62,13 +63,8 @@ const FULL_WEEK: CalendarDay[] = [
 export function CommunityCentreWeek() {
   return (
     <CalendarShell
-      title={
-        <>
-          June 2026 <span className="mx-1.5 text-border">·</span>
-          <span className="font-mono tabular-nums">Week 26</span>
-        </>
-      }
-      actions={
+      title="Room schedule"
+      toolbar={
         <>
           <Button variant="outline" size="sm" className="px-2" aria-label="Previous week">
             <ChevronLeft className="h-4 w-4" />
@@ -79,11 +75,17 @@ export function CommunityCentreWeek() {
           <Button variant="outline" size="sm" className="px-2" aria-label="Next week">
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button size="sm">
-            <Plus className="mr-1 h-4 w-4" />
-            Event
-          </Button>
+          <span className="ml-2 text-sm font-medium">
+            June 2026 <span className="mx-1.5 text-border">·</span>
+            <span className="font-mono tabular-nums">Week 26</span>
+          </span>
         </>
+      }
+      actions={
+        <Button size="sm">
+          <Plus className="mr-1 h-4 w-4" />
+          Event
+        </Button>
       }
       days={FULL_WEEK}
       emptyDayLabel="—"
@@ -91,8 +93,8 @@ export function CommunityCentreWeek() {
   );
 }
 
-// A quieter week: no nav actions, and a couple of
-// fully empty days showing the emptyDayLabel copy.
+// A quieter week: no nav, just the period label in the toolbar, and a couple
+// of fully empty days showing the emptyDayLabel copy.
 export function SparseWeek() {
   const sparseWeek: CalendarDay[] = [
     { id: "2026-07-06", dow: "Mon", date: "6", events: [{ id: "p1", time: "09:30", title: "Repair Café", tone: "success" }] },
@@ -112,7 +114,8 @@ export function SparseWeek() {
 
   return (
     <CalendarShell
-      title="July 2026 · Week 28"
+      title="Room schedule"
+      toolbar={<span className="text-sm font-medium">July 2026 · Week 28</span>}
       days={sparseWeek}
       emptyDayLabel="No sessions"
     />

@@ -69,18 +69,18 @@ export function GroupedListSection<Row>({
       className={className}
     >
       <ListWithDetailBody<Row>
-          rows={rows}
-          columns={columns}
-          getRowId={getRowId}
-          onRowSelect={onRowSelect}
-          selectedRowId={selectedRowId}
-          rowActions={rowActions}
-          emptyStateMessage={emptyStateMessage}
-          filteredEmpty={filteredEmpty}
-          sortBy={sortBy}
-          sortDirection={sortDirection}
-          onSortChange={onSortChange}
-        />
+        rows={rows}
+        columns={columns}
+        getRowId={getRowId}
+        onRowSelect={onRowSelect}
+        selectedRowId={selectedRowId}
+        rowActions={rowActions}
+        emptyStateMessage={emptyStateMessage}
+        filteredEmpty={filteredEmpty}
+        sortBy={sortBy}
+        sortDirection={sortDirection}
+        onSortChange={onSortChange}
+      />
     </SectionCard>
   );
 }

@@ -29,7 +29,7 @@ const LEVANTINE: Recipe[] = [
   { id: "r4", name: "Mhammara", prepMinutes: 20, spiceLevel: 1 },
 ];
 
-const headerActions = (
+const addAction = (
   <Button size="sm">
     <Plus className="mr-1 h-4 w-4" />
     Add recipe
@@ -50,7 +50,7 @@ export function Loaded() {
     <div>
       <GroupedListShell
         title="Recipe Book"
-        actions={headerActions}
+        actions={addAction}
         toolbar={toolbar}
       >
         <GroupedListSection<Recipe>
@@ -78,7 +78,7 @@ export function Loading() {
     <div>
       <GroupedListShell
         title="Recipe Book"
-        actions={headerActions}
+        actions={addAction}
         toolbar={toolbar}
         isLoading
       >
@@ -94,7 +94,7 @@ export function Empty() {
     <div>
       <GroupedListShell
         title="Recipe Book"
-        actions={headerActions}
+        actions={addAction}
         toolbar={toolbar}
         isEmpty
         emptyMessage="No recipes yet. Add one to get started."
@@ -111,7 +111,7 @@ export function ErrorState() {
     <div>
       <GroupedListShell
         title="Recipe Book"
-        actions={headerActions}
+        actions={addAction}
         toolbar={toolbar}
         error={new Error("Failed to load the recipe book.")}
         onRetry={() => {}}

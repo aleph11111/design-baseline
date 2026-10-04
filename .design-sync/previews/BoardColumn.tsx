@@ -46,17 +46,13 @@ export function ActiveColumns() {
   );
 }
 
-// An empty column (no count, dashed "Drop here" placeholder) next to a
-// filled "Done" column — the column's own empty affordance in context.
+// An empty column (no count, the column's own `empty` placeholder) next to a
+// filled "Done" column — the empty affordance in context.
 export function EmptyAndDoneColumns() {
   return (
     <div>
       <BoardShell title="Board">
-        <BoardColumn title="Blocked">
-          <div className="rounded-md border border-dashed py-6 text-center text-xs text-muted-foreground">
-            Drop here
-          </div>
-        </BoardColumn>
+        <BoardColumn title="Blocked" empty emptyContent="Drop here" />
         <BoardColumn title="Done" count={2}>
           <BoardCard>
             <div className="font-medium text-foreground">Audit fleet routes</div>

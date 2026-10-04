@@ -13,7 +13,7 @@ import { AtSign, Bell, CalendarDays, Image as ImageIcon, MessageSquare, Settings
 // Sub-shape 1: Inbox — filter chips + "mark all read", unread triage state.
 export function InboxWithFilters() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <FeedShell
         title="Notifications"
         actions={
@@ -75,7 +75,7 @@ export function InboxWithFilters() {
 // header actions. Rows carry a body excerpt + trailing media thumbnail.
 export function TimelineNoActions() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <FeedShell title="Activity">
         <SectionCard title="Today" flush>
           <div className="divide-y divide-border">
@@ -102,7 +102,7 @@ export function TimelineNoActions() {
 // place so the user can see why the stream reads as empty.
 export function EmptyState() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <FeedShell
         title="Notifications"
         toolbar={

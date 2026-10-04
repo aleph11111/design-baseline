@@ -77,6 +77,7 @@ export function PodcastLibraryTable() {
         rows={PODCASTS}
         columns={columns}
         getRowId={(p) => p.id}
+        count={PODCASTS.length}
         selectedRowId={selected.id}
         onRowSelect={() => {}}
         toolbar={
@@ -120,6 +121,7 @@ export function PodcastLibraryCardGrid() {
         rows={PODCASTS}
         columns={columns}
         getRowId={(p) => p.id}
+        count={PODCASTS.length}
         presentation="card-grid"
         toolbar={
           <ListWithDetailToolbar
