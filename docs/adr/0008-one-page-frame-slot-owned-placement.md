@@ -46,7 +46,7 @@ Each slot has one name and one position, rendered by the shell:
 |---|---|---|
 | `actions` | `PageHeader` right | verbs on the whole page/document: the one primary action (create included), export, print. ≤ 1 primary + 2 secondary; the rest collapse into `⋯`. |
 | `toolbar` | frame's first band, left | everything that **scopes** the body: search, filters, scoping selectors (scenario/period/structure), tabs. |
-| `count` | toolbar band, right | the result count, rendered by the shell from a number in the canonical muted treatment. |
+| `count` | toolbar band, right | the result count: the archetype's formatted string (`"12 results"`), rendered by the frame in the canonical muted treatment. |
 | `viewOptions` | toolbar band, far right | everything that changes **how** the body is shown without re-scoping it (decimals, KPI rows, show-zero, density, layout). Shells render it as one "View" menu. |
 | footer | per archetype (form, wizard, dialog) | commit actions (save/cancel/next) — unchanged. |
 
@@ -61,7 +61,7 @@ The frame is the page's only raised surface. Inner groupings render as sections 
 
 - Contracts state *what* a slot holds ("the statement is re-scoped by selectors"), never *where* it renders; placement prose and restated chrome are deleted from every contract.
 - `PLACEMENT.md` shrinks to the slot table above; `STYLE.md` drops its duplicated placement, header-fill and title text and points here.
-- Enforcement is mechanical: `audit-signals.json` gains signals for two page titles, a titled card/frame under a `PageHeader`, and a control row outside the slots; `list-actions-in-header` / `settings-actions-in-header` are inverted to match §2.
+- Enforcement is mechanical: `audit-signals.json` gains signals for two page titles, a titled card/frame under a `PageHeader`, and a control row outside the slots; `list-actions-in-header` / `settings-actions-in-header` are retired — they encoded the rejected side, and the toolbar create slot they would now guard no longer exists in the shell types (a create button in `toolbar` is caught by review, not a signal).
 
 ## Consequences
 
@@ -72,7 +72,7 @@ The frame is the page's only raised surface. Inner groupings render as sections 
 
 ## Implementation
 
-Slices, in order (each its own PR, each bumping `package.json` per RULES 11):
+Slices, in order. Slices 1–5 shipped together as one breaking release (v0.3.0, PR #452) — the shells cannot compile against a half-retired surface, so splitting them would have meant temporary compatibility shims; slice 6 is separate work in the consumer:
 
 1. **`PageFrame` primitive** (additive): `PageHeader` + untitled `SurfaceFrame` + toolbar band with `toolbar` / `count` / `viewOptions`, nested-frame context.
 2. **Migrate every page shell** onto `PageFrame` — statement-with-filters, report, matrix-grid, analytics-dashboard, list-with-detail, settings-table, grouped-list, kanban-board, detail-overview, form-page, tabbed-settings, import-wizard, feed-inbox, calendar — removing their mode switches, aliases and dropped props; demos updated.

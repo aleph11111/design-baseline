@@ -1,7 +1,8 @@
 "use client";
-export { ListWithDetailShell } from "./ListWithDetailShell";
+export { ListWithDetailShell, ListWithDetailBody } from "./ListWithDetailShell";
 export type {
   ListWithDetailShellProps,
+  ListWithDetailBodyProps,
   ListColumn,
   RowAction,
   SortDirection,

@@ -55,6 +55,7 @@
     "src/components/layout/AppShell.tsx",
     "src/components/layout/MetricList.tsx",
     "src/components/layout/NestedPageHeading.tsx",
+    "src/components/layout/PageFrame.tsx",
     "src/components/layout/PageHeader.tsx",
     "src/components/layout/ProgressTracker.tsx",
     "src/components/layout/SectionCard.tsx",

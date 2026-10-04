@@ -29,7 +29,8 @@ export type PageFrameProps = {
   subtitle?: React.ReactNode;
   /** Read-only status `<Badge>`s next to the title. */
   badges?: React.ReactNode;
-  /** Decorative title icon (top-level page only). */
+  /** Decorative title icon. Not rendered when nested: the parent page owns
+   *  the icon and the back link. */
   icon?: PageHeaderProps["icon"];
   /** Back link (top-level page only). */
   backHref?: string;
@@ -63,9 +64,6 @@ export type PageFrameProps = {
   /** Structural classes on the page root (width presets, the full-bleed
    *  marker). Never appearance (ADR-0004). */
   className?: ClassValue;
-  /** Structural classes on the surface (the matrix-grid inner scroller's
-   *  `overflow`). Never appearance. */
-  frameClassName?: ClassValue;
 };
 
 /**
@@ -98,7 +96,6 @@ export function PageFrame({
   viewOptionsLabel = "View",
   children,
   className,
-  frameClassName,
 }: PageFrameProps): React.ReactElement {
   const nested = React.useContext(PageFrameContext);
 
@@ -160,7 +157,7 @@ export function PageFrame({
         actions={actions}
       />
       <PageFrameContext.Provider value={true}>
-        <SurfaceFrame toolbar={band} className={frameClassName}>
+        <SurfaceFrame toolbar={band}>
           {children}
         </SurfaceFrame>
       </PageFrameContext.Provider>
