@@ -1,4 +1,3 @@
-import * as React from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { SurfaceFrame } from "./SurfaceFrame";
@@ -15,7 +14,7 @@ afterEach(() => {
 describe("SurfaceFrame — canonical bounded surface", () => {
   it("spells the flat card chrome once, without shadow", () => {
     const { container } = render(
-      <SurfaceFrame title="Surface">body</SurfaceFrame>,
+      <SurfaceFrame>body</SurfaceFrame>,
     );
     const frame = container.firstElementChild as HTMLElement;
 
@@ -28,22 +27,15 @@ describe("SurfaceFrame — canonical bounded surface", () => {
     expect(frame.className).not.toContain("text-card-foreground");
   });
 
-  it("renders the on-surface header and the body below it", () => {
-    const { container } = render(
-      <SurfaceFrame kicker="Kicker" title="Surface">
-        body
-      </SurfaceFrame>,
-    );
-    const header = container.querySelector('[data-slot="surface-header"]');
-    expect(header).not.toBeNull();
-    expect(header?.textContent).toContain("Kicker");
-    expect(header?.textContent).toContain("Surface");
-    expect(container.firstElementChild?.textContent).toContain("body");
+  it("is untitled: no header bar, just the body (ADR-0008)", () => {
+    const { container } = render(<SurfaceFrame>body</SurfaceFrame>);
+    expect(container.querySelector('[data-slot="surface-header"]')).toBeNull();
+    expect(container.firstElementChild?.textContent).toBe("body");
   });
 
-  it("renders the ruled toolbar band between header and body", () => {
+  it("renders the ruled toolbar band above the body", () => {
     const { container } = render(
-      <SurfaceFrame title="Surface" toolbar={<span>toolbar-slot</span>}>
+      <SurfaceFrame toolbar={<span>toolbar-slot</span>}>
         body
       </SurfaceFrame>,
     );
@@ -55,7 +47,7 @@ describe("SurfaceFrame — canonical bounded surface", () => {
 
   it("skips the toolbar band when no toolbar is provided (null or omitted)", () => {
     const withBand = render(
-      <SurfaceFrame title="S" toolbar={<span>t</span>}>b</SurfaceFrame>,
+      <SurfaceFrame toolbar={<span>t</span>}>b</SurfaceFrame>,
     );
     expect(
       withBand.container.querySelector(".border-b.px-4.py-3"),
@@ -63,12 +55,12 @@ describe("SurfaceFrame — canonical bounded surface", () => {
     cleanup();
 
     const noBand = render(
-      <SurfaceFrame title="S" toolbar={null}>b</SurfaceFrame>,
+      <SurfaceFrame toolbar={null}>b</SurfaceFrame>,
     );
     expect(noBand.container.querySelector(".border-b.px-4.py-3")).toBeNull();
     cleanup();
 
-    const omitted = render(<SurfaceFrame title="S">b</SurfaceFrame>);
+    const omitted = render(<SurfaceFrame>b</SurfaceFrame>);
     expect(omitted.container.querySelector(".border-b.px-4.py-3")).toBeNull();
   });
 
@@ -78,7 +70,7 @@ describe("SurfaceFrame — canonical bounded surface", () => {
   it("is the containing block for sr-only descendants in both overflow modes", () => {
     for (const overflow of ["auto", "hidden"] as const) {
       const { container } = render(
-        <SurfaceFrame title="S" overflow={overflow}>
+        <SurfaceFrame overflow={overflow}>
           <div style={{ width: 3000 }}>
             <span className="sr-only">label</span>
           </div>
@@ -93,7 +85,7 @@ describe("SurfaceFrame — canonical bounded surface", () => {
 
   it("clips by default and scrolls horizontally in the named `auto` mode", () => {
     const clipped = render(
-      <SurfaceFrame title="S">b</SurfaceFrame>,
+      <SurfaceFrame>b</SurfaceFrame>,
     );
     expect((clipped.container.firstElementChild as HTMLElement).className).toContain(
       "overflow-clip",
@@ -104,7 +96,7 @@ describe("SurfaceFrame — canonical bounded surface", () => {
     cleanup();
 
     const scrolling = render(
-      <SurfaceFrame title="S" overflow="auto">b</SurfaceFrame>,
+      <SurfaceFrame overflow="auto">b</SurfaceFrame>,
     );
     expect((scrolling.container.firstElementChild as HTMLElement).className).toContain(
       "overflow-x-auto",
@@ -112,30 +104,5 @@ describe("SurfaceFrame — canonical bounded surface", () => {
     expect(
       (scrolling.container.firstElementChild as HTMLElement).className,
     ).not.toContain("overflow-clip");
-  });
-
-  it("chromeless: drops the bounded card, keeps the slots, forwards the ref", () => {
-    const ref = React.createRef<HTMLDivElement>();
-    const { container } = render(
-      <SurfaceFrame
-        ref={ref}
-        title="S"
-        chrome={false}
-        toolbar={<span>t</span>}
-      >
-        body
-      </SurfaceFrame>,
-    );
-    const root = container.firstElementChild as HTMLElement;
-
-    for (const cls of CHROME) {
-      expect(root.className).not.toContain(cls);
-    }
-    // the slots render in the plain layout div
-    expect(root.querySelector('[data-slot="surface-header"]')).not.toBeNull();
-    expect(
-      (screen.getByText("t").parentElement as HTMLElement).className,
-    ).toContain("border-b px-4 py-3");
-    expect(ref.current).toBe(root);
   });
 });

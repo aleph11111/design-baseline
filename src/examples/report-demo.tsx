@@ -7,8 +7,9 @@
  * and line-item-shaped so the mono figure column carries its weight.
  *
  * Composes the full report vocabulary:
- *   - ReportShell — the bounded document surface: a kicker + title header bar
- *     (with secondary "PDF" + primary "Senden" actions) over a padded body.
+ *   - ReportShell — the one page frame (ADR-0008): the document ID as the
+ *     page title with secondary "PDF" + primary "Senden" as `actions`, then
+ *     one bounded paper surface (no toolbar — a report has none).
  *   - body: a parties row (Von / An identity blocks + a right-aligned mono
  *     dates block) → a `<ReportLineTable>` of `<ReportLineRow>`s → a
  *     right-aligned totals stack of `<ReportTotalRow>`s with a tinted Gesamt.
@@ -123,9 +124,9 @@ export function ReportDemo(): React.ReactElement {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="max-w-prose text-sm text-muted-foreground">
-          The formal-document archetype — one bounded card holding a complete
-          invoice. A <strong>kicker + title</strong> header bar carries the
-          document class and its mono ID with PDF / Senden actions; the body
+          The formal-document archetype — one bounded surface holding a
+          complete invoice. The page <strong>title</strong> carries the mono
+          document ID with PDF / Senden as page actions; the body
           stacks a <strong>parties row</strong>, a line-item table, and a
           right-aligned totals stack with a tinted <strong>Gesamt</strong>. Every
           figure is mono &amp; tabular. Toggle <strong>Width</strong>.
@@ -143,13 +144,12 @@ export function ReportDemo(): React.ReactElement {
       </div>
 
       <ReportShell
-        kicker="Beleg"
         title={
           <>
             Rechnung <span className="font-mono">{inv.number}</span>
           </>
         }
-        headerActions={
+        actions={
           <>
             <Button variant="outline" size="sm">
               PDF

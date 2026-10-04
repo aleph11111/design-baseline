@@ -9,12 +9,16 @@
  * its own recharts/nivo/etc. components into the <DashboardWidget> bodies. The
  * archetype owns the frame (KPI row + widget grid + filter bar), not the charts.
  *
- * Reuse: KPIs are <StatTileRow>/<StatTile> (from detail-overview); each widget is
- * a <SectionCard> via <DashboardWidget>. The only new chrome is <DashboardGrid>.
+ * One page frame (ADR-0008): the title + Export/Share `actions` on the canvas;
+ * the period + channel filters in the frame's `toolbar`; then the KPI row
+ * (<StatTileRow>/<StatTile>) and the widget grid (<DashboardGrid> of
+ * <DashboardWidget>s) as hairline-divided cells of the one surface — no
+ * card-in-card, no mat.
  */
 
 import * as React from "react";
 import { StatTile, StatTileRow } from "@/components/layout";
+import { Download, Share2 } from "lucide-react";
 import {
   DashboardGrid,
   DashboardShell,
@@ -226,46 +230,50 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
         <ChartPalette dark />
       </div>
 
-      {/* Plex Ledger board form: title + actions sit ON the primary bounded
-          surface (DashboardShell); widget cards are sibling cards in the mat. */}
-      <div className="rounded-xl bg-muted/30 p-4 sm:p-6 space-y-4">
-        <DashboardShell
-          kicker="Reporting"
-          title="Revenue Analytics"
-          headerActions={
-            <>
-              {/* Filter bar — period segmented control + a category/channel select. */}
-              <SegmentedControl
-                value={period}
-                onValueChange={(v) => setPeriod(v as Period)}
-                options={PERIODS.map((p) => ({ value: p, label: p }))}
-                aria-label="Period"
-              />
-              <Select value={channel} onValueChange={(v) => setChannel(v)}>
-                <SelectTrigger className="w-36">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All channels</SelectItem>
-                  <SelectItem value="web">Web</SelectItem>
-                  <SelectItem value="retail">Retail</SelectItem>
-                  <SelectItem value="wholesale">Wholesale</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="outline" size="sm">
-                Export
-              </Button>
-            </>
-          }
-        >
-          {/* KPI row — reuses StatTileRow / StatTile. */}
-          <StatTileRow>
-            <StatTile label="Revenue" value={k.revenue} hint={`vs last ${period.toLowerCase()}`} />
-            <StatTile label="Orders" value={k.orders} hint="paid + fulfilled" />
-            <StatTile label="Avg order value" value={k.aov} hint="net of refunds" />
-            <StatTile label="Active customers" value={k.customers} hint="bought at least once" />
-          </StatTileRow>
-        </DashboardShell>
+      <DashboardShell
+        title="Revenue Analytics"
+        subtitle="Shop · all figures net of refunds"
+        actions={
+          <>
+            <Button variant="outline" size="sm">
+              <Share2 className="h-4 w-4" />
+              Share
+            </Button>
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
+          </>
+        }
+        toolbar={
+          <>
+            <SegmentedControl
+              value={period}
+              onValueChange={(v) => setPeriod(v as Period)}
+              options={PERIODS.map((p) => ({ value: p, label: p }))}
+              aria-label="Period"
+            />
+            <Select value={channel} onValueChange={(v) => setChannel(v)}>
+              <SelectTrigger size="sm" className="w-36" aria-label="Channel">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All channels</SelectItem>
+                <SelectItem value="web">Web</SelectItem>
+                <SelectItem value="retail">Retail</SelectItem>
+                <SelectItem value="wholesale">Wholesale</SelectItem>
+              </SelectContent>
+            </Select>
+          </>
+        }
+      >
+        {/* KPI row — reuses StatTileRow / StatTile. */}
+        <StatTileRow>
+          <StatTile label="Revenue" value={k.revenue} hint={`vs last ${period.toLowerCase()}`} />
+          <StatTile label="Orders" value={k.orders} hint="paid + fulfilled" />
+          <StatTile label="Avg order value" value={k.aov} hint="net of refunds" />
+          <StatTile label="Active customers" value={k.customers} hint="bought at least once" />
+        </StatTileRow>
 
         {/* Widget grid — chart bodies are placeholders (consumer brings the chart lib). */}
         <DashboardGrid>
@@ -316,7 +324,7 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
             </WidgetBody>
           </DashboardWidget>
         </DashboardGrid>
-      </div>
+      </DashboardShell>
     </div>
   );
 }

@@ -1,17 +1,13 @@
 "use client";
 import * as React from "react";
+// The section is not a page, so it composes the frameless list body, never
+// the page shell.
 import {
-  ListWithDetailShell,
+  ListWithDetailBody,
   type ListColumn,
   type RowAction,
   type SortDirection,
 } from "../list-with-detail";
-// The shell's chromeless mode is an internal context supplied by the composing
-// archetype — the analogue of detail-overview's `UnifiedSurfaceContext`.
-// `GroupedListSection` owns the surrounding `<SectionCard flush>` and declares
-// that its inner delegated list renders flush (no double-card), rather than
-// exposing a per-page `unstyled` prop on the shell.
-import { ListChromeContext } from "../list-with-detail/ListWithDetailShell";
 import { SectionCard } from "../../layout/SectionCard";
 import { Badge } from "../../ui/badge";
 
@@ -45,13 +41,11 @@ export type GroupedListSectionProps<Row> = {
 };
 
 /**
- * One group within a grouped-list page. Renders as a `<SectionCard>` bounded
- * block: the group title sits in a ruled overline title bar (with a row-count
- * badge) and the group's table renders flush inside the same card — the
- * section supplies the surrounding surface, so the inner `ListWithDetailShell`
- * drops its own chrome via `ListChromeContext` (the analogue of
- * detail-overview's `UnifiedSurfaceContext`). The heading is bound to its
- * content as one block. Multiple sections share the same `Row` type per page.
+ * One group within a grouped-list page: a `<SectionCard>` whose ruled overline
+ * title bar (with a row-count badge) sits over the group's table, rendered
+ * flush. Inside the page's one surface the section card flattens (no fill —
+ * RaisedSurfaceContext), so groups read as heading-separated sections, never
+ * cards in a card (ADR-0008 §3). Multiple sections share the same `Row` type.
  */
 export function GroupedListSection<Row>({
   title,
@@ -78,21 +72,19 @@ export function GroupedListSection<Row>({
       flush
       className={className}
     >
-      <ListChromeContext.Provider value>
-        <ListWithDetailShell<Row>
-          rows={rows}
-          columns={columns}
-          getRowId={getRowId}
-          onRowSelect={onRowSelect}
-          selectedRowId={selectedRowId}
-          rowActions={rowActions}
-          emptyStateMessage={emptyStateMessage}
-          filteredEmpty={filteredEmpty}
-          sortBy={sortBy}
-          sortDirection={sortDirection}
-          onSortChange={onSortChange}
-        />
-      </ListChromeContext.Provider>
+      <ListWithDetailBody<Row>
+        rows={rows}
+        columns={columns}
+        getRowId={getRowId}
+        onRowSelect={onRowSelect}
+        selectedRowId={selectedRowId}
+        rowActions={rowActions}
+        emptyStateMessage={emptyStateMessage}
+        filteredEmpty={filteredEmpty}
+        sortBy={sortBy}
+        sortDirection={sortDirection}
+        onSortChange={onSortChange}
+      />
     </SectionCard>
   );
 }

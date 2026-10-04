@@ -2,7 +2,7 @@
 key: A
 slug: list-with-detail
 kind: page
-version: 3.0
+version: 4.0
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.9
@@ -11,6 +11,15 @@ status: locked
 
 # Archetype A — List-with-detail
 
+> **v4.0 (2026-10-03) — one page frame (ADR-0008).** Breaking. `title` is
+> required and renders once, as the page title; `kicker` / `headerActions` and
+> the on-surface header are gone (`headerActions` → `actions`). The result
+> count is the shell's `count` slot, no longer a caption inside the search box
+> (the toolbar's `resultCount` / `resultCountLabel` are removed — format the
+> string at the call site). The toolbar's `pageActions` slot is removed — the
+> create action is `actions`. The chrome-suppression context and the root
+> `ref` are removed. `hideBelowMd` is removed — use `hideBelow: "md"`.
+>
 > **v3.0 (2026-10-02) — the desktop rail is forbidden.** `detail` no longer
 > renders as an in-flow right rail beside the list on desktop; it opens as the
 > overlay surface (Sheet) on every width. The rail sat at the top of the list,
@@ -109,44 +118,36 @@ A **list-with-detail** page shows a table of domain entities (items, users, orde
 
 **Required:**
 - The page renders inside the project's **top-level app shell** — the outer layout frame that mounts the global providers (tooltip, sidebar, toast surfaces), the nav/sidebar, and the main content region. Those providers are always in the tree by the time a list-with-detail page renders; the page does not re-mount them.
-- Outer container uses the **canonical vertical rhythm** for internal section spacing only — **no page inset**; the app shell's main region supplies the inset (re-insetting here double-insets).
+- **No page inset** — the app shell's main region supplies the inset (re-insetting here double-insets).
 - A **render-error boundary** wrapping page content at the page-component level.
-- The on-surface title bar — the shell's `kicker`/`title`/`headerActions` props, rendered via the shared **on-surface header bar** (see Layer 3). There is no separate floating page header mounted above the shell.
 
 **Allowed variation:**
 - A page-level state-provider is optional. Introduce one only when the page's filter or selection state is consumed by more than one child component tree; do not add one for single-tree state.
 
 **Forbidden:**
-- Inline `<h1>` or hand-rolled header markup (use the shell's `kicker`/`title`/`headerActions` props).
 - Missing render-error boundary.
 
 ---
 
 ## Layer 3 — Page header
 
-The page header does not float above the shell as a separate page-header primitive. The list-with-detail shell mounts the shared **on-surface header bar** at the top of its one bounded card — the title bar sits ON the surface, driven entirely by shell props.
-
-**Required (via shell props):**
-- **`title`** — always present when the on-surface header renders, in the project's **canonical page-title type style**. Embed any ID/number figure in the title using the **monospace identifier style** at the call site.
-- The bar follows the **header-fill contract** (three modes): brand-filled (default) fills the bar with the brand accent and inverts the title/kicker/action buttons to white; a quieter muted-tint step; and a hairline-border-only mode. Status badges passed into `headerActions` are never inverted, even on the brand-filled mode.
+**Required:**
+- **`title`** — the page title, passed once to the shell. Embed any ID/number figure in the title using the **monospace identifier style** at the call site.
 
 **Allowed variation:**
-- **`kicker`** — optional overline above the title (the entity class, e.g. "Podcasts", "Records"), in the **canonical overline/kicker style**. Use in place of the old subtitle when the title alone doesn't convey scope.
-- **`subtitle`** / **`icon`** — optional secondary metadata line below the title and an optional decorative icon left of it.
-- **`headerActions`** — optional right-aligned small buttons: a secondary-style button for secondary actions (e.g. "Import"), the default/primary style for the primary creation action (e.g. "New show"). At most one primary action.
+- **`subtitle`** / **`badges`** — compact metadata and read-only status next to the title.
+- **`actions`** — verbs on the whole page: the one primary creation action (e.g. "New show"), plus at most two secondary ones (Import, Export).
 
 **Forbidden:**
-- Inline `<h1>` or hand-rolled header markup — always the shell's `kicker`/`title`/`headerActions` props.
-- A hand-rolled header bar reproducing the on-surface header's layout instead of using the shell's props.
+- A hand-rolled page title or header — always the shell's props.
 
 ---
 
-## Layer 4 — Toolbar
+## Layer 4 — Toolbar and count
 
 **Required:**
-- Toolbar renders as the shell's `toolbar` slot, not above or below the shell.
-- **Search input** — present on every page, via the shared **search-input molecule** (which owns the left-aligned search icon and the clear/count affordances); never hand-rolled. Placeholder text describes what is searched (e.g. "Search by name or ID…").
-- **Result count** — in the **canonical muted small-text style**, right-aligned near the action buttons, format: `{n} results`.
+- **Search input** — in the `toolbar` slot on every page, via the shared **search-input molecule**; never hand-rolled. Placeholder text describes what is searched (e.g. "Search by name or ID…").
+- **Result count** — the `count` slot, format `{n} results`, `n` being the filtered row count. The consumer formats the string (plural forms, locale).
 
 **Allowed variation:**
 - **Status filter** — optional. Default to the shared **one-of-N segmented control** (a pill row). A **dropdown select is permitted** when *either* of these holds, because a pill row stops being the better control:
@@ -155,29 +156,26 @@ The page header does not float above the shell as a separate page-header primiti
 
   When neither holds — a small status enum that is the toolbar's primary filter axis — use the segmented control. Rationale: the pill row's advantage is legibility for a *small, primary* set of states; a large enum or a multi-dimension toolbar inverts that, and both cases were proven by real consumers (rule-of-2).
 - **Quick-filter chips** — a richer compound-filter pattern (e.g. "Needs attention", "Unassigned", "Overdue") is allowed when a page has compound filter dimensions that exceed a single status axis. Each chip may display a count badge.
-- **Global action buttons** (Add, Create, Import, Export) — canonical placement is the shell's `headerActions` (the on-surface header bar, Layer 3; they invert on a brand-filled header). Small, leading icon; the default/primary style for the single primary creation action, the secondary style otherwise. A legacy toolbar placement is still tolerated on existing pages, but new pages put write actions in the header — the toolbar owns data controls (search / filters / count), not writes.
-- **Refresh button** — allowed as an icon button when the page has long-running async work that warrants manual refresh.
+- **Refresh button** — a page `actions` icon button, when the page has long-running async work that warrants manual refresh.
 
 **Forbidden:**
 - Status filters rendered as dropdown selects *when the segmented control applies* — i.e. a small status enum (≤3 values) that is the toolbar's primary filter axis. (A select is allowed for a large enum or a multi-dimension toolbar — see Allowed variation above.)
 - Hand-rolled search inputs — always compose via the shared search-input molecule (which owns the left-aligned icon).
-- Toolbar rendered outside the shell.
-- Action buttons placed anywhere other than the toolbar or the shell's `headerActions` — never inline above or below the shell.
+- Create, import, export or other write actions in the `toolbar` — they are page `actions`.
 
 ---
 
 ## Layer 5 — Content wrapper
 
 **Required:**
-- The **list-with-detail shell** — the single primitive that owns this archetype's chrome. The shell provides:
-  - The **canonical card chrome** (hairline border, subtle shadow, rounded corners, clipped overflow)
-  - A toolbar slot with a bottom-border separator
+- The **list-with-detail shell** — the single primitive that owns this archetype's page frame. The shell provides:
+  - The page's one surface, with the toolbar band above the body
   - A body with horizontal scroll on overflow
   - Loading, empty, and error slots (the shared state-view)
   - Row-level hover highlight
 
 **Allowed variation:**
-- **Footer band** — the shell's `footer` slot renders a band inside the card below the body (hairline top rule), for list-level controls that follow the rows — canonically a "Load more" row for paged lists. The band's chrome is fixed by the shell; the slot varies content only.
+- **Footer band** — the `footer` slot, for list-level controls that follow the rows — canonically a "Load more" row for paged lists. It varies content only.
 
 **Forbidden:**
 - Hand-rolled card wrappers. One shell, one style.
@@ -215,7 +213,7 @@ The page header does not float above the shell as a separate page-header primiti
   | **Everything else** (names, descriptions, free text) | **`align="left"`** (default). |
 
   Two engineers holding the same `columns` config derive the same alignment. It is a per-column *data* prop (it describes the value the column holds), not a choice of the shell's own appearance, and it does not change the shell's surface.
-- **Responsive column subset** — `hideBelow` on a column hides it below a breakpoint, `md` or `2xl` (table presentation only; `hideBelowMd` is the deprecated alias for `md`). **Choose by the column's role** (what the row's reader needs to pick a row at that width):
+- **Responsive column subset** — `hideBelow` on a column hides it below a breakpoint, `md` or `2xl` (table presentation only). **Choose by the column's role** (what the row's reader needs to pick a row at that width):
 
   | Column role | `hideBelow` |
   |---|---|
@@ -270,7 +268,7 @@ The primitive does not wire data. It expects consumer-provided props. No assumpt
 - `error: unknown | null` — any fetch error; `null` when healthy.
 - `onRetry?: () => void` — called by the error panel's "Try again" button.
 
-**Flush-surface composition (chrome is not a per-page choice).** A standalone list-with-detail page always renders the shell's card chrome (the canonical card: border + surface). A *composing* archetype (e.g. grouped-list's section card) owns an already-bounded surface and declares that its inner list renders **flush** (no second card), via a chrome-suppression context the composing shell provides — the analogue of detail-overview's `UnifiedSurfaceContext`. The decision is made by the archetype doing the composing, not by a per-page flag on the shell.
+**Composition.** The shell is a page. An archetype that renders lists inside its own page (grouped-list's sections) composes the list body, never the page shell; a list on a sub-route under a page that owns the frame joins that frame as a nested page (ADR-0008 §1).
 
 **Contract for the consumer's query hook:**
 - Use a dedicated query hook; avoid manual `useState` + `useEffect` + imperative refetch combinations.
@@ -323,7 +321,7 @@ Mutations are out of the primitive's scope. The consumer's row-click handler or 
 - **Table body** — stays the base table primitive on all viewport widths. The primitive's content wrapper provides horizontal scroll so the table scrolls on narrow viewports rather than overflowing. Consumers do not add their own scroll wrapper. Context columns drop out below `md` per the Layer 6 narrow-viewport column subset rule.
 - **Detail panel slot** — whatever element the consumer passes as the `detail` prop renders inside an **overlay surface** (sheet) anchored to the viewport's trailing edge, on every width — full-screen on mobile, a side sheet on desktop. Selecting a row opens it; a `selectedRowId` set from outside (a deep link) opens it on mount. There is no in-flow presentation: the detail never renders inside the list's own column (see forbidden pattern 10), and there is no prop to choose one.
 - **Overlay dismissal** — dismissing the overlay (Esc, backdrop click, close button) is reported back to the consumer via a dismissal callback. Required whenever a consumer relies on the overlay to reflect a cleared selection — otherwise the consumer's own selection state can go stale after the surface closes.
-- **Header fill** — when `detailTitle` is provided, the overlay's header bar follows the same **header-fill contract** as the master surface header (three modes — brand-filled / muted tint / hairline). It is a closed project context, set once at the top-level app shell; there is no per-shell override — the overlay's header bar reads the context, the same as the master on-surface header.
+- **Overlay header** — the overlay is not a page: `detailTitle` titles it and `detailActions` sit beside the title, in the overlay's own header bar.
 
 **Extension points (not shipped in baseline; consumer may add):**
 - **Card-collapse for the table body** — replacing the table with a stacked card layout on narrow viewports. Would be consumer-owned; the primitive does not provide this.
@@ -353,8 +351,8 @@ The following patterns are never permitted in a list-with-detail page, regardles
 1. **Inline edit.** Editing a row's fields in-place within the table cell. Use the detail panel, a modal, or a dedicated edit route instead.
 2. **Row drag-reorder.** Drag-to-reorder is not part of this archetype's contract. If a consumer genuinely needs ordering, opt in via an explicit `allowRowReorder` prop and a documented extension — it does not ship by default.
 3. **Embedded settings tables.** A settings-table (archetype D2) inside a list-with-detail conflicts with the list semantics. Use a separate page or a modal.
-4. **Hand-rolled card wrappers.** Always use the list-with-detail shell. Do not copy-paste the card chrome.
-5. **Action buttons in a floating page header.** All write actions live on the shell (header actions or, on legacy pages, the toolbar).
+4. **Hand-rolled card wrappers.** Always use the list-with-detail shell; nothing inside it is a card of its own.
+5. **Write actions in the toolbar.** Create / import / export are page `actions`; the toolbar only scopes.
 6. **Status dropdowns as the default.** Prefer the segmented control (pill row) for a small status enum (≤3 values) that is the page's primary filter axis. A dropdown select is permitted only for a large status enum (>3 values) or a toolbar with 2+ other filter dimensions (see Layer 4, Allowed variation).
 7. **Raw ISO date or number strings in cells.** Always route through consumer-provided formatters.
 8. **Static (non-lazy) page imports.** Always lazy-import list-with-detail pages.
@@ -397,11 +395,10 @@ When a target project applies this archetype, it wires the generic primitives to
 
 **REQUIRED**
 
-- [ ] **Write actions live on the shell** — in `headerActions` (canonical, board
-      form) or, on legacy pages, the `toolbar` slot — never inline above/below
-      the shell or in a floating page header.
-      *Wrapper tell:* a legacy button row sitting above the shell.
-- [ ] **One shell owns the list chrome.** The table/card-grid/action-row renders
+- [ ] **Create + write actions are page `actions`**; search and filters are the
+      `toolbar`; the result count is `count`. No second home for any of them.
+      *Wrapper tell:* a create button in the toolbar, or a hand-placed button row.
+- [ ] **One shell owns the page frame.** The table/card-grid/action-row renders
       via the list-with-detail shell (`presentation=…`) — a card grid is a conformant
       variant, **not** an excuse for a hand-rolled grid of cards.
 - [ ] **Identifier cell is the click target** (brand/primary color + hover underline),

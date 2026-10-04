@@ -20,25 +20,24 @@ const CARDS: Card[] = [
   { id: "t6", title: "Tooltip portal fix", column: "done", tag: "bug", who: "TM" },
 ];
 
-// Full delivery board — on-surface header (kicker + title + Filter/Add card
-// actions) over four columns, ported from the kanban-board demo's seed data.
+// Full delivery board — page title + the Add card action in the header,
+// Filter in the toolbar band, over four columns (the kanban-board demo's seed data).
 export function DeliveryBoard() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <BoardShell
-        kicker="Board"
         title="Delivery board"
-        headerActions={
-          <>
-            <Button variant="outline" size="sm">
-              <Filter className="mr-1 h-4 w-4" />
-              Filter
-            </Button>
-            <Button size="sm">
-              <Plus className="mr-1 h-4 w-4" />
-              Add card
-            </Button>
-          </>
+        actions={
+          <Button size="sm">
+            <Plus className="mr-1 h-4 w-4" />
+            Add card
+          </Button>
+        }
+        toolbar={
+          <Button variant="outline" size="sm">
+            <Filter className="mr-1 h-4 w-4" />
+            Filter
+          </Button>
         }
       >
         {COLUMNS.map((col) => {
@@ -72,11 +71,11 @@ export function DeliveryBoard() {
 }
 
 // Two-column personal backlog, no header actions — the "Blocked" column is
-// empty, showing the column's own dashed drop affordance next to real cards.
+// empty, showing the column's own `empty` placeholder next to real cards.
 export function PersonalBacklog() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <BoardShell kicker="My work" title="This sprint">
+    <div>
+      <BoardShell title="This sprint">
         <BoardColumn title="Doing" count={1}>
           <BoardCard>
             <div className="font-medium text-foreground">Finish onboarding checklist copy</div>
@@ -86,11 +85,7 @@ export function PersonalBacklog() {
             </div>
           </BoardCard>
         </BoardColumn>
-        <BoardColumn title="Blocked" count={0}>
-          <div className="rounded-md border border-dashed py-6 text-center text-xs text-muted-foreground">
-            Nothing blocked
-          </div>
-        </BoardColumn>
+        <BoardColumn title="Blocked" count={0} empty emptyContent="Nothing blocked" />
       </BoardShell>
     </div>
   );

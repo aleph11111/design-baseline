@@ -2,7 +2,7 @@
 key: F2
 slug: tabbed-settings
 kind: page
-version: 1.2
+version: 2.0
 promoted_from: brickshop-manager
 promoted_at: 2026-05-31
 source_spec_version: 1.4
@@ -14,9 +14,9 @@ status: locked
 This document is the cross-project contract for every **tabbed settings** page.
 Any new page of this archetype must satisfy every rule marked *required*.
 
-The archetype owns the shared **settings-page shell** / **settings-page header**
-primitives, which are also reused by the settings-form (D1) and settings-table
-(D2) archetypes.
+The archetype owns the **settings-page shell**. A settings form (D1) is built
+as a form page (B) and a settings table (D2) through its own shell; neither
+wraps this one.
 
 > **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/tabbed-settings`; the prop surface is the API and the sandbox demo (`src/examples/tabbed-settings-demo.tsx`) is the gallery reference.
 
@@ -67,86 +67,56 @@ distinctions from a domain hub (F1) are:
 ### Layer 2 — Page shell
 
 **Required (via the settings-page shell):**
-- Outer container uses the **canonical vertical rhythm** to stack breadcrumbs +
-  header + body.
+- One page frame: the page header, then the
+  page's one raised surface holding the tab strip and the selected tab body.
 - A **render-error boundary** wraps all page content (provided by the shell).
-- Breadcrumbs render at the top, above the header, when supplied.
-- The page header renders the title block.
-- No outer **page inset** on the page component itself — the surrounding
-  settings layout supplies the inset for settings-tree pages.
+- No outer **page inset** on the page component itself — the app shell (or
+  the surrounding settings layout) supplies it.
 
 **Allowed variation:**
-- **Standalone pages:** pass `className` to add the **page inset** the settings
-  layout would otherwise provide. No double-inset, because the settings layout
-  is absent.
-- **Breadcrumb derivation is project-specific.** The shell takes breadcrumbs as
-  a slot rather than deriving them from the router, so the consuming project
-  wires its own router-aware breadcrumb component.
+- **Breadcrumbs are project-specific and ride the subtitle.** A consumer
+  passes its own router-aware breadcrumb trail as the page header's subtitle.
+- **Nested (derived, not chosen).** Rendered under a settings layout that owns
+  the page through its own page frame, the shell titles itself as the nested
+  heading and joins the parent's surface. No prop selects this.
 
 **Forbidden:**
-- A **page inset** applied on the page's own outer container when it is nested
-  inside a settings layout — causes double-inset.
-- Inline `<h1>` / `<h2>` header markup. Use the shell's page-header treatment
-  exclusively.
-- Omitting the render-error boundary or (for pages that have a trail) the
-  breadcrumbs — both are provided by the settings-page shell.
+- A **page inset** applied on the page's own outer container — causes
+  double-inset.
+- A second raised surface — a card around the tab strip or a tab body.
 
 ### Layer 3 — Page header
 
-**Required (via the settings-page shell):**
-- **Title on the surface (board form).** Pass `kicker` and/or `headerActions`
-  to the settings-page shell and it switches to the board form: the classic
-  page-header treatment is suppressed and the shared **on-surface header bar**
-  renders inside a bounded card wrapping the tab strip and body — a `kicker`
-  overline (e.g. "Settings") over the `title` (in the project's **canonical
-  page-title type style**), the same on-surface header every framed archetype
-  shell mounts. F2 pages have no page-level actions (see below), so the board
-  form typically triggers on `kicker` alone.
-- **No action buttons in the page header.** A tabbed-settings page has no
-  page-level actions — `headerActions` (board form) / `actions` (classic
-  page-header treatment) stay empty for F2. That slot exists only for the
-  shared settings-form (D1) consumer.
-
-**Allowed variation:**
-- **Classic header** — when neither `kicker` nor `headerActions` is passed,
-  the settings-page shell falls back to rendering the classic **page-header
-  treatment** (the same **canonical page-title type style**) above an unbounded
-  body. Use this path for `subtitle` / `icon`, which the **on-surface header
-  bar** has no slot for.
-- **Subtitle** — classic header only; use when the title alone does not convey
-  purpose.
-- **Icon** — classic header only, decorative; pass a sized icon component to
-  the `icon` prop.
+**Required:**
+- `title` (required) names the settings *category* the page configures
+  ("Integrations", "Workspace"). It is the page's only title. `subtitle` is
+  optional, for when the title alone does not convey purpose.
+- **No page-level actions.** The shell has no `actions` slot: page titles name
+  categories, so actions are per tab and live in each tab body (typically
+  inherited from the tab's table or form body).
 
 **Forbidden:**
-- Inline `<h1>` / `<h2>` elements, or a hand-rolled title bar, bypassing the
-  settings-page shell's on-surface header bar / classic page-header treatment.
-- A title off the **canonical page-title type style** (both the board-form
-  on-surface header bar and the classic page-header treatment render at the
-  same scale).
-- Action buttons in the page-header row. Page titles name categories, so actions
-  live in per-tab toolbars (typically inherited from each tab's table or form
-  body).
+- A second title — a titled card, heading or hand-rolled title bar repeating
+  the page title.
 
 ### Layer 4 — Tab strip
 
 **Required:**
-- Use the design system's **tab-strip primitive**.
-- The tab strip is a direct child of the page shell's body (a sibling of the
-  header), not nested inside a card or toolbar.
+- The settings categories are the shell's `tabs` (value, label, body), in tab
+  order. The tab strip is the frame's `toolbar` — it scopes the body to one
+  category.
 
 **Allowed variation:**
-- **Icons in tab triggers** — optional.
-- **Filter-mode tab strip:** when a page uses the tab strip as a type-filter
-  (all values render the same body, only the filter changes), this is allowed.
-  The filter tab strip may live inside the toolbar area rather than at the top
-  level; document the "filter" role in an inline comment. The settings-page
-  shell still applies.
-- **URL sync** — optional per-page choice (manage a `?tab=` search param).
+- **Icons in tab labels** — optional.
+- **URL sync** — optional per-page choice: drive the selected tab with
+  `tab` / `onTabChange` (e.g. a `?tab=` search param). Otherwise `defaultTab`
+  (default: the first tab).
 
 **Forbidden:**
 - A **dropdown select** instead of tabs for multi-category navigation.
 - Nested page-level tabs inside a tab body (tabs within tabs).
+- A type-filter strip as the page tabs: a filter that re-scopes one body
+  belongs to that body's own toolbar, not the category tabs.
 
 ### Layer 5 — Per-tab body delegation
 
@@ -164,9 +134,9 @@ distinctions from a domain hub (F1) are:
   blur of F2 and C (see `docs/CHOOSING-A-SURFACE.md`): F2 owns the tab strip, C owns
   each tab's body. Use it when a deep entity's detail page is too large for one
   scroll and splits cleanly into tabs.
-- **Persistent below-tab section:** content that applies to all tabs may render
-  below the tab-strip primitive at the page level, separated by a divider. This
-  section is always visible (it is not a tab body); document the reason inline.
+- **Persistent below-tab section (`belowTabs`):** content that applies to all
+  tabs renders below every tab body, divided from it. This section is always
+  visible (it is not a tab body); document the reason inline.
 - **Log/feed tab body:** a read-only activity-log tab body is accepted. If the
   project later ships a consolidated activity surface, such a tab should become a
   filtered preview linking to that global view.
@@ -260,13 +230,12 @@ A page is conformant when **every required rule** above is satisfied:
 
 - [ ] **Layer 1** — Route is lazy + suspense-wrapped; auth guard applied
       correctly (inherited or inline)
-- [ ] **Layer 2** — Uses the settings-page shell; no outer page inset when
-      nested in a settings layout; error boundary + breadcrumbs present
-- [ ] **Layer 3** — title (board-form on-surface header bar or classic
-      page-header treatment) is in the canonical page-title type style; no
-      action buttons in the header
-- [ ] **Layer 4** — Design-system tab-strip primitive; tab strip at page-body
-      level (not in a card)
+- [ ] **Layer 2** — Uses the settings-page shell; no outer page inset; error
+      boundary present; one raised surface
+- [ ] **Layer 3** — the title renders once, as the page header; no action
+      buttons in the header
+- [ ] **Layer 4** — Categories passed as the shell's `tabs`; the tab strip is
+      the frame's toolbar
 - [ ] **Layer 5** — Each tab body satisfies the A / D1 / D2 delegation contract;
       any persistent below-tab content is separated by a divider and
       documented inline
@@ -290,6 +259,14 @@ A page is conformant when **every required rule** above is satisfied:
   settings-page header primitives to match the canonical form-page convention.
 - **2026-07-03:** Board-form sync: on-surface header bar, canonical title
   scale, single-owner molecule references.
+- **v2.0 (2026-10-03):** One page frame (ADR-0008). Always framed: the title
+  renders once as the page header above one raised surface; the tab strip is
+  the frame's toolbar, built by the shell from typed `tabs`; the persistent
+  section is `belowTabs`. Deleted: the board/classic switch (`kicker`,
+  `headerActions`), the separate settings-page header component, `icon` and
+  `actions`, the optional title (the settings-table wrapper mode — a
+  settings-table page uses its own shell). Nesting under a parent page frame
+  is derived. Ships in manifest 3.0. Breaking.
 
 ---
 

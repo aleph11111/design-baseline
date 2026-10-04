@@ -2,7 +2,7 @@
 key: M
 slug: matrix-grid
 kind: page
-version: 1.5
+version: 3.0
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -46,15 +46,14 @@ If the page is a single-axis list of rows (no meaningful columns beyond display 
 
 **Required:**
 - The page renders inside the project's **top-level app shell** — the outer layout frame that mounts global providers (tooltip, sidebar, toast surfaces), the nav/sidebar, and the main content region. Those providers are always in the tree by the time a matrix-grid page renders. Consumers do not re-mount them at the page level. **The matrix-grid shell itself does not re-mount the tooltip provider.**
-- Outer container uses the **canonical vertical rhythm** for internal spacing only — **no page inset** (the app shell's main region supplies it). It holds the bounded matrix surface (which now carries its own header + toolbar, see Layers 4/5) plus any sibling side overlays/dialogs.
+- The page adds **no page inset** (the app shell's main region supplies it). It holds the matrix-grid shell plus any sibling side overlays/dialogs.
 - A **render-error boundary** wrapping page content at the page component level.
-- **The on-surface title bar** (when the page has one — see Layer 3) — the shell's `kicker`/`title`/`headerActions` props, rendered via the shared **on-surface header bar**. There is no separate floating page header mounted above the shell.
 
 **Allowed variation:**
 - A page-level state-provider is optional and rarely needed (the shell is mostly stateless plus an overlay-open flag — local component state suffices for typical consumers).
 
 **Forbidden:**
-- Inline `<h1>` or hand-rolled header markup (use the shell's `kicker`/`title`/`headerActions` props).
+- Inline `<h1>` or hand-rolled header markup (the shell's `title` is the page title).
 - Missing render-error boundary.
 - Re-mounting the tooltip provider inside the shell (the shell renders tooltips directly; the provider is the top-level app shell's job).
 
@@ -62,18 +61,17 @@ If the page is a single-axis list of rows (no meaningful columns beyond display 
 
 ## Layer 3 — Page header
 
-The page header is **purely informational** — title, optional subtitle, optional icon. **Action buttons live in the toolbar (Layer 4).** A matrix page often omits the header entirely when the matrix view is itself a tab/segment within a parent page; that is permitted.
-
-**Required (when present):**
-- **Title on the surface.** Pass `kicker` / `title` / `headerActions` to the matrix-grid shell; the shell renders the shared **on-surface header bar** at the top of its bounded card — a `kicker` overline (e.g. "Gradebook") over the `title`, in the project's **canonical page-title type style**, the same on-surface header every framed archetype shell mounts, sitting directly above the `toolbar` band (Layer 4) when both are present. There is no separate floating page-header treatment above the shell.
+**Required:**
+- The page `title`, passed once to the matrix-grid shell (the page's only title). Axis context ("Customers × Services", "as of {asOf}") goes in `subtitle`, not a second heading.
+- **Bulk actions** on the whole grid (e.g. "Export CSV") are `actions`. Per-cell actions belong in the side overlay that opens on cell click (Layer 6's click contract).
 
 **Allowed variation:**
-- **Header omitted** — permitted when the matrix is a tab inside a larger surface, or the view has no title need (pass neither `kicker` nor `title`).
-- **Subtitle / icon** — the on-surface header bar carries `kicker` + `title` + `headerActions` only; there is no dedicated subtitle or icon slot. Fold axis context into the `kicker` or `title` text (e.g. `kicker="Customers × Services"`, or a `title` reading "…, as of {asOf}") rather than hand-rolling a second line.
+- **Nested matrix** — when the matrix is a tab inside a page that already owns the title, it still passes its own `title`; the shell renders it as the nested heading and joins the parent's surface (derived from where it renders, never a prop).
 
 **Forbidden:**
-- Inline `<h1>` or a hand-rolled title bar bypassing the matrix-grid shell's `kicker`/`title` props.
-- Per-cell actions surfaced in `headerActions` or the header bar generally — those belong in the side overlay that opens on cell click (Layer 6's click contract).
+- Inline `<h1>` or a hand-rolled title bar bypassing the shell's `title`.
+- Per-cell actions in `actions`.
+- Scoping controls (period / date / filters) in `actions` — they are `toolbar`.
 
 ---
 
@@ -82,19 +80,19 @@ The page header is **purely informational** — title, optional subtitle, option
 The matrix toolbar is different from a list-with-detail toolbar: search and filter make less sense (rows are usually pre-scoped by the route) while **temporal / view selection** controls dominate.
 
 **Required:**
-- Toolbar renders **on the surface**, via the shell's `toolbar` slot — a ruled band directly under the on-surface header bar. *(Pre-board-form the toolbar was a sibling above the shell; House Style B moved the title/actions onto the surface, so a floating toolbar now reads as orphaned from its header — pass it to the slot instead.)*
-- **Point-in-time control** when the matrix has temporal semantics. Pattern: a **date-input control** bound to the URL's `as_of` query param, plus a "Today" button (secondary style, small) that resets to today's ISO date. Because it lives in the on-surface `toolbar` band, it stays visible alongside the header even when the current date yields no rows (see Layer 7's `emptyState`).
+- Everything that scopes the grid goes in `toolbar`.
+- **Point-in-time control** when the matrix has temporal semantics. Pattern: a **date-input control** (or a period select) bound to the URL's `as_of` query param, plus a "Today" button (secondary style, small) that resets to today's ISO date. It stays usable when the current date yields no rows (see Layer 7's `emptyState`).
 
 **Allowed variation:**
 - **Filter chips** — optional. If a matrix can be sliced by an additional dimension (e.g. "only customers in region X"), use a pill bar, **not** a dropdown select. Same rule as Layer 4 in archetype A.
-- **Result count** — in the **canonical muted small-text style**, e.g. "{n} rows · {m} columns".
-- **Global action buttons** — bulk operations only (e.g. "Export CSV"), small, and their canonical home is the shell's `headerActions` (the on-surface header, Layer 3), not the toolbar band — the toolbar owns view/scope controls (period select, filter chips). Per-cell actions belong inside the side overlay editor.
+- **Result count** — `count`, e.g. "{n} rows · {m} columns".
 - **Quick-filter chips** — for the secondary axis (e.g. "Show empty rows only"). Each chip may carry a count badge.
 
 **Forbidden:**
 - Per-cell actions in the toolbar (they belong in the side overlay that opens on cell click).
+- Bulk actions (export) in `toolbar` — they are `actions`.
 - Status filter rendered as a dropdown select.
-- Toolbar floating as a sibling above the bounded surface, orphaned from the on-surface header. Pass it to the shell's `toolbar` slot instead.
+- A control row hand-rolled outside the shell's slots.
 
 ---
 
@@ -102,7 +100,6 @@ The matrix toolbar is different from a list-with-detail toolbar: search and filt
 
 **Required:**
 - The **matrix-grid shell** — the single primitive that owns this archetype's chrome. The shell provides:
-  - The **canonical card chrome** (hairline border, rounded corners); the table inside it scrolls horizontally, and the surface's header band and toolbar stay in view
   - Table chrome via the project's **base table primitive**
   - A sticky first column for the row label
   - An optional column-group band above the per-column header (only rendered when at least one column has a non-empty `group`)
@@ -116,8 +113,7 @@ reachable while the grid scrolls sideways, not chosen per call site (ADR-0004).
 The title and the toolbar (e.g. the reference-date control) must stay in view,
 so they sit outside the scroller. The mapping is exhaustive:
 
-- **Surface** — clipped, owns no scrolling. The header band and toolbar span
-  its full width and never move horizontally.
+- **Page and toolbar** — own no scrolling; they never move horizontally.
 - **Table box** — the one horizontal scroll container, directly around the
   grid. The sticky first column and the sticky head cells pin against it.
   It is the containing block of its positioned descendants, so nothing inside
@@ -178,7 +174,7 @@ This is the core layer. The matrix shell is generic over a single type parameter
 
 ## Layer 7 — Empty / loading / error states
 
-A matrix has three kinds of emptiness, and the *message* is the consumer's call — the shell is dumb about WHY a matrix is empty. But the **chrome stays mounted**: the consumer passes its message to the shell's `emptyState` slot rather than rendering it instead of the shell, so the on-surface header and `toolbar` (the as-of control especially) remain visible — the user can change the date to escape the empty result.
+A matrix has three kinds of emptiness, and the *message* is the consumer's call — the shell is dumb about WHY a matrix is empty. But the **chrome stays mounted**: the consumer passes its message to the shell's `emptyState` slot rather than rendering it instead of the shell, so the title and `toolbar` (the as-of control especially) remain visible — the user can change the date to escape the empty result.
 
 **Required (consumer responsibility):**
 - **No columns** — mount the shell and pass an `emptyState` node with the message. Example copy: "No services configured yet."
@@ -297,7 +293,7 @@ The following patterns are never permitted in a matrix-grid page, regardless of 
 3. **Multiple matrices on one route.** Each matrix view is its own page. Tabs/segments are allowed (each tab points at its own matrix view, route segment, or query param).
 4. **Side overlay rendered inside the shell.** Always a sibling.
 5. **Hand-rolled `<table>` outside the matrix-grid shell.**
-6. **Action buttons floating above the surface.** Bulk actions belong in the shell's `headerActions`; per-cell actions belong in the side overlay.
+6. **Action buttons outside the slots.** Bulk actions are `actions`; per-cell actions belong in the side overlay.
 7. **Status filter rendered as a dropdown select.** Use pill bars.
 8. **Inline cell color maps** duplicated per consumer. Cell variants live in a shared file.
 9. **Raw ISO date or number strings in cells.** Always route through a formatter inside `renderCell`.
@@ -353,3 +349,14 @@ When a target project applies this archetype, it wires the generic primitive to 
 **SHOULD** (yellow, not red)
 
 - [ ] Dense mode keeps ≥ the minimum hit target for interactive cells.
+
+---
+
+## Version log
+
+- **3.0** (ADR-0008) — one page frame. `title` is required and passed once;
+  bulk actions are `actions`, scoping controls are `toolbar` (resolving the
+  old Layer 3 "actions live in the toolbar" vs Layer 4 "bulk actions in the
+  header" contradiction), the result count is `count`. Removed: `kicker`,
+  `headerActions` (→ `actions`), the on-surface header bar, the
+  header-omitted mode (a nested matrix now derives its heading).

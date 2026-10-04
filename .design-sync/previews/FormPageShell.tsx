@@ -1,8 +1,6 @@
 import {
   FormPageShell,
-  FormPageHeader,
   FormPageActions,
-  FORM_INSET_CLASS,
   Label,
   Input,
   Textarea,
@@ -14,15 +12,15 @@ import {
   SectionCard,
 } from "design-baseline";
 
-// Board form (Plex Ledger): kicker + title sit ON the bounded surface via
-// <SurfaceHeader>; SectionCards group fields inside the same card; the
-// primary Create/Save actions stay in <FormPageActions> at the footer.
+// The title renders once, as the page header above the form's one raised
+// surface (ADR-0008); SectionCards group fields inside it; the primary
+// Create/Save actions stay in <FormPageActions> at the footer.
 
 // CREATE mode — no Delete button, footer reads Cancel / Create.
 export function CreateRecipe() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <FormPageShell kicker="Recipes" title="New Recipe" width="md">
+    <div>
+      <FormPageShell title="New Recipe" width="md">
         <div className="space-y-5">
           <SectionCard title="Basics">
             <div className="space-y-4">
@@ -84,9 +82,8 @@ export function CreateRecipe() {
 // EDIT mode — pre-filled values, Delete button on the leading edge.
 export function EditRecipe() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <FormPageShell
-        kicker="Recipes"
         title={
           <>
             Edit Recipe — <span className="font-mono">Sunday Carbonara</span>
@@ -159,20 +156,19 @@ export function EditRecipe() {
   );
 }
 
-// Allowed variation (form-page.md Layer 2): the classic floating
-// <FormPageHeader> (with a subtitle + back link) plus a Card chrome wrapper
-// around the form body, on a narrow "sm" width.
-export function ClassicWithCard() {
+// Subtitle + back link on the page header, a flat form body on a narrow
+// "sm" width.
+export function WithSubtitleAndBackLink() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <FormPageShell width="sm">
-        <FormPageHeader
-          title="New Recipe"
-          subtitle="Draft — not yet published"
-          backHref="#"
-          backLabel="Back to recipes"
-        />
-        <div className={`rounded-lg border bg-card space-y-4 ${FORM_INSET_CLASS}`}>
+    <div>
+      <FormPageShell
+        width="sm"
+        title="New Recipe"
+        subtitle="Draft — not yet published"
+        backHref="#"
+        backLabel="Back to recipes"
+      >
+        <div className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="fp-title-classic">Title</Label>
             <Input id="fp-title-classic" placeholder="Weeknight Mujadara" />

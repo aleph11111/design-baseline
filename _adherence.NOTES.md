@@ -170,9 +170,8 @@ derived-vs-inherited test runs prop-by-prop on it. Applied to the two audited pr
   set sat behind a backwards-compatible default (the inherited-default defect itself).
   The prop is deleted from the component (major version bump); the drain rule no
   longer fires because the prop no longer exists — no exclude entry needed. The
-  accent-surface recolor routes to the surface contract's context/binding
-  (`headerFillClasses().kicker`) and the one-off per-site color to the `className`
-  passthrough, which the `*Shell`/`*Sheet`-scoped `archetype-shell-class-name` ban
+  one-off per-site color routes to the `className` passthrough (the accent-surface
+  recolor went with the header fill, ADR-0008), which the `*Shell`/`*Sheet`-scoped `archetype-shell-class-name` ban
   never reaches (it is a documented leaf exemption, recorded in the contract's L7 —
   not a contradiction of the ban, which keeps its `error` severity and its scope).
 
@@ -187,7 +186,7 @@ The ratchet stays engaged across future changes; the drain no longer re-flags th
 | `detail-overview-surface-prop` | a `surface` prop declaration (any type) | `src/components/archetypes/detail-overview/**` |
 | `detail-overview-rhythm-prop` | a `rhythm` prop declaration | `src/components/archetypes/detail-overview/**` |
 | `detail-overview-appearance-slot` | a `header`/`stats` `ReactNode` slot | `src/components/archetypes/detail-overview/**` |
-| `detail-overview-headerfill-prop` | a `headerFill` prop declaration | `src/components/archetypes/detail-overview/**` |
+| `retired-headerfill-prop` | a `headerFill` prop declaration — generalized from detail-overview to every component when ADR-0008 retired the fill axis | `src/components/**` |
 | `detail-overview-residual-appearance-prop` | any appearance-shaped prop the four named rules do NOT cover — an appearance noun, a string-literal union, or a numeric-literal union — except the three contract-keyed keeps `layout`, `width` and `DetailSection`'s `tone`, which a leading negative lookahead skips | `src/components/archetypes/detail-overview/**` |
 
 These are deliberately *narrower* than the four drain rules — they name the specific retired

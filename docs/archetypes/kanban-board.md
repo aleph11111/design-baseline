@@ -2,7 +2,7 @@
 key: P
 slug: kanban-board
 kind: page
-version: 1.0
+version: 3.0
 promoted_from: fleet-audit-2026-06-13 (pmo, hk-crm)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -38,15 +38,18 @@ suspense.
 The project's **top-level app shell** (its `<main>` supplies the page inset; the page adds none). The board scrolls horizontally inside its own
 container; the page does not.
 
-## Layer 3 — Page header
-The board shell (`kicker`/`title`/`headerActions` props) renders the shared
-**on-surface header bar** at the top of the bounded card — kicker + title left,
-actions right — not a detached **canonical page-header treatment** above the
-surface. Filters (assignee, label) can sit in `headerActions` or a toolbar below.
+## Layer 3 — Page header and toolbar
+The page title is required and passed once to the board shell. Slots:
+- `actions` — whole-board verbs: the one primary action (add card), export.
+- `toolbar` — everything that scopes the board: search, assignee / label filters.
+
+A board is always framed; there is no untitled or unframed form.
 
 ## Layer 5/6 — The board
-The board shell of board-column primitives of board-card primitives. Columns show
-a count and an add-card affordance; cards show a title + a couple of compact meta
+The board shell of board-column primitives of board-card primitives. A column is
+a lane inside the page's one surface, never a card of its own; its title is a
+section-level label. Columns show a count and an optional per-column add-card
+affordance; cards show a title + a couple of compact meta
 chips — a status-badge primitive for the label, an avatar primitive for the
 assignee. Keep cards scannable — push detail into a crud-dialog (J) or a detail
 page (C) opened from the card, not onto the card.
@@ -98,3 +101,10 @@ view; a read-only viewer gets the board without drag handles.
 **SHOULD** (yellow, not red)
 
 - [ ] Add-card affordance is consistent per column (one pattern), ranked vs column actions.
+
+---
+
+## Version log
+- **3.0** — ADR-0008 page frame: `title` required; `kicker` / `headerActions` and
+  the untitled form removed; add-card → `actions`, filters → `toolbar`; columns
+  are recessed lanes, not cards.

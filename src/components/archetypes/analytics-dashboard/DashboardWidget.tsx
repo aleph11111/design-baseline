@@ -10,9 +10,9 @@ const SPAN_MAP: Record<1 | 2 | 3, string> = {
 };
 
 export type DashboardWidgetProps = {
-  /** Widget heading, rendered as the ruled overline title bar (via SectionCard). */
+  /** Widget heading, rendered as the cell's overline (via SectionCard). */
   title: React.ReactNode;
-  /** Optional right-aligned controls in the title bar (a small range toggle, a menu). */
+  /** Optional right-aligned controls beside the heading (a small range toggle, a menu). */
   actions?: React.ReactNode;
   /** Optional secondary line under the title (rendered by SectionCard). */
   description?: React.ReactNode;
@@ -35,16 +35,17 @@ export type DashboardWidgetProps = {
   span: 1 | 2 | 3;
   /**
    * The widget body — a chart (consumer brings the chart library; the baseline
-   * ships none), a number, a small table. Rendered with `px-5 py-4` padding.
+   * ships none), a number, a small table. Padded by the cell.
    */
   children: React.ReactNode;
   className?: string;
 };
 
 /**
- * DashboardWidget — one card in a `<DashboardGrid>`. A thin wrapper over the
- * shared `<SectionCard>` (so it carries the same titled-bounded-section chrome as
- * the rest of the system) plus a grid column `span`. The body is chart-agnostic:
+ * DashboardWidget — one cell in a `<DashboardGrid>`: a chromeless
+ * `<SectionCard>` (overline heading + padded body, no card — the dashboard
+ * frame is the page's one surface, ADR-0008 §3) ruled by hairlines on its
+ * right and bottom edge, plus a grid column `span`. The body is chart-agnostic:
  * the archetype owns the frame, not the chart.
  *
  * `span` carries no default — a backwards-compatible default is what disqualified
@@ -64,7 +65,8 @@ export function DashboardWidget({
       title={title}
       description={description}
       actions={actions}
-      className={cn(SPAN_MAP[span], className)}
+      chrome={false}
+      className={cn("border-r border-b border-border", SPAN_MAP[span], className)}
     >
       {children}
     </SectionCard>

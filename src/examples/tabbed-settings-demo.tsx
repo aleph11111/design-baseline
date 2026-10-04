@@ -6,25 +6,32 @@
  * brickshop source nouns (no inventory / orders / lots / items).
  *
  * Types are defined FIRST, with zero reference to the source spec, then plugged
- * into <SettingsPageShell> + shadcn <Tabs>. If a type didn't fit the primitive,
+ * into <SettingsPageShell>'s typed `tabs`. If a type didn't fit the primitive,
  * the primitive would carry a source-specific assumption — it does not.
  *
  * Exercises:
- *   - <SettingsPageShell> chrome: breadcrumb slot + header (no page-level actions)
- *   - Tab strip as navigation across three categories
+ *   - <SettingsPageShell> page frame (ADR-0008): breadcrumb slot + the title
+ *     once above the frame (no page-level actions); the tab strip is the
+ *     frame's toolbar band
+ *   - Tab strip as navigation across the categories
  *   - Per-tab body delegation: a form body (General), a table body
  *     (Distribution), a list body (Team) — one per allowed delegate
- *   - Persistent below-tab section separated by <Separator> (allowed variation)
+ *   - Persistent below-tab section (`belowTabs`, allowed variation)
+ *   - Nested: the shell under a parent page frame titles itself as the nested
+ *     heading and joins the parent's surface — derived, no prop
  */
 
 import * as React from "react";
-import { SettingsPageShell } from "@/components/archetypes/tabbed-settings";
+import {
+  SettingsPageShell,
+  type SettingsTab,
+} from "@/components/archetypes/tabbed-settings";
 import {
   DetailSection,
   KeyValueList,
   KeyValueRow,
 } from "@/components/archetypes/detail-overview";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageFrame } from "@/components/layout";
 import {
   Table,
   TableBody,
@@ -38,7 +45,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 
 // ---------------------------------------------------------------------------
 // Domain types (defined first — no primitive coupling)
@@ -119,167 +125,205 @@ export function TabbedSettingsDemo() {
     </nav>
   );
 
-  return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      {/* Plex Ledger board form: title + kicker sit ON the bounded surface
-          (SurfaceHeader); tabs and body render below inside the same card. */}
-      <SettingsPageShell
-        title="Workspace"
-        kicker="Settings"
-        breadcrumbs={breadcrumbs}
-        /* No `headerActions` — F2 has no page-level actions; per-tab actions live in each body. */
-      >
-        <Tabs defaultValue="overview">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="distribution">Distribution</TabsTrigger>
-            <TabsTrigger value="team">Team</TabsTrigger>
-          </TabsList>
-
-          {/* Tabbed-detail composition (F2 shell over a C body): this tab body is a
-              detail-overview <DetailSection> rather than a settings body. */}
-          <TabsContent value="overview" className="pt-4">
-            <DetailSection title="Workspace" flush>
-              <KeyValueList>
-                <KeyValueRow label="Show name" value={general.showName} />
-                <KeyValueRow label="Contact" value={general.contactEmail} />
-                <KeyValueRow
-                  label="Channels live"
-                  value={channels.filter((c) => c.status === "live").length}
-                />
-                <KeyValueRow label="Team size" value={team.length} />
-                <KeyValueRow
-                  label="Explicit by default"
-                  value={general.explicitByDefault ? "Yes" : "No"}
-                />
-              </KeyValueList>
-            </DetailSection>
-          </TabsContent>
-
-          {/* Tab body 1 — delegates to a settings-form (D1) shape */}
-          <TabsContent value="general" className="pt-4">
-            <div className="max-w-lg space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="showName">Show name</Label>
-                <Input
-                  id="showName"
-                  value={general.showName}
-                  onChange={(e) =>
-                    setGeneral((g) => ({ ...g, showName: e.target.value }))
-                  }
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="contactEmail">Contact email</Label>
-                <Input
-                  id="contactEmail"
-                  type="email"
-                  value={general.contactEmail}
-                  onChange={(e) =>
-                    setGeneral((g) => ({ ...g, contactEmail: e.target.value }))
-                  }
-                />
-              </div>
-              <div className="flex items-center justify-between rounded-md border px-4 py-3">
-                <div>
-                  <p className="text-sm font-medium">Mark new episodes explicit</p>
-                  <p className="text-[11px] text-muted-foreground">
-                    Applied to every newly published episode by default.
-                  </p>
-                </div>
-                <Switch
-                  checked={general.explicitByDefault}
-                  onCheckedChange={(v) =>
-                    setGeneral((g) => ({ ...g, explicitByDefault: v }))
-                  }
-                />
-              </div>
-              {/* Per-tab action — NOT in the page header */}
-              <div className="flex justify-end">
-                <Button onClick={() => setLastAction("General settings saved")}>
-                  Save changes
-                </Button>
-              </div>
+  const tabs: SettingsTab[] = [
+    // Tabbed-detail composition (F2 shell over a C body): this tab body is a
+    // detail-overview <DetailSection> rather than a settings body.
+    {
+      value: "overview",
+      label: "Overview",
+      content: (
+        <DetailSection title="Workspace" flush>
+          <KeyValueList>
+            <KeyValueRow label="Show name" value={general.showName} />
+            <KeyValueRow label="Contact" value={general.contactEmail} />
+            <KeyValueRow
+              label="Channels live"
+              value={channels.filter((c) => c.status === "live").length}
+            />
+            <KeyValueRow label="Team size" value={team.length} />
+            <KeyValueRow
+              label="Explicit by default"
+              value={general.explicitByDefault ? "Yes" : "No"}
+            />
+          </KeyValueList>
+        </DetailSection>
+      ),
+    },
+    // Tab body 1 — delegates to a settings-form (D1) shape
+    {
+      value: "general",
+      label: "General",
+      content: (
+        <div className="max-w-lg space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="showName">Show name</Label>
+            <Input
+              id="showName"
+              value={general.showName}
+              onChange={(e) =>
+                setGeneral((g) => ({ ...g, showName: e.target.value }))
+              }
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="contactEmail">Contact email</Label>
+            <Input
+              id="contactEmail"
+              type="email"
+              value={general.contactEmail}
+              onChange={(e) =>
+                setGeneral((g) => ({ ...g, contactEmail: e.target.value }))
+              }
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Mark new episodes explicit</p>
+              <p className="text-[11px] text-muted-foreground">
+                Applied to every newly published episode by default.
+              </p>
             </div>
-          </TabsContent>
-
-          {/* Tab body 2 — delegates to a settings-table (D2) shape */}
-          <TabsContent value="distribution" className="pt-4">
-            <div className="flex justify-end pb-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setLastAction("Add distribution channel")}
-              >
-                Add channel
-              </Button>
-            </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Channel</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Episodes</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {channels.map((channel) => (
-                  <TableRow key={channel.id}>
-                    <TableCell className="font-medium">{channel.name}</TableCell>
-                    <TableCell>
-                      <Badge variant={STATUS_VARIANT[channel.status]}>
-                        {channel.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">{channel.episodes}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TabsContent>
-
-          {/* Tab body 3 — a list of records → the shared <Table> (same molecule
-              as list-with-detail / settings-table), NOT a hand-rolled <ul>, so it
-              reads visually identical to every other record list. */}
-          <TabsContent value="team" className="pt-4">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Member</TableHead>
-                  <TableHead>Role</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {team.map((member) => (
-                  <TableRow key={member.id}>
-                    <TableCell className="font-medium">{member.name}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{ROLE_LABELS[member.role]}</Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TabsContent>
-        </Tabs>
-
-        {/* Persistent below-tab section (allowed variation) — applies to all tabs */}
-        <Separator />
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>
-            {lastAction ? (
-              <>
-                Last action:{" "}
-                <span className="font-medium text-foreground">{lastAction}</span>
-              </>
-            ) : (
-              "No unsaved changes across tabs."
-            )}
-          </span>
-          <span>Workspace ID: <span className="font-mono tabular-nums">ws_8f21</span></span>
+            <Switch
+              checked={general.explicitByDefault}
+              onCheckedChange={(v) =>
+                setGeneral((g) => ({ ...g, explicitByDefault: v }))
+              }
+            />
+          </div>
+          {/* Per-tab action — NOT in the page header */}
+          <div className="flex justify-end">
+            <Button onClick={() => setLastAction("General settings saved")}>
+              Save changes
+            </Button>
+          </div>
         </div>
-      </SettingsPageShell>
+      ),
+    },
+    // Tab body 2 — delegates to a settings-table (D2) shape
+    {
+      value: "distribution",
+      label: "Distribution",
+      content: (
+        <>
+          <div className="flex justify-end pb-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setLastAction("Add distribution channel")}
+            >
+              Add channel
+            </Button>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Channel</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Episodes</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {channels.map((channel) => (
+                <TableRow key={channel.id}>
+                  <TableCell className="font-medium">{channel.name}</TableCell>
+                  <TableCell>
+                    <Badge variant={STATUS_VARIANT[channel.status]}>
+                      {channel.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right font-mono tabular-nums">{channel.episodes}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </>
+      ),
+    },
+    // Tab body 3 — a list of records → the shared <Table> (same molecule
+    // as list-with-detail / settings-table), NOT a hand-rolled <ul>, so it
+    // reads visually identical to every other record list.
+    {
+      value: "team",
+      label: "Team",
+      content: (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Member</TableHead>
+              <TableHead>Role</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {team.map((member) => (
+              <TableRow key={member.id}>
+                <TableCell className="font-medium">{member.name}</TableCell>
+                <TableCell>
+                  <Badge variant="secondary">{ROLE_LABELS[member.role]}</Badge>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ),
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <SettingsPageShell
+          title="Workspace"
+          subtitle={breadcrumbs}
+          tabs={tabs}
+          /* Persistent below-tab section (allowed variation) — applies to all tabs */
+          belowTabs={
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>
+                {lastAction ? (
+                  <>
+                    Last action:{" "}
+                    <span className="font-medium text-foreground">{lastAction}</span>
+                  </>
+                ) : (
+                  "No unsaved changes across tabs."
+                )}
+              </span>
+              <span>Workspace ID: <span className="font-mono tabular-nums">ws_8f21</span></span>
+            </div>
+          }
+        />
+      </div>
+
+      {/* Nested — a settings sub-route under a layout that owns the page: the
+          shell titles itself as the nested heading and joins the parent's
+          surface, derived from where it renders. */}
+      <div>
+        <PageFrame title="Settings" subtitle="Parent layout owns the page">
+          <SettingsPageShell
+            title="Notifications"
+            tabs={[
+              {
+                value: "email",
+                label: "Email",
+                content: (
+                  <p className="text-sm text-muted-foreground">
+                    Weekly digest to {general.contactEmail}.
+                  </p>
+                ),
+              },
+              {
+                value: "push",
+                label: "Push",
+                content: (
+                  <p className="text-sm text-muted-foreground">
+                    Push alerts are off for this workspace.
+                  </p>
+                ),
+              },
+            ]}
+          />
+        </PageFrame>
+      </div>
     </div>
   );
 }

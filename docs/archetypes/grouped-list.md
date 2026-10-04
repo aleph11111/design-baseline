@@ -2,7 +2,7 @@
 key: K
 slug: grouped-list
 kind: page
-version: 1.4
+version: 4.0
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.6
@@ -13,7 +13,7 @@ status: locked
 
 ## Purpose
 
-A **grouped list** page is the variant of Archetype A used when a flat table would obscure a taxonomy the user wants to browse together. Instead of one table, the page renders **one mini-shell per group**, each headed by the group's name, with an optional trailing "ungrouped" section for rows whose taxonomy reference is missing or unmatched. Use this archetype whenever splitting the rows into separate pages would fragment a coherent browsing flow but a single flat table would lose the taxonomy structure (catalogues by category, employees by department, articles by topic, …).
+A **grouped list** page is the variant of Archetype A used when a flat table would obscure a taxonomy the user wants to browse together. Instead of one table, the page renders **one section per group**, each headed by the group's name, with an optional trailing "ungrouped" section for rows whose taxonomy reference is missing or unmatched. Use this archetype whenever splitting the rows into separate pages would fragment a coherent browsing flow but a single flat table would lose the taxonomy structure (catalogues by category, employees by department, articles by topic, …).
 
 K **inherits A's table contract**. Layers 6–10 (table, empty states, data, types, mutations) are delegated to the inner **list-with-detail shell** and follow A's rules unchanged. The layers below specify only what differs from A or what the outer grouping wrapper adds on top.
 
@@ -37,54 +37,41 @@ K **inherits A's table contract**. Layers 6–10 (table, empty states, data, typ
 
 **Required:**
 - The page renders inside the project's **top-level app shell**. The shell mounts providers; consumers do not re-mount them at the page level.
-- Outer container uses **the canonical vertical rhythm** for internal section spacing only — **no page inset** (the app shell's `<main>` region supplies it), same as A. This rhythm separates the page header band from the grouped content region; the grouped-list shell supplies its own inner **wide vertical rhythm** between sections.
+- **No page inset** (the app shell's `<main>` region supplies it), same as A.
 - **A render-error boundary** wrapping page content at the page component level.
-- The on-surface title bar — the grouped-list shell's `kicker`/`title`/`headerActions` props, rendered via the shared **on-surface header bar** (see Layer 3). There is no separate floating page header mounted above the shell.
 
 **Allowed variation:**
 - Page-level React context provider — optional. Use only when filter or selection state is consumed by more than one child component tree.
 
 **Forbidden:**
-- Inline `<h1>` or custom header markup (use the shell's `kicker`/`title`/`headerActions` props).
 - Missing render-error boundary.
 
 ---
 
 ## Layer 3 — Page header
 
-The page header no longer floats above the shell as a separate floating page-header primitive. The grouped-list shell mounts the shared **on-surface header bar** at the top of its outer container, above the toolbar and the sections region — the title bar sits ON the surface, driven entirely by shell props.
-
-**Required (via shell props):**
-- **`title`** — always present when the on-surface header renders, in the project's **canonical page-title type style** (supersedes the old floating page-header treatment).
-- The bar follows **the header-fill contract** (three modes): brand-filled (default) fills the bar with the brand accent and inverts the title/kicker/action buttons to white; a quieter muted-tint step; and a hairline-border-only mode.
+**Required:**
+- **`title`** — the page title, passed once to the shell. No second title on the grouped surface, no hand-rolled header.
 
 **Allowed variation:**
-- **`kicker`** — optional overline above the title (e.g. "Catalog", "Library"), in the **canonical overline/kicker style**.
-- **`headerActions`** — optional right-aligned small buttons, most commonly the page's single Add action (default/primary style, leading icon). `headerActions` renders whether or not a `toolbar` is also present (Layer 4) — the two slots are independent, so the Add action is never orphaned by omitting the toolbar (see Layer 4 "no toolbar").
-- **`headerFill`** — a single shell instance may override the project's house header-fill mode.
-
-**Forbidden:**
-- Inline `<h1>` or custom header markup — always the shell's `kicker`/`title`/`headerActions` props.
+- **`subtitle`** / **`badges`** — compact metadata and read-only status next to the title.
+- **`actions`** — verbs on the whole page, most commonly the single Add action (primary). Independent of `toolbar`: omitting the toolbar never orphans the Add action.
 
 ---
 
 ## Layer 4 — Toolbar
 
-The toolbar renders as a prop of the grouped-list shell (the `toolbar` slot), above the sections region. It is **page-level**, not per-section.
-
-**Required when the toolbar is present:**
-- Toolbar renders inside the shell's `toolbar` slot, not above or below the shell.
+The `toolbar` slot holds everything that **scopes** the rows across every section. It is **page-level**, not per-section.
 
 **Allowed variation:**
-- **Cross-section search** — the shared **search-input molecule** for filtering rows across every section by a shared substring. The primitive does not implement the filter; the consumer pre-filters each section's `rows` and `ungrouped` arrays before passing them to the grouped-list shell. The search input is purely a controlled-value slot in the toolbar.
+- **Cross-section search** — the shared **search-input molecule** for filtering rows across every section by a shared substring. The primitive does not implement the filter; the consumer pre-filters each section's `rows` and `ungrouped` arrays before passing them to the grouped-list shell.
 - **Status / category pill bar** — for filtering rows across sections by a shared categorical dimension, via the shared **one-of-N segmented control** — a pill row — not a dropdown select.
-- **Result count** — in the **canonical muted small-text style**, format: `{n} results`.
 
-**Allowed shape — no toolbar:**
-- A grouped-list page **may omit the toolbar entirely** when it has no cross-section search and no filters. The page's Add action still renders — it lives in the shell's `headerActions` (Layer 3), which is independent of `toolbar`, so dropping the toolbar never orphans the Add action. This is the ordinary shape now, not a special-cased exception: `headerActions` is where the primary page-level action lives regardless of whether a toolbar is rendered.
+**Allowed shape — no toolbar:** a grouped-list page with no cross-section search and no filters omits `toolbar`.
 
 **Forbidden:**
-- Per-section toolbars. A toolbar in one section but not others creates visual noise. Page-level toolbar only.
+- Per-section toolbars. Page-level toolbar only.
+- Create or write actions in the `toolbar` — they are page `actions`.
 - Status filters rendered as dropdown selects (use the segmented control).
 - Hand-rolled search inputs — always compose via the shared search-input molecule.
 
@@ -93,27 +80,23 @@ The toolbar renders as a prop of the grouped-list shell (the `toolbar` slot), ab
 ## Layer 5 — Content wrapper
 
 **Required:**
-- **The grouped-list shell** — the archetype's content-shell primitive. The shell provides:
-  - Optional toolbar slot rendered as a bare row with no card chrome, same as feed-inbox (standalone page toolbars are bare rows per STYLE.md; only toolbars *inside* a table card get the ruled toolbar band).
-  - Sections region: the **wide vertical rhythm** between sections — wide enough that each section reads as its own block.
-  - Page-level empty state (rendered when `isEmpty` is true and not loading or erroring).
+- **The grouped-list shell** — the archetype's page shell. It owns the page's one surface, the separation between sections, and the page-level empty / loading / error planes (rendered when `isEmpty` is true and not loading or erroring).
 - One section per group, plus an optional trailing section for ungrouped rows. Sections are passed as children of the grouped-list shell.
 
 **Required per section:**
-- Each group renders as a **bounded section-card**: the group title sits in a ruled overline title bar (the canonical section-heading signature) with a row-count badge on the right, and the group's table renders **flush inside the same card**. The heading is bound to its content as one block — the same titled-section shape as detail-overview's detail-section, not a heading floating above a detached card. The section composes this automatically; consumers pass `title` + rows.
-- Inner table — composes **the list-with-detail shell** with `unstyled` set (the flag drops the shell's own card chrome so it renders flush within the section card).
+- Each group is a **section inside the page's surface**, never a card of its own: the group title is a section heading with a row-count badge, over the group's table. The heading is bound to its content as one block. The section composes this automatically; consumers pass `title` + rows.
+- Inner table — the list-with-detail body (A's table contract), without a page frame of its own.
 
 **Allowed variation:**
-- **Section description** — an optional `description` line under the title in the bar. Use when the group title benefits from a one-line clarifier.
-- **Right-aligned bar treatment** — pass `actions` to put a status `<Badge>`, a sync chip, or a count-annotated badge in the bar's right slot. It replaces the default row-count badge; one right-aligned treatment per bar. The bar is otherwise closed to `title` / `description` / `actions` — there is no arbitrary-header slot (a per-call-site appearance slot is a per-call-site appearance prop by another name). A fully bespoke bar is a project-owned extension that **wraps** the section primitive (see Migration notes), not a prop on the primitive.
+- **Section description** — an optional `description` line under the title. Use when the group title benefits from a one-line clarifier.
+- **Right-aligned heading treatment** — pass `actions` to put a status badge, a sync chip, or a count-annotated badge in the heading's right slot. It replaces the default row-count badge; one right-aligned treatment per heading. The heading is otherwise closed to `title` / `description` / `actions` — there is no arbitrary-header slot. A fully bespoke heading is a project-owned extension that **wraps** the section primitive (see Migration notes), not a prop on the primitive.
 
 **Forbidden:**
 - Hand-rolled section markup. Always go through the grouped-list shell and its section primitive.
-- A per-section toggle for the row-count badge. The count is part of the section signature and is derived from the group's own row count; a section whose bar needs different content replaces the whole bar via `renderHeader`, which reports `rowCount` so a custom bar can still show it.
-- A section heading floating as plain text above a detached table card — the group is one bounded section-card.
-- Section chrome styled per page. The section-card titled-section shape is uniform across archetypes.
+- A per-section toggle for the row-count badge. The count is part of the section signature and is derived from the group's own row count.
+- Section chrome styled per page.
 - Page-level `max-width` on the grouped content region. Full-width.
-- Wrapping the grouped-list shell in an additional card (nested chrome).
+- Wrapping the grouped-list shell, or a section, in an additional card (nested chrome).
 
 ---
 
@@ -139,7 +122,7 @@ The grouped-list page has **two empty/loading planes**: page-level (the whole pa
 - **Error state** — handled by the shell's `error`/`onRetry` props (state-view, error variant), which owns the canonical load-error visual (**destructive alert**, title, icon, message) with a "Try again" button when `onRetry` is provided. The `isEmpty` condition must be gated with `&& !error`.
 
 **Section-level — discouraged:**
-- A section should never be rendered with zero rows. The consumer is expected to drop empty groups before building the `sections` array. If a section does render empty, its inner **list-with-detail shell** will show A's empty state — visually a card with "No items yet" inside — which is correct but wasteful. Pre-filter on the data layer.
+- A section should never be rendered with zero rows. The consumer is expected to drop empty groups before building the `sections` array. If a section does render empty, its inner **list-with-detail shell** will show A's empty state — visually a section with "No items yet" inside — which is correct but wasteful. Pre-filter on the data layer.
 
 **Mutation errors** surface through the app-wide toast. Render-crash errors are caught by the page's render-error boundary (Layer 2).
 
@@ -274,12 +257,19 @@ When a target project applies this archetype, it wires the generic primitives to
 
 **REQUIRED**
 
-- [ ] **One section per group**, each a bounded section-card (ruled title +
-      count) with the inner table (the list-with-detail shell, flush) rendered inside
-      it — **no** nested card chrome, no hand-rolled section markup.
+- [ ] **One section per group** (heading + count over the group's table) inside
+      the page's one surface — **no** card per group, no hand-rolled section markup.
 - [ ] **Page-level toolbar only** (the shell's `toolbar` slot), not per-section
-      toolbars. The Add action lives in the shell's `headerActions` (Layer 3) regardless
-      of whether a toolbar is rendered — never a hand-placed button above the shell.
+      toolbars. The Add action is the shell's `actions` (Layer 3) regardless of
+      whether a toolbar is rendered — never a hand-placed button.
 - [ ] **No empty sections rendered** — groups pre-filtered on the data layer.
 - [ ] **No detail panel inside a section** — detail goes to a route.
 - [ ] **[spine] S1–S6** (inherits A's table contract unchanged).
+
+---
+
+## Version log
+- **4.0** — ADR-0008 page frame: `title` required and rendered once as the page
+  title; `kicker` / `headerActions` / the on-surface header removed (Add →
+  `actions`); groups are heading-separated sections inside the page's one
+  surface, not cards.

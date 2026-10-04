@@ -11,6 +11,7 @@ import {
   Wallet,
 } from "lucide-react";
 import {
+  PageFrame,
   SectionNavShell,
   type NavItem,
   type SectionNavGroup,
@@ -95,12 +96,11 @@ export function SectionNavDemo(): React.ReactElement {
   return (
     <div className="h-full min-h-[30rem]">
       <SectionNavShell groups={NAV_GROUPS} pathname={pathname} renderLink={renderLink} ariaLabel="Account settings">
-        {/* In a routed app this content is the router's <Outlet /> — typically a
-            <SettingsPageShell> from the tabbed-settings archetype. */}
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight">{active.title}</h1>
-          <p className="text-muted-foreground">{active.body}</p>
-        </div>
+        {/* In a routed app this content is the router's <Outlet /> — a page
+            shell rendering through <PageFrame> (e.g. a <SettingsPageShell>). */}
+        <PageFrame title={active.title}>
+          <p className="p-5 text-muted-foreground">{active.body}</p>
+        </PageFrame>
       </SectionNavShell>
     </div>
   );

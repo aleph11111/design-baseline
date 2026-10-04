@@ -390,6 +390,20 @@ deleted or tightened by the MAJOR bumps that shipped in `v0.2.0`:
 | `analytics-dashboard` (3.0, #195) | `StatTileRow columns` | deleted | Drop it; the cell count comes from the number of children (2–4) |
 | `analytics-dashboard` (3.0, #195) | `DashboardWidget span` | now required | Pass `span` by the contract's Layer 6 keying rule (primary trend `3`, comparison/breakdown `2`, else `1`) |
 | `detail-overview` | `KeyValueRow mono` | never a donor prop | Drop it; the value always renders mono and tabular |
+| **all page shells** (v0.3.0, ADR-0008) | `kicker`, `headerActions`, untitled/unframed branches | deleted; `title` required | Pass `title` once to the shell and delete any `PageHeader` beside it. Page verbs (create, export, print) → `actions`; scoping controls → `toolbar`; result count → `count`; display toggles → `viewOptions` (`DropdownMenuCheckboxItem`s) |
+| **all page shells** (v0.3.0) | `subtitle` / `icon` accepted but never rendered | `subtitle` + `badges` now render; `icon` only on detail-overview / form-page | Keep `subtitle`; drop `icon` elsewhere |
+| `AppShell` (v0.3.0) | `headerFill`; `HeaderFillContext`, `useHeaderFill`, `headerFillClasses`, `SurfaceHeader`, `SurfaceHeaderSlot` | deleted | Drop the prop/imports — there is no header fill; the `PageHeader` title is the focal point |
+| `statement-with-filters` (2.0) | `actions` = the selector toolbar | `actions` = document verbs only | Selectors → `toolbar`; decimals/KPI/show-zero → `viewOptions`; Export/PDF → `actions` |
+| `matrix-grid` (3.0) | `title` optional | required | Nested inside another `PageFrame` it gets the nested heading automatically |
+| `analytics-dashboard` (4.0) | grid + widgets as siblings of the shell on a mat | inside the shell | Render `StatTileRow` + `DashboardGrid` as `DashboardShell` children; delete the mat div |
+| `calendar` (3.0) | `title` = period label; nav in `headerActions` | `title` = page name | ‹ / Today / › and the period label → `toolbar`; "+ Event" → `actions` |
+| `feed-inbox` (3.0) | `filters` | renamed `toolbar` | Primary action → `actions` only (no toolbar second home) |
+| `list-with-detail` (4.0) | `ListWithDetailToolbar pageActions`, `resultCount`, `resultCountLabel`; `ListChromeContext`; root `ref`; `TableColumn hideBelowMd`, `hideBelowMdClass` | deleted | Create action → shell `actions`; count → shell `count="{n} results"`; embedding → `ListWithDetailBody`; `hideBelow: "md"` / `hideBelowClass` |
+| `settings-table` (3.0) | toolbar "Add" button; `SettingsRowAction` | `onAddNew` renders in the header actions; alias deleted | Keep `onAddNew`; use `RowAction<Row>` |
+| `detail-overview` (4.0) | `DetailOverviewHeader`; Mode A/B union | deleted; `title` required | Pass `title` / `subtitle` / `badges` / `actions` / `icon` / `backHref` to the shell; the nested (Mode B) heading is automatic under a parent `PageFrame` |
+| `form-page` (3.0) | `FormPageHeader`; classic (unframed) layout; Card-wrapped body | deleted; always framed | `<FormPageShell title subtitle backHref …>`; commit actions stay in `FormPageActions` |
+| `tabbed-settings` (3.0) | `SettingsPageHeader`; `children` `<Tabs>` tree; `icon`, `actions`, `breadcrumbs`, `className`; title-less D2 mode | deleted | `tabs: SettingsTab[]` (+ `defaultTab` / `tab` / `onTabChange`, `belowTabs`); breadcrumbs → `subtitle`; D2 → use `SettingsTableShell` directly |
+| `import-wizard` / `report` (3.0) | `kicker`; optional `title` | deleted; required | Fold the kicker into `title` or `subtitle` |
 
 A consumer carrying any of these should **converge each archetype first**: move its
 call sites to the closed API against its own vendored copy, one archetype per

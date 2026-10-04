@@ -4,5 +4,5 @@ export type {
   SettingsTableShellProps,
   SettingsTableLabels,
   SettingsColumn,
-  SettingsRowAction,
+  RowAction,
 } from "./SettingsTableShell";

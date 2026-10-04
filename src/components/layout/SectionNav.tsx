@@ -46,8 +46,8 @@ export interface SectionNavShellProps {
  * scroll area beside a content slot. It is a layout sibling of `<AppShell>` /
  * `<AppSidebar>`, not a page archetype: it renders *inside* the app shell's
  * `<main>` on a parent route, and its content slot hosts the child page (a
- * router's `<Outlet />`, typically a `<SettingsPageShell>` from the
- * tabbed-settings archetype).
+ * router's `<Outlet />`: a page shell rendering through `PageFrame`, e.g. a
+ * `<SettingsPageShell>`).
  *
  * Two-level structure: app nav (`<AppSidebar>`) → section nav
  * (`<SectionNavShell>`) → page (`children`). The nav-group *content* (routes,

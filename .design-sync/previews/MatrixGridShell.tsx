@@ -87,11 +87,10 @@ const rows: MatrixRow<GradeEntry>[] = STUDENTS.map((student) => ({
 export function StudentGrades() {
   const [term, setTerm] = useState("spring");
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <MatrixGridShell<GradeEntry>
-        kicker="Gradebook"
         title="Student Grades"
-        headerActions={
+        actions={
           <Button variant="outline" size="sm">
             <Download className="mr-1 h-4 w-4" />
             Export
@@ -136,9 +135,8 @@ export function StudentGrades() {
 export function StudentGradesInline() {
   const ALL_GRADES: Grade[] = ["A", "B", "C", "D", "F", "INCOMPLETE"];
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <MatrixGridShell<GradeEntry>
-        kicker="Gradebook"
         title="Student Grades"
         columns={columns}
         rows={rows}
@@ -171,9 +169,8 @@ export function StudentGradesInline() {
 export function NoGradesForTerm() {
   const [term, setTerm] = useState("summer");
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <MatrixGridShell<GradeEntry>
-        kicker="Gradebook"
         title="Student Grades"
         toolbar={
           <div className="flex items-end gap-2">

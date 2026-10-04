@@ -55,8 +55,6 @@ export type TableColumn<Row> = {
    * identifier column.
    */
   hideBelow?: "md" | "2xl";
-  /** @deprecated Use `hideBelow: "md"`. Kept as an alias; `hideBelow` wins when both are set. */
-  hideBelowMd?: boolean;
 };
 
 /**
@@ -74,17 +72,14 @@ export function alignClass(align: TableColumn<unknown>["align"]): string {
  * Class strings are spelled out so Tailwind emits both tiers.
  */
 export function hideBelowClass(
-  col: Pick<TableColumn<unknown>, "hideBelow" | "hideBelowMd" | "isIdentifier">,
+  col: Pick<TableColumn<unknown>, "hideBelow" | "isIdentifier">,
 ): string | undefined {
   if (col.isIdentifier === true) return undefined;
-  const tier = col.hideBelow ?? (col.hideBelowMd === true ? "md" : undefined);
+  const tier = col.hideBelow;
   if (tier === "md") return "hidden md:table-cell";
   if (tier === "2xl") return "hidden 2xl:table-cell";
   return undefined;
 }
-
-/** @deprecated Use `hideBelowClass` (same function; also handles `hideBelow`). */
-export const hideBelowMdClass = hideBelowClass;
 
 /**
  * Identifier-cell className + interactivity props for one table cell.

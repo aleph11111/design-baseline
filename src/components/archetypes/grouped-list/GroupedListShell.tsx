@@ -1,19 +1,17 @@
 "use client";
 import * as React from "react";
 import { ListStateView, resolveListState, type ListStateLabels } from "../shared";
-import {
-  SurfaceHeaderSlot,
-  type SurfaceHeaderSlotProps,
-} from "../../layout/SurfaceHeaderSlot";
+import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 
 // The shared renderer's own labels type — one owner of the key set, so the
 // three list shells' `labels` props can't drift. Re-exported under the shell's
 // name for existing import sites.
 export type GroupedListShellLabels = ListStateLabels;
 
-export type GroupedListShellProps = {
-  /** Page-level toolbar slot. Rendered as a bare flex row above the sections region. */
-  toolbar?: React.ReactNode;
+export type GroupedListShellProps = Pick<
+  PageFrameProps,
+  "title" | "subtitle" | "badges" | "actions" | "toolbar"
+> & {
   /** True while the initial fetch is in flight. */
   isLoading?: boolean;
   /** Fetch error; null/undefined when healthy. */
@@ -28,18 +26,19 @@ export type GroupedListShellProps = {
   labels?: GroupedListShellLabels;
   /** `<GroupedListSection>` instances. */
   children?: React.ReactNode;
-} & SurfaceHeaderSlotProps;
+};
 
 /**
- * Page-level wrapper for an Archetype K (grouped-list) page. Renders an
- * optional toolbar above a vertical stack of `<GroupedListSection>` children,
- * and handles the page-level loading, empty, and error planes.
+ * Page-level wrapper for an Archetype K (grouped-list) page (ADR-0008): the
+ * page title on the canvas, then one raised surface — toolbar band, then the
+ * `<GroupedListSection>` children stacked inside it, each flattened to a
+ * heading over its table (no card-in-card). Handles the page-level loading,
+ * empty, and error planes.
  *
- * The inner table chrome is delegated to `ListWithDetailShell` inside each
+ * The inner table chrome is delegated to the list-with-detail body inside each
  * `<GroupedListSection>`; this component does not render any table itself.
  */
 export function GroupedListShell({
-  toolbar,
   isLoading,
   error,
   onRetry,
@@ -47,28 +46,13 @@ export function GroupedListShell({
   emptyMessage,
   labels,
   children,
-  kicker,
-  title,
-  headerActions,
+  ...frame
 }: GroupedListShellProps): React.ReactElement {
   const listState = resolveListState({ isLoading, error, isEmpty: isEmpty === true });
   const showSections = listState === "content";
 
   return (
-    <div className="space-y-5">
-      <SurfaceHeaderSlot
-        kicker={kicker}
-        title={title}
-        headerActions={headerActions}
-      />
-
-      {/* Page-level toolbar: a bare flex row (no card chrome) — the same
-          standalone-toolbar treatment as feed-inbox. The grouped sections below
-          supply their own card boundaries. */}
-      {toolbar && (
-        <div className="flex flex-wrap items-center gap-3">{toolbar}</div>
-      )}
-
+    <PageFrame {...frame}>
       <ListStateView
         phase={listState}
         error={error}
@@ -77,8 +61,9 @@ export function GroupedListShell({
         emptyMessage={emptyMessage}
       />
 
-      {showSections && <div className="space-y-5">{children}</div>}
-    </div>
+      {/* Group separation (STYLE.md vertical rhythm): space-y-8 between groups. */}
+      {showSections && <div className="space-y-8">{children}</div>}
+    </PageFrame>
   );
 }
 

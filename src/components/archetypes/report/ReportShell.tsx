@@ -1,16 +1,15 @@
 "use client";
 import * as React from "react";
-import { SurfaceFrame } from "../../layout/SurfaceFrame";
-import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
+import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 
-export type ReportShellProps = Omit<SurfaceHeaderSlotProps, "title"> & {
-  /**
-   * The document title — the human identifier of the document (e.g.
-   * "Rechnung RE-2025-0417"). Rendered as `text-lg font-semibold`. The
-   * caller wraps any embedded ID figure in `font-mono` itself. Unlike the
-   * other framed shells, a report's header is never optional.
-   */
-  title: React.ReactNode;
+/**
+ * A report has no toolbar (report.md): the header props only, no
+ * `toolbar` / `count` / `viewOptions`.
+ */
+export type ReportShellProps = Pick<
+  PageFrameProps,
+  "title" | "subtitle" | "badges" | "actions"
+> & {
   /**
    * Document body — the parties row, line-item table, and totals stack. The
    * shell pads it (`p-6`); the body composes its own internal rhythm.
@@ -36,40 +35,22 @@ const WIDTH: Record<NonNullable<ReportShellProps["width"]>, string> = {
 };
 
 /**
- * ReportShell — the bounded document surface for the R (report) archetype: a
- * formal document / invoice / Beleg rendered as a single self-contained card.
- *
- * Shape:
- *   ┌─────────────────────────────────────────────┐
- *   │ KICKER                              [actions] │  ← header bar (border-b)
- *   │ Title                                         │
- *   ├─────────────────────────────────────────────┤
- *   │ (padded body — parties · line items · totals) │
- *   └─────────────────────────────────────────────┘
- *
- * House style B: flat bounded card (no shadow) — the canonical `<SurfaceFrame>`
- * chrome, owned there so the document frame never drifts between apps — with a
- * faint internal hairline under the header. Token-pure — the document carries
- * no literal colors; the accent stays the donor neutral default. The body is
- * caller-composed (parties row, `ReportLineTable`-shaped grid, totals stack);
- * the shell owns only the surface + header bar contract.
+ * ReportShell — the R (report) page: a formal document / invoice / Beleg,
+ * built through the one `PageFrame` (ADR-0008). The document's identifier is
+ * the page `title`; document verbs (PDF, send) are `actions`; the body is the
+ * padded paper. A formal document is bounded, never full-bleed — `width`
+ * bounds the whole page column. Token-pure; the body is caller-composed
+ * (parties row, `ReportLineTable`, totals stack).
  */
 export function ReportShell({
-  kicker,
-  title,
-  headerActions,
   children,
   width = "md",
+  ...frame
 }: ReportShellProps): React.ReactElement {
   return (
-    <SurfaceFrame
-      kicker={kicker}
-      title={title}
-      headerActions={headerActions}
-      className={WIDTH[width]}
-    >
+    <PageFrame {...frame} className={WIDTH[width]}>
       <div className="p-6">{children}</div>
-    </SurfaceFrame>
+    </PageFrame>
   );
 }
 

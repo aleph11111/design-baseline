@@ -92,8 +92,8 @@ export function GroupedListDemo() {
   // State plane: exercises the shell's loading/error StateView, driven by
   // isLoading/error/onRetry (Layer 7).
   const [state, setState] = useState<(typeof STATES)[number]>("loaded");
-  // Toolbar-less shape (Layer 4 "no toolbar"): the Add action stays in
-  // headerActions either way — only the search toolbar slot is omitted.
+  // Toolbar-less shape (Layer 4 "no toolbar"): the Add action stays in the
+  // page `actions` either way — only the search toolbar slot is omitted.
   const [toolbarMode, setToolbarMode] =
     useState<(typeof TOOLBAR_MODES)[number]>("full");
 
@@ -127,8 +127,8 @@ export function GroupedListDemo() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="max-w-prose text-sm text-muted-foreground">
-          Sections group rows by taxonomy; each renders its own bounded
-          section card sharing one column config. Toggle <strong>State</strong> to
+          Sections group rows by taxonomy inside the page's one surface, each a
+          heading over its table, sharing one column config. Toggle <strong>State</strong> to
           see the shell's loading/error planes, and <strong>Toolbar</strong> for the
           header-only shape — the Add action stays in the header either way.
         </p>
@@ -155,11 +155,9 @@ export function GroupedListDemo() {
         </div>
       </div>
 
-      <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
       <GroupedListShell
-        kicker="Catalog"
         title="Recipe Book"
-        headerActions={
+        actions={
           <Button size="sm">
             <Plus className="mr-1 h-4 w-4" />
             Add recipe
@@ -222,7 +220,6 @@ export function GroupedListDemo() {
           />
         )}
       </GroupedListShell>
-      </div>
     </div>
   );
 }

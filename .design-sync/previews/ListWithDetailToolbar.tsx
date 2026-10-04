@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { ListWithDetailToolbar, Badge, Button } from "design-baseline";
+import { ListWithDetailToolbar, Badge } from "design-baseline";
 
-// Search + quick-filter badges + a trailing page action — the toolbar band
-// as it renders under a ListWithDetailShell's on-surface header.
+// Search + quick-filter badges — the scoping controls a ListWithDetailShell
+// renders in its toolbar band.
 export function SearchWithFilters() {
   const [search, setSearch] = useState("Coffee");
   return (
@@ -17,11 +17,6 @@ export function SearchWithFilters() {
               <Badge variant="secondary">Active</Badge>
               <Badge variant="outline">Interview</Badge>
             </>
-          }
-          pageActions={
-            <Button size="sm" variant="outline">
-              Export
-            </Button>
           }
         />
       </div>

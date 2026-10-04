@@ -29,8 +29,8 @@ const SICHUAN: Recipe[] = [
 // Default — the title bar's default row-count <Badge>.
 export function DefaultCount() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <GroupedListShell kicker="Catalog" title="Recipe Book">
+    <div>
+      <GroupedListShell title="Recipe Book">
         <GroupedListSection<Recipe>
           title="Oaxacan"
           description="From Mexico"
@@ -46,8 +46,8 @@ export function DefaultCount() {
 // actions override — a heat badge in place of the default row-count badge.
 export function CustomHeader() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <GroupedListShell kicker="Catalog" title="Recipe Book">
+    <div>
+      <GroupedListShell title="Recipe Book">
         <GroupedListSection<Recipe>
           title="Sichuan"
           description="From China"

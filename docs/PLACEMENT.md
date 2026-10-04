@@ -1,7 +1,7 @@
 ---
 slug: placement
 kind: methodology
-version: 1.3
+version: 2.0
 status: locked
 governs: [A, B, C, J, K, D2, F2, M, P, G, R, H]
 ---
@@ -23,7 +23,7 @@ navigation.
 > title, a `<Button>` dropped into a toolbar, a per-row `<DropdownMenu>` you wired yourself
 > — that is the bug. Use the primitive; the primitive owns the slot.
 
-This is why the archetype primitives exist. `PageHeader`, `ListWithDetailToolbar`,
+This is why the archetype primitives exist. `PageFrame`, `SearchInput`,
 `RowActionsMenu`, `SectionHeading`, `CrudDialogFooter`, `FormPageActions`, `StatTileRow`,
 `KeyValueList`, `StateView` are not styling conveniences — each is the **single owner of a
 slot**. Composing them *is* the placement contract; hand-rolling their content is how drift
@@ -49,52 +49,31 @@ wrong desk, whole app feels wrong.
 |------|------|------|
 | **Sidebar / header chrome** | `AppShell` props | Never a hand-rolled flex frame |
 | **Content desk** | `AppShell`'s main | `bg-surface-canvas p-4 md:p-12 xl:p-14`, centred 1180px column, 1440/1680px on a wide desk (full-bleed only for the four working-surface archetypes) — pages add no outer inset or width of their own |
-| **Framed-surface header fill** | `headerFill` on `AppShell` | Set once per project (House Style B) |
 
 ---
 
 ## The page frame — every page archetype
 
+Every page archetype shell renders through `PageFrame` ([ADR-0008](./adr/0008-one-page-frame-slot-owned-placement.md)). The page passes content into named slots; the shell decides where each renders. There is no second way to build a page — no on-surface title, no board/classic mode, no control row of your own.
+
 ```
-┌──────────────────────────────────────────────────────────┐
-│  Title                               [Secondary] [Primary]│  ← PageHeader
-│  subtitle · breadcrumb                                     │
-├──────────────────────────────────────────────────────────┤
-│  [🔍 search]   [ filter ▾ ] [segmented]      count  [≡ ⊞] │  ← Toolbar
-├──────────────────────────────────────────────────────────┤
-│                                                            │
-│   content (table / grid / groups / board / widgets)        │
-│                                                            │
-└──────────────────────────────────────────────────────────┘
+PageHeader   Title · subtitle · badges                          [actions]
+┌ one untitled raised surface ─────────────────────────────────────────┐
+│ toolbar: search · filters · selectors          count · [View ▾]       │
+├───────────────────────────────────────────────────────────────────────┤
+│ body                                                                  │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
-### Header slots — owned by `PageHeader`
-
-| Slot | Home | Rule |
-|------|------|------|
-| **Title** | top-left | Always through `PageHeader` (the canonical page-title signature). Never a bare `<h1>` in the page body. |
-| **Subtitle / breadcrumb** | directly under the title | In the header block, muted. Not a separate bar. |
-| **Primary action** | header right edge | **Exactly one** per page — the page's main verb ("New lead"). |
-| **Secondary actions** | left of the primary, same row | Up to two; past two, collapse into a `⋯` menu. |
-
-**Never** put the primary create action in the toolbar row, and never put a filter/search
-control in the header. Header = identity + the one main action. Toolbar = querying the set.
-
-### Toolbar slots — owned by `ListWithDetailToolbar` (and its equivalents)
-
-| Slot | Home | Owner |
+| Slot | Home | Holds |
 |------|------|-------|
-| **Search** | leftmost | `SearchInput` — the single owner of the toolbar search box |
-| **Filters / mode** | right of search | `SegmentedControl` for 2–3 modes; `Select`/`Popover` for more |
-| **Result count** | right side, with the action buttons | the count is a **treatment, not a component** — canonical muted small text (`text-sm text-muted-foreground`), format per the page archetype contract (`{n} results`; matrix-grid's own format). Rendered by the consumer through the toolbar's `pageActions` slot. |
-| **View / density toggles** | far right | after the count |
+| `title` (+ `subtitle`, `badges`) | `PageHeader`, top-left | The page's one title — passed once, to the shell. Under a parent page it renders as the nested heading automatically. |
+| `actions` | `PageHeader`, right | Verbs on the whole page/document: the **one** primary action (create included), export, print. ≤ 1 primary + 2 secondary; the rest in `⋯`. |
+| `toolbar` | the surface's first band, left | Everything that **scopes** the body: search (leftmost), filters, scoping selectors, tabs. |
+| `count` | toolbar band, right | The result count, canonical muted small text, in the archetype's declared format. |
+| `viewOptions` | toolbar band, far right | Everything that changes **how** the body is shown without re-scoping it (decimals, KPI rows, show-zero, density) — one "View" menu. |
 
-Search is always left. The count is always the canonical muted small-text treatment —
-`text-sm text-muted-foreground`, in the page archetype's declared format (`{n} results`) —
-never a bare unstyled figure and never in its own bespoke styling. There is no dedicated
-result-count component in the baseline; the owning treatment is the one the page archetype
-declares (list-with-detail / settings-table / grouped-list are all the same string). The
-toolbar never carries the create action.
+A control that fits none of these slots is a question for the archetype contract, not a new row on the page.
 
 ---
 
@@ -160,7 +139,7 @@ The footer button order is a hard contract, identical in a sheet and on a form p
 | Slot | Home | Owner |
 |------|------|-------|
 | **Entity title + status badges** | header, left | detail header |
-| **Header actions** (Edit, convert, quick-actions) | header, right | one row, right-aligned |
+| **Header actions** (Edit, convert, quick-actions) | `actions` | per the page-frame slot table |
 | **KPI / stat strip** | top of body | `StatTileRow` / `StatTile` (mono tabular-nums figures) |
 | **Master-data summary** | summary block | `KeyValueList` / `KeyValueRow` (ruled `dl`) |
 | **Sub-collections** | stacked below | `DetailSection` blocks |
@@ -188,11 +167,8 @@ primitive), **yellow** (a documented essential variation), or **red** (drift).
 **Red — reject in review:**
 
 - A hand-rolled app frame — any `<main>` with its own padding/background instead of `AppShell`’s desk.
-- A page title as a bare `<h1>`/`<div>` instead of `PageHeader`.
-- More than one primary action in a `PageHeader`, or a create action living in the toolbar.
-- Search anywhere but the toolbar's left; a count that skips the canonical treatment (not
-  `text-sm text-muted-foreground`, or a non-contract format) or leaves the toolbar (rendered
-  in the header or the page body instead).
+- A page title anywhere but the shell's `title` — a bare `<h1>`, a `PageHeader` next to a shell, or a titled card under the header (two titles).
+- A control outside its slot: a hand-rolled control row between header and content, a filter in `actions`, a create action in the `toolbar`, more than one primary action.
 - A per-row `DropdownMenu` that isn't `RowActionsMenu`; inline action buttons scattered per row.
 - A dialog/form with the primary button left of secondary, or Delete on the right.
 - CRUD buttons in a dialog header or body instead of the footer.
@@ -205,8 +181,7 @@ that isn't "Add".
 
 **Mechanically enforceable** (mechanical checks — shipped as part of the baseline adherence lint where possible, or as project hooks):
 
-- no bare `<h1>` inside `src/app/(app)/**` page bodies — must be `PageHeader`.
-- exactly one primary action node in a `PageHeader`.
+- no bare `<h1>` inside `src/app/(app)/**` page bodies (`_adherence.json` `no-bare-h1`); no `PageHeader` next to a shell, no titled card under a header, no control row under a header (`audit-signals.json` `page-*` signals).
 - `RowActionsMenu` is the only per-row menu component in list/grouped/board rows.
 - no `bg-red-50` / raw destructive hex in shells — must be `Alert` or the tinted box.
 
@@ -225,6 +200,7 @@ When the same placement mistake lands twice in a consuming project, promote it: 
 
 ## Revision log
 
+- **2.0** — The page frame is `PageFrame` (ADR-0008): one title, one untitled surface, five named slots. Replaced the separate header/toolbar slot tables (which contradicted the title-on-the-card shells and `audit-signals.json` on where the create action and filters go) with the one slot table; the red list now names the double-title and split-control shapes.
 - **1.3** — Removed the dead component reference from the result-count slot: the slot named a
   primitive that does not exist anywhere in the donor (`src/` carries no such component — the
   rule pointed an operator at a never-shipped component). The slot now names the owning

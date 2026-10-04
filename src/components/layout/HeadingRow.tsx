@@ -59,7 +59,7 @@ export type HeadingRowProps = {
    * Optional secondary content below the title. Wrapped in a `<div>`, not a
    * `<p>`, so block content (multiple lines, nested `<div>`s, a list) nests
    * validly; plain inline content renders unchanged. Carries
-   * `data-slot="heading-subtitle"` so a solid header bar can invert it.
+   * `data-slot="heading-subtitle"` as a stable slot marker.
    */
   subtitle?: React.ReactNode;
   /** Optional status badges, rendered inline after the heading (same row). */

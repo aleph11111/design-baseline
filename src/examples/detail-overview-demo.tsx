@@ -10,9 +10,11 @@
  *   - DetailOverviewShell `layout="rail"` — one bounded, unified frame:
  *     sticky, chromeless, inset-divided rail beside a flattened-carded main
  *     column. Toggle Layout / Width.
- *   - Mode B nested header via the shell's `title`/`subtitle`/`badges`/`actions`
- *     data props — status lives ONCE, inline next to the title (the gate's
- *     "one home for status"), rendered at a single fixed nested-page scale.
+ *   - The page header via the shell's `title`/`subtitle`/`badges`/`actions`/
+ *     `backHref` props, rendered once above the frame (ADR-0008) — status
+ *     lives ONCE, inline next to the title (the gate's "one home for status").
+ *   - Nested: the same shell under a parent page frame titles itself as the
+ *     nested heading and joins the parent's surface — derived, no prop.
  *   - summary (rail) = status-free stack: MetricList revenue/profit readout
  *     (headline + disclosure) → customer identity → KeyValueList facts.
  *   - content (main) = ProgressTracker activity → a line-item table WITH
@@ -28,12 +30,12 @@
 import * as React from "react";
 import { FileText, MoreHorizontal, PanelLeft, Rows3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { PageFrame } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { IconAvatar } from "@/components/ui/icon-avatar";
 import {
-  DetailOverviewHeader,
   DetailOverviewShell,
   DetailSection,
   KeyValueList,
@@ -214,18 +216,13 @@ export function DetailOverviewDemo(): React.ReactElement {
         </div>
       </div>
 
-      {/* Muted mat — the single unified frame reads as one bounded surface only
-          when the page behind it is muted (the app does this via AppShell's
-          `<main>` on bg-muted/30; the gallery has no AppShell, so the demo
-          supplies it).
-          The blue `--primary` override is BrickShop's brand, scoped to this
-          surface: the donor default stays neutral slate; each app brings its own
+      {/* The blue `--primary` override is BrickShop's brand, scoped to this
+          page: the donor default stays neutral slate; each app brings its own
           accent. One token re-skins every primary action, badge, and
           ProgressTracker dot. (Not the metric figures — those always render
           `text-foreground`; the brand-tint flag was per-call-site discretion no
           contract keyed, so it is gone.) */}
       <div
-        className="rounded-xl bg-muted/50 p-4 sm:p-6"
         style={
           {
             "--primary": "223 87% 29%",
@@ -238,6 +235,8 @@ export function DetailOverviewDemo(): React.ReactElement {
           layout={layout}
           width={width}
           title={<span className="font-mono">{o.number}</span>}
+          backHref="#"
+          backLabel="Orders"
           subtitle={
             <>
               <span>Orders</span>
@@ -476,43 +475,39 @@ export function DetailOverviewDemo(): React.ReactElement {
         />
       </div>
 
-      {/* Mode A — standalone header with the shared back-link adapter, over a
-          collapsible section (title bar is the disclosure toggle), then the
-          vertical shell with a stats strip. */}
-      <div className="space-y-4 rounded-xl bg-muted/50 p-4 sm:p-6">
-        <DetailOverviewHeader
-          title={<span className="font-mono">{o.number}</span>}
-          subtitle="Mode A — standalone header with a back link"
-          backHref="#"
-          backLabel="Orders"
-        />
-        <DetailSection title="Raw payload" collapsible>
-          <pre className="overflow-x-auto font-mono text-[11px] text-muted-foreground">
-            {JSON.stringify({ id: o.id, number: o.number, channel: o.channel }, null, 2)}
-          </pre>
-        </DetailSection>
-        {/* Same vertical (no-rail) axis via the shell, with the typed `stats`
-            strip (slot 3, aggregates) — the contract's default for the vertical
-            variant; the rail fixture above surfaces these figures in `summary`
-            via MetricList instead. */}
-        <DetailOverviewShell
-          layout="vertical"
-          title={<span className="font-mono">{o.number}</span>}
-          subtitle="Vertical — aggregates as a stat strip"
-          stats={[
-            { label: "Revenue", value: fmtEUR(o.revenue), hint: "incl. shipping" },
-            { label: "Gross profit", value: fmtEUR(o.grossProfit), hint: `margin ${o.margin}` },
-            { label: "Items", value: String(o.lineItems.reduce((n, li) => n + li.qty, 0)) },
-          ]}
-          content={
-            <DetailSection title="Details" flush>
-              <KeyValueList>
-                <KeyValueRow label="Customer" value={o.customer.name} />
-                <KeyValueRow label="Placed on" value={fmtDate(o.placedOn)} />
-              </KeyValueList>
-            </DetailSection>
-          }
-        />
+      {/* Nested — the shell under a parent page frame (an entity tab under a
+          layout that owns the page): it titles itself as the nested heading
+          and joins the parent's surface, derived from where it renders. Also
+          the vertical layout with the typed `stats` strip (slot 3, aggregates)
+          and a collapsible section. */}
+      <div>
+        <PageFrame title={o.customer.name} subtitle="Customer · parent layout owns the page">
+          <DetailOverviewShell
+            layout="vertical"
+            title={<span className="font-mono">{o.number}</span>}
+            subtitle="Nested — vertical, aggregates as a stat strip"
+            stats={[
+              { label: "Revenue", value: fmtEUR(o.revenue), hint: "incl. shipping" },
+              { label: "Gross profit", value: fmtEUR(o.grossProfit), hint: `margin ${o.margin}` },
+              { label: "Items", value: String(o.lineItems.reduce((n, li) => n + li.qty, 0)) },
+            ]}
+            content={
+              <>
+                <DetailSection title="Details" flush>
+                  <KeyValueList>
+                    <KeyValueRow label="Customer" value={o.customer.name} />
+                    <KeyValueRow label="Placed on" value={fmtDate(o.placedOn)} />
+                  </KeyValueList>
+                </DetailSection>
+                <DetailSection title="Raw payload" collapsible>
+                  <pre className="overflow-x-auto font-mono text-[11px] text-muted-foreground">
+                    {JSON.stringify({ id: o.id, number: o.number, channel: o.channel }, null, 2)}
+                  </pre>
+                </DetailSection>
+              </>
+            }
+          />
+        </PageFrame>
       </div>
     </div>
   );

@@ -24,8 +24,10 @@ export type BoardColumnProps = React.HTMLAttributes<HTMLDivElement> & {
 };
 
 /**
- * BoardColumn — one column in a `<BoardShell>`: an overline header (title + count
- * + actions) over a vertical stack of `<BoardCard>`s. Drag-agnostic: the outer
+ * BoardColumn — one column in a `<BoardShell>`: a recessed lane (canvas tone,
+ * no border — never a card inside the page's one raised surface, ADR-0008 §3)
+ * with an overline `h3` header (title + count + actions) over a vertical stack
+ * of `<BoardCard>`s. Drag-agnostic: the outer
  * div forwards its ref and spreads `...rest`, so the consumer attaches its DnD
  * droppable (`ref`, `onDragOver`/`onDrop`, dnd-kit listeners) here.
  */
@@ -44,12 +46,12 @@ export function BoardColumn({
     <div
       ref={ref}
       className={cn(
-        "flex w-72 shrink-0 flex-col rounded-lg border bg-muted/40",
+        "flex w-72 shrink-0 flex-col rounded-lg bg-surface-canvas",
         className,
       )}
       {...rest}
     >
-      <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+      <div className="flex items-center gap-2 px-3 py-2">
         <h3 className={OVERLINE_CLASS}>{title}</h3>
         {count !== undefined && (
           <span className="font-mono text-xs tabular-nums text-muted-foreground">{count}</span>

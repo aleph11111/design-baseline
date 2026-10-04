@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { StatementWithFiltersShell } from "./StatementWithFiltersShell";
 import { StatementTable, StatementRow, StatementTotalRow } from "./StatementTable";
 
@@ -8,39 +8,35 @@ afterEach(() => {
 });
 
 describe("StatementWithFiltersShell", () => {
-  it("renders its header through the shared SurfaceHeader", () => {
-    const { container, getByText } = render(
-      <StatementWithFiltersShell kicker="Statement" title="Yield 2026">
+  it("titles the page once, as the h1, with no on-surface title", () => {
+    const { container } = render(
+      <StatementWithFiltersShell title="Yield 2026">
         <div>body</div>
       </StatementWithFiltersShell>,
     );
 
-    const header = container.querySelector('[data-slot="surface-header"]');
-    expect(header).not.toBeNull();
-    expect(header?.contains(getByText("Statement"))).toBe(true);
-    expect(header?.contains(getByText("Yield 2026"))).toBe(true);
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Yield 2026");
+    expect(screen.getAllByText("Yield 2026")).toHaveLength(1);
+    expect(container.querySelector('[data-slot="surface-header"]')).toBeNull();
   });
 
-  it("renders the toolbar into the header's on-surface actions band", () => {
-    const { container, getByText } = render(
+  it("puts selectors in the toolbar band, verbs in the header, toggles in the View menu", () => {
+    render(
       <StatementWithFiltersShell
-        kicker="Statement"
         title="Yield 2026"
-        actions={
-          <>
-            <button type="button">Season</button>
-            <button type="button">Hive</button>
-          </>
-        }
+        toolbar={<button type="button">Season</button>}
+        actions={<button type="button">Export</button>}
+        viewOptions={<div />}
       >
         <div>body</div>
       </StatementWithFiltersShell>,
     );
 
-    const header = container.querySelector('[data-slot="surface-header"]');
-    expect(header).not.toBeNull();
-    expect(header?.contains(getByText("Season"))).toBe(true);
-    expect(header?.contains(getByText("Hive"))).toBe(true);
+    const band = screen.getByText("Season").closest(".border-b") as HTMLElement;
+    expect(band).not.toBeNull();
+    expect(band.textContent).toContain("View");
+    expect(band.contains(screen.getByText("Export"))).toBe(false);
   });
 });
 

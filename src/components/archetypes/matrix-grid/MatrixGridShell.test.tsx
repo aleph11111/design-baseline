@@ -14,7 +14,7 @@ describe("MatrixGridShell", () => {
   it("clickable cells are focusable button-role cells that activate on Enter/Space", () => {
     const onCellClick = vi.fn();
     render(
-      <MatrixGridShell
+      <MatrixGridShell title="M"
         columns={columns}
         rows={rows}
         renderCell={(ctx) => ctx.cell}
@@ -32,7 +32,7 @@ describe("MatrixGridShell", () => {
   });
 
   it("no onCellClick: cells are not tab stops", () => {
-    render(<MatrixGridShell columns={columns} rows={rows} renderCell={(ctx) => ctx.cell} />);
+    render(<MatrixGridShell title="M" columns={columns} rows={rows} renderCell={(ctx) => ctx.cell} />);
     expect(screen.queryByRole("button", { name: "P" })).toBeNull();
   });
 
@@ -42,7 +42,7 @@ describe("MatrixGridShell", () => {
       { id: "1", label: "Ada", cells: { mon: "P" } },
     ];
     render(
-      <MatrixGridShell
+      <MatrixGridShell title="M"
         columns={mixedColumns}
         rows={mixedRows}
         renderCell={(ctx) => ctx.cell}
@@ -61,7 +61,7 @@ describe("MatrixGridShell", () => {
       { id: "1", label: "Ada", cells: { mon: "P" } },
     ];
     render(
-      <MatrixGridShell
+      <MatrixGridShell title="M"
         columns={mixedColumns}
         rows={mixedRows}
         renderCell={(ctx) => ctx.cell}
@@ -77,7 +77,7 @@ describe("MatrixGridShell", () => {
 
   it("renders no content by default on empty cells (no renderEmptyCell)", () => {
     const emptyRows: MatrixRow<string>[] = [{ id: "1", label: "Ada", cells: {} }];
-    render(<MatrixGridShell columns={columns} rows={emptyRows} renderCell={(ctx) => ctx.cell} />);
+    render(<MatrixGridShell title="M" columns={columns} rows={emptyRows} renderCell={(ctx) => ctx.cell} />);
     expect(document.querySelector("tbody td")!.textContent).toBe("");
   });
 });
@@ -97,7 +97,7 @@ describe("banded header group merge", () => {
       { id: "1", label: "Ada", cells: { a1: "x" } },
     ];
     render(
-      <MatrixGridShell
+      <MatrixGridShell title="M"
         columns={groupedColumns}
         rows={groupedRows}
         renderCell={(ctx) => ctx.cell}
@@ -117,7 +117,7 @@ describe("banded header group merge", () => {
 
   it("suppresses the banded row entirely when no column has a group", () => {
     render(
-      <MatrixGridShell
+      <MatrixGridShell title="M"
         columns={columns}
         rows={rows}
         renderCell={(ctx) => ctx.cell}
@@ -158,7 +158,7 @@ describe("MatrixGridShell per-cell tooltips", () => {
   it("uses a native title attribute for plain-text tooltips — no Tooltip mounted at all", () => {
     render(
       <TooltipProvider>
-        <MatrixGridShell<number>
+        <MatrixGridShell<number> title="M"
           columns={denseColumns}
           rows={buildDenseRows()}
           renderCell={(ctx) => ctx.cell}
@@ -176,7 +176,7 @@ describe("MatrixGridShell per-cell tooltips", () => {
   it("mounts at most one Tooltip regardless of cell count, for rich-content tooltips", () => {
     render(
       <TooltipProvider>
-        <MatrixGridShell<number>
+        <MatrixGridShell<number> title="M"
           columns={denseColumns}
           rows={buildDenseRows()}
           renderCell={(ctx) => ctx.cell}
@@ -222,7 +222,7 @@ describe("MatrixGridShell sticky first column", () => {
       { key: "tue", label: "Tue", group: "W1" },
     ];
     const { container } = render(
-      <MatrixGridShell columns={grouped} rows={rows} renderCell={(ctx) => ctx.cell} />,
+      <MatrixGridShell title="M" columns={grouped} rows={rows} renderCell={(ctx) => ctx.cell} />,
     );
     const sticky = [...container.querySelectorAll<HTMLElement>('[class*="sticky"]')];
     expect(sticky.length).toBeGreaterThanOrEqual(3); // group head, column head, body cell
@@ -233,25 +233,60 @@ describe("MatrixGridShell sticky first column", () => {
   });
 });
 
+describe("MatrixGridShell page frame (ADR-0008)", () => {
+  it("titles the page once, as the h1, with no on-surface title", () => {
+    const { container } = render(
+      <MatrixGridShell
+        title="Attendance"
+        toolbar={<span>As of</span>}
+        actions={<button type="button">Export CSV</button>}
+        columns={columns}
+        rows={rows}
+        renderCell={(ctx) => ctx.cell}
+      />,
+    );
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getAllByText("Attendance")).toHaveLength(1);
+    expect(container.querySelector('[data-slot="surface-header"]')).toBeNull();
+    const band = screen.getByText("As of").closest(".border-b") as HTMLElement;
+    expect(band.contains(screen.getByText("Export CSV"))).toBe(false);
+  });
+
+  it("keeps title and toolbar visible in the empty state", () => {
+    render(
+      <MatrixGridShell
+        title="Attendance"
+        toolbar={<span>As of</span>}
+        columns={columns}
+        rows={[]}
+        emptyState={<p>No rows</p>}
+      />,
+    );
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Attendance");
+    expect(screen.getByText("As of")).toBeTruthy();
+    expect(screen.getByText("No rows")).toBeTruthy();
+    expect(document.querySelector('[data-slot="matrix-scroll"]')).toBeNull();
+  });
+});
+
 describe("MatrixGridShell horizontal scroll", () => {
   it("scrolls only the table: the header band stays outside the scroll box", () => {
     const { container } = render(
-      <MatrixGridShell
-        title="Matrix"
+      <MatrixGridShell title="Matrix"
         toolbar={<span data-testid="toolbar-control">Date</span>}
         columns={columns}
         rows={rows}
         renderCell={(ctx) => ctx.cell}
       />,
     );
-    const frame = container.firstElementChild as HTMLElement;
     const scroller = container.querySelector<HTMLElement>('[data-slot="matrix-scroll"]')!;
+    const frame = scroller.closest(".rounded-lg") as HTMLElement;
 
     expect(frame.className).not.toContain("overflow-x-auto");
     expect(scroller.className).toContain("overflow-x-auto");
     expect(scroller.className).toMatch(/(^|\s)relative(\s|$)/);
     // Title and toolbar are frame children above the scroller, not inside it.
-    expect(scroller.contains(container.querySelector('[data-slot="surface-header"]'))).toBe(false);
+    expect(scroller.contains(screen.getByRole("heading", { level: 1 }))).toBe(false);
     expect(scroller.contains(screen.getByTestId("toolbar-control"))).toBe(false);
     // Every sticky cell pins against the scroll box.
     for (const cell of container.querySelectorAll('[class*="sticky"]')) {

@@ -2,7 +2,7 @@
 key: W
 slug: import-wizard
 kind: page
-version: 1.0
+version: 2.0
 promoted_from: fleet-audit-2026-06-13 (controlling-app, my-finance-app)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -33,11 +33,11 @@ page adds none). A render-error boundary wraps content; a failed step surfaces
 inline, never loses earlier steps' state.
 
 ## Layer 3 — Page header
-The wizard shell, given `kicker`/`title`, renders the on-surface header bar at
-the top of the bounded card — not the canonical page-header treatment floated
-above the surface. The header bar exposes no `headerActions` prop on the wizard
-shell (nav actions stay in the footer) and no subtitle slot; fold a one-line
-source name into the kicker.
+`title` is **required** and passed once to the wizard shell — it is the page
+title; there is no other title. `subtitle` carries a one-line source name
+(e.g. "CSV · Checking account"); `badges` carry read-only status. The wizard
+takes **no `actions`**: its only verbs are the flow's own Back / Next / Commit,
+which are commit actions and live in the footer.
 
 ## Layer 4 — Toolbar / history toggle
 An import wizard usually lives beside an **import history** (past runs: when, who,
@@ -46,12 +46,15 @@ counts, status). Model the history as a list-with-detail (A) and toggle between
 history is its own archetype, not part of W; W is the new-import flow.
 
 ## Layer 5 — The step flow
-The wizard shell, given an ordered `steps` array, renders the shared
-step-progress primitive between the header and the current step's body — done
-steps show a check, the active step is ringed, upcoming steps are muted;
-navigation is via the footer, not by clicking steps. The current step's body
-renders in the project's card/section-card surface, with a footer showing
-**Back** + **Next**, swapping Next for a single **Commit** on the last step.
+The wizard shell, given an ordered `steps` array, opens the **body** with the
+shared step-progress primitive — done steps show a check, the active step is
+marked, upcoming steps are muted. The stepper is read-only progress, not a
+scoping control, so it is **not** `toolbar` content (the wizard has no
+toolbar); navigation is via the footer, not by clicking steps. The current
+step's body is a section titled with the step's label — a section of the
+page's one surface, never a card of its own. The **footer** holds the commit
+actions: **Back** + **Next**, swapping Next for a single **Commit** on the
+last step.
 Flow state is **consumer-owned** — the consumer holds `current` and per-step
 data; the shell renders chrome and emits navigation intents. Canonical stages:
 - **Upload** — a file dropzone (or a paste / connect-source affordance). `canProceed`
@@ -106,3 +109,8 @@ without import rights sees history (read-only) but not the wizard.
       not a button row in the body.
 - [ ] **Mapping/preview tables use the list primitive**, not hand-built grids.
 - [ ] **[spine] S1, S2, S4, S5, S6** (S3 → per-step validation/error states).
+
+## Version log
+- **2.0** (ADR-0008) — one page frame: `title` required and rendered once as the
+  page title; `kicker` and the untitled/unframed branch removed; `subtitle` /
+  `badges` added; the stepper is body content, not toolbar.

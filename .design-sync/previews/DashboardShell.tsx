@@ -1,15 +1,15 @@
 import { DashboardShell, StatTile, StatTileRow } from "design-baseline";
 
 // DashboardShell is the primary bounded surface for the analytics-dashboard
-// archetype — an on-surface header (kicker + title + actions) over a KPI
-// strip. Board-form pattern: wrapped in the muted mat, as it ships in the app.
+// archetype — the page header (title + actions) above one raised surface
+// holding a KPI strip (ADR-0008). The period selector scopes the body, so it
+// sits in the `toolbar`.
 export function RevenueOverview() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <DashboardShell
-        kicker="Reporting"
         title="Revenue Analytics"
-        headerActions={
+        toolbar={
           <span className="text-sm font-medium text-muted-foreground">
             This month
           </span>
@@ -26,11 +26,11 @@ export function RevenueOverview() {
   );
 }
 
-// Fewer KPIs, no header actions — the shell without a filter bar.
+// Fewer KPIs, no actions and no toolbar.
 export function CompactNoActions() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
-      <DashboardShell kicker="Overview" title="Store Performance">
+    <div>
+      <DashboardShell title="Store Performance">
         <StatTileRow>
           <StatTile label="Active customers" value="1,512" hint="last 30 days" />
           <StatTile label="Churn" value="2.1%" hint="month over month" />

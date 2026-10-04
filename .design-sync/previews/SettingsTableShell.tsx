@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SettingsTableShell, Button, SearchInput, type SettingsColumn, type SettingsRowAction } from "design-baseline";
+import { SettingsTableShell, Button, SearchInput, type SettingsColumn, type RowAction } from "design-baseline";
 
 type Cuisine = "italian" | "japanese" | "mexican" | "indian" | "french";
 type Recipe = { id: string; name: string; cuisine: Cuisine; prepMinutes: number; servings: number };
@@ -27,7 +27,7 @@ const COLUMNS: SettingsColumn<Recipe>[] = [
   { key: "servings", header: "Servings", align: "right", cell: (r) => r.servings },
 ];
 
-const ROW_ACTIONS: SettingsRowAction<Recipe>[] = [
+const ROW_ACTIONS: RowAction<Recipe>[] = [
   { label: "Duplicate", onSelect: () => {} },
   { label: "Delete", destructive: true, onSelect: () => {} },
 ];
@@ -37,11 +37,10 @@ const ROW_ACTIONS: SettingsRowAction<Recipe>[] = [
 export function RecipeCollection() {
   const [selectedIds, setSelectedIds] = useState<string[]>(["r2", "r4"]);
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <SettingsTableShell
-        kicker="Catalog"
         title="Recipe Collection"
-        headerActions={
+        actions={
           <>
             <Button variant="outline" size="sm">
               Import
@@ -71,9 +70,8 @@ export function RecipeCollection() {
 // Empty state with an "Add new" call to action — no recipes yet.
 export function EmptyWithCallToAction() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <SettingsTableShell
-        kicker="Catalog"
         title="Recipe Collection"
         rows={[]}
         columns={COLUMNS}
@@ -89,9 +87,8 @@ export function EmptyWithCallToAction() {
 // Loading plane — the shell's own StateView, in place of the table.
 export function Loading() {
   return (
-    <div className="rounded-xl bg-muted/30 p-4 sm:p-6">
+    <div>
       <SettingsTableShell
-        kicker="Catalog"
         title="Recipe Collection"
         rows={[]}
         columns={COLUMNS}

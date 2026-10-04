@@ -1,6 +1,5 @@
 import * as React from "react";
-import { SurfaceFrame } from "../../layout/SurfaceFrame";
-import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
+import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 import { cn } from "../../../lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -15,8 +14,7 @@ const WIDTH_MAP: Record<"sm" | "md" | "lg" | "xl", string> = {
 };
 
 /**
- * Padding class for any padded form surface (the board body, a Card body
- * wrapping the form). It publishes the padding as `--form-inset` so the
+ * Padding class for a padded form surface (the shell's frame body). It publishes the padding as `--form-inset` so the
  * sticky mobile `<FormPageActions>` bar bleeds by exactly that amount and
  * spans the surface edge to edge. A surface without it gets a 0 bleed.
  */
@@ -26,7 +24,17 @@ export const FORM_INSET_CLASS = "p-[var(--form-inset)] [--form-inset:1.25rem]";
 // Public types
 // ---------------------------------------------------------------------------
 
-export type FormPageShellProps = {
+/**
+ * The page header — passed once, rendered by `PageFrame` (ADR-0008). No
+ * `actions`: a form page's commit actions (save / cancel / delete) live in
+ * `<FormPageActions>` at the form's foot, their one home.
+ */
+type FormPageTitleProps = Pick<
+  PageFrameProps,
+  "title" | "subtitle" | "icon" | "backHref" | "backLabel" | "renderBackLink"
+>;
+
+export type FormPageShellProps = FormPageTitleProps & {
   children: React.ReactNode;
   /**
    * Max-width preset for the form container. Derived per the contract's width
@@ -39,7 +47,7 @@ export type FormPageShellProps = {
    * Defaults to "md" (~36rem / max-w-xl).
    */
   width?: "sm" | "md" | "lg" | "xl";
-} & SurfaceHeaderSlotProps;
+};
 
 // ---------------------------------------------------------------------------
 // Component
@@ -47,57 +55,28 @@ export type FormPageShellProps = {
 
 /**
  * FormPageShell — the outermost container for every B (form-page) archetype
- * instance.
+ * instance. Renders through `PageFrame` (ADR-0008): the page header (title
+ * once, optional subtitle / icon / back link) above the form's one raised
+ * surface, the whole page held to the `width` preset. Nested `SectionCard`s
+ * flatten inside the frame; the commit actions stay in `<FormPageActions>`
+ * at the form's foot.
  *
- * Provides:
- *   - Single-column max-width (configurable via `width` prop)
- *   - Vertical spacing between header / form body / actions: space-y-5
- *
- * Does NOT add page inset (px-6/py-6) — `<AppShell>`'s `<main>` owns that. Adding
- * it here would double-inset. See docs/STYLE.md "Spacing & rhythm".
- *
- * Board form (Plex Ledger): pass `title` (and optionally `kicker` /
- * `headerActions`) to render the on-surface header at the top of a bounded
- * card. The form groups / SectionCards render below inside the same surface,
- * and the primary save/cancel actions remain in <FormPageActions> at the
- * footer. Without `title` the shell reverts to the classic free-floating
- * column layout (unchanged behaviour).
- *
- * Classic layout children:
- *   <FormPageHeader … />
- *   <form className="space-y-4" onSubmit={…}>
- *     …fields…
- *     <FormPageActions … />
- *   </form>
- *
- * Board form children (no FormPageHeader needed):
- *   <form className="space-y-4" onSubmit={…}>
- *     …fields…
- *     <FormPageActions … />
- *   </form>
+ *   <FormPageShell title="New Task" backHref="/tasks">
+ *     <form className="space-y-4" onSubmit={…}>
+ *       …fields…
+ *       <FormPageActions … />
+ *     </form>
+ *   </FormPageShell>
  */
 export function FormPageShell({
   children,
   width = "md",
-  kicker,
-  title,
-  headerActions,
+  ...header
 }: FormPageShellProps): React.ReactElement {
-  if (title !== undefined) {
-    return (
-      <SurfaceFrame
-        kicker={kicker}
-        title={title}
-        headerActions={headerActions}
-        className={WIDTH_MAP[width]}
-      >
-        <div className={cn("space-y-5", FORM_INSET_CLASS)}>{children}</div>
-      </SurfaceFrame>
-    );
-  }
-
   return (
-    <div className={cn("space-y-5", WIDTH_MAP[width])}>{children}</div>
+    <PageFrame {...header} className={WIDTH_MAP[width]}>
+      <div className={cn("space-y-5", FORM_INSET_CLASS)}>{children}</div>
+    </PageFrame>
   );
 }
 

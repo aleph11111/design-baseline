@@ -2,34 +2,32 @@
  * statement-with-filters-demo.tsx
  *
  * Sandbox demo for the F (statement-with-filters) archetype — one read-only
- * statement table under a heavy filter/selector toolbar that re-scopes the
- * whole statement. Domain: a community beekeeping club's **annual hive-yield
- * statement** — deliberately far from the source project's
- * accounting/real-estate/financial-statement nouns.
+ * statement re-scoped by a set of selectors. Domain: a community beekeeping
+ * club's **profit & loss** — a statement shape, with club nouns (honey sales,
+ * hive treatment) far from any source project's ledger.
  *
- * Composes the full statement-with-filters vocabulary:
- *   - StatementWithFiltersShell — the bounded statement surface: a kicker +
- *     title header bar whose right-aligned `actions` band carries the
- *     scoping toolbar (Season select · Unit segmented toggle), over one flat
- *     card.
- *   - body: a `<StatementTable>` of `<StatementRow>`s (group section rows +
- *     per-hive rows, three numeric yield columns, mono + tabular,
- *     right-aligned) ending in a tinted `<StatementTotalRow>`.
+ * Every slot of the one page frame (ADR-0008) is shown:
+ *   - `title` — "Profit & Loss", the page h1, passed once.
+ *   - `actions` — the document verbs: Export, PDF.
+ *   - `toolbar` — the scoping selectors (Scenario · Year · Structure); each
+ *     re-scopes the whole statement.
+ *   - `viewOptions` — display-only toggles in the View menu (decimals, KPI
+ *     rows, zero rows); they change how the statement shows, not which.
+ *   - body — a `<StatementTable>` of section + line rows and a tinted total.
  *
- * Both selectors re-scope the **whole** statement: **Season** picks which
- * year's statement is shown; **Unit** re-scopes every figure (kg vs g). The
- * page holds no yield math — `computeYieldStatement` (the "backend") computes
- * the statement from the active season and the page formats for the active
- * unit. Types are LOCAL with zero reference to any source project's domain.
+ * The page holds no P&L math — `computeStatement` (the "backend") returns the
+ * statement for the full selector tuple. Types are LOCAL.
  */
 
 import * as React from "react";
+import { Download, FileText } from "lucide-react";
 import {
   StatementWithFiltersShell,
   StatementTable,
   StatementRow,
   StatementTotalRow,
 } from "@/components/archetypes/statement-with-filters";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -37,67 +35,71 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SegmentedControl } from "@/components/ui/segmented-control";
+import { DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
 
 // ---------------------------------------------------------------------------
-// Domain — a beekeeping club's hive-yield statement
+// Domain — a beekeeping club's P&L
 // ---------------------------------------------------------------------------
 
-type YieldRow = {
-  id: string;
-  group: string; // hive block (a section row)
-  name: string; // hive (a data row)
-  honeyKg: number;
-  propolisKg: number;
-  waxKg: number;
-};
+type Scenario = "actual" | "budget";
+type Year = "2025" | "2026";
+type Structure = "lines" | "sections";
 
-type Season = "2025" | "2026";
-type Unit = "kg" | "g";
+/** The selector tuple — the single source of "which statement is showing". */
+type Tuple = { scenario: Scenario; year: Year; structure: Structure };
 
-const FIGURES: Record<Season, YieldRow[]> = {
-  "2025": [
-    { id: "h1", group: "Meadow hives", name: "Meadow A", honeyKg: 9.2, propolisKg: 0.084, waxKg: 0.52 },
-    { id: "h2", group: "Meadow hives", name: "Meadow B", honeyKg: 11.8, propolisKg: 0.102, waxKg: 0.61 },
-    { id: "h3", group: "Orchard hives", name: "Orchard A", honeyKg: 6.4, propolisKg: 0.061, waxKg: 0.38 },
-    { id: "h4", group: "Orchard hives", name: "Orchard B", honeyKg: 7.9, propolisKg: 0.077, waxKg: 0.44 },
-  ],
-  "2026": [
-    { id: "h1", group: "Meadow hives", name: "Meadow A", honeyKg: 12.4, propolisKg: 0.118, waxKg: 0.72 },
-    { id: "h2", group: "Meadow hives", name: "Meadow B", honeyKg: 13.1, propolisKg: 0.096, waxKg: 0.66 },
-    { id: "h3", group: "Orchard hives", name: "Orchard A", honeyKg: 8.3, propolisKg: 0.07, waxKg: 0.5 },
-    { id: "h4", group: "Orchard hives", name: "Orchard B", honeyKg: 9.6, propolisKg: 0.088, waxKg: 0.56 },
-    { id: "h5", group: "Orchard hives", name: "Orchard C", honeyKg: 4.1, propolisKg: 0.039, waxKg: 0.24 },
-  ],
-};
+type Line = { section: "Revenue" | "Expenses"; name: string; cur: number; prior: number };
 
-/**
- * The "backend" compute: the statement for a season. Returns the raw row
- * list + raw totals — the (season) tuple is the single source of "which
- * statement is showing"; the page alone decides the display unit.
- */
-function computeYieldStatement(season: Season): {
-  rows: YieldRow[];
-  totals: { honeyKg: number; propolisKg: number; waxKg: number };
+const BASE: Line[] = [
+  { section: "Revenue", name: "Honey sales", cur: 18_420, prior: 15_960 },
+  { section: "Revenue", name: "Wax & candles", cur: 2_310, prior: 2_045 },
+  { section: "Revenue", name: "Membership fees", cur: 6_600, prior: 6_300 },
+  { section: "Revenue", name: "Grants", cur: 0, prior: 1_500 },
+  { section: "Expenses", name: "Equipment", cur: -4_870, prior: -6_120 },
+  { section: "Expenses", name: "Feed sugar", cur: -1_940, prior: -1_710 },
+  { section: "Expenses", name: "Varroa treatment", cur: -1_265, prior: -1_180 },
+  { section: "Expenses", name: "Insurance", cur: -980, prior: -950 },
+  { section: "Expenses", name: "Open day", cur: 0, prior: -640 },
+];
+
+const HIVES = 14;
+
+/** The "backend": the statement for the full tuple, pre-computed. */
+function computeStatement({ scenario, year, structure }: Tuple): {
+  rows: Array<{ label: string; section?: boolean; cur: number; prior: number }>;
+  result: { cur: number; prior: number };
+  kpis: Array<{ label: string; cur: string; prior: string }>;
 } {
-  const rows = FIGURES[season];
+  const scale = (year === "2026" ? 1 : 0.9) * (scenario === "budget" ? 1.05 : 1);
+  const lines = BASE.map((l) => ({
+    ...l,
+    cur: Math.round(l.cur * scale),
+    prior: Math.round(l.prior * scale),
+  }));
+  const sum = (ls: Line[], k: "cur" | "prior") => ls.reduce((s, l) => s + l[k], 0);
+  const sections = (["Revenue", "Expenses"] as const).map((section) => {
+    const ls = lines.filter((l) => l.section === section);
+    return { section, ls, cur: sum(ls, "cur"), prior: sum(ls, "prior") };
+  });
+  const rows = sections.flatMap(({ section, ls, cur, prior }) =>
+    structure === "sections"
+      ? [{ label: section, cur, prior }]
+      : [
+          { label: section, section: true, cur: 0, prior: 0 },
+          ...ls.map((l) => ({ label: l.name, cur: l.cur, prior: l.prior })),
+        ],
+  );
+  const result = { cur: sum(lines, "cur"), prior: sum(lines, "prior") };
+  const [rev] = sections;
+  const pct = (a: number, b: number) => `${((a / b) * 100).toFixed(1)} %`;
   return {
     rows,
-    totals: {
-      honeyKg: rows.reduce((s, r) => s + r.honeyKg, 0),
-      propolisKg: rows.reduce((s, r) => s + r.propolisKg, 0),
-      waxKg: rows.reduce((s, r) => s + r.waxKg, 0),
-    },
+    result,
+    kpis: [
+      { label: "Margin", cur: pct(result.cur, rev!.cur), prior: pct(result.prior, rev!.prior) },
+      { label: "Result per hive", cur: String(Math.round(result.cur / HIVES)), prior: String(Math.round(result.prior / HIVES)) },
+    ],
   };
-}
-
-/** Format a yield figure for the active unit. */
-function fmt(kg: number, unit: Unit): string {
-  const v = unit === "kg" ? kg : kg * 1000;
-  return new Intl.NumberFormat("de-DE", {
-    minimumFractionDigits: unit === "kg" ? 1 : 0,
-    maximumFractionDigits: unit === "kg" ? 1 : 0,
-  }).format(v);
 }
 
 // ---------------------------------------------------------------------------
@@ -105,83 +107,113 @@ function fmt(kg: number, unit: Unit): string {
 // ---------------------------------------------------------------------------
 
 export function StatementWithFiltersDemo(): React.ReactElement {
-  const [season, setSeason] = React.useState<Season>("2026");
-  const [unit, setUnit] = React.useState<Unit>("kg");
-  const { rows, totals } = React.useMemo(
-    () => computeYieldStatement(season),
-    [season],
-  );
+  const [tuple, setTuple] = React.useState<Tuple>({
+    scenario: "actual",
+    year: "2026",
+    structure: "lines",
+  });
+  const [decimals, setDecimals] = React.useState(false);
+  const [showKpis, setShowKpis] = React.useState(true);
+  const [showZero, setShowZero] = React.useState(false);
 
-  // Section rows (hive blocks) render as muted overlines; hive rows nest.
-  const groups = Array.from(new Set(rows.map((r) => r.group)));
+  const { rows, result, kpis } = React.useMemo(() => computeStatement(tuple), [tuple]);
+  const fmt = (v: number) =>
+    new Intl.NumberFormat("de-DE", {
+      minimumFractionDigits: decimals ? 2 : 0,
+      maximumFractionDigits: decimals ? 2 : 0,
+    }).format(v);
+  const prior = String(Number(tuple.year) - 1);
+
+  const selector = <K extends keyof Tuple>(
+    key: K,
+    label: string,
+    options: Array<[Tuple[K], string]>,
+    width: string,
+  ) => (
+    <Select value={tuple[key]} onValueChange={(v) => setTuple((t) => ({ ...t, [key]: v }))}>
+      <SelectTrigger size="sm" className={width} aria-label={label}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map(([value, text]) => (
+          <SelectItem key={value} value={value}>
+            {text}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
 
   return (
     <div className="space-y-5">
       <p className="max-w-prose text-sm text-muted-foreground">
         The <strong>statement-with-filters</strong> archetype — one read-only
-        statement under a heavy scoping toolbar in the header's{" "}
-        <strong>actions band</strong>. The <strong>Season</strong> select picks
-        which year's statement is shown and the <strong>Unit</strong> toggle
-        re-scopes <em>every</em> figure (kg vs g); the table renders group →
-        hive rows with the three numeric columns (mono, tabular, right-aligned)
-        and a tinted totals row. Changing either selector recomputes the
-        statement.
+        statement in one frame. <strong>Scenario</strong>, <strong>Year</strong>{" "}
+        and <strong>Structure</strong> in the toolbar re-scope the whole
+        statement; the <strong>View</strong> menu only changes how it shows
+        (decimals, KPI rows, zero rows); Export and PDF are the document verbs
+        next to the title.
       </p>
 
       <StatementWithFiltersShell
-        kicker="Annual statement"
-        title="Hive yield"
+        title="Profit & Loss"
+        subtitle={`Beekeeping club · ${tuple.scenario === "actual" ? "Actual" : "Budget"} ${tuple.year}`}
         actions={
           <>
-            <Select value={season} onValueChange={(v) => setSeason(v as Season)}>
-              <SelectTrigger size="sm" className="w-28" aria-label="Season">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="2025">2025</SelectItem>
-                <SelectItem value="2026">2026</SelectItem>
-              </SelectContent>
-            </Select>
-            <SegmentedControl
-              value={unit}
-              onValueChange={setUnit}
-              options={[
-                { value: "kg", label: "kg" },
-                { value: "g", label: "g" },
-              ]}
-              aria-label="Unit"
-            />
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
+            <Button variant="outline" size="sm">
+              <FileText className="h-4 w-4" />
+              PDF
+            </Button>
+          </>
+        }
+        toolbar={
+          <>
+            {selector("scenario", "Scenario", [["actual", "Actual"], ["budget", "Budget"]], "w-28")}
+            {selector("year", "Year", [["2025", "2025"], ["2026", "2026"]], "w-24")}
+            {selector("structure", "Structure", [["lines", "By line"], ["sections", "By section"]], "w-32")}
+          </>
+        }
+        viewOptions={
+          <>
+            <DropdownMenuCheckboxItem checked={decimals} onCheckedChange={(v) => setDecimals(v === true)}>
+              Show decimals
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem checked={showKpis} onCheckedChange={(v) => setShowKpis(v === true)}>
+              Show KPI rows
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem checked={showZero} onCheckedChange={(v) => setShowZero(v === true)}>
+              Show zero rows
+            </DropdownMenuCheckboxItem>
           </>
         }
       >
-        <StatementTable columns={["Hive", "Honey", "Propolis", "Wax"]}>
-          {groups.map((group) => (
-            <React.Fragment key={group}>
-              <StatementRow label={group} cells={[]} section />
-              {rows
-                .filter((r) => r.group === group)
-                .map((r) => (
-                  <StatementRow
-                    key={r.id}
-                    label={r.name}
-                    indent={1}
-                    cells={[
-                      fmt(r.honeyKg, unit),
-                      fmt(r.propolisKg, unit),
-                      fmt(r.waxKg, unit),
-                    ]}
-                  />
-                ))}
-            </React.Fragment>
-          ))}
+        <StatementTable columns={["Line", tuple.year, prior, "Δ"]}>
+          {rows
+            .filter((r) => r.section || showZero || r.cur !== 0 || r.prior !== 0)
+            .map((r) =>
+              r.section ? (
+                <StatementRow key={r.label} label={r.label} cells={[]} section />
+              ) : (
+                <StatementRow
+                  key={r.label}
+                  label={r.label}
+                  indent={tuple.structure === "lines" ? 1 : 0}
+                  cells={[fmt(r.cur), fmt(r.prior), fmt(r.cur - r.prior)]}
+                />
+              ),
+            )}
           <StatementTotalRow
-            label={`Total · ${season}`}
-            cells={[
-              fmt(totals.honeyKg, unit),
-              fmt(totals.propolisKg, unit),
-              fmt(totals.waxKg, unit),
-            ]}
+            label="Result"
+            cells={[fmt(result.cur), fmt(result.prior), fmt(result.cur - result.prior)]}
           />
+          {showKpis &&
+            kpis.map((k) => (
+              <StatementRow key={k.label} label={k.label} cells={[k.cur, k.prior, ""]} />
+            ))}
         </StatementTable>
       </StatementWithFiltersShell>
     </div>

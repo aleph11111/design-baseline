@@ -21,8 +21,7 @@ import {
   type RowAction,
   type TableColumn,
 } from "../shared";
-import { SurfaceFrame } from "../../layout/SurfaceFrame";
-import type { SurfaceHeaderSlotProps } from "../../layout/SurfaceHeaderSlot";
+import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 import { cn } from "../../../lib/utils";
 import { logger } from "../../../utils/logger";
 
@@ -30,8 +29,7 @@ import { logger } from "../../../utils/logger";
 declare const process: { env: { NODE_ENV?: string } };
 
 // The row overflow menu + its action shape are shared with list-with-detail.
-// `SettingsRowAction` stays exported as an alias for back-compat.
-export type SettingsRowAction<Row> = RowAction<Row>;
+export type { RowAction };
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -91,7 +89,10 @@ const DEFAULT_SETTINGS_TABLE_LABELS = {
   deleteSelected: (count: number) => `Delete ${count} selected`,
 };
 
-export type SettingsTableShellProps<Row> = {
+export type SettingsTableShellProps<Row> = Pick<
+  PageFrameProps,
+  "title" | "subtitle" | "badges" | "actions" | "toolbar"
+> & {
   /** The current (possibly filtered) rows to display. */
   rows: Row[];
   /** Column definitions. Mark exactly one column `isIdentifier` per table. */
@@ -109,19 +110,17 @@ export type SettingsTableShellProps<Row> = {
   // Callbacks
   /** Called when the identifier cell is clicked — consumer opens the edit dialog. */
   onRowEdit?: (row: Row) => void;
-  /** Called by the Add-new toolbar button and the empty-state CTA. */
+  /**
+   * The create action: the shell renders an "Add" button first in the page
+   * header `actions` (before the page's own) and as the empty-state CTA.
+   */
   onAddNew?: () => void;
-
-  // Toolbar
   /** Label for the Add-new button. Default: "Add new". */
   addNewLabel?: string;
-  /** Rendered inside the toolbar before the Add-new button. */
-  toolbar?: React.ReactNode;
   /**
-   * The noun of the toolbar's result-count line (Layer 4): renders
-   * `{rows.length} {rowLabel}`, right-aligned in the muted small-text style.
-   * The function form receives the count, for singular/plural nouns. Omitted =
-   * no count line.
+   * The noun of the result count (`count` slot): renders
+   * `{rows.length} {rowLabel}`. The function form receives the count, for
+   * singular/plural nouns. Omitted = no count.
    */
   rowLabel?: string | ((count: number) => string);
 
@@ -132,7 +131,7 @@ export type SettingsTableShellProps<Row> = {
    * entry set itself) be derived from that row's data, the same per-row
    * capability rule `TableColumn.isClickable` follows.
    */
-  rowActions?: SettingsRowAction<Row>[] | ((row: Row) => SettingsRowAction<Row>[]);
+  rowActions?: RowAction<Row>[] | ((row: Row) => RowAction<Row>[]);
 
   // States
   isLoading?: boolean;
@@ -156,8 +155,8 @@ export type SettingsTableShellProps<Row> = {
   /** Called when the selection changes. Consumer updates `selectedIds`. */
   onBulkSelectChange?: (selectedIds: string[]) => void;
   /**
-   * Rendered in the toolbar row when selectedIds.length > 0.
-   * Typically a "Delete selected" button.
+   * Write actions on the selection, rendered in the header `actions` while a
+   * visible row is selected (the count then reads "{n} selected").
    */
   bulkActions?: React.ReactNode;
   /**
@@ -167,7 +166,7 @@ export type SettingsTableShellProps<Row> = {
    * After calling this callback the primitive clears the selection automatically.
    */
   onBulkDelete?: (rows: Row[]) => void;
-} & SurfaceHeaderSlotProps;
+};
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -181,7 +180,6 @@ export function SettingsTableShell<Row>({
   onRowEdit,
   onAddNew,
   addNewLabel = "Add new",
-  toolbar,
   rowLabel,
   rowActions,
   isLoading,
@@ -195,9 +193,8 @@ export function SettingsTableShell<Row>({
   onBulkSelectChange,
   bulkActions,
   onBulkDelete,
-  kicker,
-  title,
-  headerActions,
+  actions,
+  ...frame
 }: SettingsTableShellProps<Row>): React.ReactElement {
   const hasActions =
     typeof rowActions === "function" ||
@@ -305,56 +302,35 @@ export function SettingsTableShell<Row>({
   const listState = resolveListState({ isLoading, error, isEmpty: rows.length === 0 });
   const showTable = listState === "content";
 
-  // Toolbar row content — the ruled band chrome is owned by the <SurfaceFrame>
-  // `toolbar` slot below; the shell composes only the row's INNER layout.
-  // Top row: consumer toolbar slot + selection caption / result count + Add new.
-  // In bulk mode the consumer toolbar (search, filters, …) stays visible so the
-  // user can still refine the list while rows are ticked; only the count line
-  // swaps from `{n} {rowLabel}` to `{n} selected` + the bulk actions.
-  // gap-3 matches the toolbar gap used by list-with-detail / feed.
+  // Slots (ADR-0008): the count slot reads "{n} selected" in bulk mode, else
+  // "{n} {rowLabel}"; bulk write actions and the create action merge into the
+  // header `actions`, before the page's own. The consumer toolbar (search,
+  // filters) stays visible in bulk mode so the list can still be refined.
   const showBulkActions = hasBulkSelection && (bulkActions || onBulkDelete);
-  const countSpan = showBulkActions ? (
-    <span className="text-sm text-muted-foreground">
-      {allLabels.selectedCount(visibleSelected.length)}
-    </span>
-  ) : rowLabel !== undefined ? (
-    <span className="shrink-0 text-sm text-muted-foreground">
-      {rows.length}{" "}
-      {typeof rowLabel === "function" ? rowLabel(rows.length) : rowLabel}
-    </span>
-  ) : null;
-  const toolbarRow = (
-    <div className="flex items-center gap-3">
-      <div className="flex flex-1 items-center gap-2">{toolbar}</div>
-      {showBulkActions && (
-        <>
-          {countSpan}
-          {bulkActions}
-          {onBulkDelete && (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleBulkDelete}
-            >
-              {allLabels.deleteSelected(visibleSelected.length)}
-            </Button>
-          )}
-        </>
-      )}
-      {!showBulkActions && countSpan}
-      {onAddNew && (
-        <Button
-          variant="default"
-          size="sm"
-          onClick={onAddNew}
-          className="shrink-0"
-        >
-          <Plus className="mr-1 h-4 w-4" />
-          {addNewLabel}
-        </Button>
-      )}
-    </div>
+  const count = showBulkActions
+    ? allLabels.selectedCount(visibleSelected.length)
+    : rowLabel !== undefined
+      ? `${rows.length} ${typeof rowLabel === "function" ? rowLabel(rows.length) : rowLabel}`
+      : undefined;
+  const addButton = onAddNew && (
+    <Button variant="default" size="sm" onClick={onAddNew}>
+      <Plus className="mr-1 h-4 w-4" />
+      {addNewLabel}
+    </Button>
   );
+  const mergedActions =
+    showBulkActions || addButton || actions ? (
+      <>
+        {showBulkActions && bulkActions}
+        {showBulkActions && onBulkDelete && (
+          <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
+            {allLabels.deleteSelected(visibleSelected.length)}
+          </Button>
+        )}
+        {addButton}
+        {actions}
+      </>
+    ) : undefined;
 
   // Loading / empty / error planes are owned by the shared <ListStateView>.
   const listStatePlane = (
@@ -364,14 +340,7 @@ export function SettingsTableShell<Row>({
       onRetry={onRetry}
       labels={labels}
       emptyMessage={emptyMessage}
-      emptyAction={
-        onAddNew && !isFiltered && (
-          <Button variant="default" size="sm" onClick={onAddNew}>
-            <Plus className="mr-1 h-4 w-4" />
-            {addNewLabel}
-          </Button>
-        )
-      }
+      emptyAction={!isFiltered && addButton}
     />
   );
 
@@ -455,19 +424,14 @@ export function SettingsTableShell<Row>({
   ) : null;
 
   return (
-    <SurfaceFrame
-      kicker={kicker}
-      title={title}
-      headerActions={headerActions}
-      toolbar={toolbarRow}
-    >
+    <PageFrame {...frame} actions={mergedActions} count={count}>
       {/* The table scroll region sits INSIDE the (clipped) frame so the table
-          scrolls beneath a fixed header + toolbar band, not the surface itself. */}
+          scrolls beneath the toolbar band, not the surface itself. */}
       <div className="relative overflow-x-auto">
         {listStatePlane}
         {tableContent}
       </div>
-    </SurfaceFrame>
+    </PageFrame>
   );
 }
 

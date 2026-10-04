@@ -32,7 +32,7 @@ describe("SettingsTableShell selection membership", () => {
     const includesSpy = vi.spyOn(selectedIds, "includes");
 
     render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
@@ -62,7 +62,7 @@ describe("SettingsTableShell selection membership", () => {
     const rows = makeRows(1);
 
     render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
@@ -82,7 +82,7 @@ describe("SettingsTableShell selection membership", () => {
 
   it("no onRowEdit: the identifier cell is not a tab stop", () => {
     render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={makeRows(1)}
         columns={columns}
         getRowId={(row) => row.id}
@@ -98,7 +98,7 @@ describe("SettingsTableShell selection membership", () => {
     const onBulkSelectChange = vi.fn();
 
     render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
@@ -117,12 +117,12 @@ describe("SettingsTableShell selection membership", () => {
 
   it("renders the result-count line from rowLabel (string and count function)", () => {
     const { rerender } = render(
-      <SettingsTableShell rows={makeRows(3)} columns={columns} getRowId={(r) => r.id} rowLabel="suppliers" />,
+      <SettingsTableShell title="T" rows={makeRows(3)} columns={columns} getRowId={(r) => r.id} rowLabel="suppliers" />,
     );
     expect(screen.getByText("3 suppliers")).toBeTruthy();
 
     rerender(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={makeRows(1)}
         columns={columns}
         getRowId={(r) => r.id}
@@ -135,7 +135,7 @@ describe("SettingsTableShell selection membership", () => {
 
 describe("SettingsTableShell empty-state CTA", () => {
   const empty = (isFiltered: boolean) => (
-    <SettingsTableShell
+    <SettingsTableShell title="T"
       rows={[]}
       columns={columns}
       getRowId={(r) => r.id}
@@ -147,7 +147,7 @@ describe("SettingsTableShell empty-state CTA", () => {
 
   it("offers the Add CTA in the body only when the list is truly empty", () => {
     const { rerender } = render(empty(false));
-    // toolbar button + empty-state CTA
+    // header create action + empty-state CTA
     expect(screen.getAllByRole("button", { name: "Add thing" })).toHaveLength(2);
 
     rerender(empty(true));
@@ -173,7 +173,7 @@ describe("SettingsTableShell filter-safe bulk selection", () => {
 
   it("counts only the visible selected rows in the selection caption", () => {
     render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={visible}
         columns={columns}
         getRowId={(row) => row.id}
@@ -190,7 +190,7 @@ describe("SettingsTableShell filter-safe bulk selection", () => {
 
   it("the destructive bulk button names only the visible selected count", () => {
     render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={visible}
         columns={columns}
         getRowId={(row) => row.id}
@@ -209,7 +209,7 @@ describe("SettingsTableShell filter-safe bulk selection", () => {
     const onBulkSelectChange = vi.fn();
 
     render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={visible}
         columns={columns}
         getRowId={(row) => row.id}
@@ -233,7 +233,7 @@ describe("SettingsTableShell filter-safe bulk selection", () => {
     const selectedHidden = ["row-1", "row-2"];
 
     render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={allHidden}
         columns={columns}
         getRowId={(row) => row.id}
@@ -253,7 +253,7 @@ describe("SettingsTableShell filter-safe bulk selection", () => {
 describe("SettingsTableShell row-checkbox accessible names", () => {
   it("names each row checkbox after its identifier column", () => {
     render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={makeRows(2)}
         columns={columns}
         getRowId={(row) => row.id}
@@ -270,7 +270,7 @@ describe("SettingsTableShell row-checkbox accessible names", () => {
 
   it("a function selectRow override customises the row name", () => {
     render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={makeRows(2)}
         columns={columns}
         getRowId={(row) => row.id}
@@ -296,7 +296,7 @@ describe("SettingsTableShell row-checkbox accessible names", () => {
       },
     ];
     render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={makeRows(2)}
         columns={jsxColumns}
         getRowId={(row) => row.id}
@@ -318,7 +318,7 @@ describe("SettingsTableShell row-checkbox accessible names", () => {
       },
     ];
     render(
-      <SettingsTableShell
+      <SettingsTableShell title="T"
         rows={makeRows(2)}
         columns={jsxColumns}
         getRowId={(row) => row.id}
@@ -329,5 +329,60 @@ describe("SettingsTableShell row-checkbox accessible names", () => {
     expect(screen.getByRole("checkbox", { name: "Select row: Row 0" })).toBeTruthy();
     expect(screen.getByRole("checkbox", { name: "Select row: Row 1" })).toBeTruthy();
     expect(screen.queryAllByRole("checkbox", { name: /\[object Object\]/ })).toHaveLength(0);
+  });
+});
+
+describe("SettingsTableShell — page frame (ADR-0008)", () => {
+  it("renders one h1, no on-surface title; Add + page actions in the header, count in the band", () => {
+    const { container } = render(
+      <SettingsTableShell
+        title="Suppliers"
+        rows={makeRows(3)}
+        columns={columns}
+        getRowId={(r) => r.id}
+        rowLabel="suppliers"
+        onAddNew={() => {}}
+        addNewLabel="Add supplier"
+        actions={<button type="button">Export</button>}
+        toolbar={<input aria-label="Search" />}
+      />,
+    );
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getAllByText("Suppliers")).toHaveLength(1);
+    expect(container.querySelector('[data-slot="surface-header"]')).toBeNull();
+    // Create merges before the page's own actions, in the page header.
+    const add = screen.getByRole("button", { name: "Add supplier" });
+    const exp = screen.getByRole("button", { name: "Export" });
+    expect(add.compareDocumentPosition(exp) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // …above the surface, not inside it.
+    expect(add.closest(".bg-surface-raised")).toBeNull();
+    expect(exp.closest(".bg-surface-raised")).toBeNull();
+    // Toolbar band: search + count, no Add button there.
+    const band = screen.getByRole("textbox", { name: "Search" }).closest(".border-b") as HTMLElement;
+    expect(band.textContent).toContain("3 suppliers");
+    expect(band.querySelector("button")).toBeNull();
+  });
+
+  it("bulk mode: '{n} selected' replaces the count; bulk delete is a header action", () => {
+    render(
+      <SettingsTableShell
+        title="Suppliers"
+        rows={makeRows(3)}
+        columns={columns}
+        getRowId={(r) => r.id}
+        rowLabel="suppliers"
+        bulkSelectable
+        selectedIds={["row-0"]}
+        onBulkSelectChange={() => {}}
+        onBulkDelete={() => {}}
+        toolbar={<input aria-label="Search" />}
+      />,
+    );
+    const band = screen.getByRole("textbox", { name: "Search" }).closest(".border-b") as HTMLElement;
+    expect(band.textContent).toContain("1 selected");
+    expect(band.textContent).not.toContain("3 suppliers");
+    expect(
+      screen.getByRole("button", { name: "Delete 1 selected" }).closest(".bg-surface-raised"),
+    ).toBeNull();
   });
 });

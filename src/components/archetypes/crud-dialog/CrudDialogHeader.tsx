@@ -45,14 +45,12 @@ export type CrudDialogHeaderProps = {
  * Layout:
  *   [title + subtitle] ... [actions slot] [close button (optional)]
  *
- * The band chrome (padding + header-fill) is the shared on-surface bar
- * (`<SurfaceHeaderBar>`) — the same one implementation every framed shell
- * mounts. The title + subtitle are `SheetTitle` / `SheetDescription` because
- * the Sheet (Radix Dialog.Content) needs a real accessible name + description:
+ * The band chrome (padding + the fixed neutral fill) is the shared dialog /
+ * drawer bar (`<SurfaceHeaderBar>`). The title + subtitle are `SheetTitle` /
+ * `SheetDescription` because the Sheet (Radix Dialog.Content) needs a real
+ * accessible name + description:
  * without a `Title` descendant Radix logs an error and exposes no
- * aria-labelledby. On a solid header the bar's fill inverts both (its
- * `[&_h1,h2]` / `[&_p]` descendant selectors reach the Radix `h2` / `p`), so
- * this header reads no header-fill classes of its own.
+ * aria-labelledby. This header adds no fill classes of its own.
  *
  * The Sheet's built-in X close button (from SheetContent) is always in the
  * tree at position absolute top-4 right-4. If `onClose` is also provided here,

@@ -72,9 +72,8 @@ export type PageHeaderProps = {
  * the fleet's one focal point on a page; the shared row layout comes from
  * `HeadingRow` — the one place the page-title family's layout markup lives,
  * so iterating the header is one edit, baseline-wide.
- * Archetype-specific headers (`FormPageHeader`, `SettingsPageHeader`,
- * `DetailOverviewHeader`) are thin wrappers over this primitive that narrow
- * the prop surface to their contract.
+ * Archetype shells never wrap it themselves: they render it through
+ * `PageFrame`, which passes the page's title once (ADR-0008).
  *
  * Layout:
  *   [back link (optional)]
