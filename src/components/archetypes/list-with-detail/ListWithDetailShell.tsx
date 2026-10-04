@@ -149,7 +149,7 @@ ListWithDetailShell.displayName = "ListWithDetailShell";
  * The list body without a page frame: the rows in their presentation, the
  * state planes, the footer band, and the detail Sheet. For composing archetypes
  * that render lists inside their own frame (grouped-list's sections) — exported
- * from this module, not the barrel.
+ * from the archetype barrel.
  */
 export function ListWithDetailBody<Row>(
   {

@@ -102,7 +102,7 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
 - The page renders inside the project's **top-level app shell** — the outer layout frame that mounts the global providers (tooltip, sidebar, toast surfaces), the nav/sidebar, and the main content region, via the parent route's layout. Those providers are always in the tree by the time a settings-table page renders; the page does not re-mount them.
 - **No page inset** — the settings layout's main region supplies all inset.
 - A **render-error boundary** wrapping page content at the page-component level.
-- A **breadcrumb trail** at the top of the page, above the page title (Layer 3).
+- A **breadcrumb trail**, where the page has one, rides the `subtitle` slot under the page title (Layer 3) — never a row of its own above the shell.
 
 **Allowed variation:**
 - A page-level state-provider is optional. Introduce one only when filter or selection state is consumed by more than one child component tree; do not add one for single-tree state.

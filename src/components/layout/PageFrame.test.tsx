@@ -32,6 +32,14 @@ describe("PageFrame — one page frame (ADR-0008)", () => {
     expect(container.querySelector(".border-b")).toBeNull();
   });
 
+  it("treats a false slot as absent", () => {
+    const show = false;
+    const { container } = render(
+      <PageFrame title="T" toolbar={show && <span>x</span>}>body</PageFrame>,
+    );
+    expect(container.querySelector(".border-b")).toBeNull();
+  });
+
   it("a nested frame titles itself h2 and opens no second surface", () => {
     const { container } = render(
       <PageFrame title="Settings">

@@ -99,16 +99,18 @@ export function PageFrame({
 }: PageFrameProps): React.ReactElement {
   const nested = React.useContext(PageFrameContext);
 
+  // `cond && <X />` yields `false`: an absent slot, not an empty band.
+  const has = (slot: React.ReactNode) => slot != null && slot !== false;
   const band =
-    toolbar != null || count != null || viewOptions != null ? (
+    has(toolbar) || has(count) || has(viewOptions) ? (
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="flex min-w-0 flex-wrap items-center gap-2">{toolbar}</div>
-        {count != null || viewOptions != null ? (
+        {has(count) || has(viewOptions) ? (
           <div className="ml-auto flex shrink-0 items-center gap-3">
-            {count != null && (
+            {has(count) && (
               <span className="text-sm text-muted-foreground">{count}</span>
             )}
-            {viewOptions != null && (
+            {has(viewOptions) && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">

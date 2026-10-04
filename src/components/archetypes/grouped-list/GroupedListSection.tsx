@@ -1,9 +1,13 @@
 "use client";
 import * as React from "react";
-import type { ListColumn, RowAction, SortDirection } from "../list-with-detail";
-// The frameless list body — exported from the shell module, not the barrel:
-// the section is not a page, so it composes the body, never the page shell.
-import { ListWithDetailBody } from "../list-with-detail/ListWithDetailShell";
+// The section is not a page, so it composes the frameless list body, never
+// the page shell.
+import {
+  ListWithDetailBody,
+  type ListColumn,
+  type RowAction,
+  type SortDirection,
+} from "../list-with-detail";
 import { SectionCard } from "../../layout/SectionCard";
 import { Badge } from "../../ui/badge";
 
