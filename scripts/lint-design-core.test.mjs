@@ -451,6 +451,13 @@ describe("swallowed PageFrame slot (`findSwallowedSlots`)", () => {
     expect(findSwallowedSlots(text, SLOTS).map((h) => h.line)).toEqual([1]);
   });
 
+  it("counts a slot forwarded inside a template literal, and ignores JSX-text apostrophes", () => {
+    const tpl = "function X({ title, count, ...r }: P) { return <PageFrame title={`${title} (${count})`} {...r} />; }";
+    expect(findSwallowedSlots(tpl, ["title", "count"])).toEqual([]);
+    const apos = "function X({ title, count, ...r }: P) { return <PageFrame {...r}><p>Don't render {title} here, it's {count}</p></PageFrame>; }";
+    expect(findSwallowedSlots(apos, ["title", "count"])).toEqual([]);
+  });
+
   it("is wired through scanFile/compileRules as an include-scoped rule", () => {
     const compiled = compileRules([
       { id: "swallow", swallowedSlots: SLOTS, severity: "error", include: "src/components/archetypes/**", message: "m" },

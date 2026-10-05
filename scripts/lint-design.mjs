@@ -172,9 +172,11 @@ function findSwallowedSlots(text, slots) {
   const blank = (m) => m.replace(/[^\n]/g, ' ');
   // Comments and string literals blanked in one pass (strings first, so a `//` inside
   // `"https://…"` is not read as a comment). Offsets and newlines are preserved.
+  // A template literal keeps its `${…}` expressions (a slot forwarded as `${title} (${count})` is
+  // a reference); a `'` right after a word character is a JSX-text apostrophe, not a string.
   const code = text.replace(
-    /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,
-    blank,
+    /"(?:\\.|[^"\\\n])*"|(?<!\w)'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,
+    (m) => (m[0] === '`' ? m.replace(/(\$\{[^{}]*\})|[^\n]/g, (x, expr) => expr ?? ' ') : blank(m)),
   );
   const decl =
     /(\(|\b(?:const|let)\s+)\{([^{}]*)\}(?=\s*(?::|=(?!=)|\)\s*(?:=>|\{)|,\s*\w+\??\s*(?::[^,)]*)?\)\s*(?:=>|\{)))/g;
@@ -208,7 +210,7 @@ function findSwallowedSlots(text, slots) {
         if (c === '{' && !inBody && !exprBody && depth === 1) { inBody = true; bodyDepth = depth; }
       } else if (')]}'.includes(c)) {
         depth--;
-        if (isParams && depth === 0 && !inBody) { depth = 0; continue; }
+        if (isParams && depth === 0 && !inBody) continue;
         if (depth < 0 || (inBody && isParams && depth < bodyDepth)) { end = i; break; }
       } else if (c === ';' && isParams && depth === 0) { end = i; break; }
     }
@@ -304,7 +306,7 @@ function scanFile(fileRel, text, compiled) {
     if (excludes.some((ex) => matchesGlob(fileRel, ex))) continue; // excluded closed archetype
     if (slots) {
       for (const { slot, line, col } of findSwallowedSlots(text, slots)) {
-        violations.push({ file: fileRel, line, col, rule: label, severity, message: `\`${slot}\` is destructured but never used — swallowed, not forwarded to PageFrame. ${message}` });
+        violations.push({ file: fileRel, line, col, rule: label, severity, message: `\`${slot}\` is destructured but never forwarded to PageFrame. ${message}` });
       }
       continue;
     }
