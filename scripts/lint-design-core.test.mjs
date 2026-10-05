@@ -9,10 +9,12 @@
 // `--json` shape, fixture-tree include/exclude behaviour) and asserts the
 // shapes its header comments claim, which the subprocess tests cannot reach
 // without a repo tree.
+import { globSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   CompileError,
   compileRules,
+  findSwallowedSlots,
   harvestUnionAliases,
   includeReachableUnder,
   scanFile,
@@ -374,5 +376,124 @@ describe("harvestUnionAliases (the same-file union-alias pre-pass)", () => {
     const importing = 'import type { Size } from "./a";\nexport type Q = {\n  size?: Size;\n};\n';
     expect(scanFile("a.tsx", declaring, compiled).map((v) => v.line)).toEqual([3]);
     expect(scanFile("b.tsx", importing, compiled)).toEqual([]);
+  });
+});
+
+describe("swallowed PageFrame slot (`findSwallowedSlots`)", () => {
+  const SLOTS = ["title", "toolbar", "actions"];
+  const shell = (params, body) =>
+    `export function XShell(${params}) {\n  return <PageFrame ${body}>x</PageFrame>;\n}\n`;
+
+  it("flags a slot destructured beside ...rest but only ...rest forwarded", () => {
+    const text = shell("{ toolbar, ...rest }: P", "{...rest}");
+    expect(findSwallowedSlots(text, SLOTS)).toEqual([{ slot: "toolbar", line: 1, col: 26 }]);
+  });
+
+  it("flags every swallowed slot in a multi-line destructure", () => {
+    const text = `function S({\n  title,\n  toolbar,\n  actions = null,\n  ...rest\n}: P) {\n  return <PageFrame title={title} {...rest} />;\n}\n`;
+    expect(findSwallowedSlots(text, SLOTS).map((h) => h.slot)).toEqual(["toolbar", "actions"]);
+  });
+
+  it("passes a slot that is forwarded, even as `toolbar={toolbar}`", () => {
+    expect(
+      findSwallowedSlots(shell("{ toolbar, ...rest }: P", "toolbar={toolbar} {...rest}"), SLOTS),
+    ).toEqual([]);
+  });
+
+  it("ignores the prop type, comments and quoted names as references", () => {
+    const text = `type P = { toolbar?: Node };\n// toolbar\nfunction S({ toolbar }: Pick<P, "toolbar">) {\n  return <PageFrame />;\n}\n`;
+    expect(findSwallowedSlots(text, SLOTS)).toHaveLength(1);
+  });
+
+  it("ignores non-slot names and files without PageFrame", () => {
+    expect(findSwallowedSlots(shell("{ other, ...rest }: P", "{...rest}"), SLOTS)).toEqual([]);
+    expect(findSwallowedSlots("function C({ title }: P) { return null; }", SLOTS)).toEqual([]);
+  });
+
+  it("scopes the reference search to the destructuring function", () => {
+    const text = `function A({ title }: P) { return <PageFrame title={title} />; }\nfunction B({ title, ...r }: P) { return <PageFrame {...r} />; }\n`;
+    expect(findSwallowedSlots(text, SLOTS).map((h) => h.line)).toEqual([2]);
+  });
+
+  it("does not count JSX text or string mentions as references", () => {
+    expect(findSwallowedSlots(shell("{ toolbar, ...r }: P", "{...r} aria-label=\"open toolbar\""), SLOTS)).toHaveLength(1);
+    expect(findSwallowedSlots("function X({ toolbar, ...r }: P) { return <PageFrame {...r}><b>toolbar</b></PageFrame>; }", SLOTS)).toHaveLength(1);
+  });
+
+  it("reads untyped, forwardRef and expression-bodied signatures", () => {
+    for (const text of [
+      "const X = forwardRef(function XShell({ toolbar, ...r }, ref) { return <PageFrame {...r} />; });",
+      "const X = ({ toolbar, ...r }) => { return <PageFrame {...r} />; };",
+      "const X = ({ toolbar, ...r }: P) => <PageFrame {...r} a={1} />;",
+    ]) {
+      expect(findSwallowedSlots(text, SLOTS), text).toHaveLength(1);
+    }
+    expect(findSwallowedSlots("const X = ({ toolbar, ...r }: P) => <PageFrame a={1} toolbar={toolbar} {...r} />;", SLOTS)).toEqual([]);
+  });
+
+  it("does not read `//` inside a string literal as a comment", () => {
+    const text = 'function X({ title, ...r }: P) { return <PageFrame {...r}><a href="https://x.y" title={title} /></PageFrame>; }';
+    expect(findSwallowedSlots(text, SLOTS)).toEqual([]);
+  });
+
+  it("skips a function type signature", () => {
+    expect(findSwallowedSlots("type R = ({ title }: A) => ReactNode;\nconst e = <PageFrame />;", SLOTS)).toEqual([]);
+  });
+
+  it("a pre-JSX use that forwards nothing does not count, a pre-JSX object member does", () => {
+    const swallow = "function X({ toolbar, ...r }: P) { const d = Boolean(toolbar); return <PageFrame {...r} dense={d} />; }";
+    expect(findSwallowedSlots(swallow, SLOTS)).toHaveLength(1);
+    const member = "function X({ toolbar, ...r }: P) { const frame = { ...r, toolbar }; return <PageFrame {...frame} />; }";
+    expect(findSwallowedSlots(member, SLOTS)).toEqual([]);
+  });
+
+  it("a function-typed parameter annotation does not leak the scope into a later function", () => {
+    const text = "function A({ toolbar, ...r }: P & { onPick: (id: string) => void }) { return <PageFrame {...r} />; }\nfunction B({ toolbar }: P) { return <PageFrame toolbar={toolbar} />; }\n";
+    expect(findSwallowedSlots(text, SLOTS).map((h) => h.line)).toEqual([1]);
+  });
+
+  it("counts a slot forwarded inside a template literal, and ignores JSX-text apostrophes", () => {
+    const tpl = "function X({ title, count, ...r }: P) { return <PageFrame title={`${title} (${count})`} {...r} />; }";
+    expect(findSwallowedSlots(tpl, ["title", "count"])).toEqual([]);
+    const apos = "function X({ title, count, ...r }: P) { return <PageFrame {...r}><p>Don't render {title} here, it's {count}</p></PageFrame>; }";
+    expect(findSwallowedSlots(apos, ["title", "count"])).toEqual([]);
+  });
+
+  it("does not count whitespace-delimited JSX prose as a reference", () => {
+    const text = "function X({ actions, ...r }: P) { return <PageFrame {...r}><EmptyState>No actions yet</EmptyState></PageFrame>; }";
+    expect(findSwallowedSlots(text, SLOTS)).toHaveLength(1);
+  });
+
+  it("reads only a `= props` destructure in the body, not a hook result", () => {
+    const hook = "function X({ ...r }: P) { const { count } = useSelection(); const l = f(count); return <PageFrame {...r} />; }";
+    expect(findSwallowedSlots(hook, ["count"])).toEqual([]);
+    const props = "function X(props: P) { const { toolbar, ...r } = props; return <PageFrame {...r} />; }";
+    expect(findSwallowedSlots(props, SLOTS)).toHaveLength(1);
+  });
+
+  it("keeps a template expression that contains braces", () => {
+    const text = "function X({ title, ...r }: P) { return <PageFrame title={`${fmt({ title })}`} {...r} />; }";
+    expect(findSwallowedSlots(text, SLOTS)).toEqual([]);
+  });
+
+  it("reports nothing on the shipped archetype shells (the rule ships at error severity)", () => {
+    const { rules } = JSON.parse(readFileSync("_adherence.json", "utf8"));
+    const rule = rules.find((r) => r.swallowedSlots);
+    const compiled = compileRules([rule]);
+    const files = globSync("src/components/archetypes/**/*.{ts,tsx}");
+    expect(files.length).toBeGreaterThan(10);
+    const hits = files.flatMap((f) => scanFile(f, readFileSync(f, "utf8"), compiled));
+    expect(hits).toEqual([]);
+  });
+
+  it("is wired through scanFile/compileRules as an include-scoped rule", () => {
+    const compiled = compileRules([
+      { id: "swallow", swallowedSlots: SLOTS, severity: "error", include: "src/components/archetypes/**", message: "m" },
+    ]);
+    const text = shell("{ toolbar, ...rest }: P", "{...rest}");
+    const [v] = scanFile("src/components/archetypes/x/XShell.tsx", text, compiled);
+    expect(v).toMatchObject({ rule: "swallow", severity: "error", line: 1 });
+    expect(v.message).toContain("`toolbar`");
+    expect(scanFile("src/components/ui/x.tsx", text, compiled)).toEqual([]);
   });
 });

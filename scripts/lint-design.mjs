@@ -52,6 +52,12 @@
 // and no module graph, which keeps the scanner the zero-dep, no-type-resolution heuristic
 // ADR-0003 requires. A file declaring no union alias is skipped by such a rule.
 //
+// A rule may instead carry `swallowedSlots` (an array of prop names) in place of a
+// `pattern`/`tag`: the file-level swallowed-slot check (`findSwallowedSlots`). It fires on a
+// name destructured from a function's props that its own function never forwards — the
+// shell that destructures `toolbar` beside `...rest` and forwards only `...rest` to
+// `PageFrame`, which `tsc` does not flag. Only files that mention `PageFrame` are checked.
+//
 // Usage:  node scripts/lint-design.mjs [--json] [--ci-threshold <n>]
 // Config: ADHERENCE_CONFIG=path overrides the default `_adherence.json`.
 //
@@ -148,6 +154,96 @@ function harvestUnionAliases(text) {
   return [...names];
 }
 
+// The swallowed-slot check. Line-level scanning cannot see it (the destructure and the missing
+// reference sit lines apart), so it works on the whole file text: find each destructuring
+// pattern — `({ a, b }: P)`, `({ a }) =>`, `function X({ a }, ref)`, `const { a } = x` — then
+// report every listed slot name whose local binding is not forwarded in the destructuring
+// function's own scope (from the destructure to the close of its body). A "reference" is an
+// identifier occurrence outside comments, string literals, JSX text (`>name<`), `.name` member
+// access, and `name:` / `name?:` / `name=` (type member, object key, JSX attribute name), AND
+// either at/after the function's first JSX tag, or before it as an object-literal member (a
+// `frameProps = { ...header, toolbar }` forward). A pre-JSX `Boolean(toolbar)` forwards nothing.
+// Ceiling (ADR-0003, no parser): a destructure with nested braces (`{ a = {}, toolbar }`) is
+// not matched; a `: ReturnType<{…}>` annotation ends the body scope early; the first JSX tag anywhere
+// in the function (even a pre-return `.map(i => <Row />)`) opens the "any use counts" region; any use inside the
+// JSX (even `dense={Boolean(toolbar)}`) counts as a reference; a slot-named destructure in a
+// non-shell callback (`items.map(({ title }) => …)`) in a PageFrame file is checked the same way.
+function findSwallowedSlots(text, slots) {
+  if (!text.includes('PageFrame')) return [];
+  const blank = (m) => m.replace(/[^\n]/g, ' ');
+  // Comments and string literals blanked in one pass (strings first, so a `//` inside
+  // `"https://…"` is not read as a comment). Offsets and newlines are preserved.
+  // A template literal keeps its `${…}` expressions (a slot forwarded as `${title} (${count})` is
+  // a reference); a `'` right after a word character is a JSX-text apostrophe, not a string.
+  const code = text
+    .replace(
+      /"(?:\\.|[^"\\\n])*"|(?<!\w)'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,
+      (m) =>
+        m[0] === '`' ? m.replace(/(\$\{(?:[^{}]|\{[^{}]*\})*\})|[^\n]/g, (x, expr) => expr ?? ' ') : blank(m),
+    )
+    // JSX prose (`<EmptyState>No actions yet</EmptyState>`, `{x} and toolbar <b>`) is not a reference:
+    // the run after a tag's `>` (not an arrow's `=>`) or an expression's `}`, up to the next `<` / `{`.
+    .replace(/(?<=[^=-]>|\})(?!\s*[:,])[^<>{};=()]+(?=[<{])/g, blank);
+  const decl =
+    /(\(|\b(?:const|let)\s+)\{([^{}]*)\}(?=\s*(?::|=(?!=)|\)\s*(?:=>|\{)|,\s*\w+\??\s*(?::[^,)]*)?\)\s*(?:=>|\{)))/g;
+  const hits = [];
+  for (const m of code.matchAll(decl)) {
+    // The `const { … } =` form is a props destructure only when it reads `props`; a hook result
+    // (`const { count } = useSelection()`) is a local value, not a swallowed prop.
+    if (m[1] !== '(' && !/^\s*=\s*props\b/.test(code.slice(m.index + m[0].length))) continue;
+    const lineStart = code.lastIndexOf('\n', m.index) + 1;
+    if (/^\s*(?:export\s+)?(?:type|interface)\b/.test(code.slice(lineStart, m.index))) continue; // a type, not a function
+    const members = [];
+    let offset = m.index + m[1].length + 1;
+    for (const member of m[2].split(',')) {
+      const name = /^\s*(\w+)\s*(?::\s*(\w+))?/.exec(member);
+      if (name && !member.trim().startsWith('...') && slots.includes(name[1])) {
+        members.push({ slot: name[1], local: name[2] ?? name[1], index: offset + member.indexOf(name[1]) });
+      }
+      offset += member.length + 1;
+    }
+    if (!members.length) continue;
+    // Scope: the rest of the function — past the parameter list, then its body block.
+    const isParams = m[1] === '(';
+    let i = m.index + m[0].length;
+    let depth = isParams ? 1 : 0; // parens still open (params) / brackets of the enclosing block
+    let bodyDepth = 0;
+    let inBody = !isParams;
+    let exprBody = false; // `=> <PageFrame …/>` — no body block, scope runs to the statement end
+    let end = code.length;
+    for (; i < code.length; i++) {
+      const c = code[i];
+      if (c === '>' && code[i - 1] === '=' && (!isParams || depth === 0) && !inBody && code.slice(i + 1).search(/\S/) >= 0 && !/^\s*\{/.test(code.slice(i + 1, i + 40))) exprBody = true;
+      if ('([{'.includes(c)) {
+        depth++;
+        if (c === '{' && !inBody && !exprBody && depth === 1) { inBody = true; bodyDepth = depth; }
+      } else if (')]}'.includes(c)) {
+        depth--;
+        if (isParams && depth === 0 && !inBody) continue;
+        if (depth < 0 || (inBody && isParams && depth < bodyDepth)) { end = i; break; }
+      } else if (c === ';' && isParams && depth === 0) { end = i; break; }
+    }
+    const scope = code.slice(m.index + m[0].length, end);
+    const jsxAt = scope.search(/(?<![\w)\]>])<[A-Za-z]/); // first JSX tag; -1 → no JSX, nothing counts after it
+    for (const h of members) {
+      const ref = new RegExp(`(?<![\\w.>])${h.local}(?![\\w<]|\\??:|=[^=])`, 'g');
+      const used = [...scope.matchAll(ref)].some((r) => {
+        if (jsxAt >= 0 && r.index >= jsxAt) return true;
+        // Before the JSX: only an object-literal member (`{ toolbar }`, `, toolbar,`, `key: toolbar`) is a
+        // forward (matrix-grid builds `frameProps` that way); `Boolean(toolbar)` is a use that forwards nothing.
+        const prev = scope.slice(0, r.index).trimEnd().slice(-1);
+        const next = scope.slice(r.index + h.local.length).trimStart()[0];
+        return prev === ':' || ((prev === '{' || prev === ',') && (next === ',' || next === '}'));
+      });
+      if (!used) hits.push(h);
+    }
+  }
+  return hits.map((h) => {
+    const before = text.slice(0, h.index).split('\n');
+    return { slot: h.slot, line: before.length, col: before.at(-1).length + 1 };
+  });
+}
+
 // Compile every rule once. `pattern` is used verbatim; a `tag` rule matches a bare lowercase
 // element — `<tag` immediately followed by whitespace, `/`, or `>` — case-sensitive (no `i`
 // flag) so the capitalized DS primitive `<Button>` is not a hit.
@@ -164,7 +260,7 @@ function harvestUnionAliases(text) {
 // CLI always passes the config's `targets`.
 function compileRules(rules, targets) {
   return rules.map((rule) => {
-    const source = rule.pattern ?? `<${rule.tag}(?=[\\s/>])`;
+    const source = rule.swallowedSlots ? '(?!)' : (rule.pattern ?? `<${rule.tag}(?=[\\s/>])`);
     // A `{{unionAliases}}` pattern cannot be compiled once — its alternation is per-file — so
     // it is carried as `aliasSource` and compiled in `scanFile`. Validate it here anyway (with
     // a stand-in name) so a bad pattern still fails at compile time, like every other rule.
@@ -191,6 +287,7 @@ function compileRules(rules, targets) {
       label: rule.tag ? `<${rule.tag}>` : rule.id,
       severity: rule.severity === 'error' ? 'error' : 'warn',
       message: rule.message,
+      slots: rule.swallowedSlots ?? null,
       includes,
       excludes: compileGlobs(rule, 'exclude'),
     };
@@ -208,7 +305,7 @@ function scanFile(fileRel, text, compiled) {
   // The union-type-alias pre-pass: harvested once per file, and only when some rule asks for
   // it (`{{unionAliases}}`), so a config without such a rule pays nothing.
   const aliases = compiled.some((c) => c.aliasSource) ? harvestUnionAliases(text) : [];
-  for (const { re: compiledRe, aliasSource, label, severity, message, includes, excludes } of compiled) {
+  for (const { re: compiledRe, aliasSource, label, severity, message, slots, includes, excludes } of compiled) {
     // No `include` (or a rule whose `include` list is empty) matches every walked file;
     // with one or more `include` globs the rule applies only when ANY of them matches.
     // The scope globs are matched by `path.matchesGlob` (stdlib since v22) — `**` spans
@@ -216,6 +313,12 @@ function scanFile(fileRel, text, compiled) {
     // a literal.
     if (includes.length && !includes.some((inc) => matchesGlob(fileRel, inc))) continue;
     if (excludes.some((ex) => matchesGlob(fileRel, ex))) continue; // excluded closed archetype
+    if (slots) {
+      for (const { slot, line, col } of findSwallowedSlots(text, slots)) {
+        violations.push({ file: fileRel, line, col, rule: label, severity, message: `\`${slot}\` is destructured but never forwarded to PageFrame. ${message}` });
+      }
+      continue;
+    }
     // A `{{unionAliases}}` rule is compiled here, against THIS file's harvested alias names.
     // No union alias in the file means the rule can match nothing — skip it.
     if (aliasSource && !aliases.length) continue;
@@ -351,4 +454,4 @@ if (process.argv[1] && pathToFileURL(realpathSync(process.argv[1])).href === imp
   main();
 }
 
-export { compileGlobs, compileRules, scanFile, harvestUnionAliases, includeReachableUnder, CompileError };
+export { compileGlobs, compileRules, scanFile, findSwallowedSlots, harvestUnionAliases, includeReachableUnder, CompileError };
