@@ -89,10 +89,30 @@ const DEFAULT_SETTINGS_TABLE_LABELS = {
   deleteSelected: (count: number) => `Delete ${count} selected`,
 };
 
-export type SettingsTableShellProps<Row> = Pick<
-  PageFrameProps,
-  "title" | "subtitle" | "badges" | "actions" | "toolbar"
-> & {
+/**
+ * The frameless settings table — everything a D2 page renders below its own
+ * heading: the flush control band (toolbar / count caption / create + bulk
+ * write actions), the loading / empty / error planes, the table (with its
+ * leading checkbox column when `bulkSelectable`), the per-row actions menu,
+ * and the identifier-cell click-to-edit gate.
+ *
+ * No page header of its own. This is the form for tab content whose own tab
+ * trigger owns the heading (the `SettingsPageShell` F2 archetype): the
+ * frameless counterpart to `ListWithDetailBody`, so a settings table placed
+ * inside a `SettingsPageShell` tab renders no second nested heading that
+ * repeats the tab label.
+ *
+ * A `SettingsPageShell` tab has no page header to hold actions (`SettingsPageShell` has no
+ * per-tab actions slot), so the `toolbar`, the `onAddNew` create action, and the bulk-write
+ * actions (`bulkActions` / `onBulkDelete`) — the controls that a standalone page routes to its
+ * `PageFrame` slots — render in this body's own flush band instead: the toolbar on the left,
+ * the create + bulk actions and the count caption on the right, above the table. The count
+ * caption reads "{n} selected" while a visible row is selected and the body has a bulk action,
+ * otherwise "{n} {rowLabel}". `SettingsTableShell` routes the same props to the `PageFrame`
+ * slots of its page frame rather than to the body, so a standalone page renders exactly one
+ * band.
+ */
+export type SettingsTableBodyProps<Row> = {
   /** The current (possibly filtered) rows to display. */
   rows: Row[];
   /** Column definitions. Mark exactly one column `isIdentifier` per table. */
@@ -107,29 +127,67 @@ export type SettingsTableShellProps<Row> = Pick<
    */
   getRowLabel?: (row: Row) => string;
 
+  // Scoping + result count (the frame's toolbar band, ADR-0008 slot map)
+  /**
+   * The scoping controls — search, filters — for the body's flush band (left). `SettingsTableShell`
+   * routes this to its page frame's `toolbar` slot and suppresses the body's band instead.
+   */
+  toolbar?: React.ReactNode;
+  /**
+   * The noun of the result count: renders `{rows.length} {rowLabel}` in the band's count caption (or
+   * the page frame's `count` slot in `SettingsTableShell`), unless a selection with a bulk action
+   * switches it to "{n} selected". The function form receives the count, for singular/plural nouns.
+   * Omitted = no count.
+   */
+  rowLabel?: string | ((count: number) => string);
+
   // Callbacks
   /** Called when the identifier cell is clicked — consumer opens the edit dialog. */
   onRowEdit?: (row: Row) => void;
   /**
-   * The create action: the shell renders an "Add" button first in the page
-   * header `actions` (before the page's own) and as the empty-state CTA.
+   * The create action: the owning form renders an "Add" button — the page header `actions` in
+   * `SettingsTableShell`, the body's own flush band standalone — and the body renders the same
+   * button as its empty-state CTA. One pair of props (`onAddNew` + `addNewLabel`) drives all three,
+   * so they cannot drift.
    */
   onAddNew?: () => void;
   /** Label for the Add-new button. Default: "Add new". */
   addNewLabel?: string;
   /**
-   * The noun of the result count (`count` slot): renders
-   * `{rows.length} {rowLabel}`. The function form receives the count, for
-   * singular/plural nouns. Omitted = no count.
+   * Write actions on the selection, rendered alongside the create action while a visible row is
+   * selected — in the page header `actions` in `SettingsTableShell`, in the body's flush band
+   * standalone (the count caption then reads "{n} selected").
    */
-  rowLabel?: string | ((count: number) => string);
+  bulkActions?: React.ReactNode;
+  /**
+   * Convenience prop for when bulk delete is the only bulk action.
+   * When provided and a visible row is selected, renders a "Delete N selected" destructive
+   * button alongside whatever `bulkActions` supplies. After calling this callback the primitive
+   * clears the selection automatically.
+   */
+  onBulkDelete?: (rows: Row[]) => void;
+  /**
+   * Render the body's own flush control band (default `true` — the tab-level home for the
+   * `toolbar` / count / create / bulk-write controls). `SettingsTableShell` passes `false`,
+   * routing those props to the page frame's slots instead, so a standalone page keeps exactly
+   * one band.
+   */
+  band?: boolean;
+  /**
+   * Split-pane editing (Layer 5, ADR-0008 §3) — only meaningful on
+   * `SettingsTableShell`: the consumer's persistent edit form joins the page
+   * frame's right pane, hairline-divided from the table (never a second raised
+   * surface). The row-click contract (Layer 6) drives the selection the pane
+   * edits. On viewports below `md` the shell drops the pane out of the frame
+   * and the consumer's mobile edit-dialog overlay takes over (Layer 11).
+   */
+  editPane?: React.ReactNode;
 
   // Per-row secondary actions (dropdown menu)
   /**
-   * Per-row secondary actions. Either a static list, or a factory the shell
-   * calls with each row — the factory form lets an entry's `disabled` (or the
-   * entry set itself) be derived from that row's data, the same per-row
-   * capability rule `TableColumn.isClickable` follows.
+   * Per-row secondary actions. Either a static list, or a factory the body calls with each row
+   * — the factory form lets an entry's `disabled` (or the entry set itself) be derived from
+   * that row's data, the same per-row capability rule `TableColumn.isClickable` follows.
    */
   rowActions?: RowAction<Row>[] | ((row: Row) => RowAction<Row>[]);
 
@@ -154,38 +212,200 @@ export type SettingsTableShellProps<Row> = Pick<
   selectedIds?: string[];
   /** Called when the selection changes. Consumer updates `selectedIds`. */
   onBulkSelectChange?: (selectedIds: string[]) => void;
-  /**
-   * Write actions on the selection, rendered in the header `actions` while a
-   * visible row is selected (the count then reads "{n} selected").
-   */
-  bulkActions?: React.ReactNode;
-  /**
-   * Convenience prop for when bulk delete is the only bulk action.
-   * When provided and selectedIds.length > 0, renders a "Delete N selected"
-   * destructive button alongside whatever `bulkActions` supplies.
-   * After calling this callback the primitive clears the selection automatically.
-   */
-  onBulkDelete?: (rows: Row[]) => void;
-
-  // Split-pane editing variant (Layer 5)
-  /**
-   * Split-pane editing — the D2 variant for rows edited in rapid succession,
-   * where a dialog's open/close cycle creates friction. The consumer supplies
-   * the edit form and it renders as the right pane of the shell's one page
-   * frame, divided from the table by the frame's hairline — never a second
-   * raised surface (ADR-0008 §3). The row-click contract (Layer 6) drives the
-   * selection the pane edits: wire `onRowEdit` to the consumer's row-selection
-   * state. On viewports below `md` the shell drops the pane out of the frame
-   * and the consumer's mobile edit-dialog overlay takes over (Layer 11).
-   */
-  editPane?: React.ReactNode;
 };
 
+/**
+ * The page-shell form: the `PageFrame` slots (title / subtitle / badges / actions) plus the body
+ * (which owns the toolbar, count, create, and bulk-write actions — routed to the frame's `toolbar`
+ * / `count` slots and header `actions` here, not to the body's own band). Composes
+ * `SettingsTableBody` as its frame body, so the frame owns the heading and the one raised surface
+ * while the body owns the table, its rows, and the selection planes.
+ *
+ * The frame's `count` slot is derived internally from the same inputs the body uses to derive its
+ * band caption and checkboxes (`computeBulkSelection`), so the two cannot disagree.
+ *
+ * Use `SettingsTableBody` directly for tab content inside a `SettingsPageShell` (or any other
+ * frame that already owns the heading) — `SettingsTableShell` renders a page frame with a
+ * `title`, so in a nested frame it is a second nested heading repeating the tab label.
+ */
+export type SettingsTableShellProps<Row> = Pick<
+  PageFrameProps,
+  "title" | "subtitle" | "badges" | "actions"
+> &
+  SettingsTableBodyProps<Row>;
+
 // ---------------------------------------------------------------------------
-// Main component
+// Shared, frameless derivation
 // ---------------------------------------------------------------------------
 
-export function SettingsTableShell<Row>({
+/**
+ * The selection state both the body (select-all + row checkboxes + bulk band) and the shell
+ * (the "{n} selected" count, the bulk-write actions) derive from. Pure over (rows, getRowId,
+ * selectedIds, bulkSelectable) — the same inputs feed both, so the body's checkboxes, the band
+ * actions, and the frame's count can never disagree about how many rows are selected and
+ * visible.
+ */
+type BulkSelection = {
+  selectedSet: ReadonlySet<string>;
+  allIds: string[];
+  visibleSelected: string[];
+  allSelected: boolean;
+  hasBulkSelection: boolean;
+  someSelected: boolean;
+};
+
+function computeBulkSelection<Row>(
+  rows: Row[],
+  getRowId: (row: Row) => string,
+  selectedIds: string[],
+  bulkSelectable: boolean,
+): BulkSelection {
+  const selectedSet = new Set(selectedIds);
+  const allIds = rows.map(getRowId);
+  // On every bulk path, only the ids of the rows currently shown are acted on: the caption, the
+  // bulk actions, and the select-all checkbox all operate on the visible set, never on the raw
+  // `selectedIds`. When a filter hides a ticked row its id stays in the consumer's state but
+  // drops out of `visibleSelected` — the selection outlives the filter in the consumer, the UI
+  // never acts on the hidden part.
+  const visibleSelected = allIds.filter((id) => selectedSet.has(id));
+  const hasBulkSelection = bulkSelectable && visibleSelected.length > 0;
+  const allSelected =
+    bulkSelectable && allIds.length > 0 && visibleSelected.length === allIds.length;
+  const someSelected = hasBulkSelection && !allSelected;
+  return { selectedSet, allIds, visibleSelected, allSelected, hasBulkSelection, someSelected };
+}
+
+/**
+ * The count caption: "{n} selected" while a visible row is selected AND a bulk action exists
+ * (a selection with no bulk action is visually indistinguishable from "no selection"),
+ * otherwise "{n} {rowLabel}" — or `undefined` when no `rowLabel` is set. One derivation the
+ * body's band and the shell's `PageFrame` `count` slot both route through, from the same
+ * inputs `computeBulkSelection` uses.
+ */
+function resolveCountLabel<Row>({
+  rows,
+  getRowId,
+  selectedIds,
+  bulkSelectable,
+  rowLabel,
+  labels,
+  bulkActions,
+  onBulkDelete,
+}: {
+  rows: Row[];
+  getRowId: (row: Row) => string;
+  selectedIds: string[];
+  bulkSelectable: boolean;
+  rowLabel?: string | ((count: number) => string);
+  labels?: SettingsTableLabels<Row>;
+  bulkActions?: React.ReactNode;
+  onBulkDelete?: (rows: Row[]) => void;
+}): string | undefined {
+  const { visibleSelected, hasBulkSelection } = computeBulkSelection(
+    rows,
+    getRowId,
+    selectedIds,
+    bulkSelectable,
+  );
+  const showBulkActions = hasBulkSelection && (bulkActions != null || onBulkDelete != null);
+  if (showBulkActions) {
+    return (labels?.selectedCount ?? DEFAULT_SETTINGS_TABLE_LABELS.selectedCount)(
+      visibleSelected.length,
+    );
+  }
+  if (rowLabel !== undefined) {
+    return `${rows.length} ${typeof rowLabel === "function" ? rowLabel(rows.length) : rowLabel}`;
+  }
+  return undefined;
+}
+
+/**
+ * The create-action button — one component so the page header `actions` (via
+ * `SettingsTableShell`), the body's flush band, and the empty-state CTA render it identically
+ * from the same `onAddNew` / `addNewLabel` pair. Returns `null` when no `onAddNew` is set.
+ */
+function SettingsTableAddButton({
+  onAddNew,
+  label = "Add new",
+}: {
+  onAddNew?: () => void;
+  label?: string;
+}): React.ReactElement | null {
+  if (!onAddNew) return null;
+  return (
+    <Button variant="default" size="sm" onClick={onAddNew}>
+      <Plus className="mr-1 h-4 w-4" />
+      {label}
+    </Button>
+  );
+}
+
+/**
+ * The bulk-write actions for a selection — the consumer's `bulkActions` plus the convenience
+ * "Delete N selected" button (built-in copy from `labels.deleteSelected`, selection cleared
+ * after the callback) — shown while a visible row is selected and a bulk action exists. One
+ * node the body's band and the shell's header `actions` both route through, so both read the
+ * same "{N} selected" count and clear identically.
+ */
+function SettingsTableBulkActions<Row>({
+  selection,
+  rows,
+  getRowId,
+  labels,
+  bulkActions,
+  onBulkDelete,
+  onBulkSelectChange,
+}: {
+  selection: BulkSelection;
+  rows: Row[];
+  getRowId: (row: Row) => string;
+  labels?: SettingsTableLabels<Row>;
+  bulkActions?: React.ReactNode;
+  onBulkDelete?: (rows: Row[]) => void;
+  onBulkSelectChange?: (selectedIds: string[]) => void;
+}): { show: boolean; node: React.ReactNode } {
+  const show = selection.hasBulkSelection && (bulkActions != null || onBulkDelete != null);
+  if (!show) return { show: false, node: null };
+  const deleteSelected = labels?.deleteSelected ?? DEFAULT_SETTINGS_TABLE_LABELS.deleteSelected;
+  const handleBulkDelete = () => {
+    if (!onBulkDelete || !onBulkSelectChange) return;
+    const selectedRows = rows.filter((row) => selection.selectedSet.has(getRowId(row)));
+    onBulkDelete(selectedRows);
+    onBulkSelectChange([]);
+  };
+  return {
+    show: true,
+    node: (
+      <>
+        {bulkActions}
+        {onBulkDelete != null && (
+          <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
+            {deleteSelected(selection.visibleSelected.length)}
+          </Button>
+        )}
+      </>
+    ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Body component (frameless)
+// ---------------------------------------------------------------------------
+
+/**
+ * The frameless settings table — D2's table content, no page header, no second raised surface.
+ * Exported for tab content inside a `SettingsPageShell` (and any other frame that already owns
+ * the heading), mirroring the `ListWithDetailBody` precedent.
+ *
+ * Renders a flush control band (toolbar left; create + bulk-write actions and the count caption
+ * right) when any of those controls are present — the tab-level home for the scoping/write
+ * controls a `SettingsPageShell` tab cannot route to a page header. `SettingsTableShell` routes
+ * those props to its `PageFrame` slots and suppresses the body's band (`band={false}` — only the
+ * frame owns the page's single band), so a standalone page renders exactly one band; it still
+ * forwards `onAddNew` (plus `addNewLabel`) so the body's empty state offers the same CTA the
+ * header action does.
+ */
+export function SettingsTableBody<Row>({
   rows,
   columns,
   getRowId,
@@ -193,7 +413,11 @@ export function SettingsTableShell<Row>({
   onRowEdit,
   onAddNew,
   addNewLabel = "Add new",
+  toolbar,
   rowLabel,
+  bulkActions,
+  onBulkDelete,
+  band: bandEnabled = true,
   editPane,
   rowActions,
   isLoading,
@@ -205,49 +429,21 @@ export function SettingsTableShell<Row>({
   bulkSelectable,
   selectedIds = [],
   onBulkSelectChange,
-  bulkActions,
-  onBulkDelete,
-  actions,
-  ...frame
-}: SettingsTableShellProps<Row>): React.ReactElement {
+}: SettingsTableBodyProps<Row>): React.ReactElement {
   const hasActions =
     typeof rowActions === "function" ||
     (rowActions !== undefined && rowActions.length > 0);
   const hasBulk = bulkSelectable === true;
 
-  // Shell copy: the built-in defaults merged over the consumer's `labels`
-  // per key with `??` — a spread would copy an explicit `undefined` onto a
-  // default, so a wrapper forwarding an unset prop would make
-  // `selectedCount`/`deleteSelected` throw and drop the select-all
-  // `aria-label` instead of falling back to the built-in strings.
-  const allLabels = {
-    selectAll: labels?.selectAll ?? DEFAULT_SETTINGS_TABLE_LABELS.selectAll,
-    selectedCount: labels?.selectedCount ?? DEFAULT_SETTINGS_TABLE_LABELS.selectedCount,
-    deleteSelected:
-      labels?.deleteSelected ?? DEFAULT_SETTINGS_TABLE_LABELS.deleteSelected,
-  };
+  const selection = computeBulkSelection(rows, getRowId, selectedIds, hasBulk);
+  const { selectedSet, allIds, visibleSelected, allSelected, someSelected } = selection;
 
-  // Bulk select helpers. The selection is consumer-owned (selectedIds), but on
-  // every bulk path the shell only ever emits ids of the rows it is showing:
-  // the caption, the bulk actions, and toggleAll/toggleRow all operate on the
-  // visible set, never on the raw prop. When the consumer filters a row out
-  // its id silently drops on the next interaction — the selection outlives the
-  // filter in the consumer's state, but the shell's UI never acts on the
-  // invisible part.
-  const selectedSet = React.useMemo(() => new Set(selectedIds), [selectedIds]);
-  const allIds = rows.map(getRowId);
-  const visibleSelected = allIds.filter((id) => selectedSet.has(id));
-  const hasBulkSelection = hasBulk && visibleSelected.length > 0;
-  const allSelected =
-    hasBulk && allIds.length > 0 && visibleSelected.length === allIds.length;
-  const someSelected =
-    hasBulk && visibleSelected.length > 0 && !allSelected;
+  // The body's built-in select-all checkbox label — the consumer's `labels` merged over the
+  // default with `??` (a spread would let an explicit `undefined` replace a default).
+  // `ListStateView` handles its own loading/error/retry defaults from the raw `labels`.
+  const selectAllLabel = labels?.selectAll ?? DEFAULT_SETTINGS_TABLE_LABELS.selectAll;
 
-  // Identifier column — used for the default row-checkbox aria-label so a
-  // screen-reader user hears which record each checkbox opens. The label is
-  // only rendered from the cell value when it is a primitive (string|number):
-  // a JSX cell would interpolate to "Select row: [object Object]", which is
-  // worse than the flat default, so the default falls back to "Select row".
+  // Identifier column — the default row-checkbox aria-label source.
   const identifierCol = columns.find((c) => c.isIdentifier);
 
   function resolveRowSelectLabel(row: Row): string {
@@ -266,10 +462,9 @@ export function SettingsTableShell<Row>({
     return typeof sel === "function" ? sel(row) : sel;
   }
 
-  // Dev-only: a JSX identifier cell with no getRowLabel / labels.selectRow
-  // leaves every row checkbox with the identical flat "Select row" name.
-  const firstCell =
-    rows[0] && identifierCol ? identifierCol.cell(rows[0]) : undefined;
+  // Dev-only: a JSX identifier cell with no getRowLabel / labels.selectRow leaves every row
+  // checkbox with the identical flat "Select row" name.
+  const firstCell = rows[0] && identifierCol ? identifierCol.cell(rows[0]) : undefined;
   const flatLabelFallback =
     hasBulk &&
     labels?.selectRow === undefined &&
@@ -281,7 +476,7 @@ export function SettingsTableShell<Row>({
   React.useEffect(() => {
     if (flatLabelFallback && process.env.NODE_ENV !== "production") {
       logger.warn(
-        "SettingsTableShell: identifier cell is not text, so every row checkbox is named \"Select row\". Pass `getRowLabel` or `labels.selectRow`.",
+        "SettingsTableBody: identifier cell is not text, so every row checkbox is named \"Select row\". Pass `getRowLabel` or `labels.selectRow`.",
       );
     }
   }, [flatLabelFallback]);
@@ -305,46 +500,14 @@ export function SettingsTableShell<Row>({
     }
   }
 
-  function handleBulkDelete() {
-    if (!onBulkDelete || !onBulkSelectChange) return;
-    const selectedRows = rows.filter((row) => selectedSet.has(getRowId(row)));
-    onBulkDelete(selectedRows);
-    onBulkSelectChange([]);
-  }
-
   // Body content resolution
   const listState = resolveListState({ isLoading, error, isEmpty: rows.length === 0 });
   const showTable = listState === "content";
 
-  // Slots (ADR-0008): the count slot reads "{n} selected" in bulk mode, else
-  // "{n} {rowLabel}"; bulk write actions and the create action merge into the
-  // header `actions`, before the page's own. The consumer toolbar (search,
-  // filters) stays visible in bulk mode so the list can still be refined.
-  const showBulkActions = hasBulkSelection && (bulkActions || onBulkDelete);
-  const count = showBulkActions
-    ? allLabels.selectedCount(visibleSelected.length)
-    : rowLabel !== undefined
-      ? `${rows.length} ${typeof rowLabel === "function" ? rowLabel(rows.length) : rowLabel}`
-      : undefined;
-  const addButton = onAddNew && (
-    <Button variant="default" size="sm" onClick={onAddNew}>
-      <Plus className="mr-1 h-4 w-4" />
-      {addNewLabel}
-    </Button>
-  );
-  const mergedActions =
-    showBulkActions || addButton || actions ? (
-      <>
-        {showBulkActions && bulkActions}
-        {showBulkActions && onBulkDelete && (
-          <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-            {allLabels.deleteSelected(visibleSelected.length)}
-          </Button>
-        )}
-        {addButton}
-        {actions}
-      </>
-    ) : undefined;
+  // The create action doubles as the empty-state CTA (hidden when the empty rows are
+  // filter-caused — that has no "add" to offer). `null` when no `onAddNew` — an always-present
+  // element would flip the StateView's `{action && …}` gate and render an empty CTA wrapper.
+  const addButton = onAddNew ? <SettingsTableAddButton onAddNew={onAddNew} label={addNewLabel} /> : null;
 
   // Loading / empty / error planes are owned by the shared <ListStateView>.
   const listStatePlane = (
@@ -368,7 +531,7 @@ export function SettingsTableShell<Row>({
               <Checkbox
                 checked={allSelected ? true : someSelected ? "indeterminate" : false}
                 onCheckedChange={toggleAll}
-                aria-label={allLabels.selectAll}
+                aria-label={selectAllLabel}
               />
             </TableHead>
           )}
@@ -437,17 +600,63 @@ export function SettingsTableShell<Row>({
     </Table>
   ) : null;
 
+  // Flush control band (the frame's band, minus the frame). The chrome string is the same
+  // ruled band the page frame owns (`border-b px-4 py-3`); the inner layout mirrors the
+  // frame's band (flex row, wrapped, count in the muted treatment) because a tab has no page
+  // header to hold these controls. The table's scroll region sits BELOW the band so the band
+  // stays in view while the table scrolls.
+  const countLabel = resolveCountLabel({
+    rows,
+    getRowId,
+    selectedIds,
+    bulkSelectable: hasBulk,
+    rowLabel,
+    labels,
+    bulkActions,
+    onBulkDelete,
+  });
+  const bulkNode = SettingsTableBulkActions({
+    selection,
+    rows,
+    getRowId,
+    labels,
+    bulkActions,
+    onBulkDelete,
+    onBulkSelectChange,
+  });
+  const hasBandControls =
+    toolbar != null ||
+    onAddNew != null ||
+    bulkNode.show ||
+    countLabel != null;
+  const band = bandEnabled && hasBandControls ? (
+    <div className="border-b px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">{toolbar}</div>
+        {(onAddNew != null || bulkNode.show || countLabel != null) && (
+          <div className="ml-auto flex shrink-0 items-center gap-3">
+            {countLabel != null && (
+              <span className="text-sm text-muted-foreground">{countLabel}</span>
+            )}
+            {bulkNode.show && bulkNode.node}
+            {onAddNew != null && <SettingsTableAddButton onAddNew={onAddNew} label={addNewLabel} />}
+          </div>
+        )}
+      </div>
+    </div>
+  ) : null;
+
   return (
-    <PageFrame {...frame} actions={mergedActions} count={count}>
-      {/* One page frame, always. With `editPane` the body splits into two
-          panes (Layer 5, ADR-0008 §3): the table and the consumer's
-          persistent edit form, divided by the frame's hairline at `md` and
-          up — a section divider, never a second raised surface. Below `md`
-          the pane is out of the frame and the click-contract edit dialog
-          (Layer 11) is the mobile editing surface. */}
+    <div>
+      {band}
+      {/* One surface, always. With `editPane` the body splits into two panes
+          (Layer 5, ADR-0008 §3): the table and the consumer's persistent edit
+          form, divided by the frame's hairline at `md` and up — never a second
+          raised surface. Below `md` the pane is out of the frame and the
+          click-contract edit dialog (Layer 11) is the mobile editing surface. */}
       <div className="flex">
-        {/* The table scroll region sits INSIDE the (clipped) frame so the
-            table scrolls beneath the toolbar band, not the surface itself. */}
+        {/* The table scroll region below (clipped) the band so the table scrolls
+            beneath the band, not the surface itself. */}
         <div className="relative min-w-0 flex-1 overflow-x-auto">
           {listStatePlane}
           {tableContent}
@@ -456,6 +665,131 @@ export function SettingsTableShell<Row>({
           <div className="hidden w-1/2 md:block md:border-l">{editPane}</div>
         )}
       </div>
+    </div>
+  );
+}
+
+SettingsTableBody.displayName = "SettingsTableBody";
+
+// ---------------------------------------------------------------------------
+// Shell (page form)
+// ---------------------------------------------------------------------------
+
+/**
+ * The page-archetype shell (D2) — `SettingsTableBody` inside a `PageFrame`. The frame owns the
+ * heading, the one raised surface, the toolbar band (search / filters, and the result count — or
+ * "{n} selected" while a row is selected), and the create + bulk-write actions; the body owns the
+ * table, its rows, and the selection planes. The `toolbar` / `rowLabel` / `bulkActions` /
+ * `onBulkDelete` props are routed to the frame's `toolbar` / `count` slots and header `actions`
+ * — not forwarded to the body — so the frame is the page's only band and the body's own band
+ * stays out of a standalone page.
+ *
+ * Use `SettingsTableBody` directly for tab content inside a `SettingsPageShell` (or any other
+ * frame that already owns the heading) — `SettingsTableShell` renders a page frame with a
+ * `title`, so in a nested frame it is a second nested heading repeating the tab label.
+ */
+export function SettingsTableShell<Row>({
+  title,
+  subtitle,
+  badges,
+  actions,
+  rows,
+  columns,
+  getRowId,
+  getRowLabel,
+  onRowEdit,
+  onAddNew,
+  addNewLabel = "Add new",
+  toolbar,
+  rowLabel,
+  bulkActions,
+  onBulkDelete,
+  editPane,
+  rowActions,
+  isLoading,
+  error,
+  onRetry,
+  emptyMessage,
+  isFiltered,
+  labels,
+  bulkSelectable,
+  selectedIds = [],
+  onBulkSelectChange,
+}: SettingsTableShellProps<Row>): React.ReactElement {
+  const hasBulk = bulkSelectable === true;
+
+  // Derive the same selection state the body derives (a pure function of the shared props); the
+  // shell uses it for the frame's `count` slot and its bulk-write actions.
+  const selection = computeBulkSelection(rows, getRowId, selectedIds, hasBulk);
+
+  // Frame's count slot (ADR-0008 slot map): "{n} selected" in bulk mode, else "{n} {rowLabel}" —
+  // the same derivation the body's band caption uses.
+  const count = resolveCountLabel({
+    rows,
+    getRowId,
+    selectedIds,
+    bulkSelectable: hasBulk,
+    rowLabel,
+    labels,
+    bulkActions,
+    onBulkDelete,
+  });
+
+  const bulkNode = SettingsTableBulkActions({
+    selection,
+    rows,
+    getRowId,
+    labels,
+    bulkActions,
+    onBulkDelete,
+    onBulkSelectChange,
+  });
+
+  const addButton = onAddNew ? <SettingsTableAddButton onAddNew={onAddNew} label={addNewLabel} /> : null;
+  const mergedActions =
+    bulkNode.show || addButton || actions ? (
+      <>
+        {bulkNode.show && bulkNode.node}
+        {addButton}
+        {actions}
+      </>
+    ) : undefined;
+
+  return (
+    <PageFrame
+      title={title}
+      subtitle={subtitle}
+      badges={badges}
+      toolbar={toolbar}
+      actions={mergedActions}
+      count={count}
+    >
+      <SettingsTableBody
+        rows={rows}
+        columns={columns}
+        getRowId={getRowId}
+        getRowLabel={getRowLabel}
+        onRowEdit={onRowEdit}
+        onAddNew={onAddNew}
+        addNewLabel={addNewLabel}
+        // The frame above owns the page's toolbar/count/bulk-write actions; the
+        // body's own band is suppressed so the page has exactly one band. `onAddNew`
+        // still drives the body's empty-state CTA (and, in the body used directly,
+        // the band's create button). The `editPane` slot flows through to the
+        // body's split-pane wrapper (Layer 5).
+        band={false}
+        editPane={editPane}
+        rowActions={rowActions}
+        isLoading={isLoading}
+        error={error}
+        onRetry={onRetry}
+        emptyMessage={emptyMessage}
+        isFiltered={isFiltered}
+        labels={labels}
+        bulkSelectable={bulkSelectable}
+        selectedIds={selectedIds}
+        onBulkSelectChange={onBulkSelectChange}
+      />
     </PageFrame>
   );
 }

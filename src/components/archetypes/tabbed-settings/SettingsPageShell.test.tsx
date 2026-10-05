@@ -2,6 +2,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { PageFrame } from "../../layout/PageFrame";
 import { SettingsPageShell, type SettingsPageShellProps } from "./SettingsPageShell";
+import {
+  SettingsTableBody,
+  type SettingsColumn,
+} from "../settings-table";
 
 afterEach(() => {
   cleanup();
@@ -11,6 +15,18 @@ afterEach(() => {
 const tabs = [
   { value: "general", label: "General", content: <p>general body</p> },
   { value: "team", label: "Team", content: <p>team body</p> },
+];
+
+// A settings-table (D2) frameless body as tab content — the v3.1
+// `SettingsTableBody` export. The tab trigger owns the heading, so the body
+// must not render a nested heading repeating the tab label.
+type Channel = { id: string; name: string };
+const CHANNEL_ROWS: Channel[] = [
+  { id: "c1", name: "Apple Podcasts" },
+  { id: "c2", name: "Spotify" },
+];
+const CHANNEL_COLUMNS: SettingsColumn<Channel>[] = [
+  { key: "name", header: "Channel", isIdentifier: true, cell: (row) => row.name },
 ];
 
 describe("SettingsPageShell — one page frame (ADR-0008)", () => {
@@ -67,6 +83,108 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     expect(container.querySelectorAll("h1")).toHaveLength(1);
     expect(screen.getByRole("heading", { level: 2, name: "Workspace" })).toBeTruthy();
     expect(container.querySelectorAll(".bg-surface-raised")).toHaveLength(1);
+  });
+
+  it("a SettingsTableBody tab content renders its rows with no nested heading, and the create + count in the body's own flush band", () => {
+    const { container } = render(
+      <SettingsPageShell
+        title="Workspace"
+        tabs={[
+          {
+            value: "distribution",
+            label: "Distribution",
+            content: (
+              <SettingsTableBody
+                rows={CHANNEL_ROWS}
+                columns={CHANNEL_COLUMNS}
+                getRowId={(c) => c.id}
+                rowLabel="channels"
+                onAddNew={() => undefined}
+                addNewLabel="Add channel"
+              />
+            ),
+          },
+        ]}
+      />,
+    );
+
+    // The table renders its rows…
+    expect(screen.getByText("Apple Podcasts")).toBeTruthy();
+    expect(screen.getByText("Spotify")).toBeTruthy();
+    // …and there is exactly one heading in the whole container: the page h1.
+    // The frameless body contributes no nested h2 that would repeat "Distribution"
+    // (the tab trigger label is not a heading; it is a tab).
+    expect(container.querySelectorAll("h1")).toHaveLength(1);
+    expect(container.querySelectorAll("h2")).toHaveLength(0);
+    expect(screen.queryByRole("heading", { level: 2, name: "Distribution" })).toBeNull();
+    // The tab has no page header; the body's own flush band is the home for the
+    // create action and the count caption.
+    const band = screen.getByRole("button", { name: "Add channel" }).closest(".border-b") as HTMLElement;
+    expect(band).toBeTruthy();
+    expect(band.textContent).toContain("Add channel");
+    expect(band.textContent).toContain("2 channels");
+  });
+
+  it("a bulk-selectable SettingsTableBody in a tab shows the selection count + delete in the band, no h2", () => {
+    const { container } = render(
+      <SettingsPageShell
+        title="Workspace"
+        tabs={[
+          {
+            value: "distribution",
+            label: "Distribution",
+            content: (
+              <SettingsTableBody
+                rows={CHANNEL_ROWS}
+                columns={CHANNEL_COLUMNS}
+                getRowId={(c) => c.id}
+                rowLabel="channels"
+                bulkSelectable
+                selectedIds={["c1"]}
+                onBulkSelectChange={() => undefined}
+                onBulkDelete={() => undefined}
+              />
+            ),
+          },
+        ]}
+      />,
+    );
+    expect(container.querySelectorAll("h1")).toHaveLength(1);
+    expect(container.querySelectorAll("h2")).toHaveLength(0);
+    // While a visible row is selected and a bulk action exists, the band carries
+    // the "{n} selected" caption and the convenience delete.
+    expect(screen.getByText("1 selected")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Delete 1 selected" })).toBeTruthy();
+    // Both sit in the body's flush band.
+    const band = screen.getByRole("button", { name: "Delete 1 selected" }).closest(".border-b") as HTMLElement;
+    expect(band.textContent).toContain("1 selected");
+  });
+
+  it("a bare SettingsTableBody tab (no band-scoped controls) renders no flush band", () => {
+    render(
+      <SettingsPageShell
+        title="Workspace"
+        tabs={[
+          {
+            value: "distribution",
+            label: "Distribution",
+            content: (
+              <SettingsTableBody rows={CHANNEL_ROWS} columns={CHANNEL_COLUMNS} getRowId={(c) => c.id} />
+            ),
+          },
+        ]}
+      />,
+    );
+    // No toolbar, no create, no count noun, no bulk action = no band at all (not
+    // an empty ruled line). Scope to the body's own root element (the band and the
+    // table scroll region are its siblings/children); the `.border-b py-3` pair is
+    // the band's chrome — a shadcn TableRow also carries `border-b`, so the class
+    // pair, not the class alone, is the marker. The tab strip's band is the page
+    // frame's, outside this element.
+    const table = screen.getByRole("row", { name: /Apple Podcasts/ }).closest("table") as Element;
+    const bodyRoot = (table.closest(".overflow-x-auto") as Element).parentElement;
+    expect(bodyRoot?.querySelector(".border-b.py-3")).toBeNull();
+    expect(table.closest(".border-b.py-3")).toBeNull();
   });
 });
 

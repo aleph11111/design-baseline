@@ -14,8 +14,11 @@
  *     once above the frame (no page-level actions); the tab strip is the
  *     frame's toolbar band
  *   - Tab strip as navigation across the categories
- *   - Per-tab body delegation: a form body (General), a table body
- *     (Distribution), a list body (Team) — one per allowed delegate
+ *   - Per-tab body delegation: a form body (General), a frameless table body
+ *     (Distribution, via <SettingsTableBody> v3.1 — the tab label owns the
+ *     heading, so the body renders no page frame; the body's own flush band
+ *     carries the tab's create action and count caption), a list body
+ *     (Team) — one per allowed delegate
  *   - Persistent below-tab section (`belowTabs`, allowed variation)
  *   - Nested: the shell under a parent page frame titles itself as the nested
  *     heading and joins the parent's surface — derived, no prop
@@ -31,6 +34,10 @@ import {
   KeyValueList,
   KeyValueRow,
 } from "@/components/archetypes/detail-overview";
+import {
+  SettingsTableBody,
+  type SettingsColumn,
+} from "@/components/archetypes/settings-table";
 import { PageFrame } from "@/components/layout";
 import {
   Table,
@@ -107,6 +114,29 @@ const STATUS_VARIANT: Record<ChannelStatus, "default" | "secondary" | "outline">
   pending: "outline",
   paused: "secondary",
 };
+
+// The Distribution tab renders through <SettingsTableBody> (the frameless D2
+// export, v3.1) — the tab trigger label owns the heading, so the body renders
+// no second nested heading.
+const CHANNEL_COLUMNS: SettingsColumn<DistributionChannel>[] = [
+  {
+    key: "name",
+    header: "Channel",
+    isIdentifier: true,
+    cell: (c) => c.name,
+  },
+  {
+    key: "status",
+    header: "Status",
+    cell: (c) => <Badge variant={STATUS_VARIANT[c.status]}>{c.status}</Badge>,
+  },
+  {
+    key: "episodes",
+    header: "Episodes",
+    align: "right",
+    cell: (c) => <span className="font-mono tabular-nums">{c.episodes}</span>,
+  },
+];
 
 // ---------------------------------------------------------------------------
 // Demo component
@@ -199,44 +229,25 @@ export function TabbedSettingsDemo() {
         </div>
       ),
     },
-    // Tab body 2 — delegates to a settings-table (D2) shape
+    // Tab body 2 — delegates to a settings-table (D2) body, frameless (v3.1).
+    // The tab-trigger label is the only heading for this tab; the body renders
+    // no page frame, so there is no second nested heading repeating
+    // "Distribution". A tab has no page header to hold the create action and
+    // the result count, so the body's own flush band carries them: the
+    // "Add channel" create button (from onAddNew, right side of the band) and
+    // the "{n} channels" count caption.
     {
       value: "distribution",
       label: "Distribution",
       content: (
-        <>
-          <div className="flex justify-end pb-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setLastAction("Add distribution channel")}
-            >
-              Add channel
-            </Button>
-          </div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Channel</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Episodes</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {channels.map((channel) => (
-                <TableRow key={channel.id}>
-                  <TableCell className="font-medium">{channel.name}</TableCell>
-                  <TableCell>
-                    <Badge variant={STATUS_VARIANT[channel.status]}>
-                      {channel.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right font-mono tabular-nums">{channel.episodes}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </>
+        <SettingsTableBody
+          rows={channels}
+          columns={CHANNEL_COLUMNS}
+          getRowId={(c) => c.id}
+          rowLabel="channels"
+          onAddNew={() => setLastAction("Add distribution channel")}
+          addNewLabel="Add channel"
+        />
       ),
     },
     // Tab body 3 — a list of records → the shared <Table> (same molecule
