@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-10-04
-status: needs-enrichment
+status: done
 value: normal
 gate:
   score: 4

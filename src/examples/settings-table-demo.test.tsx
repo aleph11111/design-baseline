@@ -2,6 +2,20 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { SettingsTableDemo } from "./settings-table-demo";
 
+// The demo's split-pane mobile fallback reads useIsMobile, which reads
+// matchMedia — jsdom lacks it. Stub a desktop (max-width) match so the pane
+// stays live in these tests. Same stub ListWithDetail's tests set.
+window.matchMedia ??= ((query: string) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addEventListener: () => {},
+  removeEventListener: () => {},
+  addListener: () => {},
+  removeListener: () => {},
+  dispatchEvent: () => false,
+})) as typeof window.matchMedia;
+
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
@@ -103,5 +117,36 @@ describe("SettingsTableDemo filter-safe bulk selection", () => {
     render(<SettingsTableDemo />);
     expect(screen.getByRole("checkbox", { name: "Select row: Crème Brûlée" })).toBeTruthy();
     expect(screen.getByRole("checkbox", { name: "Select row: Tacos al Pastor" })).toBeTruthy();
+  });
+});
+
+// Layer 5 split-pane variant: the demo's "Numbering series" shell renders the
+// persistent edit form inside the shell's one page frame — the row click
+// contract (identifier-cell click) drives which series the pane edits.
+describe("SettingsTableDemo split-pane variant (Layer 5)", () => {
+  it("shows the empty-pane placeholder until a row is selected", () => {
+    render(<SettingsTableDemo />);
+    expect(screen.getByText("Select a series to edit")).toBeTruthy();
+  });
+
+  it("clicking the identifier cell selects the row the pane edits", () => {
+    render(<SettingsTableDemo />);
+    // The identifier cell keeps its <td> cell role (not a button) and stays
+    // keyboard/click-activatable — the D2 click contract.
+    fireEvent.click(screen.getByRole("cell", { name: "Invoice" }));
+    expect(screen.getByText("Edit Invoice")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Save" })).toBeTruthy();
+    expect(screen.getByLabelText("Numeric prefix")).toBeTruthy();
+  });
+
+  it("saving persists the pane's edit into the table", async () => {
+    render(<SettingsTableDemo />);
+    fireEvent.click(screen.getByRole("cell", { name: "Invoice" }));
+    const input = screen.getByLabelText("Numeric prefix");
+    fireEvent.change(input, { target: { value: "FCT" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    expect(screen.getByText("Saved: Invoice (FCT)")).toBeTruthy();
+    // The table cell now reflects the saved prefix.
+    expect(screen.getByText("FCT-")).toBeTruthy();
   });
 });

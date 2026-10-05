@@ -386,3 +386,51 @@ describe("SettingsTableShell — page frame (ADR-0008)", () => {
     ).toBeNull();
   });
 });
+
+describe("SettingsTableShell — split-pane variant (editPane)", () => {
+  it("renders the consumer's edit form inside the one page frame, with a hairline divider and no second raised surface", () => {
+    const { container } = render(
+      <SettingsTableShell
+        title="Numbering series"
+        rows={makeRows(2)}
+        columns={columns}
+        getRowId={(r) => r.id}
+        onRowEdit={() => {}}
+        editPane={<form aria-label="Edit series"><input aria-label="Prefix" /></form>}
+      />,
+    );
+    // The form is present…
+    const form = screen.getByRole("form", { name: "Edit series" });
+    // …inside the single raised surface, not a second one.
+    expect(form.closest(".bg-surface-raised")).not.toBeNull();
+    expect(container.querySelectorAll(".bg-surface-raised")).toHaveLength(1);
+    // Table and form are both descendants of that one surface.
+    const table = container.querySelector("table")!;
+    expect(table.closest(".bg-surface-raised")?.contains(form)).toBe(true);
+    // ADR-0008 §3: the panes divide by a hairline, never a second card — the
+    // pane wrapper (the form's parent) carries the left hairline.
+    const pane = form.parentElement!;
+    expect(pane.className).toContain("md:border-l");
+    // …so exactly one bordered pane node exists, sitting beside the table.
+    expect(container.querySelectorAll("[class*='md:border-l']")).toHaveLength(1);
+    expect(screen.getByRole("cell", { name: "Row 0" })).toBeTruthy();
+  });
+
+  it("no editPane: single-pane layout, no second pane node or divider", () => {
+    const { container } = render(
+      <SettingsTableShell
+        title="Numbering series"
+        rows={makeRows(2)}
+        columns={columns}
+        getRowId={(r) => r.id}
+      />,
+    );
+    // No divider node at all — the pane wrapper is simply not rendered.
+    expect(container.querySelectorAll("[class*='md:border-l']")).toHaveLength(0);
+    // The frame body is the flex wrapper holding only the table region (one
+    // child), not a table region plus an empty bordered pane (two children).
+    const table = container.querySelector("table")!;
+    const flex = table.closest(".overflow-x-auto")!.parentElement as HTMLElement;
+    expect(flex.children).toHaveLength(1);
+  });
+});

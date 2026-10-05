@@ -166,6 +166,19 @@ export type SettingsTableShellProps<Row> = Pick<
    * After calling this callback the primitive clears the selection automatically.
    */
   onBulkDelete?: (rows: Row[]) => void;
+
+  // Split-pane editing variant (Layer 5)
+  /**
+   * Split-pane editing — the D2 variant for rows edited in rapid succession,
+   * where a dialog's open/close cycle creates friction. The consumer supplies
+   * the edit form and it renders as the right pane of the shell's one page
+   * frame, divided from the table by the frame's hairline — never a second
+   * raised surface (ADR-0008 §3). The row-click contract (Layer 6) drives the
+   * selection the pane edits: wire `onRowEdit` to the consumer's row-selection
+   * state. On viewports below `md` the shell drops the pane out of the frame
+   * and the consumer's mobile edit-dialog overlay takes over (Layer 11).
+   */
+  editPane?: React.ReactNode;
 };
 
 // ---------------------------------------------------------------------------
@@ -181,6 +194,7 @@ export function SettingsTableShell<Row>({
   onAddNew,
   addNewLabel = "Add new",
   rowLabel,
+  editPane,
   rowActions,
   isLoading,
   error,
@@ -425,11 +439,22 @@ export function SettingsTableShell<Row>({
 
   return (
     <PageFrame {...frame} actions={mergedActions} count={count}>
-      {/* The table scroll region sits INSIDE the (clipped) frame so the table
-          scrolls beneath the toolbar band, not the surface itself. */}
-      <div className="relative overflow-x-auto">
-        {listStatePlane}
-        {tableContent}
+      {/* One page frame, always. With `editPane` the body splits into two
+          panes (Layer 5, ADR-0008 §3): the table and the consumer's
+          persistent edit form, divided by the frame's hairline at `md` and
+          up — a section divider, never a second raised surface. Below `md`
+          the pane is out of the frame and the click-contract edit dialog
+          (Layer 11) is the mobile editing surface. */}
+      <div className="flex">
+        {/* The table scroll region sits INSIDE the (clipped) frame so the
+            table scrolls beneath the toolbar band, not the surface itself. */}
+        <div className="relative min-w-0 flex-1 overflow-x-auto">
+          {listStatePlane}
+          {tableContent}
+        </div>
+        {editPane != null && editPane !== false && (
+          <div className="hidden w-1/2 md:block md:border-l">{editPane}</div>
+        )}
       </div>
     </PageFrame>
   );

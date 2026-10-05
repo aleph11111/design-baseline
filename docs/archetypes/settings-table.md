@@ -2,7 +2,7 @@
 key: D2
 slug: settings-table
 kind: page
-version: 3.0
+version: 3.1
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -11,6 +11,15 @@ status: locked
 
 # Archetype D2 — Settings table
 
+> **v3.1 (2026-10-05) — split-pane variant on the one page frame.**
+> Re-shapes the split-pane variation for ADR-0008 §3: the edit form is the
+> page frame's right pane, hairline-divided from the table — never a second
+> raised surface (the pre-ADR-0008 two-card layout is retired). The row
+> click contract drives the pane's selection; below `md` the pane is out
+> of the frame and the click-contract edit dialog is the mobile editing
+> surface (Layer 11). The shell carries the variant as a structural slot;
+> no breaking change.
+>
 > **v3.0 (2026-10-03) — one page frame (ADR-0008).** Breaking. `title` is
 > required and renders once, as the page title; `kicker` / `headerActions` and
 > the on-surface header are gone. Slots: `actions` (the create action — the
@@ -157,10 +166,10 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
   - Row-level hover highlight
 
 **Allowed variation — split-pane editing:**
-- When users edit rows in rapid succession and a dialog's open/close cycle creates friction, a two-column layout with the table left and the edit form right is permitted. Document the reason inline. This is an uncommon variation; use only when the UX case is clear.
+- When users edit rows in rapid succession and a dialog's open/close cycle creates friction, the table and the edit form share the shell's one page frame: the edit form is the frame's right pane, divided from the table by the frame's hairline — never a second raised surface (ADR-0008 §3). The row click contract (Layer 6) drives the selection the pane edits. On viewports below the `md` breakpoint the pane is out of the frame and the click-contract edit dialog (Layer 11) is the editing surface. This is an uncommon variation; use only when the UX case is clear.
 
 **Forbidden:**
-- Hand-rolled card wrappers. Always use the settings-table shell (or the split-pane variation above).
+- Hand-rolled card wrappers. Always use the settings-table shell — the split-pane variation above is the shell's `editPane` slot, never a second surface beside it.
 - Nested card chrome — one card boundary per visible surface.
 - Page-level `max-width`. Full-width.
 
@@ -296,6 +305,7 @@ Mutations are out of the primitive's scope. Callbacks surface the intent; the co
 - No dedicated `/mobile/...` route. The same route serves all viewports.
 - **Table body** — stays the base table primitive on all viewports. The content wrapper provides horizontal scroll on overflow so the table scrolls on narrow viewports. Context columns drop out below `md` per the Layer 6 narrow-viewport column subset rule.
 - **Edit dialog** — opens as a full-screen **overlay surface** on mobile (the same overlay surface Archetype A's detail opens in). D2's edit dialog composes the J (`crud-dialog`) archetype's dialog-shell family — the header/body/footer sub-primitives plus a mode hook — which handles the desktop-width / mobile-full-viewport swap automatically.
+- **Split-pane variant** — the edit-form pane is part of the frame from `md` up and out of it below; on mobile the edit dialog above is the editing surface. Both bind to the same consumer selection state, so the pane (desktop) and the dialog (mobile) always edit the same row.
 
 **Extension points (not in baseline v1.0 — consumer may add):**
 - Card-collapse layout — replacing the table with stacked row cards on narrow viewports.
@@ -370,10 +380,14 @@ When a target project applies this archetype, it wires the generic primitives to
 
 - [ ] **Row click opens an edit dialog** (the D2 click contract) — **no** detail
       overlay (that's archetype A). *Wrapper tell:* a detail panel bolted on.
+      (Split-pane variant: the click selects the row the frame's edit pane
+      edits — Layer 5.)
 - [ ] **Create + write actions are page `actions`** (create via `onAddNew`);
       filters and search are the `toolbar`; no second home for either.
 - [ ] **One settings-table shell** owns the page frame + table + row-actions dropdown; no
-      hand-rolled card. (Split-pane table+form variant allowed only with an inline-documented reason.)
+      hand-rolled card. (Split-pane variant: the edit form is the frame's
+      right pane, hairline-divided — the page's only raised surface, never a
+      second card. ADR-0008 §3.)
 - [ ] **[spine] S1–S6.**
 
 **SHOULD** (yellow, not red)
