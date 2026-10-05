@@ -156,31 +156,65 @@ function harvestUnionAliases(text) {
 
 // The swallowed-slot check. Line-level scanning cannot see it (the destructure and the missing
 // reference sit lines apart), so it works on the whole file text: find each destructuring
-// pattern (`({ a, b }: P)` / `const { a } = x`), then report every listed slot name whose local
-// binding appears nowhere else in the file. A "reference" is any identifier occurrence outside
-// comments, the destructure itself, quoted strings, `.name` member access, and `name:` / `name?:`
-// / `name=` (type member, object key, JSX attribute name). Ceiling (ADR-0003): a destructure
-// containing nested braces (`{ a = {}, toolbar }`) is not matched, and a same-named reference
-// in an unrelated scope of the same file counts as a use.
+// pattern — `({ a, b }: P)`, `({ a }) =>`, `function X({ a }, ref)`, `const { a } = x` — then
+// report every listed slot name whose local binding is not referenced in the destructuring
+// function's own scope (from the destructure to the close of its body). A "reference" is any
+// identifier occurrence outside comments, string literals, JSX text (`>name<`), `.name` member
+// access, and `name:` / `name?:` / `name=` (type member, object key, JSX attribute name).
+// Ceiling (ADR-0003, no parser): a destructure with nested braces (`{ a = {}, toolbar }`) is
+// not matched; a `: ReturnType<{…}>` annotation ends the body scope early; a use in an
+// unrelated expression of the same body (`Boolean(toolbar)`) still counts as a reference.
 function findSwallowedSlots(text, slots) {
   if (!text.includes('PageFrame')) return [];
   const blank = (m) => m.replace(/[^\n]/g, ' ');
-  const code = text.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, blank);
+  // Comments and string literals blanked in one pass (strings first, so a `//` inside
+  // `"https://…"` is not read as a comment). Offsets and newlines are preserved.
+  const code = text.replace(
+    /"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,
+    blank,
+  );
+  const decl =
+    /(\(|\b(?:const|let)\s+)\{([^{}]*)\}(?=\s*(?::|=(?!=)|\)\s*(?:=>|\{)|,\s*\w+\??\s*(?::[^,)]*)?\)\s*(?:=>|\{)))/g;
   const hits = [];
-  let rest = code;
-  for (const m of code.matchAll(/(?:\(|\b(?:const|let)\s+)\{([^{}]*)\}\s*(?::|=(?!=))/g)) {
-    const bodyStart = m.index + m[0].indexOf('{') + 1;
-    let offset = 0;
-    for (const member of m[1].split(',')) {
+  for (const m of code.matchAll(decl)) {
+    const lineStart = code.lastIndexOf('\n', m.index) + 1;
+    if (/^\s*(?:export\s+)?(?:type|interface)\b/.test(code.slice(lineStart, m.index))) continue; // a type, not a function
+    const members = [];
+    let offset = m.index + m[1].length + 1;
+    for (const member of m[2].split(',')) {
       const name = /^\s*(\w+)\s*(?::\s*(\w+))?/.exec(member);
       if (name && !member.trim().startsWith('...') && slots.includes(name[1])) {
-        hits.push({ slot: name[1], local: name[2] ?? name[1], index: bodyStart + offset + member.indexOf(name[1]) });
+        members.push({ slot: name[1], local: name[2] ?? name[1], index: offset + member.indexOf(name[1]) });
       }
       offset += member.length + 1;
     }
-    rest = rest.slice(0, m.index) + blank(m[0]) + rest.slice(m.index + m[0].length);
+    if (!members.length) continue;
+    // Scope: the rest of the function — past the parameter list, then its body block.
+    const isParams = m[1] === '(';
+    let i = m.index + m[0].length;
+    let depth = isParams ? 1 : 0; // parens still open (params) / brackets of the enclosing block
+    let bodyDepth = 0;
+    let inBody = !isParams;
+    let exprBody = false; // `=> <PageFrame …/>` — no body block, scope runs to the statement end
+    let end = code.length;
+    for (; i < code.length; i++) {
+      const c = code[i];
+      if (c === '>' && code[i - 1] === '=' && !inBody && code.slice(i + 1).search(/\S/) >= 0 && !/^\s*\{/.test(code.slice(i + 1, i + 40))) exprBody = true;
+      if ('([{'.includes(c)) {
+        depth++;
+        if (c === '{' && !inBody && !exprBody && depth === 1) { inBody = true; bodyDepth = depth; }
+      } else if (')]}'.includes(c)) {
+        depth--;
+        if (isParams && depth === 0 && !inBody) { depth = 0; continue; }
+        if (depth < 0 || (inBody && isParams && depth < bodyDepth)) { end = i; break; }
+      } else if (c === ';' && isParams && depth === 0) { end = i; break; }
+    }
+    const scope = code.slice(m.index + m[0].length, end);
+    for (const h of members) {
+      if (!new RegExp(`(?<![\\w.>])${h.local}(?![\\w<]|\\??:|=[^=])`).test(scope)) hits.push(h);
+    }
   }
-  return hits.filter(({ local }) => !new RegExp(`(?<![\\w"'.])${local}(?![\\w"']|\\??:|=[^=])`).test(rest)).map((h) => {
+  return hits.map((h) => {
     const before = text.slice(0, h.index).split('\n');
     return { slot: h.slot, line: before.length, col: before.at(-1).length + 1 };
   });
@@ -255,14 +289,14 @@ function scanFile(fileRel, text, compiled) {
     // a literal.
     if (includes.length && !includes.some((inc) => matchesGlob(fileRel, inc))) continue;
     if (excludes.some((ex) => matchesGlob(fileRel, ex))) continue; // excluded closed archetype
-    // A `{{unionAliases}}` rule is compiled here, against THIS file's harvested alias names.
-    // No union alias in the file means the rule can match nothing — skip it.
     if (slots) {
       for (const { slot, line, col } of findSwallowedSlots(text, slots)) {
         violations.push({ file: fileRel, line, col, rule: label, severity, message: `\`${slot}\` is destructured but never used — swallowed, not forwarded to PageFrame. ${message}` });
       }
       continue;
     }
+    // A `{{unionAliases}}` rule is compiled here, against THIS file's harvested alias names.
+    // No union alias in the file means the rule can match nothing — skip it.
     if (aliasSource && !aliases.length) continue;
     const re = aliasSource ? new RegExp(aliasSource.replaceAll(ALIAS_TOKEN, aliases.join('|')), 'g') : compiledRe;
     re.lastIndex = 0; // the `g` flag makes `matchAll` index-sensitive — don't leak state

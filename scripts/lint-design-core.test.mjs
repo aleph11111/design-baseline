@@ -409,6 +409,36 @@ describe("swallowed PageFrame slot (`findSwallowedSlots`)", () => {
     expect(findSwallowedSlots("function C({ title }: P) { return null; }", SLOTS)).toEqual([]);
   });
 
+  it("scopes the reference search to the destructuring function", () => {
+    const text = `function A({ title }: P) { return <PageFrame title={title} />; }\nfunction B({ title, ...r }: P) { return <PageFrame {...r} />; }\n`;
+    expect(findSwallowedSlots(text, SLOTS).map((h) => h.line)).toEqual([2]);
+  });
+
+  it("does not count JSX text or string mentions as references", () => {
+    expect(findSwallowedSlots(shell("{ toolbar, ...r }: P", "{...r} aria-label=\"open toolbar\""), SLOTS)).toHaveLength(1);
+    expect(findSwallowedSlots("function X({ toolbar, ...r }: P) { return <PageFrame {...r}><b>toolbar</b></PageFrame>; }", SLOTS)).toHaveLength(1);
+  });
+
+  it("reads untyped, forwardRef and expression-bodied signatures", () => {
+    for (const text of [
+      "const X = forwardRef(function XShell({ toolbar, ...r }, ref) { return <PageFrame {...r} />; });",
+      "const X = ({ toolbar, ...r }) => { return <PageFrame {...r} />; };",
+      "const X = ({ toolbar, ...r }: P) => <PageFrame {...r} a={1} />;",
+    ]) {
+      expect(findSwallowedSlots(text, SLOTS), text).toHaveLength(1);
+    }
+    expect(findSwallowedSlots("const X = ({ toolbar, ...r }: P) => <PageFrame a={1} toolbar={toolbar} {...r} />;", SLOTS)).toEqual([]);
+  });
+
+  it("does not read `//` inside a string literal as a comment", () => {
+    const text = 'function X({ title, ...r }: P) { return <PageFrame {...r}><a href="https://x.y" title={title} /></PageFrame>; }';
+    expect(findSwallowedSlots(text, SLOTS)).toEqual([]);
+  });
+
+  it("skips a function type signature", () => {
+    expect(findSwallowedSlots("type R = ({ title }: A) => ReactNode;\nconst e = <PageFrame />;", SLOTS)).toEqual([]);
+  });
+
   it("is wired through scanFile/compileRules as an include-scoped rule", () => {
     const compiled = compileRules([
       { id: "swallow", swallowedSlots: SLOTS, severity: "error", include: "src/components/archetypes/**", message: "m" },
