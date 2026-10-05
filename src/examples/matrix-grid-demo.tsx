@@ -231,8 +231,8 @@ export function MatrixGridDemo() {
           value={mode}
           onValueChange={(v) => setMode(v as "click" | "inline")}
           options={[
-            { value: "click", label: "click to edit" },
-            { value: "inline", label: "inline edit" },
+            { value: "click", label: "side overlay" },
+            { value: "inline", label: "inline cells" },
           ]}
           aria-label="Edit mode"
         />
