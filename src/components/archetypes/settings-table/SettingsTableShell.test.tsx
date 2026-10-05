@@ -386,3 +386,42 @@ describe("SettingsTableShell — page frame (ADR-0008)", () => {
     ).toBeNull();
   });
 });
+
+describe("SettingsTableShell — split-pane variant (editPane)", () => {
+  it("renders the consumer's edit form inside the one page frame, with a hairline divider and no second raised surface", () => {
+    const { container } = render(
+      <SettingsTableShell
+        title="Numbering series"
+        rows={makeRows(2)}
+        columns={columns}
+        getRowId={(r) => r.id}
+        onRowEdit={() => {}}
+        editPane={<form aria-label="Edit series"><input aria-label="Prefix" /></form>}
+      />,
+    );
+    // The form is present…
+    const form = screen.getByRole("form", { name: "Edit series" });
+    // …inside the single raised surface, not a second one.
+    expect(form.closest(".bg-surface-raised")).not.toBeNull();
+    expect(container.querySelectorAll(".bg-surface-raised")).toHaveLength(1);
+    // Table and form are both descendants of that one surface.
+    const table = container.querySelector("table")!;
+    expect(table.closest(".bg-surface-raised")?.contains(form)).toBe(true);
+    // The divider is a left hairline between the panes (ADR-0008 §3: sections
+    // divide by hairline, never a second card).
+    expect(form.parentElement?.className).toContain("border-l");
+    expect(screen.getByRole("cell", { name: "Row 0" })).toBeTruthy();
+  });
+
+  it("no editPane: single-pane layout, no divider", () => {
+    const { container } = render(
+      <SettingsTableShell
+        title="Numbering series"
+        rows={makeRows(2)}
+        columns={columns}
+        getRowId={(r) => r.id}
+      />,
+    );
+    expect(container.querySelectorAll(".border-l")).toHaveLength(0);
+  });
+});
