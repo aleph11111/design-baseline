@@ -101,3 +101,13 @@ describe("WizardShell page frame", () => {
     expect(section?.className).not.toContain("bg-surface-raised");
   });
 });
+
+describe("WizardShell done state", () => {
+  it("keeps the page h1 and drops the wizard chrome", () => {
+    renderShell({ done: <p>All imported</p> });
+    expect(screen.getByRole("heading", { level: 1, name: "Import members" })).toBeTruthy();
+    expect(screen.getByText("All imported")).toBeTruthy();
+    expect(screen.queryByText("step body")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Next" })).toBeNull();
+  });
+});

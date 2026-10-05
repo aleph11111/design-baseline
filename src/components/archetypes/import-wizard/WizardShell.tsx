@@ -22,6 +22,11 @@ export type WizardShellProps = {
   busy?: boolean;
   nextLabel?: string;
   commitLabel?: string;
+  /**
+   * Done state. When set, the shell renders it as the page body inside the same
+   * frame (title kept, one raised surface) in place of stepper, step and footer.
+   */
+  done?: React.ReactNode;
   /** The current step's body. */
   children: React.ReactNode;
 } & Pick<PageFrameProps, "title" | "subtitle" | "badges">;
@@ -49,6 +54,7 @@ export function WizardShell({
   busy = false,
   nextLabel = "Next",
   commitLabel = "Commit import",
+  done,
   children,
   title,
   subtitle,
@@ -57,6 +63,14 @@ export function WizardShell({
   const isLast = current >= steps.length - 1;
   const isFirst = current <= 0;
   const stepLabel = steps[current]?.label;
+
+  if (done != null) {
+    return (
+      <PageFrame title={title} subtitle={subtitle} badges={badges}>
+        <div className="p-5">{done}</div>
+      </PageFrame>
+    );
+  }
 
   return (
     <PageFrame title={title} subtitle={subtitle} badges={badges}>

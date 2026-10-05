@@ -67,27 +67,25 @@ export function ImportWizardDemo(): React.ReactElement {
     }, 600);
   }
 
-  if (committed) {
-    return (
-      <div className="flex flex-col items-center gap-3 rounded-lg border bg-card p-10 text-center">
-          <CheckCircle2 className="h-10 w-10 text-success" />
-          <h2 className="text-lg font-semibold">Import complete</h2>
-          <p className="text-sm text-muted-foreground">
-            126 transactions imported into Checking · 2 rows skipped.
-          </p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setCommitted(false);
-              setUploaded(false);
-              setStep(0);
-            }}
-          >
-            Start another import
-          </Button>
-      </div>
-    );
-  }
+  const doneBody = committed ? (
+    <div className="flex flex-col items-center gap-3 py-10 text-center">
+      <CheckCircle2 className="h-10 w-10 text-success" />
+      <h2 className="text-lg font-semibold">Import complete</h2>
+      <p className="text-sm text-muted-foreground">
+        126 transactions imported into Checking · 2 rows skipped.
+      </p>
+      <Button
+        variant="outline"
+        onClick={() => {
+          setCommitted(false);
+          setUploaded(false);
+          setStep(0);
+        }}
+      >
+        Start another import
+      </Button>
+    </div>
+  ) : undefined;
 
   return (
     /* One page frame (ADR-0008): the title is the page heading above the
@@ -102,6 +100,7 @@ export function ImportWizardDemo(): React.ReactElement {
       onCommit={commit}
       canProceed={step !== 0 || uploaded}
       busy={busy}
+      done={doneBody}
     >
       {step === 0 && (
         <div className="flex flex-col items-center gap-3 rounded-md border border-dashed py-10 text-center">
