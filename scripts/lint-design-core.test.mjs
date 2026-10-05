@@ -9,6 +9,7 @@
 // `--json` shape, fixture-tree include/exclude behaviour) and asserts the
 // shapes its header comments claim, which the subprocess tests cannot reach
 // without a repo tree.
+import { globSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   CompileError,
@@ -456,6 +457,33 @@ describe("swallowed PageFrame slot (`findSwallowedSlots`)", () => {
     expect(findSwallowedSlots(tpl, ["title", "count"])).toEqual([]);
     const apos = "function X({ title, count, ...r }: P) { return <PageFrame {...r}><p>Don't render {title} here, it's {count}</p></PageFrame>; }";
     expect(findSwallowedSlots(apos, ["title", "count"])).toEqual([]);
+  });
+
+  it("does not count whitespace-delimited JSX prose as a reference", () => {
+    const text = "function X({ actions, ...r }: P) { return <PageFrame {...r}><EmptyState>No actions yet</EmptyState></PageFrame>; }";
+    expect(findSwallowedSlots(text, SLOTS)).toHaveLength(1);
+  });
+
+  it("reads only a `= props` destructure in the body, not a hook result", () => {
+    const hook = "function X({ ...r }: P) { const { count } = useSelection(); const l = f(count); return <PageFrame {...r} />; }";
+    expect(findSwallowedSlots(hook, ["count"])).toEqual([]);
+    const props = "function X(props: P) { const { toolbar, ...r } = props; return <PageFrame {...r} />; }";
+    expect(findSwallowedSlots(props, SLOTS)).toHaveLength(1);
+  });
+
+  it("keeps a template expression that contains braces", () => {
+    const text = "function X({ title, ...r }: P) { return <PageFrame title={`${fmt({ title })}`} {...r} />; }";
+    expect(findSwallowedSlots(text, SLOTS)).toEqual([]);
+  });
+
+  it("reports nothing on the shipped archetype shells (the rule ships at error severity)", () => {
+    const { rules } = JSON.parse(readFileSync("_adherence.json", "utf8"));
+    const rule = rules.find((r) => r.swallowedSlots);
+    const compiled = compileRules([rule]);
+    const files = globSync("src/components/archetypes/**/*.{ts,tsx}");
+    expect(files.length).toBeGreaterThan(10);
+    const hits = files.flatMap((f) => scanFile(f, readFileSync(f, "utf8"), compiled));
+    expect(hits).toEqual([]);
   });
 
   it("is wired through scanFile/compileRules as an include-scoped rule", () => {

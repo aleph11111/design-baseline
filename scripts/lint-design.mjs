@@ -164,7 +164,8 @@ function harvestUnionAliases(text) {
 // either at/after the function's first JSX tag, or before it as an object-literal member (a
 // `frameProps = { ...header, toolbar }` forward). A pre-JSX `Boolean(toolbar)` forwards nothing.
 // Ceiling (ADR-0003, no parser): a destructure with nested braces (`{ a = {}, toolbar }`) is
-// not matched; a `: ReturnType<{…}>` annotation ends the body scope early; any use inside the
+// not matched; a `: ReturnType<{…}>` annotation ends the body scope early; the first JSX tag anywhere
+// in the function (even a pre-return `.map(i => <Row />)`) opens the "any use counts" region; any use inside the
 // JSX (even `dense={Boolean(toolbar)}`) counts as a reference; a slot-named destructure in a
 // non-shell callback (`items.map(({ title }) => …)`) in a PageFrame file is checked the same way.
 function findSwallowedSlots(text, slots) {
@@ -174,14 +175,22 @@ function findSwallowedSlots(text, slots) {
   // `"https://…"` is not read as a comment). Offsets and newlines are preserved.
   // A template literal keeps its `${…}` expressions (a slot forwarded as `${title} (${count})` is
   // a reference); a `'` right after a word character is a JSX-text apostrophe, not a string.
-  const code = text.replace(
-    /"(?:\\.|[^"\\\n])*"|(?<!\w)'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,
-    (m) => (m[0] === '`' ? m.replace(/(\$\{[^{}]*\})|[^\n]/g, (x, expr) => expr ?? ' ') : blank(m)),
-  );
+  const code = text
+    .replace(
+      /"(?:\\.|[^"\\\n])*"|(?<!\w)'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,
+      (m) =>
+        m[0] === '`' ? m.replace(/(\$\{(?:[^{}]|\{[^{}]*\})*\})|[^\n]/g, (x, expr) => expr ?? ' ') : blank(m),
+    )
+    // JSX prose (`<EmptyState>No actions yet</EmptyState>`, `{x} and toolbar <b>`) is not a reference:
+    // the run after a tag's `>` (not an arrow's `=>`) or an expression's `}`, up to the next `<` / `{`.
+    .replace(/(?<=[^=-]>|\})(?!\s*[:,])[^<>{};=()]+(?=[<{])/g, blank);
   const decl =
     /(\(|\b(?:const|let)\s+)\{([^{}]*)\}(?=\s*(?::|=(?!=)|\)\s*(?:=>|\{)|,\s*\w+\??\s*(?::[^,)]*)?\)\s*(?:=>|\{)))/g;
   const hits = [];
   for (const m of code.matchAll(decl)) {
+    // The `const { … } =` form is a props destructure only when it reads `props`; a hook result
+    // (`const { count } = useSelection()`) is a local value, not a swallowed prop.
+    if (m[1] !== '(' && !/^\s*=\s*props\b/.test(code.slice(m.index + m[0].length))) continue;
     const lineStart = code.lastIndexOf('\n', m.index) + 1;
     if (/^\s*(?:export\s+)?(?:type|interface)\b/.test(code.slice(lineStart, m.index))) continue; // a type, not a function
     const members = [];
