@@ -54,7 +54,7 @@
 //
 // A rule may instead carry `swallowedSlots` (an array of prop names) in place of a
 // `pattern`/`tag`: the file-level swallowed-slot check (`findSwallowedSlots`). It fires on a
-// name destructured from a function's props that nothing else in the file references — the
+// name destructured from a function's props that its own function never forwards — the
 // shell that destructures `toolbar` beside `...rest` and forwards only `...rest` to
 // `PageFrame`, which `tsc` does not flag. Only files that mention `PageFrame` are checked.
 //
@@ -157,13 +157,16 @@ function harvestUnionAliases(text) {
 // The swallowed-slot check. Line-level scanning cannot see it (the destructure and the missing
 // reference sit lines apart), so it works on the whole file text: find each destructuring
 // pattern — `({ a, b }: P)`, `({ a }) =>`, `function X({ a }, ref)`, `const { a } = x` — then
-// report every listed slot name whose local binding is not referenced in the destructuring
-// function's own scope (from the destructure to the close of its body). A "reference" is any
+// report every listed slot name whose local binding is not forwarded in the destructuring
+// function's own scope (from the destructure to the close of its body). A "reference" is an
 // identifier occurrence outside comments, string literals, JSX text (`>name<`), `.name` member
-// access, and `name:` / `name?:` / `name=` (type member, object key, JSX attribute name).
+// access, and `name:` / `name?:` / `name=` (type member, object key, JSX attribute name), AND
+// either at/after the function's first JSX tag, or before it as an object-literal member (a
+// `frameProps = { ...header, toolbar }` forward). A pre-JSX `Boolean(toolbar)` forwards nothing.
 // Ceiling (ADR-0003, no parser): a destructure with nested braces (`{ a = {}, toolbar }`) is
-// not matched; a `: ReturnType<{…}>` annotation ends the body scope early; a use in an
-// unrelated expression of the same body (`Boolean(toolbar)`) still counts as a reference.
+// not matched; a `: ReturnType<{…}>` annotation ends the body scope early; any use inside the
+// JSX (even `dense={Boolean(toolbar)}`) counts as a reference; a slot-named destructure in a
+// non-shell callback (`items.map(({ title }) => …)`) in a PageFrame file is checked the same way.
 function findSwallowedSlots(text, slots) {
   if (!text.includes('PageFrame')) return [];
   const blank = (m) => m.replace(/[^\n]/g, ' ');
@@ -199,7 +202,7 @@ function findSwallowedSlots(text, slots) {
     let end = code.length;
     for (; i < code.length; i++) {
       const c = code[i];
-      if (c === '>' && code[i - 1] === '=' && !inBody && code.slice(i + 1).search(/\S/) >= 0 && !/^\s*\{/.test(code.slice(i + 1, i + 40))) exprBody = true;
+      if (c === '>' && code[i - 1] === '=' && (!isParams || depth === 0) && !inBody && code.slice(i + 1).search(/\S/) >= 0 && !/^\s*\{/.test(code.slice(i + 1, i + 40))) exprBody = true;
       if ('([{'.includes(c)) {
         depth++;
         if (c === '{' && !inBody && !exprBody && depth === 1) { inBody = true; bodyDepth = depth; }
@@ -210,8 +213,18 @@ function findSwallowedSlots(text, slots) {
       } else if (c === ';' && isParams && depth === 0) { end = i; break; }
     }
     const scope = code.slice(m.index + m[0].length, end);
+    const jsxAt = scope.search(/(?<![\w)\]>])<[A-Za-z]/); // first JSX tag; -1 → no JSX, nothing counts after it
     for (const h of members) {
-      if (!new RegExp(`(?<![\\w.>])${h.local}(?![\\w<]|\\??:|=[^=])`).test(scope)) hits.push(h);
+      const ref = new RegExp(`(?<![\\w.>])${h.local}(?![\\w<]|\\??:|=[^=])`, 'g');
+      const used = [...scope.matchAll(ref)].some((r) => {
+        if (jsxAt >= 0 && r.index >= jsxAt) return true;
+        // Before the JSX: only an object-literal member (`{ toolbar }`, `, toolbar,`, `key: toolbar`) is a
+        // forward (matrix-grid builds `frameProps` that way); `Boolean(toolbar)` is a use that forwards nothing.
+        const prev = scope.slice(0, r.index).trimEnd().slice(-1);
+        const next = scope.slice(r.index + h.local.length).trimStart()[0];
+        return prev === ':' || ((prev === '{' || prev === ',') && (next === ',' || next === '}'));
+      });
+      if (!used) hits.push(h);
     }
   }
   return hits.map((h) => {

@@ -439,6 +439,18 @@ describe("swallowed PageFrame slot (`findSwallowedSlots`)", () => {
     expect(findSwallowedSlots("type R = ({ title }: A) => ReactNode;\nconst e = <PageFrame />;", SLOTS)).toEqual([]);
   });
 
+  it("a pre-JSX use that forwards nothing does not count, a pre-JSX object member does", () => {
+    const swallow = "function X({ toolbar, ...r }: P) { const d = Boolean(toolbar); return <PageFrame {...r} dense={d} />; }";
+    expect(findSwallowedSlots(swallow, SLOTS)).toHaveLength(1);
+    const member = "function X({ toolbar, ...r }: P) { const frame = { ...r, toolbar }; return <PageFrame {...frame} />; }";
+    expect(findSwallowedSlots(member, SLOTS)).toEqual([]);
+  });
+
+  it("a function-typed parameter annotation does not leak the scope into a later function", () => {
+    const text = "function A({ toolbar, ...r }: P & { onPick: (id: string) => void }) { return <PageFrame {...r} />; }\nfunction B({ toolbar }: P) { return <PageFrame toolbar={toolbar} />; }\n";
+    expect(findSwallowedSlots(text, SLOTS).map((h) => h.line)).toEqual([1]);
+  });
+
   it("is wired through scanFile/compileRules as an include-scoped rule", () => {
     const compiled = compileRules([
       { id: "swallow", swallowedSlots: SLOTS, severity: "error", include: "src/components/archetypes/**", message: "m" },
