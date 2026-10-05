@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import {
   CompileError,
   compileRules,
+  findSwallowedSlots,
   harvestUnionAliases,
   includeReachableUnder,
   scanFile,
@@ -374,5 +375,48 @@ describe("harvestUnionAliases (the same-file union-alias pre-pass)", () => {
     const importing = 'import type { Size } from "./a";\nexport type Q = {\n  size?: Size;\n};\n';
     expect(scanFile("a.tsx", declaring, compiled).map((v) => v.line)).toEqual([3]);
     expect(scanFile("b.tsx", importing, compiled)).toEqual([]);
+  });
+});
+
+describe("swallowed PageFrame slot (`findSwallowedSlots`)", () => {
+  const SLOTS = ["title", "toolbar", "actions"];
+  const shell = (params, body) =>
+    `export function XShell(${params}) {\n  return <PageFrame ${body}>x</PageFrame>;\n}\n`;
+
+  it("flags a slot destructured beside ...rest but only ...rest forwarded", () => {
+    const text = shell("{ toolbar, ...rest }: P", "{...rest}");
+    expect(findSwallowedSlots(text, SLOTS)).toEqual([{ slot: "toolbar", line: 1, col: 26 }]);
+  });
+
+  it("flags every swallowed slot in a multi-line destructure", () => {
+    const text = `function S({\n  title,\n  toolbar,\n  actions = null,\n  ...rest\n}: P) {\n  return <PageFrame title={title} {...rest} />;\n}\n`;
+    expect(findSwallowedSlots(text, SLOTS).map((h) => h.slot)).toEqual(["toolbar", "actions"]);
+  });
+
+  it("passes a slot that is forwarded, even as `toolbar={toolbar}`", () => {
+    expect(
+      findSwallowedSlots(shell("{ toolbar, ...rest }: P", "toolbar={toolbar} {...rest}"), SLOTS),
+    ).toEqual([]);
+  });
+
+  it("ignores the prop type, comments and quoted names as references", () => {
+    const text = `type P = { toolbar?: Node };\n// toolbar\nfunction S({ toolbar }: Pick<P, "toolbar">) {\n  return <PageFrame />;\n}\n`;
+    expect(findSwallowedSlots(text, SLOTS)).toHaveLength(1);
+  });
+
+  it("ignores non-slot names and files without PageFrame", () => {
+    expect(findSwallowedSlots(shell("{ other, ...rest }: P", "{...rest}"), SLOTS)).toEqual([]);
+    expect(findSwallowedSlots("function C({ title }: P) { return null; }", SLOTS)).toEqual([]);
+  });
+
+  it("is wired through scanFile/compileRules as an include-scoped rule", () => {
+    const compiled = compileRules([
+      { id: "swallow", swallowedSlots: SLOTS, severity: "error", include: "src/components/archetypes/**", message: "m" },
+    ]);
+    const text = shell("{ toolbar, ...rest }: P", "{...rest}");
+    const [v] = scanFile("src/components/archetypes/x/XShell.tsx", text, compiled);
+    expect(v).toMatchObject({ rule: "swallow", severity: "error", line: 1 });
+    expect(v.message).toContain("`toolbar`");
+    expect(scanFile("src/components/ui/x.tsx", text, compiled)).toEqual([]);
   });
 });

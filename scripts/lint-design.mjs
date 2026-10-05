@@ -52,6 +52,12 @@
 // and no module graph, which keeps the scanner the zero-dep, no-type-resolution heuristic
 // ADR-0003 requires. A file declaring no union alias is skipped by such a rule.
 //
+// A rule may instead carry `swallowedSlots` (an array of prop names) in place of a
+// `pattern`/`tag`: the file-level swallowed-slot check (`findSwallowedSlots`). It fires on a
+// name destructured from a function's props that nothing else in the file references — the
+// shell that destructures `toolbar` beside `...rest` and forwards only `...rest` to
+// `PageFrame`, which `tsc` does not flag. Only files that mention `PageFrame` are checked.
+//
 // Usage:  node scripts/lint-design.mjs [--json] [--ci-threshold <n>]
 // Config: ADHERENCE_CONFIG=path overrides the default `_adherence.json`.
 //
@@ -148,6 +154,38 @@ function harvestUnionAliases(text) {
   return [...names];
 }
 
+// The swallowed-slot check. Line-level scanning cannot see it (the destructure and the missing
+// reference sit lines apart), so it works on the whole file text: find each destructuring
+// pattern (`({ a, b }: P)` / `const { a } = x`), then report every listed slot name whose local
+// binding appears nowhere else in the file. A "reference" is any identifier occurrence outside
+// comments, the destructure itself, quoted strings, `.name` member access, and `name:` / `name?:`
+// / `name=` (type member, object key, JSX attribute name). Ceiling (ADR-0003): a destructure
+// containing nested braces (`{ a = {}, toolbar }`) is not matched, and a same-named reference
+// in an unrelated scope of the same file counts as a use.
+function findSwallowedSlots(text, slots) {
+  if (!text.includes('PageFrame')) return [];
+  const blank = (m) => m.replace(/[^\n]/g, ' ');
+  const code = text.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, blank);
+  const hits = [];
+  let rest = code;
+  for (const m of code.matchAll(/(?:\(|\b(?:const|let)\s+)\{([^{}]*)\}\s*(?::|=(?!=))/g)) {
+    const bodyStart = m.index + m[0].indexOf('{') + 1;
+    let offset = 0;
+    for (const member of m[1].split(',')) {
+      const name = /^\s*(\w+)\s*(?::\s*(\w+))?/.exec(member);
+      if (name && !member.trim().startsWith('...') && slots.includes(name[1])) {
+        hits.push({ slot: name[1], local: name[2] ?? name[1], index: bodyStart + offset + member.indexOf(name[1]) });
+      }
+      offset += member.length + 1;
+    }
+    rest = rest.slice(0, m.index) + blank(m[0]) + rest.slice(m.index + m[0].length);
+  }
+  return hits.filter(({ local }) => !new RegExp(`(?<![\\w"'.])${local}(?![\\w"']|\\??:|=[^=])`).test(rest)).map((h) => {
+    const before = text.slice(0, h.index).split('\n');
+    return { slot: h.slot, line: before.length, col: before.at(-1).length + 1 };
+  });
+}
+
 // Compile every rule once. `pattern` is used verbatim; a `tag` rule matches a bare lowercase
 // element — `<tag` immediately followed by whitespace, `/`, or `>` — case-sensitive (no `i`
 // flag) so the capitalized DS primitive `<Button>` is not a hit.
@@ -164,7 +202,7 @@ function harvestUnionAliases(text) {
 // CLI always passes the config's `targets`.
 function compileRules(rules, targets) {
   return rules.map((rule) => {
-    const source = rule.pattern ?? `<${rule.tag}(?=[\\s/>])`;
+    const source = rule.swallowedSlots ? '(?!)' : (rule.pattern ?? `<${rule.tag}(?=[\\s/>])`);
     // A `{{unionAliases}}` pattern cannot be compiled once — its alternation is per-file — so
     // it is carried as `aliasSource` and compiled in `scanFile`. Validate it here anyway (with
     // a stand-in name) so a bad pattern still fails at compile time, like every other rule.
@@ -191,6 +229,7 @@ function compileRules(rules, targets) {
       label: rule.tag ? `<${rule.tag}>` : rule.id,
       severity: rule.severity === 'error' ? 'error' : 'warn',
       message: rule.message,
+      slots: rule.swallowedSlots ?? null,
       includes,
       excludes: compileGlobs(rule, 'exclude'),
     };
@@ -208,7 +247,7 @@ function scanFile(fileRel, text, compiled) {
   // The union-type-alias pre-pass: harvested once per file, and only when some rule asks for
   // it (`{{unionAliases}}`), so a config without such a rule pays nothing.
   const aliases = compiled.some((c) => c.aliasSource) ? harvestUnionAliases(text) : [];
-  for (const { re: compiledRe, aliasSource, label, severity, message, includes, excludes } of compiled) {
+  for (const { re: compiledRe, aliasSource, label, severity, message, slots, includes, excludes } of compiled) {
     // No `include` (or a rule whose `include` list is empty) matches every walked file;
     // with one or more `include` globs the rule applies only when ANY of them matches.
     // The scope globs are matched by `path.matchesGlob` (stdlib since v22) — `**` spans
@@ -218,6 +257,12 @@ function scanFile(fileRel, text, compiled) {
     if (excludes.some((ex) => matchesGlob(fileRel, ex))) continue; // excluded closed archetype
     // A `{{unionAliases}}` rule is compiled here, against THIS file's harvested alias names.
     // No union alias in the file means the rule can match nothing — skip it.
+    if (slots) {
+      for (const { slot, line, col } of findSwallowedSlots(text, slots)) {
+        violations.push({ file: fileRel, line, col, rule: label, severity, message: `\`${slot}\` is destructured but never used — swallowed, not forwarded to PageFrame. ${message}` });
+      }
+      continue;
+    }
     if (aliasSource && !aliases.length) continue;
     const re = aliasSource ? new RegExp(aliasSource.replaceAll(ALIAS_TOKEN, aliases.join('|')), 'g') : compiledRe;
     re.lastIndex = 0; // the `g` flag makes `matchAll` index-sensitive — don't leak state
@@ -351,4 +396,4 @@ if (process.argv[1] && pathToFileURL(realpathSync(process.argv[1])).href === imp
   main();
 }
 
-export { compileGlobs, compileRules, scanFile, harvestUnionAliases, includeReachableUnder, CompileError };
+export { compileGlobs, compileRules, scanFile, findSwallowedSlots, harvestUnionAliases, includeReachableUnder, CompileError };
