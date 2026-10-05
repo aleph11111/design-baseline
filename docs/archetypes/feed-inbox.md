@@ -2,7 +2,7 @@
 key: H
 slug: feed-inbox
 kind: page
-version: 2.0
+version: 2.1
 promoted_from: fleet-audit-2026-06-13 (brickshop-manager, hk-crm)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -21,7 +21,7 @@ Promoted from the 2026-06-13 fleet audit (recurs as a standalone activity feed i
 brickshop — its internal "archetype H" — and hk-crm; rule-of-2). Key `H` mirrors
 brickshop's existing naming.
 
-> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/feed-inbox`; the prop surface is the API and the sandbox demo (`src/examples/feed-inbox-demo.tsx`) is the gallery reference.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/feed-inbox`; the **page feed shell** (frame + page title; the `title`-required page form) and the **frameless feed body** (the content without a page frame; the overlay surface) are the API, and the sandbox demo (`src/examples/feed-inbox-demo.tsx`) is the gallery reference.
 
 ### Two sub-shapes — same molecule
 
@@ -45,16 +45,33 @@ A top-level route (`/notifications`, `/activity`, `/inbox`) or a popover /
 overlay surface (sheet) launched from a header bell. The framework's lazy-load
 boundary for a full-page feed.
 
+**Which export by surface** — the two Layer 1 surfaces map to the two shipped
+forms (ADR-0008: one page frame, slot-owned):
+
+| Surface | Export | What it owns |
+|---------|--------|--------------|
+| **Page** (top-level route) | the page feed shell | the page frame: page title, frame `toolbar` (filters), `count`, `actions`, the raised page surface — plus the content |
+| **Overlay** (header-bell popover / sheet) | the frameless feed body | the content only: the time-grouped stack or the empty state. No page frame, no title, no raised page surface — the enclosing popover / sheet owns the chrome |
+
+There is no third form. A consumer who wants a feed inside a popover / sheet
+reaches for the body export, never a page shell inside a drawer — that would
+put a page title and a raised page surface inside the overlay (see Layer 3).
+
 ## Layer 2 — Page shell
 The project's top-level app shell plus a narrow content column (a feed reads as
 one column, not full width). A render-error boundary around content.
 
 ## Layer 3 — Page header
-`title` is **required** and passed once to the feed shell — it is the page
+`title` is **required** and passed once to the page feed shell — it is the page
 title; there is no other title and no untitled form. `subtitle` carries a
 one-line description; `badges` carry read-only status. `actions` holds the
 page's verbs — "Mark all read" on the inbox sub-shape (the timeline has
 none). The read state's summary ("3 unread" / "All caught up") is the `count`.
+
+**Overlay surface:** the frameless feed body — the Layer 1 sheet / popover — has
+no `title` and no page header (the page form's required title is page-owned; a
+title in a drawer is the conflict this split exists to remove). The overlay's
+header belongs to the enclosing sheet, not to the feed.
 
 ## Layer 4 — Toolbar (filters)
 `toolbar` holds everything that scopes the feed: filter chips / the shared
@@ -120,6 +137,13 @@ viewer; never leak another user's items.
 - [ ] **[spine] S1, S2, S3, S4, S5, S6.**
 
 ## Version log
+- **2.1** — the overlay surface (Layer 1) gets its own frameless form: the
+  frameless feed body export carries the time-grouped stack / empty state
+  without a page frame, and the page feed shell renders the same body inside
+  the page frame (ADR-0008 slot-owned placement; mirrors `list-with-detail`'s
+  shell / body split). Additive — the page form is unchanged, and a documented
+  surface (the header-bell popover / sheet) now maps to a shipped export
+  instead of a page shell smuggled into a drawer.
 - **2.0** (ADR-0008) — one page frame: `title` required and rendered once as the
   page title; the untitled/unframed form, `kicker` and `headerActions` removed;
   `filters` renamed `toolbar`; `actions` moved from the toolbar row to the page

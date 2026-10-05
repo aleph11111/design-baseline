@@ -1,3 +1,3 @@
 "use client";
-export { FeedShell, type FeedShellProps } from "./FeedShell";
+export { FeedShell, FeedBody, type FeedShellProps, type FeedBodyProps } from "./FeedShell";
 export { FeedItem, type FeedItemProps } from "./FeedItem";

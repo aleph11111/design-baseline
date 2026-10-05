@@ -9,8 +9,12 @@
  *  2. Timeline — a chronological media/event feed: each row carries a body
  *     excerpt + a trailing media thumbnail, no read state (skim). This is the
  *     shape a downstream media/event `<ul>` feed adopts instead of hand-rolling.
+ *  3. Overlay — the page feed body rendered inside a header-bell Sheet: no
+ *     page title, no raised page surface (Layer 1's two surfaces, two exports —
+ *     the page shell vs the frameless body).
  *
- * Both are H — distinct from list-with-detail (a sortable table of records).
+ * 1 + 2 are both H — distinct from list-with-detail (a sortable table of
+ * records); 3 is the same H molecule in the overlay surface.
  */
 
 import * as React from "react";
@@ -24,10 +28,18 @@ import {
 } from "lucide-react";
 import { SectionCard } from "@/components/layout/SectionCard";
 import { Button } from "@/components/ui/button";
-import { FeedShell, FeedItem } from "@/components/archetypes/feed-inbox";
+import { FeedShell, FeedBody, FeedItem } from "@/components/archetypes/feed-inbox";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { StateView } from "@/components/ui/state-view";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 type FeedType = "mention" | "comment" | "system";
 type Group = "Today" | "Yesterday" | "Earlier";
@@ -112,6 +124,66 @@ function FeedItemSkeleton(): React.ReactElement {
         <Skeleton className="h-3 w-24" />
       </div>
     </div>
+  );
+}
+
+/**
+ * Overlay surface (Layer 1, second row of the "which export by surface"
+ * table): the feed body in a header-bell Sheet. The Sheet owns the header
+ * (title + close) — the body export carries the content only, so no page h1
+ * and no raised page surface end up inside the drawer.
+ */
+function OverlayDemo(): React.ReactElement {
+  const unread = SEED.filter((n) => n.unread).length;
+
+  return (
+    <section>
+      <div className="mb-3 flex items-center justify-between gap-4">
+        <p className="max-w-prose text-sm text-muted-foreground">
+          <strong>Overlay surface</strong> — a header bell opens a Sheet
+          holding the <code>FeedBody</code> (frameless). The page form
+          (<code>FeedShell</code>) stays for top-level routes; this one has no
+          page title and no raised page surface of its own.
+        </p>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Bell className="h-4 w-4" />
+              {unread === 0 ? "Notifications" : `${unread} unread`}
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[24rem] sm:max-w-[24rem] overflow-y-auto p-0">
+            <SheetHeader className="border-b px-5 py-4">
+              <SheetTitle>Notifications</SheetTitle>
+              <SheetDescription>
+                The sheet owns this header — the feed itself is frameless.
+              </SheetDescription>
+            </SheetHeader>
+            <FeedBody>
+              {GROUP_ORDER.map((group) => {
+                const groupItems = SEED.filter((n) => n.group === group);
+                if (groupItems.length === 0) return null;
+                return (
+                  <SectionCard key={group} title={group} flush>
+                    <div className="divide-y divide-border">
+                      {groupItems.map((n) => (
+                        <FeedItem
+                          key={n.id}
+                          icon={ICON[n.type]}
+                          title={n.title}
+                          meta={n.meta}
+                          unread={n.unread}
+                        />
+                      ))}
+                    </div>
+                  </SectionCard>
+                );
+              })}
+            </FeedBody>
+          </SheetContent>
+        </Sheet>
+      </div>
+    </section>
   );
 }
 
@@ -252,6 +324,7 @@ export function FeedInboxDemo(): React.ReactElement {
     <div className="max-w-3xl space-y-12">
       <InboxDemo />
       <TimelineDemo />
+      <OverlayDemo />
     </div>
   );
 }
