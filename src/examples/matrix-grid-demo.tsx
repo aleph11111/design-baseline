@@ -128,10 +128,11 @@ export function MatrixGridDemo() {
   const [sheet, setSheet] = useState<SheetState>({ kind: "closed" });
   const [draftGrade, setDraftGrade] = useState<Grade>("A");
   const [draftNote, setDraftNote] = useState("");
-  // Cell variant axis: "click" = read-only cells that open a side-sheet to edit;
-  // "inline" = editable-cell — the shared `CellSelect` (ui/cell-input) flush in
-  // each filled cell, per the contract (matrix-grid.md, Layer 6: "not a bare
-  // native `<select>`").
+  // Cell variant axis (matrix-grid.md, Layer 6): "click" = read-only cells that
+  // open a side-sheet to edit; "inline" = editable-cell — the shared `CellSelect`
+  // (ui/cell-input) flush in each filled cell. v3.1: both modes are conformant;
+  // forbidden #1 bans only bare native / hand-rolled in-cell editors, so
+  // "inline" routes through the shared control, never a raw `<select>`.
   const [mode, setMode] = useState<"click" | "inline">("click");
   // Toolbar axis: a grid-scoping control (the term) is `toolbar`, never
   // `actions`. Switching to a term with no entries exercises the `emptyState`
@@ -230,8 +231,8 @@ export function MatrixGridDemo() {
           value={mode}
           onValueChange={(v) => setMode(v as "click" | "inline")}
           options={[
-            { value: "click", label: "click to edit" },
-            { value: "inline", label: "inline edit" },
+            { value: "click", label: "side overlay" },
+            { value: "inline", label: "inline cells" },
           ]}
           aria-label="Edit mode"
         />
