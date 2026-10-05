@@ -2,7 +2,7 @@
 key: M
 slug: matrix-grid
 kind: page
-version: 3.0
+version: 3.1
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -288,7 +288,7 @@ Permissions are out of the shell's scope.
 
 The following patterns are never permitted in a matrix-grid page, regardless of the domain:
 
-1. **Inline cell edit.** Editing a cell's fields in-place within the table cell. The unit of work is the cell; editing happens in the side overlay that opens on click.
+1. **Bare or hand-rolled in-cell editors.** Editing a cell's fields in-place with a bare native `<input>`/`<select>` or hand-rolled in-cell editor. In-cell editing is conformant **only** through the shared editable-cell control documented in Layer 6 (read-only vs editable-cell variant); every other edit goes through the side overlay that opens on click.
 2. **Row-action menus.** Three-dots-per-row dropdowns. A matrix page edits intersections, not rows.
 3. **Multiple matrices on one route.** Each matrix view is its own page. Tabs/segments are allowed (each tab points at its own matrix view, route segment, or query param).
 4. **Side overlay rendered inside the shell.** Always a sibling.
@@ -354,6 +354,12 @@ When a target project applies this archetype, it wires the generic primitive to 
 
 ## Version log
 
+- **3.1** — resolved the contract's self-contradiction on in-cell editing.
+  Forbidden pattern #1 no longer bans all in-cell editing; it now bans only
+  bare native `<input>`/`<select>` and hand-rolled in-cell editors, and names the
+  Layer 6 read-only / editable-cell variant (the shared editable-cell control) as
+  the one conformant in-cell editing path. Layer 6 and the shipped demo already
+  agreed on this; the ban was the outlier.
 - **3.0** (ADR-0008) — one page frame. `title` is required and passed once;
   bulk actions are `actions`, scoping controls are `toolbar` (resolving the
   old Layer 3 "actions live in the toolbar" vs Layer 4 "bulk actions in the
