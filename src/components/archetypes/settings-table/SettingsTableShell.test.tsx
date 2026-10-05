@@ -407,13 +407,16 @@ describe("SettingsTableShell — split-pane variant (editPane)", () => {
     // Table and form are both descendants of that one surface.
     const table = container.querySelector("table")!;
     expect(table.closest(".bg-surface-raised")?.contains(form)).toBe(true);
-    // The divider is a left hairline between the panes (ADR-0008 §3: sections
-    // divide by hairline, never a second card).
-    expect(form.parentElement?.className).toContain("border-l");
+    // ADR-0008 §3: the panes divide by a hairline, never a second card — the
+    // pane wrapper (the form's parent) carries the left hairline.
+    const pane = form.parentElement!;
+    expect(pane.className).toContain("md:border-l");
+    // …so exactly one bordered pane node exists, sitting beside the table.
+    expect(container.querySelectorAll("[class*='md:border-l']")).toHaveLength(1);
     expect(screen.getByRole("cell", { name: "Row 0" })).toBeTruthy();
   });
 
-  it("no editPane: single-pane layout, no divider", () => {
+  it("no editPane: single-pane layout, no second pane node or divider", () => {
     const { container } = render(
       <SettingsTableShell
         title="Numbering series"
@@ -422,6 +425,12 @@ describe("SettingsTableShell — split-pane variant (editPane)", () => {
         getRowId={(r) => r.id}
       />,
     );
-    expect(container.querySelectorAll(".border-l")).toHaveLength(0);
+    // No divider node at all — the pane wrapper is simply not rendered.
+    expect(container.querySelectorAll("[class*='md:border-l']")).toHaveLength(0);
+    // The frame body is the flex wrapper holding only the table region (one
+    // child), not a table region plus an empty bordered pane (two children).
+    const table = container.querySelector("table")!;
+    const flex = table.closest(".overflow-x-auto")!.parentElement as HTMLElement;
+    expect(flex.children).toHaveLength(1);
   });
 });

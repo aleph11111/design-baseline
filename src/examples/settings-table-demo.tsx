@@ -30,8 +30,16 @@ import * as React from "react";
 import { SettingsTableShell } from "@/components/archetypes/settings-table";
 import type { SettingsColumn, RowAction } from "@/components/archetypes/settings-table";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { SearchInput } from "@/components/ui/search-input";
+import {
+  CrudDialogSheet,
+  CrudDialogHeader,
+  CrudDialogBody,
+  CrudDialogFooter,
+} from "@/components/archetypes/crud-dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // ---------------------------------------------------------------------------
 // Domain type
@@ -223,6 +231,13 @@ export function SettingsTableDemo() {
   const [panePrefix, setPanePrefix] = React.useState("");
   const [paneSaveFlash, setPaneSaveFlash] = React.useState("");
   const editingSeries = series.find((s) => s.id === editingSeriesId) ?? null;
+  // Layer 11: below `md` the shell drops the pane out of the frame and the
+  // click-contract edit dialog is the editing surface. `useIsMobile` (md =
+  // 768px, the shell's own breakpoint) decides which surface is live; both
+  // bind to the same selection state, so pane and dialog always edit the
+  // same row.
+  const isMobile = useIsMobile();
+  const mobileDialogOpen = isMobile && editingSeries !== null;
 
   // Row click (the D2 click contract) selects the row the pane edits —
   // no dialog open/close cycle between successive saves.
@@ -256,17 +271,20 @@ export function SettingsTableDemo() {
   const editPane = editingSeries ? (
     <form
       className="flex h-full flex-col gap-3 p-4"
-      onSubmit={saveSeriesEdit}
+      onSubmit={(e) => {
+        e.preventDefault();
+        saveSeriesEdit();
+      }}
     >
       <div className="text-sm font-medium text-foreground">
         Edit {editingSeries.name}
       </div>
       <label className="flex flex-col gap-1 text-sm text-muted-foreground">
         Numeric prefix
-        <input
+        <Input
           value={panePrefix}
           onChange={(e) => setPanePrefix(e.target.value)}
-          className="h-9 rounded-md border bg-muted/50 px-3 font-mono text-sm text-foreground"
+          className="h-9 bg-muted/50 font-mono text-sm"
           aria-label="Numeric prefix"
         />
       </label>
@@ -380,6 +398,43 @@ export function SettingsTableDemo() {
         confirmText="Delete"
         variant="destructive"
       />
+
+      {/* Layer 11 (split-pane variant, mobile): when the shell has dropped
+          the pane out of the frame (< `md`), the click-contract edit dialog
+          is the editing surface. It composes the J `crud-dialog` sub-
+          primitives and binds to the SAME selection + prefix state as the
+          pane, so whichever surface is live edits the same row. */}
+      <CrudDialogSheet
+        open={mobileDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) setEditingSeriesId(null);
+        }}
+        width="sm"
+      >
+        {editingSeries && (
+          <>
+            <CrudDialogHeader title={`Edit ${editingSeries.name}`} subtitle="Numbering series" />
+            <CrudDialogBody>
+              <label className="flex flex-col gap-1 text-sm text-muted-foreground">
+                Numeric prefix
+                <Input
+                  key={editingSeries.id}
+                  aria-label="Numeric prefix"
+                  value={panePrefix}
+                  onChange={(e) => setPanePrefix(e.target.value)}
+                  className="h-9 bg-muted/50 font-mono text-sm"
+                />
+              </label>
+            </CrudDialogBody>
+            <CrudDialogFooter
+              primaryLabel="Save"
+              onPrimary={saveSeriesEdit}
+              secondaryLabel="Close"
+              onSecondary={() => setEditingSeriesId(null)}
+            />
+          </>
+        )}
+      </CrudDialogSheet>
     </div>
   );
 }

@@ -5,7 +5,7 @@
   "engines": {
     "node": ">=22"
   },
-  "description": "Design-baseline donor. Typecheck-only as a library (npx tsc --noEmit), with donor-owned component tests (npm test); ships an optional donor-dev gallery (npm run gallery) that renders the archetype demos. Neither the test harness nor the gallery is part of the baseline broadcast \u2014 see STYLE.md.",
+  "description": "Design-baseline donor. Typecheck-only as a library (npx tsc --noEmit), with donor-owned component tests (npm test); ships an optional donor-dev gallery (npm run gallery) that renders the archetype demos. Neither the test harness nor the gallery is part of the baseline broadcast — see STYLE.md.",
   "scripts": {
     "gallery": "vite --configLoader runner",
     "gallery:build": "vite build --configLoader runner",
@@ -110,11 +110,11 @@
       ]
     },
     "notes": [
-      "react / react-dom are peerDependencies (^19.0.0) \u2014 the donor typechecks against its own peer install (npx tsc --noEmit); a package consumer brings its own React. Do not copy the devDependencies block into a target.",
-      "@types/node is donor-dev-only \u2014 its `process` types typecheck the icon-button NODE_ENV dev warning in button.tsx (promoted from controlling-app); never copy into a target.",
+      "react / react-dom are peerDependencies (^19.0.0) — the donor typechecks against its own peer install (npx tsc --noEmit); a package consumer brings its own React. Do not copy the devDependencies block into a target.",
+      "@types/node is donor-dev-only — its `process` types typecheck the icon-button NODE_ENV dev warning in button.tsx (promoted from controlling-app); never copy into a target.",
       "Charts (recharts, nivo), auth (next-auth, @supabase/supabase-js), data fetching (@tanstack/react-query) are NOT in the baseline. Add per project.",
-      "vite, @vitejs/plugin-react, @tailwindcss/vite, react-router-dom are donor-dev-only \u2014 they power the gallery harness (gallery/, vite.config.ts) and are NOT part of the baseline. Never copy them or the gallery into a target.",
-      "vitest, @testing-library/react, jsdom are donor-dev-only \u2014 they run the donor's own component tests (vitest.config.ts, src/**/*.test.tsx) verifying primitives against each other. Not part of the baseline broadcast; never copy them into a target."
+      "vite, @vitejs/plugin-react, @tailwindcss/vite, react-router-dom are donor-dev-only — they power the gallery harness (gallery/, vite.config.ts) and are NOT part of the baseline. Never copy them or the gallery into a target.",
+      "vitest, @testing-library/react, jsdom are donor-dev-only — they run the donor's own component tests (vitest.config.ts, src/**/*.test.tsx) verifying primitives against each other. Not part of the baseline broadcast; never copy them into a target."
     ]
   }
 }

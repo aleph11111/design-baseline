@@ -2,6 +2,20 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { SettingsTableDemo } from "./settings-table-demo";
 
+// The demo's split-pane mobile fallback reads useIsMobile, which reads
+// matchMedia — jsdom lacks it. Stub a desktop (max-width) match so the pane
+// stays live in these tests. Same stub ListWithDetail's tests set.
+window.matchMedia ??= ((query: string) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addEventListener: () => {},
+  removeEventListener: () => {},
+  addListener: () => {},
+  removeListener: () => {},
+  dispatchEvent: () => false,
+})) as typeof window.matchMedia;
+
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();

@@ -169,7 +169,7 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
 - When users edit rows in rapid succession and a dialog's open/close cycle creates friction, the table and the edit form share the shell's one page frame: the edit form is the frame's right pane, divided from the table by the frame's hairline — never a second raised surface (ADR-0008 §3). The row click contract (Layer 6) drives the selection the pane edits. On viewports below the `md` breakpoint the pane is out of the frame and the click-contract edit dialog (Layer 11) is the editing surface. This is an uncommon variation; use only when the UX case is clear.
 
 **Forbidden:**
-- Hand-rolled card wrappers. Always use the settings-table shell (or the split-pane variation above).
+- Hand-rolled card wrappers. Always use the settings-table shell — the split-pane variation above is the shell's `editPane` slot, never a second surface beside it.
 - Nested card chrome — one card boundary per visible surface.
 - Page-level `max-width`. Full-width.
 
