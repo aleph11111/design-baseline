@@ -2,7 +2,7 @@
 key: W
 slug: import-wizard
 kind: page
-version: 2.0
+version: 2.1
 promoted_from: fleet-audit-2026-06-13 (controlling-app, my-finance-app)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -73,8 +73,9 @@ Verify step; per-step "save" buttons (only Back/Next/Commit drive the flow).
 - **Per-step validation** — `canProceed` disables Next/Commit until the step is valid.
 - **Committing** — `busy` shows a spinner + disables the footer; the commit is a
   single in-flight action.
-- **Done** — replace the wizard with a success summary (imported / skipped counts)
-  + a "start another" affordance. Errors mid-commit return to the Commit step with
+- **Done** — pass the success summary (imported / skipped counts) + a "start
+  another" affordance as the shell's `done`; it replaces the stepper, step and
+  footer inside the same page frame — the page title stays, never a bare card. Errors mid-commit return to the Commit step with
   a destructive message; partial progress is not silently dropped.
 
 ## Layers 8–12
@@ -114,3 +115,5 @@ without import rights sees history (read-only) but not the wizard.
 - **2.0** (ADR-0008) — one page frame: `title` required and rendered once as the
   page title; `kicker` and the untitled/unframed branch removed; `subtitle` /
   `badges` added; the stepper is body content, not toolbar.
+- **2.1** — `done` slot: the done state renders inside the one page frame
+  instead of the consumer swapping the shell out.
