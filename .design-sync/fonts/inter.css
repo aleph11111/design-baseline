@@ -1,0 +1,9 @@
+/* House-style Inter (latin subset), harvested by .design-sync/fetch-fonts.mjs. */
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./Inter.woff2') format('woff2');
+}

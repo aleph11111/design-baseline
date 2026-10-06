@@ -2,8 +2,8 @@
 
 A **shadcn/ui + Tailwind CSS v4** component library. You compose apps from its React
 components (all on `window.DesignBaseline.*`, imported from the package) and lay them out
-with **Tailwind utility classes backed by semantic design tokens**. House style: **IBM Plex**
-type with **monospaced tabular figures**, flat surfaces, a graded slate palette.
+with **Tailwind utility classes backed by semantic design tokens**. House style: **Inter**
+type with **tabular figures in the same sans**, flat surfaces, a graded slate palette.
 
 ## Styling idiom — semantic token utilities, never raw colors
 
@@ -21,10 +21,10 @@ work automatically. **Never hardcode hex/`slate-500`-style colors** — use thes
 Radius: `rounded-md`/`rounded-lg` (driven by `--radius`). Standard Tailwind utilities
 (`flex`, `grid`, `gap-4`, `px-4`, `space-y-4`, `text-sm`…) are available for layout glue.
 
-**Type:** body text defaults to **IBM Plex Sans** (the `--font-sans` token — no class needed).
-**Numeric figures** — money, counts, metrics, table numbers — use `font-mono tabular-nums`
-(IBM Plex Mono) for aligned columns. This mono-figure rule is the signature of the house style;
-apply it to `StatTile` values, table number cells, KPIs.
+**Type:** everything renders in **Inter** (the `--font-sans` token — no class needed).
+**Numeric figures** — money, counts, metrics, table numbers, IDs — use `tabular-nums` at
+regular weight for aligned columns; never `font-mono` (ADR-0009). `StatTile`, `KeyValueRow`,
+`MetricRow` and the table primitives already carry it. `font-mono` is for code only (JSON, hex).
 
 ## Setup / wrapping (only where noted)
 

@@ -155,7 +155,7 @@ export function CalendarDemo(): React.ReactElement {
             </Button>
             <span className="ml-2 text-sm font-medium">
               June 2026 <span className="mx-1.5 text-border">·</span>
-              <span className="font-mono tabular-nums">Week 26</span>
+              <span className="tabular-nums">Week 26</span>
             </span>
           </>
         }

@@ -234,7 +234,7 @@ export function DetailOverviewDemo(): React.ReactElement {
         <DetailOverviewShell
           layout={layout}
           width={width}
-          title={<span className="font-mono">{o.number}</span>}
+          title={o.number}
           backHref="#"
           backLabel="Orders"
           subtitle={
@@ -359,7 +359,7 @@ export function DetailOverviewDemo(): React.ReactElement {
                       <div className="flex min-w-0 items-center gap-3">
                         {/* Thumbnail — a product image stands here; the placeholder
                             is the catalogue code, ≥40px per the acceptance gate. */}
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border bg-muted text-[8px] font-mono text-muted-foreground">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-border bg-muted text-[8px] text-muted-foreground">
                           {li.code}
                         </div>
                         <div className="min-w-0">
@@ -371,13 +371,13 @@ export function DetailOverviewDemo(): React.ReactElement {
                           </div>
                         </div>
                       </div>
-                      <div className="text-center font-mono text-[13px] tabular-nums text-muted-foreground">
+                      <div className="text-center text-[13px] tabular-nums text-muted-foreground">
                         {li.qty}
                       </div>
-                      <div className="text-right font-mono text-[13px] tabular-nums text-muted-foreground">
+                      <div className="text-right text-[13px] tabular-nums text-muted-foreground">
                         {fmtEUR(li.unitPrice)}
                       </div>
-                      <div className="text-right font-mono text-[13px] font-semibold tabular-nums text-foreground">
+                      <div className="text-right text-[13px] tabular-nums text-foreground">
                         {fmtEUR(li.qty * li.unitPrice)}
                       </div>
                     </div>
@@ -387,7 +387,7 @@ export function DetailOverviewDemo(): React.ReactElement {
                   <span className="text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground">
                     Items subtotal
                   </span>
-                  <span className="font-mono text-sm font-semibold tabular-nums text-foreground">
+                  <span className="text-sm tabular-nums text-foreground">
                     {fmtEUR(subtotal)}
                   </span>
                 </div>
@@ -406,7 +406,7 @@ export function DetailOverviewDemo(): React.ReactElement {
                     Gross profit
                   </span>
                   <span className="flex items-baseline gap-2">
-                    <span className="font-mono text-base font-semibold tabular-nums text-primary">
+                    <span className="text-base tabular-nums text-primary">
                       {fmtEUR(o.grossProfit)}
                     </span>
                     <Badge variant="secondary">{o.margin}</Badge>
@@ -463,7 +463,7 @@ export function DetailOverviewDemo(): React.ReactElement {
                       <span className="flex-1 truncate text-[11.5px] font-medium text-foreground">
                         {d.name}
                       </span>
-                      <span className="font-mono text-[10px] text-muted-foreground">
+                      <span className="text-[10px] text-muted-foreground">
                         {d.kind}
                       </span>
                     </a>
@@ -484,7 +484,7 @@ export function DetailOverviewDemo(): React.ReactElement {
         <PageFrame title={o.customer.name} subtitle="Customer · parent layout owns the page">
           <DetailOverviewShell
             layout="vertical"
-            title={<span className="font-mono">{o.number}</span>}
+            title={o.number}
             subtitle="Nested — vertical, aggregates as a stat strip"
             stats={[
               { label: "Revenue", value: fmtEUR(o.revenue), hint: "incl. shipping" },
@@ -531,8 +531,8 @@ function BreakdownRow({
       <span
         className={
           muted
-            ? "font-mono tabular-nums text-muted-foreground"
-            : "font-mono tabular-nums text-foreground"
+            ? "tabular-nums text-muted-foreground"
+            : "tabular-nums text-foreground"
         }
       >
         {v}

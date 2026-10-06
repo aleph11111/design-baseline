@@ -151,7 +151,7 @@ export function CalendarShell({
               </div>
               <div
                 className={cn(
-                  "mt-0.5 font-mono text-base font-semibold tabular-nums",
+                  "mt-0.5 text-base font-semibold tabular-nums",
                   day.today ? "text-foreground" : "text-foreground/80",
                 )}
               >
@@ -185,7 +185,7 @@ export function CalendarShell({
                       >
                         <div
                           className={cn(
-                            "font-mono text-[10px] tabular-nums",
+                            "text-[10px] tabular-nums",
                             tone.time,
                           )}
                         >

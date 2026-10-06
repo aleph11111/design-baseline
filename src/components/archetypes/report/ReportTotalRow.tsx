@@ -6,8 +6,8 @@ export type ReportTotalRowProps = {
   /** Row label (e.g. "Zwischensumme", "MwSt. 19 %", "Gesamt"). Stays sans. */
   label: React.ReactNode;
   /**
-   * Pre-formatted figure (e.g. `fmtEUR(total)`). Rendered `font-mono
-   * tabular-nums` — the row never formats. The caller pre-formats via Intl.
+   * Pre-formatted figure (e.g. `fmtEUR(total)`). Rendered `tabular-nums`
+   * in the house sans — the row never formats. The caller pre-formats via Intl.
    */
   value: React.ReactNode;
   /**
@@ -48,7 +48,7 @@ export function ReportTotalRow({
         <span className="text-[13px] font-semibold text-foreground">
           {label}
         </span>
-        <span className="font-mono text-base font-semibold tabular-nums text-foreground">
+        <span className="text-base tabular-nums text-foreground">
           {value}
         </span>
       </div>
@@ -62,7 +62,7 @@ export function ReportTotalRow({
       )}
     >
       <span>{label}</span>
-      <span className="font-mono tabular-nums">{value}</span>
+      <span className="tabular-nums">{value}</span>
     </div>
   );
 }

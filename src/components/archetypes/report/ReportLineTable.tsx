@@ -78,8 +78,8 @@ export type ReportLineRowProps = {
 
 /**
  * ReportLineRow — one hairline-divided row in a `<ReportLineTable>`. Figures
- * (qty / unit / sum) are `font-mono tabular-nums`, right-aligned per house
- * style B; the name stays sans. Thin wrapper over the shared `FigureRow` —
+ * (qty / unit / sum) are `tabular-nums` in the house sans, right-aligned
+ * (ADR-0009); the name stays sans. Thin wrapper over the shared `FigureRow` —
  * the report's only row-specific shape is the optional `meta` sub-line below
  * the name.
  */

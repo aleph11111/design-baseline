@@ -369,7 +369,7 @@ Move the donor-owned half of the project's `tokens.css` onto the layer import an
 keep the brand half in the project's own file, exactly as wiring line 3 documents
 (`@import "design-baseline/tokens.layer.css"` + the `@source` package scan). The
 brand `:root`/`.dark` HSL values and the project's own `@theme` font stanza (e.g.
-hk-crm's IBM Plex `next/font` binding) stay project-owned. A `cp -R` consumer's
+hk-crm's `next/font` binding) stay project-owned. A `cp -R` consumer's
 merged `tokens.css` is the pre-#178 state this step splits.
 
 ### Closed-API removals per archetype version (read before step 3)
@@ -389,7 +389,9 @@ deleted or tightened by the MAJOR bumps that shipped in `v0.2.0`:
 | `analytics-dashboard` (3.0, #195) | `DashboardGrid columns` | deleted | Drop it; the ladder is fixed (1 / 2 at `sm` / 3 at `lg`) |
 | `analytics-dashboard` (3.0, #195) | `StatTileRow columns` | deleted | Drop it; the cell count comes from the number of children (2–4) |
 | `analytics-dashboard` (3.0, #195) | `DashboardWidget span` | now required | Pass `span` by the contract's Layer 6 keying rule (primary trend `3`, comparison/breakdown `2`, else `1`) |
-| `detail-overview` | `KeyValueRow mono` | never a donor prop | Drop it; the value always renders mono and tabular |
+| `detail-overview` | `KeyValueRow mono` | never a donor prop | Drop it; the value always renders tabular in the house sans |
+| **all figure surfaces** (v0.4.0, ADR-0009) | IBM Plex faces; `font-mono` + medium/semibold on figure values | Inter; figures `tabular-nums`, regular weight | Load Inter instead of IBM Plex (`next/font/google` `Inter` with `variable: "--font-inter"`, or the Google Fonts `<link>`); re-point an uncommented FONT BINDING to `var(--font-inter)`; delete hand-written `font-mono` on figure / ID cells |
+| `list-with-detail` / `grouped-list` (v0.4.0, ADR-0009) | `TableColumn identifierMono` | deleted | Drop it; identifiers render in the house sans |
 | **all page shells** (v0.3.0, ADR-0008) | `kicker`, `headerActions`, untitled/unframed branches | deleted; `title` required | Pass `title` once to the shell and delete any `PageHeader` beside it. Page verbs (create, export, print) → `actions`; scoping controls → `toolbar`; result count → `count`; display toggles → `viewOptions` (`DropdownMenuCheckboxItem`s) |
 | **all page shells** (v0.3.0) | `subtitle` / `icon` accepted but never rendered | `subtitle` + `badges` now render; `icon` only on detail-overview / form-page | Keep `subtitle`; drop `icon` elsewhere |
 | `AppShell` (v0.3.0) | `headerFill`; `HeaderFillContext`, `useHeaderFill`, `headerFillClasses`, `SurfaceHeader`, `SurfaceHeaderSlot` | deleted | Drop the prop/imports — there is no header fill; the `PageHeader` title is the focal point |

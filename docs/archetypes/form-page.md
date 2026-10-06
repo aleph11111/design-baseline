@@ -2,7 +2,7 @@
 key: B
 slug: form-page
 kind: page
-version: 3.0
+version: 3.1
 promoted_from: hk-crm
 promoted_at: 2026-05-24
 source_spec_version: 1.7
@@ -110,7 +110,7 @@ The form-page header is **purely informational**. The page passes it to the form
 
 **Required:**
 
-- `title` names the write: an entity-context phrase (`"New Task"`, `"Edit Recipe — Sunday Carbonara"`); in edit mode embed the entity identifier in the **monospace identifier style** so the user confirms they are editing the right record.
+- `title` names the write: an entity-context phrase (`"New Task"`, `"Edit Recipe — Sunday Carbonara"`); in edit mode embed the entity identifier in the **canonical identifier style** so the user confirms they are editing the right record.
 
 **Allowed variation:**
 

@@ -146,7 +146,7 @@ export function ReportDemo(): React.ReactElement {
       <ReportShell
         title={
           <>
-            Rechnung <span className="font-mono">{inv.number}</span>
+            Rechnung {inv.number}
           </>
         }
         actions={
@@ -166,13 +166,13 @@ export function ReportDemo(): React.ReactElement {
           <div className="space-y-1 text-right text-[13px] text-muted-foreground">
             <div>
               Datum{" "}
-              <span className="ml-1 font-mono tabular-nums text-foreground">
+              <span className="ml-1 tabular-nums text-foreground">
                 {fmtDate(inv.issuedOn)}
               </span>
             </div>
             <div>
               Fällig{" "}
-              <span className="ml-1 font-mono tabular-nums text-foreground">
+              <span className="ml-1 tabular-nums text-foreground">
                 {fmtDate(inv.dueOn)}
               </span>
             </div>

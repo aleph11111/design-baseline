@@ -2,7 +2,7 @@
 key: G
 slug: analytics-dashboard
 kind: page
-version: 4.0
+version: 4.1
 promoted_from: fleet-audit-2026-06-13 (brickshop-manager, my-finance-app, hk-crm, mistra)
 promoted_at: 2026-06-14
 source_spec_version: 1.3
@@ -118,7 +118,7 @@ can't see a metric.
 **REQUIRED**
 
 - [ ] **KPI row via the stat-tile / KPI-tile primitives** — headline metrics in
-      the canonical tiles (mono/tabular), **not** hand-built metric cards.
+      the canonical tiles (tabular figures), **not** hand-built metric cards.
       *Wrapper tell:* a grid of bespoke stat cards next to/instead of the tile row.
 - [ ] **Charts in titled widgets** via the widget primitive — cells of the one
       dashboard surface, no card-in-card; one chart lib/token palette, no
@@ -129,7 +129,7 @@ can't see a metric.
 **SHOULD** (yellow, not red)
 
 - [ ] Filter/date-range controls sit in `toolbar`, not scattered per widget.
-- [ ] Number formatting (currency, %, deltas) is consistent and mono.
+- [ ] Number formatting (currency, %, deltas) is consistent and tabular.
 - [ ] `span` follows Layer 6's widget span keying rule (primary trend full width ·
       comparison/breakdown wide · everything else one column) — not a free choice,
       and no widget inherits a width it did not state.

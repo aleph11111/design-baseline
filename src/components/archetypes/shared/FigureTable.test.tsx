@@ -25,14 +25,13 @@ function headerRow(container: HTMLElement): HTMLElement | null {
   );
 }
 
-/** The figure (numeric) cells — mono tabular `text-[13px]` divs. */
+/** The figure (numeric) cells — tabular `text-[13px]` divs (house sans, ADR-0009). */
 function figureCells(container: HTMLElement): HTMLElement[] {
   return Array.from(
     container.querySelectorAll("div"),
   ).filter(
     (el) =>
       typeof el.className === "string" &&
-      el.className.includes("font-mono") &&
       el.className.includes("tabular-nums") &&
       el.className.includes("text-[13px]"),
   );
@@ -94,18 +93,20 @@ describe("FigureTable — shared figure-table signature", () => {
     for (const container of [r, s]) {
       const cells = figureCells(container);
       // Every non-terminal figure cell: the muted figure-cell base treatment —
-      // mono tabular 13px, muted (the terminal cell carries the promotion
+      // sans tabular 13px, muted (the terminal cell carries the promotion
       // instead; alignment is per-archetype via `cellAlign` and asserted
       // separately for the statement below).
       cells.slice(0, -1).forEach((cell) => {
-        expect(cell.className).toContain("font-mono text-[13px] tabular-nums");
+        expect(cell.className).toContain("text-[13px] tabular-nums");
+        expect(cell.className).not.toContain("font-mono");
         expect(cell.className).toContain("text-muted-foreground");
         expect(cell.className).not.toContain("font-semibold");
       });
       // The terminal cell is the promoted headline figure.
       const terminal = cells[cells.length - 1];
       expect(terminal).toBeDefined();
-      expect(terminal!.className).toContain("font-semibold text-foreground");
+      expect(terminal!.className).toContain("text-foreground");
+      expect(terminal!.className).not.toContain("font-semibold");
     }
 
     // The statement keeps the shared right-alignment default for every
@@ -186,11 +187,12 @@ describe("FigureTable — shared figure-table signature", () => {
       (el) =>
         el instanceof HTMLDivElement &&
         typeof el.className === "string" &&
-        el.className.includes("font-mono"),
+        el.className.includes("tabular-nums"),
     );
     expect(cells.length).toBe(2);
     cells.forEach((cell) => {
-      expect(cell.className).toContain("font-semibold text-foreground");
+      expect(cell.className).toContain("text-foreground");
+      expect(cell.className).not.toContain("font-semibold");
     });
   });
 });

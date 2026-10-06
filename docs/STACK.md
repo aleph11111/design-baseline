@@ -31,7 +31,7 @@ figure alignment) only hold on that stack. This file pins it.
 | Command palette | `cmdk` | ^1 | `Command` contract |
 | Date picking | `react-day-picker` | ^10 | `Calendar` contract; breaking majors |
 | Drawers | `vaul` | ^1 | Mobile sheet behavior |
-| Type | IBM Plex Sans + Mono | — | House face; however loaded (`next/font`, `@font-face`), it MUST land on `--font-sans` / `--font-mono` |
+| Type | Inter (mono = system stack) | — | House face (ADR-0009); however loaded (`next/font`, `@font-face`), it MUST land on `--font-sans`. `--font-mono` loads no web font |
 
 ## Known trip points (the scars this file exists for)
 
@@ -48,8 +48,8 @@ figure alignment) only hold on that stack. This file pins it.
    class itself with its own Tailwind, so the two-version skew the hazard describes cannot
    occur. The skew remains a hazard only for the copy-once `cp -R` channel (a vendored
    bundle compiled elsewhere). Install via `docs/PACKAGE.md` instead of vendoring a bundle.
-4. **Fonts coupled by variable name.** `next/font` sets `--font-ibm-plex-*`; `@theme` maps
-   them into `--font-sans`/`--font-mono`. Renaming either side silently falls back to
+4. **Fonts coupled by variable name.** `next/font` sets `--font-inter`; `@theme` maps
+   it into `--font-sans`. Renaming either side silently falls back to
    system UI. Treat the var names as part of this contract.
 5. **Unstamped vendored peers.** `react-day-picker`, `sonner`, `vaul`, `cmdk`, `recharts`
    all have breaking majors, and nothing records which versions the vendored components

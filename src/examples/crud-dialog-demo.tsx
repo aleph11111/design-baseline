@@ -346,7 +346,7 @@ function WorkoutDialog({
           <FormItem>
             <FormLabel>Date</FormLabel>
             {isView ? (
-              <p className="text-sm font-mono tabular-nums text-foreground">{field.value || "—"}</p>
+              <p className="text-sm tabular-nums text-foreground">{field.value || "—"}</p>
             ) : (
               <FormControl>
                 <Input type="date" {...field} />
@@ -395,7 +395,7 @@ function WorkoutDialog({
           <FormItem>
             <FormLabel>Duration (min)</FormLabel>
             {isView ? (
-              <p className="text-sm font-mono tabular-nums text-foreground">{field.value}</p>
+              <p className="text-sm tabular-nums text-foreground">{field.value}</p>
             ) : (
               <FormControl>
                 <Input
@@ -474,7 +474,7 @@ function WorkoutDialog({
                       key={w.id}
                       className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
                     >
-                      <span className="font-mono tabular-nums text-foreground">{w.date}</span>
+                      <span className="tabular-nums text-foreground">{w.date}</span>
                       <span className="text-muted-foreground">{w.durationMinutes} min</span>
                     </li>
                   ))}
@@ -651,7 +651,7 @@ export function CrudDialogDemo(): React.ReactElement {
                   <TableCell>
                     <Button
                       variant="link"
-                      className="h-auto p-0 font-mono"
+                      className="h-auto p-0"
                       aria-label={`View workout ${w.date}`}
                       onClick={() => openView(w.id)}
                     >
@@ -659,7 +659,7 @@ export function CrudDialogDemo(): React.ReactElement {
                     </Button>
                   </TableCell>
                   <TableCell>{KIND_LABELS[w.kind]}</TableCell>
-                  <TableCell className="text-right font-mono tabular-nums">{w.durationMinutes} min</TableCell>
+                  <TableCell className="text-right tabular-nums">{w.durationMinutes} min</TableCell>
                   <TableCell className="text-muted-foreground truncate max-w-[16rem]">
                     {w.notes || "—"}
                   </TableCell>

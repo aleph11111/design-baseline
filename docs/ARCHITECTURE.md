@@ -20,7 +20,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | Framework (donor typecheck) | React 19, TypeScript 5.6 (strict) | React/react-dom are **peerDependencies** (`^19.0.0`) — the donor typechecks against its own peer install; a consumer brings its own React |
 | Testing | Vitest 4 + jsdom + `@testing-library/react` | Separate `vitest.config.ts` (repo-root scoped) from `vite.config.ts` (gallery-scoped) |
 | Forms / icons / toasts | react-hook-form + zod, lucide-react, sonner (the only toast runtime) | Per `docs/STYLE.md` |
-| Typography | IBM Plex Sans (prose) / IBM Plex Mono (`font-mono tabular-nums` for figures) | "Plex Ledger" house style, `docs/STYLE.md` |
+| Typography | Inter for prose and figures (`tabular-nums`, regular weight); system mono for code only | "Ledger" house style, `docs/STYLE.md`, ADR-0009 |
 
 `package.json`'s `designBaseline.notes` block is explicit about scope creep guardrails: `vite`/`@vitejs/plugin-react`/`@tailwindcss/vite`/`react-router-dom` are donor-dev-only (power the gallery, never copied); `vitest`/testing-library/`jsdom` are donor-dev-only (run the donor's own tests, never copied); charts, auth, and data-fetching libraries are deliberately absent from the baseline.
 

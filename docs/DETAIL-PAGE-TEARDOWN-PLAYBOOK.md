@@ -115,7 +115,7 @@ DELETE/CONDENSE/DISSOLVE above. The page will look *emptier* after this commit �
 
 1. **Lifecycle** → `ProgressTracker` with `LIFECYCLE` (omit if the entity has no stages).
 2. **`PRIMARY_RECORDS`** → a `DetailSection` with the shared table (thumbnails if the
-   records have images; figures in mono, right-aligned; subtotal footer). Always visible.
+   records have images; figures tabular, right-aligned; subtotal footer). Always visible.
 3. **`BREAKDOWN`** → a `DetailSection` ruled money list (omit if none).
 4. **`SECONDARY_TABS`** → one `DetailSection "Mehr/More"` hosting a *small* tab group.
    The long logs/tracking tables live here, never at the top.
@@ -131,7 +131,7 @@ DELETE/CONDENSE/DISSOLVE above. The page will look *emptier* after this commit �
 
 - **Brand tokens** applied to `tokens.css` (`--primary` = the brand, e.g. hk-crm teal
   `187 100% 25%`). Without it every primary reads as default slate.
-- **Mono figures** — all money / IDs / dates through `font-mono tabular-nums`.
+- **Tabular figures** — all money / IDs / dates through `tabular-nums` in the house sans (ADR-0009).
 - **Semantic state** — negative/at-risk values in `destructive`, not brand color.
 
 ---
@@ -144,7 +144,7 @@ DELETE/CONDENSE/DISSOLVE above. The page will look *emptier* after this commit �
 - [ ] `PRIMARY_RECORDS` are visible without clicking a tab.
 - [ ] Actions = 1 primary + `⋯`.
 - [ ] `HEADLINE_FIGURES` are visible at a glance in the rail; the rest are behind a disclosure.
-- [ ] All figures render mono/tabular; primary color is the brand; negatives read `destructive`.
+- [ ] All figures render tabular; primary color is the brand; negatives read `destructive`.
 - [ ] No page-level padding outside the shell's `<main>`.
 - [ ] Every Phase-1 inventory row marked DELETE/DISSOLVE is actually gone from the DOM.
 

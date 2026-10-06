@@ -11,7 +11,7 @@ export type StatTileProps = {
   label: React.ReactNode;
   /**
    * Display value. Rendered at `text-display-stat` (34px, ADR-0007 §2) —
-   * the headline-figure step — `font-mono font-semibold tabular-nums`.
+   * the headline-figure step — `tabular-nums` at regular weight (ADR-0009).
    * When the underlying data is unavailable, pass the em-dash string `"—"` —
    * the primitive does NOT auto-render a placeholder for falsy values; the
    * consumer is in control.
@@ -53,7 +53,7 @@ export function StatTile({
   return (
     <div className={cn("px-5 py-4", className)}>
       <div className={OVERLINE_CLASS}>{label}</div>
-      <div className="mt-1.5 text-display-stat font-mono font-semibold leading-none text-foreground tabular-nums">
+      <div className="mt-1.5 text-display-stat leading-none text-foreground tabular-nums">
         {value}
       </div>
       {hint && (

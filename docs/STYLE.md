@@ -156,26 +156,28 @@ The baseline uses Tailwind's 4 px scale. A handful of values carry consistent *m
 
 ### Typography
 
-**House style B — "Plex Ledger" (2026-06-21).** The house face is **IBM Plex Sans**;
-all figures (money / IDs / quantities / dates) render `font-mono tabular-nums` in
-**IBM Plex Mono**. The house faces are registered as `--font-sans` / `--font-mono` in
+**House style B — "Ledger" (2026-06-21; face and figures per ADR-0009, 2026-10-06).**
+The house face is **Inter**, for prose and figures alike: all figures (money / IDs /
+quantities / dates) render `tabular-nums` at regular weight in the sans — aligned
+digits, no mono face, no figure weight. `--font-mono` is the system mono stack, for
+code only (JSON / config text, hex input). The house faces are registered as `--font-sans` / `--font-mono` in
 the donor-owned `tokens.layer.css` `@theme`. A project that loads its own faces (Next:
 `next/font/google`; Vite/gallery: a `<link>` in `index.html`) binds them with a `@theme`
 re-declaration in its brand `src/styles/tokens.css` — the commented FONT BINDING block —
 since a later `@theme` replaces the donor's `--font-*` rather than stacking; leaving it
 commented is what lets a donor-side face change reach the project on a version bump.
-Prose, labels, and names stay
-`font-sans`; only number cells go mono — the layout primitives (`StatTile`,
-`KeyValueRow`, `MetricRow`) already carry `font-mono` on their value, so consumers
-get it for free. The brand accent's *value* is **not** part of the house style — it
+Everything stays
+`font-sans`; number cells add `tabular-nums` — the layout primitives (`StatTile`,
+`KeyValueRow`, `MetricRow`, the shared table rows) already carry it on their value,
+so consumers get it for free. Never hand-write `font-mono` on a figure or an ID. The brand accent's *value* is **not** part of the house style — it
 stays each app's `--primary` override (the baseline default is a deep blue,
 `222 70% 42%` / dark `222 80% 68%`); its *placement* is fixed (ADR-0007 §4).
 
 **Ledger type scale.** House style B runs a tight scale — every step ~1–2px below
 a conventional UI: overlines `text-[10.5px]`, ledger
 body (`KeyValueRow`/`MetricRow`/embedded tables) `text-[13px]`, headline figures
-`text-base` (16px). Numbers stay mono; prose/notes keep `text-sm` for readability.
-This density is part of the Plex Ledger voice — apply the same step-down to new
+`text-base` (16px). Numbers stay tabular; prose/notes keep `text-sm` for readability.
+This density is part of the Ledger voice — apply the same step-down to new
 ledger surfaces rather than reaching for the default `text-sm`/`text-xs`. The page
 title is the one exception: it sits on its own **display step** (ADR-0007 §2),
 above this tight scale, so the page has a focal point — the rest of the ladder
@@ -256,7 +258,7 @@ Archetypes are optional — projects that don't want the page-shape vocabulary c
 | `PageFrame` | The **one page frame** (ADR-0008): `PageHeader` + one untitled `SurfaceFrame` whose first band holds `toolbar` / `count` / `viewOptions`. Every page archetype shell renders through it; nested inside another `PageFrame` it titles itself with `NestedPageHeading` and joins the parent surface. |
 | `SectionHeading` | Canonical **section** title — the "ledger" overline `<h2>` (`text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground`, i.e. `OVERLINE_CLASS`) + optional description / actions. The single source of sub-section title typography. Usually consumed via `SectionCard` (below); use it directly only for a bare heading with no bounding card. |
 | `SectionCard` | Canonical **titled bounded section** — a card with an optional ruled `SectionHeading` title bar (+ description / actions slot) and a flush-or-padded body, graded by `tone`. The single source of the "heading bound to its content as one block" shape. Composed by `DetailSection` (detail-overview), grouped-list groups, and form-page field groups. A section heading should never float as plain text above a detached card — wrap the block in `SectionCard`. `chrome={false}` renders it chromeless (title bar + padding, no border/shadow) for embedding inside an already-bounded surface (e.g. the detail-overview shell's rail). |
-| `StatTileRow` / `StatTile` | Canonical **KPI / aggregate strip** — one bounded surface with hairline-divided cells (`StatTile`: overline label + `text-display-stat font-mono tabular-nums` value + an optional context line — a comparison, period, or delta, ADR-0007 §6). Shared across archetypes: detail-overview's `stats` slot and the analytics-dashboard KPI row. (Re-exported from `@/components/archetypes/detail-overview` for back-compat.) |
+| `StatTileRow` / `StatTile` | Canonical **KPI / aggregate strip** — one bounded surface with hairline-divided cells (`StatTile`: overline label + `text-display-stat tabular-nums` value + an optional context line — a comparison, period, or delta, ADR-0007 §6). Shared across archetypes: detail-overview's `stats` slot and the analytics-dashboard KPI row. (Re-exported from `@/components/archetypes/detail-overview` for back-compat.) |
 | `ProgressTracker` | Canonical **horizontal lifecycle / pipeline stepper** — an ordered set of stages with one `current` marker and `done`/`pending` states (dot + connector per stage). Token-pure (`--primary` for done/current, `border`/`muted` for pending) so it re-skins with the fleet. Promoted rule-of-2 (order lifecycle + deal pipeline); used in the detail-overview `content` slot. Labels wrap inside their column; set `lang` on the tracker or an ancestor, else `hyphens-auto` does nothing. |
 | `MetricList` / `MetricRow` | Canonical **compact "figures at a glance" readout** — a ruled vertical list with an emphasized right-aligned `tabular-nums` value and an optional "show more" disclosure (`MetricList more={…}`) for secondary figures. Neither `StatTileRow` (horizontal, wants the main column) nor `KeyValueRow` (no value emphasis/collapse) — a third shape for the Command Rail `summary` slot (Revenue + Gross profit / Gesamtwert + ARR pinned, the rest behind the disclosure). |
 | `AuthCard` | Centered single-card shell for **off-app utility screens** — sign-in, not-authorized, generic error / 404. Title + optional icon/description + body (form/actions) + footer. A layout primitive (not a page archetype — these screens have no toolbar/data/list shape); render *outside* `AppShell`. |

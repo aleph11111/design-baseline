@@ -797,7 +797,7 @@ export function FormPageDemo(): React.ReactElement {
                       </Button>
                     </TableCell>
                     <TableCell>{CUISINE_LABELS[r.cuisine]}</TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">{r.serves}</TableCell>
+                    <TableCell className="text-right tabular-nums">{r.serves}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {r.tag || "—"}
                     </TableCell>

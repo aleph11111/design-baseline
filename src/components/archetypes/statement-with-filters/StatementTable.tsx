@@ -71,8 +71,8 @@ export type StatementRowProps = {
 
 /**
  * StatementRow — one hairline-divided row in a `<StatementTable>`. Numeric
- * cells are `font-mono tabular-nums`, right-aligned per house style B (the
- * terminal column is `font-semibold`) via the shared `FigureRow`; the label
+ * cells are `tabular-nums` in the house sans, right-aligned (the terminal
+ * column is promoted to `text-foreground`; ADR-0009) via the shared `FigureRow`; the label
  * stays sans. `section` rows render a spanning muted overline label (a
  * group/section header of a tree statement) with no figures.
  */

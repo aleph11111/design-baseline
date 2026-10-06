@@ -119,13 +119,14 @@ export type FigureRowProps = {
   labelClassName?: string;
   /**
    * Value cells, one per numeric column. Pre-formatted by the caller.
-   * `text-right font-mono text-[13px] tabular-nums text-muted-foreground`,
-   * with the terminal cell promoted to `font-semibold text-foreground`.
+   * `text-right text-[13px] tabular-nums text-muted-foreground`,
+   * with the terminal cell promoted to `text-foreground` (figures stay regular
+   * weight, ADR-0009).
    */
   cells: React.ReactNode[];
   /**
    * Per-cell emphasis (index-aligned with `cells`): `"strong"` renders
-   * `font-semibold text-foreground` — the totals-row treatment. The terminal
+   * `text-foreground` — the totals-row treatment (colour, not weight; ADR-0009). The terminal
    * cell is emphasized by default.
    */
   emphasis?: Array<Readonly<"default" | "strong">>;
@@ -166,10 +167,9 @@ export function FigureRow({
         <div
           key={i}
           className={cn(
-            "text-right font-mono text-[13px] tabular-nums text-muted-foreground",
+            "text-right text-[13px] tabular-nums text-muted-foreground",
             cellAlign?.[i] && alignClass[cellAlign[i]],
-            (emphasis?.[i] === "strong" || i === count - 1) &&
-              "font-semibold text-foreground",
+            (emphasis?.[i] === "strong" || i === count - 1) && "text-foreground",
           )}
         >
           {cell}
