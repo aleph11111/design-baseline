@@ -27,7 +27,7 @@ status: locked
 > defaults `flush` to `true` — keyed to the body's placement, not a look: it
 > makes the body's band and the table's flex-row wrapper (the row holding the
 > table and, with the split-pane variation, the pane) negate the tab panel's
-> horizontal inset, so the band's ruled line, the table, and the pane sit at
+> horizontal inset (and the body its top inset), so the band's ruled line, the table, and the pane sit at
 > the surface edge exactly as on a standalone page while the tab panel keeps
 > its pad for every other body. The bleed never sits on the table scroll
 > region itself — that is a `flex-1` sibling of the pane, and a negative
@@ -228,7 +228,7 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
   placement decision: `true` (default — the body IS the direct content of a
   tab) makes the band and the table's flex-row wrapper (the row holding the
   table and, with the split-pane variation, the pane) negate the tab panel's
-  horizontal inset, so the band's ruled line, the table's edges, and the
+  horizontal inset (and the body its top inset), so the band's ruled line, the table's edges, and the
   pane's outer edge sit at the surface edge exactly where a standalone D2
   page's do; `false` where the body sits inside a frame that owns the page's
   edges without horizontal padding (a `PageFrame` surface never pads its

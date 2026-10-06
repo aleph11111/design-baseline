@@ -178,7 +178,8 @@ export type SettingsTableBodyProps<Row> = {
    * tab-content placement): the body's flush band and the table row wrapper
    * (the flex row holding the table and, with `editPane`, the pane) negate the
    * surrounding container's horizontal inset (`-mx-5` against the
-   * `SettingsPageShell` F2 tab panel's `p-5`), so the band's ruled line, the
+   * `SettingsPageShell` F2 tab panel's `p-5`), and the body's outer wrapper
+   * negates its top inset (`-mt-5`), so the band's ruled line, the
    * table's edges, and the pane's outer edge sit at the surface edge exactly
    * where a standalone page's do — the panel keeps its pad for every other
    * body, and only this body bleeds out of it. The bleed never goes on the
@@ -325,7 +326,7 @@ function resolveCountLabel<Row>({
   onBulkDelete?: (rows: Row[]) => void;
 }): string | undefined {
   const { visibleSelected, hasBulkSelection } = selection;
-  const showBulkActions = hasBulkSelection && (bulkActions != null || onBulkDelete != null);
+  const showBulkActions = hasBulkSelection && (Boolean(bulkActions) || onBulkDelete != null);
   if (showBulkActions) {
     return (labels?.selectedCount ?? DEFAULT_SETTINGS_TABLE_LABELS.selectedCount)(
       visibleSelected.length,
@@ -382,7 +383,7 @@ function resolveBulkActions<Row>({
   onBulkDelete?: (rows: Row[]) => void;
   onBulkSelectChange?: (selectedIds: string[]) => void;
 }): { show: boolean; node: React.ReactNode } {
-  const show = selection.hasBulkSelection && (bulkActions != null || onBulkDelete != null);
+  const show = selection.hasBulkSelection && (Boolean(bulkActions) || onBulkDelete != null);
   if (!show) return { show: false, node: null };
   const deleteSelected = labels?.deleteSelected ?? DEFAULT_SETTINGS_TABLE_LABELS.deleteSelected;
   const handleBulkDelete = () => {
@@ -676,7 +677,10 @@ export function SettingsTableBody<Row>({
   ) : null;
 
   return (
-    <div>
+    // `-mt-5` pulls the body's first child (the band, or the table when there
+    // is no band) up through the panel's top `p-5`, so the tab body starts at
+    // the tab strip's ruled line — the vertical half of the same bleed.
+    <div className={flushEnabled ? "-mt-5" : undefined}>
       {band}
       {/* One surface, always. With `editPane` the body splits into two panes
           (Layer 5, ADR-0008 §3): the table and the consumer's persistent edit

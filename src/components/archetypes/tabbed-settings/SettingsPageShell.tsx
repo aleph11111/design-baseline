@@ -76,8 +76,8 @@ export function SettingsPageShell({
         >
           {/* Pad the panel; an edge-to-edge tab body bleeds out of it itself:
               the frameless D2 `SettingsTableBody` passes `flush` so its band
-              and its flex-row wrapper negate the panel's horizontal pad and
-              run at the surface edge, exactly as on a standalone page (a
+              and its flex-row wrapper negate the panel's horizontal pad (its outer
+              wrapper the top pad) and run at the surface edge, exactly as on a standalone page (a
               surface frame never pads its body, ADR-0008). Every other body
               sits in the `p-5` pad. */}
           <div data-slot="settings-page-tab-panel" className="p-5">

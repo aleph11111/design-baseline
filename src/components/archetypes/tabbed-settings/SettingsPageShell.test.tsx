@@ -148,6 +148,17 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     ).parentElement as HTMLElement;
     expect(rowWrapper.className).toContain("flex");
     expect(rowWrapper.className).toContain("-mx-5");
+    // Flush on top too: the band is the first child of the body's outer
+    // wrapper, which negates the panel's top `p-5` — so the band starts at the
+    // tab strip's ruled line, not 20px below it.
+    const bodyRoot = band.parentElement as HTMLElement;
+    expect(bodyRoot.firstElementChild).toBe(band);
+    expect(bodyRoot.className).toContain("-mt-5");
+    // Between the body and the panel sits only the tab content node; it must
+    // carry no top pad or border, or the negative margin would stop at it.
+    const tabContent = bodyRoot.parentElement as HTMLElement;
+    expect(tabContent.parentElement).toBe(panel);
+    expect(tabContent.className).not.toMatch(/(^|\s)(p|pt|py)-\d|(^|\s)border/);
   });
 
   it("a frameless SettingsTableBody with an editPane bleeds through the row wrapper, never through the flex-1 table region", () => {
@@ -255,6 +266,13 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     // assertion cannot be fooled: flipping `hasBandControls` to always-true would
     // render an empty band and fail here.
     expect(container.querySelector('[data-slot="settings-table-band"]')).toBeNull();
+    // With no band the table row is the body's first child, and the outer
+    // wrapper still bleeds through the panel's top pad.
+    const rowWrapper = (container.querySelector(".overflow-x-auto") as HTMLElement)
+      .parentElement as HTMLElement;
+    const bodyRoot = rowWrapper.parentElement as HTMLElement;
+    expect(bodyRoot.firstElementChild).toBe(rowWrapper);
+    expect(bodyRoot.className).toContain("-mt-5");
   });
 });
 
