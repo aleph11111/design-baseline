@@ -5,7 +5,7 @@ import { useFullBleedClass } from "../../layout/surface";
 
 export type BoardShellProps = Pick<
   PageFrameProps,
-  "title" | "subtitle" | "badges" | "actions" | "toolbar"
+  "title" | "subtitle" | "badges" | "actions" | "toolbar" | "count" | "viewOptions" | "viewOptionsLabel"
 > & {
   /** `<BoardColumn>` children, laid out as a horizontally-scrolling row. */
   children: React.ReactNode;

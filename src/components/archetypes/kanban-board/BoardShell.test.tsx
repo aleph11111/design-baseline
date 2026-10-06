@@ -25,3 +25,15 @@ describe("BoardShell — page frame (ADR-0008)", () => {
     expect(container.querySelectorAll(".bg-surface-raised")).toHaveLength(1);
   });
 });
+
+describe("BoardShell — viewOptions", () => {
+  it("forwards viewOptions, label and count to the toolbar band", () => {
+    render(
+      <BoardShell title="B" count="3 cards" viewOptions={<div />} viewOptionsLabel="Ansicht">
+        <BoardColumn title="To do" />
+      </BoardShell>,
+    );
+    expect(screen.getByText("3 cards")).toBeTruthy();
+    expect(screen.getByText("Ansicht")).toBeTruthy();
+  });
+});

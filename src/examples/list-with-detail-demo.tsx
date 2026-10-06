@@ -308,14 +308,6 @@ export function ListWithDetailDemo() {
             surfaces — table, card grid, stacked action row — render
             side-by-side so the demo is self-evident in the gallery.
           </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <SegmentedControl
-              aria-label="State"
-              value={state}
-              onValueChange={(v) => setState(v as (typeof STATES)[number])}
-              options={STATES.map((s) => ({ value: s, label: s }))}
-            />
-          </div>
         </header>
 
         <div className="space-y-4">
@@ -410,6 +402,14 @@ export function ListWithDetailDemo() {
                     isEmpty
                       ? undefined
                       : `${panel.rows.length} ${panel.rows.length === 1 ? "result" : "results"}`
+                  }
+                  viewOptions={
+                    <SegmentedControl
+                      aria-label="State"
+                      value={state}
+                      onValueChange={(v) => setState(v as (typeof STATES)[number])}
+                      options={STATES.map((s) => ({ value: s, label: s }))}
+                    />
                   }
                   {...shellProps}
                   rows={isEmpty ? [] : panel.rows}

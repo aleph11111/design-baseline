@@ -118,15 +118,6 @@ export function KanbanBoardDemo(): React.ReactElement {
           cards; <code>BoardShell</code>/<code>BoardColumn</code> have no
           loading prop of their own.
         </p>
-        <SegmentedControl
-          aria-label="Board state"
-          value={state}
-          onValueChange={setState}
-          options={[
-            { value: "Loaded", label: "Loaded" },
-            { value: "Loading", label: "Loading" },
-          ]}
-        />
       </div>
 
       {/* ADR-0008 page frame: the title is the page h1; Add card is the header
@@ -138,6 +129,17 @@ export function KanbanBoardDemo(): React.ReactElement {
             <Plus className="mr-1 h-4 w-4" />
             Add card
           </Button>
+        }
+        viewOptions={
+          <SegmentedControl
+            aria-label="Board state"
+            value={state}
+            onValueChange={setState}
+            options={[
+              { value: "Loaded", label: "Loaded" },
+              { value: "Loading", label: "Loading" },
+            ]}
+          />
         }
         toolbar={
           <div className="flex flex-wrap items-center gap-2">

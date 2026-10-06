@@ -354,3 +354,11 @@ mechanize:
 The ad-hoc-error-color candidate came off this ledger when `literal-color` shipped: the class ban
 (`bg-red-50` and every other palette literal) is mechanized now, but *which* of the two canonical
 error treatments a page uses (Alert shell vs. tinted box) stays a gate-4 judgment.
+
+**Ceiling — `Pick<PageFrameProps, …>`-level slot drops.** `archetype-swallowed-pageframe-slot` only sees a slot
+destructured beside `...rest` and never referenced. A shell that omits `viewOptions` / `viewOptionsLabel` / `count`
+from its `Pick` has no destructure to flag, and whether the omission is deliberate lives in the archetype's prose
+contract (e.g. `detail-overview.md`, `report.md`) — a boundary a zero-dep single-line scanner cannot see (ADR-0003).
+Audited at v0.5.x: list-with-detail and kanban-board fixed; statement-with-filters already forwards them; detail-overview
+and report omit by contract; matrix-grid/feed/calendar/dashboard/grouped-list/settings-table contracts do not claim
+`viewOptions`, left unchanged.

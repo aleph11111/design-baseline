@@ -365,3 +365,20 @@ describe("ListWithDetailShell sort header", () => {
     expect(onSortChange).toHaveBeenCalledWith("name", "desc");
   });
 });
+
+describe("ListWithDetailShell — viewOptions", () => {
+  it("forwards viewOptions and its label to the toolbar band", () => {
+    render(
+      <ListWithDetailShell
+        title="T"
+        rows={rows}
+        columns={columns}
+        getRowId={(r) => r.id}
+        count="1 result"
+        viewOptions={<div />}
+        viewOptionsLabel="Ansicht"
+      />,
+    );
+    expect(screen.getByText("Ansicht")).toBeTruthy();
+  });
+});
