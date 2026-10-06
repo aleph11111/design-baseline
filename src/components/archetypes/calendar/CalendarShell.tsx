@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
 import { COL_HEADER_CLASS } from "../../layout/overline";
 import { cn } from "../../../lib/utils";
@@ -54,10 +54,7 @@ export type CalendarDay = {
   events: CalendarEvent[];
 };
 
-export type CalendarShellProps = Pick<
-  PageFrameProps,
-  "title" | "subtitle" | "badges" | "actions" | "toolbar"
-> & {
+export type CalendarShellProps = PageShellFrameProps & {
   /** The seven day columns in display order. */
   days: CalendarDay[];
   /** Empty-column copy, centred faintly when a day has no events. Default: none. */
@@ -114,22 +111,14 @@ const TONE_CLASS: Record<CalendarEventTone, ToneClasses> = {
  * exposes no `onClick` on day cells or event chips.
  */
 export function CalendarShell({
-  title,
-  subtitle,
-  badges,
-  actions,
-  toolbar,
   days,
   emptyDayLabel,
+  ...frame
 }: CalendarShellProps): React.ReactElement {
   const fullBleed = useFullBleedClass();
   return (
     <PageFrame
-      title={title}
-      subtitle={subtitle}
-      badges={badges}
-      actions={actions}
-      toolbar={toolbar}
+      {...frame}
       // Full-bleed archetype (ADR-0007 §1): the marker lifts AppShell's column
       // (page root only; nested in a surface it leaves the column alone).
       className={fullBleed}

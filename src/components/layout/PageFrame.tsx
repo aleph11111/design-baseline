@@ -99,6 +99,17 @@ export type PageFrameProps = {
 };
 
 /**
+ * The `PageFrame` slots a full-frame page shell takes and forwards: every slot
+ * except the body, the structural root class, and the back-link/icon header
+ * chrome (detail and form pages pick those by contract). An `Omit`, not a
+ * `Pick`, so a new `PageFrame` slot reaches every shell built from it.
+ */
+export type PageShellFrameProps = Omit<
+  PageFrameProps,
+  "children" | "className" | "icon" | "backHref" | "backLabel" | "renderBackLink"
+>;
+
+/**
  * PageFrame — the one way a page is built (ADR-0008): the `PageHeader` on the
  * canvas, then one untitled raised surface whose first band is the toolbar,
  * then the body. Every page archetype shell renders through it, so the title

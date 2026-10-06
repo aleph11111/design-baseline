@@ -1,22 +1,8 @@
 "use client";
 import * as React from "react";
-import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
 
-export type StatementWithFiltersShellProps = Pick<
-  PageFrameProps,
-  | "title"
-  | "subtitle"
-  | "badges"
-  | "actions"
-  | "toolbar"
-  | "viewSwitch"
-  | "filterCount"
-  | "filterSummary"
-  | "onResetFilters"
-  | "filterLabels"
-  | "viewOptions"
-  | "viewOptionsLabel"
-> & {
+export type StatementWithFiltersShellProps = PageShellFrameProps & {
   /**
    * The governed statement body — the read-only comparison/report table. The
    * shell pads it and wraps it in a horizontal scroll region so wide

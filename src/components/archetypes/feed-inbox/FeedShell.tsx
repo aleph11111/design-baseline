@@ -1,5 +1,5 @@
 import * as React from "react";
-import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
 
 export type FeedBodyProps = {
   /**
@@ -28,11 +28,7 @@ export function FeedBody({
 
 FeedBody.displayName = "FeedBody";
 
-export type FeedShellProps = FeedBodyProps &
-  Pick<
-    PageFrameProps,
-    "title" | "subtitle" | "badges" | "actions" | "toolbar" | "count"
-  >;
+export type FeedShellProps = FeedBodyProps & PageShellFrameProps;
 
 /**
  * FeedShell — the page (ADR-0008) for a feed/inbox (H) surface: a chronological
@@ -47,22 +43,10 @@ export type FeedShellProps = FeedBodyProps &
 export function FeedShell({
   children,
   empty,
-  title,
-  subtitle,
-  badges,
-  actions,
-  toolbar,
-  count,
+  ...frame
 }: FeedShellProps): React.ReactElement {
   return (
-    <PageFrame
-      title={title}
-      subtitle={subtitle}
-      badges={badges}
-      actions={actions}
-      toolbar={toolbar}
-      count={count}
-    >
+    <PageFrame {...frame}>
       <FeedBody empty={empty}>{children}</FeedBody>
     </PageFrame>
   );

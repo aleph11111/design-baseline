@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
 import { cn } from "../../../lib/utils";
 import { MatrixCell } from "./MatrixCell";
@@ -73,7 +73,7 @@ export type MatrixGridShellProps<Cell> = {
    * show (e.g. an as-of control remains usable when the current date has no rows).
    */
   emptyState?: React.ReactNode;
-} & Pick<PageFrameProps, "title" | "subtitle" | "badges" | "actions" | "toolbar" | "count">;
+} & PageShellFrameProps;
 // `actions` = verbs on the whole grid (export CSV, bulk actions);
 // `toolbar` = what scopes it (an as-of date / period, filters); `count` = rows.
 

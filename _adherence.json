@@ -191,7 +191,13 @@
         "actions",
         "toolbar",
         "count",
-        "viewOptions"
+        "viewSwitch",
+        "filterCount",
+        "filterSummary",
+        "onResetFilters",
+        "filterLabels",
+        "viewOptions",
+        "viewOptionsLabel"
       ],
       "severity": "error",
       "include": "src/components/archetypes/**",

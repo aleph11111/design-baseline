@@ -1,15 +1,12 @@
 "use client";
 import * as React from "react";
-import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
 
 // ---------------------------------------------------------------------------
 // Public types
 // ---------------------------------------------------------------------------
 
-export type DashboardShellProps = Pick<
-  PageFrameProps,
-  "title" | "subtitle" | "badges" | "actions" | "toolbar"
-> & {
+export type DashboardShellProps = PageShellFrameProps & {
   /**
    * The dashboard body — a `<StatTileRow>` of KPI tiles, then a
    * `<DashboardGrid>` of widgets. Both render as hairline-divided cells inside

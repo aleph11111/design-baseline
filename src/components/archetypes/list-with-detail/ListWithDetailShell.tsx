@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../../ui/sheet";
-import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
 import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
 import {
@@ -106,11 +106,7 @@ export type ListWithDetailBodyProps<Row> = {
  * `<ListWithDetailToolbar>`) and `count` (the result count) in the frame's
  * toolbar band; the list body inside the page's one surface.
  */
-export type ListWithDetailShellProps<Row> = Pick<
-  PageFrameProps,
-  "title" | "subtitle" | "badges" | "actions" | "toolbar" | "count" | "viewOptions" | "viewOptionsLabel"
-> &
-  ListWithDetailBodyProps<Row>;
+export type ListWithDetailShellProps<Row> = PageShellFrameProps & ListWithDetailBodyProps<Row>;
 
 // ---------------------------------------------------------------------------
 // Component
@@ -123,6 +119,11 @@ export function ListWithDetailShell<Row>({
   actions,
   toolbar,
   count,
+  viewSwitch,
+  filterCount,
+  filterSummary,
+  onResetFilters,
+  filterLabels,
   viewOptions,
   viewOptionsLabel,
   ...body
@@ -138,6 +139,11 @@ export function ListWithDetailShell<Row>({
       actions={actions}
       toolbar={toolbar}
       count={count}
+      viewSwitch={viewSwitch}
+      filterCount={filterCount}
+      filterSummary={filterSummary}
+      onResetFilters={onResetFilters}
+      filterLabels={filterLabels}
       viewOptions={viewOptions}
       viewOptionsLabel={viewOptionsLabel}
       className={fullBleed}

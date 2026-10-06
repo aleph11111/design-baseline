@@ -1,17 +1,14 @@
 "use client";
 import * as React from "react";
 import { ListStateView, resolveListState, type ListStateLabels } from "../shared";
-import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
 
 // The shared renderer's own labels type — one owner of the key set, so the
 // three list shells' `labels` props can't drift. Re-exported under the shell's
 // name for existing import sites.
 export type GroupedListShellLabels = ListStateLabels;
 
-export type GroupedListShellProps = Pick<
-  PageFrameProps,
-  "title" | "subtitle" | "badges" | "actions" | "toolbar"
-> & {
+export type GroupedListShellProps = PageShellFrameProps & {
   /** True while the initial fetch is in flight. */
   isLoading?: boolean;
   /** Fetch error; null/undefined when healthy. */
