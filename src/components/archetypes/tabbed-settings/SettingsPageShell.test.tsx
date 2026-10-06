@@ -141,10 +141,62 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     const panel = node as Element;
     expect(panel.getAttribute("data-slot")).toBe("settings-page-tab-panel");
     expect(panel.className).toContain("p-5");
-    // The table's scroll region bleeds with the band, so the table's edges
-    // sit at the surface edge too.
+    // The bleed is on the band AND the table row wrapper (the flex row), so
+    // the table's edges sit at the surface edge too.
+    const rowWrapper = (
+      container.querySelector(".overflow-x-auto") as HTMLElement
+    ).parentElement as HTMLElement;
+    expect(rowWrapper.className).toContain("flex");
+    expect(rowWrapper.className).toContain("-mx-5");
+  });
+
+  it("a frameless SettingsTableBody with an editPane bleeds through the row wrapper, never through the flex-1 table region", () => {
+    const { container } = render(
+      <SettingsPageShell
+        title="Workspace"
+        tabs={[
+          {
+            value: "distribution",
+            label: "Distribution",
+            content: (
+              <SettingsTableBody
+                rows={CHANNEL_ROWS}
+                columns={CHANNEL_COLUMNS}
+                getRowId={(c) => c.id}
+                rowLabel="channels"
+                onAddNew={() => undefined}
+                addNewLabel="Add channel"
+                editPane={
+                  <form aria-label="Edit channel">
+                    <input aria-label="Name" />
+                  </form>
+                }
+              />
+            ),
+          },
+        ]}
+      />,
+    );
+
+    // The pane is present — the split-pane variation also applies to the
+    // frameless body…
+    const pane = screen.getByRole("form", { name: "Edit channel" }).parentElement as HTMLElement;
+    expect(pane.className).toContain("md:border-l");
+    // …and the bleed lands on the band and on the row wrapper (the edge
+    // containers without flex siblings).
+    const band = container.querySelector('[data-slot="settings-table-band"]') as HTMLElement;
+    expect(band.className).toContain("-mx-5");
     const tableRegion = container.querySelector(".overflow-x-auto") as HTMLElement;
-    expect(tableRegion.className).toContain("-mx-5");
+    const rowWrapper = tableRegion.parentElement as HTMLElement;
+    expect(rowWrapper.className).toContain("-mx-5");
+    // …never on the table region itself: it is a `flex-1` item beside the
+    // pane, and a negative margin on a flex item adds 40px of free space the
+    // item absorbs — the table would grow 40px wide and paint over the pane's
+    // hairline, leaving the pane's outer edge 20px short of the band's.
+    expect(tableRegion.className).not.toContain("-mx-5");
+    // No heading regression from the pane.
+    expect(container.querySelectorAll("h1")).toHaveLength(1);
+    expect(container.querySelectorAll("h2")).toHaveLength(0);
   });
 
   it("a bulk-selectable SettingsTableBody in a tab shows the selection count + delete in the band, no h2", () => {

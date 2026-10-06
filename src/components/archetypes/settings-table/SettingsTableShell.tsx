@@ -175,16 +175,20 @@ export type SettingsTableBodyProps<Row> = {
   band?: boolean;
   /**
    * Run the body's chrome at the container's edge (default `true` — direct
-   * tab-content placement): the body's flush band and its table scroll region
-   * negate the surrounding container's horizontal inset (`-mx-5` against the
-   * `SettingsPageShell` F2 tab panel's `p-5`), so the band's ruled line and
-   * the table edges sit at the surface edge exactly where a standalone page's
-   * do — the panel keeps its pad for every other body, and only this body
-   * bleeds out of it. Pass `false` when the body sits inside a frame that
-   * owns the page's edges without horizontal padding (a `PageFrame` surface /
-   * `SurfaceFrame` never pads its body, so there is no inset to bleed from
-   * and the no-op is explicit) or inside an outer element carrying a
-   * different horizontal inset.
+   * tab-content placement): the body's flush band and the table row wrapper
+   * (the flex row holding the table and, with `editPane`, the pane) negate the
+   * surrounding container's horizontal inset (`-mx-5` against the
+   * `SettingsPageShell` F2 tab panel's `p-5`), so the band's ruled line, the
+   * table's edges, and the pane's outer edge sit at the surface edge exactly
+   * where a standalone page's do — the panel keeps its pad for every other
+   * body, and only this body bleeds out of it. The bleed never goes on the
+   * table scroll region itself: that is a `flex-1` sibling of the `editPane`,
+   * and a negative margin on a flex item adds free space the item absorbs (the
+   * table would grow 40px and paint over the pane's hairline). Pass `false`
+   * when the body sits inside a frame that owns the page's edges without
+   * horizontal padding (a `PageFrame` surface / `SurfaceFrame` never pads its
+   * body, so there is no inset to bleed from and the no-op is explicit) or
+   * inside an outer element carrying a different horizontal inset.
    */
   flush?: boolean;
   /**
@@ -642,7 +646,11 @@ export function SettingsTableBody<Row>({
   // tab panel's `p-5` so the body's chrome runs at the surface edge. A dynamic
   // `${flush ? "-mx-5" : ""}` would not be greppable (lint requires the class to
   // exist in source), so the literal stays and the prop only switches whether
-  // a container carries it.
+  // a container carries it. It goes on the band and on the flex wrapper —
+  // never on the table region, which is a `flex-1` SIBLING of the `editPane`:
+  // a negative margin on a flex item adds free space that item absorbs, so
+  // the table would grow 40px wide and paint over the pane's hairline — the
+  // wrapper has no siblings, so the bleed lands exactly on the surface edge.
   const bleed = flushEnabled ? "-mx-5" : "";
   const band = bandEnabled && hasBandControls ? (
     <div data-slot="settings-table-band" className={cn("border-b px-4 py-3", bleed)}>
@@ -669,11 +677,13 @@ export function SettingsTableBody<Row>({
           form, divided by the frame's hairline at `md` and up — never a second
           raised surface. Below `md` the pane is out of the frame and the
           click-contract edit dialog (Layer 11) is the mobile editing surface. */}
-      <div className="flex">
+      <div className={cn("flex", bleed)}>
         {/* The table scroll region below (clipped) the band so the table scrolls
-            beneath the band, not the surface itself. It bleeds with the band so
-            the table's edges sit at the same offset as the band's. */}
-        <div className={cn("relative min-w-0 flex-1 overflow-x-auto", bleed)}>
+            beneath the band, not the surface itself. No bleed here: this is a
+            flex-1 ITEM beside the `editPane`, and a negative margin on an item
+            adds free space that item absorbs (the table would grow 40px and
+            paint over the pane's hairline) — the wrapper carries the bleed. */}
+        <div className="relative min-w-0 flex-1 overflow-x-auto">
           {listStatePlane}
           {tableContent}
         </div>
