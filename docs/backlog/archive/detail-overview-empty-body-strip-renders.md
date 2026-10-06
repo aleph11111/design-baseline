@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-10-06
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "scoped conditional render in one component plus tests; cause established by reading the shell"
