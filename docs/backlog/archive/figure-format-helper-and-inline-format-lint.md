@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-10-06'
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "contract decided in this ticket; helper + demo migration + one adherence rule follow existing lib/utils and _adherence.json patterns"

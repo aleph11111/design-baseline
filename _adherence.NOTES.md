@@ -34,6 +34,33 @@ declaration:
 Case-sensitive matching is what keeps them usable: `<Table>` and `<Button>` (the DS primitives)
 never match, so only the lowercase HTML elements are flagged.
 
+### The figure rule — `no-inline-number-format`
+
+The fourth `pattern` rule, and the only one **not** ported from `docs/audit-signals.json` (the
+three above are the conformance signals kept in sync with the fleet scan). It is the mechanical
+half of the figure rule `docs/STYLE.md` "Figures" states (ADR-0009 owns how a figure *looks*;
+this owns what it *says*): a figure *value* is formatted by `formatFigure` from
+`design-baseline/lib/format` — never by an inline formatter per call site. Before the helper, the
+donor's own demos and six consumer call sites each built their own `new Intl.NumberFormat("de-DE")`
+/ `.toLocaleString("de-DE")` / `.toFixed(1) + "%"`, so two value scales (percent points vs
+fractions) coexisted with no type telling them apart and a ratio that lost its flag shipped quotas
+as money. The rule is the drain that keeps a figure routed through the one formatter.
+
+| id | shape caught | include |
+|---|---|---|
+| `no-inline-number-format` | an inline figure formatter — `new Intl.NumberFormat`, `.toLocaleString(`, or a `.toFixed(` whose same line also carries a `%` (the inline-percent smell) | *(unscoped)* with `exclude` |
+
+Severity is `warn` at rollout; flip to `error` per the ADR-0003 ratchet once the class is clean.
+Two `exclude` entries keep the rule honest: `src/lib/format.ts` (the one formatter legitimately
+builds `Intl.NumberFormat`s — the formatter must not flag itself) and `**/*.test.*` (test fixtures
+model the banned shape as a negative example — a content lookbehind can't see the filename, so the
+path `exclude` is the right mechanism). The `.toLocaleString(` and `new Intl.NumberFormat`
+alternatives match bare; the `.toFixed(` alternative only fires when the same line also carries a
+`%`, which is what leaves a file-size label (`file-field.tsx`'s `KB` / `MB` `toFixed`, no `%`) out
+of scope — a file-size measurement is not a figure. A consumer carries this rule by copying
+`_adherence.json` (it ships with the package), so the figure rule travels in the same gate-2 stack
+as the three audit-signals rules.
+
 A rule may also carry an optional `include` glob (repo-root-relative), restricting it to that path
 set — matched by stdlib `path.matchesGlob` (Node >= 22): `**` spans any run of directory segments,
 `*` matches within one. This is what lets a rule

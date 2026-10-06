@@ -96,6 +96,25 @@ describe("lint-design CLI", () => {
     }
   });
 
+  it("no-inline-number-format: zero hits across the donor's src/ (acceptance A2, machine-verified)", () => {
+    // Acceptance A2 — "node scripts/lint-design.mjs reports zero
+    // no-inline-number-format hits under src/". The donor has no runtime CI to
+    // assert that from a PR diff, so it is pinned here as code: run the
+    // SHIPPED scanner against the DONOR's own src/ (--json from the donor root
+    // walks targets ["src"]) and count the rule's violations directly.
+    const { status, stdout } = run("--json");
+    expect(status).toBe(0); // a clean `src/` never carries an `error` hit (warn tier)
+    const report = JSON.parse(stdout);
+    // Non-vacuity guard (ADR-0005's "no vacuous gate" class): the rule must
+    // actually be LIVE and scanning, not silently excluded. A scoped rule whose
+    // live scope is 0 means its include/exclude is accidentally disarmed —
+    // the `src/lib/format.ts` exclude and the `**/*.test.*` fixtures.
+    const scope = report.ruleScopes.find((r) => r.rule === "no-inline-number-format");
+    expect(scope, "the rule must be compiled and present in the live scan").toBeTruthy();
+    expect(scope.files).toBeGreaterThan(0);
+    expect(report.violations.filter((v) => v.rule === "no-inline-number-format")).toHaveLength(0);
+  });
+
   it("exits 2 with a `CompileError` when a rule's `include` globs are all unreachable under the targets", () => {
     // The ratchet's forbidden failure mode no longer fails open: an include that omits
     // the configured `targets` prefix (here a `src/...`-shaped glob under the fixture's
@@ -1268,6 +1287,86 @@ describe("residual appearance prop in a closed archetype folder (the allowlist g
     };
     const { status } = runFilesFixture([rule], files);
     expect(status).toBe(0);
+  });
+});
+
+describe("the `no-inline-number-format` figure rule", () => {
+  // The rule a figure-formatting ticket ships (and the acceptance that pins it):
+  // an inline `Intl.NumberFormat` / `.toLocaleString(` / `toFixed(…) + "%"` figure
+  // formatter is a hit; the one formatter (`src/lib/format.ts`) is excluded; a
+  // %-free `toFixed` (a file-size label, not a figure) is out of scope. The rule is
+  // loaded from the shipped `_adherence.json` so the test and the rule can't drift.
+  const rule = JSON.parse(readFileSync(join(root, "_adherence.json"), "utf8")).rules.find(
+    (r) => r.id === "no-inline-number-format",
+  );
+
+  it("fires on a fixture containing `(v * 100).toFixed(1) + \"%\"`", () => {
+    // The exact consuming bug the ticket cites (a percentage built with `toFixed`
+    // and a string `\"%\"`, the dot-decimal / no-break-space loss the helper fixes).
+    const files = {
+      "src/features/MarginChart.tsx":
+        "export function margin(v: number): string {\n  return (v * 100).toFixed(1) + \"%\";\n}\n",
+    };
+    const { stdout } = runFilesFixture([rule], files, "--json");
+    const vs = JSON.parse(stdout).violations;
+    expect(vs).toHaveLength(1);
+    expect(vs[0].file).toBe("src/features/MarginChart.tsx");
+    expect(vs[0].line).toBe(2); // the `.toFixed(1) + \"%\"` line
+  });
+
+  it("fires on `new Intl.NumberFormat(\"de-DE\")`", () => {
+    const files = {
+      "src/features/utils.ts":
+        "export function fmtEUR(n: number): string {\n  return new Intl.NumberFormat(\"de-DE\", { style: \"currency\", currency: \"EUR\" }).format(n);\n}\n",
+    };
+    const { stdout } = runFilesFixture([rule], files, "--json");
+    const vs = JSON.parse(stdout).violations;
+    expect(vs).toHaveLength(1);
+    expect(vs[0].line).toBe(2);
+  });
+
+  it("fires on `.toLocaleString(", () => {
+    const files = {
+      "src/features/Kpi.tsx":
+        "const label = (n: number) => n.toLocaleString(\"de-DE\");\n",
+    };
+    const { stdout } = runFilesFixture([rule], files, "--json");
+    const vs = JSON.parse(stdout).violations;
+    expect(vs).toHaveLength(1);
+    expect(vs[0].line).toBe(1);
+  });
+
+  it("stays silent on `src/lib/format.ts` (the formatter's own `Intl.NumberFormat` calls)", () => {
+    // `src/lib/format.ts` is the one figure formatter and legitimately builds its
+    // `Intl.NumberFormat`s — the rule's `exclude` keeps itself out of its own source.
+    const files = {
+      "src/lib/format.ts":
+        "export function formatFigure(value: number): string {\n  return new Intl.NumberFormat(\"de-DE\").format(value);\n}\n",
+    };
+    const { stdout, status } = runFilesFixture([rule], files, "--json");
+    expect(JSON.parse(stdout).violations).toHaveLength(0); // the formatter itself is clean
+    expect(status).toBe(0);
+  });
+
+  it("stays silent on a %-free `.toFixed(` (a file-size label, not a figure)", () => {
+    // `file-field.tsx`'s `KB`/`MB` labels `toFixed` without a `%` — a non-figure
+    // measurement, so the %-smell rule leaves it out (the `.toFixed(` alternative
+    // only fires when the same line also carries a `%`).
+    const files = {
+      "src/components/ui/file-field.tsx":
+        "export function size(kb: number): string {\n  if (kb < 1024) return `${kb.toFixed(1)} KB`;\n  return `${(kb / 1024).toFixed(1)} MB`;\n}\n",
+    };
+    const { stdout } = runFilesFixture([rule], files, "--json");
+    expect(JSON.parse(stdout).violations).toHaveLength(0);
+  });
+
+  it("is `warn` at rollout (a firing hit does not break CI until flipped to `error`)", () => {
+    // The rule as shipped is `warn` (the ratchet's rollout tier) — a live hit must exit
+    // 0, so the donor's own scan and a consumer's gate stay green while the class drains.
+    const { status } = runFilesFixture([rule], {
+      "src/features/Pct.tsx": "const p = (v: number) => (v * 100).toFixed(1) + \"%\";\n",
+    });
+    expect(status).toBe(0); // warn severity → exit 0
   });
 });
 

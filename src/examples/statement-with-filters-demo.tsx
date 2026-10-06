@@ -29,6 +29,7 @@ import {
   StatementTotalRow,
 } from "@/components/archetypes/statement-with-filters";
 import { Button } from "@/components/ui/button";
+import { formatFigure } from "@/lib/format";
 import {
   Select,
   SelectContent,
@@ -92,7 +93,11 @@ function computeStatement({ scenario, year, structure }: Tuple): {
   );
   const result = { cur: sum(lines, "cur"), prior: sum(lines, "prior") };
   const [rev] = sections;
-  const pct = (a: number, b: number) => `${((a / b) * 100).toFixed(1)} %`;
+  // margin is a 0–1 ratio (result / revenue) — the `fraction` kind, one decimal
+  // (the house scale), no-break space before %. Replaces the inline string-built
+  // percent the reference code used to model (dot decimal, no-break space
+  // dropped) — figures go through the one formatter.
+  const pct = (a: number, b: number) => formatFigure(a / b, "fraction");
   return {
     rows,
     result,
@@ -116,11 +121,12 @@ export function StatementWithFiltersDemo(): React.ReactElement {
   const [showZero, setShowZero] = React.useState(false);
 
   const { rows, result, kpis } = React.useMemo(() => computeStatement(tuple), [tuple]);
-  const fmt = (v: number) =>
-    new Intl.NumberFormat("de-DE", {
-      minimumFractionDigits: decimals ? 2 : 0,
-      maximumFractionDigits: decimals ? 2 : 0,
-    }).format(v);
+  // The ledger cells the reference renders are PLAIN decimals (a bare
+  // `Intl.NumberFormat` with no currency suffix — `1.235` / `1.234,56`), so the
+  // `count` kind (plain, no suffix) preserves the reference output exactly:
+  // the View-menu "Show decimals" toggle maps to `decimals` (0 or 2). Money
+  // figures in cells would carry `€`; these are the ledger's bare numbers.
+  const fmt = (v: number) => formatFigure(v, "count", { decimals: decimals ? 2 : 0 });
   const prior = String(Number(tuple.year) - 1);
 
   const selector = <K extends keyof Tuple>(

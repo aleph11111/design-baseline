@@ -40,6 +40,17 @@
       "message": "Use the shadcn atom — Input / Select / Textarea (audit-signals: raw-html-control)."
     },
     {
+      "id": "no-inline-number-format",
+      "pattern": "(?:(?:new\\s+Intl\\.NumberFormat|\\.toLocaleString\\()|\\.toFixed\\([^)]*\\)(?=.*%))",
+      "severity": "warn",
+      "exclude": [
+        "src/lib/format.ts",
+        "**/*.test.ts",
+        "**/*.test.tsx"
+      ],
+      "message": "Format the figure with `formatFigure` from `design-baseline/lib/format` (STYLE.md \"Figures\"), not an inline `Intl.NumberFormat` / `.toLocaleString()` / `toFixed() + \"%\"`. Scale is explicit in the kind (`percent` = percent points, `fraction` = 0–1), locale defaults to de-DE — an inline formatter is how divergent percent scales and a ratio that lost its flag shipped figures as money. Rollout: `warn`; flip to `error` per the ADR-0003 ratchet once its class is clean. `exclude` keeps the rule off the formatter's own `Intl.NumberFormat` calls (`src/lib/format.ts`) and off test fixtures (`**/*.test.*`), which model the banned shape. A `.toFixed(` is flagged only when the same line also carries a `%` (the inline-percent smell) — a file-size `toFixed` with no `%` (`file-field.tsx` `KB`/`MB` labels) has no `%` and stays out."
+    },
+    {
       "id": "archetype-appearance-noun-prop",
       "pattern": "^\\s*(surface|variant|tone|density|appearance|rhythm|fill|framed|bordered|compact|padded|size)\\?\\s*:",
       "severity": "error",
