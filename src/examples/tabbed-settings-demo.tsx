@@ -184,10 +184,8 @@ export function TabbedSettingsDemo() {
     {
       value: "general",
       label: "General",
-      // A band-less tab body owns its own horizontal inset — the shell's tab
-      // panel is vertical-only (edge-to-edge table bodies need no pad).
       content: (
-        <div className="max-w-lg space-y-4 px-5">
+        <div className="max-w-lg space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="showName">Show name</Label>
             <Input

@@ -2,7 +2,7 @@
 key: F2
 slug: tabbed-settings
 kind: page
-version: 2.1
+version: 2.0
 promoted_from: brickshop-manager
 promoted_at: 2026-05-31
 source_spec_version: 1.4
@@ -153,12 +153,6 @@ distinctions from a domain hub (F1) are:
 Per-tab content rules are inherited from whichever body archetype applies (A,
 D1, or D2). Refer to that archetype's spec for column shapes, identifier cell
 styling, empty states, etc.
-
-- The shell's **tab panel pads vertically only** (`py-5`, no horizontal
-  inset). Edge-to-edge bodies (the D2 table body: its ruled band + cells own
-  their `px-4`) run flush with the surface, exactly as on a standalone page.
-  A body that is not edge-to-edge (a bare D1 form) supplies its own horizontal
-  inset.
 
 **Archetype-specific:**
 - A tab body must not add a second header or sub-heading that duplicates the

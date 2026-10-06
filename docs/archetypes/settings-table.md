@@ -21,21 +21,26 @@ status: locked
 > surface — and, when it has scoping, write, or count controls (`toolbar`,
 > `onAddNew` (create), `bulkActions` / `onBulkDelete`, or a `rowLabel` count
 > noun), a **flush control band**: a single `border-b` band above the table
-> (toolbar left; the count caption and the create + bulk-write actions right),
-> sitting edge-to-edge with the tab body — a `SettingsPageShell` tab panel no
-> longer pads its content horizontally, so the band's ruled line runs the full
-> surface width exactly as on a standalone page. A `SettingsPageShell` tab has
-> no page header to hold those controls, so the band is the tab-level home for
-> them. `SettingsTableShell` wraps the body in `PageFrame` and routes the same
-> props to the frame's `toolbar` / `count` slots and header `actions` instead,
-> and suppresses the body's own band (`band={false}`), so a standalone page
-> keeps exactly one band. Use `SettingsTableBody` for tab content inside a
-> `SettingsPageShell` (F2 archetype): the tab trigger label owns the heading,
+> (toolbar left; the count caption and the create + bulk-write actions right).
+> A `SettingsPageShell` tab has no page header to hold those controls, so the
+> band is the tab-level home for them. As the direct content of a tab the body
+> defaults `flush` to `true` — keyed to the body's placement, not a look: it
+> makes the body's band and its table edges sit at the container's edge,
+> negating the tab panel's horizontal inset, so the band's ruled line runs the
+> full surface width exactly as on a standalone page while the tab panel keeps
+> its pad for every other body. `SettingsTableShell` wraps the body in
+> `PageFrame` and routes the same props to the frame's `toolbar` / `count`
+> slots and header `actions` instead, and fixes both frame-side switches
+> (`band={false}` — only the frame owns the page's single band; `flush={false}`
+> — the frame's surface never pads its body, so there is no inset to bleed
+> from and the table edges stay unpadded), so a standalone page keeps exactly
+> one band at the frame's edges. Use `SettingsTableBody` for tab content inside
+> a `SettingsPageShell` (F2 archetype): the tab trigger label owns the heading,
 > and the body renders no second nested heading that would repeat it. The
 > `count` caption and the bulk actions are one shared derivation
 > (`computeBulkSelection` / `resolveBulkActions`), so the body's band and the
-> shell's frame slots can never disagree. `band` is excluded from the shell
-> props (it is always `false` there).
+> shell's frame slots can never disagree. `band` and `flush` are excluded from
+> the shell props (the shell fixes both from the frame's side).
 >
 > **v3.1 (2026-10-05) — split-pane variant on the one page frame.**
 > Re-shapes the split-pane variation for ADR-0008 §3: the edit form is the
@@ -202,12 +207,8 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
 - Because a `SettingsPageShell` tab has no page header to hold the controls a
   standalone page routes to its `PageFrame` slots, the body owns a **flush
   control band** — a single `border-b` band above the table (chrome the same
-  as the page frame's ruled band). It sits **edge-to-edge with the tab body**:
-  the `SettingsPageShell` tab panel applies vertical inset only (a surface
-  frame never pads its body; table cells own their horizontal pad), so the
-  band's ruled line runs the full surface width, exactly as on a standalone
-  page. It appears only while the body has scoping, write, or count controls,
-  and holds:
+  as the page frame's ruled band). It appears only while the body has
+  scoping, write, or count controls, and holds:
   - `toolbar` (search, filters) on the **left**;
   - on the **right**, the `count` caption, the bulk-write actions
     (`bulkActions` / `onBulkDelete`), and the create action (`onAddNew`) — the
@@ -216,11 +217,25 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
   - The `count` caption and the bulk actions derive from the same shared helper
     (`computeBulkSelection` / `resolveBulkActions`) the page form routes to the
     frame's `count` / `actions` slots, so the two cannot disagree.
-- `SettingsTableShell` passes `band={false}` and routes `toolbar` / the
-  `count` noun to the frame's `toolbar` / `count` slots and the write actions
-  to the frame's `actions`, so a standalone page keeps exactly one band. It still
-  forwards `onAddNew` so the body's empty state offers the same CTA the header
-  action does. Mirrors the `ListWithDetailBody` / `ListWithDetailShell` split.
+- **Edge-to-edge (frameless placement only).** The `SettingsPageShell` tab
+  panel pads its bodies (`p-5`); a body is edge-to-edge only for a
+  tab-placement case — so the body renders its chrome at the container's edge
+  and the panel keeps its pad for every other body. The `flush` prop is the
+  placement decision: `true` (default — the body IS the direct content of a
+  tab) negates the tab panel's horizontal inset, so the band's ruled line and
+  the table's edges sit at the surface edge exactly where a standalone D2
+  page's do; `false` where the body sits inside a frame that owns the page's
+  edges without horizontal padding (a `PageFrame` surface never pads its
+  body — there is no inset to bleed from and the bleed would be a pure no-op
+  with different semantics inside a different outer inset). Two engineers
+  holding the same placement derive the same value; it is the one existing
+  horizontal inset the body can sit in, not a look axis.
+- `SettingsTableShell` passes `band={false}` and `flush={false}` and routes
+  `toolbar` / the `count` noun to the frame's `toolbar` / `count` slots and
+  the write actions to the frame's `actions`, so a standalone page keeps
+  exactly one band at the frame's edges. It still forwards `onAddNew` so the
+  body's empty state offers the same CTA the header action does. Mirrors the
+  `ListWithDetailBody` / `ListWithDetailShell` split.
   - The split-pane variation below also applies to the frameless body.
 
 **Allowed variation — split-pane editing:**

@@ -174,6 +174,20 @@ export type SettingsTableBodyProps<Row> = {
    */
   band?: boolean;
   /**
+   * Run the body's chrome at the container's edge (default `true` — direct
+   * tab-content placement): the body's flush band and its table scroll region
+   * negate the surrounding container's horizontal inset (`-mx-5` against the
+   * `SettingsPageShell` F2 tab panel's `p-5`), so the band's ruled line and
+   * the table edges sit at the surface edge exactly where a standalone page's
+   * do — the panel keeps its pad for every other body, and only this body
+   * bleeds out of it. Pass `false` when the body sits inside a frame that
+   * owns the page's edges without horizontal padding (a `PageFrame` surface /
+   * `SurfaceFrame` never pads its body, so there is no inset to bleed from
+   * and the no-op is explicit) or inside an outer element carrying a
+   * different horizontal inset.
+   */
+  flush?: boolean;
+  /**
    * Split-pane editing (Layer 5, ADR-0008 §3): the consumer's persistent edit
    * form joins the page frame's right pane, hairline-divided from the table
    * (never a second raised surface). The row-click contract (Layer 6) drives
@@ -283,34 +297,26 @@ function computeBulkSelection<Row>(
  * The count caption: "{n} selected" while a visible row is selected AND a bulk action exists
  * (a selection with no bulk action is visually indistinguishable from "no selection"),
  * otherwise "{n} {rowLabel}" — or `undefined` when no `rowLabel` is set. One derivation the
- * body's band and the shell's `PageFrame` `count` slot both route through, from the same
- * inputs `computeBulkSelection` uses.
+ * body's band and the shell's `PageFrame` `count` slot both route through, over the caller's
+ * own `computeBulkSelection` result — so the caption's selection is byte-identical to the
+ * caller's checkboxes/bulk actions.
  */
 function resolveCountLabel<Row>({
   rows,
-  getRowId,
-  selectedIds,
-  bulkSelectable,
+  selection,
   rowLabel,
   labels,
   bulkActions,
   onBulkDelete,
 }: {
   rows: Row[];
-  getRowId: (row: Row) => string;
-  selectedIds: string[];
-  bulkSelectable: boolean;
+  selection: BulkSelection;
   rowLabel?: string | ((count: number) => string);
   labels?: SettingsTableLabels<Row>;
   bulkActions?: React.ReactNode;
   onBulkDelete?: (rows: Row[]) => void;
 }): string | undefined {
-  const { visibleSelected, hasBulkSelection } = computeBulkSelection(
-    rows,
-    getRowId,
-    selectedIds,
-    bulkSelectable,
-  );
+  const { visibleSelected, hasBulkSelection } = selection;
   const showBulkActions = hasBulkSelection && (bulkActions != null || onBulkDelete != null);
   if (showBulkActions) {
     return (labels?.selectedCount ?? DEFAULT_SETTINGS_TABLE_LABELS.selectedCount)(
@@ -422,6 +428,7 @@ export function SettingsTableBody<Row>({
   bulkActions,
   onBulkDelete,
   band: bandEnabled = true,
+  flush: flushEnabled = true,
   editPane,
   rowActions,
   isLoading,
@@ -611,9 +618,7 @@ export function SettingsTableBody<Row>({
   // stays in view while the table scrolls.
   const countLabel = resolveCountLabel({
     rows,
-    getRowId,
-    selectedIds,
-    bulkSelectable: hasBulk,
+    selection,
     rowLabel,
     labels,
     bulkActions,
@@ -633,8 +638,14 @@ export function SettingsTableBody<Row>({
     onAddNew != null ||
     bulkNode.show ||
     countLabel != null;
+  // The explicit `-mx-5` literal is the bleed: it negates the `SettingsPageShell`
+  // tab panel's `p-5` so the body's chrome runs at the surface edge. A dynamic
+  // `${flush ? "-mx-5" : ""}` would not be greppable (lint requires the class to
+  // exist in source), so the literal stays and the prop only switches whether
+  // a container carries it.
+  const bleed = flushEnabled ? "-mx-5" : "";
   const band = bandEnabled && hasBandControls ? (
-    <div data-slot="settings-table-band" className="border-b px-4 py-3">
+    <div data-slot="settings-table-band" className={cn("border-b px-4 py-3", bleed)}>
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="flex min-w-0 flex-wrap items-center gap-2">{toolbar}</div>
         {(onAddNew != null || bulkNode.show || countLabel != null) && (
@@ -660,8 +671,9 @@ export function SettingsTableBody<Row>({
           click-contract edit dialog (Layer 11) is the mobile editing surface. */}
       <div className="flex">
         {/* The table scroll region below (clipped) the band so the table scrolls
-            beneath the band, not the surface itself. */}
-        <div className="relative min-w-0 flex-1 overflow-x-auto">
+            beneath the band, not the surface itself. It bleeds with the band so
+            the table's edges sit at the same offset as the band's. */}
+        <div className={cn("relative min-w-0 flex-1 overflow-x-auto", bleed)}>
           {listStatePlane}
           {tableContent}
         </div>
@@ -730,9 +742,7 @@ export function SettingsTableShell<Row>({
   // the same derivation the body's band caption uses.
   const count = resolveCountLabel({
     rows,
-    getRowId,
-    selectedIds,
-    bulkSelectable: hasBulk,
+    selection,
     rowLabel,
     labels,
     bulkActions,
@@ -780,8 +790,11 @@ export function SettingsTableShell<Row>({
         // body's own band is suppressed so the page has exactly one band. `onAddNew`
         // still drives the body's empty-state CTA (and, in the body used directly,
         // the band's create button). The `editPane` slot flows through to the
-        // body's split-pane wrapper (Layer 5).
+        // body's split-pane wrapper (Layer 5). The surface this body renders
+        // inside never pads it, so there is no horizontal inset to bleed from —
+        // the explicit `false` keeps the standalone page's edges unpadded.
         band={false}
+        flush={false}
         editPane={editPane}
         rowActions={rowActions}
         isLoading={isLoading}

@@ -17,7 +17,7 @@ const tabs = [
   { value: "team", label: "Team", content: <p>team body</p> },
 ];
 
-// A settings-table (D2) frameless body as tab content — the v3.1
+// A settings-table (D2) frameless body as tab content — the v3.2
 // `SettingsTableBody` export. The tab trigger owns the heading, so the body
 // must not render a nested heading repeating the tab label.
 type Channel = { id: string; name: string };
@@ -85,7 +85,7 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     expect(container.querySelectorAll(".bg-surface-raised")).toHaveLength(1);
   });
 
-  it("a SettingsTableBody tab content renders its rows with no nested heading, and the create + count in the body's own flush band", () => {
+  it("a SettingsTableBody tab content renders its rows with no nested heading, and the create + count in the body's band, bled flush out of the padded tab panel", () => {
     const { container } = render(
       <SettingsPageShell
         title="Workspace"
@@ -117,30 +117,34 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     expect(container.querySelectorAll("h1")).toHaveLength(1);
     expect(container.querySelectorAll("h2")).toHaveLength(0);
     expect(screen.queryByRole("heading", { level: 2, name: "Distribution" })).toBeNull();
-    // The tab has no page header; the body's own flush band is the home for the
-    // create action and the count caption.
+    // The tab has no page header; the body's own band — bled out of the
+    // panel's pad — is the home for the create action and the count caption.
     const band = container.querySelector('[data-slot="settings-table-band"]') as HTMLElement;
     expect(band?.textContent).toContain("Add channel");
     expect(band?.textContent).toContain("2 channels");
-    // Flush: from the band up to the tab panel, no wrapper carries horizontal
-    // padding — the panel itself pads only vertically, so the band's ruled
-    // line runs edge-to-edge (it would fail if any ancestor re-introduced a
-    // `p-`/`px-` inset).
-    // The band's own `px-4` is its inner pad (it aligns its controls with the
-    // table cells below) — the flush check is about the ANCESTORS between the
-    // band and the surface edge, not the band's chrome.
+    // Flush: the band carries the explicit `-mx-5` bleed that negates the
+    // tab panel's horizontal `p-5` inset, so its ruled line runs at the
+    // surface edge exactly as on a standalone D2 page. Its own `px-4` is its
+    // inner pad (it aligns its controls with the table cells below) — the
+    // flush check is about the ANCESTORS between the band and the surface
+    // edge, not the band's chrome.
     const horizontalPad = /(^|[\s-])(p|px)-\d/;
+    expect(band.className).toContain("-mx-5");
     let node: Element | null = band.parentElement;
     while (node && node.getAttribute("data-slot") !== "settings-page-tab-panel") {
       if (horizontalPad.test(node.className ?? "")) throw new Error(`inset by ${node}`);
       node = node.parentElement;
     }
-    // Reached the tab panel (and nothing between the band and it is horizontally
-    // padded), and the panel itself pads only vertically.
+    // Reached the tab panel (and nothing between the band and it re-insets
+    // horizontally); the panel still pads every non-bleeding tab body with
+    // `p-5` — only this body bleeds out of it.
     const panel = node as Element;
     expect(panel.getAttribute("data-slot")).toBe("settings-page-tab-panel");
-    expect(panel.className).toContain("py-5");
-    expect(horizontalPad.test(panel.className)).toBe(false);
+    expect(panel.className).toContain("p-5");
+    // The table's scroll region bleeds with the band, so the table's edges
+    // sit at the surface edge too.
+    const tableRegion = container.querySelector(".overflow-x-auto") as HTMLElement;
+    expect(tableRegion.className).toContain("-mx-5");
   });
 
   it("a bulk-selectable SettingsTableBody in a tab shows the selection count + delete in the band, no h2", () => {

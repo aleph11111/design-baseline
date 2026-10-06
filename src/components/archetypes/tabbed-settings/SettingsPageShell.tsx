@@ -74,13 +74,13 @@ export function SettingsPageShell({
             </TabsList>
           }
         >
-          {/* Vertical-only inset (no horizontal pad): a tab body's own ruled
-              band (the frameless D2 `SettingsTableBody`) must run edge-to-edge
-              with the surface, exactly as on a standalone page — a surface
-              frame never pads its body (ADR-0008) and table cells own their
-              horizontal pad. Bodies that aren't edge-to-edge (a bare form)
-              supply their own `px`. */}
-          <div data-slot="settings-page-tab-panel" className="py-5">
+          {/* Pad the panel; an edge-to-edge tab body bleeds out of it itself:
+              the frameless D2 `SettingsTableBody` passes `flush` so its band
+              and table scroll region negate the panel's horizontal pad and
+              run at the surface edge, exactly as on a standalone page (a
+              surface frame never pads its body, ADR-0008). Every other body
+              sits in the `p-5` pad. */}
+          <div data-slot="settings-page-tab-panel" className="p-5">
             {tabs.map((t) => (
               <TabsContent key={t.value} value={t.value} className="mt-0">
                 {t.content}
