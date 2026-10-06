@@ -65,7 +65,7 @@ export function SkeletonLoaderDemo(): React.ReactElement {
             Each surface shows a <code>ListSkeleton</code> while loading, then the real content.
           </p>
         </div>
-        <Button size="sm" variant="outline" onClick={() => setLoading(true)} disabled={loading}>
+        <Button variant="outline" onClick={() => setLoading(true)} disabled={loading}>
           {loading ? "Loading…" : "Reload"}
         </Button>
       </div>

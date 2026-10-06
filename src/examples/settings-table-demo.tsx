@@ -211,7 +211,7 @@ export function SettingsTableDemo() {
   // The candidate set is `filtered` (what the user sees), not `recipes` — a
   // row the search query hides must not be silently deleted by a bulk action.
   const bulkActions = (
-    <Button variant="destructive" size="sm"
+    <Button variant="destructive"
       onClick={() => setPendingDelete(filtered.filter((r) => selectedIds.includes(r.id)))}
       disabled={selectedIds.length === 0}
     >
@@ -288,7 +288,7 @@ export function SettingsTableDemo() {
           aria-label="Numeric prefix"
         />
       </label>
-      <Button type="submit" size="sm">
+      <Button type="submit">
         Save
       </Button>
       {paneSaveFlash && (
@@ -321,7 +321,7 @@ export function SettingsTableDemo() {
         <SettingsTableShell
           title="Recipe Collection"
           actions={
-            <Button variant="outline" size="sm">
+            <Button variant="outline">
               Import
             </Button>
           }

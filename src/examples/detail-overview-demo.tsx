@@ -252,18 +252,17 @@ export function DetailOverviewDemo(): React.ReactElement {
           }
           actions={
             <>
-              <Button variant="outline" size="sm">
+              <Button variant="outline">
                 Invoice
               </Button>
               <Button
                 variant="ghost"
-                size="sm"
                 className="px-2"
                 aria-label="More actions"
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
-              <Button size="sm">Mark as shipped</Button>
+              <Button>Mark as shipped</Button>
             </>
           }
           summary={

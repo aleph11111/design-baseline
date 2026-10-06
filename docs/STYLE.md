@@ -154,6 +154,27 @@ The baseline uses Tailwind's 4 px scale. A handful of values carry consistent *m
 
 **Grid gaps:** `gap-6` between two-column form sections; `gap-4` for paired fields and dialog two-column bodies; `gap-2`/`gap-3` for inline control clusters.
 
+### Control heights
+
+Every box-shaped control sits on **one height ladder**, so controls placed side by side line up by construction:
+
+| Step | Height | Text | Used for |
+|------|--------|------|----------|
+| `sm` | `h-8` (32px) | `text-xs` | Dense inner toolbars (a table card's own control strip), compact grids |
+| `default` | `h-9` (36px) | `text-sm` | Everything else — page toolbars, forms, dialogs, header actions |
+| `lg` | `h-11` (44px) | `text-base` on fields | Touch layouts (the 44pt tap target; 16px field text keeps iOS from zooming) |
+
+The owners are `Button` (`size`; `icon` is the square `h-9`), `SelectTrigger` (`size`), `Input` (`h-9`), `SearchInput` (`inputSize`), `SegmentedControl` (`size`) and `TabsList` (`h-9`). **One band, one step:** every control in a toolbar band uses the same step — the `PageFrame` band's own View button is `default`, so its scoping controls are too. **Never** override a control's height with a `className` (`h-7`, `h-auto text-[10px]`, `h-9` on an `Input`): pick the step instead. The one sanctioned exception is an action inside a section title bar, sized to the bar (`SectionHeading` / `SectionCard` / `DetailSection` document it) — a title bar is not a toolbar band. A label, a status chip or a muted caption may sit beside the controls at its own size; a second *control* height in the same band is drift.
+
+### Toolbar field labels
+
+In a toolbar a field's label is **joined to the box**: a shaded cell fused to the control's left edge ("Scenario | Actuals ▾"), so every element in the band is one box of the band's height. A free-standing caption between boxes ("Scenario:" as loose text) or a label stacked above the control breaks that rhythm and is the drift this rule closes.
+
+- `SelectField` and `NativeField` render joined **automatically** inside a `PageFrame` toolbar band (`ToolbarBandContext`, `layout/toolbarBand`) and stacked everywhere else — placement-derived, never a prop (ADR-0008 §1).
+- A bare `Select` takes `<SelectTrigger label="Scenario">`; a `SegmentedControl` takes `label="Indirekter Plan"`. The joined cell names the control for assistive tech and, on a select, opens it when clicked.
+- Forms keep the stacked field (label above the control — "Shared content molecules" below). The joined label is a toolbar device only.
+- A field whose value names itself (a template picker showing "Standard BWA") needs no label at all.
+
 ### Typography
 
 **House style B — "Ledger" (2026-06-21; face and figures per ADR-0009, 2026-10-06).**
@@ -416,7 +437,9 @@ them. Each has exactly **one owner**; using it is mandatory, hand-rolling is dri
   `space-y-1.5` gap precisely so an RHF field and a manual field match). A field
   looks identical whether it's in the form-page, the extensive create form, or the
   slide-in crud-dialog. **Never** hand-roll `<label>`/`<input>`/`<select>` — the
-  label weight, input height, focus ring, and spacing will drift.
+  label weight, input height, focus ring, and spacing will drift. Inside a
+  toolbar band the same field renders with its label joined to the box instead
+  ("Toolbar field labels" above).
 
 Smaller molecules with the same single-owner rule (promoted from the 2026-06-14
 consolidation pass, after an audit found each hand-rolled in 3–4 places):

@@ -59,7 +59,7 @@ export function DemoViteApp() {
         <AppHeader
           title="My App"
           right={
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               Sign out
             </Button>
           }

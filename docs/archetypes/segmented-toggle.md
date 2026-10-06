@@ -2,7 +2,7 @@
 key: Sg
 slug: segmented-toggle
 kind: component
-version: 1.0
+version: 1.1
 promoted_from: brickshop-manager (fleet synthesis; hk-crm vendored the donor primitive)
 promoted_at: 2026-07-24
 source_spec_version: n/a (fleet synthesis — no single source spec)
@@ -91,6 +91,12 @@ A **bordered track** of equal pills. The active pill carries the **filled accent
 role** with a hover to full foreground. Rides the shared token roles — no bespoke
 border/padding/font-size strings. The historical drift this consolidates (per-site
 `px-2` / `px-2.5` / `px-3` padding) is accidental, not sanctioned variation.
+
+The track sits on the **shared control height ladder** (compact · default · touch) so it
+lines up with the selects and buttons beside it; the default step matches a page
+toolbar's other controls. In a toolbar the toggle may carry a **joined label** — a
+muted caption cell fused to the track's left edge that also names the group for
+assistive tech — the same label treatment as the toolbar's fields.
 
 ### L8 — Render-prop surface
 **N/A** — the option set is supplied as `{ value, label, icon? }` data, not by a render

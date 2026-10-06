@@ -157,7 +157,7 @@ export function GroupedListDemo() {
       <GroupedListShell
         title="Recipe Book"
         actions={
-          <Button size="sm">
+          <Button>
             <Plus className="mr-1 h-4 w-4" />
             Add recipe
           </Button>
