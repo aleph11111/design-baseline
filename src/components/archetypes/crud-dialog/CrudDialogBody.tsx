@@ -33,6 +33,8 @@ export type CrudDialogBodyProps = {
   onRetry?: () => void;
   /** Label of the retry button. Default "Try again". */
   retryLabel?: string;
+  /** Screen-reader announcement while loading. Default "Loading…". */
+  loadingLabel?: string;
   /**
    * Body presentation — the dialog's graded "richness" axis (see
    * docs/CHOOSING-A-SURFACE.md). This is a variant, NOT a separate component:
@@ -161,6 +163,7 @@ export function CrudDialogBody({
   errorMessage = CRUD_ERRORS.load,
   onRetry,
   retryLabel,
+  loadingLabel = "Loading…",
   layout,
 }: CrudDialogBodyProps): React.ReactElement {
   const hasError = Boolean(error);
@@ -202,7 +205,7 @@ export function CrudDialogBody({
           empty ↔ "Loading…" as the announcement. Sibling of the busy
           container, so it is never inside the busy subtree. */}
       <span role="status" aria-live="polite" className="sr-only">
-        {loadingAnnounced ? "Loading…" : ""}
+        {loadingAnnounced ? loadingLabel : ""}
       </span>
     </ScrollArea>
   );
