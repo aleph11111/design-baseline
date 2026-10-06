@@ -2,7 +2,7 @@ import type * as React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { NativeField } from "./native-field";
-import { ToolbarBandContext } from "../../layout/toolbarBand";
+import { ToolbarBandContext } from "../../ui/toolbar-band";
 import {
   expectFieldError,
   expectFieldHintOnly,

@@ -1,8 +1,7 @@
 import * as React from "react";
 import { Input } from "../../ui/input";
-import { JOINED_LABEL_CLASS } from "../../ui/select";
 import { cn } from "../../../lib/utils";
-import { useInToolbarBand } from "../../layout/toolbarBand";
+import { JOINED_LABEL_CLASS, useInToolbarBand } from "../../ui/toolbar-band";
 import {
   FIELD_ERROR_RING,
   FieldError,

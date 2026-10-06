@@ -4,6 +4,7 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { JOINED_LABEL_CLASS } from "./toolbar-band";
 
 // ---------------------------------------------------------------------------
 // Radix UI Select primitives
@@ -30,15 +31,6 @@ const selectTriggerVariants = cva(
     },
   }
 );
-
-/**
- * The joined label cell: a shaded caption fused to a control's left edge, so a
- * toolbar filter reads "Scenario | Actuals ▾" as one box of the control's
- * height (STYLE.md "Toolbar field labels"). Shared by SelectTrigger,
- * SegmentedControl and the `layout="joined"` field assemblies.
- */
-export const JOINED_LABEL_CLASS =
-  "flex shrink-0 items-center self-stretch whitespace-nowrap bg-muted px-3 font-normal text-muted-foreground";
 
 const SelectTrigger = React.forwardRef<
   React.ComponentRef<typeof SelectPrimitive.Trigger>,

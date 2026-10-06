@@ -5,7 +5,7 @@ import { SlidersHorizontal } from "lucide-react";
 import { PageHeader, type PageHeaderProps } from "./PageHeader";
 import { NestedPageHeading } from "./NestedPageHeading";
 import { SurfaceFrame } from "./SurfaceFrame";
-import { ToolbarBandContext } from "./toolbarBand";
+import { ToolbarBandContext } from "../ui/toolbar-band";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,

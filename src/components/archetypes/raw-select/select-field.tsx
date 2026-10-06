@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from "../../ui/select";
 import { cn } from "../../../lib/utils";
-import { useInToolbarBand } from "../../layout/toolbarBand";
+import { useInToolbarBand } from "../../ui/toolbar-band";
 import {
   FIELD_ERROR_RING,
   FieldError,

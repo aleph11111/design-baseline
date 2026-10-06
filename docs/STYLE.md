@@ -170,7 +170,7 @@ The owners are `Button` (`size`; `icon` is the square `h-9`), `SelectTrigger` (`
 
 In a toolbar a field's label is **joined to the box**: a shaded cell fused to the control's left edge ("Scenario | Actuals ▾"), so every element in the band is one box of the band's height. A free-standing caption between boxes ("Scenario:" as loose text) or a label stacked above the control breaks that rhythm and is the drift this rule closes.
 
-- `SelectField` and `NativeField` render joined **automatically** inside a `PageFrame` toolbar band (`ToolbarBandContext`, `layout/toolbarBand`) and stacked everywhere else — placement-derived, never a prop (ADR-0008 §1).
+- `SelectField` and `NativeField` render joined **automatically** inside a `PageFrame` toolbar band (`ToolbarBandContext`, `ui/toolbar-band`) and stacked everywhere else — placement-derived, never a prop (ADR-0008 §1). Overlays end the band: a popover, menu, dialog or sheet opened from a toolbar control renders its fields stacked again.
 - A bare `Select` takes `<SelectTrigger label="Scenario">`; a `SegmentedControl` takes `label="Indirekter Plan"`. The joined cell names the control for assistive tech and, on a select, opens it when clicked.
 - Forms keep the stacked field (label above the control — "Shared content molecules" below). The joined label is a toolbar device only.
 - A field whose value names itself (a template picker showing "Standard BWA") needs no label at all.

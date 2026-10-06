@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { cn } from "../../lib/utils";
-import { JOINED_LABEL_CLASS } from "./select";
+import { JOINED_LABEL_CLASS } from "./toolbar-band";
 
 export type SegmentedOption<T extends string> = {
   value: T;
