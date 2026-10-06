@@ -55,7 +55,10 @@ export type PageFrameProps = {
   actions?: React.ReactNode;
   /**
    * The frame's toolbar band, left side — everything that **scopes** the body:
-   * search, filters, scoping selectors, tabs.
+   * search, filters, scoping selectors, tabs. Keep these controls **controlled**
+   * (value held by the page): below `md` they render inside the filter sheet,
+   * which unmounts on close, and the band remounts when the viewport crosses
+   * `md` — uncontrolled local state (a search draft) would be lost.
    */
   toolbar?: React.ReactNode;
   /**
@@ -315,7 +318,7 @@ function MobileBand({
             {filterSummary}
           </span>
         )}
-        {count && (
+        {count != null && (
           <span className="ml-auto shrink-0 text-sm text-muted-foreground">{count}</span>
         )}
         {viewOptions && (
