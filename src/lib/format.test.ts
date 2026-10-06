@@ -34,7 +34,6 @@ describe("formatFigure — scale is part of the kind, never inferred", () => {
 describe("formatFigure — every kind", () => {
   it("currency defaults to 2 decimals (1.234,56 €)", () => {
     // NBSP before the € — de-DE currency style, not a regular space.
-    expect(formatFigure(1234.56)).toBe(`1.234,56${NBSP}€`);
     expect(formatFigure(1234.56, "currency")).toBe(`1.234,56${NBSP}€`);
     expect(formatFigure(1, "currency")).toBe(`1,00${NBSP}€`);
   });
@@ -75,8 +74,8 @@ describe("formatFigure — null / undefined / NaN", () => {
 describe("formatFigure — negatives and signed", () => {
   it("negative values use a U+2212 minus, not an ASCII hyphen", () => {
     expect(formatFigure(-47.3, "percent")).toBe(`${MINUS}47,3${NBSP}%`);
-    expect(formatFigure(-1234.56)).toBe(`${MINUS}1.234,56${NBSP}€`);
-    expect(formatFigure(-1234.56)).not.toContain("-"); // no ASCII hyphen remains
+    expect(formatFigure(-1234.56, "currency")).toBe(`${MINUS}1.234,56${NBSP}€`);
+    expect(formatFigure(-1234.56, "currency")).not.toContain("-"); // no ASCII hyphen remains
   });
 
   it("signed adds an explicit plus to a non-negative", () => {
@@ -116,5 +115,14 @@ describe("formatFigure — type surface", () => {
   it("exports the FigureKind literal union (compile-time guard)", () => {
     const kinds: FigureKind[] = ["currency", "percent", "fraction", "ratio", "count"];
     expect(kinds).toHaveLength(5);
+  });
+
+  it("requires a `kind` — an omitted scale is a type error, never inferred as money", () => {
+    // `kind` is a required second parameter (the ticket's own signature — scale
+    // is part of the kind, never inferred). An omitted `kind` must not
+    // compile; if a default is ever re-added, this `@ts-expect-error` becomes
+    // an unused diagnostic and the donor's `tsc` gate (CI) goes red.
+    // @ts-expect-error kind is a required parameter
+    formatFigure(1234.56);
   });
 });

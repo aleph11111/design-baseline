@@ -209,11 +209,12 @@ stays tight *because* the title doesn't.
 ADR-0009); `formatFigure` owns what it *says*. A figure **value** — money, a percent, a quantity,
 a ratio — is formatted by `formatFigure` from `design-baseline/lib/format`, never by an inline
 `Intl.NumberFormat` / `toLocaleString` / `toFixed` at the call site. The house scale for each
-figure kind is explicit in the `kind` argument, never inferred: `currency` (default, 2 decimals —
+figure kind is explicit in the `kind` argument, never inferred: `currency` (2 decimals —
 `1.234,56 €`), `percent` (percent points, 1 decimal — `47,3 %`), `fraction` (0–1, 1 decimal —
 `0.473 → 47,3 %`; the same scale as `percent`, one less divide), `ratio` (plain ×100, 0 decimals),
-`count` (0 decimals). Scale is part of the kind: `percent` and `fraction` both render `47 %` for
-`47` / `0.47`, so the caller's value scale is the contract, not the formatter's guess. Options:
+`count` (0 decimals). Scale is part of the kind: `percent` and `fraction` both render `47,0 %`
+for `47` / `0.47`, so the caller's value scale is the contract, not the formatter's guess.
+Options:
 `decimals` (override the kind's scale), `signed` (explicit `+`), `locale` (default `de-DE` — the
 fleet is German today), `currency` (default `EUR`). A real U+2212 minus renders for negatives;
 `—` for a missing value. Domain mapping stays in the consumer (a BWA `display_format` → `kind`);
@@ -382,7 +383,7 @@ rather than holding a copy:
 - `src/components/archetypes/<slug>/*`, exported as `design-baseline/archetypes/<slug>`
 - `src/lib/utils.ts` → `design-baseline/lib/utils` (`cn()`)
 - `src/lib/format.ts` → `design-baseline/lib/format` (`formatFigure` — the one figure formatter,
-  "Figures" below; figures go through it, never an inline `Intl.NumberFormat` / `toFixed`)
+  the **Figures** paragraph above; figures go through it, never an inline `Intl.NumberFormat` / `toFixed`)
 - `src/hooks/use-mobile.ts` → `design-baseline/hooks/use-mobile`
 - `src/utils/logger.ts` → `design-baseline/utils/logger` (kept framework-agnostic via the
   `typeof process !== "undefined"` guard — do not "improve" by Vite-only or Next-only references)

@@ -66,10 +66,12 @@ const ASCII_MINUS = "-";
 const MINUS_SIGN = "\u2212";
 
 /**
- * Format a figure for display.
+ * Format a figure for display. `kind` is REQUIRED — the scale is part of the
+ * kind, never inferred: an omitted `kind` is a type error, so a consumer cannot
+ * ship an omitted scale as money (the root defect this ticket exists to kill).
  *
  * ```ts
- * formatFigure(1234.56)                    // "1.234,56 €"  (currency, de-DE)
+ * formatFigure(1234.56, "currency")        // "1.234,56 €"  (de-DE)
  * formatFigure(47.3, "percent")            // "47,3 %"
  * formatFigure(0.473, "fraction")          // "47,3 %"  (0–1 scale)
  * formatFigure(null, "currency")           // "—"
@@ -78,12 +80,12 @@ const MINUS_SIGN = "\u2212";
  *
  * - `value` null / undefined → `—`.
  * - `percent` takes percent points; `fraction` takes 0–1 (×100) — both render the
- *   same `47 %` for 47 / 0.47, so the scale is explicit, never guessed.
+ *   same `47,0 %` for 47 / 0.47, so the scale is explicit, never guessed.
  * - `ratio` renders a plain number for a computed ratio (×100, no `%`).
  */
 export function formatFigure(
   value: number | null | undefined,
-  kind: FigureKind = "currency",
+  kind: FigureKind,
   opts: FigureOptions = {},
 ): string {
   if (value === null || value === undefined || Number.isNaN(value)) {
@@ -115,7 +117,7 @@ export function formatFigure(
   } else if (kind === "percent" || kind === "fraction") {
     // `Intl` percent style always renders x×100 with a `%`, so it takes the 0–1
     // scale: `fraction` (0.47) passes through; `percent` (percent points, 47) is
-    // divided back to 0.47 first. Both render `47 %`.
+    // divided back to 0.47 first. Both render `47,0 %`.
     formatted = new Intl.NumberFormat(locale, {
       ...options,
       style: "percent",

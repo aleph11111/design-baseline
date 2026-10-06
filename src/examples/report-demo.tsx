@@ -180,8 +180,8 @@ export function ReportDemo(): React.ReactElement {
               key={li.id}
               name={li.name}
               qty={formatFigure(li.qty, "count")}
-              unit={formatFigure(li.unitPrice)}
-              sum={formatFigure(li.qty * li.unitPrice)}
+              unit={formatFigure(li.unitPrice, "currency")}
+              sum={formatFigure(li.qty * li.unitPrice, "currency")}
             />
           ))}
         </ReportLineTable>
@@ -189,9 +189,9 @@ export function ReportDemo(): React.ReactElement {
         {/* Totals stack */}
         <div className="mt-4 flex justify-end">
           <div className="flex w-60 flex-col gap-1.5">
-            <ReportTotalRow label="Zwischensumme" value={formatFigure(net)} />
-            <ReportTotalRow label={`MwSt. ${taxPct}`} value={formatFigure(tax)} />
-            <ReportTotalRow label="Gesamt" value={formatFigure(gross)} total />
+            <ReportTotalRow label="Zwischensumme" value={formatFigure(net, "currency")} />
+            <ReportTotalRow label={`MwSt. ${taxPct}`} value={formatFigure(tax, "currency")} />
+            <ReportTotalRow label="Gesamt" value={formatFigure(gross, "currency")} total />
           </div>
         </div>
       </ReportShell>

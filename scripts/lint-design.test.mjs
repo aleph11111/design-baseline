@@ -96,6 +96,25 @@ describe("lint-design CLI", () => {
     }
   });
 
+  it("no-inline-number-format: zero hits across the donor's src/ (acceptance A2, machine-verified)", () => {
+    // Acceptance A2 — "node scripts/lint-design.mjs reports zero
+    // no-inline-number-format hits under src/". The donor has no runtime CI to
+    // assert that from a PR diff, so it is pinned here as code: run the
+    // SHIPPED scanner against the DONOR's own src/ (--json from the donor root
+    // walks targets ["src"]) and count the rule's violations directly.
+    const { status, stdout } = run("--json");
+    expect(status).toBe(0); // a clean `src/` never carries an `error` hit (warn tier)
+    const report = JSON.parse(stdout);
+    // Non-vacuity guard (ADR-0005's "no vacuous gate" class): the rule must
+    // actually be LIVE and scanning, not silently excluded. A scoped rule whose
+    // live scope is 0 means its include/exclude is accidentally disarmed —
+    // the `src/lib/format.ts` exclude and the `**/*.test.*` fixtures.
+    const scope = report.ruleScopes.find((r) => r.rule === "no-inline-number-format");
+    expect(scope, "the rule must be compiled and present in the live scan").toBeTruthy();
+    expect(scope.files).toBeGreaterThan(0);
+    expect(report.violations.filter((v) => v.rule === "no-inline-number-format")).toHaveLength(0);
+  });
+
   it("exits 2 with a `CompileError` when a rule's `include` globs are all unreachable under the targets", () => {
     // The ratchet's forbidden failure mode no longer fails open: an include that omits
     // the configured `targets` prefix (here a `src/...`-shaped glob under the fixture's

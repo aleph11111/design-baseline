@@ -121,10 +121,12 @@ export function StatementWithFiltersDemo(): React.ReactElement {
   const [showZero, setShowZero] = React.useState(false);
 
   const { rows, result, kpis } = React.useMemo(() => computeStatement(tuple), [tuple]);
-  // Figure values route through the baseline's `formatFigure` — the one figure
-  // formatter. The View-menu "Show decimals" toggle maps to `decimals` (0 or 2);
-  // the currency kind's default (2) is what "Show decimals" ON renders.
-  const fmt = (v: number) => formatFigure(v, "currency", { decimals: decimals ? 2 : 0 });
+  // The ledger cells the reference renders are PLAIN decimals (a bare
+  // `Intl.NumberFormat` with no currency suffix — `1.235` / `1.234,56`), so the
+  // `count` kind (plain, no suffix) preserves the reference output exactly:
+  // the View-menu "Show decimals" toggle maps to `decimals` (0 or 2). Money
+  // figures in cells would carry `€`; these are the ledger's bare numbers.
+  const fmt = (v: number) => formatFigure(v, "count", { decimals: decimals ? 2 : 0 });
   const prior = String(Number(tuple.year) - 1);
 
   const selector = <K extends keyof Tuple>(

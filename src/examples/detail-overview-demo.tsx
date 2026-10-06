@@ -95,9 +95,10 @@ const LONG_RAIL_ROWS: [string, string][] = [
 
 /** Money figures route through the baseline's `formatFigure` — the one figure
  *  formatter (STYLE.md "Figures"). The demo keeps the `fmtEUR` idiom as a thin
- *  currency alias (default kind/currency) and never formats a figure inline. */
+ *  currency alias (the `currency` kind, default currency/de-DE) and never
+ *  formats a figure inline. */
 function fmtEUR(amount: number): string {
-  return formatFigure(amount);
+  return formatFigure(amount, "currency");
 }
 
 function fmtDate(iso: string): string {
