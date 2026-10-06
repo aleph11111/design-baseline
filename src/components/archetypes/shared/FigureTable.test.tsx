@@ -32,7 +32,6 @@ function figureCells(container: HTMLElement): HTMLElement[] {
   ).filter(
     (el) =>
       typeof el.className === "string" &&
-      el.className.includes("text-right") &&
       el.className.includes("tabular-nums") &&
       el.className.includes("text-[13px]"),
   );
@@ -98,7 +97,7 @@ describe("FigureTable — shared figure-table signature", () => {
       // instead; alignment is per-archetype via `cellAlign` and asserted
       // separately for the statement below).
       cells.slice(0, -1).forEach((cell) => {
-        expect(cell.className).toContain("text-right text-[13px] tabular-nums");
+        expect(cell.className).toContain("text-[13px] tabular-nums");
         expect(cell.className).not.toContain("font-mono");
         expect(cell.className).toContain("text-muted-foreground");
         expect(cell.className).not.toContain("font-semibold");

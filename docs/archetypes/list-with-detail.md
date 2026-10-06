@@ -189,7 +189,7 @@ A **list-with-detail** page shows a table of domain entities (items, users, orde
 - The project's **base table primitive**.
 - **Number formatting** — monetary values routed through a consumer-provided formatter (e.g. `formatCurrency(value)`). No raw currency symbols or `.toFixed(2)` in table cells.
 - **Date formatting** — every date cell renders through a consumer-provided formatter (e.g. `formatDate(value)` or `formatDateTime(value)` when the time component is meaningful). No raw ISO strings in the UI. The primitive does not format; the consumer passes a formatter or pre-formatted string.
-- **Identifier columns** (record #, internal ID, reference code, etc.) — in the **canonical identifier style**.
+- **Identifier columns** (record #, internal ID, reference code, etc.) — in the **canonical identifier style** — the house sans for numeric codes and human-readable names alike (ADR-0009); there is no monospace variant.
 - **Primary identifier cell** is clickable, in the **canonical identifier style** rendered in the **brand/primary color with a hover underline** so it reads as interactive before hover. If a dedicated detail route exists, clicking navigates to it; if no detail route exists, clicking opens an edit modal or the detail overlay.
 
 **Allowed variation:**
@@ -227,7 +227,6 @@ A **list-with-detail** page shows a table of domain entities (items, users, orde
 - **Status indicators:**
   - **Categorical status** (draft / active / archived / paid / …) — use a shared **status-badge** variant. Color map lives in a shared file, not duplicated per page.
   - **Binary toggle** (enabled/disabled, monitored/paused, …) — a **brand-primary dot** (on) / **muted dot** (off) plus label text. Token-pure — never a literal palette color at the call site; semantic raw-color mappings live only inside the owning primitives (status-badge, calendar tones).
-- **Identifiers always use the house sans** (ADR-0009) — numeric codes and human-readable names alike (e.g. a search name, a tag label). The **brand/primary color + hover underline** requirement applies for all identifier cells.
 
 **Forbidden:**
 - Inline status color maps duplicated per page. Categorical statuses go through a shared variant component.

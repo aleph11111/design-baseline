@@ -68,7 +68,7 @@ There is no `toolbar`, `count` or `viewOptions` (nothing re-scopes a finished do
 2. **Actions in the body.** Export / send live only in `actions`.
 3. **A second title.** The document ID is the page `title`, once; no heading repeats it on the document surface.
 4. **Raw money / date / qty strings.** Figures route through consumer-provided formatters; primitives never format.
-5. **Sans figures.** Money, quantities, dates, and IDs always render in the canonical tabular figure style.
+5. **Untabular figures.** Money, quantities, dates, and IDs always render in the canonical tabular figure style (ADR-0009: the house sans, never a mono face).
 6. **Baked brand accent.** The donor stays neutral; the consumer scopes the brand/primary color token.
 7. **A status home / rail / activity stepper.** That is detail-overview (C); a report is a flat document column.
 
