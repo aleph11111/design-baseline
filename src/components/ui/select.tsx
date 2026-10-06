@@ -13,18 +13,16 @@ const Select = SelectPrimitive.Root;
 const SelectGroup = SelectPrimitive.Group;
 const SelectValue = SelectPrimitive.Value;
 
-// Per-size geometry, same density ladder as `SearchInput`'s `inputSize`
-// (sm = compact toolbar box, default = the original h-10 control, lg = mobile).
-// `default` deliberately keeps `py-2` and no `gap` so it renders byte-identical
-// to the pre-scale hard-coded trigger for every existing consumer.
+// Per-size geometry on the shared control height ladder (STYLE.md "Control
+// heights"): sm h-8 · default h-9 · lg h-11 (the 44pt touch target).
 const selectTriggerVariants = cva(
-  "flex w-full items-center justify-between rounded-md border border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+  "flex w-full items-center justify-between rounded-md border border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span:not([data-joined-label])]:line-clamp-1",
   {
     variants: {
       size: {
         sm: "h-8 px-2 text-xs gap-1",
-        default: "h-10 px-3 py-2 text-sm",
-        lg: "h-12 px-3 text-base gap-2",
+        default: "h-9 px-3 text-sm gap-2",
+        lg: "h-11 px-3 text-base gap-2",
       },
     },
     defaultVariants: {
@@ -33,22 +31,53 @@ const selectTriggerVariants = cva(
   }
 );
 
+/**
+ * The joined label cell: a shaded caption fused to a control's left edge, so a
+ * toolbar filter reads "Scenario | Actuals ▾" as one box of the control's
+ * height (STYLE.md "Toolbar field labels"). Shared by SelectTrigger,
+ * SegmentedControl and the `layout="joined"` field assemblies.
+ */
+export const JOINED_LABEL_CLASS =
+  "flex shrink-0 items-center self-stretch whitespace-nowrap bg-muted px-3 font-normal text-muted-foreground";
+
 const SelectTrigger = React.forwardRef<
   React.ComponentRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> &
-    VariantProps<typeof selectTriggerVariants>
->(({ className, children, size, ...props }, ref) => (
-  <SelectPrimitive.Trigger
-    ref={ref}
-    className={cn(selectTriggerVariants({ size, className }))}
-    {...props}
-  >
-    {children}
-    <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
-    </SelectPrimitive.Icon>
-  </SelectPrimitive.Trigger>
-));
+    VariantProps<typeof selectTriggerVariants> & {
+      /**
+       * Joined label: renders as a shaded cell inside the trigger's left edge.
+       * Being part of the button, it opens the select when clicked; it is also
+       * the trigger's accessible name (via `aria-labelledby`, as SelectField
+       * wires its stacked label) unless the caller names the trigger itself.
+       */
+      label?: React.ReactNode;
+    }
+>(({ className, children, size, label, ...props }, ref) => {
+  const labelId = React.useId();
+  const named = props["aria-label"] != null || props["aria-labelledby"] != null;
+  return (
+    <SelectPrimitive.Trigger
+      ref={ref}
+      aria-labelledby={label != null && !named ? labelId : undefined}
+      className={cn(
+        selectTriggerVariants({ size }),
+        label != null && "overflow-hidden pl-0",
+        className
+      )}
+      {...props}
+    >
+      {label != null && (
+        <span id={labelId} data-joined-label="" className={cn(JOINED_LABEL_CLASS, "border-r border-input")}>
+          {label}
+        </span>
+      )}
+      {children}
+      <SelectPrimitive.Icon asChild>
+        <ChevronDown className="ml-auto h-4 w-4 opacity-50 shrink-0" />
+      </SelectPrimitive.Icon>
+    </SelectPrimitive.Trigger>
+  );
+});
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
 const SelectScrollUpButton = React.forwardRef<

@@ -94,3 +94,29 @@ describe("SegmentedControl — radiogroup roving tabindex + arrow keys", () => {
     expect(day.getAttribute("aria-checked")).toBe("true");
   });
 });
+
+describe("SegmentedControl ladder + joined label", () => {
+  const options = [
+    { value: "forecast" as const, label: "Forecast" },
+    { value: "budget" as const, label: "Budget" },
+  ];
+
+  it("sits on the h-9 ladder step by default and h-8 at sm", () => {
+    const { rerender } = render(
+      <SegmentedControl aria-label="Plan" value="forecast" onValueChange={() => {}} options={options} />,
+    );
+    expect(screen.getByRole("radiogroup").className).toContain("h-9");
+    rerender(
+      <SegmentedControl aria-label="Plan" size="sm" value="forecast" onValueChange={() => {}} options={options} />,
+    );
+    expect(screen.getByRole("radiogroup").className).toContain("h-8");
+  });
+
+  it("names the group by its joined label, which is not a radio", () => {
+    render(
+      <SegmentedControl label="Indirekter Plan" value="forecast" onValueChange={() => {}} options={options} />,
+    );
+    expect(screen.getByRole("radiogroup", { name: "Indirekter Plan" })).toBeTruthy();
+    expect(screen.getAllByRole("radio")).toHaveLength(2);
+  });
+});
