@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-10-06
-status: ready
+status: done
 value: normal
 blocked_on_branch: feat/settings-tab-body-duplicate-heading
 model: sonnet
