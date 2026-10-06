@@ -35,11 +35,11 @@ Every signal is measured; `0` means measured-zero.
 
 ## Playbooks
 
-Each consumer has one self-heal playbook naming its own hits, to be executed from that project's own session (fleet-adoption rule — the donor does not migrate):
+Each consumer has one self-heal playbook naming its own hits, executed from that project's own session (fleet-adoption rule — the donor does not migrate). The donor files one backlog ticket per consumer through the dashboard capture API; that ticket is the handoff:
 
-- [hk-crm](2026-10-06-adopt-v0-3-0-playbook-hk-crm.md)
-- [mistra](2026-10-06-adopt-v0-3-0-playbook-mistra.md)
-- [brickshop-manager](2026-10-06-adopt-v0-3-0-playbook-brickshop-manager.md)
+- [hk-crm](2026-10-06-adopt-v0-3-0-playbook-hk-crm.md) — 24 hits — ticket `adopt-design-baseline-v0-3-0`
+- [mistra](2026-10-06-adopt-v0-3-0-playbook-mistra.md) — 7 hits — ticket `adopt-design-baseline-v0-3-0`
+- [brickshop-manager](2026-10-06-adopt-v0-3-0-playbook-brickshop-manager.md) — 18 hits — ticket `archetype-rollout-adopt-design-baseline-v0-3-0` (bump first; the replacement shells ship only in v0.3.0)
 
 ## Re-run
 

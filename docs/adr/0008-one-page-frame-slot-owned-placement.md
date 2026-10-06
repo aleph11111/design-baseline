@@ -65,7 +65,7 @@ The frame is the page's only raised surface. Inner groupings render as sections 
 
 ## Consequences
 
-- **Breaking, fleet-wide.** Every page archetype's MANIFEST entry takes a MAJOR bump; `docs/PACKAGE.md`'s closed-API removal table gets the rows (`kicker`, `headerActions`, `subtitle`/`icon` on shells, `headerFill`, `onAddNew` toolbar button, `pageActions`, board/classic switches). Consumers migrate from their own sessions (fleet self-heal), controlling-app first.
+- **Breaking, fleet-wide.** Every page archetype's MANIFEST entry takes a MAJOR bump; `docs/PACKAGE.md`'s closed-API removal table gets the rows (`kicker`, `headerActions`, `subtitle`/`icon` on shells, `headerFill`, `onAddNew` toolbar button, `pageActions`, board/classic switches). Consumers migrate from their own sessions (fleet self-heal), controlling-app first; the donor never edits consumer code but files each consumer's backlog ticket through the dashboard capture API (`POST /api/ticket/create {repoName, thought}`; the thought points at the playbook rather than pasting it), and that ticket is the handoff.
 - **Vertical space.** A statement page loses its card title band (~70px) and its second control row; the page title is the one focal point ADR 0007 intended.
 - **Lost:** the per-project accent header bar (`headerFill: solid`). Brand accent remains on primary actions, focus rings and charts.
 - **Risk:** dashboard widgets and kanban lanes inside one frame may separate too weakly; if a review shows that, the fix is a fixed inner tone step in the component, never a per-page choice.

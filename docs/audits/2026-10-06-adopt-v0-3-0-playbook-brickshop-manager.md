@@ -12,7 +12,7 @@ Every page = one title → one untitled raised surface → toolbar band → body
 Large jump: read every PACKAGE.md removals row between the two. Typecheck, fix breaks. Run the generator scripts (`generate:page`) only after the bump.
 
 ### 2. Retire the local shell copies — 4 hits are in shell code, not pages
-`src/components/layout/headerFill.ts` (22), `layout/SurfaceHeaderSlot.tsx` (24), `shared/FeedShell.tsx` (116), `shared/SettingsPageShell.tsx` (88, plus the doc comment at :9 that is the lone `page-header-above-shell` hit — a false positive that vanishes with the file). These are vendored pre-ADR-0008 shells: replace with the package's `design-baseline/archetypes/<slug>` shells (`feed-inbox`, `settings-page`) and delete the local copies and `headerFill` context.
+`src/components/layout/headerFill.ts` (22), `layout/SurfaceHeaderSlot.tsx` (24), `shared/FeedShell.tsx` (116), `shared/SettingsPageShell.tsx` (88, plus the doc comment at :9 that is the lone `page-header-above-shell` hit — a false positive that vanishes with the file). These are vendored pre-ADR-0008 shells: after the bump (the package shells exist only in v0.3.0), replace with the package's `design-baseline/archetypes/<slug>` shells (`feed-inbox`, `settings-page`) and delete the local copies and `headerFill` context.
 
 ### 3. Kickers on pages — 12 hits, `retired-surface-header-props` (red)
 Delete `kicker=` (no replacement). If a `headerActions` neighbours it, → `actions`.
