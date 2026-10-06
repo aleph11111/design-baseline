@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-10-06
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "contract change across every archetype's Layer 11 mobile variant plus a new PageFrame behaviour — design is part of the deliverable"
