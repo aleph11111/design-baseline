@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-10-06
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "handoff mechanism is already chosen (the /ticket foreign-repo land) and the stalled instance is concrete — follow-the-pattern filing plus a rule line"
