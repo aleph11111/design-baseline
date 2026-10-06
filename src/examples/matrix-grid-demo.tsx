@@ -241,14 +241,14 @@ export function MatrixGridDemo() {
       <MatrixGridShell<GradeEntry>
         title="Student Grades"
         actions={
-          <Button variant="outline" size="sm">
+          <Button variant="outline">
             <Download className="h-4 w-4" />
             Export CSV
           </Button>
         }
         toolbar={
           <Select value={term} onValueChange={(v) => setTerm(v as "spring" | "summer")}>
-            <SelectTrigger size="sm" className="w-40" aria-label="Term">
+            <SelectTrigger label="Term" className="w-56">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

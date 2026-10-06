@@ -77,8 +77,8 @@ function PageHeaderDemo() {
           icon={Box}
           actions={
             <>
-              <Button variant="outline" size="sm">Export</Button>
-              <Button size="sm">Edit</Button>
+              <Button variant="outline">Export</Button>
+              <Button>Edit</Button>
             </>
           }
         />
@@ -301,7 +301,7 @@ function SearchInputDemo() {
       <Variant label="In a toolbar row (with a trailing action)">
         <div className="flex items-center gap-3">
           <SearchInput value={q} onChange={setQ} placeholder="Search…" />
-          <Button size="sm" className="shrink-0">
+          <Button className="shrink-0">
             <Plus className="mr-1 h-4 w-4" />
             New
           </Button>
@@ -357,7 +357,7 @@ function StateViewDemo() {
             title="No invoices yet"
             description="Invoices you create will appear here."
             action={
-              <Button size="sm">
+              <Button>
                 <Plus className="mr-1 h-4 w-4" />
                 New invoice
               </Button>
@@ -673,8 +673,8 @@ function PageFrameDemo() {
           badges={<Badge variant="success">Aktiv</Badge>}
           actions={
             <>
-              <Button variant="outline" size="sm">Exportieren</Button>
-              <Button size="sm">
+              <Button variant="outline">Exportieren</Button>
+              <Button>
                 <Plus /> Anlegen
               </Button>
             </>

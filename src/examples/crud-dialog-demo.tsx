@@ -625,7 +625,7 @@ export function CrudDialogDemo(): React.ReactElement {
           <span className="text-sm text-muted-foreground">
             {workouts.length} workout{workouts.length !== 1 ? "s" : ""}
           </span>
-          <Button size="sm" onClick={openCreate}>
+          <Button onClick={openCreate}>
             <Plus className="h-4 w-4" />
             Log workout
           </Button>

@@ -144,13 +144,13 @@ export function CalendarDemo(): React.ReactElement {
         subtitle="Community centre · all rooms"
         toolbar={
           <>
-            <Button variant="outline" size="sm" className="px-2" aria-label="Previous week">
+            <Button variant="outline" className="px-2" aria-label="Previous week">
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline">
               Today
             </Button>
-            <Button variant="outline" size="sm" className="px-2" aria-label="Next week">
+            <Button variant="outline" className="px-2" aria-label="Next week">
               <ChevronRight className="h-4 w-4" />
             </Button>
             <span className="ml-2 text-sm font-medium">
@@ -160,7 +160,7 @@ export function CalendarDemo(): React.ReactElement {
           </>
         }
         actions={
-          <Button size="sm">
+          <Button>
             <Plus className="mr-1 h-4 w-4" />
             Event
           </Button>

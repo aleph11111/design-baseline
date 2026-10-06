@@ -60,8 +60,9 @@ export function SegmentedToggleDemo(): React.ReactElement {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* A joined label names the filter in a toolbar (STYLE.md "Toolbar field labels"). */}
         <SegmentedControl
-          aria-label="Filter albums"
+          label="Show"
           value={filter}
           onValueChange={setFilter}
           options={FILTER_OPTIONS}

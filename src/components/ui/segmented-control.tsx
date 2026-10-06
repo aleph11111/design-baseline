@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { cn } from "../../lib/utils";
+import { JOINED_LABEL_CLASS } from "./toolbar-band";
 
 export type SegmentedOption<T extends string> = {
   value: T;
@@ -15,8 +16,23 @@ export type SegmentedControlProps<T extends string> = {
   options: SegmentedOption<T>[];
   /** Accessible label for the group. */
   "aria-label"?: string;
+  /**
+   * Joined label: a shaded cell fused to the track's left edge (the toolbar
+   * label style, STYLE.md "Toolbar field labels"); it names the group unless
+   * `aria-label` is given.
+   */
+  label?: React.ReactNode;
+  /** Height on the shared control ladder: sm h-8 · default h-9 · lg h-11. */
+  size?: "sm" | "default" | "lg";
   className?: string;
 };
+
+// Track height + pill type per ladder step; the pills fill the track's height.
+const SIZE = {
+  sm: { track: "h-8", pill: "px-2.5 text-xs" },
+  default: { track: "h-9", pill: "px-3 text-sm" },
+  lg: { track: "h-11", pill: "px-4 text-base" },
+} as const;
 
 /**
  * SegmentedControl — the single owner of the "pick one mode/filter" pill row
@@ -40,19 +56,34 @@ export function SegmentedControl<T extends string>({
   value,
   onValueChange,
   options,
+  label,
+  size = "default",
   className,
   ...rest
 }: SegmentedControlProps<T>): React.ReactElement {
+  const labelId = React.useId();
+  const geometry = SIZE[size];
   return (
     <RadioGroupPrimitive.Root
       value={value}
       onValueChange={(next) => onValueChange(next as T)}
       aria-label={rest["aria-label"]}
+      aria-labelledby={label != null && rest["aria-label"] == null ? labelId : undefined}
       className={cn(
-        "inline-flex items-center gap-1 rounded-md border p-0.5",
+        "inline-flex items-stretch gap-1 overflow-hidden rounded-md border p-0.5",
+        geometry.track,
         className,
       )}
     >
+      {label != null && (
+        // Stretched over the track's p-0.5 so the cell meets the border.
+        <span
+          id={labelId}
+          className={cn(JOINED_LABEL_CLASS, "-my-0.5 -ml-0.5 border-r", size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm")}
+        >
+          {label}
+        </span>
+      )}
       {options.map((opt) => {
         const Icon = opt.icon;
         const active = opt.value === value;
@@ -61,7 +92,8 @@ export function SegmentedControl<T extends string>({
             key={opt.value}
             value={opt.value}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition-colors",
+              "inline-flex items-center gap-1.5 rounded font-medium transition-colors",
+              geometry.pill,
               active
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground",

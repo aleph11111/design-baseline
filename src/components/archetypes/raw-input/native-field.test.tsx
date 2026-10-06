@@ -1,6 +1,8 @@
+import type * as React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { NativeField } from "./native-field";
+import { ToolbarBandContext } from "../../ui/toolbar-band";
 import {
   expectFieldError,
   expectFieldHintOnly,
@@ -166,5 +168,24 @@ describe("NativeField — labeled native field with a11y wiring", () => {
     const input = screen.getByLabelText("Batch name");
     expect(input.className).toContain("h-8 text-sm");
     expect(screen.getByText("Batch name").className).toContain("text-xs text-muted-foreground");
+  });
+});
+
+describe("NativeField in a PageFrame toolbar band", () => {
+  const inBand = (ui: React.ReactElement) =>
+    render(<ToolbarBandContext.Provider value={true}>{ui}</ToolbarBandContext.Provider>);
+
+  it("keeps the label associated and fuses it to the control's left edge", () => {
+    inBand(<NativeField label="Wochen" type="number" value={12} onChange={() => {}} />);
+    const input = screen.getByLabelText("Wochen");
+    expect(input.className).toContain("rounded-l-none");
+    // Label and control share one row: same parent, label first.
+    const label = screen.getByText("Wochen");
+    expect(label.nextElementSibling?.contains(input)).toBe(true);
+  });
+
+  it("keeps range stacked, which has no box to join", () => {
+    inBand(<NativeField label="Zoom" type="range" value={5} onChange={() => {}} />);
+    expect(screen.getByLabelText("Zoom").className).not.toContain("rounded-l-none");
   });
 });

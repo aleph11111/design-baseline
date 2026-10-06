@@ -353,7 +353,7 @@ function SettingsTableAddButton({
 }): React.ReactElement | null {
   if (!onAddNew) return null;
   return (
-    <Button variant="default" size="sm" onClick={onAddNew}>
+    <Button variant="default" onClick={onAddNew}>
       <Plus className="mr-1 h-4 w-4" />
       {label}
     </Button>
@@ -399,7 +399,7 @@ function resolveBulkActions<Row>({
       <>
         {bulkActions}
         {onBulkDelete != null && (
-          <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
+          <Button variant="destructive" onClick={handleBulkDelete}>
             {deleteSelected(selection.visibleSelected.length)}
           </Button>
         )}

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Input } from "../../ui/input";
 import { cn } from "../../../lib/utils";
+import { JOINED_LABEL_CLASS, useInToolbarBand } from "../../ui/toolbar-band";
 import {
   FIELD_ERROR_RING,
   FieldError,
@@ -145,6 +146,7 @@ export function NativeField({
     describedBy,
     invalid,
   } = useFieldIds({ id, hint, error });
+  const inToolbarBand = useInToolbarBand();
   const stringValue = String(value);
 
   // The multi-line control has one owner — the raw-textarea field. Delegate the
@@ -188,6 +190,9 @@ export function NativeField({
   };
 
   const errorRing = error && FIELD_ERROR_RING;
+  // In a PageFrame toolbar band the label joins the control's left edge
+  // (STYLE.md "Toolbar field labels"); a range slider has no box to join.
+  const joined = inToolbarBand && type !== "range";
 
   let control: React.ReactElement;
   if (type === "range") {
@@ -224,7 +229,7 @@ export function NativeField({
         max={max}
         step={step}
         inputMode={inputMode}
-        className={cn(errorRing, controlClassName)}
+        className={cn(errorRing, joined && "rounded-l-none", controlClassName)}
         // Clears the absolute prefix: Input's own px-3 (0.75rem) + the glyphs + a 0.5rem
         // gap. Inline because the width is a runtime value — a dynamic `pl-[…]` class
         // string is invisible to Tailwind's scanner.
@@ -243,12 +248,32 @@ export function NativeField({
     }
   }
 
+  const fieldLabel = (
+    <FieldLabel
+      htmlFor={inputId}
+      className={cn(
+        joined && [JOINED_LABEL_CLASS, "rounded-l-md border border-r-0 border-input"],
+        labelClassName
+      )}
+      required={required}
+    >
+      {label}
+    </FieldLabel>
+  );
+
   return (
     <FieldFrame className={className}>
-      <FieldLabel htmlFor={inputId} className={labelClassName} required={required}>
-        {label}
-      </FieldLabel>
-      {control}
+      {joined ? (
+        <div className="flex">
+          {fieldLabel}
+          <div className="min-w-0 flex-1">{control}</div>
+        </div>
+      ) : (
+        <>
+          {fieldLabel}
+          {control}
+        </>
+      )}
       {hint && <FieldHint id={hintId}>{hint}</FieldHint>}
       {error && <FieldError id={errorId}>{error}</FieldError>}
     </FieldFrame>

@@ -235,11 +235,11 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
         subtitle="Shop · all figures net of refunds"
         actions={
           <>
-            <Button variant="outline" size="sm">
+            <Button variant="outline">
               <Share2 className="h-4 w-4" />
               Share
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline">
               <Download className="h-4 w-4" />
               Export
             </Button>
@@ -251,10 +251,10 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
               value={period}
               onValueChange={(v) => setPeriod(v as Period)}
               options={PERIODS.map((p) => ({ value: p, label: p }))}
-              aria-label="Period"
+              label="Period"
             />
             <Select value={channel} onValueChange={(v) => setChannel(v)}>
-              <SelectTrigger size="sm" className="w-36" aria-label="Channel">
+              <SelectTrigger label="Channel" className="w-56">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

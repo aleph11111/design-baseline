@@ -12,7 +12,7 @@ export type SearchInputProps = Omit<
   onChange?: (value: string) => void;
   /** Applied to the wrapper. Defaults to `max-w-sm flex-1`. */
   className?: string;
-  /** Control height/density. `default` = the original h-10 toolbar box. */
+  /** Control height on the shared ladder: sm h-8 · default h-9 · lg h-11 (touch). */
   inputSize?: "sm" | "default" | "lg";
   /** Show a trailing clear-X once there's a value; clears and refocuses. */
   clearable?: boolean;
@@ -26,8 +26,8 @@ export type SearchInputProps = Omit<
 // mobile (lg) search field read as the same widget at different densities.
 const SIZE = {
   sm: { input: "h-8 text-xs", icon: "left-2.5 h-3.5 w-3.5", pl: "pl-8" },
-  default: { input: "h-10", icon: "left-3 h-4 w-4", pl: "pl-9" },
-  lg: { input: "h-12 text-base", icon: "left-3.5 h-5 w-5", pl: "pl-11" },
+  default: { input: "h-9", icon: "left-3 h-4 w-4", pl: "pl-9" },
+  lg: { input: "h-11 text-base", icon: "left-3.5 h-5 w-5", pl: "pl-11" },
 } as const;
 
 /**

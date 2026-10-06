@@ -10,7 +10,8 @@
  *   - `title` — "Profit & Loss", the page h1, passed once.
  *   - `actions` — the document verbs: Export, PDF.
  *   - `toolbar` — the scoping selectors (Scenario · Year · Structure); each
- *     re-scopes the whole statement.
+ *     re-scopes the whole statement. Each carries its label joined to the box
+ *     at the band's one control height (STYLE.md "Toolbar field labels").
  *   - `viewOptions` — display-only toggles in the View menu (decimals, KPI
  *     rows, zero rows); they change how the statement shows, not which.
  *   - body — a `<StatementTable>` of section + line rows and a tinted total.
@@ -131,7 +132,7 @@ export function StatementWithFiltersDemo(): React.ReactElement {
     width: string,
   ) => (
     <Select value={tuple[key]} onValueChange={(v) => setTuple((t) => ({ ...t, [key]: v }))}>
-      <SelectTrigger size="sm" className={width} aria-label={label}>
+      <SelectTrigger label={label} className={width}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -160,11 +161,11 @@ export function StatementWithFiltersDemo(): React.ReactElement {
         subtitle={`Beekeeping club · ${tuple.scenario === "actual" ? "Actual" : "Budget"} ${tuple.year}`}
         actions={
           <>
-            <Button variant="outline" size="sm">
+            <Button variant="outline">
               <Download className="h-4 w-4" />
               Export
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline">
               <FileText className="h-4 w-4" />
               PDF
             </Button>
@@ -172,9 +173,9 @@ export function StatementWithFiltersDemo(): React.ReactElement {
         }
         toolbar={
           <>
-            {selector("scenario", "Scenario", [["actual", "Actual"], ["budget", "Budget"]], "w-28")}
-            {selector("year", "Year", [["2025", "2025"], ["2026", "2026"]], "w-24")}
-            {selector("structure", "Structure", [["lines", "By line"], ["sections", "By section"]], "w-32")}
+            {selector("scenario", "Scenario", [["actual", "Actual"], ["budget", "Budget"]], "w-44")}
+            {selector("year", "Year", [["2025", "2025"], ["2026", "2026"]], "w-36")}
+            {selector("structure", "Structure", [["lines", "By line"], ["sections", "By section"]], "w-52")}
           </>
         }
         viewOptions={

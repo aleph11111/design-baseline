@@ -6,12 +6,6 @@ afterEach(() => {
   cleanup();
 });
 
-// The class string the trigger hard-coded before the size scale existed. The
-// `default` rung must keep rendering exactly this set — every fleet project that
-// vendored the pre-scale trigger re-syncs onto `default`.
-const LEGACY_TRIGGER_CLASSES =
-  "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1";
-
 function renderTrigger(props: React.ComponentProps<typeof SelectTrigger> = {}) {
   render(
     <Select>
@@ -28,10 +22,10 @@ function classSet(el: HTMLElement) {
 }
 
 describe("SelectTrigger size scale", () => {
-  it("renders the pre-scale class set at the default size", () => {
-    expect(classSet(renderTrigger())).toEqual(
-      new Set(LEGACY_TRIGGER_CLASSES.split(" "))
-    );
+  it("renders the h-9 ladder step at the default size", () => {
+    const trigger = renderTrigger();
+    expect(classSet(trigger)).toContain("h-9");
+    expect(classSet(trigger)).toContain("text-sm");
   });
 
   it("renders a compact toolbar box at sm", () => {
@@ -43,13 +37,33 @@ describe("SelectTrigger size scale", () => {
 
   it("renders a touch-sized control at lg", () => {
     const trigger = renderTrigger({ size: "lg" });
-    expect(classSet(trigger)).toContain("h-12");
+    expect(classSet(trigger)).toContain("h-11");
     expect(classSet(trigger)).toContain("text-base");
   });
 
   it("lets className win over the variant height", () => {
     const classes = classSet(renderTrigger({ className: "h-7" }));
     expect(classes).toContain("h-7");
-    expect(classes).not.toContain("h-10");
+    expect(classes).not.toContain("h-9");
+  });
+});
+
+describe("SelectTrigger joined label", () => {
+  it("names the trigger and sits inside the button", () => {
+    render(
+      <Select value="actuals">
+        <SelectTrigger label="Scenario">
+          <SelectValue>Actuals</SelectValue>
+        </SelectTrigger>
+      </Select>
+    );
+    const trigger = screen.getByRole("combobox", { name: "Scenario" });
+    expect(trigger.querySelector("[data-joined-label]")?.textContent).toBe("Scenario");
+    // The label cell must not be line-clamped like the value span.
+    expect(classSet(trigger)).toContain("pl-0");
+  });
+
+  it("renders no label cell without the prop", () => {
+    expect(renderTrigger().querySelector("[data-joined-label]")).toBeNull();
   });
 });

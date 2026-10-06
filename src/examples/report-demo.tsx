@@ -151,10 +151,10 @@ export function ReportDemo(): React.ReactElement {
         }
         actions={
           <>
-            <Button variant="outline" size="sm">
+            <Button variant="outline">
               PDF
             </Button>
-            <Button size="sm">Senden</Button>
+            <Button>Senden</Button>
           </>
         }
         width={width}

@@ -763,7 +763,7 @@ export function FormPageDemo(): React.ReactElement {
         <PageFrame
           title="Recipes"
           actions={
-            <Button size="sm" onClick={() => setMode({ kind: "create" })}>
+            <Button onClick={() => setMode({ kind: "create" })}>
               New recipe
             </Button>
           }

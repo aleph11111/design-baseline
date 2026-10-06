@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { SelectField, type SelectOption } from "./select-field";
+import { ToolbarBandContext } from "../../ui/toolbar-band";
 import {
   expectFieldError,
   expectFieldHintOnly,
@@ -89,5 +90,42 @@ describe("SelectField — labeled enum field with a11y wiring", () => {
     expect(screen.getByLabelText(/Complexity/).getAttribute("aria-required")).toBe(
       "true",
     );
+  });
+});
+
+describe("SelectField in a PageFrame toolbar band", () => {
+  it("renders the label inside the trigger and names the trigger by it", () => {
+    render(
+      <ToolbarBandContext.Provider value={true}>
+        <SelectField
+          label="Scenario"
+          value="a"
+          onChange={() => {}}
+          options={[{ value: "a", label: "Actuals" }]}
+        />
+      </ToolbarBandContext.Provider>
+    );
+    const trigger = screen.getByRole("combobox", { name: "Scenario" });
+    expect(trigger.querySelector("[data-joined-label]")?.textContent).toBe("Scenario");
+    // No separate stacked caption outside the trigger.
+    expect(screen.getAllByText("Scenario")).toHaveLength(1);
+  });
+});
+
+describe("SelectField in an overlay opened from the toolbar band", () => {
+  it("renders stacked: overlays end the band even though context crosses portals", async () => {
+    const { Popover, PopoverContent, PopoverTrigger } = await import("../../ui/popover");
+    render(
+      <ToolbarBandContext.Provider value={true}>
+        <Popover open>
+          <PopoverTrigger>Filter</PopoverTrigger>
+          <PopoverContent>
+            <SelectField label="Status" value="a" onChange={() => {}} options={[{ value: "a", label: "Open" }]} />
+          </PopoverContent>
+        </Popover>
+      </ToolbarBandContext.Provider>
+    );
+    const trigger = screen.getByRole("combobox", { name: "Status" });
+    expect(trigger.querySelector("[data-joined-label]")).toBeNull();
   });
 });

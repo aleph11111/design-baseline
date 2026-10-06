@@ -279,7 +279,7 @@ export function ListWithDetailDemo() {
     onDetailClose: () => setSelectedId(null),
     detailTitle: selected ? selected.title : undefined,
     detailActions: (
-      <Button size="sm" variant="outline">
+      <Button variant="outline">
         Edit
       </Button>
     ),
@@ -290,7 +290,7 @@ export function ListWithDetailDemo() {
     onRetry: () => setState("loaded"),
     // The empty-state CTA (Layer 7) — visible in the "empty" state.
     emptyStateAction: (
-      <Button size="sm" onClick={() => setState("loaded")}>
+      <Button onClick={() => setState("loaded")}>
         <Plus className="mr-1 h-4 w-4" />
         New show
       </Button>
@@ -349,7 +349,7 @@ export function ListWithDetailDemo() {
               // The footer band (Layer 5) — a paged list's "Load more" row.
               footer: (
                 <div className="flex justify-center">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline">
                     Load more
                   </Button>
                 </div>
@@ -380,10 +380,10 @@ export function ListWithDetailDemo() {
                   actions={
                     panel.presentation === "table" ? (
                       <>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline">
                           Import
                         </Button>
-                        <Button size="sm">
+                        <Button>
                           <Plus className="mr-1 h-4 w-4" />
                           New show
                         </Button>

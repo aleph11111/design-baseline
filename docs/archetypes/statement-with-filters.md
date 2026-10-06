@@ -2,7 +2,7 @@
 key: F
 slug: statement-with-filters
 kind: page
-version: 2.1
+version: 2.2
 promoted_from: controlling-app
 promoted_at: 2026-08-19
 source_spec_version: 1.0
@@ -125,6 +125,9 @@ The toolbar is the archetype's signature layer.
 - Display-only toggles (decimals, KPI rows, show-zero rows) go in
   `viewOptions`, not `toolbar`: they never enter the selector tuple or the
   fetch.
+- Every selector and the View control sit at **one control height**, and each
+  selector's label is **joined to its control** (a caption cell fused to the
+  control's left edge), so the band reads as one row of equal boxes.
 
 **Allowed variation:**
 - The **set** of selectors is page-specific (a cashflow page may carry five;
@@ -138,6 +141,9 @@ The toolbar is the archetype's signature layer.
   static (the fetch must depend on the full tuple).
 - Row-filtering controls masquerading as scoping selectors (a search input /
   row filter is A's layer-4 contract, not this archetype).
+- A free-standing selector caption between controls (`Scenario:` as loose
+  text), a label stacked above a selector, or a second control height in the
+  band.
 
 ## Layer 5 — Content wrapper
 
@@ -273,6 +279,10 @@ never from the call site's taste. The mapping is exhaustive:
 ---
 
 ## Version log
+
+- **2.2** — the toolbar band is one row of equal boxes: one control height
+  for every selector and the View control, each selector's label joined to
+  its control; free-standing or stacked selector captions are forbidden.
 
 - **2.0** (ADR-0008) — one page frame. Selectors move from the header's
   actions region to `toolbar`; display toggles get `viewOptions`; `actions`

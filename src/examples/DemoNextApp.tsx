@@ -61,7 +61,7 @@ export function DemoNextApp({ children }: { children: React.ReactNode }) {
         <AppHeader
           title="My App"
           right={
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost">
               Sign out
             </Button>
           }

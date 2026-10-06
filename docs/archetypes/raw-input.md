@@ -2,7 +2,7 @@
 key: I
 slug: raw-input
 kind: component
-version: 1.1
+version: 1.2
 promoted_from: fleet synthesis (controlling-app, my-finance-app, mistra, dashboard, brickshop-manager)
 promoted_at: 2026-07-23
 source_spec_version: n/a (fleet synthesis — no single source spec)
@@ -53,7 +53,10 @@ The `component` kind defines eleven layers; only the layers that bear on this
 molecule carry a rule. The rest are explicitly N/A.
 
 ### L1 — Invocation contract
-Rendered as one labeled field within a larger form/dialog/toolbar. Fully
+Rendered as one labeled field within a larger form/dialog/toolbar. Where it renders decides how its label sits: **stacked above** the
+control in a form or dialog, **joined to the control's left edge** — one box of the
+shared control height — inside a page frame's toolbar band. Derived from placement,
+never chosen per call site. Fully
 **controlled**: the caller passes the current value and receives the control's raw
 value on change. Two invocation shapes, both sanctioned:
 - **Standalone** — the owning surface holds the value in local state and renders the

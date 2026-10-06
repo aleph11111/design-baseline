@@ -134,7 +134,7 @@ export function KanbanBoardDemo(): React.ReactElement {
       <BoardShell
         title="Delivery board"
         actions={
-          <Button size="sm">
+          <Button>
             <Plus className="mr-1 h-4 w-4" />
             Add card
           </Button>
@@ -146,7 +146,7 @@ export function KanbanBoardDemo(): React.ReactElement {
               onChange={setQuery}
               placeholder="Search cards"
             />
-            <Button variant="outline" size="sm">
+            <Button variant="outline">
               <Filter className="mr-1 h-4 w-4" />
               Filter
             </Button>

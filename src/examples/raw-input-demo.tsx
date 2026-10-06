@@ -1,6 +1,7 @@
 import * as React from "react";
 import { NativeField } from "@/components/archetypes/raw-input";
 import { Button } from "@/components/ui/button";
+import { PageFrame } from "@/components/layout/PageFrame";
 
 /**
  * raw-input demo — a home-brew batch log (domain deliberately far from any source
@@ -10,6 +11,9 @@ import { Button } from "@/components/ui/button";
  *
  * Exercises every NativeField control: required text + error, number, date,
  * range (slider), and multiline. Plain controlled state, no react-hook-form.
+ *
+ * The second block shows the same field inside a `PageFrame` toolbar band, where it
+ * joins its label to the box by itself (STYLE.md "Toolbar field labels").
  */
 
 interface Batch {
@@ -42,6 +46,10 @@ export function RawInputDemo(): React.ReactElement {
     setBatch((b) => ({ ...b, [key]: value }));
     setSubmitted(null);
   }
+
+  // The toolbar-band example's scope: which readings the frame shows.
+  const [readingsFrom, setReadingsFrom] = React.useState("2026-10-01");
+  const [readingsDays, setReadingsDays] = React.useState("14");
 
   return (
     <div className="mx-auto max-w-md space-y-6 px-6 py-8">
@@ -131,6 +139,32 @@ export function RawInputDemo(): React.ReactElement {
           {JSON.stringify(submitted, null, 2)}
         </pre>
       )}
+
+      <PageFrame
+        title="Gravity readings"
+        toolbar={
+          <>
+            <NativeField
+              label="From"
+              type="date"
+              value={readingsFrom}
+              onChange={setReadingsFrom}
+              controlClassName="w-40"
+            />
+            <NativeField
+              label="Days"
+              type="number"
+              value={readingsDays}
+              onChange={setReadingsDays}
+              controlClassName="w-20"
+            />
+          </>
+        }
+      >
+        <p className="text-sm text-muted-foreground">
+          Readings for {readingsDays || 0} days from {readingsFrom}.
+        </p>
+      </PageFrame>
     </div>
   );
 }

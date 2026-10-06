@@ -147,7 +147,7 @@ function OverlayDemo(): React.ReactElement {
         </p>
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button variant="outline">
               <Bell className="h-4 w-4" />
               {unread === 0 ? "Notifications" : `${unread} unread`}
             </Button>
@@ -233,7 +233,6 @@ function InboxDemo(): React.ReactElement {
         actions={
           <Button
             variant="outline"
-            size="sm"
             onClick={markAllRead}
             disabled={unreadCount === 0}
           >

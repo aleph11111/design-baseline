@@ -7,6 +7,7 @@ import {
   SelectValue,
 } from "../../ui/select";
 import { cn } from "../../../lib/utils";
+import { useInToolbarBand } from "../../ui/toolbar-band";
 import {
   FIELD_ERROR_RING,
   FieldError,
@@ -104,18 +105,36 @@ export function SelectField({
     describedBy,
     invalid,
   } = useFieldIds({ id, hint, error });
+  // In a PageFrame toolbar band the label joins the trigger (STYLE.md
+  // "Toolbar field labels"); everywhere else it stacks above, the form layout.
+  const joined = useInToolbarBand();
 
   return (
     <FieldFrame className={className}>
       {/* Radix's trigger is a button, so the label associates via aria-labelledby
           (not htmlFor) — id on the Label, aria-labelledby on the trigger. */}
-      <FieldLabel id={labelId} required={required}>
-        {label}
-      </FieldLabel>
+      {!joined && (
+        <FieldLabel id={labelId} required={required}>
+          {label}
+        </FieldLabel>
+      )}
       <Select value={value} onValueChange={onChange} disabled={disabled} required={required}>
         <SelectTrigger
           id={controlId}
-          aria-labelledby={labelId}
+          // Joined: the trigger renders the label cell and names itself by it.
+          label={
+            joined ? (
+              <>
+                {label}
+                {required && (
+                  <span className="ml-0.5 text-status-danger-fg" aria-hidden="true">
+                    *
+                  </span>
+                )}
+              </>
+            ) : undefined
+          }
+          aria-labelledby={joined ? undefined : labelId}
           aria-describedby={describedBy}
           aria-invalid={invalid}
           className={cn(error && FIELD_ERROR_RING)}

@@ -114,7 +114,7 @@ export function ImportWizardDemo(): React.ReactElement {
               <p className="text-sm text-muted-foreground">
                 Drop a CSV here, or choose a file.
               </p>
-              <Button size="sm" onClick={() => setUploaded(true)}>
+              <Button onClick={() => setUploaded(true)}>
                 Choose file
               </Button>
             </>
