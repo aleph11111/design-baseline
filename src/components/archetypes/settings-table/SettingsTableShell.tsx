@@ -243,18 +243,22 @@ export type SettingsTableBodyProps<Row> = {
  * The frame's `count` slot is derived internally from the same inputs the body uses to derive its
  * band caption and checkboxes (`computeBulkSelection`), so the two cannot disagree.
  *
- * `band` is excluded — the shell suppresses it (`false`) by routing to the frame, so there is
- * nothing to configure. `editPane` is the one body-scoped prop the shell does forward.
+ * `band` and `flush` are excluded — the shell fixes both (`band={false}` by
+ * routing to the frame, `flush={false}` because the frame's surface never pads
+ * its body), so there is nothing to configure. `editPane` is the one
+ * body-scoped prop the shell does forward.
  *
  * Use `SettingsTableBody` directly for tab content inside a `SettingsPageShell` (or any other
- * frame that already owns the heading) — `SettingsTableShell` renders a page frame with a
- * `title`, so in a nested frame it is a second nested heading repeating the tab label.
+ * frame that already owns the heading — in a frame surface that does not pad its body, pass
+ * `flush={false}`; the default assumes the `SettingsPageShell` tab panel's `p-5`) —
+ * `SettingsTableShell` renders a page frame with a `title`, so in a nested frame it is a second
+ * nested heading repeating the tab label.
  */
 export type SettingsTableShellProps<Row> = Pick<
   PageFrameProps,
   "title" | "subtitle" | "badges" | "actions"
 > &
-  Omit<SettingsTableBodyProps<Row>, "band">;
+  Omit<SettingsTableBodyProps<Row>, "band" | "flush">;
 
 // ---------------------------------------------------------------------------
 // Shared, frameless derivation
@@ -409,7 +413,9 @@ function resolveBulkActions<Row>({
 /**
  * The frameless settings table — D2's table content, no page header, no second raised surface.
  * Exported for tab content inside a `SettingsPageShell` (and any other frame that already owns
- * the heading), mirroring the `ListWithDetailBody` precedent.
+ * the heading — in a frame surface that does not pad its body, pass `flush={false}`; the
+ * default assumes the `SettingsPageShell` tab panel's `p-5`), mirroring the
+ * `ListWithDetailBody` precedent.
  *
  * Renders a flush control band (toolbar left; create + bulk-write actions and the count caption
  * right) when any of those controls are present — the tab-level home for the scoping/write
@@ -711,8 +717,10 @@ SettingsTableBody.displayName = "SettingsTableBody";
  * stays out of a standalone page.
  *
  * Use `SettingsTableBody` directly for tab content inside a `SettingsPageShell` (or any other
- * frame that already owns the heading) — `SettingsTableShell` renders a page frame with a
- * `title`, so in a nested frame it is a second nested heading repeating the tab label.
+ * frame that already owns the heading — in a frame surface that does not pad its body, pass
+ * `flush={false}`; the default assumes the `SettingsPageShell` tab panel's `p-5`) —
+ * `SettingsTableShell` renders a page frame with a `title`, so in a nested frame it is a second
+ * nested heading repeating the tab label.
  */
 export function SettingsTableShell<Row>({
   title,
