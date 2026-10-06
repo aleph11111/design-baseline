@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render } from "@testing-library/react";
-import { Button } from "./button";
+import { Button, buttonVariants } from "./button";
 
 afterEach(() => {
   cleanup();
@@ -72,5 +72,25 @@ describe("Button — icon size a11y dev warning", () => {
     rerender(<Button size="icon">×</Button>);
     rerender(<Button size="icon">×</Button>);
     expect(warn).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("Button — ladder sizes", () => {
+  it("icon-sm is the h-8 w-8 square", () => {
+    const c = buttonVariants({ size: "icon-sm" });
+    expect(c).toContain("h-8 w-8");
+    expect(c).not.toMatch(/\b(h|w)-9\b/);
+  });
+
+  it("inline carries no height or horizontal padding", () => {
+    const c = buttonVariants({ size: "inline" });
+    expect(c).not.toMatch(/(^|\s)h-/);
+    expect(c).not.toMatch(/(^|\s)px-/);
+  });
+
+  it("warns for an unlabeled icon-sm", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    render(<Button size="icon-sm">×</Button>);
+    expect(warn).toHaveBeenCalled();
   });
 });
