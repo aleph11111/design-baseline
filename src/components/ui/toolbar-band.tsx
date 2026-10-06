@@ -26,8 +26,21 @@ export function useInToolbarBand(): boolean {
  * portal in this, so content opened from a toolbar control is a form again.
  */
 export function OutsideToolbarBand({ children }: { children: React.ReactNode }): React.ReactElement {
-  return <ToolbarBandContext.Provider value={false}>{children}</ToolbarBandContext.Provider>;
+  return (
+    <ToolbarBandContext.Provider value={false}>
+      <ToolbarSizeContext.Provider value={undefined}>{children}</ToolbarSizeContext.Provider>
+    </ToolbarBandContext.Provider>
+  );
 }
+
+/**
+ * The control-ladder step a band imposes on controls that don't pick one.
+ * `PageFrame`'s mobile filter sheet sets `"lg"` (the 44pt touch target, 16px
+ * text so iOS does not zoom); unset everywhere else, so controls keep their own
+ * default. Read by SelectTrigger, Input and SegmentedControl; an explicit
+ * `size` always wins.
+ */
+export const ToolbarSizeContext = React.createContext<"lg" | undefined>(undefined);
 
 /**
  * The joined label cell: a shaded caption fused to a control's left edge, so a

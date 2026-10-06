@@ -1,7 +1,7 @@
 ---
 slug: placement
 kind: methodology
-version: 2.0
+version: 2.1
 status: locked
 governs: [A, B, C, J, K, D2, F2, M, P, G, R, H]
 ---
@@ -70,10 +70,13 @@ PageHeader   Title · subtitle · badges                          [actions]
 | `title` (+ `subtitle`, `badges`) | `PageHeader`, top-left | The page's one title — passed once, to the shell. Under a parent page it renders as the nested heading automatically. |
 | `actions` | `PageHeader`, right | Verbs on the whole page/document: the **one** primary action (create included), export, print. ≤ 1 primary + 2 secondary; the rest in `⋯`. |
 | `toolbar` | the surface's first band, left | Everything that **scopes** the body: search (leftmost), filters, scoping selectors, tabs. |
+| `viewSwitch` | toolbar band, first | A control that switches **what** the page shows (Plan · Checkliste · …) rather than scoping it. |
 | `count` | toolbar band, right | The result count, canonical muted small text, in the archetype's declared format. |
 | `viewOptions` | toolbar band, far right | Everything that changes **how** the body is shown without re-scoping it (decimals, KPI rows, show-zero, density) — one "View" menu. |
 
 A control that fits none of these slots is a question for the archetype contract, not a new row on the page.
+
+**Below `md` the band collapses to one row** — a Filter button carrying the count of set filters (`filterCount`), a one-line summary of the active values (`filterSummary`), the count, and the View menu as an icon. The `toolbar` filters move into a bottom filter sheet, still drawn as joined-label rows (STYLE.md "Toolbar field labels") at the `lg` touch step, with a reset action (`onResetFilters`) and a close button. The `viewSwitch` stays visible above that row and scrolls sideways when it overflows. Scoping must remain **reachable**, not visible: on a narrow viewport the sheet is where it lives. A wrapping toolbar that pushes the body below the first screen is the drift this rule closes. The sheet unmounts on close, so `toolbar` controls hold their value in the page (controlled), never in local state.
 
 ---
 
@@ -200,6 +203,7 @@ When the same placement mistake lands twice in a consuming project, promote it: 
 
 ## Revision log
 
+- **2.1** — Below `md` the toolbar band collapses into one row plus a bottom filter sheet; the new `viewSwitch` slot keeps a view switch outside the sheet.
 - **2.0** — The page frame is `PageFrame` (ADR-0008): one title, one untitled surface, five named slots. Replaced the separate header/toolbar slot tables (which contradicted the title-on-the-card shells and `audit-signals.json` on where the create action and filters go) with the one slot table; the red list now names the double-title and split-control shapes.
 - **1.3** — Removed the dead component reference from the result-count slot: the slot named a
   primitive that does not exist anywhere in the donor (`src/` carries no such component — the

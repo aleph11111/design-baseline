@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-10-06
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "contract change across every archetype's Layer 11 mobile variant plus a new PageFrame behaviour — design is part of the deliverable"
@@ -39,3 +39,8 @@ On a phone (iPhone 16 Plus, ~430pt wide, ~398pt after the 16px gutter) a filter-
 - [[test-gap-use-is-mobile-zero-tests]] — the `useIsMobile` hook this relies on
 - [ADR-0008](/docs/adr/0008-one-page-frame-slot-owned-placement.md) — one page frame, slot-owned placement (the `toolbar` / `viewOptions` slots)
 - [statement-with-filters contract](/docs/archetypes/statement-with-filters.md) — Layer 11 to reword
+
+## Ship notes
+
+- Layer 11 sweep (acceptance 3): `awk '/Layer 11/,/Layer 12/' docs/archetypes/*.md | grep -i "wrap\|hid"` — only `statement-with-filters.md` required a wrapping toolbar / forbade hiding selectors (reworded, v2.3). The other Layer 11 sections (list-with-detail, settings-table, grouped-list, matrix-grid, detail-overview, form-page, tabbed-settings, crud-dialog) speak only about the table body / sections and needed no change.
+- `SelectTrigger`'s joined label cell already carried `data-joined-label` (`src/components/ui/select.tsx`, the `label` span) before this ticket; this ticket added the same marker to `NativeField` and `SegmentedControl` so the sheet's 130px label column applies to all three.

@@ -4,7 +4,7 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { JOINED_LABEL_CLASS } from "./toolbar-band";
+import { JOINED_LABEL_CLASS, ToolbarSizeContext } from "./toolbar-band";
 
 // ---------------------------------------------------------------------------
 // Radix UI Select primitives
@@ -46,11 +46,12 @@ const SelectTrigger = React.forwardRef<
     }
 >(({ className, children, size, label, ...props }, ref) => {
   const labelId = React.useId();
+  const bandSize = React.useContext(ToolbarSizeContext);
   return (
     <SelectPrimitive.Trigger
       ref={ref}
       className={cn(
-        selectTriggerVariants({ size }),
+        selectTriggerVariants({ size: size ?? bandSize }),
         label != null && "overflow-hidden pl-0",
         className
       )}

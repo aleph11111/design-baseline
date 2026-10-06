@@ -2,7 +2,7 @@
 key: F
 slug: statement-with-filters
 kind: page
-version: 2.2
+version: 2.3
 promoted_from: controlling-app
 promoted_at: 2026-08-19
 source_spec_version: 1.0
@@ -240,12 +240,17 @@ never from the call site's taste. The mapping is exhaustive:
 ## Layer 11 — Mobile variant
 
 **Required:**
-- The selector toolbar wraps (controls reflow; no horizontal scroll of the
-  control band on a narrow viewport).
+- Scoping must remain reachable — on a narrow viewport via the filter sheet:
+  the toolbar band collapses to one row (Filter button with the count of set
+  filters, a summary of the active values) and the selectors move into a bottom
+  sheet, each still a joined-label row. A selector that switches the view rather
+  than scoping it stays outside the sheet.
 - The governed statement scrolls horizontally within its own wrapper.
 
 **Forbidden:**
-- Hiding selectors on a narrow viewport (the scoping must remain available).
+- Dropping a selector on a narrow viewport (every selector stays in the sheet).
+- A narrow-viewport toolbar that wraps one control per row and pushes the
+  statement below the first screen.
 
 ## Layer 12 — Permissions
 
@@ -279,6 +284,10 @@ never from the call site's taste. The mapping is exhaustive:
 ---
 
 ## Version log
+
+- **2.3** — Layer 11: scoping stays reachable on a narrow viewport via the
+  filter sheet instead of a wrapping toolbar; hiding selectors behind the
+  sheet is no longer forbidden, dropping one is.
 
 - **2.2** — the toolbar band is one row of equal boxes: one control height
   for every selector and the View control, each selector's label joined to

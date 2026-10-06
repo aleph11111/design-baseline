@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { cn } from "../../lib/utils";
-import { JOINED_LABEL_CLASS } from "./toolbar-band";
+import { JOINED_LABEL_CLASS, ToolbarSizeContext } from "./toolbar-band";
 
 export type SegmentedOption<T extends string> = {
   value: T;
@@ -57,11 +57,13 @@ export function SegmentedControl<T extends string>({
   onValueChange,
   options,
   label,
-  size = "default",
+  size: sizeProp,
   className,
   ...rest
 }: SegmentedControlProps<T>): React.ReactElement {
   const labelId = React.useId();
+  const bandSize = React.useContext(ToolbarSizeContext);
+  const size = sizeProp ?? bandSize ?? "default";
   const geometry = SIZE[size];
   return (
     <RadioGroupPrimitive.Root
@@ -79,6 +81,7 @@ export function SegmentedControl<T extends string>({
         // Stretched over the track's p-0.5 so the cell meets the border.
         <span
           id={labelId}
+          data-joined-label=""
           className={cn(JOINED_LABEL_CLASS, "-my-0.5 -ml-0.5 border-r", size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm")}
         >
           {label}

@@ -174,6 +174,7 @@ In a toolbar a field's label is **joined to the box**: a shaded cell fused to th
 - A bare `Select` takes `<SelectTrigger label="Scenario">`; a `SegmentedControl` takes `label="Indirekter Plan"`. The joined cell names the control for assistive tech and, on a select, opens it when clicked.
 - Forms keep the stacked field (label above the control — "Shared content molecules" below). The joined label is a toolbar device only.
 - A field whose value names itself (a template picker showing "Standard BWA") needs no label at all.
+- **Phone:** below `md` the `PageFrame` toolbar's filters live in a bottom filter sheet (PLACEMENT.md "The page frame"). The sheet re-enters the band, so each filter keeps its joined label and desktop wording (no mobile-only abbreviations); the sheet sets the `lg` step (44pt, 16px text so iOS does not zoom) on every control that doesn't pick one, and lines the label cells up in one ~130px column. Only the container changes.
 
 ### Typography
 

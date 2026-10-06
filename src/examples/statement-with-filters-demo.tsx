@@ -107,12 +107,10 @@ function computeStatement({ scenario, year, structure }: Tuple): {
 // Demo page
 // ---------------------------------------------------------------------------
 
+const DEFAULT_TUPLE: Tuple = { scenario: "actual", year: "2026", structure: "lines" };
+
 export function StatementWithFiltersDemo(): React.ReactElement {
-  const [tuple, setTuple] = React.useState<Tuple>({
-    scenario: "actual",
-    year: "2026",
-    structure: "lines",
-  });
+  const [tuple, setTuple] = React.useState<Tuple>(DEFAULT_TUPLE);
   const [decimals, setDecimals] = React.useState(false);
   const [showKpis, setShowKpis] = React.useState(true);
   const [showZero, setShowZero] = React.useState(false);
@@ -153,7 +151,8 @@ export function StatementWithFiltersDemo(): React.ReactElement {
         and <strong>Structure</strong> in the toolbar re-scope the whole
         statement; the <strong>View</strong> menu only changes how it shows
         (decimals, KPI rows, zero rows); Export and PDF are the document verbs
-        next to the title.
+        next to the title. Narrower than 768px the band collapses to one row
+        and the selectors move into the <strong>Filter</strong> sheet.
       </p>
 
       <StatementWithFiltersShell
@@ -178,6 +177,9 @@ export function StatementWithFiltersDemo(): React.ReactElement {
             {selector("structure", "Structure", [["lines", "By line"], ["sections", "By section"]], "w-52")}
           </>
         }
+        filterCount={(Object.keys(DEFAULT_TUPLE) as Array<keyof Tuple>).filter((k) => tuple[k] !== DEFAULT_TUPLE[k]).length}
+        filterSummary={`${tuple.scenario === "actual" ? "Actual" : "Budget"} · ${tuple.year} · ${tuple.structure === "lines" ? "By line" : "By section"}`}
+        onResetFilters={() => setTuple(DEFAULT_TUPLE)}
         viewOptions={
           <>
             <DropdownMenuCheckboxItem checked={decimals} onCheckedChange={(v) => setDecimals(v === true)}>
