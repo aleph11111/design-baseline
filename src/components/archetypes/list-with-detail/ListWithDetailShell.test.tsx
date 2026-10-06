@@ -375,10 +375,11 @@ describe("ListWithDetailShell — viewOptions", () => {
         columns={columns}
         getRowId={(r) => r.id}
         count="1 result"
-        viewOptions={<div />}
+        viewOptions={<div data-testid="vo" />}
         viewOptionsLabel="Ansicht"
       />,
     );
-    expect(screen.getByText("Ansicht")).toBeTruthy();
+    fireEvent.keyDown(screen.getByRole("button", { name: "Ansicht" }), { key: "Enter" });
+    expect(screen.getByTestId("vo")).toBeTruthy();
   });
 });
