@@ -6,6 +6,9 @@ import { CrudDialogHeader, CrudDialogSheet } from "./crud-dialog";
 import { SettingsTableShell } from "./settings-table";
 import { ListWithDetailShell } from "./list-with-detail";
 import { GroupedListShell } from "./grouped-list";
+import { WizardShell } from "./import-wizard";
+import { FeedItem } from "./feed-inbox";
+import { CrudDialogBody } from "./crud-dialog";
 
 // The list shell's detail renders as a Sheet on mobile only — force that path
 // so its close button (and so its label) is in the tree.
@@ -330,5 +333,62 @@ describe("English defaults when no override is passed", () => {
     // All three list shells now render the same default empty string.
     rerender(<GroupedListShell title="T" isEmpty />);
     expect(screen.getByText("No items yet")).toBeTruthy();
+  });
+});
+
+describe("WizardShell labels", () => {
+  const steps = [
+    { key: "a", label: "Eins" },
+    { key: "b", label: "Zwei" },
+  ];
+
+  it("overrides back, busy and stepper state words", () => {
+    render(
+      <WizardShell
+        title="T"
+        steps={steps}
+        current={1}
+        busy
+        backLabel="Zurück"
+        busyLabel="Importiere…"
+        stepStateLabels={{ completed: "erledigt", current: "aktuell", upcoming: "folgt" }}
+      >
+        x
+      </WizardShell>,
+    );
+    expect(screen.getByRole("button", { name: "Zurück" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Importiere…" })).toBeTruthy();
+    expect(screen.getByText("(erledigt)")).toBeTruthy();
+    expect(screen.getByText("(aktuell)")).toBeTruthy();
+  });
+
+  it("keeps the English defaults", () => {
+    render(
+      <WizardShell title="T" steps={steps} current={1} busy>
+        x
+      </WizardShell>,
+    );
+    expect(screen.getByRole("button", { name: "Back" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Importing…" })).toBeTruthy();
+    expect(screen.getByText("(completed)")).toBeTruthy();
+    expect(screen.getByText("(current)")).toBeTruthy();
+  });
+});
+
+describe("FeedItem unreadLabel", () => {
+  it("overrides and defaults", () => {
+    const { rerender } = render(<FeedItem title="t" unread unreadLabel="Ungelesen" />);
+    expect(screen.getByLabelText("Ungelesen")).toBeTruthy();
+    rerender(<FeedItem title="t" unread />);
+    expect(screen.getByLabelText("Unread")).toBeTruthy();
+  });
+});
+
+describe("CrudDialogBody loadingLabel", () => {
+  it("overrides and defaults the loading announcement", () => {
+    const { rerender } = render(<CrudDialogBody isLoading loadingLabel="Lädt…">x</CrudDialogBody>);
+    expect(screen.getByRole("status").textContent).toBe("Lädt…");
+    rerender(<CrudDialogBody isLoading>x</CrudDialogBody>);
+    expect(screen.getByRole("status").textContent).toBe("Loading…");
   });
 });

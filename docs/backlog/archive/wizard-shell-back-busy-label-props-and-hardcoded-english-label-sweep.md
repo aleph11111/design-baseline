@@ -4,7 +4,7 @@ opened: 2026-10-06
 value: normal
 model: sonnet
 model_reason: "two label props on WizardShell following its own nextLabel/commitLabel seam + a sweep of the existing locale-overrides.test.tsx pattern; scoped implementation, no design decision left"
-status: ready
+status: done
 gate:
   score: 5
   passed: [title, context, what_to_do, acceptance, related]

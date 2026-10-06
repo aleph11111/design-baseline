@@ -3,7 +3,7 @@ import * as React from "react";
 import { Button } from "../../ui/button";
 import { SectionCard } from "../../layout/SectionCard";
 import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
-import { WizardStepper, type WizardStep } from "./WizardStepper";
+import { WizardStepper, type WizardStep, type WizardStepperProps } from "./WizardStepper";
 
 export type WizardShellProps = {
   /** Ordered steps (e.g. Upload → Map → Verify → Commit). */
@@ -22,6 +22,12 @@ export type WizardShellProps = {
   busy?: boolean;
   nextLabel?: string;
   commitLabel?: string;
+  /** Back button label. Default "Back". */
+  backLabel?: string;
+  /** Commit button label while `busy`. Default "Importing…". */
+  busyLabel?: string;
+  /** Screen-reader state words in the stepper. Default completed / current / upcoming. */
+  stepStateLabels?: WizardStepperProps["stateLabels"];
   /**
    * Done state. When set, the shell renders it as the page body inside the same
    * frame (title kept, one raised surface) in place of stepper, step and footer.
@@ -54,6 +60,9 @@ export function WizardShell({
   busy = false,
   nextLabel = "Next",
   commitLabel = "Commit import",
+  backLabel = "Back",
+  busyLabel = "Importing…",
+  stepStateLabels,
   done,
   children,
   title,
@@ -75,17 +84,17 @@ export function WizardShell({
   return (
     <PageFrame title={title} subtitle={subtitle} badges={badges}>
       <div className="space-y-5 p-5">
-        <WizardStepper steps={steps} current={current} />
+        <WizardStepper steps={steps} current={current} stateLabels={stepStateLabels} />
 
         <SectionCard title={stepLabel}>{children}</SectionCard>
 
         <div className="flex items-center justify-between gap-2">
           <Button variant="outline" onClick={onBack} disabled={isFirst || busy}>
-            Back
+            {backLabel}
           </Button>
           {isLast ? (
             <Button onClick={onCommit} disabled={!canProceed || busy}>
-              {busy ? "Importing…" : commitLabel}
+              {busy ? busyLabel : commitLabel}
             </Button>
           ) : (
             <Button onClick={onNext} disabled={!canProceed || busy}>

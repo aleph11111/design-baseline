@@ -29,6 +29,8 @@ export type FeedItemProps = {
   media?: React.ReactNode;
   /** Unread items get a dot and a slightly stronger surface. */
   unread?: boolean;
+  /** Accessible name of the unread dot. Default "Unread". */
+  unreadLabel?: string;
   /** Optional trailing controls (a small action button, a dismiss). */
   actions?: React.ReactNode;
   /** When set, the whole row is clickable (open the source / mark read). */
@@ -49,6 +51,7 @@ export function FeedItem({
   body,
   media,
   unread,
+  unreadLabel = "Unread",
   actions,
   onClick,
   className,
@@ -92,7 +95,7 @@ export function FeedItem({
       {unread && (
         <span
           className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary"
-          aria-label="Unread"
+          aria-label={unreadLabel}
         />
       )}
       {media !== undefined && (

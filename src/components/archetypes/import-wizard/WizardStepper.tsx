@@ -9,6 +9,8 @@ export type WizardStepperProps = {
   steps: WizardStep[];
   /** Index of the active step. Steps before it render as done, after it as upcoming. */
   current: number;
+  /** Screen-reader state words after each step label. Default completed / current / upcoming. */
+  stateLabels?: { completed?: string; current?: string; upcoming?: string };
   className?: string;
 };
 
@@ -21,6 +23,7 @@ export type WizardStepperProps = {
 export function WizardStepper({
   steps,
   current,
+  stateLabels,
   className,
 }: WizardStepperProps): React.ReactElement {
   return (
@@ -28,7 +31,11 @@ export function WizardStepper({
       {steps.map((step, i) => {
         const done = i < current;
         const active = i === current;
-        const stateWord = done ? "completed" : active ? "current" : "upcoming";
+        const stateWord = done
+          ? (stateLabels?.completed ?? "completed")
+          : active
+            ? (stateLabels?.current ?? "current")
+            : (stateLabels?.upcoming ?? "upcoming");
         return (
           <li
             key={step.key}
