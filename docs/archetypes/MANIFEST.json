@@ -8,7 +8,7 @@
   "plugin": {
     "kind": "design",
     "name": "design-baseline",
-    "version": "0.11.0",
+    "version": "0.11.1",
     "taxonomy": "docs/TAXONOMY.md",
     "surface": {
       "type": "vite-app",
@@ -73,7 +73,7 @@
       "slug": "detail-overview",
       "displayName": "Detail overview",
       "kind": "page",
-      "version": "4.2",
+      "version": "4.3",
       "promoted_from": "hk-crm",
       "promoted_at": "2026-05-23",
       "source_spec_version": "1.6",
@@ -214,7 +214,7 @@
       "slug": "report",
       "displayName": "Report",
       "kind": "page",
-      "version": "3.2",
+      "version": "3.3",
       "authored": "2026-06-23",
       "authored_reason": "Baseline-authored from the Plex Ledger gallery mockup board (single-mockup origin, no consuming source project). Sanctioned exception to the 'baseline never originates' rule — see docs/adr/0001-grandfather-authored-report-calendar.md. Closed set with `calendar`; not a pattern to repeat.",
       "source_spec_version": "1.1",

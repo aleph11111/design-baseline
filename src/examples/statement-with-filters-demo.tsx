@@ -29,6 +29,7 @@ import {
   StatementTotalRow,
 } from "@/components/archetypes/statement-with-filters";
 import { Button } from "@/components/ui/button";
+import { formatFigure } from "@/lib/format";
 import {
   Select,
   SelectContent,
@@ -92,7 +93,11 @@ function computeStatement({ scenario, year, structure }: Tuple): {
   );
   const result = { cur: sum(lines, "cur"), prior: sum(lines, "prior") };
   const [rev] = sections;
-  const pct = (a: number, b: number) => `${((a / b) * 100).toFixed(1)} %`;
+  // margin is a 0–1 ratio (result / revenue) — the `fraction` kind, one decimal
+  // (the house scale), no-break space before %. Replaces the inline string-built
+  // percent the reference code used to model (dot decimal, no-break space
+  // dropped) — figures go through the one formatter.
+  const pct = (a: number, b: number) => formatFigure(a / b, "fraction");
   return {
     rows,
     result,
@@ -116,11 +121,10 @@ export function StatementWithFiltersDemo(): React.ReactElement {
   const [showZero, setShowZero] = React.useState(false);
 
   const { rows, result, kpis } = React.useMemo(() => computeStatement(tuple), [tuple]);
-  const fmt = (v: number) =>
-    new Intl.NumberFormat("de-DE", {
-      minimumFractionDigits: decimals ? 2 : 0,
-      maximumFractionDigits: decimals ? 2 : 0,
-    }).format(v);
+  // Figure values route through the baseline's `formatFigure` — the one figure
+  // formatter. The View-menu "Show decimals" toggle maps to `decimals` (0 or 2);
+  // the currency kind's default (2) is what "Show decimals" ON renders.
+  const fmt = (v: number) => formatFigure(v, "currency", { decimals: decimals ? 2 : 0 });
   const prior = String(Number(tuple.year) - 1);
 
   const selector = <K extends keyof Tuple>(

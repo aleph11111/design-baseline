@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { IconAvatar } from "@/components/ui/icon-avatar";
+import { formatFigure } from "@/lib/format";
 import {
   DetailOverviewShell,
   DetailSection,
@@ -92,11 +93,11 @@ const LONG_RAIL_ROWS: [string, string][] = [
   ["Payment", "Card ending 4242"],
 ];
 
+/** Money figures route through the baseline's `formatFigure` — the one figure
+ *  formatter (STYLE.md "Figures"). The demo keeps the `fmtEUR` idiom as a thin
+ *  currency alias (default kind/currency) and never formats a figure inline. */
 function fmtEUR(amount: number): string {
-  return new Intl.NumberFormat("de-DE", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amount);
+  return formatFigure(amount);
 }
 
 function fmtDate(iso: string): string {

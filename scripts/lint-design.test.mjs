@@ -1271,6 +1271,86 @@ describe("residual appearance prop in a closed archetype folder (the allowlist g
   });
 });
 
+describe("the `no-inline-number-format` figure rule", () => {
+  // The rule a figure-formatting ticket ships (and the acceptance that pins it):
+  // an inline `Intl.NumberFormat` / `.toLocaleString(` / `toFixed(…) + "%"` figure
+  // formatter is a hit; the one formatter (`src/lib/format.ts`) is excluded; a
+  // %-free `toFixed` (a file-size label, not a figure) is out of scope. The rule is
+  // loaded from the shipped `_adherence.json` so the test and the rule can't drift.
+  const rule = JSON.parse(readFileSync(join(root, "_adherence.json"), "utf8")).rules.find(
+    (r) => r.id === "no-inline-number-format",
+  );
+
+  it("fires on a fixture containing `(v * 100).toFixed(1) + \"%\"`", () => {
+    // The exact consuming bug the ticket cites (a percentage built with `toFixed`
+    // and a string `\"%\"`, the dot-decimal / no-break-space loss the helper fixes).
+    const files = {
+      "src/features/MarginChart.tsx":
+        "export function margin(v: number): string {\n  return (v * 100).toFixed(1) + \"%\";\n}\n",
+    };
+    const { stdout } = runFilesFixture([rule], files, "--json");
+    const vs = JSON.parse(stdout).violations;
+    expect(vs).toHaveLength(1);
+    expect(vs[0].file).toBe("src/features/MarginChart.tsx");
+    expect(vs[0].line).toBe(2); // the `.toFixed(1) + \"%\"` line
+  });
+
+  it("fires on `new Intl.NumberFormat(\"de-DE\")`", () => {
+    const files = {
+      "src/features/utils.ts":
+        "export function fmtEUR(n: number): string {\n  return new Intl.NumberFormat(\"de-DE\", { style: \"currency\", currency: \"EUR\" }).format(n);\n}\n",
+    };
+    const { stdout } = runFilesFixture([rule], files, "--json");
+    const vs = JSON.parse(stdout).violations;
+    expect(vs).toHaveLength(1);
+    expect(vs[0].line).toBe(2);
+  });
+
+  it("fires on `.toLocaleString(", () => {
+    const files = {
+      "src/features/Kpi.tsx":
+        "const label = (n: number) => n.toLocaleString(\"de-DE\");\n",
+    };
+    const { stdout } = runFilesFixture([rule], files, "--json");
+    const vs = JSON.parse(stdout).violations;
+    expect(vs).toHaveLength(1);
+    expect(vs[0].line).toBe(1);
+  });
+
+  it("stays silent on `src/lib/format.ts` (the formatter's own `Intl.NumberFormat` calls)", () => {
+    // `src/lib/format.ts` is the one figure formatter and legitimately builds its
+    // `Intl.NumberFormat`s — the rule's `exclude` keeps itself out of its own source.
+    const files = {
+      "src/lib/format.ts":
+        "export function formatFigure(value: number): string {\n  return new Intl.NumberFormat(\"de-DE\").format(value);\n}\n",
+    };
+    const { stdout, status } = runFilesFixture([rule], files, "--json");
+    expect(JSON.parse(stdout).violations).toHaveLength(0); // the formatter itself is clean
+    expect(status).toBe(0);
+  });
+
+  it("stays silent on a %-free `.toFixed(` (a file-size label, not a figure)", () => {
+    // `file-field.tsx`'s `KB`/`MB` labels `toFixed` without a `%` — a non-figure
+    // measurement, so the %-smell rule leaves it out (the `.toFixed(` alternative
+    // only fires when the same line also carries a `%`).
+    const files = {
+      "src/components/ui/file-field.tsx":
+        "export function size(kb: number): string {\n  if (kb < 1024) return `${kb.toFixed(1)} KB`;\n  return `${(kb / 1024).toFixed(1)} MB`;\n}\n",
+    };
+    const { stdout } = runFilesFixture([rule], files, "--json");
+    expect(JSON.parse(stdout).violations).toHaveLength(0);
+  });
+
+  it("is `warn` at rollout (a firing hit does not break CI until flipped to `error`)", () => {
+    // The rule as shipped is `warn` (the ratchet's rollout tier) — a live hit must exit
+    // 0, so the donor's own scan and a consumer's gate stay green while the class drains.
+    const { status } = runFilesFixture([rule], {
+      "src/features/Pct.tsx": "const p = (v: number) => (v * 100).toFixed(1) + \"%\";\n",
+    });
+    expect(status).toBe(0); // warn severity → exit 0
+  });
+});
+
 describe("the `_adherence.NOTES.md` ledger covers the shipped rule set", () => {
   // `_adherence.NOTES.md` is the per-rule ledger several rule `message` fields point a
   // reader at, so a partial one reads as exhaustive: an absent row gets mistaken for the

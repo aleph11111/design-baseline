@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { COL_HEADER_CLASS } from "@/components/layout/overline";
 import { cn } from "@/lib/utils";
+import { formatFigure } from "@/lib/format";
 import {
   ReportShell,
   ReportLineTable,
@@ -59,18 +60,12 @@ type Invoice = {
 
 // ---------------------------------------------------------------------------
 // Local formatters (pre-format values; primitives never format)
+//
+// Figure *values* (money, qty) go through the baseline's `formatFigure` — the
+// one figure formatter (STYLE.md "Figures"; scale explicit in the kind: `currency`
+// default EUR/de-DE, `count` for quantities). Dates stay a domain `DateTimeFormat`:
+// a date is not a figure, and `formatFigure` owns number scales, not date layout.
 // ---------------------------------------------------------------------------
-
-function fmtEUR(amount: number): string {
-  return new Intl.NumberFormat("de-DE", {
-    style: "currency",
-    currency: "EUR",
-  }).format(amount);
-}
-
-function fmtQty(n: number): string {
-  return new Intl.NumberFormat("de-DE").format(n);
-}
 
 function fmtDate(iso: string): string {
   return new Intl.DateTimeFormat("de-DE", {
@@ -114,10 +109,9 @@ export function ReportDemo(): React.ReactElement {
   const net = inv.items.reduce((sum, li) => sum + li.qty * li.unitPrice, 0);
   const tax = net * inv.taxRate;
   const gross = net + tax;
-  const taxPct = new Intl.NumberFormat("de-DE", {
-    style: "percent",
-    maximumFractionDigits: 0,
-  }).format(inv.taxRate);
+  // taxRate is a 0–1 fraction — the `fraction` kind, never a percent-point
+  // guess. `decimals: 0` keeps the invoice's whole-number tax-rate label (MwSt. 19 %).
+  const taxPct = formatFigure(inv.taxRate, "fraction", { decimals: 0 });
   const [width, setWidth] = React.useState<"sm" | "md" | "lg">("md");
 
   return (
@@ -185,9 +179,9 @@ export function ReportDemo(): React.ReactElement {
             <ReportLineRow
               key={li.id}
               name={li.name}
-              qty={fmtQty(li.qty)}
-              unit={fmtEUR(li.unitPrice)}
-              sum={fmtEUR(li.qty * li.unitPrice)}
+              qty={formatFigure(li.qty, "count")}
+              unit={formatFigure(li.unitPrice)}
+              sum={formatFigure(li.qty * li.unitPrice)}
             />
           ))}
         </ReportLineTable>
@@ -195,9 +189,9 @@ export function ReportDemo(): React.ReactElement {
         {/* Totals stack */}
         <div className="mt-4 flex justify-end">
           <div className="flex w-60 flex-col gap-1.5">
-            <ReportTotalRow label="Zwischensumme" value={fmtEUR(net)} />
-            <ReportTotalRow label={`MwSt. ${taxPct}`} value={fmtEUR(tax)} />
-            <ReportTotalRow label="Gesamt" value={fmtEUR(gross)} total />
+            <ReportTotalRow label="Zwischensumme" value={formatFigure(net)} />
+            <ReportTotalRow label={`MwSt. ${taxPct}`} value={formatFigure(tax)} />
+            <ReportTotalRow label="Gesamt" value={formatFigure(gross)} total />
           </div>
         </div>
       </ReportShell>
