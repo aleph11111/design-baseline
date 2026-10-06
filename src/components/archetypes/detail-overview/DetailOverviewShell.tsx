@@ -158,7 +158,11 @@ export function DetailOverviewShell({
     </UnifiedSurfaceContext.Provider>
   );
 
-  const main = (
+  // An empty body slot set renders no container — no ruled blank strip.
+  const hasMain = Boolean(statStrip || content);
+  const hasVerticalBody = hasMain || Boolean(references);
+
+  const main = hasMain && (
     <div
       className={cn(
         "border-t border-border/60 p-5 lg:border-t-0 space-y-4",
@@ -171,7 +175,9 @@ export function DetailOverviewShell({
 
   const body =
     layout === "rail" ? (
-      <div className="lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
+      <div
+        className={cn(hasMain && "lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start")}
+      >
         {rail}
         {main}
       </div>
@@ -182,13 +188,13 @@ export function DetailOverviewShell({
         <UnifiedSurfaceContext.Provider value={true}>
           <div className={cn("bg-muted/20", railDividers)}>{summary}</div>
         </UnifiedSurfaceContext.Provider>
-        <div
-          className="border-t border-border/60 p-5 space-y-4"
-        >
-          {statStrip && <div>{statStrip}</div>}
-          {content}
-          {references && <div>{references}</div>}
-        </div>
+        {hasVerticalBody && (
+          <div className="border-t border-border/60 p-5 space-y-4">
+            {statStrip && <div>{statStrip}</div>}
+            {content}
+            {references && <div>{references}</div>}
+          </div>
+        )}
       </div>
     );
 

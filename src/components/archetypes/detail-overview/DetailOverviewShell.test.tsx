@@ -307,3 +307,28 @@ const closedPropGuard: _RetiredAxesGuard = true;
 const statsDataGuard: _StatsDataGuard = true;
 expect(closedPropGuard).toBe(true);
 expect(statsDataGuard).toBe(true);
+
+describe("DetailOverviewShell — empty body slots", () => {
+  it("vertical: summary-only renders no bordered body strip", () => {
+    const { container } = render(
+      <DetailOverviewShell title="T" summary={<div>summary-slot</div>} />,
+    );
+    expect(container.querySelector(".border-t.border-border\\/60.p-5")).toBeNull();
+    cleanup();
+    const filled = render(<DetailOverviewShell title="T" summary={<div>s</div>} content={<div>c</div>} />);
+    expect(filled.container.querySelector(".border-t.border-border\\/60.p-5")).not.toBeNull();
+  });
+
+  it("rail: summary/references-only renders no main column or grid", () => {
+    const { container } = render(
+      <DetailOverviewShell
+        title="T"
+        layout="rail"
+        summary={<div>summary-slot</div>}
+        references={<div>references-slot</div>}
+      />,
+    );
+    expect(container.querySelector(".p-5")).toBeNull();
+    expect(container.querySelector('[class*="lg:grid-cols-"]')).toBeNull();
+  });
+});
