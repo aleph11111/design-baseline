@@ -417,6 +417,34 @@ export function ListWithDetailDemo() {
               </div>
             </section>
           ))}
+
+          {/* The mobile filter sheet, localized: below `md` (view the gallery
+              at 430px) the toolbar collapses into a German "Filtern" sheet with
+              the active-filter count, summary and reset — every full-frame
+              shell forwards these `PageFrame` slots. */}
+          <section className="space-y-2">
+            <h3 className="text-xs font-medium text-muted-foreground">
+              German page — mobile filter sheet (below md, e.g. 430px)
+            </h3>
+            <ListWithDetailShell<Podcast>
+              title="Sendungen"
+              columns={ACTION_ROW_COLUMNS}
+              presentation={PRESENTATION_ACTION_ROW}
+              toolbar={
+                <ListWithDetailToolbar
+                  searchValue={search}
+                  onSearchChange={setSearch}
+                  searchPlaceholder="Sendungen suchen…"
+                />
+              }
+              filterCount={search ? 1 : 0}
+              filterSummary={search ? `Suche: „${search}“` : "Alle Sendungen"}
+              onResetFilters={() => setSearch("")}
+              filterLabels={{ filter: "Filtern", done: "Fertig", reset: "Zurücksetzen" }}
+              count={`${filtered.length} ${filtered.length === 1 ? "Ergebnis" : "Ergebnisse"}`}
+              {...shellProps}
+            />
+          </section>
         </div>
       </div>
     </div>

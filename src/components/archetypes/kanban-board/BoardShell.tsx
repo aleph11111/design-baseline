@@ -1,12 +1,9 @@
 "use client";
 import * as React from "react";
-import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
 
-export type BoardShellProps = Pick<
-  PageFrameProps,
-  "title" | "subtitle" | "badges" | "actions" | "toolbar" | "count" | "viewOptions" | "viewOptionsLabel"
-> & {
+export type BoardShellProps = PageShellFrameProps & {
   /** `<BoardColumn>` children, laid out as a horizontally-scrolling row. */
   children: React.ReactNode;
 };

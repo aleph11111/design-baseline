@@ -118,7 +118,7 @@ check landed.
 | `archetype-shell-class-name` | `className` declared on a `*Shell` / `*Sheet` component — the prop name and its indent, NOT its type, so `className?: ClassValue` is caught too | `src/components/archetypes/**` + `src/components/layout/**`, `*Shell.tsx` / `*Sheet.tsx` |
 | `archetype-appearance-slot` | an appearance-bearing `ReactNode` slot (`header`, `stats`) | `src/components/archetypes/**` + `src/components/layout/**` |
 | `archetype-render-callback-prop` | a function-typed prop returning `ReactNode` (`renderHeader?: (args) => React.ReactNode`) — the appearance slot one indirection up. Two mechanisms keep structural callbacks out: OPTIONAL-only drops the required router link-adaptors (`Sidebar`/`SectionNav` `renderLink`), a negative lookahead drops the optional back-link adapter (`renderBackLink`) | `src/components/archetypes/**` + `src/components/layout/**` |
-| `archetype-swallowed-pageframe-slot` | a `PageFrame` slot name (`title`, `subtitle`, `badges`, `actions`, `toolbar`, `count`, `viewOptions`) destructured from a shell's props but never referenced again — the `({ toolbar, ...rest })` + `<PageFrame {...rest}>` swallow `tsc` cannot see. File-level check (`swallowedSlots` rule key, `findSwallowedSlots`), only in files mentioning `PageFrame`; the reference search is scoped to the destructuring function's body (comments, strings, JSX text and `.name` access do not count). Ceiling: a destructure with nested braces is not matched; a use inside the JSX (`dense={Boolean(toolbar)}`) counts as a reference, a pre-JSX non-member use (`Boolean(toolbar)`) does not | `src/components/archetypes/**` |
+| `archetype-swallowed-pageframe-slot` | a `PageFrame` slot name (`title`, `subtitle`, `badges`, `actions`, `toolbar`, `count`, `viewSwitch`, `filterCount`, `filterSummary`, `onResetFilters`, `filterLabels`, `viewOptions`, `viewOptionsLabel`) destructured from a shell's props but never referenced again — the `({ toolbar, ...rest })` + `<PageFrame {...rest}>` swallow `tsc` cannot see. File-level check (`swallowedSlots` rule key, `findSwallowedSlots`), only in files mentioning `PageFrame`; the reference search is scoped to the destructuring function's body (comments, strings, JSX text and `.name` access do not count). Ceiling: a destructure with nested braces is not matched; a use inside the JSX (`dense={Boolean(toolbar)}`) counts as a reference, a pre-JSX non-member use (`Boolean(toolbar)`) does not | `src/components/archetypes/**` |
 
 **The shared-chrome second root.** `src/components/layout/**` is a second
 `include` root on every rule above, including `archetype-appearance-slot`
@@ -355,10 +355,13 @@ The ad-hoc-error-color candidate came off this ledger when `literal-color` shipp
 (`bg-red-50` and every other palette literal) is mechanized now, but *which* of the two canonical
 error treatments a page uses (Alert shell vs. tinted box) stays a gate-4 judgment.
 
-**Ceiling — `Pick<PageFrameProps, …>`-level slot drops.** `archetype-swallowed-pageframe-slot` only sees a slot
-destructured beside `...rest` and never referenced. A shell that omits `viewOptions` / `viewOptionsLabel` / `count`
-from its `Pick` has no destructure to flag, and whether the omission is deliberate lives in the archetype's prose
-contract (e.g. `detail-overview.md`, `report.md`) — a boundary a zero-dep single-line scanner cannot see (ADR-0003).
-Audited at v0.5.x: list-with-detail and kanban-board fixed; statement-with-filters already forwards them; detail-overview
-and report omit by contract; matrix-grid/feed/calendar/dashboard/grouped-list/settings-table contracts do not claim
-`viewOptions`, left unchanged.
+**Resolved — `Pick<PageFrameProps, …>`-level slot drops.** `archetype-swallowed-pageframe-slot` only sees a slot
+destructured beside `...rest` and never referenced; a shell that left a slot out of a hand-picked `Pick` had no
+destructure to flag (v0.6.0's mobile filter-sheet slots reached only statement-with-filters). Closed at the type level
+instead (v0.6.3): every full-frame shell builds from `PageShellFrameProps` (`src/components/layout/PageFrame.tsx`, an
+`Omit` so a new `PageFrame` slot reaches all of them), and `src/components/archetypes/page-shell-frame-slots.test.tsx`
+fails `tsc` when one of the nine shells lacks a shared slot and fails at runtime when one does not forward the
+filter-sheet slots. Deliberate omissions stay by contract: detail-overview, form-page, report, tabbed-settings, and
+import-wizard keep their own `Pick`; settings-table drops only `count` (derived from `rowLabel`). Ceiling:
+list-with-detail destructures its frame slots explicitly (its rest is the body), so a future slot needs adding there by
+hand — the type gate proves it is accepted, not that it is forwarded.

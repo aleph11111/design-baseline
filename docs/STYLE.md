@@ -234,7 +234,7 @@ reserved for overlays: modals and popovers.
 
 **One page frame.** A page is its `PageHeader` title over one untitled raised surface — `PageFrame`, owned there; where every control goes is its slot table (ADR-0008, `docs/PLACEMENT.md`). There is no on-surface page title and no header fill: the display-step `h1` is the page's one focal point (ADR-0007 §2).
 
-A shell forwards every `PageFrame` slot it takes (`title`, `subtitle`, `badges`, `actions`, `toolbar`, `count`, `viewOptions`): destructuring one beside `...rest` and forwarding only `...rest` drops it silently, and the adherence lint's `archetype-swallowed-pageframe-slot` rule (`_adherence.NOTES.md`) fails it.
+A full-frame shell types its frame slots as `PageShellFrameProps` (every `PageFrame` slot but the body, root class, and back-link/icon chrome — an `Omit`, so a new slot reaches every shell) and forwards every one, best as one `...frame` rest spread: destructuring one beside `...rest` and forwarding only `...rest` drops it silently, and the adherence lint's `archetype-swallowed-pageframe-slot` rule (`_adherence.NOTES.md`) fails it.
 
 ## Component inventory (`src/components/ui/`)
 

@@ -21,7 +21,7 @@ import {
   type RowAction,
   type TableColumn,
 } from "../shared";
-import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
 import { cn } from "../../../lib/utils";
 import { logger } from "../../../utils/logger";
 
@@ -256,10 +256,7 @@ export type SettingsTableBodyProps<Row> = {
  * chrome past the edge). `SettingsTableShell` renders a page frame with a `title`, so in a
  * nested frame it is a second nested heading repeating the tab label.
  */
-export type SettingsTableShellProps<Row> = Pick<
-  PageFrameProps,
-  "title" | "subtitle" | "badges" | "actions"
-> &
+export type SettingsTableShellProps<Row> = Omit<PageShellFrameProps, "count"> &
   Omit<SettingsTableBodyProps<Row>, "band" | "flush">;
 
 // ---------------------------------------------------------------------------
@@ -735,9 +732,6 @@ SettingsTableBody.displayName = "SettingsTableBody";
  * nested frame it is a second nested heading repeating the tab label.
  */
 export function SettingsTableShell<Row>({
-  title,
-  subtitle,
-  badges,
   actions,
   rows,
   columns,
@@ -761,6 +755,7 @@ export function SettingsTableShell<Row>({
   bulkSelectable,
   selectedIds = [],
   onBulkSelectChange,
+  ...frame
 }: SettingsTableShellProps<Row>): React.ReactElement {
   const hasBulk = bulkSelectable === true;
 
@@ -801,9 +796,7 @@ export function SettingsTableShell<Row>({
 
   return (
     <PageFrame
-      title={title}
-      subtitle={subtitle}
-      badges={badges}
+      {...frame}
       toolbar={toolbar}
       actions={mergedActions}
       count={count}
