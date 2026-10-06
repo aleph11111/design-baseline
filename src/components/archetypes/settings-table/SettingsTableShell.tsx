@@ -249,11 +249,12 @@ export type SettingsTableBodyProps<Row> = {
  * its body), so there is nothing to configure. `editPane` is the one
  * body-scoped prop the shell does forward.
  *
- * Use `SettingsTableBody` directly for tab content inside a `SettingsPageShell` (or any other
- * frame that already owns the heading — in a frame surface that does not pad its body, pass
- * `flush={false}`; the default assumes the `SettingsPageShell` tab panel's `p-5`) —
- * `SettingsTableShell` renders a page frame with a `title`, so in a nested frame it is a second
- * nested heading repeating the tab label.
+ * Use `SettingsTableBody` directly for tab content inside a `SettingsPageShell` (the
+ * tab trigger label owns the heading, so the body renders no second nested heading). The default
+ * `flush` assumes that tab placement — in any other frame that already owns the heading, pass
+ * `flush={false}` (the frame surface never pads its body, so the default bleed would push the
+ * chrome past the edge). `SettingsTableShell` renders a page frame with a `title`, so in a
+ * nested frame it is a second nested heading repeating the tab label.
  */
 export type SettingsTableShellProps<Row> = Pick<
   PageFrameProps,
@@ -413,10 +414,16 @@ function resolveBulkActions<Row>({
 
 /**
  * The frameless settings table — D2's table content, no page header, no second raised surface.
- * Exported for tab content inside a `SettingsPageShell` (and any other frame that already owns
- * the heading — in a frame surface that does not pad its body, pass `flush={false}`; the
- * default assumes the `SettingsPageShell` tab panel's `p-5`), mirroring the
- * `ListWithDetailBody` precedent.
+ * Exported for tab content inside a `SettingsPageShell` (F2 archetype), mirroring the
+ * `ListWithDetailBody` precedent: there the tab trigger label is the only heading, so the body
+ * renders no second nested heading that repeats the tab label.
+ *
+ * The default `flush` assumes that one placement — the body is the direct content of a
+ * `SettingsPageShell` tab. It bleeds the body's chrome out of the tab panel's `p-5` pad so the
+ * band and table sit at the surface edge, exactly as on a standalone D2 page. Any other frame
+ * that already owns the heading (a `PageFrame` body, a detail pane, …) does not pad that inset
+ * the same way — pass `flush={false}` there so the chrome holds. `SettingsTableShell` (the
+ * standalone page) fixes `flush={false}` itself.
  *
  * Renders a flush control band (toolbar left; create + bulk-write actions and the count caption
  * right) when any of those controls are present — the tab-level home for the scoping/write
@@ -720,11 +727,12 @@ SettingsTableBody.displayName = "SettingsTableBody";
  * — not forwarded to the body — so the frame is the page's only band and the body's own band
  * stays out of a standalone page.
  *
- * Use `SettingsTableBody` directly for tab content inside a `SettingsPageShell` (or any other
- * frame that already owns the heading — in a frame surface that does not pad its body, pass
- * `flush={false}`; the default assumes the `SettingsPageShell` tab panel's `p-5`) —
- * `SettingsTableShell` renders a page frame with a `title`, so in a nested frame it is a second
- * nested heading repeating the tab label.
+ * Use `SettingsTableBody` directly for tab content inside a `SettingsPageShell` (the
+ * tab trigger label owns the heading, so the body renders no second nested heading). The default
+ * `flush` assumes that tab placement — in any other frame that already owns the heading, pass
+ * `flush={false}` (the frame surface never pads its body, so the default bleed would push the
+ * chrome past the edge). `SettingsTableShell` renders a page frame with a `title`, so in a
+ * nested frame it is a second nested heading repeating the tab label.
  */
 export function SettingsTableShell<Row>({
   title,
