@@ -2,7 +2,7 @@
 key: D2
 slug: settings-table
 kind: page
-version: 3.1
+version: 3.2
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -11,6 +11,41 @@ status: locked
 
 # Archetype D2 — Settings table
 
+> **v3.2 (2026-10-05) — frameless body export (`SettingsTableBody`) with a
+> flush control band.** Additive. `SettingsTableShell` is split into a
+> frameless table body (`SettingsTableBody`) and the page-frame wrapper
+> `SettingsTableShell`, mirroring the `ListWithDetailBody` / `ListWithDetailShell`
+> pair. The body owns the table, its selection planes, loading / empty / error
+> planes, the bulk-select checkbox column, the row-actions menu, and the
+> identifier-cell click-to-edit gate — no page header, no second raised
+> surface — and, when it has scoping, write, or count controls (`toolbar`,
+> `onAddNew` (create), `bulkActions` / `onBulkDelete`, or a `rowLabel` count
+> noun), a **flush control band**: a single `border-b` band above the table
+> (toolbar left; the count caption and the create + bulk-write actions right).
+> A `SettingsPageShell` tab has no page header to hold those controls, so the
+> band is the tab-level home for them. As the direct content of a tab the body
+> defaults `flush` to `true` — keyed to the body's placement, not a look: it
+> makes the body's band and the table's flex-row wrapper (the row holding the
+> table and, with the split-pane variation, the pane) negate the tab panel's
+> horizontal inset (and the body its top inset), so the band's ruled line, the table, and the pane sit at
+> the surface edge exactly as on a standalone page while the tab panel keeps
+> its pad for every other body. The bleed never sits on the table scroll
+> region itself — that is a `flex-1` sibling of the pane, and a negative
+> margin on a flex item adds free space the item absorbs (the table would grow
+> and paint over the pane's hairline). `SettingsTableShell` wraps the body in
+> `PageFrame` and routes the same props to the frame's `toolbar` / `count`
+> slots and header `actions` instead, and fixes both frame-side switches
+> (`band={false}` — only the frame owns the page's single band; `flush={false}`
+> — the frame's surface never pads its body, so there is no inset to bleed
+> from and the table edges stay unpadded), so a standalone page keeps exactly
+> one band at the frame's edges. Use `SettingsTableBody` for tab content inside
+> a `SettingsPageShell` (F2 archetype): the tab trigger label owns the heading,
+> and the body renders no second nested heading that would repeat it. The
+> `count` caption and the bulk actions are one shared derivation
+> (`computeBulkSelection` / `resolveBulkActions`), so the body's band and the
+> shell's frame slots can never disagree. `band` and `flush` are excluded from
+> the shell props (the shell fixes both from the frame's side).
+>
 > **v3.1 (2026-10-05) — split-pane variant on the one page frame.**
 > Re-shapes the split-pane variation for ADR-0008 §3: the edit form is the
 > page frame's right pane, hairline-divided from the table — never a second
@@ -164,6 +199,53 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
   - Loading, empty, and error states rendered inline
   - Optional bulk-select checkbox column
   - Row-level hover highlight
+
+**Frameless body (`SettingsTableBody`) — tab content:**
+- A frameless export of the table body without the page frame: the table, its
+  bulk-select checkbox column, the row-actions menu, the identifier-cell
+  click-to-edit gate, and the loading / empty / error planes — no page header,
+  no second raised surface. Use this form for tab content inside a
+  `SettingsPageShell` (F2 archetype) or any other page frame that already
+  owns the heading: the tab trigger label is the only heading, and there is
+  no second nested heading repeating it.
+- Because a `SettingsPageShell` tab has no page header to hold the controls a
+  standalone page routes to its `PageFrame` slots, the body owns a **flush
+  control band** — a single `border-b` band above the table (chrome the same
+  as the page frame's ruled band). It appears only while the body has
+  scoping, write, or count controls, and holds:
+  - `toolbar` (search, filters) on the **left**;
+  - on the **right**, the `count` caption, the bulk-write actions
+    (`bulkActions` / `onBulkDelete`), and the create action (`onAddNew`) — the
+    tab-level home for them. The count caption reads "{n} selected" while a
+    visible row is selected and a bulk action exists, otherwise "{n} {rowLabel}".
+  - The `count` caption and the bulk actions derive from the same shared helper
+    (`computeBulkSelection` / `resolveBulkActions`) the page form routes to the
+    frame's `count` / `actions` slots, so the two cannot disagree.
+- **Edge-to-edge (frameless placement only).** The `SettingsPageShell` tab
+  panel pads its bodies (`p-5`); a body is edge-to-edge only for a
+  tab-placement case — so the body bleeds its chrome out of that pad and the
+  panel keeps its pad for every other body. The `flush` prop is the
+  placement decision: `true` (default — the body IS the direct content of a
+  tab) makes the band and the table's flex-row wrapper (the row holding the
+  table and, with the split-pane variation, the pane) negate the tab panel's
+  horizontal inset (and the body its top inset), so the band's ruled line, the table's edges, and the
+  pane's outer edge sit at the surface edge exactly where a standalone D2
+  page's do; `false` where the body sits inside a frame that owns the page's
+  edges without horizontal padding (a `PageFrame` surface never pads its
+  body — there is no inset to bleed from and the bleed would be a pure no-op
+  with different semantics inside a different outer inset). Two engineers
+  holding the same placement derive the same value; it is the one existing
+  horizontal inset the body can sit in, not a look axis. The bleed never sits
+  on the table scroll region itself — that is a `flex-1` sibling of the
+  pane, and a negative margin on a flex item adds free space the item
+  absorbs, which would widen the table and paint over the pane's hairline.
+- `SettingsTableShell` passes `band={false}` and `flush={false}` and routes
+  `toolbar` / the `count` noun to the frame's `toolbar` / `count` slots and
+  the write actions to the frame's `actions`, so a standalone page keeps
+  exactly one band at the frame's edges. It still forwards `onAddNew` so the
+  body's empty state offers the same CTA the header action does. Mirrors the
+  `ListWithDetailBody` / `ListWithDetailShell` split.
+  - The split-pane variation below also applies to the frameless body.
 
 **Allowed variation — split-pane editing:**
 - When users edit rows in rapid succession and a dialog's open/close cycle creates friction, the table and the edit form share the shell's one page frame: the edit form is the frame's right pane, divided from the table by the frame's hairline — never a second raised surface (ADR-0008 §3). The row click contract (Layer 6) drives the selection the pane edits. On viewports below the `md` breakpoint the pane is out of the frame and the click-contract edit dialog (Layer 11) is the editing surface. This is an uncommon variation; use only when the UX case is clear.

@@ -1,7 +1,8 @@
 "use client";
-export { SettingsTableShell } from "./SettingsTableShell";
+export { SettingsTableShell, SettingsTableBody } from "./SettingsTableShell";
 export type {
   SettingsTableShellProps,
+  SettingsTableBodyProps,
   SettingsTableLabels,
   SettingsColumn,
   RowAction,

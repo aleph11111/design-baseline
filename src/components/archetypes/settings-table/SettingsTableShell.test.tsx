@@ -385,6 +385,25 @@ describe("SettingsTableShell — page frame (ADR-0008)", () => {
       screen.getByRole("button", { name: "Delete 1 selected" }).closest(".bg-surface-raised"),
     ).toBeNull();
   });
+
+  it("a falsy bulkActions node (e.g. `canArchive && <Button/>`) is no bulk action: the count stays", () => {
+    const { container } = render(
+      <SettingsTableShell
+        title="Suppliers"
+        rows={makeRows(3)}
+        columns={columns}
+        getRowId={(r) => r.id}
+        rowLabel="suppliers"
+        bulkSelectable
+        selectedIds={["row-0"]}
+        onBulkSelectChange={() => {}}
+        bulkActions={false}
+        toolbar={<input aria-label="Search" />}
+      />,
+    );
+    expect(container.textContent).toContain("3 suppliers");
+    expect(container.textContent).not.toContain("1 selected");
+  });
 });
 
 describe("SettingsTableShell — split-pane variant (editPane)", () => {
