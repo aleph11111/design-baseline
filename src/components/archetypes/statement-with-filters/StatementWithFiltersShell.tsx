@@ -9,6 +9,11 @@ export type StatementWithFiltersShellProps = Pick<
   | "badges"
   | "actions"
   | "toolbar"
+  | "viewSwitch"
+  | "filterCount"
+  | "filterSummary"
+  | "onResetFilters"
+  | "filterLabels"
   | "viewOptions"
   | "viewOptionsLabel"
 > & {

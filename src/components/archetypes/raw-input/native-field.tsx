@@ -258,6 +258,7 @@ export function NativeField({
   const fieldLabel = (
     <FieldLabel
       htmlFor={inputId}
+      data-joined-label={joined ? "" : undefined}
       className={cn(
         joined && [JOINED_LABEL_CLASS, "rounded-l-md border border-r-0 border-input"],
         labelClassName
