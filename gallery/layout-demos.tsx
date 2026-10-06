@@ -724,7 +724,39 @@ function PageFrameDemo() {
   );
 }
 
+function ButtonSizesDemo() {
+  return (
+    <div className="space-y-6">
+      <Variant label="Ladder · sm h-8 · default h-9 · lg h-11">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button size="sm">Small</Button>
+          <Button>Default</Button>
+          <Button size="lg">Large</Button>
+        </div>
+      </Variant>
+      <Variant label="Icon · icon h-9 w-9 · icon-sm h-8 w-8 (dense rows)">
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="icon" aria-label="Settings"><Settings /></Button>
+          <Button variant="outline" size="icon-sm" aria-label="Settings"><Settings /></Button>
+        </div>
+      </Variant>
+      <Variant label="Inline · content-sized, no h-auto override">
+        <div className="flex flex-wrap items-center gap-6">
+          <Button variant="link" size="inline">Order #1042</Button>
+          <Button variant="outline" size="inline" className="p-3 text-left">
+            <span className="block">
+              <span className="block font-medium">Multi-line content</span>
+              <span className="block text-xs text-muted-foreground">Second line sizes the button</span>
+            </span>
+          </Button>
+        </div>
+      </Variant>
+    </div>
+  );
+}
+
 export const LAYOUT_PRIMS: LayoutPrim[] = [
+  { slug: "button-sizes", displayName: "Button sizes", Demo: ButtonSizesDemo },
   { slug: "page-frame", displayName: "PageFrame", Demo: PageFrameDemo },
   { slug: "page-header", displayName: "PageHeader", Demo: PageHeaderDemo },
   { slug: "nested-page-heading", displayName: "NestedPageHeading", Demo: NestedPageHeadingDemo },

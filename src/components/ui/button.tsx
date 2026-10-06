@@ -22,12 +22,16 @@ const buttonVariants = cva(
       },
       // The control height ladder (STYLE.md "Control heights"), shared with
       // Select, Input, SearchInput and SegmentedControl: sm h-8 · default h-9 ·
-      // lg h-11 (the 44pt touch target).
+      // lg h-11 (the 44pt touch target). `icon-sm` is the dense-row `sm` icon
+      // square; `inline` is content-sized (no height, no padding) for text-link
+      // and multi-line content buttons — never a toolbar-band step.
       size: {
         default: "h-9 px-4",
         sm: "h-8 rounded-md px-3 text-xs",
         lg: "h-11 rounded-md px-8",
         icon: "h-9 w-9",
+        "icon-sm": "h-8 w-8",
+        inline: "",
       },
     },
     defaultVariants: {
@@ -72,7 +76,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const warnedRef = React.useRef(false)
     const missingName =
       process.env.NODE_ENV !== "production" &&
-      size === "icon" &&
+      (size === "icon" || size === "icon-sm") &&
       !hasAccessibleName(props, asChild)
     React.useEffect(() => {
       if (missingName && !warnedRef.current) {
