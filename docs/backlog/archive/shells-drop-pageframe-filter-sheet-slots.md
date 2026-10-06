@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-10-06
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "a shared frame-slot type + a lint/type-test gate extension across every page shell, deciding lint-rule vs type-level test — real implementation judgment, not a mechanical edit"
