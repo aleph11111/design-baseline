@@ -5,6 +5,7 @@ import { SlidersHorizontal } from "lucide-react";
 import { PageHeader, type PageHeaderProps } from "./PageHeader";
 import { NestedPageHeading } from "./NestedPageHeading";
 import { SurfaceFrame } from "./SurfaceFrame";
+import { ToolbarBandContext } from "./toolbarBand";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -104,7 +105,9 @@ export function PageFrame({
   const band =
     has(toolbar) || has(count) || has(viewOptions) ? (
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <div className="flex min-w-0 flex-wrap items-center gap-2">{toolbar}</div>
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <ToolbarBandContext.Provider value={true}>{toolbar}</ToolbarBandContext.Provider>
+        </div>
         {has(count) || has(viewOptions) ? (
           <div className="ml-auto flex shrink-0 items-center gap-3">
             {has(count) && (
@@ -113,7 +116,7 @@ export function PageFrame({
             {has(viewOptions) && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline">
                     <SlidersHorizontal className="h-4 w-4" />
                     {viewOptionsLabel}
                   </Button>

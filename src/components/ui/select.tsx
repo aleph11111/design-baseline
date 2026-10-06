@@ -54,17 +54,21 @@ const SelectTrigger = React.forwardRef<
     }
 >(({ className, children, size, label, ...props }, ref) => {
   const labelId = React.useId();
-  const named = props["aria-label"] != null || props["aria-labelledby"] != null;
   return (
     <SelectPrimitive.Trigger
       ref={ref}
-      aria-labelledby={label != null && !named ? labelId : undefined}
       className={cn(
         selectTriggerVariants({ size }),
         label != null && "overflow-hidden pl-0",
         className
       )}
       {...props}
+      // After the spread: an explicit `aria-labelledby: undefined` must not
+      // erase the joined label's naming.
+      aria-labelledby={
+        props["aria-labelledby"] ??
+        (label != null && props["aria-label"] == null ? labelId : undefined)
+      }
     >
       {label != null && (
         <span id={labelId} data-joined-label="" className={cn(JOINED_LABEL_CLASS, "border-r border-input")}>

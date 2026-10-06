@@ -4,6 +4,7 @@ export { AppSidebar, type NavItem, type NavGroup, type AppSidebarProps } from ".
 export { AppHeader, type AppHeaderProps } from "./Header";
 export { PageHeader, type PageHeaderProps } from "./PageHeader";
 export { PageFrame, type PageFrameProps } from "./PageFrame";
+export { ToolbarBandContext, useInToolbarBand } from "./toolbarBand";
 export {
   NestedPageHeading,
   NESTED_HEADING_CLASS,
