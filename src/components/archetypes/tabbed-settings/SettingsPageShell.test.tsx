@@ -119,10 +119,28 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     expect(screen.queryByRole("heading", { level: 2, name: "Distribution" })).toBeNull();
     // The tab has no page header; the body's own flush band is the home for the
     // create action and the count caption.
-    const band = screen.getByRole("button", { name: "Add channel" }).closest(".border-b") as HTMLElement;
-    expect(band).toBeTruthy();
-    expect(band.textContent).toContain("Add channel");
-    expect(band.textContent).toContain("2 channels");
+    const band = container.querySelector('[data-slot="settings-table-band"]') as HTMLElement;
+    expect(band?.textContent).toContain("Add channel");
+    expect(band?.textContent).toContain("2 channels");
+    // Flush: from the band up to the tab panel, no wrapper carries horizontal
+    // padding — the panel itself pads only vertically, so the band's ruled
+    // line runs edge-to-edge (it would fail if any ancestor re-introduced a
+    // `p-`/`px-` inset).
+    // The band's own `px-4` is its inner pad (it aligns its controls with the
+    // table cells below) — the flush check is about the ANCESTORS between the
+    // band and the surface edge, not the band's chrome.
+    const horizontalPad = /(^|[\s-])(p|px)-\d/;
+    let node: Element | null = band.parentElement;
+    while (node && node.getAttribute("data-slot") !== "settings-page-tab-panel") {
+      if (horizontalPad.test(node.className ?? "")) throw new Error(`inset by ${node}`);
+      node = node.parentElement;
+    }
+    // Reached the tab panel (and nothing between the band and it is horizontally
+    // padded), and the panel itself pads only vertically.
+    const panel = node as Element;
+    expect(panel.getAttribute("data-slot")).toBe("settings-page-tab-panel");
+    expect(panel.className).toContain("py-5");
+    expect(horizontalPad.test(panel.className)).toBe(false);
   });
 
   it("a bulk-selectable SettingsTableBody in a tab shows the selection count + delete in the band, no h2", () => {
@@ -156,12 +174,13 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     expect(screen.getByText("1 selected")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Delete 1 selected" })).toBeTruthy();
     // Both sit in the body's flush band.
-    const band = screen.getByRole("button", { name: "Delete 1 selected" }).closest(".border-b") as HTMLElement;
+    const band = container.querySelector('[data-slot="settings-table-band"]') as HTMLElement;
     expect(band.textContent).toContain("1 selected");
+    expect(band.querySelectorAll("button")).toHaveLength(1);
   });
 
   it("a bare SettingsTableBody tab (no band-scoped controls) renders no flush band", () => {
-    render(
+    const { container } = render(
       <SettingsPageShell
         title="Workspace"
         tabs={[
@@ -175,16 +194,11 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
         ]}
       />,
     );
-    // No toolbar, no create, no count noun, no bulk action = no band at all (not
-    // an empty ruled line). Scope to the body's own root element (the band and the
-    // table scroll region are its siblings/children); the `.border-b py-3` pair is
-    // the band's chrome — a shadcn TableRow also carries `border-b`, so the class
-    // pair, not the class alone, is the marker. The tab strip's band is the page
-    // frame's, outside this element.
-    const table = screen.getByRole("row", { name: /Apple Podcasts/ }).closest("table") as Element;
-    const bodyRoot = (table.closest(".overflow-x-auto") as Element).parentElement;
-    expect(bodyRoot?.querySelector(".border-b.py-3")).toBeNull();
-    expect(table.closest(".border-b.py-3")).toBeNull();
+    // No toolbar, no create, no count noun, no bulk action = the body renders no
+    // band node at all (not an empty ruled line). Marked by data-slot so the
+    // assertion cannot be fooled: flipping `hasBandControls` to always-true would
+    // render an empty band and fail here.
+    expect(container.querySelector('[data-slot="settings-table-band"]')).toBeNull();
   });
 });
 

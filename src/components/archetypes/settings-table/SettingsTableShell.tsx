@@ -174,12 +174,13 @@ export type SettingsTableBodyProps<Row> = {
    */
   band?: boolean;
   /**
-   * Split-pane editing (Layer 5, ADR-0008 §3) — only meaningful on
-   * `SettingsTableShell`: the consumer's persistent edit form joins the page
-   * frame's right pane, hairline-divided from the table (never a second raised
-   * surface). The row-click contract (Layer 6) drives the selection the pane
-   * edits. On viewports below `md` the shell drops the pane out of the frame
-   * and the consumer's mobile edit-dialog overlay takes over (Layer 11).
+   * Split-pane editing (Layer 5, ADR-0008 §3): the consumer's persistent edit
+   * form joins the page frame's right pane, hairline-divided from the table
+   * (never a second raised surface). The row-click contract (Layer 6) drives
+   * the selection the pane edits. On viewports below `md` the pane is out of
+   * the frame and the consumer's mobile edit-dialog overlay takes over
+   * (Layer 11). The slot is owned by `SettingsTableShell` (rendered through
+   * the shared body) and also applies to the frameless body.
    */
   editPane?: React.ReactNode;
 
@@ -224,6 +225,9 @@ export type SettingsTableBodyProps<Row> = {
  * The frame's `count` slot is derived internally from the same inputs the body uses to derive its
  * band caption and checkboxes (`computeBulkSelection`), so the two cannot disagree.
  *
+ * `band` is excluded — the shell suppresses it (`false`) by routing to the frame, so there is
+ * nothing to configure. `editPane` is the one body-scoped prop the shell does forward.
+ *
  * Use `SettingsTableBody` directly for tab content inside a `SettingsPageShell` (or any other
  * frame that already owns the heading) — `SettingsTableShell` renders a page frame with a
  * `title`, so in a nested frame it is a second nested heading repeating the tab label.
@@ -232,7 +236,7 @@ export type SettingsTableShellProps<Row> = Pick<
   PageFrameProps,
   "title" | "subtitle" | "badges" | "actions"
 > &
-  SettingsTableBodyProps<Row>;
+  Omit<SettingsTableBodyProps<Row>, "band">;
 
 // ---------------------------------------------------------------------------
 // Shared, frameless derivation
@@ -347,7 +351,7 @@ function SettingsTableAddButton({
  * node the body's band and the shell's header `actions` both route through, so both read the
  * same "{N} selected" count and clear identically.
  */
-function SettingsTableBulkActions<Row>({
+function resolveBulkActions<Row>({
   selection,
   rows,
   getRowId,
@@ -615,7 +619,7 @@ export function SettingsTableBody<Row>({
     bulkActions,
     onBulkDelete,
   });
-  const bulkNode = SettingsTableBulkActions({
+  const bulkNode = resolveBulkActions({
     selection,
     rows,
     getRowId,
@@ -630,7 +634,7 @@ export function SettingsTableBody<Row>({
     bulkNode.show ||
     countLabel != null;
   const band = bandEnabled && hasBandControls ? (
-    <div className="border-b px-4 py-3">
+    <div data-slot="settings-table-band" className="border-b px-4 py-3">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="flex min-w-0 flex-wrap items-center gap-2">{toolbar}</div>
         {(onAddNew != null || bulkNode.show || countLabel != null) && (
@@ -735,7 +739,7 @@ export function SettingsTableShell<Row>({
     onBulkDelete,
   });
 
-  const bulkNode = SettingsTableBulkActions({
+  const bulkNode = resolveBulkActions({
     selection,
     rows,
     getRowId,

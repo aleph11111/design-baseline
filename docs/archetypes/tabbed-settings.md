@@ -2,7 +2,7 @@
 key: F2
 slug: tabbed-settings
 kind: page
-version: 2.0
+version: 2.1
 promoted_from: brickshop-manager
 promoted_at: 2026-05-31
 source_spec_version: 1.4
@@ -154,6 +154,12 @@ Per-tab content rules are inherited from whichever body archetype applies (A,
 D1, or D2). Refer to that archetype's spec for column shapes, identifier cell
 styling, empty states, etc.
 
+- The shell's **tab panel pads vertically only** (`py-5`, no horizontal
+  inset). Edge-to-edge bodies (the D2 table body: its ruled band + cells own
+  their `px-4`) run flush with the surface, exactly as on a standalone page.
+  A body that is not edge-to-edge (a bare D1 form) supplies its own horizontal
+  inset.
+
 **Archetype-specific:**
 - A tab body must not add a second header or sub-heading that duplicates the
   page title — the tab trigger's label is the body's heading.
@@ -267,6 +273,13 @@ A page is conformant when **every required rule** above is satisfied:
   `actions`, the optional title (the settings-table wrapper mode — a
   settings-table page uses its own shell). Nesting under a parent page frame
   is derived. Ships in manifest 3.0. Breaking.
+- **v2.1 (2026-10-05):** The tab panel pads vertically only (`py-5`, no
+  horizontal inset). Edge-to-edge tab bodies (the frameless D2
+  `SettingsTableBody` and its flush control band) sit flush with the
+  surface — the band's ruled line and the table cells run at the same
+  horizontal offset as on a standalone D2 page (ADR-0008); a non-edge-to-edge
+  body (a bare D1 form) supplies its own horizontal inset. Additive; no
+  breaking change. Ships in manifest 3.1.
 
 ---
 

@@ -2,7 +2,7 @@
 key: D2
 slug: settings-table
 kind: page
-version: 3.1
+version: 3.2
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -11,38 +11,40 @@ status: locked
 
 # Archetype D2 — Settings table
 
-> **v3.1 (2026-10-05) — frameless body export (`SettingsTableBody`) and
-> split-pane variant on the one page frame.** Additive.
-> `SettingsTableShell` is split into a frameless table body
-> (`SettingsTableBody`) and the page-frame wrapper `SettingsTableShell`,
-> mirroring the `ListWithDetailBody` / `ListWithDetailShell` pair. The body
-> owns the table, its selection planes, loading / empty / error planes, the
-> bulk-select checkbox column, the row-actions menu, and the identifier-cell
-> click-to-edit gate — no page header, no second raised surface. It also owns
-> a **flush control band** (the frame's ruled band, minus the frame): when the
-> body has scoping, write, or count controls — `toolbar`, `onAddNew` (create),
-> `bulkActions` / `onBulkDelete`, or a `rowLabel` count noun — those render in
-> a single `border-b` band above the table (toolbar left; the count caption and
-> the create + bulk-write actions right). A `SettingsPageShell` tab has no page
-> header to hold those controls, so the band is the tab-level home for them.
-> `SettingsTableShell` wraps the body in `PageFrame` and routes the same props
-> to the frame's `toolbar` / `count` slots and header `actions` instead, and
-> suppresses the body's own band (`band={false}`), so a standalone page keeps
-> exactly one band. Use `SettingsTableBody` for tab content inside a
+> **v3.2 (2026-10-05) — frameless body export (`SettingsTableBody`) with a
+> flush control band.** Additive. `SettingsTableShell` is split into a
+> frameless table body (`SettingsTableBody`) and the page-frame wrapper
+> `SettingsTableShell`, mirroring the `ListWithDetailBody` / `ListWithDetailShell`
+> pair. The body owns the table, its selection planes, loading / empty / error
+> planes, the bulk-select checkbox column, the row-actions menu, and the
+> identifier-cell click-to-edit gate — no page header, no second raised
+> surface — and, when it has scoping, write, or count controls (`toolbar`,
+> `onAddNew` (create), `bulkActions` / `onBulkDelete`, or a `rowLabel` count
+> noun), a **flush control band**: a single `border-b` band above the table
+> (toolbar left; the count caption and the create + bulk-write actions right),
+> sitting edge-to-edge with the tab body — a `SettingsPageShell` tab panel no
+> longer pads its content horizontally, so the band's ruled line runs the full
+> surface width exactly as on a standalone page. A `SettingsPageShell` tab has
+> no page header to hold those controls, so the band is the tab-level home for
+> them. `SettingsTableShell` wraps the body in `PageFrame` and routes the same
+> props to the frame's `toolbar` / `count` slots and header `actions` instead,
+> and suppresses the body's own band (`band={false}`), so a standalone page
+> keeps exactly one band. Use `SettingsTableBody` for tab content inside a
 > `SettingsPageShell` (F2 archetype): the tab trigger label owns the heading,
 > and the body renders no second nested heading that would repeat it. The
-> `count` caption and the bulk actions are one shared derivation, so the body's
-> band and the shell's frame slots can never disagree. Additive only; the
-> shell's public props are unchanged (the band-scoped props live on the shared
-> body props).
+> `count` caption and the bulk actions are one shared derivation
+> (`computeBulkSelection` / `resolveBulkActions`), so the body's band and the
+> shell's frame slots can never disagree. `band` is excluded from the shell
+> props (it is always `false` there).
 >
-> The same v3.1 re-shapes the split-pane variation for ADR-0008 §3: the edit
-> form is the page frame's right pane, hairline-divided from the table —
-> never a second raised surface (the pre-ADR-0008 two-card layout is
-> retired). The row click contract drives the pane's selection; below `md`
-> the pane is out of the frame and the click-contract edit dialog is the
-> mobile editing surface (Layer 11). The shell carries the variant as a
-> structural slot; no breaking change.
+> **v3.1 (2026-10-05) — split-pane variant on the one page frame.**
+> Re-shapes the split-pane variation for ADR-0008 §3: the edit form is the
+> page frame's right pane, hairline-divided from the table — never a second
+> raised surface (the pre-ADR-0008 two-card layout is retired). The row
+> click contract drives the pane's selection; below `md` the pane is out
+> of the frame and the click-contract edit dialog is the mobile editing
+> surface (Layer 11). The shell carries the variant as a structural slot;
+> no breaking change.
 >
 > **v3.0 (2026-10-03) — one page frame (ADR-0008).** Breaking. `title` is
 > required and renders once, as the page title; `kicker` / `headerActions` and
@@ -200,15 +202,19 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
 - Because a `SettingsPageShell` tab has no page header to hold the controls a
   standalone page routes to its `PageFrame` slots, the body owns a **flush
   control band** — a single `border-b` band above the table (chrome the same
-  as the page frame's ruled band). It appears only while the body has scoping,
-  write, or count controls, and holds:
+  as the page frame's ruled band). It sits **edge-to-edge with the tab body**:
+  the `SettingsPageShell` tab panel applies vertical inset only (a surface
+  frame never pads its body; table cells own their horizontal pad), so the
+  band's ruled line runs the full surface width, exactly as on a standalone
+  page. It appears only while the body has scoping, write, or count controls,
+  and holds:
   - `toolbar` (search, filters) on the **left**;
   - on the **right**, the `count` caption, the bulk-write actions
     (`bulkActions` / `onBulkDelete`), and the create action (`onAddNew`) — the
     tab-level home for them. The count caption reads "{n} selected" while a
     visible row is selected and a bulk action exists, otherwise "{n} {rowLabel}".
   - The `count` caption and the bulk actions derive from the same shared helper
-    (`computeBulkSelection` / `SettingsTableBulkActions`) the page form routes to the
+    (`computeBulkSelection` / `resolveBulkActions`) the page form routes to the
     frame's `count` / `actions` slots, so the two cannot disagree.
 - `SettingsTableShell` passes `band={false}` and routes `toolbar` / the
   `count` noun to the frame's `toolbar` / `count` slots and the write actions

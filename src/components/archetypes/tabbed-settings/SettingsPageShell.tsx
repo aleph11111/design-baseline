@@ -74,7 +74,13 @@ export function SettingsPageShell({
             </TabsList>
           }
         >
-          <div className="p-5">
+          {/* Vertical-only inset (no horizontal pad): a tab body's own ruled
+              band (the frameless D2 `SettingsTableBody`) must run edge-to-edge
+              with the surface, exactly as on a standalone page — a surface
+              frame never pads its body (ADR-0008) and table cells own their
+              horizontal pad. Bodies that aren't edge-to-edge (a bare form)
+              supply their own `px`. */}
+          <div data-slot="settings-page-tab-panel" className="py-5">
             {tabs.map((t) => (
               <TabsContent key={t.value} value={t.value} className="mt-0">
                 {t.content}

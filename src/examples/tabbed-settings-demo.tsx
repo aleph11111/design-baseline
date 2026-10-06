@@ -15,7 +15,7 @@
  *     frame's toolbar band
  *   - Tab strip as navigation across the categories
  *   - Per-tab body delegation: a form body (General), a frameless table body
- *     (Distribution, via <SettingsTableBody> v3.1 — the tab label owns the
+ *     (Distribution, via <SettingsTableBody> v3.2 — the tab label owns the
  *     heading, so the body renders no page frame; the body's own flush band
  *     carries the tab's create action and count caption), a list body
  *     (Team) — one per allowed delegate
@@ -116,8 +116,9 @@ const STATUS_VARIANT: Record<ChannelStatus, "default" | "secondary" | "outline">
 };
 
 // The Distribution tab renders through <SettingsTableBody> (the frameless D2
-// export, v3.1) — the tab trigger label owns the heading, so the body renders
-// no second nested heading.
+// export, v3.2) — the tab trigger label owns the heading, so the body renders
+// no second nested heading; its flush control band carries the create action
+// and the result count caption.
 const CHANNEL_COLUMNS: SettingsColumn<DistributionChannel>[] = [
   {
     key: "name",
@@ -183,8 +184,10 @@ export function TabbedSettingsDemo() {
     {
       value: "general",
       label: "General",
+      // A band-less tab body owns its own horizontal inset — the shell's tab
+      // panel is vertical-only (edge-to-edge table bodies need no pad).
       content: (
-        <div className="max-w-lg space-y-4">
+        <div className="max-w-lg space-y-4 px-5">
           <div className="space-y-1.5">
             <Label htmlFor="showName">Show name</Label>
             <Input
@@ -229,7 +232,7 @@ export function TabbedSettingsDemo() {
         </div>
       ),
     },
-    // Tab body 2 — delegates to a settings-table (D2) body, frameless (v3.1).
+    // Tab body 2 — delegates to a settings-table (D2) body, frameless (v3.2).
     // The tab-trigger label is the only heading for this tab; the body renders
     // no page frame, so there is no second nested heading repeating
     // "Distribution". A tab has no page header to hold the create action and
