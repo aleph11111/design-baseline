@@ -108,7 +108,7 @@ export type ListWithDetailBodyProps<Row> = {
  */
 export type ListWithDetailShellProps<Row> = Pick<
   PageFrameProps,
-  "title" | "subtitle" | "badges" | "actions" | "toolbar" | "count"
+  "title" | "subtitle" | "badges" | "actions" | "toolbar" | "count" | "viewOptions" | "viewOptionsLabel"
 > &
   ListWithDetailBodyProps<Row>;
 
@@ -123,6 +123,8 @@ export function ListWithDetailShell<Row>({
   actions,
   toolbar,
   count,
+  viewOptions,
+  viewOptionsLabel,
   ...body
 }: ListWithDetailShellProps<Row>) {
   // Full-bleed archetype (ADR-0007 §1) — only as the page's own surface; the
@@ -136,6 +138,8 @@ export function ListWithDetailShell<Row>({
       actions={actions}
       toolbar={toolbar}
       count={count}
+      viewOptions={viewOptions}
+      viewOptionsLabel={viewOptionsLabel}
       className={fullBleed}
     >
       <ListWithDetailBody<Row> {...body} />

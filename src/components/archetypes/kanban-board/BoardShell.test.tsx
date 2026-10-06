@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { BoardShell } from "./BoardShell";
 import { BoardColumn } from "./BoardColumn";
 
@@ -23,5 +23,18 @@ describe("BoardShell — page frame (ADR-0008)", () => {
     expect(screen.getByRole("heading", { level: 3 }).textContent).toBe("To do");
     // One raised surface: the lane is recessed, not a card.
     expect(container.querySelectorAll(".bg-surface-raised")).toHaveLength(1);
+  });
+});
+
+describe("BoardShell — viewOptions", () => {
+  it("forwards viewOptions, label and count to the toolbar band", () => {
+    render(
+      <BoardShell title="B" count="3 cards" viewOptions={<div data-testid="vo" />} viewOptionsLabel="Ansicht">
+        <BoardColumn title="To do" />
+      </BoardShell>,
+    );
+    expect(screen.getByText("3 cards")).toBeTruthy();
+    fireEvent.keyDown(screen.getByRole("button", { name: "Ansicht" }), { key: "Enter" });
+    expect(screen.getByTestId("vo")).toBeTruthy();
   });
 });
