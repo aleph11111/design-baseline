@@ -2,7 +2,7 @@
 key: D2
 slug: settings-table
 kind: page
-version: 3.2
+version: 3.3
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -11,6 +11,18 @@ status: locked
 
 # Archetype D2 — Settings table
 
+> **v3.3 (2026-10-06) — narrow the frameless body's default-`flush` placement
+> to a `SettingsPageShell` tab.** Docs / JSDoc only, no behavior change. The
+> v3.2 note and JSDoc advertised `SettingsTableBody` for "any other page frame
+> that already owns the heading"; with the default `flush={true}` a body in a
+> plain `PageFrame` body or a detail pane (which pad nothing) bled its chrome
+> 20px past both side edges and 20px up into the frame's band. The advertised
+> second placement is now reworded: direct `SettingsPageShell` tab content is
+> the only default-`flush` home, and every other frame passes `flush={false}`.
+> A standalone page uses `SettingsTableShell`, which already fixes `flush={false}`.
+> A donor-owned test asserts `flush={false}` renders no `-mx-5` / `-mt-5` on the
+> band, the row wrapper, or the body root.
+>
 > **v3.2 (2026-10-05) — frameless body export (`SettingsTableBody`) with a
 > flush control band.** Additive. `SettingsTableShell` is split into a
 > frameless table body (`SettingsTableBody`) and the page-frame wrapper
@@ -204,10 +216,14 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
 - A frameless export of the table body without the page frame: the table, its
   bulk-select checkbox column, the row-actions menu, the identifier-cell
   click-to-edit gate, and the loading / empty / error planes — no page header,
-  no second raised surface. Use this form for tab content inside a
-  `SettingsPageShell` (F2 archetype) or any other page frame that already
-  owns the heading: the tab trigger label is the only heading, and there is
-  no second nested heading repeating it.
+  no second raised surface. Use this form for **direct** tab content inside a
+  `SettingsPageShell` (F2 archetype): the tab trigger label is the only heading
+  that owns the page, and there is no second nested heading repeating it.
+  That is the body's default home — the `flush` default assumes exactly that
+  tab placement (see Edge-to-edge below). Any **other** frame that already owns
+  the heading (a `PageFrame` body, a detail pane, …) is a non-tab placement and
+  passes `flush={false}`: the frame's surface never pads its body, so the
+  default bleed would push the band and the table past the frame's edge.
 - Because a `SettingsPageShell` tab has no page header to hold the controls a
   standalone page routes to its `PageFrame` slots, the body owns a **flush
   control band** — a single `border-b` band above the table (chrome the same

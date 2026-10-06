@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { SettingsTableShell, type SettingsColumn } from "./SettingsTableShell";
+import { SettingsTableBody, SettingsTableShell, type SettingsColumn } from "./SettingsTableShell";
+import { PageFrame } from "../../layout/PageFrame";
 
 type Row = { id: string; name: string };
 
@@ -451,5 +452,68 @@ describe("SettingsTableShell — split-pane variant (editPane)", () => {
     const table = container.querySelector("table")!;
     const flex = table.closest(".overflow-x-auto")!.parentElement as HTMLElement;
     expect(flex.children).toHaveLength(1);
+  });
+});
+
+describe("SettingsTableBody — flush placement", () => {
+  // The v3.3 rule: `flush` defaults to the `SettingsPageShell` tab placement; any other
+  // frame (a bare `PageFrame` body, a detail pane) must pass `flush={false}`. These
+  // tests assert the bleed classes ride the prop, not the placement.
+  it("flush={false} in a bare PageFrame renders no bleed class on the band, the row wrapper, or the body root", () => {
+    const { container } = render(
+      <PageFrame title="Suppliers">
+        <SettingsTableBody
+          rows={makeRows(2)}
+          columns={columns}
+          getRowId={(r) => r.id}
+          onAddNew={() => {}}
+          addNewLabel="Add supplier"
+          flush={false}
+        />
+      </PageFrame>,
+    );
+    // The body still renders its own band here (the create action is present)…
+    const band = container.querySelector('[data-slot="settings-table-band"]') as HTMLElement;
+    expect(band).toBeTruthy();
+    // …with no horizontal bleed: the frame surface never pads its body, so there is
+    // no inset to negate and the explicit `-mx-5` must be absent.
+    expect(band.className).not.toContain("-mx-5");
+    // …and the table row wrapper (the flex row) carries no horizontal bleed either.
+    const rowWrapper = (container.querySelector(".overflow-x-auto") as HTMLElement)
+      .parentElement as HTMLElement;
+    expect(rowWrapper.className).toContain("flex");
+    expect(rowWrapper.className).not.toContain("-mx-5");
+    // …and the body root carries no top bleed (the `-mt-5` only exists when `flush`).
+    const bodyRoot = band.parentElement as HTMLElement;
+    expect(bodyRoot.firstElementChild).toBe(band);
+    expect(bodyRoot.className).not.toContain("-mt-5");
+    // Sanity: nothing anywhere in the body bleeds.
+    expect(container.querySelector("[class*='-mx-5']")).toBeNull();
+    expect(container.querySelector("[class*='-mt-5']")).toBeNull();
+  });
+
+  it("the default flush (direct tab placement) carries the bleed classes — the gate is on the prop, not the placement", () => {
+    const { container } = render(
+      <PageFrame title="Suppliers">
+        <SettingsTableBody
+          rows={makeRows(2)}
+          columns={columns}
+          getRowId={(r) => r.id}
+          onAddNew={() => {}}
+          addNewLabel="Add supplier"
+          rowLabel="suppliers"
+        />
+      </PageFrame>,
+    );
+    // Proves the flush={false} test above is not vacuous: with the default the same
+    // body DOES bleed (band + row wrapper horizontally, body root vertically). In a
+    // bare PageFrame that bleed is wrong out of the box — which is why the docs
+    // narrow the default to a `SettingsPageShell` tab and require flush={false} here.
+    const band = container.querySelector('[data-slot="settings-table-band"]') as HTMLElement;
+    expect(band.className).toContain("-mx-5");
+    const rowWrapper = (container.querySelector(".overflow-x-auto") as HTMLElement)
+      .parentElement as HTMLElement;
+    expect(rowWrapper.className).toContain("-mx-5");
+    expect(band.parentElement?.className).toContain("-mt-5");
   });
 });
