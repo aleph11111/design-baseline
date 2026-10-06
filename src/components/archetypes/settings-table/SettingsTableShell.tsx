@@ -645,7 +645,7 @@ export function SettingsTableBody<Row>({
     onBulkSelectChange,
   });
   const hasBandControls =
-    toolbar != null ||
+    Boolean(toolbar) ||
     onAddNew != null ||
     bulkNode.show ||
     countLabel != null;

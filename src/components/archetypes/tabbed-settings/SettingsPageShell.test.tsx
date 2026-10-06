@@ -274,6 +274,29 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     expect(bodyRoot.firstElementChild).toBe(rowWrapper);
     expect(bodyRoot.className).toContain("-mt-5");
   });
+
+  it("a falsy toolbar node (e.g. `canFilter && <Filters/>`) renders no empty band", () => {
+    const { container } = render(
+      <SettingsPageShell
+        title="Workspace"
+        tabs={[
+          {
+            value: "distribution",
+            label: "Distribution",
+            content: (
+              <SettingsTableBody
+                rows={CHANNEL_ROWS}
+                columns={CHANNEL_COLUMNS}
+                getRowId={(c) => c.id}
+                toolbar={false}
+              />
+            ),
+          },
+        ]}
+      />,
+    );
+    expect(container.querySelector('[data-slot="settings-table-band"]')).toBeNull();
+  });
 });
 
 describe("SettingsPageShell error boundary", () => {
