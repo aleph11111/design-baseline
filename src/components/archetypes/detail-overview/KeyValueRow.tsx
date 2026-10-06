@@ -9,8 +9,9 @@ export type KeyValueRowProps = {
    */
   label: React.ReactNode;
   /**
-   * Field value. Rendered as `<dd>` at `text-[13px] font-mono font-medium`,
-   * anchored right with `tabular-nums` (ledger figures). When the underlying
+   * Field value. Rendered as `<dd>` at `text-[13px]` in the house sans,
+   * anchored right with `tabular-nums` (aligned digits for figures; inert on
+   * text, so names, badges and sentences render as plain sans — ADR-0009). When the underlying
    * data is unavailable, pass the
    * em-dash string `"—"` — the primitive does NOT auto-render a placeholder
    * for falsy values.
@@ -65,7 +66,7 @@ export function KeyValueRow({
       )}
     >
       <dt className="shrink-0 text-[13px] text-muted-foreground">{label}</dt>
-      <dd className="min-w-0 text-right text-[13px] font-mono font-medium text-foreground tabular-nums">
+      <dd className="min-w-0 text-right text-[13px] text-foreground tabular-nums">
         {value}
       </dd>
     </div>

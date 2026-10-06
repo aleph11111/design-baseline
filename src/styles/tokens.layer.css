@@ -144,8 +144,9 @@
   --color-chart-5: var(--db-chart-5);
   --color-chart-6: var(--db-chart-6);
 
-  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* Mono is for code only (ADR-0009) — the system stack, no web font. */
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
   /* Display type step (ADR-0007 §2) — the page title and the headline
      number; the rest of the ledger scale stays tight. */

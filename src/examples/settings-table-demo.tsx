@@ -263,7 +263,7 @@ export function SettingsTableDemo() {
       header: "Prefix",
       align: "center",
       cell: (s) => (
-        <span className="font-mono text-muted-foreground">{s.prefix}-</span>
+        <span className="text-muted-foreground">{s.prefix}-</span>
       ),
     },
   ];
@@ -284,7 +284,7 @@ export function SettingsTableDemo() {
         <Input
           value={panePrefix}
           onChange={(e) => setPanePrefix(e.target.value)}
-          className="h-9 bg-muted/50 font-mono text-sm"
+          className="h-9 bg-muted/50 text-sm"
           aria-label="Numeric prefix"
         />
       </label>
@@ -422,7 +422,7 @@ export function SettingsTableDemo() {
                   aria-label="Numeric prefix"
                   value={panePrefix}
                   onChange={(e) => setPanePrefix(e.target.value)}
-                  className="h-9 bg-muted/50 font-mono text-sm"
+                  className="h-9 bg-muted/50 text-sm"
                 />
               </label>
             </CrudDialogBody>

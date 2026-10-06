@@ -100,7 +100,7 @@ function HBars({ data }: { data: { label: string; value: number }[] }) {
           <div className="h-3 flex-1 rounded bg-muted">
             <div className="h-3 rounded bg-primary/70" style={{ width: `${(d.value / max) * 100}%` }} />
           </div>
-          <span className="w-10 shrink-0 text-right font-mono tabular-nums text-muted-foreground">
+          <span className="w-10 shrink-0 text-right tabular-nums text-muted-foreground">
             {d.value}
           </span>
         </div>

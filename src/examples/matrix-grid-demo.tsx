@@ -164,7 +164,7 @@ export function MatrixGridDemo() {
     label: (
       <span>
         {student.name}{" "}
-        <span className="text-[11px] font-mono tabular-nums text-muted-foreground">Y{student.year}</span>
+        <span className="text-[11px] tabular-nums text-muted-foreground">Y{student.year}</span>
       </span>
     ),
     cells: gradesByStudent[student.id] ?? {},
@@ -281,7 +281,7 @@ export function MatrixGridDemo() {
               onChange={(e) =>
                 setCellGrade(ctx.row.id, ctx.column.key, e.target.value as Grade)
               }
-              className="text-center text-[13px] font-mono font-medium tabular-nums"
+              className="text-center text-[13px] tabular-nums"
             >
               {ALL_GRADES.map((g) => (
                 <option key={g} value={g}>
@@ -290,7 +290,7 @@ export function MatrixGridDemo() {
               ))}
             </CellSelect>
           ) : (
-            <span className="font-mono font-medium tabular-nums">
+            <span className="font-medium tabular-nums">
               {ctx.cell?.grade === "INCOMPLETE" ? "INC" : ctx.cell?.grade}
             </span>
           )

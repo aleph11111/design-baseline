@@ -129,7 +129,7 @@ export function ImportWizardDemo(): React.ReactElement {
           </p>
           {SOURCE_COLUMNS.map((col) => (
             <div key={col} className="flex items-center gap-3 text-sm">
-              <span className="w-32 shrink-0 font-mono text-xs">{col}</span>
+              <span className="w-32 shrink-0 text-xs">{col}</span>
               <span className="text-muted-foreground">→</span>
               <Select
                 value={mapping[col] ?? "— ignore —"}
@@ -171,9 +171,9 @@ export function ImportWizardDemo(): React.ReactElement {
             <TableBody>
               {PREVIEW.map((r, i) => (
                 <TableRow key={i}>
-                  <TableCell className="font-mono tabular-nums">{r.date}</TableCell>
+                  <TableCell className="tabular-nums">{r.date}</TableCell>
                   <TableCell>{r.description}</TableCell>
-                  <TableCell className="text-right font-mono tabular-nums">{r.amount}</TableCell>
+                  <TableCell className="text-right tabular-nums">{r.amount}</TableCell>
                   <TableCell>{r.category}</TableCell>
                 </TableRow>
               ))}

@@ -21,8 +21,8 @@ export type TableColumn<Row> = {
    */
   align?: "left" | "right" | "center";
   /**
-   * Marks the identifier cell. Gets `text-primary hover:underline`; with
-   * `identifierMono` set it renders `font-mono text-sm font-medium`. When an
+   * Marks the identifier cell. Gets `text-primary hover:underline` in the
+   * house sans (identifiers are not mono, ADR-0009). When an
    * activate handler exists it also gets `cursor-pointer` and the interactive-row
    * focus ring, and becomes a keyboard-operable tab stop (Enter/Space; the
    * cell keeps its cell role). This is the archetypes' core click contract.
@@ -37,12 +37,6 @@ export type TableColumn<Row> = {
    * value.
    */
   isClickable?: (row: Row) => boolean;
-  /**
-   * Style the identifier cell with `font-mono text-sm font-medium`.
-   * Off by default: keyed to the identifier's character style, on for
-   * alphanumeric codes or slugs, off for human-readable name identifiers.
-   */
-  identifierMono?: boolean;
   /**
    * Hide the column below a breakpoint (table bodies only): `"md"` (768px) or
    * `"2xl"` (1536px). NOT a free look choice: the shared contract decision rule
@@ -95,7 +89,6 @@ export function identifierCell<Row = unknown>(
   onActivate?: () => void,
   row?: Row,
 ) {
-  const mono = col.identifierMono === true;
   // Per-row gate: a column may declare rows that cannot be opened. Drop the
   // activate handler for those, so the cell keeps the identifier's typography
   // but none of the click affordance (cursor, focus ring, keyboard tab stop).
@@ -110,7 +103,6 @@ export function identifierCell<Row = unknown>(
       "text-primary hover:underline",
       activate !== undefined &&
         cn("cursor-pointer", interactiveRowFocusRing),
-      mono && "font-mono text-sm font-medium",
     ),
     onClick: activate,
     ...interactive,

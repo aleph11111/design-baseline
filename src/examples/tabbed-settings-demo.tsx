@@ -135,7 +135,7 @@ const CHANNEL_COLUMNS: SettingsColumn<DistributionChannel>[] = [
     key: "episodes",
     header: "Episodes",
     align: "right",
-    cell: (c) => <span className="font-mono tabular-nums">{c.episodes}</span>,
+    cell: (c) => <span className="tabular-nums">{c.episodes}</span>,
   },
 ];
 
@@ -300,7 +300,7 @@ export function TabbedSettingsDemo() {
                   "No unsaved changes across tabs."
                 )}
               </span>
-              <span>Workspace ID: <span className="font-mono tabular-nums">ws_8f21</span></span>
+              <span>Workspace ID: <span className="tabular-nums">ws_8f21</span></span>
             </div>
           }
         />

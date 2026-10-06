@@ -59,12 +59,11 @@ const columns: ListColumn<Recipe>[] = [
     header: "Recipe",
     cell: (r) => r.name,
     isIdentifier: true,
-    identifierMono: false,
   },
   {
     key: "prep",
     header: "Prep",
-    cell: (r) => <span className="font-mono tabular-nums">{r.prepMinutes} min</span>,
+    cell: (r) => <span className="tabular-nums">{r.prepMinutes} min</span>,
     align: "right",
   },
   {

@@ -81,7 +81,7 @@ export function FeedItem({
           {title}
         </div>
         {meta && (
-          <div className="mt-0.5 font-mono text-[11px] tabular-nums text-muted-foreground">{meta}</div>
+          <div className="mt-0.5 text-[11px] tabular-nums text-muted-foreground">{meta}</div>
         )}
         {body && (
           <div className="mt-1 line-clamp-2 text-[13px] text-muted-foreground">

@@ -30,9 +30,9 @@
  * section (`<DetailSection flush>` / `<SectionCard flush>`) and lines up with a
  * `KeyValueList` stacked below it. Don't add an outer `px-*` around it.
  *
- * IDIOM NOTE: values render `font-mono tabular-nums`, matching the baseline's
- * mono-figure house style (see `StatTile`). Keep this primitive's figure
- * treatment in step if that house style ever changes.
+ * IDIOM NOTE: values render `tabular-nums` at regular weight in the house sans,
+ * matching the baseline figure style (ADR-0009, see `StatTile`). Keep this
+ * primitive's figure treatment in step if that house style ever changes.
  */
 import * as React from "react";
 import { cn } from "../../lib/utils";
@@ -91,7 +91,7 @@ export function MetricRow({
       </div>
       <div
         className={cn(
-          "shrink-0 font-mono font-semibold tabular-nums",
+          "shrink-0 tabular-nums",
           keyFigure ? "text-primary" : "text-foreground",
           emphasis ? "text-base" : "text-[13px]",
         )}

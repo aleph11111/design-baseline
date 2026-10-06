@@ -147,6 +147,5 @@
    not stack. Leave this block commented to inherit the house style, which is
    what makes a donor-side face change reach you on a version bump. */
 /* @theme {
-  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 } */

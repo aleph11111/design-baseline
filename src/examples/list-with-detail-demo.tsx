@@ -120,12 +120,12 @@ function derivePresentation<Row>(
 // (host, episode count, category) drop out below `md`; the record-provenance
 // column (added) drops out below `2xl`, so the show title doesn't wrap at 1440.
 const TABLE_COLUMNS: ListColumn<Podcast>[] = [
-  { key: "title", header: "Show", cell: (p) => p.title, isIdentifier: true, identifierMono: false },
+  { key: "title", header: "Show", cell: (p) => p.title, isIdentifier: true },
   { key: "host", header: "Host", cell: (p) => p.host, hideBelow: "md" },
   {
     key: "episodes",
     header: "Episodes",
-    cell: (p) => <span className="font-mono tabular-nums">{p.episodeCount}</span>,
+    cell: (p) => <span className="tabular-nums">{p.episodeCount}</span>,
     align: "right",
     hideBelow: "md",
     sortable: true,
@@ -134,7 +134,7 @@ const TABLE_COLUMNS: ListColumn<Podcast>[] = [
   {
     key: "last",
     header: "Last published",
-    cell: (p) => <span className="font-mono tabular-nums">{p.lastPublishedAt}</span>,
+    cell: (p) => <span className="tabular-nums">{p.lastPublishedAt}</span>,
     align: "right",
     sortable: true,
     sortFn: (a, b) => a.lastPublishedAt.localeCompare(b.lastPublishedAt),
@@ -142,7 +142,7 @@ const TABLE_COLUMNS: ListColumn<Podcast>[] = [
   {
     key: "added",
     header: "Added",
-    cell: (p) => <span className="font-mono tabular-nums">{p.addedAt}</span>,
+    cell: (p) => <span className="tabular-nums">{p.addedAt}</span>,
     align: "right",
     hideBelow: "2xl",
   },
@@ -179,12 +179,12 @@ const TABLE_COLUMNS: ListColumn<Podcast>[] = [
 const PRESENTATION_TABLE = derivePresentation(TABLE_COLUMNS); // 5 data cols → table
 
 const CARD_COLUMNS: ListColumn<Podcast>[] = [
-  { key: "title", header: "Show", cell: (p) => p.title, isIdentifier: true, identifierMono: false },
+  { key: "title", header: "Show", cell: (p) => p.title, isIdentifier: true },
   { key: "host", header: "Host", cell: (p) => p.host },
   {
     key: "episodes",
     header: "Episodes",
-    cell: (p) => <span className="font-mono tabular-nums">{p.episodeCount}</span>,
+    cell: (p) => <span className="tabular-nums">{p.episodeCount}</span>,
   },
   {
     key: "category",
@@ -199,7 +199,7 @@ const CARD_COLUMNS: ListColumn<Podcast>[] = [
 const PRESENTATION_CARD_GRID = derivePresentation(CARD_COLUMNS); // 3 data cols → card-grid
 
 const ACTION_ROW_COLUMNS: ListColumn<Podcast>[] = [
-  { key: "title", header: "Show", cell: (p) => p.title, isIdentifier: true, identifierMono: false },
+  { key: "title", header: "Show", cell: (p) => p.title, isIdentifier: true },
   { key: "host", header: "Host", cell: (p) => p.host },
 ];
 const PRESENTATION_ACTION_ROW = derivePresentation(ACTION_ROW_COLUMNS); // 1 data col → action-row
@@ -257,13 +257,13 @@ export function ListWithDetailDemo() {
       </div>
       <div className="flex items-baseline gap-2">
         <p className="text-muted-foreground text-[13px]">Episodes</p>
-        <p className="font-mono tabular-nums text-[15px] font-medium">
+        <p className="tabular-nums text-[15px]">
           {selected.episodeCount}
         </p>
       </div>
       <div>
         <p className="text-muted-foreground text-[13px]">Last published</p>
-        <p className="font-mono tabular-nums text-[15px]">{selected.lastPublishedAt}</p>
+        <p className="tabular-nums text-[15px]">{selected.lastPublishedAt}</p>
       </div>
       <Badge variant={CATEGORY_BADGE_VARIANT[selected.category]}>
         {CATEGORY_LABELS[selected.category]}
