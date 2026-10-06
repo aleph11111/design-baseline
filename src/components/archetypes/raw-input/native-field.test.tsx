@@ -23,6 +23,16 @@ describe("NativeField — labeled native field with a11y wiring", () => {
     expect(input.value).toBe("Saison");
   });
 
+  it("threads size to the single-line control; default stays h-9", () => {
+    const { rerender } = render(<NativeField label="A" value="" onChange={() => {}} />);
+    expect(screen.getByLabelText("A").className).toMatch(/\bh-9\b/);
+    rerender(<NativeField label="A" value="" onChange={() => {}} size="sm" />);
+    expect(screen.getByLabelText("A").className).toMatch(/\bh-8\b.*\btext-xs\b/);
+    expect(screen.getByLabelText("A").className).not.toMatch(/\bh-9\b/);
+    rerender(<NativeField label="A" value="" onChange={() => {}} size="lg" />);
+    expect(screen.getByLabelText("A").className).toMatch(/\bh-11\b/);
+  });
+
   it("emits the control's raw string value", () => {
     const onChange = vi.fn();
     render(<NativeField label="Batch name" value="" onChange={onChange} />);

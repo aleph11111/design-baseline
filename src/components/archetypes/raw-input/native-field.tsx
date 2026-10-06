@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Input } from "../../ui/input";
+import { Input, type InputSize } from "../../ui/input";
 import { cn } from "../../../lib/utils";
 import { JOINED_LABEL_CLASS, useInToolbarBand } from "../../ui/toolbar-band";
 import {
@@ -100,6 +100,11 @@ export interface NativeFieldProps {
    * length, which it cannot do for arbitrary content. Ignored for `range` + `multiline`.
    */
   prefix?: string;
+  /**
+   * Control height on the shared ladder: sm h-8 · default h-9 · lg h-11. Single-line
+   * only — `multiline` height is `rows`, and `range` is a slider, not a box.
+   */
+  size?: InputSize;
   /** Applied to the wrapper. */
   className?: string;
   /** Applied to the `Label`. */
@@ -133,6 +138,7 @@ export function NativeField({
   rows,
   inputMode,
   prefix,
+  size,
   className,
   labelClassName,
   controlClassName,
@@ -224,6 +230,7 @@ export function NativeField({
       <Input
         {...shared}
         type={type}
+        size={size}
         placeholder={placeholder}
         min={min}
         max={max}

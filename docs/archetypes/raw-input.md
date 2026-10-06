@@ -2,7 +2,7 @@
 key: I
 slug: raw-input
 kind: component
-version: 1.2
+version: 1.3
 promoted_from: fleet synthesis (controlling-app, my-finance-app, mistra, dashboard, brickshop-manager)
 promoted_at: 2026-07-23
 source_spec_version: n/a (fleet synthesis — no single source spec)
@@ -92,6 +92,12 @@ component. Numeric-text fields declare an input mode so touch keyboards show the
 right keys; native date/time/range controls defer to the platform's native picker.
 
 ### L7 — Theming
+**Height step (derived from placement):** a single-line field takes the shared
+control-height step of the row it sits in — `sm` in a dense table cell or inline-row
+editor, `default` in a stacked form, `lg` where the surrounding row is touch-sized.
+It is the placement's step, not a per-field look; omitted resolves to `default`.
+A multi-line field's height is its `rows`; a `range` slider has no box.
+
 Rides the shared field chrome: the standard control border, background, text, and
 focus-ring roles, and the destructive role for the error state. No bespoke
 border/padding/font-size strings — a hand-rolled class string for any of these is
