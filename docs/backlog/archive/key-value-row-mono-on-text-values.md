@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-10-06
-status: needs-enrichment
+status: done
 value: normal
 model: sonnet
 model_reason: "one primitive plus its donor call sites; the API choice is recorded as an open question to confirm first"
@@ -48,3 +48,7 @@ mistra `/profil`, where all four values are text and the whole card reads as cod
 Prop shape, auto-resolved to the Recommended option: **(Recommended)** sans by default + opt-in `numeric` prop.
 Alt A: keep mono default + opt-out `text` prop (no consumer churn, but keeps the wrong default).
 Alt B: auto-detect (mono when `value` is a number) — misses formatted strings like "€120".
+
+## Resolution
+
+Subsumed by [ADR-0009](/docs/adr/0009-figures-in-the-house-sans.md) (branch `feat/inter-figures-house-sans`): the operator chose, from a type specimen, to drop mono for figures and identifiers altogether. `KeyValueRow` now renders every value in the house sans (Inter) with `tabular-nums` at regular weight — no `numeric` prop was needed, since `tabular-nums` is inert on text. Covered by `KeyValueRow.test.tsx`.

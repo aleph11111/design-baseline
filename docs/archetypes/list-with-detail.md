@@ -2,7 +2,7 @@
 key: A
 slug: list-with-detail
 kind: page
-version: 4.0
+version: 4.1
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.9
@@ -132,7 +132,7 @@ A **list-with-detail** page shows a table of domain entities (items, users, orde
 ## Layer 3 — Page header
 
 **Required:**
-- **`title`** — the page title, passed once to the shell. Embed any ID/number figure in the title using the **monospace identifier style** at the call site.
+- **`title`** — the page title, passed once to the shell. Embed any ID/number figure in the title using the **canonical identifier style** at the call site.
 
 **Allowed variation:**
 - **`subtitle`** / **`badges`** — compact metadata and read-only status next to the title.
@@ -189,8 +189,8 @@ A **list-with-detail** page shows a table of domain entities (items, users, orde
 - The project's **base table primitive**.
 - **Number formatting** — monetary values routed through a consumer-provided formatter (e.g. `formatCurrency(value)`). No raw currency symbols or `.toFixed(2)` in table cells.
 - **Date formatting** — every date cell renders through a consumer-provided formatter (e.g. `formatDate(value)` or `formatDateTime(value)` when the time component is meaningful). No raw ISO strings in the UI. The primitive does not format; the consumer passes a formatter or pre-formatted string.
-- **Identifier columns** (record #, internal ID, reference code, etc.) — in the **monospace identifier style**.
-- **Primary identifier cell** is clickable, in the **monospace identifier style** rendered in the **brand/primary color with a hover underline** so it reads as interactive before hover. If a dedicated detail route exists, clicking navigates to it; if no detail route exists, clicking opens an edit modal or the detail overlay.
+- **Identifier columns** (record #, internal ID, reference code, etc.) — in the **canonical identifier style**.
+- **Primary identifier cell** is clickable, in the **canonical identifier style** rendered in the **brand/primary color with a hover underline** so it reads as interactive before hover. If a dedicated detail route exists, clicking navigates to it; if no detail route exists, clicking opens an edit modal or the detail overlay.
 
 **Allowed variation:**
 - **Presentation variant** — `presentation="table | card-grid | action-row"`. Same `rows`/`columns`/row-interaction; only the rendering differs. This is the archetype's variant axis (see `docs/CHOOSING-A-SURFACE.md`): a card grid is **not** drift from "the table archetype" — it's a conformant variant. **Choose by the row's data shape** (count of non-identifier data columns the row exposes in `columns` / `rows`):
@@ -227,7 +227,7 @@ A **list-with-detail** page shows a table of domain entities (items, users, orde
 - **Status indicators:**
   - **Categorical status** (draft / active / archived / paid / …) — use a shared **status-badge** variant. Color map lives in a shared file, not duplicated per page.
   - **Binary toggle** (enabled/disabled, monitored/paused, …) — a **brand-primary dot** (on) / **muted dot** (off) plus label text. Token-pure — never a literal palette color at the call site; semantic raw-color mappings live only inside the owning primitives (status-badge, calendar tones).
-- **Identifier without the monospace style** — when the identifier is a human-readable name rather than a numeric or alphanumeric code (e.g. a search name, a tag label), the monospace style may be intentionally omitted. The **brand/primary color + hover underline** requirement still applies for all identifier cells, including human-readable name identifiers.
+- **Identifiers always use the house sans** (ADR-0009) — numeric codes and human-readable names alike (e.g. a search name, a tag label). The **brand/primary color + hover underline** requirement applies for all identifier cells.
 
 **Forbidden:**
 - Inline status color maps duplicated per page. Categorical statuses go through a shared variant component.

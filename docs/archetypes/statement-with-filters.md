@@ -2,7 +2,7 @@
 key: F
 slug: statement-with-filters
 kind: page
-version: 2.0
+version: 2.1
 promoted_from: controlling-app
 promoted_at: 2026-08-19
 source_spec_version: 1.0
@@ -153,8 +153,7 @@ The toolbar is the archetype's signature layer.
 **Required:**
 - **Read-only.** The statement presents computed figures; no inline `<input>`
   / `<select>` / `<textarea>` for editing a figure in a cell.
-- Numeric cells right-aligned in the **canonical monospace figure style**
-  (mono + tabular); header labels in the canonical table-column-header
+- Numeric cells right-aligned in the **canonical tabular figure style**; header labels in the canonical table-column-header
   overline style; row labels in the canonical sans text style.
 - The statement component owns column headers, grouping/indentation, totals
   rows, and horizontal scrolling of the table body.
@@ -262,7 +261,7 @@ never from the call site's taste. The mapping is exhaustive:
 - [ ] **Full-tuple re-scoping.** Every selector re-scopes the **whole**
       governed statement; the fetch depends on the full selector tuple.
 - [ ] **Read-only statement.** No inline editing of any figure in the table.
-- [ ] **Canonical figure style.** Numbers right-aligned, mono + tabular; column
+- [ ] **Canonical figure style.** Numbers right-aligned, tabular; column
       headers in the canonical overline style; labels sans.
 - [ ] **One statement per route.** A single governed statement renders; no
       second statement stacked on the same route.

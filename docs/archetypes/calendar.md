@@ -2,7 +2,7 @@
 key: Cal
 slug: calendar
 kind: page
-version: 2.0
+version: 2.1
 status: locked
 ---
 
@@ -77,7 +77,7 @@ densifies.
 - **`toolbar`** — the period / view navigation, which re-scopes the grid: a
   `‹` previous, a "Today", a `›` next (icon-only buttons carry an accessible
   label), the visible period's label (e.g. "June 2026 · Week 26", numeric runs
-  in the **canonical monospace identifier style**), and a week/month view
+  in the **canonical identifier style**), and a week/month view
   switch when the project offers one.
 - **`actions`** — page verbs: the single primary create action (`+ Event`),
   plus export / print if offered.
@@ -100,7 +100,7 @@ densifies.
   passes seven `CalendarDay` columns in display order; the shell never
   computes the period.
 - **Day header cell** — centred: a dow overline in the **canonical
-  overline style** over a day-number in the **canonical monospace
+  overline style** over a day-number in the **canonical
   identifier style**. The day flagged `today` tints its header cell (a muted
   tint) and brightens its number to the foreground.
 - **Hairlines** — grid lines render as a faint hairline.
@@ -125,7 +125,7 @@ densifies.
 
 **Required:**
 - Each event is a chip: a left accent bar plus a faint tinted background, a
-  time in the **canonical monospace identifier style** over a semibold sans
+  time in the **canonical identifier style** over a semibold sans
   title.
 - **Tone → token classes.** A chip's `tone` selects a token-backed bar+tint
   pair via the **calendar tone tokens, owned by the calendar primitive**.
@@ -228,10 +228,10 @@ type CalendarDay = {
       title exists once. At most one primary create action.
 - [ ] **Tones are token-backed** (the calendar tone tokens) — no literal-hex
       chip colour maps.
-- [ ] **Day-numbers + event times render in the canonical monospace
+- [ ] **Day-numbers + event times render in the canonical
       identifier style**; titles + button labels stay sans.
 - [ ] **[spine] S1–S6** (single inset · shell-not-hand-rolled · token tones ·
-      aligned mono figures · neutral-default primary).
+      aligned tabular figures · neutral-default primary).
 
 **SHOULD** (yellow, not red)
 

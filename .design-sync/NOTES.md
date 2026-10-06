@@ -32,12 +32,12 @@ Repo-specific gotchas a future re-sync must know. Committed alongside config.jso
 - `componentSrcMap` pins 4 layout/report comps whose export name ≠ filename (AppHeader←Header.tsx, etc.)
   so name-based src enrichment (group + JSDoc) matches.
 
-## Fonts — house style is IBM Plex (shipped, not runtime)
-- `tokens.css @theme` sets `--font-sans`/`--font-mono` to IBM Plex (the "Plex Ledger" house style). The
-  gallery loads Plex via a Google-Fonts `<link>`; the DS must NOT depend on that.
-- `.design-sync/fetch-fonts.mjs` harvested the **latin subset** (Sans 400/500/600/700 + Mono 400/500/600,
-  7 woff2 ≈ 200 KB) into `.design-sync/fonts/` (committed). build-pkg copies them into `pkg/fonts/`;
-  `cfg.extraFonts: "fonts/plex.css"` ships them as `@font-face`. Clears `[FONT_MISSING]`.
+## Fonts — house style is Inter (shipped, not runtime)
+- `tokens.layer.css @theme` sets `--font-sans` to Inter; `--font-mono` is the system stack (ADR-0009). The
+  gallery loads Inter via a Google-Fonts `<link>`; the DS must NOT depend on that.
+- `.design-sync/fetch-fonts.mjs` harvested the **latin subset** (Inter 400–700 as ONE variable
+  woff2 ≈ 47 KB) into `.design-sync/fonts/` (committed). build-pkg copies it into `pkg/fonts/`;
+  `cfg.extraFonts: "fonts/inter.css"` ships it as `@font-face`. Clears `[FONT_MISSING]`.
 
 ## CSS — compiled Tailwind, not raw tokens.css
 - Tailwind 4 generates utilities by scanning source; raw `tokens.css` (`@import "tailwindcss"` + `@theme`)
@@ -95,7 +95,7 @@ Repo-specific gotchas a future re-sync must know. Committed alongside config.jso
 
 ## Re-sync risks (watch-list)
 - **Fonts fetched from Google Fonts** — `fetch-fonts.mjs` needs network on first run of a fresh clone; the
-  woff2 are committed so re-syncs are offline-deterministic. If Plex weights change in tokens.css, re-run it.
+  woff2 are committed so re-syncs are offline-deterministic. If the house face changes in tokens.layer.css, re-run it.
 - **Latin subset only** — no Cyrillic/Greek/Vietnamese glyphs. Fine for the English-default baseline.
 - **compiled CSS via gallery build** — if the gallery harness changes, confirm `styles.css` still carries
   all component utilities.

@@ -84,7 +84,7 @@ A control that fits none of these slots is a question for the archetype contract
 | **Primary identifier** | first cell / card title | **Exactly one** per row, `text-primary hover:underline` (reads interactive at rest). Click = the row's detail-target. |
 | **Secondary fields** | after the identifier | muted; a supporting second line only when density genuinely helps |
 | **Status** | its own cell / corner | `Badge` (categorical) or dot + label (binary). Never a raw colored cell, never an inline per-page color map. |
-| **Numbers** | right-aligned | `font-mono tabular-nums`, routed through a formatter — never raw `toFixed` / ISO strings |
+| **Numbers** | right-aligned | `tabular-nums` in the house sans (ADR-0009), routed through a formatter — never raw `toFixed` / ISO strings |
 | **Per-row actions** | row end | `RowActionsMenu` (the `⋯`) — the single owner of the per-row overflow. Never scatter inline action buttons across a row. |
 
 Identical across `list-with-detail` rows, `grouped-list` items, and `kanban-board` cards:
@@ -140,7 +140,7 @@ The footer button order is a hard contract, identical in a sheet and on a form p
 |------|------|-------|
 | **Entity title + status badges** | header, left | detail header |
 | **Header actions** (Edit, convert, quick-actions) | `actions` | per the page-frame slot table |
-| **KPI / stat strip** | top of body | `StatTileRow` / `StatTile` (mono tabular-nums figures) |
+| **KPI / stat strip** | top of body | `StatTileRow` / `StatTile` (tabular-nums figures) |
 | **Master-data summary** | summary block | `KeyValueList` / `KeyValueRow` (ruled `dl`) |
 | **Sub-collections** | stacked below | `DetailSection` blocks |
 

@@ -2,7 +2,7 @@
 key: R
 slug: report
 kind: page
-version: 3.0
+version: 3.1
 ---
 
 # Archetype R — Report
@@ -39,13 +39,13 @@ site's taste.
   standard column width.
 
 **1 — Page header**
-- `title` — the document's human ID, passed once (e.g. "Rechnung RE-2025-0417"; embed the ID figure using the **canonical monospace identifier style**). The document class ("Beleg", "Invoice") is part of the title or `subtitle`, not a second heading.
+- `title` — the document's human ID, passed once (e.g. "Rechnung RE-2025-0417"; embed the ID figure using the **canonical identifier style**). The document class ("Beleg", "Invoice") is part of the title or `subtitle`, not a second heading.
 - `actions` — the document verbs: a secondary action (e.g. "PDF") + at most one primary action (e.g. "Senden").
 
 **2 — Document body**, top-to-bottom:
-- **Parties row** — a `from` identity block (overline label + bold name + address lines) | a `to` block | a right-aligned dates block (issue + due dates, dates in the **canonical monospace figure style**).
-- **Line-item table** — the shared **line-item table primitive**, composed of individual line-item rows. Header row = the **canonical table-column-header overline style**; each row = name (sans) + qty / unit / sum (in the canonical monospace figure style, right-aligned), hairline-divided.
-- **Totals stack** — a right-aligned, fixed-width column of the shared **total-row primitive**: subtotal, tax (label carries the rate, e.g. "MwSt. 19 %"), and a `total` grand-total row (muted-tint background, larger figure in the canonical monospace figure style).
+- **Parties row** — a `from` identity block (overline label + bold name + address lines) | a `to` block | a right-aligned dates block (issue + due dates, dates in the **canonical tabular figure style**).
+- **Line-item table** — the shared **line-item table primitive**, composed of individual line-item rows. Header row = the **canonical table-column-header overline style**; each row = name (sans) + qty / unit / sum (in the canonical tabular figure style, right-aligned), hairline-divided.
+- **Totals stack** — a right-aligned, fixed-width column of the shared **total-row primitive**: subtotal, tax (label carries the rate, e.g. "MwSt. 19 %"), and a `total` grand-total row (muted-tint background, larger figure in the canonical tabular figure style).
 
 There is no `toolbar`, `count` or `viewOptions` (nothing re-scopes a finished document), no detail panel, no rail. The document is the only surface.
 
@@ -56,7 +56,7 @@ There is no `toolbar`, `count` or `viewOptions` (nothing re-scopes a finished do
 - **Rows** — table rows hairline-divided.
 - **Overlines** — section/party labels use the **canonical overline style**; the tiny table-column headers use the **canonical table-column-header overline style**.
 - **Type** — a body-copy scale and a smaller meta-text scale.
-- **Figures** — every money / qty / date / ID renders in the **canonical monospace figure style**. Names, prose, and labels stay in the default sans style.
+- **Figures** — every money / qty / date / ID renders in the **canonical tabular figure style**. Names, prose, and labels stay in the default sans style.
 - **Buttons** — rendered as **buttons**, small; the primary action uses the default/primary style, secondary actions use the secondary style.
 - **Accent** — stays the donor neutral default. Do **not** bake in a brand color; a consuming app re-skins the **brand/primary color token** on its own surface.
 
@@ -68,7 +68,7 @@ There is no `toolbar`, `count` or `viewOptions` (nothing re-scopes a finished do
 2. **Actions in the body.** Export / send live only in `actions`.
 3. **A second title.** The document ID is the page `title`, once; no heading repeats it on the document surface.
 4. **Raw money / date / qty strings.** Figures route through consumer-provided formatters; primitives never format.
-5. **Sans figures.** Money, quantities, dates, and IDs always render in the canonical monospace figure style.
+5. **Sans figures.** Money, quantities, dates, and IDs always render in the canonical tabular figure style.
 6. **Baked brand accent.** The donor stays neutral; the consumer scopes the brand/primary color token.
 7. **A status home / rail / activity stepper.** That is detail-overview (C); a report is a flat document column.
 
@@ -96,7 +96,7 @@ There is no `toolbar`, `count` or `viewOptions` (nothing re-scopes a finished do
 - [ ] **Line items via the shared line-item table primitive** — the shared
       column grid + the canonical table-column-header overline style, not a hand-rolled `<table>`.
 - [ ] **Totals via the shared total-row primitive** with exactly one `total` (tinted) grand-total row.
-- [ ] **[spine] S1–S6** — figures in the canonical monospace figure style and right-aligned;
+- [ ] **[spine] S1–S6** — figures in the canonical tabular figure style and right-aligned;
       atoms + tokens only (no literal colors); accent left as the neutral default.
 
 **SHOULD** (yellow, not red)

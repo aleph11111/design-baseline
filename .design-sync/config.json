@@ -7,7 +7,7 @@
   "srcDir": "src/components",
   "tsconfig": "../../../tsconfig.json",
   "cssEntry": "styles.css",
-  "extraFonts": "fonts/plex.css",
+  "extraFonts": "fonts/inter.css",
   "readmeHeader": ".design-sync/conventions.md",
   "componentSrcMap": {
     "AppHeader": "src/components/layout/Header.tsx",

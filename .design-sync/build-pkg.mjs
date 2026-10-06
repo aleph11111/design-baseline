@@ -132,8 +132,8 @@ symlinkSync(relative(PKG, SRC), join(PKG, 'src'));
 
 // ── 8. ship the house-style fonts (bounded to PKG_DIR for cfg.extraFonts) ────
 const fontsSrc = join(REPO, '.design-sync', 'fonts');
-if (existsSync(join(fontsSrc, 'plex.css'))) cpSync(fontsSrc, join(PKG, 'fonts'), { recursive: true });
-else console.error('[build-pkg] WARN .design-sync/fonts/plex.css missing — run fetch-fonts.mjs');
+if (existsSync(join(fontsSrc, 'inter.css'))) cpSync(fontsSrc, join(PKG, 'fonts'), { recursive: true });
+else console.error('[build-pkg] WARN .design-sync/fonts/inter.css missing — run fetch-fonts.mjs');
 
 const total = byModule.reduce((n, g) => n + g.names.length, 0);
 const dtsCount = readdirSync(TYPES, { recursive: true }).filter((f) => String(f).endsWith('.d.ts')).length;

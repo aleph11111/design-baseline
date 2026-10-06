@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 4.0
+version: 4.1
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.6
@@ -83,9 +83,8 @@ status: locked
 > updated). The `surface="unified"` framed header now documents the
 > header-fill contract it already renders through (default: brand-filled).
 > The S5 acceptance-gate box now requires the canonical tabular-figure style
-> for figures, matching the baseline's house-style mono-figure adoption
-> (STYLE.md, 2026-06-21 Plex Ledger amendment) rather than "aligned, mono not
-> required". No API change.
+> for figures, matching ADR-0009 (tabular figures in the house sans) rather than
+> "aligned, mono not required". No API change.
 >
 > **v2.4 (2026-06-22) — header status badges.** The detail-overview header
 > (and the canonical page-header treatment it wraps) gain a `badges` slot —
@@ -809,9 +808,8 @@ domain:
 
 ### REQUIRED — visual substrate ([spine], restated at the gate)
 
-- [ ] **Figures are mono.** All money, IDs, quantities, dates use the canonical
-      tabular-figure style — the baseline adopted mono figures at the
-      house-style level (STYLE.md, 2026-06-21 Plex Ledger amendment). *(S5)*
+- [ ] **Figures are tabular.** All money, IDs, quantities, dates use the canonical
+      tabular-figure style in the house sans (ADR-0009). *(S5)*
 - [ ] **Brand primary, not default.** Primary actions/active states read the
       brand primary color (the target's token override is applied), not donor
       slate. *(S6)*

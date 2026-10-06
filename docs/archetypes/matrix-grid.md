@@ -2,7 +2,7 @@
 key: M
 slug: matrix-grid
 kind: page
-version: 3.1
+version: 3.2
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -344,7 +344,7 @@ When a target project applies this archetype, it wires the generic primitive to 
 - [ ] **Cells are a single primitive** (value/intensity/state) — no per-cell bespoke
       markup variants; empty cells use the canonical empty treatment, not blank gaps.
 - [ ] **Legend/scale uses tokens** (sequential/semantic), no literal color ramps.
-- [ ] **[spine] S1, S2, S4, S5, S6** (S5: all cell figures mono/tabular).
+- [ ] **[spine] S1, S2, S4, S5, S6** (S5: all cell figures tabular).
 
 **SHOULD** (yellow, not red)
 

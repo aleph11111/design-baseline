@@ -25,7 +25,7 @@ const CATEGORY_LABELS: Record<Podcast["category"], string> = {
 };
 
 const columns: ListColumn<Podcast>[] = [
-  { key: "title", header: "Show", cell: (p) => p.title, isIdentifier: true, identifierMono: false },
+  { key: "title", header: "Show", cell: (p) => p.title, isIdentifier: true },
   { key: "host", header: "Host", cell: (p) => p.host },
   {
     key: "episodes",

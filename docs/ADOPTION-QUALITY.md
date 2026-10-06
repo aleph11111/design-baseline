@@ -83,7 +83,7 @@ audit" split:
    For detail-overview that is: status appears in exactly one place; the content column
    leads with the lifecycle tracker / primary records, not a status band or a log
    table; primary records are visible without a tab click; actions = 1 primary + ⋯;
-   headline figures at a glance; figures mono/tabular; brand primary; negatives in
+   headline figures at a glance; figures tabular; brand primary; negatives in
    `destructive`; no page-level inset. Each unchecked box is an Axis-C finding.
 
 ## The conformance spine (S1–S6)
@@ -104,8 +104,7 @@ here:
   where an atom exists, standard focus ring, semantic state via `destructive`/brand not
   literal red/green.
 - **S5 Aligned figures** — money, IDs, quantities, dates use `tabular-nums` for
-  column alignment, in the **baseline's own font** (do not impose a mono face unless
-  the baseline adopts mono figures at the house-style level).
+  column alignment, in the **baseline's own font** — the house sans, never a mono face (ADR-0009).
 - **S6 Brand primary** — primary actions/active states read the brand `--primary` (the
   target's token override is applied), not donor slate.
 

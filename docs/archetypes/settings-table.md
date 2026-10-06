@@ -2,7 +2,7 @@
 key: D2
 slug: settings-table
 kind: page
-version: 3.3
+version: 3.4
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -121,9 +121,8 @@ status: locked
 > top-level app shell (`<AppShell headerFill=…>` is the only entry point; the
 > surface header bar reads that context). Kept and now keyed: the `align` axis on
 > each column (`"left" | "right" | "center"`) is keyed to the column's value kind
-> (a decision table — see Layer 6), and the identifier column's monospace
-> treatment is keyed to the identifier's character style, now stated as a rule in
-> Layer 6 rather than offered as an optional variation. `toolbar` / `bulkActions`
+> (a decision table — see Layer 6), and the identifier column's treatment is stated as a rule in
+> Layer 6 rather than offered as an optional variation (identifiers always use the house sans, ADR-0009). `toolbar` / `bulkActions`
 > / `headerActions` remain `ReactNode` composition slots — they compose the
 > contract's documented toolbar and header primitives, so they vary only content,
 > never the shell's look (spec D5; RULES.md hard rule 12). Deliberate spec-rule
@@ -279,7 +278,7 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
 - The project's **base table primitive**.
 - **Number formatting** — monetary values routed through a consumer-provided formatter. No raw currency symbols or `.toFixed(2)` in cells.
 - **Date formatting** — every date cell renders through a consumer-provided formatter (e.g. `formatDate(value)`). No raw ISO strings in the UI.
-- **Identifier columns** — in the **monospace identifier style** when the identifier is an alphanumeric code or slug; the monospace style is **omitted** when the identifier is a human-readable name. The keying is mechanical — two engineers holding the same column config derive the same treatment from the identifier's character style.
+- **Identifier columns** — in the **canonical identifier style** (house sans, ADR-0009), whether the identifier is an alphanumeric code, slug or human-readable name.
 - **Column alignment** — `align="left | right | center"` on a column. **Choose by the column's value kind** (what the column's `cell` renders):
 
   | Column value kind | Alignment |
