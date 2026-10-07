@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: 2026-10-07
-status: ready
+status: done
 model: sonnet
 model_reason: "single-row docs correction with the fix named"
 value: low
