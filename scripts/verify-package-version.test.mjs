@@ -40,9 +40,11 @@ function initRepo(version) {
   return dir;
 }
 
-function bump(dir, version, message = "bump") {
+function bump(dir, version, message = "bump", changelog = true) {
   writeVersion(dir, version);
+  if (changelog) writeFileSync(join(dir, "CHANGELOG.md"), `## v${version}\n`);
   git(dir, "add", "package.json");
+  if (changelog) git(dir, "add", "CHANGELOG.md");
   git(dir, "commit", "-q", "-m", message);
 }
 
@@ -106,6 +108,14 @@ describe("verify-package-version", () => {
     const { status, stdout } = run(dir);
     expect(status).toBe(0);
     expect(stdout).toContain("1.0.2 > origin/main's 1.0.0");
+  });
+
+  it("bump without a CHANGELOG.md entry for the new version fails", () => {
+    const dir = initRepo("1.0.0");
+    bump(dir, "1.0.1", "bump", false);
+    const { status, stderr } = run(dir);
+    expect(status).toBe(1);
+    expect(stderr).toContain('no "## v1.0.1" entry');
   });
 
   it("equal: two branches bump to the same version (the #309/#310 collision), fails", () => {
