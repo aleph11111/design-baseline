@@ -33,3 +33,7 @@ The existing `v0.5.0` "all controls" row in `docs/PACKAGE.md` tells consumers to
 
 - [[changelog-and-package-migration-rows]] — shipped the rows this corrects
 - [[button-inline-and-icon-sm-sizes]] — shipped the v0.6.5 sizes
+
+## 2026-10-07 update
+
+Re-captured the same thought; premise still live as of this scan. `docs/PACKAGE.md` L400 — the **all controls** (v0.5.0) row — still ends with the advice "a `Button` `className h-auto` … becomes `size="inline"`, a dense-row icon override becomes `size="icon-sm"`", with no version qualifier, while those sizes first shipped in v0.6.5 (`CHANGELOG.md` v0.6.5; the separate `Button (v0.6.5)` row at L393 already carries the same advice correctly). A consumer pinned to v0.5.x following the v0.5.0 row gets a TypeScript error on an unknown `size`. Scope confirmed: fix the v0.5.0 row **and** audit every other `docs/PACKAGE.md` migration row for advice naming an API newer than the row's version (the existing What-to-do/CHANGELOG bullets above already encode both halves).
