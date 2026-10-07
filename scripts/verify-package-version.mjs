@@ -25,11 +25,13 @@
 // one, and the old fallback's "a parallel branch already shipped this bump"
 // message was actively misleading for that case.
 //
+// A bump must also carry a `## v<version>` entry in CHANGELOG.md.
+//
 // Zero-dependency by design, mirroring scripts/verify-manifest-versions.mjs.
 //
 // Usage:  node scripts/verify-package-version.mjs
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 const PREFIX = 'verify:package-version —';
@@ -85,6 +87,10 @@ if (current === base) {
 }
 if (!(compare(current, main) > 0)) {
   console.error(`${PREFIX} package.json version ${current} is not greater than origin/main's ${main}; a parallel branch already shipped this bump — rebump above ${main} [${mainInfo}]`);
+  process.exit(1);
+}
+if (!new RegExp(`^## v${current.replace(/\./g, '\\.')}\\s*$`, 'm').test((existsSync('CHANGELOG.md') ? readFileSync('CHANGELOG.md', 'utf8') : ''))) {
+  console.error(`${PREFIX} package.json bumped to ${current} but CHANGELOG.md has no "## v${current}" entry — add one (what changed, consumer action, breaking?)`);
   process.exit(1);
 }
 console.log(`${PREFIX} ${current} > origin/main's ${main} [${mainInfo}]`);

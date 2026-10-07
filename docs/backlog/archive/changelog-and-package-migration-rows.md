@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: 2026-10-07
-status: ready
+status: done
 model: sonnet
 model_reason: "pattern-following docs backfill plus one pretest-gate extension; all three deliverables specified by the thought, no design decision left"
 value: normal
