@@ -26,6 +26,7 @@ import {
   isExcluded,
   parseArgs,
   pcreToJs,
+  scanShadowedBaseline,
   scanSource,
   summarize,
 } from "./scan-adoption-quality.mjs";
@@ -514,6 +515,7 @@ describe("summarize", () => {
       yellowHits: 1,
       brandTokenFiles: 2,
       brandTokenHits: 1,
+      shadowedBaselineHits: 0,
     });
   });
 
@@ -524,5 +526,66 @@ describe("summarize", () => {
     expect(scanSource("AppShell.tsx", main("@container/db-desk", "mx-auto"), compiled)).toEqual([{ file: "AppShell.tsx", line: 1 }]); // column hook missing
     expect(scanSource("AppShell.tsx", main("@container/db-desk", "db-content-column mx-auto"), compiled)).toEqual([null]);
     expect(scanSource("layout.tsx", "import { AppShell } from 'design-baseline/layout';\nexport default () => <AppShell />;\n", compiled)).toEqual([null]);
+  });
+});
+
+describe("scanShadowedBaseline", () => {
+  const PKG = "node_modules/design-baseline/src/components";
+  /** Consumer with a `ui/*` + `archetypes/*` paths fallback into the baseline. */
+  function consumer({ withPaths = true } = {}) {
+    const dir = mkdtempSync(join(tmpdir(), "shadowed-baseline-"));
+    const put = (rel, body = "export {};\n") => {
+      mkdirSync(join(dir, rel, ".."), { recursive: true });
+      writeFileSync(join(dir, rel), body);
+    };
+    const fb = (name) => [`./src/components/${name}/*`, `./${PKG}/${name}/*`];
+    const exact = { "@/lib/utils": ["./src/lib/utils.ts", `./${PKG}/lib/utils.ts`] }; // non-wildcard entry must not crash
+    writeFileSync(
+      join(dir, "tsconfig.json"),
+      JSON.stringify({ compilerOptions: { paths: withPaths ? { ...exact, "@/components/ui/*": fb("ui"), "@/components/archetypes/*": fb("archetypes") } : {} } }),
+    );
+    put(`${PKG}/ui/button.tsx`);
+    put(`${PKG}/archetypes/raw-input/native-field.tsx`);
+    put("src/components/ui/button.tsx"); // same-name shadow
+    put("src/components/ui/native-field.tsx", "// Adopted from design-baseline `src/components/archetypes/raw-input/native-field.tsx`\nexport {};\n");
+    put("src/components/ui/my-own.tsx"); // baseline ships no such name
+    put("src/components/ui/forms/button.tsx"); // same basename, different subpath: shadows nothing
+    return dir;
+  }
+  const walked = (dir, rels) => rels.map((rel) => ({ rel, abs: join(dir, rel) }));
+  const all = ["src/components/ui/button.tsx", "src/components/ui/native-field.tsx", "src/components/ui/my-own.tsx"];
+
+  it("flags a same-name shadow and an adopted-header copy under a different directory, clears an unshipped name", () => {
+    const dir = consumer();
+    expect(scanShadowedBaseline(dir, walked(dir, all))).toEqual([
+      { file: "src/components/ui/button.tsx", line: 1, kind: "same-name" },
+      { file: "src/components/ui/native-field.tsx", line: 1, kind: "adopted-header" },
+    ]);
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("parses a tsconfig with comments and trailing commas without mangling the `/*` in path keys", () => {
+    const dir = consumer();
+    const cfg = JSON.parse(readFileSync(join(dir, "tsconfig.json"), "utf8"));
+    const jsonc = `{ // c\n "include": ["**/*.ts",], /* c */\n "compilerOptions": ${JSON.stringify(cfg.compilerOptions)}, }`;
+    writeFileSync(join(dir, "tsconfig.json"), jsonc);
+    expect(scanShadowedBaseline(dir, walked(dir, all)).map((h) => h.file)).toContain("src/components/ui/button.tsx");
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("does not flag a local dir listed AFTER the baseline target (the package wins resolution)", () => {
+    const dir = consumer();
+    writeFileSync(
+      join(dir, "tsconfig.json"),
+      JSON.stringify({ compilerOptions: { paths: { "@/components/ui/*": [`./${PKG}/ui/*`, "./src/components/ui/*"] } } }),
+    );
+    expect(scanShadowedBaseline(dir, walked(dir, all)).map((h) => h.kind)).toEqual(["adopted-header"]);
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("reports nothing for a consumer with no paths fallback into the baseline", () => {
+    const dir = consumer({ withPaths: false });
+    expect(scanShadowedBaseline(dir, walked(dir, all))).toEqual([]);
+    rmSync(dir, { recursive: true, force: true });
   });
 });

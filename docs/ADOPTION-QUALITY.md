@@ -76,6 +76,12 @@ audit" split:
    page inset (`p-4 md:p-12 xl:p-14`) that lacks `@container/db-desk` or
    `db-content-column` — a vendored AppShell that missed the v0.2.26 width-step hooks
    and stays at 1180px on wide desks. A package importer renders no `<main>` and never hits.
+   `shadowed-baseline-file` (yellow, `audit-signals.json → shadowedBaseline`, reported under the
+   report's `shadowedBaseline` key) flags a consumer-local file that shadows a baseline component
+   behind a tsconfig `paths` fallback into `node_modules/design-baseline/src/`: a same-named file
+   under the aliased local dir (`same-name`), or any file whose head says "Adopted from
+   design-baseline" (`adopted-header`). The local copy wins silently, so it keeps rendering the old
+   component after a package bump. No `paths` fallback, no hit; only `<root>/tsconfig.json` is read (no `extends`).
 
 2. **Per-page conformance pass** (LLM audit): for each flagged route — and every route
    the page-level pass marks `adopted` for a shell archetype — run the archetype's
