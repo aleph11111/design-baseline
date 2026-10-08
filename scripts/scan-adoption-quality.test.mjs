@@ -539,9 +539,10 @@ describe("scanShadowedBaseline", () => {
       writeFileSync(join(dir, rel), body);
     };
     const fb = (name) => [`./src/components/${name}/*`, `./${PKG}/${name}/*`];
+    const exact = { "@/lib/utils": ["./src/lib/utils.ts", `./${PKG}/lib/utils.ts`] }; // non-wildcard entry must not crash
     writeFileSync(
       join(dir, "tsconfig.json"),
-      JSON.stringify({ compilerOptions: { paths: withPaths ? { "@/components/ui/*": fb("ui"), "@/components/archetypes/*": fb("archetypes") } : {} } }),
+      JSON.stringify({ compilerOptions: { paths: withPaths ? { ...exact, "@/components/ui/*": fb("ui"), "@/components/archetypes/*": fb("archetypes") } : {} } }),
     );
     put(`${PKG}/ui/button.tsx`);
     put(`${PKG}/archetypes/raw-input/native-field.tsx`);

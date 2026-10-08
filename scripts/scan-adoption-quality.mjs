@@ -265,7 +265,7 @@ function scanShadowedBaseline(root, files) {
   let hasFallback = false;
   for (const targets of Object.values(tsconfig.paths)) {
     const baseline = targets.find((t) => t.includes(BASELINE_SRC));
-    if (!baseline) continue;
+    if (!baseline || !targets.every((t) => t.endsWith('*'))) continue; // exact-match entries name a file, not a dir
     hasFallback = true;
     const dirOf = (t) => resolve(root, tsconfig.baseUrl, t.replace(/\/?\*$/, ''));
     // Subpath minus extension: `button.ts` shadows `button.tsx`, `forms/button.tsx` shadows nothing.
