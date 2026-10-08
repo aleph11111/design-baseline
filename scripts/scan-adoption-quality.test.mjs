@@ -583,6 +583,50 @@ describe("scanShadowedBaseline", () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
+  const pathsOf = (dir) => JSON.parse(readFileSync(join(dir, "tsconfig.json"), "utf8")).compilerOptions.paths;
+
+  it("finds `paths` declared only in an extended base config (baseUrl resolved against the base)", () => {
+    const dir = consumer();
+    const paths = pathsOf(dir);
+    mkdirSync(join(dir, "cfg"));
+    writeFileSync(join(dir, "cfg", "base.json"), JSON.stringify({ compilerOptions: { baseUrl: "..", paths } }));
+    writeFileSync(join(dir, "tsconfig.json"), JSON.stringify({ extends: ["./cfg/base"] }));
+    expect(scanShadowedBaseline(dir, walked(dir, all)).map((h) => h.file)).toContain("src/components/ui/button.tsx");
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("finds `paths` declared only in a referenced project config", () => {
+    const dir = consumer();
+    writeFileSync(join(dir, "tsconfig.app.json"), JSON.stringify({ compilerOptions: { paths: pathsOf(dir) } }));
+    writeFileSync(join(dir, "tsconfig.json"), JSON.stringify({ files: [], references: [{ path: "./tsconfig.app.json" }] }));
+    expect(scanShadowedBaseline(dir, walked(dir, all)).map((h) => h.file)).toContain("src/components/ui/button.tsx");
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("resolves a shared extended base for every referenced project, with bare reference paths", () => {
+    const dir = consumer();
+    const paths = pathsOf(dir);
+    writeFileSync(join(dir, "base.json"), JSON.stringify({ compilerOptions: { paths } }));
+    writeFileSync(join(dir, "tsconfig.a.json"), JSON.stringify({ extends: "./base.json" }));
+    writeFileSync(join(dir, "tsconfig.b.json"), JSON.stringify({ extends: "./base.json", compilerOptions: { baseUrl: "./b" } }));
+    mkdirSync(join(dir, "b", "src", "components", "ui"), { recursive: true });
+    mkdirSync(join(dir, "b", PKG, "ui"), { recursive: true });
+    writeFileSync(join(dir, "b", PKG, "ui", "button.tsx"), "export {};\n");
+    writeFileSync(join(dir, "b", "src", "components", "ui", "button.tsx"), "export {};\n");
+    writeFileSync(join(dir, "tsconfig.json"), JSON.stringify({ files: [], references: [{ path: "tsconfig.a.json" }, { path: "tsconfig.b.json" }] }));
+    const files = scanShadowedBaseline(dir, walked(dir, all)).map((h) => h.file);
+    expect(files).toContain("src/components/ui/button.tsx");
+    expect(files).toContain("b/src/components/ui/button.tsx");
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("skips a same-name file matched by an exclude glob", () => {
+    const dir = consumer();
+    const hits = scanShadowedBaseline(dir, walked(dir, all), classifyExcludes(["**/ui/button.tsx"]));
+    expect(hits.map((h) => h.kind)).toEqual(["adopted-header"]);
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   it("reports nothing for a consumer with no paths fallback into the baseline", () => {
     const dir = consumer({ withPaths: false });
     expect(scanShadowedBaseline(dir, walked(dir, all))).toEqual([]);

@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-10-08
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "extends two existing functions in scripts/scan-adoption-quality.mjs with test fixtures; same shape as the shadow pass it follows"
