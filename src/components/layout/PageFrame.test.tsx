@@ -130,6 +130,38 @@ describe("PageFrame — mobile filter sheet (below md)", () => {
     }
   });
 
+  it("stacks fields the app wrapped in its own flex row, one per row", () => {
+    setViewport(430);
+    render(
+      <PageFrame
+        title="Abweichung"
+        toolbar={
+          <div className="flex">
+            {FILTERS.slice(0, 3).map((label) => (
+              <SelectField
+                key={label}
+                label={label}
+                value="a"
+                onChange={() => {}}
+                options={[{ value: "a", label: `${label} A` }]}
+              />
+            ))}
+          </div>
+        }
+        filterCount={3}
+      >
+        body
+      </PageFrame>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /Filter/ }));
+    const sheet = document.querySelector("[data-filter-sheet]") as HTMLElement;
+    const wrapper = sheet.firstElementChild as HTMLElement;
+    // jsdom has no stylesheet: assert the sheet's rules that restack the wrapper.
+    expect(sheet.className).toContain("[&>div]:flex-col");
+    expect(sheet.className).toContain("[&>div>*]:w-full!");
+    expect(wrapper.querySelectorAll('[role="combobox"]').length).toBe(3);
+  });
+
   it("keeps the view switch outside the sheet", () => {
     setViewport(430);
     renderVariance();
