@@ -130,6 +130,12 @@
       "tier": "yellow"
     }
   ],
+  "shadowedBaseline": {
+    "id": "shadowed-baseline-file",
+    "smell": "a consumer-local file shadows a component the baseline ships. Consumers resolve baseline components through a tsconfig `paths` fallback (`\"@/components/ui/*\": [\"./src/components/ui/*\", \"./node_modules/design-baseline/src/components/ui/*\"]`); a local file with the baseline's name wins silently, so an old adopted copy keeps rendering while the package moves on (controlling-app's `ui/native-field.tsx` kept the label above the field after baseline v0.6.5 joined it to the field's edge). Two hit kinds, both requiring at least one `paths` fallback into `node_modules/design-baseline/src/`: `same-name` (a local file under the aliased local dir whose basename the installed baseline ships in the aliased dir) and `adopted-header` (any scanned file whose first 20 lines say \"Adopted from design-baseline\", wherever it lives). Not a per-file regex — it needs the tsconfig and the installed package — so scripts/scan-adoption-quality.mjs runs it as its own pass, reported under the `shadowedBaseline` key. A same-name check is empty when the package is not installed. Origin: adoption-scan-flags-shadowed-baseline-files (2026-10-08)",
+    "shouldBe": "delete the local copy so the paths fallback resolves to the package, or import from `design-baseline/...` directly; keep a local file only when it is a deliberate fork, and rename it",
+    "tier": "yellow"
+  },
   "brandTokensNote": "Brand-file conformance (ADR-0007) — checked against every `tokens.css` under the scan targets, never the donor-owned `tokens.layer.css`. The layer fixes some roles by wiring; a brand file that still declares one is dead weight that reads as a win, so it is a candidate hit. `regex` entries run multiline against the file; `check` entries are named computations in scripts/scan-adoption-quality.mjs. Reported under the scan report's `brandTokens` key, same entry shape as adoptionQuality.",
   "brandTokens": [
     {

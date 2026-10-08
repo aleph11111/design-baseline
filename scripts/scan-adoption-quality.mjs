@@ -63,8 +63,8 @@
 // entry point — importing it scans nothing. Config errors throw `ConfigError`,
 // which `main()` turns into exit 2.
 
-import { globSync, readFileSync, realpathSync } from 'node:fs';
-import { join, matchesGlob, relative, resolve } from 'node:path';
+import { existsSync, globSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
+import { basename, join, matchesGlob, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 // A usage or config error. Carries the bare diagnostic; `main()` prefixes it,
@@ -219,10 +219,77 @@ function compileBrandSignals(brandSignals) {
   });
 }
 
+// --- shadowed baseline files ----------------------------------------------------
+// A consumer resolves baseline components through a tsconfig `paths` fallback
+// (`"@/components/ui/*": ["./src/components/ui/*", "./node_modules/design-baseline/src/components/ui/*"]`);
+// a local file with the baseline's name wins silently, so the consumer keeps an
+// old copy while the package moves on. Not a per-file regex: it needs the
+// tsconfig and the installed package, so it is its own pass. Two hit kinds —
+// `same-name` (a local file under the aliased local dir whose basename the
+// baseline ships in the aliased dir) and `adopted-header` (any scanned file
+// whose head says "Adopted from design-baseline", wherever it lives). Both
+// require at least one `paths` fallback into the baseline. A candidate, never a verdict.
+const BASELINE_SRC = 'node_modules/design-baseline/src/';
+const ADOPTED_HEADER_RE = /Adopted from design-baseline/;
+const SOURCE_FILE_RE = /\.[cm]?[jt]sx?$/;
+
+function readTsconfigPaths(root) {
+  const file = join(root, 'tsconfig.json');
+  if (!existsSync(file)) return null;
+  const raw = readFileSync(file, 'utf8');
+  let cfg;
+  try {
+    cfg = JSON.parse(raw);
+  } catch {
+    // tsconfig allows comments and trailing commas; strip whole-line comments only
+    // (inline `//` would eat the `//` in a path value) — ponytail: no full JSONC parser
+    try {
+      cfg = JSON.parse(raw.replace(/^\s*\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/,(\s*[}\]])/g, '$1'));
+    } catch {
+      return null;
+    }
+  }
+  const opts = cfg.compilerOptions ?? {};
+  return { paths: opts.paths ?? {}, baseUrl: opts.baseUrl ?? '.' };
+}
+
+const listSources = (dir) =>
+  existsSync(dir) ? readdirSync(dir, { recursive: true }).filter((f) => SOURCE_FILE_RE.test(f)).map(String) : [];
+
+// `files` are the already-walked `{ rel, abs }` sources. Returns `[{ file, line, kind }]`.
+function scanShadowedBaseline(root, files) {
+  const tsconfig = readTsconfigPaths(root);
+  if (!tsconfig) return [];
+  const hits = new Map();
+  let hasFallback = false;
+  for (const targets of Object.values(tsconfig.paths)) {
+    const baseline = targets.find((t) => t.includes(BASELINE_SRC));
+    if (!baseline) continue;
+    hasFallback = true;
+    const dirOf = (t) => resolve(root, tsconfig.baseUrl, t.replace(/\/?\*$/, ''));
+    const shipped = new Set(listSources(dirOf(baseline)).map((f) => basename(f)));
+    for (const local of targets.filter((t) => t !== baseline)) {
+      const localDir = dirOf(local);
+      for (const f of listSources(localDir)) {
+        if (!shipped.has(basename(f))) continue;
+        const file = relative(root, join(localDir, f)).split(/[\\/]/).join('/');
+        hits.set(file, { file, line: 1, kind: 'same-name' });
+      }
+    }
+  }
+  if (!hasFallback) return [];
+  for (const { rel, abs } of files) {
+    const head = readFileSync(abs, 'utf8').split('\n').slice(0, 20).join('\n');
+    const m = ADOPTED_HEADER_RE.exec(head);
+    if (m) hits.set(rel, { file: rel, line: lineOf(head, m.index), kind: 'adopted-header' });
+  }
+  return [...hits.values()].sort((a, b) => a.file.localeCompare(b.file));
+}
+
 // --- summary ------------------------------------------------------------------
 // `entries` / `brandResults` are the report's `signals` / `brandTokens` arrays;
 // the counts are the walked file totals.
-function summarize({ entries, brandResults, files, brandFiles }) {
+function summarize({ entries, brandResults, shadowedHits = [], files, brandFiles }) {
   return {
     files,
     signals: entries.length,
@@ -233,6 +300,7 @@ function summarize({ entries, brandResults, files, brandFiles }) {
     yellowHits: entries.reduce((n, e) => n + (e.tier === 'yellow' ? e.hitCount : 0), 0),
     brandTokenFiles: brandFiles,
     brandTokenHits: brandResults.reduce((n, e) => n + e.hitCount, 0),
+    shadowedBaselineHits: shadowedHits.length,
   };
 }
 
@@ -322,7 +390,11 @@ function main() {
     hitCount: r.hits.length,
   }));
 
-  const summary = summarize({ entries, brandResults, files: files.length, brandFiles: brandFiles.length });
+  const shadowedSignal = signalsDoc.shadowedBaseline ?? { id: 'shadowed-baseline-file', tier: 'yellow' };
+  const shadowedHits = scanShadowedBaseline(rootResolved, files);
+  const shadowed = { id: shadowedSignal.id, tier: shadowedSignal.tier, hits: shadowedHits, hitCount: shadowedHits.length };
+
+  const summary = summarize({ entries, brandResults, shadowedHits, files: files.length, brandFiles: brandFiles.length });
 
   if (jsonMode) {
     const report = {
@@ -335,6 +407,7 @@ function main() {
       summary,
       signals: entries,
       brandTokens: brandResults,
+      shadowedBaseline: shadowed,
     };
     process.stdout.write(JSON.stringify(report) + '\n');
   } else {
@@ -362,6 +435,10 @@ function main() {
     }
   }
 
+  if (!jsonMode) {
+    console.log(`  ${shadowed.tier.padEnd(6)} ${shadowed.id.padEnd(40)}  ${String(shadowed.hitCount).padEnd(3)} ${shadowedHits.map((h) => `${h.file}:${h.line}`).join(', ')}`);
+  }
+
   // Radar, not gate: a completed scan is a clean hand-off to whoever reads the
   // counts (the dashboard hub, a CI job, the acceptance-gate walk). Findings —
   // red or yellow — change nothing here.
@@ -376,4 +453,4 @@ if (process.argv[1] && pathToFileURL(realpathSync(process.argv[1])).href === imp
   main();
 }
 
-export { parseArgs, classifyExcludes, isExcluded, pcreToJs, compileSignals, scanSource, compileBrandSignals, summarize, ConfigError };
+export { parseArgs, classifyExcludes, isExcluded, pcreToJs, compileSignals, scanSource, scanShadowedBaseline, compileBrandSignals, summarize, ConfigError };
