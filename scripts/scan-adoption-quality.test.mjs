@@ -573,6 +573,16 @@ describe("scanShadowedBaseline", () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
+  it("does not flag a local dir listed AFTER the baseline target (the package wins resolution)", () => {
+    const dir = consumer();
+    writeFileSync(
+      join(dir, "tsconfig.json"),
+      JSON.stringify({ compilerOptions: { paths: { "@/components/ui/*": [`./${PKG}/ui/*`, "./src/components/ui/*"] } } }),
+    );
+    expect(scanShadowedBaseline(dir, walked(dir, all)).map((h) => h.kind)).toEqual(["adopted-header"]);
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   it("reports nothing for a consumer with no paths fallback into the baseline", () => {
     const dir = consumer({ withPaths: false });
     expect(scanShadowedBaseline(dir, walked(dir, all))).toEqual([]);

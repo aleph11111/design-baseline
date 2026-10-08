@@ -271,7 +271,7 @@ function scanShadowedBaseline(root, files) {
     // Subpath minus extension: `button.ts` shadows `button.tsx`, `forms/button.tsx` shadows nothing.
     const noExt = (f) => f.replace(SOURCE_FILE_RE, '');
     const shipped = new Set(listSources(dirOf(baseline)).map(noExt));
-    for (const local of targets.filter((t) => t !== baseline)) {
+    for (const local of targets.slice(0, targets.indexOf(baseline))) { // only targets ahead of the baseline win resolution
       const localDir = dirOf(local);
       for (const f of listSources(localDir)) {
         if (!shipped.has(noExt(f))) continue;
