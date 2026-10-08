@@ -258,22 +258,26 @@ function loadTsconfig(file, seen = new Set()) {
     return out;
   }
   const dir = dirname(file);
-  const find = (spec, ...exts) => {
-    if (typeof spec !== 'string' || !/^\.\.?[\\/]/.test(spec)) return null; // package `extends` live in node_modules: skipped
+  const find = (spec, relOnly, ...exts) => {
+    if (typeof spec !== 'string') return null;
+    if (relOnly && !/^\.\.?[\\/]/.test(spec)) return null; // package `extends` live in node_modules: skipped; reference paths need no `./`
     return [spec, ...exts.map((e) => join(spec, e)), `${spec}.json`].map((c) => resolve(dir, c)).find((c) => existsSync(c) && !isDir(c));
   };
   for (const spec of [].concat(cfg.extends ?? [])) {
-    const base = find(spec);
+    const base = find(spec, true);
     if (!base) continue;
-    const parent = loadTsconfig(base, seen);
+    const parent = loadTsconfig(base, new Set(seen)); // per-chain cycle guard: siblings may share a base
     out.baseUrl = parent.baseUrl ?? out.baseUrl;
     Object.assign(out.paths, parent.paths);
   }
   const opts = cfg.compilerOptions ?? {};
   if (opts.baseUrl != null) out.baseUrl = resolve(dir, opts.baseUrl);
-  for (const [key, targets] of Object.entries(opts.paths ?? {})) out.paths[key] = { targets, dir };
+  if (opts.paths) { // a child's `paths` replaces the parent's wholesale (TS semantics)
+    out.paths = {};
+    for (const [key, targets] of Object.entries(opts.paths)) out.paths[key] = { targets, dir };
+  }
   for (const ref of cfg.references ?? []) {
-    const refFile = find(ref?.path, 'tsconfig.json');
+    const refFile = find(ref?.path, false, 'tsconfig.json');
     if (refFile) out.refs.push(refFile);
   }
   return out;
@@ -286,10 +290,12 @@ const isDir = (p) => statSync(p).isDirectory();
 function readTsconfigPaths(root) {
   const file = join(root, 'tsconfig.json');
   if (!existsSync(file)) return null;
-  const seen = new Set();
+  const seen = new Set(); // visited reference projects only
   const entries = [];
   const visit = (f) => {
-    const cfg = loadTsconfig(f, seen);
+    if (seen.has(f)) return;
+    seen.add(f);
+    const cfg = loadTsconfig(f);
     for (const { targets, dir } of Object.values(cfg.paths)) entries.push({ targets, base: cfg.baseUrl ?? dir });
     cfg.refs.forEach(visit);
   };
