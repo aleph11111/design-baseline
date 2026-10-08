@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { SelectField } from "@/components/archetypes/raw-select";
 import { SearchInput } from "@/components/ui/search-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -695,6 +696,27 @@ function PageFrameDemo() {
                 <DropdownMenuRadioItem value="compact">Kompakt</DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
             </>
+          }
+        >
+          {rows}
+        </PageFrame>
+      </Variant>
+      <Variant label="toolbar wrapped in the app's own flex div — in the mobile filter sheet the three selects still stack one per row">
+        <PageFrame
+          title="Buchungen"
+          filterCount={3}
+          toolbar={
+            <div className="flex">
+              {["Jahr", "Monat", "Szenario"].map((label) => (
+                <SelectField
+                  key={label}
+                  label={label}
+                  value="a"
+                  onChange={() => {}}
+                  options={[{ value: "a", label: `${label} A` }]}
+                />
+              ))}
+            </div>
           }
         >
           {rows}
