@@ -5,12 +5,16 @@ import { cn } from "../../lib/utils"
 import { ToolbarSizeContext } from "./toolbar-band"
 
 // Control height ladder (docs/STYLE.md "Control heights"). `default` keeps the
-// base `h-9` + responsive text size; sm/lg override both. Replaces the native
-// numeric `size` attribute, which nothing in the fleet uses.
+// base `h-9` + responsive text size; sm/lg override both. `sm14` and `lg18`
+// pair a ladder height with a non-larger text size (the Button `icon-sm`
+// pattern: geometry lives in the step, callers never hand-roll `text-*`).
+// Replaces the native numeric `size` attribute, which nothing in the fleet uses.
 const SIZE = {
   sm: "h-8 text-xs md:text-xs",
+  sm14: "h-8 text-sm md:text-sm",
   default: "",
   lg: "h-11 text-base md:text-base",
+  lg18: "h-11 text-lg md:text-lg",
 } as const
 
 export type InputSize = keyof typeof SIZE
