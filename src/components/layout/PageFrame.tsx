@@ -299,12 +299,13 @@ function MobileBand({
               </SheetHeader>
               {/* Back inside the band (the sheet ended it), at the touch step;
                   every joined label shares one column so the boxes line up.
-                  An app's own wrapper div around the fields stacks too (flex-col). */}
+                  An app's own flex wrapper (div/form/fieldset, any depth) stacks too;
+                  the joined trigger is a button, so it is never matched. */}
               <ToolbarBandContext.Provider value={true}>
                 <ToolbarSizeContext.Provider value="lg">
                   <div
                     data-filter-sheet=""
-                    className="flex flex-col gap-3 [&_[data-joined-label]]:w-[130px] [&>*]:w-full! [&>div]:flex-col [&>div]:items-stretch [&>div]:gap-3 [&>div>*]:w-full!"
+                    className="flex flex-col gap-3 [&_[data-joined-label]]:w-[130px] [&>*]:w-full! [&_:is(div,form,fieldset).flex]:flex-col [&_:is(div,form,fieldset).flex]:items-stretch [&_:is(div,form,fieldset).flex]:gap-3 [&_:is(div,form,fieldset).flex>*]:w-full!"
                   >
                     {toolbar}
                   </div>
