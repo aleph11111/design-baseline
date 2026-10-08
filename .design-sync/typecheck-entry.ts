@@ -25,6 +25,7 @@ export * from "@/components/ui/form.test";
 export * from "@/components/ui/form";
 export * from "@/components/ui/icon-avatar";
 export * from "@/components/ui/input";
+export * from "@/components/ui/input.test";
 export * from "@/components/ui/label";
 export * from "@/components/ui/pagination";
 export * from "@/components/ui/popover";
