@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-10-08
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "adds one signal to an existing scan with its own test file; same shape as adoption-scan-flags-stale-vendored-appshell"
