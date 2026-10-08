@@ -548,6 +548,7 @@ describe("scanShadowedBaseline", () => {
     put("src/components/ui/button.tsx"); // same-name shadow
     put("src/components/ui/native-field.tsx", "// Adopted from design-baseline `src/components/archetypes/raw-input/native-field.tsx`\nexport {};\n");
     put("src/components/ui/my-own.tsx"); // baseline ships no such name
+    put("src/components/ui/forms/button.tsx"); // same basename, different subpath: shadows nothing
     return dir;
   }
   const walked = (dir, rels) => rels.map((rel) => ({ rel, abs: join(dir, rel) }));
@@ -559,6 +560,15 @@ describe("scanShadowedBaseline", () => {
       { file: "src/components/ui/button.tsx", line: 1, kind: "same-name" },
       { file: "src/components/ui/native-field.tsx", line: 1, kind: "adopted-header" },
     ]);
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("parses a tsconfig with comments and trailing commas without mangling the `/*` in path keys", () => {
+    const dir = consumer();
+    const cfg = JSON.parse(readFileSync(join(dir, "tsconfig.json"), "utf8"));
+    const jsonc = `{ // c\n "include": ["**/*.ts",], /* c */\n "compilerOptions": ${JSON.stringify(cfg.compilerOptions)}, }`;
+    writeFileSync(join(dir, "tsconfig.json"), jsonc);
+    expect(scanShadowedBaseline(dir, walked(dir, all)).map((h) => h.file)).toContain("src/components/ui/button.tsx");
     rmSync(dir, { recursive: true, force: true });
   });
 

@@ -64,7 +64,7 @@
 // which `main()` turns into exit 2.
 
 import { existsSync, globSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
-import { basename, join, matchesGlob, relative, resolve } from 'node:path';
+import { join, matchesGlob, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 // A usage or config error. Carries the bare diagnostic; `main()` prefixes it,
@@ -233,21 +233,22 @@ const BASELINE_SRC = 'node_modules/design-baseline/src/';
 const ADOPTED_HEADER_RE = /Adopted from design-baseline/;
 const SOURCE_FILE_RE = /\.[cm]?[jt]sx?$/;
 
+// Drops `//` and `/* */` comments and trailing commas, skipping "string" literals
+// (the `/*` in a `paths` key like "@/components/ui/*" is not a comment).
+const STRING_RE = '"(?:[^"\\\\]|\\\\.)*"';
+const stripJsonc = (raw) =>
+  raw
+    .replace(new RegExp(`${STRING_RE}|//[^\\n]*|/\\*[\\s\\S]*?\\*/`, 'g'), (m) => (m[0] === '"' ? m : ''))
+    .replace(new RegExp(`${STRING_RE}|,(\\s*[}\\]])`, 'g'), (m, tail) => (m[0] === '"' ? m : tail));
+
 function readTsconfigPaths(root) {
   const file = join(root, 'tsconfig.json');
   if (!existsSync(file)) return null;
-  const raw = readFileSync(file, 'utf8');
   let cfg;
   try {
-    cfg = JSON.parse(raw);
+    cfg = JSON.parse(stripJsonc(readFileSync(file, 'utf8')));
   } catch {
-    // tsconfig allows comments and trailing commas; strip whole-line comments only
-    // (inline `//` would eat the `//` in a path value) — ponytail: no full JSONC parser
-    try {
-      cfg = JSON.parse(raw.replace(/^\s*\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/,(\s*[}\]])/g, '$1'));
-    } catch {
-      return null;
-    }
+    return null;
   }
   const opts = cfg.compilerOptions ?? {};
   return { paths: opts.paths ?? {}, baseUrl: opts.baseUrl ?? '.' };
@@ -267,11 +268,13 @@ function scanShadowedBaseline(root, files) {
     if (!baseline) continue;
     hasFallback = true;
     const dirOf = (t) => resolve(root, tsconfig.baseUrl, t.replace(/\/?\*$/, ''));
-    const shipped = new Set(listSources(dirOf(baseline)).map((f) => basename(f)));
+    // Subpath minus extension: `button.ts` shadows `button.tsx`, `forms/button.tsx` shadows nothing.
+    const noExt = (f) => f.replace(SOURCE_FILE_RE, '');
+    const shipped = new Set(listSources(dirOf(baseline)).map(noExt));
     for (const local of targets.filter((t) => t !== baseline)) {
       const localDir = dirOf(local);
       for (const f of listSources(localDir)) {
-        if (!shipped.has(basename(f))) continue;
+        if (!shipped.has(noExt(f))) continue;
         const file = relative(root, join(localDir, f)).split(/[\\/]/).join('/');
         hits.set(file, { file, line: 1, kind: 'same-name' });
       }
