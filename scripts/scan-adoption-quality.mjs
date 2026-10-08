@@ -63,8 +63,8 @@
 // entry point — importing it scans nothing. Config errors throw `ConfigError`,
 // which `main()` turns into exit 2.
 
-import { existsSync, globSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
-import { join, matchesGlob, relative, resolve } from 'node:path';
+import { existsSync, globSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { dirname, join, matchesGlob, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 // A usage or config error. Carries the bare diagnostic; `main()` prefixes it,
@@ -241,33 +241,76 @@ const stripJsonc = (raw) =>
     .replace(new RegExp(`${STRING_RE}|//[^\\n]*|/\\*[\\s\\S]*?\\*/`, 'g'), (m) => (m[0] === '"' ? m : ''))
     .replace(new RegExp(`${STRING_RE}|,(\\s*[}\\]])`, 'g'), (m, tail) => (m[0] === '"' ? m : tail));
 
-function readTsconfigPaths(root) {
-  const file = join(root, 'tsconfig.json');
-  if (!existsSync(file)) return null;
+// Parses one config and follows relative `extends` (string or array; later wins) and
+// `references`. Returns `{ baseUrl, paths: { key: { targets, dir } }, refs }`: `paths`
+// merges key-wise with the nearer config winning, `baseUrl` is the nearest one resolved
+// against the config declaring it, and `dir` is the declaring config's directory
+// (TS resolves `paths` against it when no `baseUrl` is set). `refs` are the resolved
+// project configs — each is its own compilation, so they are not merged in here.
+function loadTsconfig(file, seen = new Set()) {
+  const out = { baseUrl: null, paths: {}, refs: [] };
+  if (seen.has(file) || !existsSync(file)) return out;
+  seen.add(file);
   let cfg;
   try {
     cfg = JSON.parse(stripJsonc(readFileSync(file, 'utf8')));
   } catch {
-    return null;
+    return out;
+  }
+  const dir = dirname(file);
+  const find = (spec, ...exts) => {
+    if (typeof spec !== 'string' || !/^\.\.?[\\/]/.test(spec)) return null; // package `extends` live in node_modules: skipped
+    return [spec, ...exts.map((e) => join(spec, e)), `${spec}.json`].map((c) => resolve(dir, c)).find((c) => existsSync(c) && !isDir(c));
+  };
+  for (const spec of [].concat(cfg.extends ?? [])) {
+    const base = find(spec);
+    if (!base) continue;
+    const parent = loadTsconfig(base, seen);
+    out.baseUrl = parent.baseUrl ?? out.baseUrl;
+    Object.assign(out.paths, parent.paths);
   }
   const opts = cfg.compilerOptions ?? {};
-  return { paths: opts.paths ?? {}, baseUrl: opts.baseUrl ?? '.' };
+  if (opts.baseUrl != null) out.baseUrl = resolve(dir, opts.baseUrl);
+  for (const [key, targets] of Object.entries(opts.paths ?? {})) out.paths[key] = { targets, dir };
+  for (const ref of cfg.references ?? []) {
+    const refFile = find(ref?.path, 'tsconfig.json');
+    if (refFile) out.refs.push(refFile);
+  }
+  return out;
+}
+
+const isDir = (p) => statSync(p).isDirectory();
+
+// `[{ targets, base }]` over the root config and every referenced project config;
+// null when there is no `<root>/tsconfig.json`.
+function readTsconfigPaths(root) {
+  const file = join(root, 'tsconfig.json');
+  if (!existsSync(file)) return null;
+  const seen = new Set();
+  const entries = [];
+  const visit = (f) => {
+    const cfg = loadTsconfig(f, seen);
+    for (const { targets, dir } of Object.values(cfg.paths)) entries.push({ targets, base: cfg.baseUrl ?? dir });
+    cfg.refs.forEach(visit);
+  };
+  visit(file);
+  return entries;
 }
 
 const listSources = (dir) =>
   existsSync(dir) ? readdirSync(dir, { recursive: true }).filter((f) => SOURCE_FILE_RE.test(f)).map(String) : [];
 
 // `files` are the already-walked `{ rel, abs }` sources. Returns `[{ file, line, kind }]`.
-function scanShadowedBaseline(root, files) {
+function scanShadowedBaseline(root, files, excludes = classifyExcludes([])) {
   const tsconfig = readTsconfigPaths(root);
   if (!tsconfig) return [];
   const hits = new Map();
   let hasFallback = false;
-  for (const targets of Object.values(tsconfig.paths)) {
+  for (const { targets, base } of tsconfig) {
     const baseline = targets.find((t) => t.includes(BASELINE_SRC));
     if (!baseline || !targets.every((t) => t.endsWith('*'))) continue; // exact-match entries name a file, not a dir
     hasFallback = true;
-    const dirOf = (t) => resolve(root, tsconfig.baseUrl, t.replace(/\/?\*$/, ''));
+    const dirOf = (t) => resolve(base, t.replace(/\/?\*$/, ''));
     // Subpath minus extension: `button.ts` shadows `button.tsx`, `forms/button.tsx` shadows nothing.
     const noExt = (f) => f.replace(SOURCE_FILE_RE, '');
     const shipped = new Set(listSources(dirOf(baseline)).map(noExt));
@@ -276,6 +319,7 @@ function scanShadowedBaseline(root, files) {
       for (const f of listSources(localDir)) {
         if (!shipped.has(noExt(f))) continue;
         const file = relative(root, join(localDir, f)).split(/[\\/]/).join('/');
+        if (isExcluded(file, excludes)) continue;
         hits.set(file, { file, line: 1, kind: 'same-name' });
       }
     }
@@ -394,7 +438,7 @@ function main() {
   }));
 
   const shadowedSignal = signalsDoc.shadowedBaseline ?? { id: 'shadowed-baseline-file', tier: 'yellow' };
-  const shadowedHits = scanShadowedBaseline(rootResolved, files);
+  const shadowedHits = scanShadowedBaseline(rootResolved, files, classified);
   const shadowed = { id: shadowedSignal.id, tier: shadowedSignal.tier, hits: shadowedHits, hitCount: shadowedHits.length };
 
   const summary = summarize({ entries, brandResults, shadowedHits, files: files.length, brandFiles: brandFiles.length });
