@@ -103,8 +103,8 @@ distinctions from a domain hub (F1) are:
 
 **Required:**
 - The settings categories are the shell's `tabs` (value, label, body), in tab
-  order. The tab strip is the frame's `toolbar` — it scopes the body to one
-  category.
+  order. The tab strip is the frame's `viewSwitch` — it switches the page to
+  one category.
 
 **Allowed variation:**
 - **Icons in tab labels** — optional.
@@ -235,7 +235,7 @@ A page is conformant when **every required rule** above is satisfied:
 - [ ] **Layer 3** — the title renders once, as the page header; no action
       buttons in the header
 - [ ] **Layer 4** — Categories passed as the shell's `tabs`; the tab strip is
-      the frame's toolbar
+      the frame's viewSwitch
 - [ ] **Layer 5** — Each tab body satisfies the A / D1 / D2 delegation contract;
       any persistent below-tab content is separated by a divider and
       documented inline
@@ -261,7 +261,7 @@ A page is conformant when **every required rule** above is satisfied:
   scale, single-owner molecule references.
 - **v2.0 (2026-10-03):** One page frame (ADR-0008). Always framed: the title
   renders once as the page header above one raised surface; the tab strip is
-  the frame's toolbar, built by the shell from typed `tabs`; the persistent
+  the frame's viewSwitch, built by the shell from typed `tabs`; the persistent
   section is `belowTabs`. Deleted: the board/classic switch (`kicker`,
   `headerActions`), the separate settings-page header component, `icon` and
   `actions`, the optional title (the settings-table wrapper mode — a

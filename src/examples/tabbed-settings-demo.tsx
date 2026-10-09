@@ -12,7 +12,7 @@
  * Exercises:
  *   - <SettingsPageShell> page frame (ADR-0008): breadcrumb slot + the title
  *     once above the frame (no page-level actions); the tab strip is the
- *     frame's toolbar band
+ *     frame's viewSwitch slot
  *   - Tab strip as navigation across the categories
  *   - Per-tab body delegation: a form body (General), a frameless table body
  *     (Distribution, via <SettingsTableBody> v3.2 — the tab label owns the

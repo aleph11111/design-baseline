@@ -40,7 +40,7 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     expect(container.querySelectorAll(".bg-surface-raised")).toHaveLength(1);
   });
 
-  it("renders the tab strip in the toolbar band and the selected tab as the body", () => {
+  it("renders the tab strip in the view-switch band and the selected tab as the body", () => {
     render(<SettingsPageShell title="Workspace" tabs={tabs} defaultTab="team" />);
 
     const strip = screen.getByRole("tablist");
