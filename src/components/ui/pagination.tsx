@@ -4,7 +4,8 @@ import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 
 import { cn } from "../../lib/utils"
 import { useLabels } from "../../lib/labels"
-import { ButtonProps, buttonVariants } from "./button"
+import { ButtonProps, buttonVariants, resolveButtonSize } from "./button"
+import { useAppDensity } from "./toolbar-band"
 
 const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
   <nav
@@ -46,19 +47,22 @@ const PaginationLink = ({
   isActive,
   size = "icon",
   ...props
-}: PaginationLinkProps) => (
+}: PaginationLinkProps) => {
+  const density = useAppDensity()
+  return (
   <a
     aria-current={isActive ? "page" : undefined}
     className={cn(
       buttonVariants({
         variant: isActive ? "outline" : "ghost",
-        size,
+        size: resolveButtonSize(size, density),
       }),
       className
     )}
     {...props}
   />
-)
+  )
+}
 PaginationLink.displayName = "PaginationLink"
 
 const PaginationPrevious = ({

@@ -73,10 +73,22 @@ function hasAccessibleName(props: LabelProps, asChild: boolean): boolean {
   })
 }
 
+// App density resolution for a Button size: an unset size takes the density
+// step; icon squares lift to `icon-lg`. Shared with direct `buttonVariants`
+// callers (PaginationLink) so they follow the density too.
+function resolveButtonSize(
+  size: ButtonProps["size"],
+  density: ReturnType<typeof useAppDensity>
+): ButtonProps["size"] {
+  size = size ?? density
+  return density && (size === "icon" || size === "icon-sm") ? "icon-lg" : size
+}
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const density = useAppDensity()
-    size = size ?? density
+    // Touch density lifts icon squares to the 44pt `icon-lg` too, so a kiosk has no sub-44pt icon target.
+    size = resolveButtonSize(size, density)
     const warnedRef = React.useRef(false)
     const missingName =
       process.env.NODE_ENV !== "production" &&
@@ -102,4 +114,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = "Button"
 
-export { Button, buttonVariants }
+export { Button, buttonVariants, resolveButtonSize }

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import { Button, buttonVariants } from "./button";
+import { ControlDensityProvider } from "./toolbar-band";
 
 afterEach(() => {
   cleanup();
@@ -92,5 +93,21 @@ describe("Button — ladder sizes", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     render(<Button size="icon-sm">×</Button>);
     expect(warn).toHaveBeenCalled();
+  });
+});
+
+describe("Button — touch density icon steps", () => {
+  it.each(["icon", "icon-sm"] as const)("%s resolves to h-11 w-11 under touch", (size) => {
+    const { getByRole } = render(
+      <ControlDensityProvider density="touch">
+        <Button size={size} aria-label="x">×</Button>
+      </ControlDensityProvider>
+    );
+    expect(getByRole("button").className).toContain("h-11 w-11");
+  });
+
+  it.each([["icon", "h-9 w-9"], ["icon-sm", "h-8 w-8"]] as const)("%s is unchanged without density", (size, cls) => {
+    const { getByRole } = render(<Button size={size} aria-label="x">×</Button>);
+    expect(getByRole("button").className).toContain(cls);
   });
 });
