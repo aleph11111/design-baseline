@@ -229,7 +229,8 @@ const BaselineLabelsContext = React.createContext<BaselineLabels>(labelsEn);
 /**
  * Root provider for the baseline's default strings. `labels` is merged over the
  * English preset, so a partial override (or `labelsDe`) is enough. Per-call
- * props on a component still win over the provider.
+ * props on a component still win over the provider. Memoized on the `labels`
+ * identity — pass a stable object (a preset or module constant), not an inline literal.
  */
 export function BaselineLabelsProvider({
   labels,
