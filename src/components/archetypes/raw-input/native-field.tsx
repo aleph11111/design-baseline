@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Input, type InputSize } from "../../ui/input";
 import { cn } from "../../../lib/utils";
-import { JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useInToolbarBand } from "../../ui/toolbar-band";
+import { FIXED_BOX_LABEL_CLASS, JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useInToolbarBand } from "../../ui/toolbar-band";
 import {
   FIELD_ERROR_RING,
   FieldError,
@@ -255,12 +255,13 @@ export function NativeField({
     }
   }
 
+  const fixedBox = joined && hasWidthClass(className);
   const fieldLabel = (
     <FieldLabel
       htmlFor={inputId}
       data-joined-label={joined ? "" : undefined}
       className={cn(
-        joined && [JOINED_LABEL_CLASS, "rounded-l-md border border-r-0 border-input"],
+        joined && [JOINED_LABEL_CLASS, "rounded-l-md border border-r-0 border-input", fixedBox && FIXED_BOX_LABEL_CLASS],
         labelClassName
       )}
       required={required}
@@ -270,18 +271,19 @@ export function NativeField({
   );
 
   return (
-    <FieldFrame className={className}>
+    <FieldFrame className={cn(className, fixedBox && "shrink-0")}>
       {joined ? (
         <div
           className={
-            hasWidthClass(className)
-              ? // fixed box: the input takes its declared width first, the label gives way to its floor
-                "grid grid-cols-[minmax(3rem,1fr)_auto]"
+            fixedBox
+              ? // fixed box: plain flex row — the label gives way first, surplus goes to the input.
+                // inline-flex, not flex: the filter sheet stacks `div.flex` rows into columns.
+                "inline-flex w-full"
               : "grid grid-cols-[minmax(3rem,auto)_minmax(max-content,1fr)]"
           }
         >
           {fieldLabel}
-          <div>{control}</div>
+          <div className={fixedBox ? "min-w-0 grow" : undefined}>{control}</div>
         </div>
       ) : (
         <>

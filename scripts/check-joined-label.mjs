@@ -26,7 +26,7 @@ const url = `http://localhost:${server.address().port}/#/l/page-frame`;
 const browser = await chromium.launch({ executablePath: CHROME });
 const failures = [];
 let n = 0;
-const total = 4;
+const total = 5;
 const report = (label, ok, detail) => {
   n++;
   console.log(`[${new Date().toTimeString().slice(0, 8)}] ${n}/${total} ${ok ? "ok  " : "FAIL"} ${label}: ${detail}`);
@@ -58,27 +58,29 @@ const measure = (root) =>
     };
   });
 
-const run = async (width, openSheet, allowFloor = false) => {
+const run = async (width, openSheet, allowFloor = false, testid = "crowded-band", expected = openSheet ? 4 : 5) => {
   const label = `${width}px`;
   try {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     await page.goto(url);
-    const band = page.locator('[data-testid="crowded-band"]');
+    const band = page.locator(`[data-testid="${testid}"]`);
     await band.waitFor({ timeout: 5000 });
     if (openSheet) {
       await band.getByRole("button", { name: /filter/i }).first().click();
       await page.waitForSelector('[role="dialog"] [data-joined-label]', { timeout: 5000 });
     }
     const all = await page.evaluate(
-      `(${measure})(document.querySelector(${JSON.stringify(openSheet ? '[role="dialog"]' : '[data-testid="crowded-band"]')}))`,
+      `(${measure})(document.querySelector(${JSON.stringify(openSheet ? '[role="dialog"]' : `[data-testid="${testid}"]`)}))`,
     );
 
-    const expected = openSheet ? 4 : 5; // select, select, segmented control, native field (+ custom flex consumer outside the sheet)
+    // crowded-band: select, select, segmented control, native field (+ custom flex consumer outside the sheet)
     if (all.length !== expected) throw new Error(`expected ${expected} joined controls, found ${all.length}`);
     // At 1440/430 every label is crowded enough to truncate; at the narrow desktop width
     // the labels may already sit at their floor, so only "value whole" is asserted there.
     const rows = all;
-    const bad = rows.filter((r) => !r.valueWhole || !r.gapOk);
+    // fixed-width boxes truncate their value by design; only content-sized controls must keep it whole
+    const fixedBox = testid === "fixed-width-band";
+    const bad = rows.filter((r) => !r.gapOk || (!fixedBox && !r.valueWhole));
     // crowded for real: at least one BUILT-IN control's label must have given way (else the demo proves nothing)
     if (!allowFloor && !rows.filter((r) => r.builtin).some((r) => r.labelTruncated)) bad.push({ error: "no label truncated — demo not crowded" });
     // sheet column must stay the fixed 130px on every row
@@ -92,6 +94,7 @@ const run = async (width, openSheet, allowFloor = false) => {
 await run(1440, false);
 await run(430, true);
 await run(900, false, true);
+await run(430, true, true, "fixed-width-band", 4); // width-classed fields in the sheet: no gap after the label
 
 // Explicit width (w-28 / w-40) sets the WHOLE box: the grid must fit its frame, and the frame
 // must have exactly the declared width — no overflow onto the next band item.
@@ -105,14 +108,18 @@ try {
       const frame = grid.parentElement;
       const f = frame.getBoundingClientRect();
       const kids = [...grid.children].map((c) => c.getBoundingClientRect().right);
-      return { frameW: Math.round(f.width), gridFits: grid.scrollWidth <= grid.clientWidth + 1 && Math.max(...kids) <= f.right + 1 };
+      // surplus width must go to the value, never stretch the label cell past its own content
+      const cs = getComputedStyle(label);
+      const natural = label.firstElementChild.scrollWidth + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + parseFloat(cs.borderRightWidth);
+      const labelStretched = label.getBoundingClientRect().width > natural + 2;
+      return { labelW: Math.round(label.getBoundingClientRect().width), labelSW: label.scrollWidth, frameW: Math.round(f.width), gridFits: grid.scrollWidth <= grid.clientWidth + 1 && Math.max(...kids) <= f.right + 1, labelStretched };
     }),
   );
-  const ok = fixed.length === 2 && fixed[0].frameW === 112 && fixed[1].frameW === 160 && fixed.every((r) => r.gridFits);
-  report("fixed-width boxes @ 1440px (w-28, w-40)", ok, JSON.stringify(fixed));
+  const ok = fixed.length === 4 && [112, 320, 256, 160].every((w, i) => fixed[i].frameW === w) && fixed.every((r) => r.gridFits && !r.labelStretched);
+  report("fixed-width boxes @ 1440px (w-28, w-80, w-64, w-40)", ok, JSON.stringify(fixed));
   await page.close();
 } catch (e) {
-  report("fixed-width boxes @ 1440px (w-28, w-40)", false, e.message.split("\n")[0]);
+  report("fixed-width boxes @ 1440px (w-28, w-80, w-64, w-40)", false, e.message.split("\n")[0]);
 }
 
 await browser.close();

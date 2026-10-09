@@ -827,9 +827,18 @@ function PageFrameDemo() {
         <div data-testid="fixed-width-band">
           <PageFrame
             title="Feste Breite"
+            filterCount={4}
             toolbar={
               <>
                 <NativeField label="Wochen" type="number" className="w-28" value={12} onChange={() => {}} />
+                <NativeField label="Suche" type="number" className="w-80" value={12} onChange={() => {}} />
+                <SelectField
+                  label="Jahr"
+                  className="w-64"
+                  value="all"
+                  onChange={() => {}}
+                  options={[{ value: "all", label: "2026" }]}
+                />
                 <SelectField
                   label="Verantwortliche Abteilung"
                   className="w-40"

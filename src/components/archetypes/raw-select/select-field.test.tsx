@@ -107,7 +107,8 @@ describe("SelectField in a PageFrame toolbar band", () => {
       </ToolbarBandContext.Provider>
     );
     const trigger = screen.getByRole("combobox", { name: "Scenario" });
-    expect(trigger.className).toContain("grid-cols-[minmax(3rem,1fr)_auto_auto]");
+    expect(trigger.className).not.toContain("grid");
+    expect(trigger.querySelector("[data-joined-label]")?.className).toContain("shrink-[1000]");
     expect(trigger.className).not.toContain("min-w-min");
     expect(trigger.parentElement?.className).toContain("w-40");
   });

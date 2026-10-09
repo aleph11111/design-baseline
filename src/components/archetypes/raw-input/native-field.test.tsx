@@ -199,7 +199,8 @@ describe("NativeField in a PageFrame toolbar band", () => {
     const label = screen.getByText("Wochen").closest("label") as HTMLElement;
     const row = label.parentElement as HTMLElement;
     expect(row.parentElement?.className).toContain("w-28");
-    expect(row.className).toContain("grid-cols-[minmax(3rem,1fr)_auto]");
+    expect(row.className).toBe("inline-flex w-full");
+    expect(label.className).toContain("shrink-[1000]");
     expect(row.className).not.toContain("max-content");
   });
 

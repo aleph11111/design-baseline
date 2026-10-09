@@ -110,7 +110,7 @@ export function SelectField({
   const joined = useInToolbarBand();
 
   return (
-    <FieldFrame className={className}>
+    <FieldFrame className={cn(className, joined && hasWidthClass(className) && "shrink-0")}>
       {/* Radix's trigger is a button, so the label associates via aria-labelledby
           (not htmlFor) — id on the Label, aria-labelledby on the trigger. */}
       {!joined && (

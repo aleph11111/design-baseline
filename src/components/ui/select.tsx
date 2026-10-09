@@ -4,7 +4,7 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useControlSize } from "./toolbar-band";
+import { FIXED_BOX_LABEL_CLASS, JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useControlSize } from "./toolbar-band";
 
 // ---------------------------------------------------------------------------
 // Radix UI Select primitives
@@ -52,15 +52,16 @@ const SelectTrigger = React.forwardRef<
 >(({ className, children, size, label, fixedWidth, ...props }, ref) => {
   const labelId = React.useId();
   const bandSize = useControlSize();
+  const fixed = label != null && (fixedWidth ?? hasWidthClass(className));
   return (
     <SelectPrimitive.Trigger
       ref={ref}
       className={cn(
         selectTriggerVariants({ size: size ?? bandSize }),
         label != null &&
-          (fixedWidth ?? hasWidthClass(className)
-            ? // fixed box: the value takes its width first, the label gives way to its floor, then the value truncates
-              "grid grid-cols-[minmax(3rem,1fr)_auto_auto] overflow-hidden pl-0"
+          (fixed
+            ? // fixed box: plain flex row — the label gives way first (FIXED_BOX_LABEL_CLASS), then the value truncates
+              "overflow-hidden pl-0"
             : "grid min-w-min grid-cols-[minmax(3rem,auto)_minmax(max-content,1fr)_auto] overflow-hidden pl-0"),
         className
       )}
@@ -73,7 +74,7 @@ const SelectTrigger = React.forwardRef<
       }
     >
       {label != null && (
-        <span id={labelId} data-joined-label="" className={cn(JOINED_LABEL_CLASS, "border-r border-input")}>
+        <span id={labelId} data-joined-label="" className={cn(JOINED_LABEL_CLASS, "border-r border-input", fixed && FIXED_BOX_LABEL_CLASS)}>
           <JoinedLabelText>{label}</JoinedLabelText>
         </span>
       )}

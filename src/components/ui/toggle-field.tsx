@@ -2,7 +2,7 @@
 import * as React from "react";
 import * as SwitchPrimitives from "@radix-ui/react-switch";
 import { cn } from "../../lib/utils";
-import { JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useControlSize, useInToolbarBand } from "./toolbar-band";
+import { JOINED_LABEL_CLASS, JoinedLabelText, FIXED_BOX_LABEL_CLASS, hasWidthClass, useControlSize, useInToolbarBand } from "./toolbar-band";
 
 export type ToggleFieldProps = Omit<
   React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>,
@@ -45,6 +45,7 @@ export const ToggleField = React.forwardRef<
   const textId = React.useId();
   const bandSize = useControlSize();
   const size = SIZE[sizeProp ?? bandSize ?? "default"];
+  const fixed = label != null && joined && hasWidthClass(className);
   const box = (
     <SwitchPrimitives.Root
       ref={ref}
@@ -52,13 +53,14 @@ export const ToggleField = React.forwardRef<
       className={cn(
         "group inline-flex items-stretch overflow-hidden rounded-md border font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
         size.box,
-        label != null && joined && (hasWidthClass(className) ? "inline-grid grid-cols-[minmax(3rem,1fr)_auto]" : "inline-grid min-w-min grid-cols-[minmax(3rem,auto)_auto]"),
+        label != null && joined && !fixed && "inline-grid min-w-min grid-cols-[minmax(3rem,auto)_auto]",
+        fixed && "shrink-0",
         className,
       )}
       {...props}
     >
       {label != null && joined && (
-        <span id={labelId} data-joined-label="" className={cn(JOINED_LABEL_CLASS, "border-r")}>
+        <span id={labelId} data-joined-label="" className={cn(JOINED_LABEL_CLASS, "border-r", fixed && FIXED_BOX_LABEL_CLASS)}>
           <JoinedLabelText>{label}</JoinedLabelText>
         </span>
       )}
@@ -66,6 +68,7 @@ export const ToggleField = React.forwardRef<
         id={textId}
         className={cn(
           "flex items-center whitespace-nowrap",
+          fixed && "grow",
           size.pad,
           "group-data-[state=checked]:bg-primary group-data-[state=checked]:text-primary-foreground group-data-[state=unchecked]:text-muted-foreground group-data-[state=unchecked]:group-hover:text-foreground",
         )}

@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { cn } from "../../lib/utils";
-import { JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useControlSize } from "./toolbar-band";
+import { FIXED_BOX_LABEL_CLASS, JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useControlSize } from "./toolbar-band";
 
 export type SegmentedOption<T extends string> = {
   value: T;
@@ -65,18 +65,20 @@ export function SegmentedControl<T extends string>({
   const bandSize = useControlSize();
   const size = sizeProp ?? bandSize ?? "default";
   const geometry = SIZE[size];
+  const fixed = label != null && hasWidthClass(className);
   return (
     <RadioGroupPrimitive.Root
       value={value}
       onValueChange={(next) => onValueChange(next as T)}
       aria-label={rest["aria-label"]}
       aria-labelledby={label != null && rest["aria-label"] == null ? labelId : undefined}
-      // Label column floors at 3rem; every segment keeps its content width.
-      style={label != null ? { gridTemplateColumns: `${hasWidthClass(className) ? "minmax(3rem,1fr)" : "minmax(3rem,auto)"} repeat(${options.length},auto)` } : undefined}
+      // Label column floors at 3rem; every segment keeps its content width. A fixed-width box stays a flex row.
+      style={label != null && !fixed ? { gridTemplateColumns: `minmax(3rem,auto) repeat(${options.length},auto)` } : undefined}
       className={cn(
         "inline-flex items-stretch gap-1 overflow-hidden rounded-md border p-0.5",
         // min-w-min: overflow-hidden would otherwise zero the flex item's automatic minimum.
-        label != null && (hasWidthClass(className) ? "inline-grid" : "inline-grid min-w-min"),
+        label != null && !fixed && "inline-grid min-w-min",
+        fixed && "shrink-0",
         geometry.track,
         className,
       )}
@@ -86,7 +88,7 @@ export function SegmentedControl<T extends string>({
         <span
           id={labelId}
           data-joined-label=""
-          className={cn(JOINED_LABEL_CLASS, "-my-0.5 -ml-0.5 border-r", size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm")}
+          className={cn(JOINED_LABEL_CLASS, "-my-0.5 -ml-0.5 border-r", fixed && FIXED_BOX_LABEL_CLASS, size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm")}
         >
           <JoinedLabelText>{label}</JoinedLabelText>
         </span>
