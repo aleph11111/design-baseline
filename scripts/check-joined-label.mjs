@@ -3,6 +3,8 @@
 // (builds gallery-dist first, uses local Chrome). Guards the grid layout of joined controls
 // (label column minmax(3rem,auto), value columns floored at content width): dropping those
 // templates from SelectTrigger, SegmentedControl or NativeField fails the 1440px/900px runs.
+// The custom flex consumer row guards JOINED_LABEL_CLASS itself: with `shrink-0` its label
+// refuses to yield and the value overflows the row (verified: the check fails on that revert).
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
@@ -42,13 +44,14 @@ const measure = (root) =>
     const cell = [...trigger.children].filter((c) => c !== label && c.tagName.toLowerCase() !== "svg").pop();
     // a native field wraps its input: measure the input, whose own overflow is the clipped text
     const value = cell.querySelector("input") ?? cell;
+    // every segment of a segmented control, not just the last
+    const parts = trigger.getAttribute("role") === "radiogroup" ? [...trigger.querySelectorAll("[role=radio]")] : [value];
     const text = label.firstElementChild;
     const t = trigger.getBoundingClientRect();
-    const v = value.getBoundingClientRect();
     return {
       labelW: Math.round(label.getBoundingClientRect().width),
       labelTruncated: text.scrollWidth > text.clientWidth,
-      valueWhole: value.scrollWidth <= value.clientWidth + 1 && value.scrollHeight <= value.clientHeight + 1 && v.right <= t.right + 1,
+      valueWhole: parts.every((p) => p.scrollWidth <= p.clientWidth + 1 && p.scrollHeight <= p.clientHeight + 1 && p.getBoundingClientRect().right <= t.right + 1),
     };
   });
 
@@ -67,7 +70,7 @@ const run = async (width, openSheet, allowFloor = false) => {
       `(${measure})(document.querySelector(${JSON.stringify(openSheet ? '[role="dialog"]' : '[data-testid="crowded-band"]')}))`,
     );
 
-    const expected = 4; // select, select, segmented control, native field
+    const expected = openSheet ? 4 : 5; // select, select, segmented control, native field (+ custom flex consumer outside the sheet)
     if (all.length !== expected) throw new Error(`expected ${expected} joined controls, found ${all.length}`);
     // At 1440/430 every label is crowded enough to truncate; at the narrow desktop width
     // the labels may already sit at their floor, so only "value whole" is asserted there.

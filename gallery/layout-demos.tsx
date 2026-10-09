@@ -34,7 +34,7 @@ import { SelectField } from "@/components/archetypes/raw-select";
 import { NativeField } from "@/components/archetypes/raw-input";
 import { SearchInput } from "@/components/ui/search-input";
 import { Input } from "@/components/ui/input";
-import { ControlDensityProvider } from "@/components/ui/toolbar-band";
+import { ControlDensityProvider, JOINED_LABEL_CLASS, JoinedLabelText } from "@/components/ui/toolbar-band";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { StateView } from "@/components/ui/state-view";
@@ -814,6 +814,13 @@ function PageFrameDemo() {
           >
             {rows}
           </PageFrame>
+          {/* a custom flex consumer of the shared class: its label must yield before its value */}
+          <div className="mt-3 flex h-9 w-56 overflow-hidden rounded-md border">
+            <span data-joined-label="" className={`${JOINED_LABEL_CLASS} border-r`}>
+              <JoinedLabelText>Verantwortliche Abteilung</JoinedLabelText>
+            </span>
+            <span className="flex shrink-0 items-center px-3 text-sm">Alle Werte (ungefiltert)</span>
+          </div>
         </div>
       </Variant>
       <Variant label="nested PageFrame (derived, no prop) — titles itself with NestedPageHeading and joins the parent's surface">
