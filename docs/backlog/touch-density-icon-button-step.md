@@ -1,13 +1,13 @@
 ---
 area: ui
 opened: 2026-10-09
-status: needs-enrichment
+status: ready
 value: normal
 gate:
-  score: 0
-  passed: []
+  score: 5
+  passed: [title, context, what_to_do, acceptance, related]
   failed: []
-  graded_at: "2026-10-09T00:00:00Z"
+  graded_at: "2026-10-09T12:00:00Z"
 ---
 
 # Touch density leaves icon-size Buttons below 44pt
@@ -32,3 +32,15 @@ gate:
 - [[app-touch-density-control-size]] — shipped (PR #526); origin of the density provider this extends
 - [[button-inline-and-icon-sm-sizes]] — shipped; last `Button` size-step change
 - [`docs/STYLE.md`](/docs/STYLE.md) — "Control heights"
+
+## 2026-10-09 update
+
+Re-reported: a touch-first kiosk still has sub-44pt icon tap targets after v0.9.0 (PR #526). Scope additions to the ticket above:
+
+- [ ] Enumerate every donor component that hard-codes `size="icon"`: `src/components/ui/sidebar.tsx`, `src/components/layout/ThemeToggle.tsx`, `src/components/archetypes/shared/RowActionsMenu.tsx`, `src/components/archetypes/crud-dialog/CrudDialogHeader.tsx` (plus dialog/sheet close and sheet triggers); fix at the shared `Button` size resolution, not per call site.
+- [ ] Add one test that renders each of those under `AppShell density="touch"` and asserts the control is >= 44px (`h-11 w-11`).
+- [ ] Bump the package version and add a CHANGELOG row.
+
+Acceptance additions:
+
+- Every donor component that hard-codes `size="icon"` renders >= 44px under `density="touch"`, and no other icon call site resolves below 44pt.
