@@ -240,6 +240,7 @@ function InboxDemo(): React.ReactElement {
           </Button>
         }
         count={unreadCount === 0 ? "All caught up" : `${unreadCount} unread`}
+        // adherence-ok: page-tabs-in-toolbar — the read/unread filter scopes the feed list, it does not switch pages
         toolbar={
           <SegmentedControl
             value={filter}

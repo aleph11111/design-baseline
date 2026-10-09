@@ -58,6 +58,11 @@
 // shell that destructures `toolbar` beside `...rest` and forwards only `...rest` to
 // `PageFrame`, which `tsc` does not flag. Only files that mention `PageFrame` are checked.
 //
+// A rule may carry `toolbarTabs: true` instead: the file-level check `findToolbarTabs` flags
+// `Tabs` / `TabsList` / `SegmentedControl` inside a `toolbar={…}` attribute (use `viewSwitch`).
+// An `// adherence-ok: page-tabs-in-toolbar — <reason>` comment on the attribute's line or the line
+// above opts a body-scoping tab group out; the reason is required.
+//
 // Usage:  node scripts/lint-design.mjs [--json] [--ci-threshold <n>]
 // Config: ADHERENCE_CONFIG=path overrides the default `_adherence.json`.
 //
@@ -244,6 +249,35 @@ function findSwallowedSlots(text, slots) {
   });
 }
 
+// Report every `toolbar={…}` JSX attribute whose braced expression holds a `<Tabs` / `<TabsList` /
+// `<SegmentedControl` element. Those are one-of-N page-switching controls: in the toolbar band they
+// land in the mobile filter sheet clipped — they belong in `viewSwitch` (PLACEMENT.md). Comments and
+// strings are blanked first so a brace in either cannot unbalance the match.
+// Ceiling (ADR-0003, no parser): a toolbar built outside the attribute (`const bar = <Tabs/>` then
+// `toolbar={bar}`) is not seen; a tab group that genuinely scopes the body is flagged the same way.
+function findToolbarTabs(text) {
+  const code = text.replace(
+    /"(?:\\.|[^"\\\n])*"|(?<!\w)'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,
+    (m) => m.replace(/[^\n]/g, ' '),
+  );
+  const hits = [];
+  for (const m of code.matchAll(/\btoolbar=\{/g)) {
+    let depth = 1;
+    let i = m.index + m[0].length;
+    for (; i < code.length && depth; i++) depth += code[i] === '{' ? 1 : code[i] === '}' ? -1 : 0;
+    const tab = /<(Tabs|TabsList|SegmentedControl)(?=[\s/>])/.exec(code.slice(m.index, i));
+    if (!tab) continue;
+    // Opt-out: `adherence-ok: page-tabs-in-toolbar — <reason>` on the `toolbar=` line or the line
+    // above, for a tab group that genuinely scopes the body. The reason is mandatory.
+    const attrLine = text.slice(0, m.index).split('\n').length;
+    const lines = text.split('\n');
+    if (lines.slice(Math.max(0, attrLine - 2), attrLine).some((l) => /adherence-ok:\s*page-tabs-in-toolbar\s*[—–:-]+\s*\S/.test(l))) continue;
+    const before = text.slice(0, m.index + tab.index).split('\n');
+    hits.push({ tag: tab[1], line: before.length, col: before.at(-1).length + 1 });
+  }
+  return hits;
+}
+
 // Compile every rule once. `pattern` is used verbatim; a `tag` rule matches a bare lowercase
 // element — `<tag` immediately followed by whitespace, `/`, or `>` — case-sensitive (no `i`
 // flag) so the capitalized DS primitive `<Button>` is not a hit.
@@ -260,7 +294,7 @@ function findSwallowedSlots(text, slots) {
 // CLI always passes the config's `targets`.
 function compileRules(rules, targets) {
   return rules.map((rule) => {
-    const source = rule.swallowedSlots ? '(?!)' : (rule.pattern ?? `<${rule.tag}(?=[\\s/>])`);
+    const source = rule.swallowedSlots || rule.toolbarTabs ? '(?!)' : (rule.pattern ?? `<${rule.tag}(?=[\\s/>])`);
     // A `{{unionAliases}}` pattern cannot be compiled once — its alternation is per-file — so
     // it is carried as `aliasSource` and compiled in `scanFile`. Validate it here anyway (with
     // a stand-in name) so a bad pattern still fails at compile time, like every other rule.
@@ -288,6 +322,7 @@ function compileRules(rules, targets) {
       severity: rule.severity === 'error' ? 'error' : 'warn',
       message: rule.message,
       slots: rule.swallowedSlots ?? null,
+      toolbarTabs: Boolean(rule.toolbarTabs),
       includes,
       excludes: compileGlobs(rule, 'exclude'),
     };
@@ -305,7 +340,7 @@ function scanFile(fileRel, text, compiled) {
   // The union-type-alias pre-pass: harvested once per file, and only when some rule asks for
   // it (`{{unionAliases}}`), so a config without such a rule pays nothing.
   const aliases = compiled.some((c) => c.aliasSource) ? harvestUnionAliases(text) : [];
-  for (const { re: compiledRe, aliasSource, label, severity, message, slots, includes, excludes } of compiled) {
+  for (const { re: compiledRe, aliasSource, label, severity, message, slots, toolbarTabs, includes, excludes } of compiled) {
     // No `include` (or a rule whose `include` list is empty) matches every walked file;
     // with one or more `include` globs the rule applies only when ANY of them matches.
     // The scope globs are matched by `path.matchesGlob` (stdlib since v22) — `**` spans
@@ -316,6 +351,12 @@ function scanFile(fileRel, text, compiled) {
     if (slots) {
       for (const { slot, line, col } of findSwallowedSlots(text, slots)) {
         violations.push({ file: fileRel, line, col, rule: label, severity, message: `\`${slot}\` is destructured but never forwarded to PageFrame. ${message}` });
+      }
+      continue;
+    }
+    if (toolbarTabs) {
+      for (const { tag, line, col } of findToolbarTabs(text)) {
+        violations.push({ file: fileRel, line, col, rule: label, severity, message: `\`<${tag}>\` inside \`toolbar\`. ${message}` });
       }
       continue;
     }
@@ -454,4 +495,4 @@ if (process.argv[1] && pathToFileURL(realpathSync(process.argv[1])).href === imp
   main();
 }
 
-export { compileGlobs, compileRules, scanFile, findSwallowedSlots, harvestUnionAliases, includeReachableUnder, CompileError };
+export { compileGlobs, compileRules, scanFile, findSwallowedSlots, findToolbarTabs, harvestUnionAliases, includeReachableUnder, CompileError };

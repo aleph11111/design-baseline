@@ -1383,3 +1383,30 @@ describe("the `_adherence.NOTES.md` ledger covers the shipped rule set", () => {
     expect(undocumented).toEqual([]);
   });
 });
+
+describe("the `page-tabs-in-toolbar` rule — page-switching tabs belong in `viewSwitch`", async () => {
+  const { compileRules, scanFile } = await import("./lint-design.mjs");
+  const compiled = compileRules([{ id: "page-tabs-in-toolbar", toolbarTabs: true, severity: "warn", message: "use viewSwitch" }]);
+  const scan = (src) => scanFile("src/pages/x.tsx", src, compiled);
+
+  it("warns on Tabs / TabsList / SegmentedControl inside toolbar, naming viewSwitch", () => {
+    for (const tag of ["Tabs", "TabsList", "SegmentedControl"]) {
+      const hits = scan(`<PageFrame\n  toolbar={\n    <${tag} value="a" />\n  }\n/>`);
+      expect(hits).toHaveLength(1);
+      expect(hits[0]).toMatchObject({ rule: "page-tabs-in-toolbar", line: 3 });
+      expect(hits[0].message).toContain("viewSwitch");
+    }
+  });
+
+  it("is clean when the same tabs go through viewSwitch, or Tabs sit outside a toolbar", () => {
+    expect(scan(`<PageFrame viewSwitch={<TabsList />} toolbar={<Input />} />`)).toEqual([]);
+    expect(scan(`<Tabs><TabsList /></Tabs>`)).toEqual([]);
+    expect(scan(`<PageFrame toolbar={<Input />}><Tabs /></PageFrame>`)).toEqual([]);
+  });
+
+  it("honours an inline opt-out only when it names a reason", () => {
+    const frame = (note) => `<PageFrame\n  {/* ${note} */}\n  toolbar={<SegmentedControl />}\n/>`;
+    expect(scan(frame("adherence-ok: page-tabs-in-toolbar — scopes the table rows"))).toEqual([]);
+    expect(scan(frame("adherence-ok: page-tabs-in-toolbar"))).toHaveLength(1);
+  });
+});

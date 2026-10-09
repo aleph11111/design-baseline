@@ -245,6 +245,7 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
             </Button>
           </>
         }
+        // adherence-ok: page-tabs-in-toolbar — the period selector scopes the dashboard data, it does not switch pages
         toolbar={
           <>
             <SegmentedControl
