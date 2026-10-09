@@ -31,11 +31,10 @@ const SIZE = {
  * ToggleField — the on-ladder boolean filter for a toolbar band. A pressed-state
  * box of the band's step (never the bare 24px `Switch`, which is a second
  * control height in the band): outline when off, `bg-primary` when on. Built on
- * the Switch primitive, so it keeps `role="switch"` / `aria-checked` and the
- * `checked` / `onCheckedChange` API. `label` joins a caption to the left edge
- * in a band (stacked above elsewhere). It is a Switch underneath, so the API is
- * `checked` / `onCheckedChange`, not `pressed` / `onPressedChange`. Takes the band's step from `ToolbarSizeContext`; an
- * explicit `size` wins.
+ * the Switch primitive, so it keeps `role="switch"` and the `checked` /
+ * `onCheckedChange` API (not `pressed` / `onPressedChange`). `label` joins a
+ * caption to the left edge in a band (stacked above elsewhere). Takes the
+ * band's step from `ToolbarSizeContext`; an explicit `size` wins.
  */
 export const ToggleField = React.forwardRef<
   React.ElementRef<typeof SwitchPrimitives.Root>,
@@ -43,11 +42,13 @@ export const ToggleField = React.forwardRef<
 >(({ children, label, size: sizeProp, className, ...props }, ref) => {
   const labelId = React.useId();
   const joined = useInToolbarBand();
-  const size = SIZE[sizeProp ?? React.useContext(ToolbarSizeContext) ?? "default"];
+  const textId = React.useId();
+  const bandSize = React.useContext(ToolbarSizeContext);
+  const size = SIZE[sizeProp ?? bandSize ?? "default"];
   const box = (
     <SwitchPrimitives.Root
       ref={ref}
-      aria-labelledby={label != null ? labelId : undefined}
+      aria-labelledby={label != null ? `${labelId} ${textId}` : undefined}
       className={cn(
         "group inline-flex items-stretch overflow-hidden rounded-md border font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
         size.box,
@@ -61,6 +62,7 @@ export const ToggleField = React.forwardRef<
         </span>
       )}
       <span
+        id={textId}
         className={cn(
           "flex items-center whitespace-nowrap",
           size.pad,

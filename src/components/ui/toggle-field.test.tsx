@@ -33,10 +33,10 @@ describe("ToggleField", () => {
         <ToggleField label="Status">Active only</ToggleField>
       </ToolbarBandContext.Provider>,
     );
-    expect(screen.getByRole("switch", { name: "Status" })).toBeTruthy();
+    expect(screen.getByRole("switch", { name: "Status Active only" })).toBeTruthy();
     expect(container.querySelector("[data-joined-label]")).not.toBeNull();
     rerender(<ToggleField label="Status">Active only</ToggleField>);
-    expect(screen.getByRole("switch", { name: "Status" })).toBeTruthy();
+    expect(screen.getByRole("switch", { name: "Status Active only" })).toBeTruthy();
     expect(container.querySelector("[data-joined-label]")).toBeNull();
   });
 });
