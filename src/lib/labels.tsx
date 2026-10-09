@@ -190,7 +190,7 @@ export const labelsDe: BaselineLabels = {
   morePages: "Weitere Seiten",
   section: "Abschnitt",
   view: "Ansicht",
-  filter: "Filter",
+  filter: "Filtern",
   reset: "Zurücksetzen",
   done: "Fertig",
   showMore: "Mehr anzeigen",
@@ -251,9 +251,26 @@ export function BaselineLabelsProvider({
   return <BaselineLabelsContext.Provider value={value}>{children}</BaselineLabelsContext.Provider>;
 }
 
-/** The active default strings (English when no provider is mounted). */
+const subscribeLang = (cb: () => void) => {
+  const mo = new MutationObserver(cb);
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+  return () => mo.disconnect();
+};
+const readLang = () => document.documentElement.lang;
+const serverLang = () => "";
+
+/**
+ * The active default strings. A mounted provider wins; with none, a page whose
+ * `<html lang>` starts with `de` gets `labelsDe`; otherwise English. The lang
+ * is read after hydration (server snapshot is empty), so SSR markup stays English.
+ */
 export function useLabels(): BaselineLabels {
-  return React.useContext(BaselineLabelsContext);
+  const ctx = React.useContext(BaselineLabelsContext);
+  const lang = React.useSyncExternalStore(subscribeLang, readLang, serverLang);
+  // The provider always merges into a fresh object, so the context default
+  // (`labelsEn` itself) means "no provider mounted".
+  if (ctx !== labelsEn) return ctx;
+  return lang.toLowerCase().startsWith("de") ? labelsDe : labelsEn;
 }
 
 /** For class components: `static contextType = BaselineLabelsContext`. */
