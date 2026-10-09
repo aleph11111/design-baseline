@@ -265,6 +265,7 @@ function findToolbarTabs(text) {
     let depth = 1;
     let i = m.index + m[0].length;
     for (; i < code.length && depth; i++) depth += code[i] === '{' ? 1 : code[i] === '}' ? -1 : 0;
+    if (depth) continue; // unbalanced braces — never scan to EOF
     const tab = /<(Tabs|TabsList|SegmentedControl)(?=[\s/>])/.exec(code.slice(m.index, i));
     if (!tab) continue;
     // Opt-out: `adherence-ok: page-tabs-in-toolbar — <reason>` on the `toolbar=` line or the line

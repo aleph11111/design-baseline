@@ -1405,7 +1405,7 @@ describe("the `page-tabs-in-toolbar` rule — page-switching tabs belong in `vie
   });
 
   it("honours an inline opt-out only when it names a reason", () => {
-    const frame = (note) => `<PageFrame\n  {/* ${note} */}\n  toolbar={<SegmentedControl />}\n/>`;
+    const frame = (note) => `<PageFrame\n  // ${note}\n  toolbar={<SegmentedControl />}\n/>`;
     expect(scan(frame("adherence-ok: page-tabs-in-toolbar — scopes the table rows"))).toEqual([]);
     expect(scan(frame("adherence-ok: page-tabs-in-toolbar"))).toHaveLength(1);
   });
