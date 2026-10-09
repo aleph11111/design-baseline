@@ -1410,3 +1410,27 @@ describe("the `page-tabs-in-toolbar` rule — page-switching tabs belong in `vie
     expect(scan(frame("adherence-ok: page-tabs-in-toolbar"))).toHaveLength(1);
   });
 });
+
+describe("the `bare-switch-in-toolbar` rule — a bare Switch never goes in a toolbar band", async () => {
+  const { compileRules, scanFile } = await import("./lint-design.mjs");
+  const compiled = compileRules([{ id: "bare-switch-in-toolbar", toolbarSwitch: true, severity: "warn", message: "use ToggleField" }]);
+  const scan = (src) => scanFile("src/pages/x.tsx", src, compiled);
+
+  it("warns on Switch inside toolbar, naming ToggleField", () => {
+    const hits = scan(`<PageFrame\n  toolbar={\n    <Switch checked />\n  }\n/>`);
+    expect(hits).toHaveLength(1);
+    expect(hits[0]).toMatchObject({ rule: "bare-switch-in-toolbar", line: 3 });
+    expect(hits[0].message).toContain("ToggleField");
+  });
+
+  it("is clean for ToggleField in toolbar, or Switch outside a toolbar", () => {
+    expect(scan(`<PageFrame toolbar={<ToggleField checked />} />`)).toEqual([]);
+    expect(scan(`<PageFrame toolbar={<Input />}><Switch /></PageFrame>`)).toEqual([]);
+  });
+
+  it("honours an inline opt-out only when it names a reason", () => {
+    const frame = (note) => `<PageFrame\n  // ${note}\n  toolbar={<Switch />}\n/>`;
+    expect(scan(frame("adherence-ok: bare-switch-in-toolbar — dialog-style toggle"))).toEqual([]);
+    expect(scan(frame("adherence-ok: bare-switch-in-toolbar"))).toHaveLength(1);
+  });
+});
