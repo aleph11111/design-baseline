@@ -1,3 +1,5 @@
+import { labelsEn } from "../../../lib/labels";
+
 /**
  * Derive an English present-continuous submitting label from an action label:
  * strip a trailing "e" and append "ing…" ("Save" → "Saving…", "Create" →
@@ -17,14 +19,16 @@ export function deriveSubmittingLabel(label: string): string {
  * Resolve the label a primary button shows while a mutation is in-flight: an
  * explicit `submittingLabel` override (i18n-safe) wins, otherwise derive from
  * `primaryLabel` via {@link deriveSubmittingLabel}. Falls back to "Saving…"
- * when no primary label is known.
+ * when no primary label is known — components pass the provider's `saving` string
+ * (`useLabels().saving`) so the fallback is localized; the default is English.
  */
 export function resolveSubmittingLabel(
   primaryLabel: string | undefined,
   submittingLabel: string | undefined,
+  fallback: string = labelsEn.saving,
 ): string {
   return (
     submittingLabel ??
-    (primaryLabel ? deriveSubmittingLabel(primaryLabel) : "Saving…")
+    (primaryLabel ? deriveSubmittingLabel(primaryLabel) : fallback)
   );
 }

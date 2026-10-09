@@ -23,6 +23,7 @@
  * Reads brand color automatically via `--primary`, so it re-skins with the rest
  * of the fleet (teal for hk-crm, blue for BrickShop) with zero per-app code.
  */
+import { useLabels } from "../../lib/labels";
 import * as React from "react";
 import { cn } from "../../lib/utils";
 
@@ -42,6 +43,7 @@ export function ProgressTracker({
   steps,
   className,
 }: ProgressTrackerProps): React.ReactElement {
+  const L = useLabels();
   return (
     <ol
       className={cn("grid", className)}
@@ -51,7 +53,7 @@ export function ProgressTracker({
         const last = i === steps.length - 1;
         const done = s.state === "done";
         const current = s.state === "current";
-        const stateWord = done ? "completed" : current ? "current" : "upcoming";
+        const stateWord = done ? L.completed : current ? L.current : L.upcoming;
         return (
           <li
             key={i}

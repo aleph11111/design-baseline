@@ -1,13 +1,12 @@
 ---
 area: i18n
 opened: 2026-10-08
-status: needs-enrichment
+status: done
 value: high
 gate:
   score: 4
   passed: [title, context, what_to_do, acceptance, related]
-  failed:
-    - open_question: "de preset scope auto-resolved to the full sweep — confirm before /feat"
+  failed: []
   graded_at: "2026-10-08T13:29:50Z"
 ---
 
@@ -38,6 +37,10 @@ name `BaselineLabelsProvider`; the tree already carries two `createContext` prec
 `UnifiedSurfaceContext`, `ToolbarBandContext`) that every baseline component reads its default
 strings from, shipping an English default and a `de` preset; per-call props still win.
 
+## Decision
+
+de preset v1 scope = full sweep of every user-visible default in `src/components/` (operator decision, 2026-10-09).
+
 ## What to do
 
 - [ ] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
@@ -65,11 +68,3 @@ strings from, shipping an English default and a `de` preset; per-call props stil
 - [[wizard-shell-back-busy-label-props-and-hardcoded-english-label-sweep]] — same i18n line; its class-level sweep assertion is the template for this ticket's sweep bullet
 - [ADR-0005](/docs/adr/0005-adoption-quality-scan-zero-dep-donor-script.md) — the Axis C scan that measures the vendored-copy drift this removes
 - [docs/PACKAGE.md](/docs/PACKAGE.md) — the consumption contract row this ticket updates
-
-## Open question
-
-de preset v1 scope — audited strings only, or the full sweep of every user-visible default in
-`src/components/`? Auto-resolved to the full sweep (recommended): the wiring is mechanical, and
-a partial preset leaves English holes that consumers would re-fork — the exact failure mode this
-ticket exists to end. Alternative: v1 carries only the audited strings + the missing per-call
-seams, and the sweep follows as its own ticket.

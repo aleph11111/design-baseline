@@ -1,6 +1,7 @@
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "../ui/button";
+import { useLabels } from "../../lib/labels";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,20 +16,17 @@ export interface ThemeToggleLabels {
   system?: string;
 }
 
-const DEFAULT_LABELS: Required<ThemeToggleLabels> = {
-  toggle: "Toggle color scheme",
-  light: "Light",
-  dark: "Dark",
-  system: "System",
-};
-
 export interface ThemeToggleProps {
   labels?: ThemeToggleLabels;
 }
 
 export function ThemeToggle({ labels }: ThemeToggleProps = {}) {
   const { setTheme } = useTheme();
-  const { toggle, light, dark, system } = { ...DEFAULT_LABELS, ...labels };
+  const L = useLabels();
+  const toggle = labels?.toggle ?? L.toggleTheme;
+  const light = labels?.light ?? L.light;
+  const dark = labels?.dark ?? L.dark;
+  const system = labels?.system ?? L.system;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

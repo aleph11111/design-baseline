@@ -4,6 +4,7 @@ import { DayPicker } from "react-day-picker";
 
 import { cn } from "../../lib/utils";
 import { buttonVariants } from "./button";
+import { useLabels } from "../../lib/labels";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -25,6 +26,7 @@ function Calendar({
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
+  const L = useLabels();
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -71,10 +73,7 @@ function Calendar({
       formatters={{
         formatDay: (date) => date.getDate().toString(),
         formatCaption: (date, options) => {
-          const defaultMonths = [
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-          ];
+          const defaultMonths = L.months;
 
           let monthName = "";
           try {

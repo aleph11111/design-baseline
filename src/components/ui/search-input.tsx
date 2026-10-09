@@ -3,6 +3,7 @@ import * as React from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "./input";
 import { cn } from "../../lib/utils";
+import { useLabels } from "../../lib/labels";
 
 export type SearchInputProps = Omit<
   React.ComponentProps<"input">,
@@ -41,14 +42,17 @@ const SIZE = {
 export function SearchInput({
   value,
   onChange,
-  placeholder = "Search…",
+  placeholder: placeholderProp,
   className,
   inputSize = "default",
   clearable = false,
   count,
-  clearLabel = "Clear search",
+  clearLabel: clearLabelProp,
   ...rest
 }: SearchInputProps): React.ReactElement {
+  const L = useLabels();
+  const placeholder = placeholderProp ?? L.searchPlaceholder;
+  const clearLabel = clearLabelProp ?? L.clearSearch;
   const ref = React.useRef<HTMLInputElement>(null);
   const size = SIZE[inputSize];
   const current = value ?? "";
@@ -77,7 +81,7 @@ export function SearchInput({
         placeholder={placeholder}
         // The accessible name follows the placeholder ("Search…" → "Search"),
         // so a localised placeholder localises the name with it.
-        aria-label={rest["aria-label"] ?? (placeholder.replace(/(…|\.\.\.)$/, "") || "Search")}
+        aria-label={rest["aria-label"] ?? (placeholder.replace(/(…|\.\.\.)$/, "") || L.search)}
         value={current}
         onChange={(e) => onChange?.(e.target.value)}
         {...rest}

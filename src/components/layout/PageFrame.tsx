@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { cn } from "../../lib/utils";
+import { useLabels } from "../../lib/labels";
 
 /**
  * True inside a `PageFrame`. A `PageFrame` rendered inside another (a tabbed
@@ -141,10 +142,12 @@ export function PageFrame({
   filterLabels,
   count,
   viewOptions,
-  viewOptionsLabel = "View",
+  viewOptionsLabel: viewOptionsLabelProp,
   children,
   className,
 }: PageFrameProps): React.ReactElement {
+  const L = useLabels();
+  const viewOptionsLabel = viewOptionsLabelProp ?? L.view;
   const nested = React.useContext(PageFrameContext);
   const isMobile = useIsMobile();
 
@@ -263,7 +266,8 @@ function MobileBand({
   viewOptions: React.ReactNode;
   viewOptionsLabel: string;
 }): React.ReactElement {
-  const filterLabel = labels?.filter ?? "Filter";
+  const L = useLabels();
+  const filterLabel = labels?.filter ?? L.filter;
   return (
     <div className="flex flex-col gap-2">
       {viewSwitch && (
@@ -314,12 +318,12 @@ function MobileBand({
               <SheetFooter className="flex-row gap-2 sm:space-x-0">
                 {onResetFilters && (
                   <Button variant="ghost" size="lg" className="px-4" onClick={onResetFilters}>
-                    {labels?.reset ?? "Reset"}
+                    {labels?.reset ?? L.reset}
                   </Button>
                 )}
                 <SheetClose asChild>
                   <Button size="lg" className="ml-auto">
-                    {labels?.done ?? "Done"}
+                    {labels?.done ?? L.done}
                   </Button>
                 </SheetClose>
               </SheetFooter>

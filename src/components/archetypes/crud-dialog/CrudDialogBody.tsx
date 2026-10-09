@@ -1,9 +1,9 @@
 "use client";
+import { useLabels } from "../../../lib/labels";
 import * as React from "react";
 import { ScrollArea } from "../../ui/scroll-area";
 import { Skeleton } from "../../ui/skeleton";
 import { InlineError } from "../../ui/state-view";
-import { CRUD_ERRORS } from "./crudStrings";
 import { cn } from "../../../lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -24,7 +24,7 @@ export type CrudDialogBodyProps = {
    * meanwhile (`primaryDisabled`); the body cannot reach the footer.
    */
   error?: unknown;
-  /** Human-readable fetch-error message. Default `CRUD_ERRORS.load`. */
+  /** Human-readable fetch-error message. Default is the provider's `crudLoadError`. */
   errorMessage?: React.ReactNode;
   /**
    * Renders a retry button in the error box. The consumer refetches and
@@ -160,12 +160,15 @@ export function CrudDialogBody({
   children,
   isLoading: isLoadingProp = false,
   error,
-  errorMessage = CRUD_ERRORS.load,
+  errorMessage: errorMessageProp,
   onRetry,
   retryLabel,
-  loadingLabel = "Loading…",
+  loadingLabel: loadingLabelProp,
   layout,
 }: CrudDialogBodyProps): React.ReactElement {
+  const L = useLabels();
+  const loadingLabel = loadingLabelProp ?? L.loading;
+  const errorMessage = errorMessageProp ?? L.crudLoadError;
   const hasError = Boolean(error);
   // A failed fetch is no longer in flight: the error wins over a stale
   // isLoading so the box never sits behind a skeleton.
@@ -202,7 +205,7 @@ export function CrudDialogBody({
         )}
       </div>
       {/* Persistent live region: mounted in both states; its text toggles
-          empty ↔ "Loading…" as the announcement. Sibling of the busy
+          empty ↔ the loading label as the announcement. Sibling of the busy
           container, so it is never inside the busy subtree. */}
       <span role="status" aria-live="polite" className="sr-only">
         {loadingAnnounced ? loadingLabel : ""}

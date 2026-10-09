@@ -1,16 +1,36 @@
-// Shared strings for the J (crud-dialog) archetype. The baseline ships
-// language-neutral English defaults; consumers in another language supply
-// their own (see useCrudDialogController's `labels` option and confirmDiscard's
-// `message` argument). i18n is the consumer's concern, not the baseline's.
+// Shared strings for the J (crud-dialog) archetype. Module constants and
+// `confirmDiscard` are English presets; inside a component the localized
+// equivalents come from `BaselineLabelsProvider` (`useCrudErrors`,
+// `useConfirmDiscard`, and the controller's `labels` option).
 
+import { labelsEn, useLabels } from "../../../lib/labels";
+
+// English presets only — module constants cannot read the provider. Inside a
+// component use `useCrudErrors()` (localized by `BaselineLabelsProvider`).
 export const CRUD_ERRORS = {
-  load: "Could not load. Please try again.",
-  create: "Could not create. Please try again.",
-  update: "Could not save. Please try again.",
-  delete: "Could not delete. Please try again.",
+  load: labelsEn.crudLoadError,
+  create: labelsEn.crudCreateError,
+  update: labelsEn.crudUpdateError,
+  delete: labelsEn.crudDeleteError,
 } as const;
 
-export const CRUD_DISCARD_PROMPT = "Discard changes?";
+/** English preset; pass `useLabels().discardPrompt` to `confirmDiscard` for a localized prompt. */
+export const CRUD_DISCARD_PROMPT = labelsEn.discardPrompt;
+
+/** The crud-dialog mutation/load error strings from the active label provider. */
+export function useCrudErrors(): { load: string; create: string; update: string; delete: string } {
+  const L = useLabels();
+  return { load: L.crudLoadError, create: L.crudCreateError, update: L.crudUpdateError, delete: L.crudDeleteError };
+}
+
+/**
+ * Provider-aware `confirmDiscard`: the default prompt is the active
+ * `BaselineLabelsProvider`'s `discardPrompt`. Use it as `onConfirmDiscard`.
+ */
+export function useConfirmDiscard(): (message?: string) => boolean {
+  const { discardPrompt } = useLabels();
+  return (message = discardPrompt) => window.confirm(message);
+}
 
 /**
  * Shared onConfirmDiscard implementation for useCrudDialogMode and

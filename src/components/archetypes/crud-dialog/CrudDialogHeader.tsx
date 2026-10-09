@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { Button } from "../../ui/button";
 import { SheetDescription, SheetTitle } from "../../ui/sheet";
 import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
+import { useLabels } from "../../../lib/labels";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -63,8 +64,10 @@ export function CrudDialogHeader({
   subtitle,
   actions,
   onClose,
-  closeLabel = "Close",
+  closeLabel: closeLabelProp,
 }: CrudDialogHeaderProps): React.ReactElement {
+  const L = useLabels();
+  const closeLabel = closeLabelProp ?? L.close;
   return (
     <SurfaceHeaderBar
       className="shrink-0"

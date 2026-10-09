@@ -4,6 +4,7 @@ import { Button } from "../../ui/button";
 import { SectionCard } from "../../layout/SectionCard";
 import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 import { WizardStepper, type WizardStep, type WizardStepperProps } from "./WizardStepper";
+import { useLabels } from "../../../lib/labels";
 
 export type WizardShellProps = {
   /** Ordered steps (e.g. Upload → Map → Verify → Commit). */
@@ -58,10 +59,10 @@ export function WizardShell({
   onCommit,
   canProceed = true,
   busy = false,
-  nextLabel = "Next",
-  commitLabel = "Commit import",
-  backLabel = "Back",
-  busyLabel = "Importing…",
+  nextLabel: nextLabelProp,
+  commitLabel: commitLabelProp,
+  backLabel: backLabelProp,
+  busyLabel: busyLabelProp,
   stepStateLabels,
   done,
   children,
@@ -69,6 +70,11 @@ export function WizardShell({
   subtitle,
   badges,
 }: WizardShellProps): React.ReactElement {
+  const L = useLabels();
+  const busyLabel = busyLabelProp ?? L.importing;
+  const backLabel = backLabelProp ?? L.back;
+  const commitLabel = commitLabelProp ?? L.commitImport;
+  const nextLabel = nextLabelProp ?? L.next;
   const isLast = current >= steps.length - 1;
   const isFirst = current <= 0;
   const stepLabel = steps[current]?.label;

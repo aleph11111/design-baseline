@@ -2,6 +2,7 @@
 import * as React from "react";
 import { Skeleton } from "../../ui/skeleton";
 import { cn } from "../../../lib/utils";
+import { useLabels } from "../../../lib/labels";
 
 export interface ListSkeletonProps {
   /** Number of placeholder rows to render. Default 5. */
@@ -32,9 +33,11 @@ export function ListSkeleton({
   columns = 1,
   showHeader = false,
   avatar = false,
-  label = "Loading…",
+  label: labelProp,
   className,
 }: ListSkeletonProps): React.ReactElement {
+  const L = useLabels();
+  const label = labelProp ?? L.loading;
   const isGrid = columns > 1;
   const gridStyle: React.CSSProperties | undefined = isGrid
     ? { display: "grid", gap: "0.75rem", gridTemplateColumns: `1.6fr repeat(${columns - 1}, minmax(0, 1fr))` }

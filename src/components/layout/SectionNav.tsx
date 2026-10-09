@@ -5,6 +5,7 @@ import { cn } from "../../lib/utils";
 import { OVERLINE_CLASS } from "./overline";
 import type { NavItem } from "./Sidebar";
 import { isNavPathActive } from "./navMatch";
+import { useLabels } from "../../lib/labels";
 
 /**
  * A run of section-nav items, optionally headed by a group label. Omit `label`
@@ -61,9 +62,11 @@ export function SectionNavShell({
   pathname,
   renderLink,
   children,
-  ariaLabel = "Section",
+  ariaLabel: ariaLabelProp,
   className,
 }: SectionNavShellProps): React.ReactElement {
+  const L = useLabels();
+  const ariaLabel = ariaLabelProp ?? L.section;
   return (
     <div className={cn("flex h-full flex-col md:flex-row", className)}>
       <aside className="border-b md:w-64 md:shrink-0 md:border-b-0 md:border-r">

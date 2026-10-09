@@ -19,7 +19,7 @@
  *   - Footer primary / secondary / destructive layout per mode, all derived.
  *   - Loading skeleton (simulated delay on open).
  *
- * NOTE: discard confirmation uses the baseline's `confirmDiscard` (window.confirm).
+ * NOTE: discard confirmation uses the baseline's `useConfirmDiscard` (window.confirm).
  * Real consumers must swap it for a shadcn <AlertDialog> — window.confirm blocks
  * the JS thread and is inaccessible. See the spec (Layer 13).
  */
@@ -68,7 +68,7 @@ import {
   CrudDialogFooter,
   useCrudDialogMode,
   useCrudDialogController,
-  confirmDiscard,
+  useConfirmDiscard,
 } from "@/components/archetypes/crud-dialog";
 import { PageHeader } from "@/components/layout";
 
@@ -200,6 +200,7 @@ function WorkoutDialog({
     defaultValues: EMPTY_FORM,
   });
 
+  const confirmDiscard = useConfirmDiscard();
   const mode = useCrudDialogMode({
     initialMode: isCreateMode ? "create" : "view",
     isDirty: form.formState.isDirty,

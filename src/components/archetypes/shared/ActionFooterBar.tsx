@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "../../ui/button";
 import { cn } from "../../../lib/utils";
 import { resolveSubmittingLabel } from "./submittingLabel";
+import { useLabels } from "../../../lib/labels";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -102,6 +103,7 @@ export function ActionFooterBar({
   disableActionsWhileDeleting = false,
   className,
 }: ActionFooterBarProps): React.ReactElement {
+  const L = useLabels();
   const hasPrimary = primaryLabel !== undefined;
   const hasSecondary = secondaryLabel !== undefined;
   const hasDestructive =
@@ -112,6 +114,7 @@ export function ActionFooterBar({
   const resolvedSubmittingLabel = resolveSubmittingLabel(
     primaryLabel,
     submittingLabel,
+    L.saving,
   );
 
   // form-page freezes the whole footer during a delete; crud-dialog only

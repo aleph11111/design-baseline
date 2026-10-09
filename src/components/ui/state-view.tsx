@@ -4,6 +4,7 @@ import { AlertTriangle, type LucideIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "./alert";
 import { Button } from "./button";
 import { cn } from "../../lib/utils";
+import { useLabels } from "../../lib/labels";
 
 export type StateViewVariant = "loading" | "empty" | "error";
 
@@ -42,6 +43,11 @@ export type StateViewProps = {
   /** Label of the error variant's retry button. Override in a non-English app. */
   retryLabel?: string;
   /**
+   * Per-variant default copy, winning over the `BaselineLabelsProvider` preset:
+   * `loading` text, `error` title, `empty` line. `title`/`description`/`message` still win over these.
+   */
+  labels?: { loading?: string; error?: string; empty?: string };
+  /**
    * The empty state's single next-step action (ADR-0007 §7 — e.g. an
    * "Add new" button), rendered below the title/description with extra
    * top spacing to read as the CTA, not another text line. An empty state
@@ -52,10 +58,10 @@ export type StateViewProps = {
   className?: string;
 };
 
-function errorMessage(error: unknown): string {
+function errorMessage(error: unknown, fallback: string): string {
   if (error instanceof Error) return error.message;
   if (typeof error === "string") return error;
-  return "Something went wrong.";
+  return fallback;
 }
 
 /**
@@ -83,11 +89,13 @@ export function StateView({
   icon: Icon,
   error,
   onRetry,
-  retryLabel = "Try again",
+  retryLabel,
+  labels,
   action,
   loadingSkeleton,
   className,
 }: StateViewProps): React.ReactElement {
+  const L = useLabels();
   if (variant === "loading") {
     if (loadingSkeleton) return <>{loadingSkeleton}</>;
     return (
@@ -99,7 +107,7 @@ export function StateView({
         role="status"
         aria-live="polite"
       >
-        {message ?? "Loading…"}
+        {message ?? labels?.loading ?? L.loading}
       </div>
     );
   }
@@ -109,9 +117,9 @@ export function StateView({
       <div className={cn("p-4", className)}>
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>{title ?? "Something went wrong"}</AlertTitle>
+          <AlertTitle>{title ?? labels?.error ?? L.errorTitle}</AlertTitle>
           <AlertDescription className="flex flex-col gap-2">
-            <span>{description ?? message ?? errorMessage(error)}</span>
+            <span>{description ?? message ?? errorMessage(error, L.errorFallback)}</span>
             {onRetry && (
               <Button
                 variant="outline"
@@ -119,7 +127,7 @@ export function StateView({
                 className="w-fit"
                 onClick={onRetry}
               >
-                {retryLabel}
+                {retryLabel ?? L.retry}
               </Button>
             )}
           </AlertDescription>
@@ -129,7 +137,7 @@ export function StateView({
   }
 
   // variant === "empty"
-  const body = description ?? message ?? (title ? undefined : "No items yet");
+  const body = description ?? message ?? (title ? undefined : (labels?.empty ?? L.empty));
   return (
     <div
       className={cn(
@@ -178,9 +186,10 @@ export function InlineError({
   message,
   error,
   onRetry,
-  retryLabel = "Try again",
+  retryLabel,
   className,
 }: InlineErrorProps): React.ReactElement {
+  const L = useLabels();
   return (
     <div
       role="alert"
@@ -191,10 +200,10 @@ export function InlineError({
     >
       <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
       <div className="flex flex-col gap-2">
-        <span>{message ?? errorMessage(error)}</span>
+        <span>{message ?? errorMessage(error, L.errorFallback)}</span>
         {onRetry && (
           <Button variant="outline" size="sm" className="w-fit" onClick={onRetry}>
-            {retryLabel}
+            {retryLabel ?? L.retry}
           </Button>
         )}
       </div>
