@@ -251,7 +251,11 @@ export function BaselineLabelsProvider({
   return <BaselineLabelsContext.Provider value={value}>{children}</BaselineLabelsContext.Provider>;
 }
 
-const noopSubscribe = () => () => {};
+const subscribeLang = (cb: () => void) => {
+  const mo = new MutationObserver(cb);
+  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+  return () => mo.disconnect();
+};
 const readLang = () => document.documentElement.lang;
 const serverLang = () => "";
 
@@ -262,7 +266,7 @@ const serverLang = () => "";
  */
 export function useLabels(): BaselineLabels {
   const ctx = React.useContext(BaselineLabelsContext);
-  const lang = React.useSyncExternalStore(noopSubscribe, readLang, serverLang);
+  const lang = React.useSyncExternalStore(subscribeLang, readLang, serverLang);
   // The provider always merges into a fresh object, so the context default
   // (`labelsEn` itself) means "no provider mounted".
   if (ctx !== labelsEn) return ctx;

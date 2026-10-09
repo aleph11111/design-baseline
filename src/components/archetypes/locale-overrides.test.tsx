@@ -400,8 +400,8 @@ describe("PageFrame filter-sheet labels", () => {
     render(
       <PageFrame title="T" toolbar={<span />} filterCount={1} onResetFilters={() => {}} {...props}>x</PageFrame>,
     );
-  const sheetText = () => {
-    fireEvent.click(screen.getAllByRole("button", { name: /^Filter/ })[0]!);
+  const sheetText = (trigger: RegExp = /^Filter(?!n)/) => {
+    fireEvent.click(screen.getAllByRole("button", { name: trigger })[0]!);
     return document.body.textContent ?? "";
   };
   afterEach(() => {
@@ -411,7 +411,7 @@ describe("PageFrame filter-sheet labels", () => {
   it("lang=de without a provider renders German", () => {
     document.documentElement.lang = "de-DE";
     frame();
-    const t = sheetText();
+    const t = sheetText(/^Filtern/);
     expect(t).toContain("Zurücksetzen");
     expect(t).toContain("Fertig");
   });
@@ -431,10 +431,15 @@ describe("PageFrame filter-sheet labels", () => {
     );
     expect(sheetText()).toContain("Reset");
   });
+  it("a lang set after first render is picked up", async () => {
+    frame();
+    document.documentElement.lang = "de";
+    await screen.findByRole("button", { name: /^Filtern/ });
+  });
   it("filterLabels beats lang", () => {
     document.documentElement.lang = "de";
-    frame({ filterLabels: { reset: "Clear", done: "OK" } });
-    const t = sheetText();
+    frame({ filterLabels: { filter: "Narrow", reset: "Clear", done: "OK" } });
+    const t = sheetText(/^Narrow/);
     expect(t).toContain("Clear");
     expect(t).toContain("OK");
   });

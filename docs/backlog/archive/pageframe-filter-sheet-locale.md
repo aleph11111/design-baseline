@@ -58,4 +58,4 @@ sibling `[[component-locale-provider]]`.
 Provider-first (`BaselineLabelsProvider`, shipped v0.8.0 / #516), `document.documentElement.lang`
 as the no-provider fallback, English last (orchestrator, 2026-10-09). #516 already routes the sheet
 labels through `useLabels()` but left the no-provider case English and `labelsDe.filter` as "Filter",
-so the ticket was not fully subsumed; shipped as v0.8.1 in `useLabels()` (all components, not just PageFrame).
+so the ticket was not fully subsumed; shipped as v0.8.2 in `useLabels()` (all components, not just PageFrame).
