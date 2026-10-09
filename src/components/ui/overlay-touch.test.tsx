@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "./dialog";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "./sheet";
+import { PaginationLink } from "./pagination";
 import { ControlDensityProvider } from "./toolbar-band";
 
 afterEach(cleanup);
@@ -31,5 +32,14 @@ describe("overlay close under touch density", () => {
       </ControlDensityProvider>
     );
     expect(closeBtn().className).toContain("h-11 w-11");
+  });
+
+  it("PaginationLink icon is 44pt under touch, h-9 w-9 otherwise", () => {
+    const { getByText, rerender } = render(
+      <ControlDensityProvider density="touch"><PaginationLink href="#">1</PaginationLink></ControlDensityProvider>
+    );
+    expect(getByText("1").className).toContain("h-11 w-11");
+    rerender(<PaginationLink href="#">1</PaginationLink>);
+    expect(getByText("1").className).toContain("h-9 w-9");
   });
 });
