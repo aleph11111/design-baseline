@@ -74,17 +74,6 @@ export type SettingsTableLabels<Row = unknown> = {
 };
 
 /**
- * The shell's built-in bulk-select copy — the consumer's `labels` is merged
- * over it per key with `??` (not a spread, which would let an explicit
- * `undefined` override replace a default), so adding a key or changing a
- * default is a one-line edit and an unset override falls back to the
- * built-in string. The row-checkbox name additionally has a row-derived
- * default ("Select row: {identifier cell}") that only yields to a consumer
- * override; a non-primitive identifier cell falls back to the flat
- * `selectRow` default below.
- */
-
-/**
  * The frameless settings table — everything a D2 page renders below its own
  * heading: the flush control band (toolbar / count caption / create + bulk
  * write actions), the loading / empty / error planes, the table (with its
