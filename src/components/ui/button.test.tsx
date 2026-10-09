@@ -106,8 +106,8 @@ describe("Button — touch density icon steps", () => {
     expect(getByRole("button").className).toContain("h-11 w-11");
   });
 
-  it("icon is unchanged without density", () => {
-    const { getByRole } = render(<Button size="icon" aria-label="x">×</Button>);
-    expect(getByRole("button").className).toContain("h-9 w-9");
+  it.each([["icon", "h-9 w-9"], ["icon-sm", "h-8 w-8"]] as const)("%s is unchanged without density", (size, cls) => {
+    const { getByRole } = render(<Button size={size} aria-label="x">×</Button>);
+    expect(getByRole("button").className).toContain(cls);
   });
 });
