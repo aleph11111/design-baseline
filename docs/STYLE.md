@@ -177,6 +177,7 @@ In a toolbar a field's label is **joined to the box**: a shaded cell fused to th
 - Forms keep the stacked field (label above the control — "Shared content molecules" below). The joined label is a toolbar device only.
 - A boolean filter ("Show inactive") is a `ToggleField`, never a bare `Switch`: one box of the band step that fills `bg-primary` when on. It takes the same optional `label="Status"` joined cell, and the sheet's `lg` step like every other control. It is a Switch underneath: `checked` / `onCheckedChange`, `role="switch"`.
 - A field whose value names itself (a template picker showing "Standard BWA") needs no label at all.
+- **Desktop cap:** a band is one row — at most **4 scoping fields inline** (the search box counts as one) (`MAX_INLINE_FIELDS` in `PageFrame`, counted over the `toolbar` slot's top-level children, fragments looked through). Fields past the cap collapse into the same filter sheet the phone band uses (Filter button, joined-label rows); the band never wraps onto a second row. Wrap several controls in one app `div` and they count as one field — don't use that to dodge the cap.
 - **Phone:** below `md` the `PageFrame` toolbar's filters live in a bottom filter sheet (PLACEMENT.md "The page frame"). The sheet re-enters the band, so each filter keeps its joined label and desktop wording (no mobile-only abbreviations); the sheet sets the `lg` step (44pt, 16px text so iOS does not zoom) on every control that doesn't pick one, and lines the label cells up in one ~130px column. Only the container changes.
 
 ### Typography

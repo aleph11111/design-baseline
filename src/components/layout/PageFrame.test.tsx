@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   cleanup,
   fireEvent,
@@ -227,12 +227,57 @@ describe("PageFrame — mobile filter sheet (below md)", () => {
     ).not.toBeNull();
   });
 
-  it("renders the toolbar inline at md and wider", () => {
+  it("renders the first fields inline at md and wider; the rest sit behind Filter", () => {
     setViewport(1024);
     renderVariance();
     expect(screen.getByRole("combobox", { name: "Jahr" }).className).toContain(
       "h-9",
     );
+    expect(screen.getByRole("button", { name: /^Filter/ })).toBeTruthy();
+  });
+});
+
+describe("PageFrame — desktop toolbar cap", () => {
+  const field = (n: number) => <button key={n}>field{n}</button>;
+  const realMatchMedia = window.matchMedia;
+  afterEach(() => {
+    window.matchMedia = realMatchMedia;
+  });
+  beforeEach(() => {
+    window.matchMedia = ((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    })) as unknown as typeof window.matchMedia;
+  });
+
+  it("keeps up to the cap inline and renders no Filter trigger", () => {
+    render(
+      <PageFrame title="T" toolbar={<>{[1, 2, 3, 4].map(field)}</>}>
+        body
+      </PageFrame>,
+    );
+    expect(screen.getAllByRole("button", { name: /^field/ })).toHaveLength(4);
     expect(screen.queryByRole("button", { name: /^Filter/ })).toBeNull();
+  });
+
+  it("collapses fields past the cap into the filter sheet instead of wrapping", () => {
+    render(
+      <PageFrame title="T" toolbar={<>{[1, 2, 3, 4, 5, 6].map(field)}</>}>
+        body
+      </PageFrame>,
+    );
+    expect(screen.getAllByRole("button", { name: /^field/ })).toHaveLength(4);
+    expect(screen.queryByText("field5")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /^Filter/ }));
+    const sheet = document.querySelector("[data-filter-sheet]") as HTMLElement;
+    expect(within(sheet).getByText("field5")).toBeTruthy();
+    expect(within(sheet).getByText("field6")).toBeTruthy();
+    expect(within(sheet).queryByText("field1")).toBeNull();
   });
 });

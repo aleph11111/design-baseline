@@ -770,6 +770,25 @@ function PageFrameDemo() {
           {rows}
         </PageFrame>
       </Variant>
+      <Variant label="crowded toolbar — max 4 scoping fields inline (search counts); the rest collapse into the Filter sheet, never a second row">
+        <PageFrame
+          title="Trefferliste"
+          toolbar={
+            <>
+              <SearchInput placeholder="Suchen…" className="w-48" />
+              {["Status", "Segment", "Region"].map((l) => (
+                <SelectField key={l} label={l} value="all" onChange={() => {}} options={[{ value: "all", label: "Alle" }]} />
+              ))}
+              {["Quelle", "Owner"].map((l) => (
+                <SelectField key={l} label={l} value="all" onChange={() => {}} options={[{ value: "all", label: "Alle" }]} />
+              ))}
+            </>
+          }
+          count="2 Ergebnisse"
+        >
+          {rows}
+        </PageFrame>
+      </Variant>
       <Variant label="nested PageFrame (derived, no prop) — titles itself with NestedPageHeading and joins the parent's surface">
         <PageFrame
           title="Einstellungen"
