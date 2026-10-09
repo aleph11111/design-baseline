@@ -316,6 +316,23 @@ function ToggleFieldDemo() {
           </div>
         </Variant>
       ))}
+      <Variant label="in a PageFrame band — the label joins the box; outside a band it stacks above">
+        <PageFrame
+          title="Quellen"
+          toolbar={
+            <ToggleField label="Status" checked={on} onCheckedChange={setOn}>
+              Active only
+            </ToggleField>
+          }
+        >
+          <p className="text-sm text-muted-foreground">Rows</p>
+        </PageFrame>
+      </Variant>
+      <Variant label="outside a band — stacked label">
+        <ToggleField label="Status" checked={on} onCheckedChange={setOn}>
+          Active only
+        </ToggleField>
+      </Variant>
     </div>
   );
 }

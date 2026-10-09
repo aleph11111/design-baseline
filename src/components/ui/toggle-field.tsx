@@ -2,7 +2,7 @@
 import * as React from "react";
 import * as SwitchPrimitives from "@radix-ui/react-switch";
 import { cn } from "../../lib/utils";
-import { JOINED_LABEL_CLASS, ToolbarSizeContext } from "./toolbar-band";
+import { JOINED_LABEL_CLASS, ToolbarSizeContext, useInToolbarBand } from "./toolbar-band";
 
 export type ToggleFieldProps = Omit<
   React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>,
@@ -12,8 +12,9 @@ export type ToggleFieldProps = Omit<
   children: React.ReactNode;
   /**
    * Joined label: a shaded cell fused to the box's left edge ("Status | Active
-   * only"), the toolbar label style (STYLE.md "Toolbar field labels"). Omit it
-   * when the box text names itself.
+   * only"), the toolbar label style (STYLE.md "Toolbar field labels"), inside a
+   * `PageFrame` band; outside one it renders as a caption stacked above the
+   * box. Omit it when the box text names itself.
    */
   label?: React.ReactNode;
   /** Height on the shared control ladder: sm h-8 · default h-9 · lg h-11. */
@@ -32,7 +33,8 @@ const SIZE = {
  * control height in the band): outline when off, `bg-primary` when on. Built on
  * the Switch primitive, so it keeps `role="switch"` / `aria-checked` and the
  * `checked` / `onCheckedChange` API. `label` joins a caption to the left edge
- * like `SegmentedControl`'s. Takes the band's step from `ToolbarSizeContext`; an
+ * in a band (stacked above elsewhere). It is a Switch underneath, so the API is
+ * `checked` / `onCheckedChange`, not `pressed` / `onPressedChange`. Takes the band's step from `ToolbarSizeContext`; an
  * explicit `size` wins.
  */
 export const ToggleField = React.forwardRef<
@@ -40,8 +42,9 @@ export const ToggleField = React.forwardRef<
   ToggleFieldProps
 >(({ children, label, size: sizeProp, className, ...props }, ref) => {
   const labelId = React.useId();
+  const joined = useInToolbarBand();
   const size = SIZE[sizeProp ?? React.useContext(ToolbarSizeContext) ?? "default"];
-  return (
+  const box = (
     <SwitchPrimitives.Root
       ref={ref}
       aria-labelledby={label != null ? labelId : undefined}
@@ -52,7 +55,7 @@ export const ToggleField = React.forwardRef<
       )}
       {...props}
     >
-      {label != null && (
+      {label != null && joined && (
         <span id={labelId} data-joined-label="" className={cn(JOINED_LABEL_CLASS, "border-r")}>
           {label}
         </span>
@@ -67,6 +70,15 @@ export const ToggleField = React.forwardRef<
         {children}
       </span>
     </SwitchPrimitives.Root>
+  );
+  if (label == null || joined) return box;
+  return (
+    <div className="inline-flex flex-col items-start gap-1.5">
+      <span id={labelId} className="text-sm font-medium">
+        {label}
+      </span>
+      {box}
+    </div>
   );
 });
 ToggleField.displayName = "ToggleField";

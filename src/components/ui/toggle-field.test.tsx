@@ -2,6 +2,7 @@ import * as React from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { ToggleField } from "./toggle-field";
+import { ToolbarBandContext } from "./toolbar-band";
 
 afterEach(cleanup);
 
@@ -26,8 +27,16 @@ describe("ToggleField", () => {
     expect(screen.getByRole("switch").className).toContain("h-11");
   });
 
-  it("names the switch by its joined label", () => {
-    render(<ToggleField label="Status">Active only</ToggleField>);
+  it("joins the label in a band, stacks it outside", () => {
+    const { container, rerender } = render(
+      <ToolbarBandContext.Provider value>
+        <ToggleField label="Status">Active only</ToggleField>
+      </ToolbarBandContext.Provider>,
+    );
     expect(screen.getByRole("switch", { name: "Status" })).toBeTruthy();
+    expect(container.querySelector("[data-joined-label]")).not.toBeNull();
+    rerender(<ToggleField label="Status">Active only</ToggleField>);
+    expect(screen.getByRole("switch", { name: "Status" })).toBeTruthy();
+    expect(container.querySelector("[data-joined-label]")).toBeNull();
   });
 });
