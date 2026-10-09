@@ -67,6 +67,7 @@ export * from "@/components/archetypes/import-wizard";
 export * from "@/components/archetypes/kanban-board";
 export * from "@/components/archetypes/list-with-detail";
 export * from "@/components/archetypes/matrix-grid";
+export * from "@/components/archetypes/native-browser-dialog";
 export * from "@/components/archetypes/overline-typed";
 export * from "@/components/archetypes/raw-input";
 export * from "@/components/archetypes/raw-select";

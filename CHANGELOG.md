@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.10.0
+
+- **Added:** archetype `N` (`native-browser-dialog`, component kind), exported from `design-baseline/archetypes/native-browser-dialog`. It is the in-app replacement for `window.alert` / `confirm` / `prompt`. `useConfirm()` returns `{ askConfirm, dialog }`, where `askConfirm` resolves `boolean`; it renders the shared `ConfirmationDialog`, and `destructive` (default `true`) sets the tone. `usePrompt()` returns `{ askPrompt, dialog }`, where `askPrompt` resolves the trimmed value or `null`; it is a single-field `Dialog` whose form submits on Enter. Replace `alert` with the `sonner` toast. Contract: `docs/archetypes/native-browser-dialog.md`.
+- **Consumer:** none required. To migrate a site the `native-browser-dialog` audit signal flags: brickshop-manager can replace its local `useDiscardConfirm` and native confirms, and controlling-app its local `useConfirm` plus its 3 `window.prompt` flows.
+- **Breaking:** no.
+
 ## v0.9.3
 
 - **Fixed:** `SearchInput` inside a `PageFrame` toolbar band now has a `14rem` minimum width, so a crowded band scrolls instead of clipping the placeholder. New optional `minWidth` prop overrides the floor. Outside a band the render is unchanged. Documented in STYLE.md "Toolbar field labels".
