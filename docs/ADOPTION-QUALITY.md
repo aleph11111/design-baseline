@@ -81,7 +81,7 @@ audit" split:
    behind a tsconfig `paths` fallback into `node_modules/design-baseline/src/`: a same-named file
    under the aliased local dir (`same-name`), or any file whose head says "Adopted from
    design-baseline" (`adopted-header`). The local copy wins silently, so it keeps rendering the old
-   component after a package bump. No `paths` fallback, no hit; only `<root>/tsconfig.json` is read (no `extends`).
+   component after a package bump. No `paths` fallback, no hit; the config is read from `<root>/tsconfig.json`, following relative `extends` (string or array, later wins) and project `references`, honouring `exclude`, and skipping package `extends` that resolve into `node_modules`.
 
 2. **Per-page conformance pass** (LLM audit): for each flagged route — and every route
    the page-level pass marks `adopted` for a shell archetype — run the archetype's
