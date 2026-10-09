@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { Select, SelectTrigger, SelectValue } from "./select";
+import { hasWidthClass } from "./toolbar-band";
 
 afterEach(() => {
   cleanup();
@@ -63,7 +64,57 @@ describe("SelectTrigger joined label", () => {
     expect(classSet(trigger)).toContain("pl-0");
   });
 
+  it("a width class on a labelled trigger sets the whole box: no content floor, label column yields first", () => {
+    render(
+      <Select value="a">
+        <SelectTrigger label="Verantwortliche Abteilung" className="w-40">
+          <SelectValue>Alle Werte</SelectValue>
+        </SelectTrigger>
+      </Select>
+    );
+    const classes = classSet(screen.getByRole("combobox"));
+    expect(classes).toContain("w-40");
+    expect(classes).not.toContain("grid");
+    expect(classes).not.toContain("min-w-min");
+    // a fixed box is never squeezed by a crowded band
+    expect(classes).toContain("shrink-0");
+    // the label keeps its content width and yields first; surplus goes to the value
+    const labelClasses = classSet(screen.getByRole("combobox").querySelector("[data-joined-label]") as HTMLElement);
+    expect(labelClasses).toContain("shrink-[1000]");
+    expect(labelClasses).toContain("min-w-12");
+  });
+
+  it("a content-sized labelled trigger floors at label floor + full value", () => {
+    render(
+      <Select value="a">
+        <SelectTrigger label="Scenario">
+          <SelectValue>Actuals</SelectValue>
+        </SelectTrigger>
+      </Select>
+    );
+    const classes = classSet(screen.getByRole("combobox"));
+    expect(classes).toContain("min-w-min");
+    expect(classes).toContain("grid-cols-[minmax(3rem,auto)_minmax(max-content,1fr)_auto]");
+  });
+
   it("renders no label cell without the prop", () => {
     expect(renderTrigger().querySelector("[data-joined-label]")).toBeNull();
+  });
+});
+
+describe("hasWidthClass", () => {
+  it("counts an explicit unprefixed width", () => {
+    expect(hasWidthClass("w-28")).toBe(true);
+    expect(hasWidthClass("mt-2 w-40")).toBe(true);
+    expect(hasWidthClass("size-10")).toBe(true);
+  });
+
+  it("ignores no class, other utilities, intrinsic keywords and breakpoint-only widths", () => {
+    expect(hasWidthClass(undefined)).toBe(false);
+    expect(hasWidthClass("mt-2 max-w-sm min-w-0")).toBe(false);
+    expect(hasWidthClass("w-auto")).toBe(false);
+    expect(hasWidthClass("w-fit")).toBe(false);
+    expect(hasWidthClass("w-full")).toBe(false);
+    expect(hasWidthClass("md:w-40")).toBe(false);
   });
 });

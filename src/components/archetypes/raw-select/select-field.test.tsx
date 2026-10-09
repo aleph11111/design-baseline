@@ -94,6 +94,25 @@ describe("SelectField — labeled enum field with a11y wiring", () => {
 });
 
 describe("SelectField in a PageFrame toolbar band", () => {
+  it("a width class on the field (w-40) makes its labelled trigger a fixed box", () => {
+    render(
+      <ToolbarBandContext.Provider value={true}>
+        <SelectField
+          label="Scenario"
+          className="w-40"
+          value="a"
+          onChange={() => {}}
+          options={[{ value: "a", label: "Actuals" }]}
+        />
+      </ToolbarBandContext.Provider>
+    );
+    const trigger = screen.getByRole("combobox", { name: "Scenario" });
+    expect(trigger.className).not.toContain("grid");
+    expect(trigger.querySelector("[data-joined-label]")?.className).toContain("shrink-[1000]");
+    expect(trigger.className).not.toContain("min-w-min");
+    expect(trigger.parentElement?.className).toContain("w-40");
+  });
+
   it("renders the label inside the trigger and names the trigger by it", () => {
     render(
       <ToolbarBandContext.Provider value={true}>

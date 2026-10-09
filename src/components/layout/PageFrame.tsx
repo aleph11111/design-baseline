@@ -173,7 +173,8 @@ export function PageFrame({
     />
   ) : (
       <div className="flex flex-nowrap items-center justify-between gap-x-4">
-        <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-2">
+        {/* p-1/-m-1: room for the 4px focus ring + offset, which overflow-x clips. */}
+        <div className="-m-1 flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-x-auto p-1">
           <ToolbarBandContext.Provider value={true}>
             {viewSwitch}
             {inlineFields}
@@ -319,7 +320,7 @@ function FilterSheet({
           <ToolbarSizeContext.Provider value="lg">
             <div
               data-filter-sheet=""
-              className="flex flex-col gap-3 [&_[data-joined-label]]:w-[130px] [&>*]:w-full! [&_:is(div,form,fieldset).flex]:flex-col [&_:is(div,form,fieldset).flex]:items-stretch [&_:is(div,form,fieldset).flex]:gap-3 [&_:is(div,form,fieldset).flex>*]:w-full!"
+              className="flex flex-col gap-3 [&_[data-joined-label]]:w-[130px] [&_[data-joined-label]]:shrink-0! [&_button:has([data-joined-label])]:grid-cols-[130px_minmax(0,1fr)_auto]! [&_[role=radiogroup]:has(>[data-joined-label])]:justify-start! [&>*]:w-full! [&_:is(div,form,fieldset).flex]:flex-col [&_:is(div,form,fieldset).flex]:items-stretch [&_:is(div,form,fieldset).flex]:gap-3 [&_:is(div,form,fieldset).flex>*]:w-full!"
             >
               {children}
             </div>

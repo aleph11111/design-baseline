@@ -4,7 +4,7 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { JOINED_LABEL_CLASS, useControlSize } from "./toolbar-band";
+import { FIXED_BOX_LABEL_CLASS, JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useControlSize } from "./toolbar-band";
 
 // ---------------------------------------------------------------------------
 // Radix UI Select primitives
@@ -43,16 +43,26 @@ const SelectTrigger = React.forwardRef<
        * wires its stacked label) unless the caller names the trigger itself.
        */
       label?: React.ReactNode;
+      /**
+       * The labelled trigger sits in a box whose width the caller fixed (default: a width
+       * class on `className`). `SelectField` passes it when ITS root carries the width.
+       */
+      fixedWidth?: boolean;
     }
->(({ className, children, size, label, ...props }, ref) => {
+>(({ className, children, size, label, fixedWidth, ...props }, ref) => {
   const labelId = React.useId();
   const bandSize = useControlSize();
+  const fixed = label != null && (fixedWidth ?? hasWidthClass(className));
   return (
     <SelectPrimitive.Trigger
       ref={ref}
       className={cn(
         selectTriggerVariants({ size: size ?? bandSize }),
-        label != null && "overflow-hidden pl-0",
+        label != null &&
+          (fixed
+            ? // fixed box: plain flex row — the label gives way first (FIXED_BOX_LABEL_CLASS), then the value truncates
+              "shrink-0 overflow-hidden pl-0"
+            : "grid min-w-min grid-cols-[minmax(3rem,auto)_minmax(max-content,1fr)_auto] overflow-hidden pl-0"),
         className
       )}
       {...props}
@@ -64,8 +74,8 @@ const SelectTrigger = React.forwardRef<
       }
     >
       {label != null && (
-        <span id={labelId} data-joined-label="" className={cn(JOINED_LABEL_CLASS, "border-r border-input")}>
-          {label}
+        <span id={labelId} data-joined-label="" className={cn(JOINED_LABEL_CLASS, "border-r border-input", fixed && FIXED_BOX_LABEL_CLASS)}>
+          <JoinedLabelText>{label}</JoinedLabelText>
         </span>
       )}
       {children}

@@ -31,9 +31,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { ToggleField } from "@/components/ui/toggle-field";
 import { SelectField } from "@/components/archetypes/raw-select";
+import { NativeField } from "@/components/archetypes/raw-input";
 import { SearchInput } from "@/components/ui/search-input";
 import { Input } from "@/components/ui/input";
-import { ControlDensityProvider } from "@/components/ui/toolbar-band";
+import { ControlDensityProvider, JOINED_LABEL_CLASS, JoinedLabelText } from "@/components/ui/toolbar-band";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { StateView } from "@/components/ui/state-view";
@@ -790,6 +791,67 @@ function PageFrameDemo() {
         >
           {rows}
         </PageFrame>
+      </Variant>
+      <Variant label="crowded band — joined labels give way (ellipsis) before the value truncates; checked by `npm run check:joined-label` at 1440px and 430px">
+        <div data-testid="crowded-band">
+          <PageFrame
+            title="Kostenstellen"
+            filterCount={4}
+            toolbar={
+              <>
+                {["Verantwortliche Abteilung", "Kostenstellengruppe"].map((l) => (
+                  <SelectField key={l} label={l} value="all" onChange={() => {}} options={[{ value: "all", label: "Alle Werte (ungefiltert)" }]} />
+                ))}
+                <SegmentedControl
+                  label="Genehmigungsstatus"
+                  value="a"
+                  onValueChange={() => {}}
+                  options={[{ value: "a", label: "Alle" }, { value: "b", label: "Offen" }]}
+                />
+                <NativeField label="Buchungsperiode Geschäftsjahr" type="number" value={2026} onChange={() => {}} />
+              </>
+            }
+          >
+            {rows}
+          </PageFrame>
+          {/* a custom flex consumer of the shared class: its label must yield before its value */}
+          <div data-flex-consumer="" className="mt-3 flex h-9 w-56 overflow-hidden rounded-md border">
+            <span data-joined-label="" className={`${JOINED_LABEL_CLASS} border-r`}>
+              <JoinedLabelText>Verantwortliche Abteilung</JoinedLabelText>
+            </span>
+            <span className="flex shrink-0 items-center px-3 text-sm">Alle Werte (ungefiltert)</span>
+          </div>
+        </div>
+      </Variant>
+      <Variant label="explicit width sets the whole joined box (label + control): the label yields first, then the value truncates; nothing overflows — checked by `npm run check:joined-label`">
+        <div data-testid="fixed-width-band">
+          <PageFrame
+            title="Feste Breite"
+            filterCount={4}
+            toolbar={
+              <>
+                <NativeField label="Wochen" type="number" className="w-28" value={12} onChange={() => {}} />
+                <NativeField label="Suche" type="number" className="w-80" value={12} onChange={() => {}} />
+                <SelectField
+                  label="Jahr"
+                  className="w-64"
+                  value="all"
+                  onChange={() => {}}
+                  options={[{ value: "all", label: "2026" }]}
+                />
+                <SelectField
+                  label="Verantwortliche Abteilung"
+                  className="w-40"
+                  value="all"
+                  onChange={() => {}}
+                  options={[{ value: "all", label: "Alle Werte (ungefiltert)" }]}
+                />
+              </>
+            }
+          >
+            {rows}
+          </PageFrame>
+        </div>
       </Variant>
       <Variant label="nested PageFrame (derived, no prop) — titles itself with NestedPageHeading and joins the parent's surface">
         <PageFrame
