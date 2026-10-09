@@ -1,7 +1,7 @@
 ---
 area: i18n
 opened: 2026-10-08
-status: needs-enrichment
+status: done
 value: high
 gate:
   score: 4
