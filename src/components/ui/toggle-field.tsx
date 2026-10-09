@@ -2,7 +2,7 @@
 import * as React from "react";
 import * as SwitchPrimitives from "@radix-ui/react-switch";
 import { cn } from "../../lib/utils";
-import { JOINED_LABEL_CLASS, useControlSize, useInToolbarBand } from "./toolbar-band";
+import { JOINED_LABEL_CLASS, JoinedLabelText, useControlSize, useInToolbarBand } from "./toolbar-band";
 
 export type ToggleFieldProps = Omit<
   React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>,
@@ -52,13 +52,14 @@ export const ToggleField = React.forwardRef<
       className={cn(
         "group inline-flex items-stretch overflow-hidden rounded-md border font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
         size.box,
+        label != null && joined && "inline-grid min-w-min grid-cols-[minmax(3rem,auto)_auto]",
         className,
       )}
       {...props}
     >
       {label != null && joined && (
         <span id={labelId} data-joined-label="" className={cn(JOINED_LABEL_CLASS, "border-r")}>
-          {label}
+          <JoinedLabelText>{label}</JoinedLabelText>
         </span>
       )}
       <span

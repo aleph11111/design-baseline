@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.9.2
+
+- **Fixed:** a joined toolbar label (`SelectTrigger` / `SelectField`, `SegmentedControl`, `ToggleField`, `NativeField` with `label` in a `PageFrame` band) now shrinks and ellipsizes before the control's value truncates (`Statu…`). A labelled control lays out as a grid (label column `minmax(3rem,auto)`, value columns at content width), so its minimum width is label floor + full value; `JOINED_LABEL_CLASS` is `min-w-0` + `shrink` + `overflow-hidden`; new `JoinedLabelText` (exported from `ui/toolbar-band`) provides the real ellipsis. The desktop band scrolls horizontally (focus rings preserved) instead of overflowing; the mobile filter sheet's 130px label column is unchanged.
+- **Consumer:** none required. A custom joined label built from `JOINED_LABEL_CLASS` now shrinks and clips its text (no overlap onto the value); wrap the text in `JoinedLabelText` to get the ellipsis. New `npm run check:joined-label` (real Chrome) guards the behaviour.
+- **Breaking:** no.
+
 ## v0.9.1
 
 - **Changed:** under `AppShell density="touch"` (or `ControlDensityProvider`), `Button` with explicit `size="icon"` or `"icon-sm"` now renders `icon-lg` (`h-11 w-11`, 44pt), as do `PaginationLink` and the `DialogContent`/`SheetContent` close button. Unchanged without the setting.

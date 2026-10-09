@@ -84,6 +84,18 @@ export function useControlSize(): "lg" | undefined {
  * toolbar filter reads "Scenario | Actuals ▾" as one box of the control's
  * height (STYLE.md "Toolbar field labels"). Shared by SelectTrigger's and
  * SegmentedControl's `label`, and by SelectField / NativeField in a band.
+ *
+ * The label is the elastic part of a crowded band: it shrinks (and ellipsizes
+ * via `JoinedLabelText`) before the control's value does. A control with a
+ * label lays out as a grid whose label column is `minmax(JOINED_LABEL_FLOOR,
+ * auto)` and whose value columns are never narrower than their content, so the
+ * control's own minimum width is label floor + full value: it stops shrinking
+ * there and the band scrolls instead of clipping the value.
  */
 export const JOINED_LABEL_CLASS =
-  "flex shrink-0 items-center self-stretch whitespace-nowrap bg-muted px-3 font-normal text-muted-foreground";
+  "flex min-w-0 shrink items-center overflow-hidden self-stretch whitespace-nowrap bg-muted px-3 font-normal text-muted-foreground";
+
+/** The label's text, ellipsized — `text-overflow` is inert on the label's own flex container. */
+export function JoinedLabelText({ children }: { children: React.ReactNode }): React.ReactElement {
+  return <span className="truncate">{children}</span>;
+}

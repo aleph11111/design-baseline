@@ -190,7 +190,7 @@ describe("NativeField in a PageFrame toolbar band", () => {
     const input = screen.getByLabelText("Wochen");
     expect(input.className).toContain("rounded-l-none");
     // Label and control share one row: same parent, label first.
-    const label = screen.getByText("Wochen");
+    const label = screen.getByText("Wochen").closest("label") as HTMLElement;
     expect(label.nextElementSibling?.contains(input)).toBe(true);
   });
 

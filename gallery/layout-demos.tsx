@@ -31,6 +31,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { ToggleField } from "@/components/ui/toggle-field";
 import { SelectField } from "@/components/archetypes/raw-select";
+import { NativeField } from "@/components/archetypes/raw-input";
 import { SearchInput } from "@/components/ui/search-input";
 import { Input } from "@/components/ui/input";
 import { ControlDensityProvider } from "@/components/ui/toolbar-band";
@@ -790,6 +791,30 @@ function PageFrameDemo() {
         >
           {rows}
         </PageFrame>
+      </Variant>
+      <Variant label="crowded band — joined labels give way (ellipsis) before the value truncates; checked by `npm run check:joined-label` at 1440px and 430px">
+        <div data-testid="crowded-band">
+          <PageFrame
+            title="Kostenstellen"
+            filterCount={4}
+            toolbar={
+              <>
+                {["Verantwortliche Abteilung", "Kostenstellengruppe"].map((l) => (
+                  <SelectField key={l} label={l} value="all" onChange={() => {}} options={[{ value: "all", label: "Alle Werte (ungefiltert)" }]} />
+                ))}
+                <SegmentedControl
+                  label="Genehmigungsstatus"
+                  value="a"
+                  onValueChange={() => {}}
+                  options={[{ value: "a", label: "Alle" }, { value: "b", label: "Offen" }]}
+                />
+                <NativeField label="Buchungsperiode Geschäftsjahr" type="number" value={2026} onChange={() => {}} />
+              </>
+            }
+          >
+            {rows}
+          </PageFrame>
+        </div>
       </Variant>
       <Variant label="nested PageFrame (derived, no prop) — titles itself with NestedPageHeading and joins the parent's surface">
         <PageFrame

@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { cn } from "../../lib/utils";
-import { JOINED_LABEL_CLASS, useControlSize } from "./toolbar-band";
+import { JOINED_LABEL_CLASS, JoinedLabelText, useControlSize } from "./toolbar-band";
 
 export type SegmentedOption<T extends string> = {
   value: T;
@@ -71,8 +71,12 @@ export function SegmentedControl<T extends string>({
       onValueChange={(next) => onValueChange(next as T)}
       aria-label={rest["aria-label"]}
       aria-labelledby={label != null && rest["aria-label"] == null ? labelId : undefined}
+      // Label column floors at 3rem; every segment keeps its content width.
+      style={label != null ? { gridTemplateColumns: `minmax(3rem,auto) repeat(${options.length},auto)` } : undefined}
       className={cn(
         "inline-flex items-stretch gap-1 overflow-hidden rounded-md border p-0.5",
+        // min-w-min: overflow-hidden would otherwise zero the flex item's automatic minimum.
+        label != null && "inline-grid min-w-min",
         geometry.track,
         className,
       )}
@@ -84,7 +88,7 @@ export function SegmentedControl<T extends string>({
           data-joined-label=""
           className={cn(JOINED_LABEL_CLASS, "-my-0.5 -ml-0.5 border-r", size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm")}
         >
-          {label}
+          <JoinedLabelText>{label}</JoinedLabelText>
         </span>
       )}
       {options.map((opt) => {
@@ -96,6 +100,7 @@ export function SegmentedControl<T extends string>({
             value={opt.value}
             className={cn(
               "inline-flex items-center gap-1.5 rounded font-medium transition-colors",
+              label != null && "whitespace-nowrap",
               geometry.pill,
               active
                 ? "bg-primary text-primary-foreground"

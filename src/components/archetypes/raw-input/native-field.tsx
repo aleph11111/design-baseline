@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Input, type InputSize } from "../../ui/input";
 import { cn } from "../../../lib/utils";
-import { JOINED_LABEL_CLASS, useInToolbarBand } from "../../ui/toolbar-band";
+import { JOINED_LABEL_CLASS, JoinedLabelText, useInToolbarBand } from "../../ui/toolbar-band";
 import {
   FIELD_ERROR_RING,
   FieldError,
@@ -265,16 +265,16 @@ export function NativeField({
       )}
       required={required}
     >
-      {label}
+      {joined ? <JoinedLabelText>{label}</JoinedLabelText> : label}
     </FieldLabel>
   );
 
   return (
     <FieldFrame className={className}>
       {joined ? (
-        <div className="flex">
+        <div className="grid grid-cols-[minmax(3rem,auto)_1fr]">
           {fieldLabel}
-          <div className="min-w-0 flex-1">{control}</div>
+          <div>{control}</div>
         </div>
       ) : (
         <>
