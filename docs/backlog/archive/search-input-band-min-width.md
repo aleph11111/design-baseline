@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: 2026-10-09
-status: needs-enrichment
+status: done
 model: sonnet
 model_reason: "scoped change following the existing joined-label width rule and ToolbarBandContext pattern; floor value decided"
 value: normal
