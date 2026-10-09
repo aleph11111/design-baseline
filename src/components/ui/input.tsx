@@ -2,7 +2,7 @@
 import * as React from "react"
 
 import { cn } from "../../lib/utils"
-import { ToolbarSizeContext } from "./toolbar-band"
+import { useControlSize } from "./toolbar-band"
 
 // Control height ladder (docs/STYLE.md "Control heights"). `default` keeps the
 // base `h-9` + responsive text size; sm/lg override both. `sm14` and `lg18`
@@ -25,7 +25,7 @@ type InputProps = Omit<React.ComponentProps<"input">, "size"> & {
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, size, ...props }, ref) => {
-    const bandSize = React.useContext(ToolbarSizeContext)
+    const bandSize = useControlSize()
     return (
       <input
         type={type}

@@ -2,6 +2,7 @@
 import * as React from "react";
 import { SidebarProvider } from "../ui/sidebar";
 import { TooltipProvider } from "../ui/tooltip";
+import { ControlDensityProvider } from "../ui/toolbar-band";
 import { Toaster as Sonner } from "../ui/sonner";
 
 export interface AppShellProps {
@@ -15,6 +16,11 @@ export interface AppShellProps {
    * renders once.
    */
   toaster?: boolean;
+  /**
+   * `"touch"` resolves every control that takes no explicit `size` to the `lg`
+   * step (44pt) across the whole app, overlays included. Defaults to `"default"`.
+   */
+  density?: "default" | "touch";
 }
 
 export function AppShell({
@@ -23,6 +29,7 @@ export function AppShell({
   children,
   defaultSidebarOpen = true,
   toaster = true,
+  density = "default",
 }: AppShellProps) {
   // Publish the sticky header slot's height as --db-sticky-top, so page-level
   // sticky elements (the detail-overview rail) pin just below it rather than
@@ -41,6 +48,7 @@ export function AppShell({
   }, []);
 
   return (
+    <ControlDensityProvider density={density}>
     <TooltipProvider>
       <SidebarProvider defaultOpen={defaultSidebarOpen}>
         {/* Window scroll: the document grows with the page, so full-page
@@ -76,5 +84,6 @@ export function AppShell({
       </SidebarProvider>
       {toaster && <Sonner />}
     </TooltipProvider>
+    </ControlDensityProvider>
   );
 }

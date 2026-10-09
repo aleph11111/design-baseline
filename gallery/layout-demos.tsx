@@ -33,6 +33,8 @@ import { ToggleField } from "@/components/ui/toggle-field";
 import { SelectField } from "@/components/archetypes/raw-select";
 import { SearchInput } from "@/components/ui/search-input";
 import { Input } from "@/components/ui/input";
+import { ControlDensityProvider } from "@/components/ui/toolbar-band";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { StateView } from "@/components/ui/state-view";
 import { IconAvatar } from "@/components/ui/icon-avatar";
@@ -844,6 +846,37 @@ function ButtonSizesDemo() {
   );
 }
 
+/** `AppShell density="touch"` (same provider) beside the default: unsized controls resolve to `lg`. */
+function ControlDensityDemo(): React.ReactElement {
+  const row = (
+    <div className="flex flex-wrap items-center gap-3">
+      <Button>Save</Button>
+      <Input className="w-40" placeholder="Name" />
+      <SearchInput clearable defaultValue="abc" />
+      <Tabs defaultValue="a">
+        <TabsList>
+          <TabsTrigger value="a">Open</TabsTrigger>
+          <TabsTrigger value="b">Done</TabsTrigger>
+        </TabsList>
+      </Tabs>
+    </div>
+  );
+  return (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <p className="text-sm text-muted-foreground">density="default"</p>
+        {row}
+      </div>
+      <ControlDensityProvider density="touch">
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">density="touch"</p>
+          {row}
+        </div>
+      </ControlDensityProvider>
+    </div>
+  );
+}
+
 export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "button-sizes", displayName: "Button sizes", Demo: ButtonSizesDemo },
   { slug: "page-frame", displayName: "PageFrame", Demo: PageFrameDemo },
@@ -865,6 +898,7 @@ export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "status-chip-tier", displayName: "Status chip tier (Badge / Alert)", Demo: StatusChipTierDemo },
   { slug: "cell-field", displayName: "CellInput / CellSelect", Demo: CellFieldDemo },
   { slug: "section-nav", displayName: "SectionNavShell", Demo: SectionNavDemo },
+  { slug: "control-density", displayName: "Control density (AppShell density)", Demo: ControlDensityDemo },
 ];
 
 export function findLayoutPrim(slug: string | undefined): LayoutPrim | undefined {

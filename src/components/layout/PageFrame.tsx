@@ -5,7 +5,7 @@ import { ListFilter, SlidersHorizontal } from "lucide-react";
 import { PageHeader, type PageHeaderProps } from "./PageHeader";
 import { NestedPageHeading } from "./NestedPageHeading";
 import { SurfaceFrame } from "./SurfaceFrame";
-import { ToolbarBandContext, ToolbarSizeContext } from "../ui/toolbar-band";
+import { ToolbarBandContext, ToolbarSizeContext, useControlSize } from "../ui/toolbar-band";
 import { Button } from "../ui/button";
 import {
   Sheet,
@@ -370,6 +370,7 @@ function MobileBand({
   viewOptions: React.ReactNode;
   viewOptionsLabel: string;
 }): React.ReactElement {
+  const touch = useControlSize() === "lg";
   return (
     <div className="flex flex-col gap-2">
       {viewSwitch && (
@@ -394,7 +395,7 @@ function MobileBand({
         {viewOptions && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="ml-auto shrink-0" aria-label={viewOptionsLabel}>
+              <Button variant="outline" size={touch ? "icon-lg" : "icon"} className="ml-auto shrink-0" aria-label={viewOptionsLabel}>
                 <SlidersHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
