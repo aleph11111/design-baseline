@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: '2026-10-08'
-status: blocked
+status: ready
 gate:
   score: 4
   passed:
@@ -16,10 +16,6 @@ gate:
         pick before /feat
   graded_at: '2026-10-08T00:00:00.000Z'
 value: normal
-blocked_reason: >-
-  review: PR https://github.com/aleph11111/design-baseline/pull/514 had 5 /ship review-gate rounds
-  that did not approve. Read the <!-- review-gate --> comments on the PR, decide how to proceed,
-  then release the ticket with back 2 ready.
 ---
 
 # PageFrame crowded toolbar band overflow rule, enforcement, and version bump
@@ -80,3 +76,7 @@ default in the What-to-do bullets; alternatives recorded so the choice is revers
   collapses any box that does not fit the current viewport. Handles "5 fits, 6 doesn't" gracefully
   across widths. Cost: introduces a width-measuring hook the donor does not have today — new
   machinery in a no-build source package.
+
+## Operator unblock (round cap)
+
+Operator unblocked after round-cap: joined-label shrink split to joined-label-shrinks-before-value; re-shipping PR #514.
