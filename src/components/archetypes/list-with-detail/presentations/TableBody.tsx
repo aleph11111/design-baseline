@@ -1,4 +1,5 @@
 "use client";
+import { useLabels } from "../../../../lib/labels";
 import * as React from "react";
 import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import {
@@ -72,6 +73,7 @@ export function TableBody<Row>({
   onSortChange,
   onRowSelect,
 }: TableBodyProps<Row>): React.ReactElement {
+  const L = useLabels();
   const hasActions = rowActions !== undefined && rowActions.length > 0;
 
   function handleSortClick(columnKey: string) {
@@ -132,7 +134,7 @@ export function TableBody<Row>({
           })}
           {hasActions && (
             <TableHead className="w-12">
-              <span className="sr-only">{rowActionsLabel || "Row actions"}</span>
+              <span className="sr-only">{rowActionsLabel || L.rowActions}</span>
             </TableHead>
           )}
         </TableRow>

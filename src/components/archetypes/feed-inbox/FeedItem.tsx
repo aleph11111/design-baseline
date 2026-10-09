@@ -3,6 +3,7 @@ import * as React from "react";
 import { IconAvatar } from "../../ui/icon-avatar";
 import { cn } from "../../../lib/utils";
 import { getInteractiveRowProps, interactiveRowFocusRing } from "../shared";
+import { useLabels } from "../../../lib/labels";
 
 export type FeedItemProps = {
   /**
@@ -51,11 +52,13 @@ export function FeedItem({
   body,
   media,
   unread,
-  unreadLabel = "Unread",
+  unreadLabel: unreadLabelProp,
   actions,
   onClick,
   className,
 }: FeedItemProps): React.ReactElement {
+  const L = useLabels();
+  const unreadLabel = unreadLabelProp ?? L.unread;
   return (
     <div
       onClick={onClick}

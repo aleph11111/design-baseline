@@ -11,6 +11,7 @@ import {
   FieldLabel,
   useFieldIds,
 } from "../archetypes/shared/fieldFrame";
+import { useLabels } from "../../lib/labels";
 
 // The shared owner of a **native file input** — the other shadcn gap the fleet
 // kept hand-rolling (brickshop photo/invoice/logo pickers, controlling-app
@@ -82,7 +83,7 @@ export function FileField({
   busy,
   variant = "button",
   label,
-  triggerLabel = "Choose file…",
+  triggerLabel: triggerLabelProp,
   hint,
   error,
   required,
@@ -94,6 +95,8 @@ export function FileField({
   inputClassName,
   className,
 }: FileFieldProps): React.ReactElement {
+  const L = useLabels();
+  const triggerLabel = triggerLabelProp ?? L.chooseFile;
   const ref = React.useRef<HTMLInputElement>(null);
   const isDisabled = disabled || busy;
   // Frame wiring — the label associates with the visible trigger (not the
@@ -229,7 +232,7 @@ export function FileField({
               {onClear && (
                 <button
                   type="button"
-                  aria-label={`Remove ${file.name}`}
+                  aria-label={L.removeFile(file.name)}
                   onClick={onClear}
                   className="ml-auto rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >

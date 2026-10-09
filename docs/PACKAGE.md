@@ -333,7 +333,7 @@ What the normalisation reveals is the fork, and the fork decides the file's fate
 | identical | vendor drift only — the consumer carried stale copy | **delete** the project file; the alias array resolves the package's copy (C2) |
 | differs, donor is ahead | consumer copy is behind a donor change | **take the package's file** — delete the project copy, same as identical |
 | differs, consumer is ahead **and general** | a change worth promoting back | keep the project file (it shadows the package's via the project-first array) and `/promote-archetype` it; delete it only once the promotion lands in the donor and the consumer re-points at that new tag |
-| differs, **locale** | not drift at all — the consumer's copy is its own localisation | **permanent consumer-owned file** — keep it, never un-fork it at file granularity (the packaged surface is English defaults overridable per call site) |
+| differs, **locale** | not drift at all — the consumer's copy is its own localisation | **permanent consumer-owned file** — keep it, never un-fork it at file granularity (the packaged surface is English defaults, overridable per call site, with `BaselineLabelsProvider` — `design-baseline/lib/labels`, presets `labelsEn` / `labelsDe` — as the tier below per-call props: per-call prop → provider preset → English default) |
 
 Measured against hk-crm at tag `v0.2.1` (the `v0.2.0` baseline is in the
 `## Outcome` of `package-ui-ownership-and-vendored-consumer-runbook`; its 8 forked

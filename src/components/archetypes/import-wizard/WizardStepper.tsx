@@ -1,4 +1,5 @@
 "use client";
+import { useLabels } from "../../../lib/labels";
 import * as React from "react";
 import { Check } from "lucide-react";
 import { cn } from "../../../lib/utils";
@@ -26,16 +27,17 @@ export function WizardStepper({
   stateLabels,
   className,
 }: WizardStepperProps): React.ReactElement {
+  const L = useLabels();
   return (
     <ol className={cn("flex items-center gap-2", className)}>
       {steps.map((step, i) => {
         const done = i < current;
         const active = i === current;
         const stateWord = done
-          ? (stateLabels?.completed ?? "completed")
+          ? (stateLabels?.completed ?? L.completed)
           : active
-            ? (stateLabels?.current ?? "current")
-            : (stateLabels?.upcoming ?? "upcoming");
+            ? (stateLabels?.current ?? L.current)
+            : (stateLabels?.upcoming ?? L.upcoming);
         return (
           <li
             key={step.key}

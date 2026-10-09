@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "../../ui/dropdown-menu";
 import { Button } from "../../ui/button";
+import { useLabels } from "../../../lib/labels";
 
 /**
  * One menu action. `label` and `disabled` accept either a value or a function of
@@ -79,9 +80,11 @@ function isHeading<Row>(item: RowActionItem<Row>): item is RowActionLabel {
 export function RowActionsMenu<Row>({
   row,
   actions,
-  triggerLabel = "Row actions",
+  triggerLabel: triggerLabelProp,
   triggerDisabled,
 }: RowActionsMenuProps<Row>): React.ReactElement {
+  const L = useLabels();
+  const triggerLabel = triggerLabelProp ?? L.rowActions;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

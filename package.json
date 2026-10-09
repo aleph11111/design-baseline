@@ -1,6 +1,6 @@
 {
   "name": "design-baseline",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "private": true,
   "engines": {
     "node": ">=22"
@@ -30,6 +30,7 @@
     "./vite/design-baseline-ui": "./src/vite/design-baseline-ui.mjs",
     "./lib/utils": "./src/lib/utils.ts",
     "./lib/format": "./src/lib/format.ts",
+    "./lib/labels": "./src/lib/labels.tsx",
     "./hooks/*": "./src/hooks/*.ts",
     "./utils/logger": "./src/utils/logger.ts",
     "./tokens.layer.css": "./src/styles/tokens.layer.css"

@@ -9,6 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./alert-dialog";
+import { useLabels } from "../../lib/labels";
 
 interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -27,10 +28,11 @@ export const ConfirmationDialog = ({
   onConfirm,
   title,
   description,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  confirmText,
+  cancelText,
   variant = "default"
 }: ConfirmationDialogProps) => {
+  const L = useLabels();
   const handleConfirm = () => {
     onConfirm();
     onClose();
@@ -47,13 +49,13 @@ export const ConfirmationDialog = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onClose}>
-            {cancelText}
+            {cancelText ?? L.cancel}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
             className={variant === "destructive" ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
           >
-            {confirmText}
+            {confirmText ?? L.confirm}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

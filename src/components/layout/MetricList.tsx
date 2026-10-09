@@ -42,6 +42,7 @@ import {
   CollapsibleTrigger,
 } from "../ui/collapsible";
 import { ChevronDown } from "lucide-react";
+import { useLabels } from "../../lib/labels";
 
 export type MetricRowProps = {
   label: React.ReactNode;
@@ -118,10 +119,13 @@ export type MetricListProps = {
 export function MetricList({
   children,
   more,
-  moreLabel = "Show more",
-  lessLabel = "Show less",
+  moreLabel: moreLabelProp,
+  lessLabel: lessLabelProp,
   className,
 }: MetricListProps): React.ReactElement {
+  const L = useLabels();
+  const lessLabel = lessLabelProp ?? L.showLess;
+  const moreLabel = moreLabelProp ?? L.showMore;
   const [open, setOpen] = React.useState(false);
   return (
     <div className={cn("divide-y divide-border", className)}>

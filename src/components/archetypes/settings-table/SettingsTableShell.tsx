@@ -23,6 +23,7 @@ import {
 } from "../shared";
 import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
 import { cn } from "../../../lib/utils";
+import { useLabels, type BaselineLabels } from "../../../lib/labels";
 import { logger } from "../../../utils/logger";
 
 // Ambient so the donor typechecks without @types/node; consumers bring their own.
@@ -82,12 +83,6 @@ export type SettingsTableLabels<Row = unknown> = {
  * override; a non-primitive identifier cell falls back to the flat
  * `selectRow` default below.
  */
-const DEFAULT_SETTINGS_TABLE_LABELS = {
-  selectAll: "Select all rows",
-  selectRow: "Select row",
-  selectedCount: (count: number) => `${count} selected`,
-  deleteSelected: (count: number) => `Delete ${count} selected`,
-};
 
 /**
  * The frameless settings table — everything a D2 page renders below its own
@@ -309,6 +304,7 @@ function computeBulkSelection<Row>(
  * caller's checkboxes/bulk actions.
  */
 function resolveCountLabel<Row>({
+  L,
   rows,
   selection,
   rowLabel,
@@ -316,6 +312,7 @@ function resolveCountLabel<Row>({
   bulkActions,
   onBulkDelete,
 }: {
+  L: BaselineLabels;
   rows: Row[];
   selection: BulkSelection;
   rowLabel?: string | ((count: number) => string);
@@ -326,7 +323,7 @@ function resolveCountLabel<Row>({
   const { visibleSelected, hasBulkSelection } = selection;
   const showBulkActions = hasBulkSelection && (Boolean(bulkActions) || onBulkDelete != null);
   if (showBulkActions) {
-    return (labels?.selectedCount ?? DEFAULT_SETTINGS_TABLE_LABELS.selectedCount)(
+    return (labels?.selectedCount ?? L.selectedCount)(
       visibleSelected.length,
     );
   }
@@ -343,16 +340,17 @@ function resolveCountLabel<Row>({
  */
 function SettingsTableAddButton({
   onAddNew,
-  label = "Add new",
+  label,
 }: {
   onAddNew?: () => void;
   label?: string;
 }): React.ReactElement | null {
+  const L = useLabels();
   if (!onAddNew) return null;
   return (
     <Button variant="default" onClick={onAddNew}>
       <Plus className="mr-1 h-4 w-4" />
-      {label}
+      {label ?? L.addNew}
     </Button>
   );
 }
@@ -365,6 +363,7 @@ function SettingsTableAddButton({
  * same "{N} selected" count and clear identically.
  */
 function resolveBulkActions<Row>({
+  L,
   selection,
   rows,
   getRowId,
@@ -373,6 +372,7 @@ function resolveBulkActions<Row>({
   onBulkDelete,
   onBulkSelectChange,
 }: {
+  L: BaselineLabels;
   selection: BulkSelection;
   rows: Row[];
   getRowId: (row: Row) => string;
@@ -383,7 +383,7 @@ function resolveBulkActions<Row>({
 }): { show: boolean; node: React.ReactNode } {
   const show = selection.hasBulkSelection && (Boolean(bulkActions) || onBulkDelete != null);
   if (!show) return { show: false, node: null };
-  const deleteSelected = labels?.deleteSelected ?? DEFAULT_SETTINGS_TABLE_LABELS.deleteSelected;
+  const deleteSelected = labels?.deleteSelected ?? L.deleteSelected;
   const handleBulkDelete = () => {
     if (!onBulkDelete || !onBulkSelectChange) return;
     const selectedRows = rows.filter((row) => selection.selectedSet.has(getRowId(row)));
@@ -437,7 +437,7 @@ export function SettingsTableBody<Row>({
   getRowLabel,
   onRowEdit,
   onAddNew,
-  addNewLabel = "Add new",
+  addNewLabel: addNewLabelProp,
   toolbar,
   rowLabel,
   bulkActions,
@@ -459,6 +459,8 @@ export function SettingsTableBody<Row>({
   const hasActions =
     typeof rowActions === "function" ||
     (rowActions !== undefined && rowActions.length > 0);
+  const L = useLabels();
+  const addNewLabel = addNewLabelProp ?? L.addNew;
   const hasBulk = bulkSelectable === true;
 
   const selection = computeBulkSelection(rows, getRowId, selectedIds, hasBulk);
@@ -467,7 +469,7 @@ export function SettingsTableBody<Row>({
   // The body's built-in select-all checkbox label — the consumer's `labels` merged over the
   // default with `??` (a spread would let an explicit `undefined` replace a default).
   // `ListStateView` handles its own loading/error/retry defaults from the raw `labels`.
-  const selectAllLabel = labels?.selectAll ?? DEFAULT_SETTINGS_TABLE_LABELS.selectAll;
+  const selectAllLabel = labels?.selectAll ?? L.selectAll;
 
   // Identifier column — the default row-checkbox aria-label source.
   const identifierCol = columns.find((c) => c.isIdentifier);
@@ -478,12 +480,12 @@ export function SettingsTableBody<Row>({
       if (identifierCol) {
         const cellVal = identifierCol.cell(row);
         if (typeof cellVal === "string" || typeof cellVal === "number") {
-          return `Select row: ${cellVal}`;
+          return L.selectRowNamed(cellVal);
         }
       }
       const name = getRowLabel?.(row);
-      if (name) return `Select row: ${name}`;
-      return DEFAULT_SETTINGS_TABLE_LABELS.selectRow;
+      if (name) return L.selectRowNamed(name);
+      return L.selectRow;
     }
     return typeof sel === "function" ? sel(row) : sel;
   }
@@ -632,6 +634,7 @@ export function SettingsTableBody<Row>({
   // header to hold these controls. The table's scroll region sits BELOW the band so the band
   // stays in view while the table scrolls.
   const countLabel = resolveCountLabel({
+    L,
     rows,
     selection,
     rowLabel,
@@ -640,6 +643,7 @@ export function SettingsTableBody<Row>({
     onBulkDelete,
   });
   const bulkNode = resolveBulkActions({
+    L,
     selection,
     rows,
     getRowId,
@@ -739,7 +743,7 @@ export function SettingsTableShell<Row>({
   getRowLabel,
   onRowEdit,
   onAddNew,
-  addNewLabel = "Add new",
+  addNewLabel: addNewLabelProp,
   toolbar,
   rowLabel,
   bulkActions,
@@ -757,6 +761,8 @@ export function SettingsTableShell<Row>({
   onBulkSelectChange,
   ...frame
 }: SettingsTableShellProps<Row>): React.ReactElement {
+  const L = useLabels();
+  const addNewLabel = addNewLabelProp ?? L.addNew;
   const hasBulk = bulkSelectable === true;
 
   // Derive the same selection state the body derives (a pure function of the shared props); the
@@ -766,6 +772,7 @@ export function SettingsTableShell<Row>({
   // Frame's count slot (ADR-0008 slot map): "{n} selected" in bulk mode, else "{n} {rowLabel}" —
   // the same derivation the body's band caption uses.
   const count = resolveCountLabel({
+    L,
     rows,
     selection,
     rowLabel,
@@ -775,6 +782,7 @@ export function SettingsTableShell<Row>({
   });
 
   const bulkNode = resolveBulkActions({
+    L,
     selection,
     rows,
     getRowId,

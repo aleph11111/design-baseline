@@ -12,6 +12,7 @@ import { cn } from "../../lib/utils";
 import { OVERLINE_CLASS } from "./overline";
 import { isNavPathActive } from "./navMatch";
 import type { NavItem } from "./Sidebar";
+import { useLabels } from "../../lib/labels";
 
 /** A `NavItem`, so one route list feeds `<AppSidebar>` and `<BottomNav>` alike. */
 export interface BottomNavItem extends NavItem {
@@ -57,10 +58,14 @@ export function BottomNav({
   pathname,
   renderLink,
   moreItems,
-  moreLabel = "More",
-  navLabel = "Bottom navigation",
-  moreMenuLabel = "Open more menu",
+  moreLabel: moreLabelProp,
+  navLabel: navLabelProp,
+  moreMenuLabel: moreMenuLabelProp,
 }: BottomNavProps) {
+  const L = useLabels();
+  const moreMenuLabel = moreMenuLabelProp ?? L.openMoreMenu;
+  const navLabel = navLabelProp ?? L.bottomNav;
+  const moreLabel = moreLabelProp ?? L.more;
   const [open, setOpen] = useState(false);
 
   return (

@@ -1,3 +1,5 @@
+import { labelsEn } from "../../../lib/labels";
+
 /**
  * Derive an English present-continuous submitting label from an action label:
  * strip a trailing "e" and append "ing…" ("Save" → "Saving…", "Create" →
@@ -22,9 +24,10 @@ export function deriveSubmittingLabel(label: string): string {
 export function resolveSubmittingLabel(
   primaryLabel: string | undefined,
   submittingLabel: string | undefined,
+  fallback: string = labelsEn.saving,
 ): string {
   return (
     submittingLabel ??
-    (primaryLabel ? deriveSubmittingLabel(primaryLabel) : "Saving…")
+    (primaryLabel ? deriveSubmittingLabel(primaryLabel) : fallback)
   );
 }

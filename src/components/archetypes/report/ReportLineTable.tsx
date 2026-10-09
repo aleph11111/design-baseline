@@ -1,4 +1,5 @@
 "use client";
+import { useLabels } from "../../../lib/labels";
 import * as React from "react";
 import { cn } from "../../../lib/utils";
 import { FigureTable, FigureRow } from "../shared";
@@ -44,10 +45,12 @@ export type ReportLineTableProps = {
  * `<ReportLineRow>`; the header row is rendered automatically from `columns`.
  */
 export function ReportLineTable({
-  columns = ["Position", "Qty", "Unit", "Sum"],
+  columns: columnsProp,
   children,
   className,
 }: ReportLineTableProps): React.ReactElement {
+  const L = useLabels();
+  const columns = columnsProp ?? L.reportColumns;
   return (
     <FigureTable
       grid={REPORT_GRID}

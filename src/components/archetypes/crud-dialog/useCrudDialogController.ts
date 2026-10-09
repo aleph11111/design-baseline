@@ -2,6 +2,7 @@ import { useRef } from "react";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 import type { UseCrudDialogModeResult } from "./useCrudDialogMode";
 import { deriveSubmittingLabel } from "../shared/submittingLabel";
+import { labelsEn, useLabels } from "../../../lib/labels";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -52,12 +53,12 @@ export type CrudDialogLabels = {
 };
 
 export const DEFAULT_CRUD_DIALOG_LABELS: CrudDialogLabels = {
-  edit: "Edit",
-  create: "Create",
-  save: "Save",
-  close: "Close",
-  cancel: "Cancel",
-  discardPrompt: "Discard changes?",
+  edit: labelsEn.edit,
+  create: labelsEn.create,
+  save: labelsEn.save,
+  close: labelsEn.close,
+  cancel: labelsEn.cancel,
+  discardPrompt: labelsEn.discardPrompt,
 };
 
 export type UseCrudDialogControllerOptions<TValues extends FieldValues> = {
@@ -150,7 +151,17 @@ export function useCrudDialogController<TValues extends FieldValues>(
   // values rather than the (possibly pre-save) `defaultValues` prop.
   const lastSavedValues = useRef<TValues | null>(null);
 
-  const labels: CrudDialogLabels = { ...DEFAULT_CRUD_DIALOG_LABELS, ...options.labels };
+  // Defaults come from the active BaselineLabelsProvider preset (English without one).
+  const L = useLabels();
+  const labels: CrudDialogLabels = {
+    edit: L.edit,
+    create: L.create,
+    save: L.save,
+    close: L.close,
+    cancel: L.cancel,
+    discardPrompt: L.discardPrompt,
+    ...options.labels,
+  };
 
   async function handleClose() {
     // mode.requestDiscard() is the single discard-confirm guard shared with
@@ -217,8 +228,8 @@ export function useCrudDialogController<TValues extends FieldValues>(
     isSubmitting: Boolean(createMutation?.isPending || updateMutation?.isPending),
     primaryLabel: mode.isView ? labels.edit : mode.isCreate ? labels.create : labels.save,
     submittingLabel: mode.isCreate
-      ? labels.creating ?? deriveSubmittingLabel(labels.create)
-      : labels.saving ?? deriveSubmittingLabel(labels.save),
+      ? labels.creating ?? (options.labels?.create ? deriveSubmittingLabel(labels.create) : L.creating)
+      : labels.saving ?? (options.labels?.save ? deriveSubmittingLabel(labels.save) : L.saving),
     secondaryLabel: mode.isView ? labels.close : labels.cancel,
     readOnly: mode.isView,
     showPrimary: mode.isCreate || mode.isEdit || canEdit,

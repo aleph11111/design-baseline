@@ -2,6 +2,7 @@
 import * as React from "react";
 import { ChevronLeft } from "lucide-react";
 import { HeadingRow } from "./HeadingRow";
+import { useLabels } from "../../lib/labels";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -90,10 +91,12 @@ export function PageHeader({
   badges,
   actions,
   backHref,
-  backLabel = "Back",
+  backLabel: backLabelProp,
   renderBackLink,
   className,
 }: PageHeaderProps): React.ReactElement {
+  const L = useLabels();
+  const backLabel = backLabelProp ?? L.back;
   const backLink = backHref
     ? renderBackLink
       ? renderBackLink(backHref, backLabel)

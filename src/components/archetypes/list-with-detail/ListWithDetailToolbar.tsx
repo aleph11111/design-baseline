@@ -2,6 +2,7 @@
 import type { ReactNode } from "react";
 import { SearchInput } from "../../ui/search-input";
 import { cn } from "../../../lib/utils";
+import { useLabels } from "../../../lib/labels";
 
 export type ListWithDetailToolbarProps = {
   searchValue?: string;
@@ -20,11 +21,13 @@ export type ListWithDetailToolbarProps = {
 export function ListWithDetailToolbar({
   searchValue,
   onSearchChange,
-  searchPlaceholder = "Search…",
+  searchPlaceholder: searchPlaceholderProp,
   filters,
   quickFilters,
   className,
 }: ListWithDetailToolbarProps) {
+  const L = useLabels();
+  const searchPlaceholder = searchPlaceholderProp ?? L.searchPlaceholder;
   const hasSearch = onSearchChange !== undefined || searchValue !== undefined;
 
   return (

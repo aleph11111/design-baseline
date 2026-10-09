@@ -1,4 +1,5 @@
 "use client";
+import { useLabels } from "../../../lib/labels";
 import type * as React from "react";
 import { StateView } from "../../ui/state-view";
 import type { ListStatePhase } from "./resolveListState";
@@ -56,6 +57,7 @@ export function ListStateView({
   emptyAction,
   className,
 }: ListStateViewProps): React.ReactElement | null {
+  const L = useLabels();
   if (phase === "content") return null;
 
   if (phase === "loading") {
@@ -78,7 +80,7 @@ export function ListStateView({
   return (
     <StateView
       variant="empty"
-      message={emptyMessage ?? labels?.empty ?? "No items yet"}
+      message={emptyMessage ?? labels?.empty ?? L.empty}
       action={emptyAction}
       className={className}
     />

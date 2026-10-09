@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useLabels } from "../../lib/labels";
 import { Input } from "./input";
 import { cn } from "../../lib/utils";
 import {
@@ -65,6 +66,7 @@ export function ColorField({
   id,
   className,
 }: ColorFieldProps): React.ReactElement {
+  const L = useLabels();
   const {
     fieldId: inputId,
     hintId,
@@ -91,7 +93,7 @@ export function ColorField({
           value={swatchValue}
           disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
-          aria-label={label ?? "Colour"}
+          aria-label={label ?? L.colour}
           aria-describedby={describedBy}
           aria-invalid={invalid}
           className={cn(
@@ -108,7 +110,7 @@ export function ColorField({
             disabled={disabled}
             maxLength={7}
             onChange={(e) => onChange(e.target.value)}
-            aria-label={hexLabel ?? (label ? `${label} hex value` : "Hex colour value")}
+            aria-label={hexLabel ?? (label ? L.hexValue(label) : L.hexColour)}
             aria-describedby={describedBy}
             aria-invalid={invalid}
             className={cn("w-28 font-mono", errorRing)}
