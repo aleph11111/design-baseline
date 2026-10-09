@@ -40,6 +40,31 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     expect(container.querySelectorAll(".bg-surface-raised")).toHaveLength(1);
   });
 
+  it("keeps the tab strip in the view-switch slot, outside the filter sheet, below md", () => {
+    const original = window.matchMedia;
+    const originalWidth = window.innerWidth;
+    window.innerWidth = 430;
+    window.matchMedia = ((query: string) => ({
+      matches: true,
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    })) as typeof window.matchMedia;
+    try {
+      render(<SettingsPageShell title="Workspace" tabs={tabs} />);
+      expect(
+        screen.getByRole("tablist").closest("[data-view-switch]"),
+      ).not.toBeNull();
+    } finally {
+      window.matchMedia = original;
+      window.innerWidth = originalWidth;
+    }
+  });
+
   it("renders the tab strip in the view-switch band and the selected tab as the body", () => {
     render(<SettingsPageShell title="Workspace" tabs={tabs} defaultTab="team" />);
 
