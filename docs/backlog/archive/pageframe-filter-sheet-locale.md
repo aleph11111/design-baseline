@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-10-08
-status: ready
+status: done
 value: normal
 gate:
   score: 4
