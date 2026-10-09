@@ -4,7 +4,7 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { JOINED_LABEL_CLASS, JoinedLabelText, useControlSize } from "./toolbar-band";
+import { JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useControlSize } from "./toolbar-band";
 
 // ---------------------------------------------------------------------------
 // Radix UI Select primitives
@@ -43,8 +43,13 @@ const SelectTrigger = React.forwardRef<
        * wires its stacked label) unless the caller names the trigger itself.
        */
       label?: React.ReactNode;
+      /**
+       * The labelled trigger sits in a box whose width the caller fixed (default: a width
+       * class on `className`). `SelectField` passes it when ITS root carries the width.
+       */
+      fixedWidth?: boolean;
     }
->(({ className, children, size, label, ...props }, ref) => {
+>(({ className, children, size, label, fixedWidth, ...props }, ref) => {
   const labelId = React.useId();
   const bandSize = useControlSize();
   return (
@@ -53,7 +58,10 @@ const SelectTrigger = React.forwardRef<
       className={cn(
         selectTriggerVariants({ size: size ?? bandSize }),
         label != null &&
-          "grid min-w-min grid-cols-[minmax(3rem,auto)_minmax(max-content,1fr)_auto] overflow-hidden pl-0",
+          (fixedWidth ?? hasWidthClass(className)
+            ? // fixed box: the value takes its width first, the label gives way to its floor, then the value truncates
+              "grid grid-cols-[minmax(3rem,1fr)_auto_auto] overflow-hidden pl-0"
+            : "grid min-w-min grid-cols-[minmax(3rem,auto)_minmax(max-content,1fr)_auto] overflow-hidden pl-0"),
         className
       )}
       {...props}

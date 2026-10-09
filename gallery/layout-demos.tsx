@@ -815,12 +815,33 @@ function PageFrameDemo() {
             {rows}
           </PageFrame>
           {/* a custom flex consumer of the shared class: its label must yield before its value */}
-          <div className="mt-3 flex h-9 w-56 overflow-hidden rounded-md border">
+          <div data-flex-consumer="" className="mt-3 flex h-9 w-56 overflow-hidden rounded-md border">
             <span data-joined-label="" className={`${JOINED_LABEL_CLASS} border-r`}>
               <JoinedLabelText>Verantwortliche Abteilung</JoinedLabelText>
             </span>
             <span className="flex shrink-0 items-center px-3 text-sm">Alle Werte (ungefiltert)</span>
           </div>
+        </div>
+      </Variant>
+      <Variant label="explicit width sets the whole joined box (label + control): the label yields first, then the value truncates; nothing overflows — checked by `npm run check:joined-label`">
+        <div data-testid="fixed-width-band">
+          <PageFrame
+            title="Feste Breite"
+            toolbar={
+              <>
+                <NativeField label="Wochen" type="number" className="w-28" value={12} onChange={() => {}} />
+                <SelectField
+                  label="Verantwortliche Abteilung"
+                  className="w-40"
+                  value="all"
+                  onChange={() => {}}
+                  options={[{ value: "all", label: "Alle Werte (ungefiltert)" }]}
+                />
+              </>
+            }
+          >
+            {rows}
+          </PageFrame>
         </div>
       </Variant>
       <Variant label="nested PageFrame (derived, no prop) — titles itself with NestedPageHeading and joins the parent's surface">

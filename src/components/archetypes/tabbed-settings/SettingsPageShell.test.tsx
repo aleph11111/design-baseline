@@ -172,7 +172,7 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     // The bleed is on the band AND the table row wrapper (the flex row), so
     // the table's edges sit at the surface edge too.
     const rowWrapper = (
-      container.querySelector(".relative.overflow-x-auto") as HTMLElement
+      container.querySelector('[data-slot="settings-table-region"]') as HTMLElement
     ).parentElement as HTMLElement;
     expect(rowWrapper.className).toContain("flex");
     expect(rowWrapper.className).toContain("-mx-5");
@@ -225,7 +225,7 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     // containers without flex siblings).
     const band = container.querySelector('[data-slot="settings-table-band"]') as HTMLElement;
     expect(band.className).toContain("-mx-5");
-    const tableRegion = container.querySelector(".relative.overflow-x-auto") as HTMLElement;
+    const tableRegion = container.querySelector('[data-slot="settings-table-region"]') as HTMLElement;
     const rowWrapper = tableRegion.parentElement as HTMLElement;
     expect(rowWrapper.className).toContain("-mx-5");
     // …never on the table region itself: it is a `flex-1` item beside the
@@ -296,7 +296,7 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     expect(container.querySelector('[data-slot="settings-table-band"]')).toBeNull();
     // With no band the table row is the body's first child, and the outer
     // wrapper still bleeds through the panel's top pad.
-    const rowWrapper = (container.querySelector(".relative.overflow-x-auto") as HTMLElement)
+    const rowWrapper = (container.querySelector('[data-slot="settings-table-region"]') as HTMLElement)
       .parentElement as HTMLElement;
     const bodyRoot = rowWrapper.parentElement as HTMLElement;
     expect(bodyRoot.firstElementChild).toBe(rowWrapper);

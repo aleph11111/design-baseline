@@ -450,7 +450,7 @@ describe("SettingsTableShell — split-pane variant (editPane)", () => {
     // The frame body is the flex wrapper holding only the table region (one
     // child), not a table region plus an empty bordered pane (two children).
     const table = container.querySelector("table")!;
-    const flex = table.closest(".relative.overflow-x-auto")!.parentElement as HTMLElement;
+    const flex = table.closest('[data-slot="settings-table-region"]')!.parentElement as HTMLElement;
     expect(flex.children).toHaveLength(1);
   });
 });
@@ -479,7 +479,7 @@ describe("SettingsTableBody — flush placement", () => {
     // no inset to negate and the explicit `-mx-5` must be absent.
     expect(band.className).not.toContain("-mx-5");
     // …and the table row wrapper (the flex row) carries no horizontal bleed either.
-    const rowWrapper = (container.querySelector(".relative.overflow-x-auto") as HTMLElement)
+    const rowWrapper = (container.querySelector('[data-slot="settings-table-region"]') as HTMLElement)
       .parentElement as HTMLElement;
     expect(rowWrapper.className).toContain("flex");
     expect(rowWrapper.className).not.toContain("-mx-5");
@@ -511,7 +511,7 @@ describe("SettingsTableBody — flush placement", () => {
     // narrow the default to a `SettingsPageShell` tab and require flush={false} here.
     const band = container.querySelector('[data-slot="settings-table-band"]') as HTMLElement;
     expect(band.className).toContain("-mx-5");
-    const rowWrapper = (container.querySelector(".relative.overflow-x-auto") as HTMLElement)
+    const rowWrapper = (container.querySelector('[data-slot="settings-table-region"]') as HTMLElement)
       .parentElement as HTMLElement;
     expect(rowWrapper.className).toContain("-mx-5");
     expect(band.parentElement?.className).toContain("-mt-5");

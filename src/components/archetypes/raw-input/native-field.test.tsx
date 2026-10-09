@@ -194,6 +194,21 @@ describe("NativeField in a PageFrame toolbar band", () => {
     expect(label.nextElementSibling?.contains(input)).toBe(true);
   });
 
+  it("a narrow w-28 field is a fixed box: input column takes its width first, no 170px default floor", () => {
+    inBand(<NativeField label="Wochen" type="number" className="w-28" value={12} onChange={() => {}} />);
+    const label = screen.getByText("Wochen").closest("label") as HTMLElement;
+    const row = label.parentElement as HTMLElement;
+    expect(row.parentElement?.className).toContain("w-28");
+    expect(row.className).toContain("grid-cols-[minmax(3rem,1fr)_auto]");
+    expect(row.className).not.toContain("max-content");
+  });
+
+  it("a content-sized field floors its input column at the control's own width", () => {
+    inBand(<NativeField label="Wochen" type="number" value={12} onChange={() => {}} />);
+    const row = (screen.getByText("Wochen").closest("label") as HTMLElement).parentElement as HTMLElement;
+    expect(row.className).toContain("minmax(max-content,1fr)");
+  });
+
   it("keeps range stacked, which has no box to join", () => {
     inBand(<NativeField label="Zoom" type="range" value={5} onChange={() => {}} />);
     expect(screen.getByLabelText("Zoom").className).not.toContain("rounded-l-none");

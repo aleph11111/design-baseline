@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { cn } from "../../lib/utils";
-import { JOINED_LABEL_CLASS, JoinedLabelText, useControlSize } from "./toolbar-band";
+import { JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useControlSize } from "./toolbar-band";
 
 export type SegmentedOption<T extends string> = {
   value: T;
@@ -72,11 +72,11 @@ export function SegmentedControl<T extends string>({
       aria-label={rest["aria-label"]}
       aria-labelledby={label != null && rest["aria-label"] == null ? labelId : undefined}
       // Label column floors at 3rem; every segment keeps its content width.
-      style={label != null ? { gridTemplateColumns: `minmax(3rem,auto) repeat(${options.length},auto)` } : undefined}
+      style={label != null ? { gridTemplateColumns: `${hasWidthClass(className) ? "minmax(3rem,1fr)" : "minmax(3rem,auto)"} repeat(${options.length},auto)` } : undefined}
       className={cn(
         "inline-flex items-stretch gap-1 overflow-hidden rounded-md border p-0.5",
         // min-w-min: overflow-hidden would otherwise zero the flex item's automatic minimum.
-        label != null && "inline-grid min-w-min",
+        label != null && (hasWidthClass(className) ? "inline-grid" : "inline-grid min-w-min"),
         geometry.track,
         className,
       )}

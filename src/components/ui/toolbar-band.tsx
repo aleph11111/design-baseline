@@ -100,3 +100,14 @@ export const JOINED_LABEL_CLASS =
 export function JoinedLabelText({ children }: { children: React.ReactNode }): React.ReactElement {
   return <span className="truncate">{children}</span>;
 }
+
+/**
+ * True when a class string carries an explicit width utility (`w-28`, `w-40`, `size-…`; a
+ * variant-prefixed `md:w-40` counts). Such a width sets the WHOLE joined box (label +
+ * control): inside it the label shrinks first, then the value truncates, and nothing
+ * overflows the box. Without one the box is content-sized, floored at label floor + full
+ * value (STYLE.md "Toolbar field labels").
+ */
+export function hasWidthClass(className?: string): boolean {
+  return className != null && /(^|\s)(?:[\w-]+:)*(?:w|size)-\S+/.test(className);
+}

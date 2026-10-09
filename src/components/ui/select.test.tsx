@@ -63,6 +63,33 @@ describe("SelectTrigger joined label", () => {
     expect(classSet(trigger)).toContain("pl-0");
   });
 
+  it("a width class on a labelled trigger sets the whole box: no content floor, label column yields first", () => {
+    render(
+      <Select value="a">
+        <SelectTrigger label="Verantwortliche Abteilung" className="w-40">
+          <SelectValue>Alle Werte</SelectValue>
+        </SelectTrigger>
+      </Select>
+    );
+    const classes = classSet(screen.getByRole("combobox"));
+    expect(classes).toContain("w-40");
+    expect(classes).toContain("grid-cols-[minmax(3rem,1fr)_auto_auto]");
+    expect(classes).not.toContain("min-w-min");
+  });
+
+  it("a content-sized labelled trigger floors at label floor + full value", () => {
+    render(
+      <Select value="a">
+        <SelectTrigger label="Scenario">
+          <SelectValue>Actuals</SelectValue>
+        </SelectTrigger>
+      </Select>
+    );
+    const classes = classSet(screen.getByRole("combobox"));
+    expect(classes).toContain("min-w-min");
+    expect(classes).toContain("grid-cols-[minmax(3rem,auto)_minmax(max-content,1fr)_auto]");
+  });
+
   it("renders no label cell without the prop", () => {
     expect(renderTrigger().querySelector("[data-joined-label]")).toBeNull();
   });

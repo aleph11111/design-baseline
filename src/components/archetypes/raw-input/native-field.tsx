@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Input, type InputSize } from "../../ui/input";
 import { cn } from "../../../lib/utils";
-import { JOINED_LABEL_CLASS, JoinedLabelText, useInToolbarBand } from "../../ui/toolbar-band";
+import { JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useInToolbarBand } from "../../ui/toolbar-band";
 import {
   FIELD_ERROR_RING,
   FieldError,
@@ -272,7 +272,14 @@ export function NativeField({
   return (
     <FieldFrame className={className}>
       {joined ? (
-        <div className="grid grid-cols-[minmax(3rem,auto)_minmax(max-content,1fr)]">
+        <div
+          className={
+            hasWidthClass(className)
+              ? // fixed box: the input takes its declared width first, the label gives way to its floor
+                "grid grid-cols-[minmax(3rem,1fr)_auto]"
+              : "grid grid-cols-[minmax(3rem,auto)_minmax(max-content,1fr)]"
+          }
+        >
           {fieldLabel}
           <div>{control}</div>
         </div>

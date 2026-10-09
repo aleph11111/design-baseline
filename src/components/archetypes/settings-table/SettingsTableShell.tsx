@@ -690,7 +690,7 @@ export function SettingsTableBody<Row>({
             flex-1 ITEM beside the `editPane`, and a negative margin on an item
             adds free space that item absorbs (the table would grow 40px and
             paint over the pane's hairline) — the wrapper carries the bleed. */}
-        <div className="relative min-w-0 flex-1 overflow-x-auto">
+        <div data-slot="settings-table-region" className="relative min-w-0 flex-1 overflow-x-auto">
           {listStatePlane}
           {tableContent}
         </div>

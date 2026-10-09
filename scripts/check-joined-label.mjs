@@ -26,7 +26,7 @@ const url = `http://localhost:${server.address().port}/#/l/page-frame`;
 const browser = await chromium.launch({ executablePath: CHROME });
 const failures = [];
 let n = 0;
-const total = 3;
+const total = 4;
 const report = (label, ok, detail) => {
   n++;
   console.log(`[${new Date().toTimeString().slice(0, 8)}] ${n}/${total} ${ok ? "ok  " : "FAIL"} ${label}: ${detail}`);
@@ -49,6 +49,7 @@ const measure = (root) =>
     const text = label.firstElementChild;
     const t = trigger.getBoundingClientRect();
     return {
+      builtin: !label.closest("[data-flex-consumer]"),
       labelW: Math.round(label.getBoundingClientRect().width),
       labelTruncated: text.scrollWidth > text.clientWidth,
       valueWhole: parts.every((p) => p.scrollWidth <= p.clientWidth + 1 && p.scrollHeight <= p.clientHeight + 1 && p.getBoundingClientRect().right <= t.right + 1),
@@ -76,8 +77,8 @@ const run = async (width, openSheet, allowFloor = false) => {
     // the labels may already sit at their floor, so only "value whole" is asserted there.
     const rows = all;
     const bad = rows.filter((r) => !r.valueWhole);
-    // crowded for real: at least one label must have given way (else the demo proves nothing)
-    if (!allowFloor && !rows.some((r) => r.labelTruncated)) bad.push({ error: "no label truncated — demo not crowded" });
+    // crowded for real: at least one BUILT-IN control's label must have given way (else the demo proves nothing)
+    if (!allowFloor && !rows.filter((r) => r.builtin).some((r) => r.labelTruncated)) bad.push({ error: "no label truncated — demo not crowded" });
     // sheet column must stay the fixed 130px on every row
     const widthOk = !openSheet || rows.every((r) => r.labelW === 130);
     report(`joined labels @ ${label}`, bad.length === 0 && widthOk, JSON.stringify(rows));
@@ -89,6 +90,28 @@ const run = async (width, openSheet, allowFloor = false) => {
 await run(1440, false);
 await run(430, true);
 await run(900, false, true);
+
+// Explicit width (w-28 / w-40) sets the WHOLE box: the grid must fit its frame, and the frame
+// must have exactly the declared width — no overflow onto the next band item.
+try {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await page.goto(url);
+  await page.locator('[data-testid="fixed-width-band"]').waitFor({ timeout: 5000 });
+  const fixed = await page.evaluate(() =>
+    [...document.querySelectorAll('[data-testid="fixed-width-band"] [data-joined-label]')].map((label) => {
+      const grid = label.parentElement;
+      const frame = grid.tagName === "BUTTON" ? grid.parentElement : grid.parentElement;
+      const f = frame.getBoundingClientRect();
+      const kids = [...grid.children].map((c) => c.getBoundingClientRect().right);
+      return { frameW: Math.round(f.width), gridFits: grid.scrollWidth <= grid.clientWidth + 1 && Math.max(...kids) <= f.right + 1 };
+    }),
+  );
+  const ok = fixed.length === 2 && fixed[0].frameW === 112 && fixed[1].frameW === 160 && fixed.every((r) => r.gridFits);
+  report("fixed-width boxes @ 1440px (w-28, w-40)", ok, JSON.stringify(fixed));
+  await page.close();
+} catch (e) {
+  report("fixed-width boxes @ 1440px (w-28, w-40)", false, e.message.split("\n")[0]);
+}
 
 await browser.close();
 server.close();

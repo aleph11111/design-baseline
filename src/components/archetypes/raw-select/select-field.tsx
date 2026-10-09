@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from "../../ui/select";
 import { cn } from "../../../lib/utils";
-import { useInToolbarBand } from "../../ui/toolbar-band";
+import { hasWidthClass, useInToolbarBand } from "../../ui/toolbar-band";
 import {
   FIELD_ERROR_RING,
   FieldError,
@@ -137,6 +137,7 @@ export function SelectField({
           aria-labelledby={joined ? undefined : labelId}
           aria-describedby={describedBy}
           aria-invalid={invalid}
+          fixedWidth={hasWidthClass(className)}
           className={cn(error && FIELD_ERROR_RING)}
         >
           <SelectValue placeholder={placeholder} />
