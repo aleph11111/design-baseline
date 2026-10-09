@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { ToggleField } from "@/components/ui/toggle-field";
 import { SelectField } from "@/components/archetypes/raw-select";
 import { SearchInput } from "@/components/ui/search-input";
 import { Input } from "@/components/ui/input";
@@ -285,6 +286,36 @@ function SegmentedControlDemo() {
           ]}
         />
       </Variant>
+    </div>
+  );
+}
+
+function ToggleFieldDemo() {
+  const [on, setOn] = React.useState(true);
+  return (
+    <div className="space-y-8">
+      {(["sm", "default", "lg"] as const).map((size) => (
+        <Variant key={size} label={`${size} — one band, one step: the toggle is the same height as its neighbours`}>
+          <div className="flex flex-wrap items-center gap-2">
+            <SegmentedControl
+              size={size}
+              aria-label="Ansicht"
+              value="a"
+              onValueChange={() => {}}
+              options={[
+                { value: "a", label: "Alle" },
+                { value: "b", label: "Offen" },
+              ]}
+            />
+            <ToggleField size={size} checked={on} onCheckedChange={setOn}>
+              Show inactive
+            </ToggleField>
+            <ToggleField size={size} label="Status" checked={on} onCheckedChange={setOn}>
+              Active only
+            </ToggleField>
+          </div>
+        </Variant>
+      ))}
     </div>
   );
 }
@@ -790,6 +821,7 @@ export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "metric-list", displayName: "MetricList / MetricRow", Demo: MetricListDemo },
   { slug: "auth-card", displayName: "AuthCard", Demo: AuthCardDemo },
   { slug: "segmented-control", displayName: "SegmentedControl", Demo: SegmentedControlDemo },
+  { slug: "toggle-field", displayName: "ToggleField", Demo: ToggleFieldDemo },
   { slug: "search-input", displayName: "SearchInput", Demo: SearchInputDemo },
   { slug: "state-view", displayName: "StateView", Demo: StateViewDemo },
   { slug: "icon-avatar", displayName: "IconAvatar", Demo: IconAvatarDemo },
