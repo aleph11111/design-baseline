@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: 2026-10-09
-status: ready
+status: done
 value: low
 model: sonnet
 model_reason: "one-sentence doc correction against shipped behaviour in #507"
