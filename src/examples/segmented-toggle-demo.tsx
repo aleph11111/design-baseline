@@ -1,6 +1,8 @@
 import * as React from "react";
 import { List, LayoutGrid, Clock, Star } from "lucide-react";
 import { SegmentedControl } from "@/components/archetypes/segmented-toggle";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 /**
  * segmented-toggle demo — a music-library view switcher (domain deliberately far from any
@@ -11,10 +13,16 @@ import { SegmentedControl } from "@/components/archetypes/segmented-toggle";
  * Two toggles, the two canonical uses: a VIEW MODE (List · Grid · Timeline) that changes how
  * the collection renders, and a FILTER (All · Starred) that narrows it. Both are compact,
  * always-selected, single-choice — exactly what SegmentedControl owns. Plain controlled state.
+ *
+ * A third toggle shows the FORM-SECTION placement (contract L1): under a field caption, the
+ * choice swaps the sub-form next to it (pick from the shelf · paste a link). This is the
+ * spot where hand-rolled `variant={mode === "x" ? "default" : "outline"}` button pairs
+ * turned up in the fleet.
  */
 
 type ViewMode = "list" | "grid" | "timeline";
 type Filter = "all" | "starred";
+type AddSource = "shelf" | "link";
 
 interface Album {
   title: string;
@@ -37,6 +45,11 @@ const VIEW_OPTIONS = [
   { value: "timeline" as const, label: "Timeline", icon: Clock },
 ];
 
+const SOURCE_OPTIONS = [
+  { value: "shelf" as const, label: "From shelf" },
+  { value: "link" as const, label: "Paste link" },
+];
+
 const FILTER_OPTIONS = [
   { value: "all" as const, label: "All" },
   { value: "starred" as const, label: "Starred", icon: Star },
@@ -45,6 +58,7 @@ const FILTER_OPTIONS = [
 export function SegmentedToggleDemo(): React.ReactElement {
   const [view, setView] = React.useState<ViewMode>("grid");
   const [filter, setFilter] = React.useState<Filter>("all");
+  const [source, setSource] = React.useState<AddSource>("shelf");
 
   const albums = filter === "starred" ? ALBUMS.filter((a) => a.starred) : ALBUMS;
 
@@ -113,6 +127,31 @@ export function SegmentedToggleDemo(): React.ReactElement {
             ))}
         </ol>
       )}
+
+      {/* Form-section placement: the group's accessible name repeats the field caption; the choice swaps the editor below. */}
+      <section className="space-y-3 rounded-md border p-4">
+        <h2 className="text-sm font-semibold">Add to queue</h2>
+        <div className="space-y-1.5">
+          <Label>Source</Label>
+          <div>
+            <SegmentedControl
+              aria-label="Source"
+              value={source}
+              onValueChange={setSource}
+              options={SOURCE_OPTIONS}
+            />
+          </div>
+        </div>
+        {source === "shelf" ? (
+          <ul className="flex flex-wrap gap-2">
+            {ALBUMS.slice(0, 3).map((a) => (
+              <li key={a.title} className="rounded border px-2 py-1 text-xs">{a.title}</li>
+            ))}
+          </ul>
+        ) : (
+          <Input placeholder="https://…" aria-label="Album link" />
+        )}
+      </section>
     </div>
   );
 }
