@@ -49,6 +49,8 @@ const measure = (root) =>
     const text = label.firstElementChild;
     const t = trigger.getBoundingClientRect();
     return {
+      // the first value cell starts right after the label (gap-1/gap-2 at most): no stretched label track
+      gapOk: label.nextElementSibling.getBoundingClientRect().left - label.getBoundingClientRect().right <= 12,
       builtin: !label.closest("[data-flex-consumer]"),
       labelW: Math.round(label.getBoundingClientRect().width),
       labelTruncated: text.scrollWidth > text.clientWidth,
@@ -76,7 +78,7 @@ const run = async (width, openSheet, allowFloor = false) => {
     // At 1440/430 every label is crowded enough to truncate; at the narrow desktop width
     // the labels may already sit at their floor, so only "value whole" is asserted there.
     const rows = all;
-    const bad = rows.filter((r) => !r.valueWhole);
+    const bad = rows.filter((r) => !r.valueWhole || !r.gapOk);
     // crowded for real: at least one BUILT-IN control's label must have given way (else the demo proves nothing)
     if (!allowFloor && !rows.filter((r) => r.builtin).some((r) => r.labelTruncated)) bad.push({ error: "no label truncated — demo not crowded" });
     // sheet column must stay the fixed 130px on every row
@@ -100,7 +102,7 @@ try {
   const fixed = await page.evaluate(() =>
     [...document.querySelectorAll('[data-testid="fixed-width-band"] [data-joined-label]')].map((label) => {
       const grid = label.parentElement;
-      const frame = grid.tagName === "BUTTON" ? grid.parentElement : grid.parentElement;
+      const frame = grid.parentElement;
       const f = frame.getBoundingClientRect();
       const kids = [...grid.children].map((c) => c.getBoundingClientRect().right);
       return { frameW: Math.round(f.width), gridFits: grid.scrollWidth <= grid.clientWidth + 1 && Math.max(...kids) <= f.right + 1 };

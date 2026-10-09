@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { Select, SelectTrigger, SelectValue } from "./select";
+import { hasWidthClass } from "./toolbar-band";
 
 afterEach(() => {
   cleanup();
@@ -92,5 +93,22 @@ describe("SelectTrigger joined label", () => {
 
   it("renders no label cell without the prop", () => {
     expect(renderTrigger().querySelector("[data-joined-label]")).toBeNull();
+  });
+});
+
+describe("hasWidthClass", () => {
+  it("counts an explicit unprefixed width", () => {
+    expect(hasWidthClass("w-28")).toBe(true);
+    expect(hasWidthClass("mt-2 w-40")).toBe(true);
+    expect(hasWidthClass("size-10")).toBe(true);
+  });
+
+  it("ignores no class, other utilities, intrinsic keywords and breakpoint-only widths", () => {
+    expect(hasWidthClass(undefined)).toBe(false);
+    expect(hasWidthClass("mt-2 max-w-sm min-w-0")).toBe(false);
+    expect(hasWidthClass("w-auto")).toBe(false);
+    expect(hasWidthClass("w-fit")).toBe(false);
+    expect(hasWidthClass("w-full")).toBe(false);
+    expect(hasWidthClass("md:w-40")).toBe(false);
   });
 });
