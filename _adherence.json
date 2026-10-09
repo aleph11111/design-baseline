@@ -221,6 +221,12 @@
       "message": "Tabs / SegmentedControl that switch what the page shows belong in the `viewSwitch` slot, not `toolbar`: below `md` the toolbar moves into the filter sheet and the tabs render clipped, while `viewSwitch` stays visible above it (PLACEMENT.md, page-frame slots). `toolbar` holds only the controls that scope the body. A tab group that genuinely scopes the body opts out with `// adherence-ok: page-tabs-in-toolbar — <reason>` on the `toolbar=` line or the line above; the reason is required."
     },
     {
+      "id": "bare-switch-in-toolbar",
+      "toolbarSwitch": true,
+      "severity": "warn",
+      "message": "A bare `Switch` is a fixed 24px (`h-6`) pill and never goes in a toolbar band — use `ToggleField` (the on-ladder boolean filter, `size` follows the band step; STYLE.md \"Control heights\"). A Switch that genuinely belongs there opts out with `// adherence-ok: bare-switch-in-toolbar — <reason>` on the `toolbar=` line or the line above; the reason is required."
+    },
+    {
       "id": "detail-overview-surface-prop",
       "pattern": "^\\s*surface\\?\\s*:",
       "severity": "error",

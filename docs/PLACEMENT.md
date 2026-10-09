@@ -173,6 +173,7 @@ primitive), **yellow** (a documented essential variation), or **red** (drift).
 - A page title anywhere but the shell's `title` — a bare `<h1>`, a `PageHeader` next to a shell, or a titled card under the header (two titles).
 - A control outside its slot: a hand-rolled control row between header and content, a filter in `actions`, a create action in the `toolbar`, more than one primary action.
 - Page-switching `Tabs` / `TabsList` / `SegmentedControl` in `toolbar` — they belong in `viewSwitch` (below `md` the toolbar moves into the filter sheet and the tabs clip). A tab group that genuinely scopes the body opts out with `// adherence-ok: page-tabs-in-toolbar — <reason>`.
+- A bare `Switch` in `toolbar` — a fixed 24px pill that breaks the band's one height step; use `ToggleField`. Opt out with `// adherence-ok: bare-switch-in-toolbar — <reason>`.
 - A per-row `DropdownMenu` that isn't `RowActionsMenu`; inline action buttons scattered per row.
 - A dialog/form with the primary button left of secondary, or Delete on the right.
 - CRUD buttons in a dialog header or body instead of the footer.
@@ -188,6 +189,7 @@ that isn't "Add".
 - no bare `<h1>` inside `src/app/(app)/**` page bodies (`_adherence.json` `no-bare-h1`); no `PageHeader` next to a shell, no titled card under a header, no control row under a header (`audit-signals.json` `page-*` signals).
 - `RowActionsMenu` is the only per-row menu component in list/grouped/board rows.
 - no page-switching tabs in `toolbar` (`_adherence.json` `page-tabs-in-toolbar`).
+- no bare `Switch` in `toolbar` (`_adherence.json` `bare-switch-in-toolbar`).
 - no `bg-red-50` / raw destructive hex in shells — must be `Alert` or the tinted box.
 
 When the same placement mistake lands twice in a consuming project, promote it: first to that project’s `docs/RULES.md`, and — if it generalizes — into this document and the baseline adherence lint, so every project inherits the check.

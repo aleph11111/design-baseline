@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: 2026-10-09
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "pattern-following: a new rule beside the existing page-tabs-in-toolbar toolbarTabs rule in scripts/lint-design.mjs"
