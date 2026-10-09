@@ -17,4 +17,17 @@ describe("KeyValueRow", () => {
     expect(dd.className).not.toContain("font-mono");
     expect(dd.className).not.toContain("font-medium");
   });
+
+  it("stacks below md and goes side by side from md", () => {
+    render(<KeyValueRow label="E-Mail" value="a@b.de" />);
+    const row = screen.getByText("a@b.de").parentElement!;
+    expect(row.className).toContain("flex-col");
+    expect(row.className).toContain("md:flex-row");
+    expect(screen.getByText("a@b.de").className).toContain("md:text-right");
+  });
+
+  it("block layout stays stacked", () => {
+    render(<KeyValueRow block label="Note" value="text" />);
+    expect(screen.getByText("text").parentElement!.className).not.toContain("md:flex-row");
+  });
 });

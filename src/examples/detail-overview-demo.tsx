@@ -318,6 +318,9 @@ export function DetailOverviewDemo(): React.ReactElement {
                   <KeyValueRow label="Channel" value={o.channel} />
                   <KeyValueRow label="Reference" value={o.reference} />
                   <KeyValueRow label="Fulfilment" value={o.fulfilment} />
+                  {/* Long values: stack label over value below md (try a 430px viewport) */}
+                  <KeyValueRow label="Billing contact" value="Dr. Annemarie Hofmann-Brandenburg" />
+                  <KeyValueRow label="E-mail" value="annemarie.hofmann-brandenburg@brauerei-hofmann.example" />
                 </KeyValueList>
               </DetailSection>
 

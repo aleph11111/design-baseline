@@ -35,7 +35,7 @@ export type KeyValueRowProps = {
 /**
  * KeyValueRow — one ruled row inside a `<KeyValueList>`.
  *
- * Default layout (single line):
+ * Default layout (stacked below `md`, label above a left-aligned value; single line from `md` up):
  *   [label (13px muted)]             [value (13px mono medium, right, tabular)]
  *
  * Block layout (`block`):
@@ -61,12 +61,12 @@ export function KeyValueRow({
   return (
     <div
       className={cn(
-        "flex items-baseline justify-between gap-6 px-5 py-2.5",
+        "flex flex-col gap-1 px-5 py-2.5 md:flex-row md:items-baseline md:justify-between md:gap-6",
         className,
       )}
     >
-      <dt className="shrink-0 text-[13px] text-muted-foreground">{label}</dt>
-      <dd className="min-w-0 text-right text-[13px] text-foreground tabular-nums">
+      <dt className="md:shrink-0 text-[13px] text-muted-foreground">{label}</dt>
+      <dd className="min-w-0 text-left text-[13px] break-words md:text-right text-foreground tabular-nums">
         {value}
       </dd>
     </div>

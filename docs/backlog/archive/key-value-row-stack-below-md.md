@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-10-09
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "scoped responsive-class change on one primitive plus a MetricRow check, test, demo and version bump; cause is established"
