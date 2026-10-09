@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.9.1
+
+- **Changed:** under `AppShell density="touch"` (or `ControlDensityProvider`), `Button` with explicit `size="icon"` or `"icon-sm"` now renders `icon-lg` (`h-11 w-11`, 44pt). Unchanged without the setting.
+- **Consumer:** none required; touch apps drop per-call-site `size="icon-lg"`.
+- **Breaking:** no.
+
 ## v0.9.0
 
 - **Added:** `AppShell density="touch"` (and the exported `ControlDensityProvider` / `useControlSize` from `ui/toolbar-band`, for apps without `AppShell`) resolves every control that takes no explicit `size` to the `lg` step (44pt): `Button`, `SelectTrigger`, `Input`, `SearchInput` (clear button is a 44pt target), `SegmentedControl`, `ToggleField`, `TabsList`/`TabsTrigger` and the `PageFrame` toolbar band. Density persists into dialogs, sheets and popovers. New `Button` step `icon-lg` (`h-11 w-11`).

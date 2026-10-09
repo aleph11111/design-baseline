@@ -76,7 +76,9 @@ function hasAccessibleName(props: LabelProps, asChild: boolean): boolean {
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const density = useAppDensity()
+    // Touch density lifts icon squares to the 44pt `icon-lg` too, so a kiosk has no sub-44pt icon target.
     size = size ?? density
+    if (density && (size === "icon" || size === "icon-sm")) size = "icon-lg"
     const warnedRef = React.useRef(false)
     const missingName =
       process.env.NODE_ENV !== "production" &&
