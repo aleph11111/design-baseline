@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: 2026-10-09
-status: needs-enrichment
+status: done
 value: high
 gate:
   score: 4
