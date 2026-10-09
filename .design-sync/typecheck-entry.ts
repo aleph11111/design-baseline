@@ -1,5 +1,6 @@
 // Typecheck-only stand-in for the bare "design-baseline" import the previews use (tsconfig paths).
 // Mirrors the barrel build-pkg.mjs bundles; a new ui/layout/archetype module must be added here too.
+// `*.test` leaves are listed on purpose: modules.mjs returns them and scripts/design-sync-entry.test.mjs requires an exact match.
 export * from "@/components/ui/accordion";
 export * from "@/components/ui/alert-dialog";
 export * from "@/components/ui/alert";
