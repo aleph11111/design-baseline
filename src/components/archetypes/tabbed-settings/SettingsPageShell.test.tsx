@@ -45,7 +45,8 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     const originalWidth = window.innerWidth;
     window.innerWidth = 430;
     window.matchMedia = ((query: string) => ({
-      matches: true,
+      // useIsMobile asks `(max-width: 767px)`; match only the narrow query.
+      matches: /max-width/.test(query),
       media: query,
       onchange: null,
       addEventListener: () => {},
@@ -59,6 +60,8 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
       expect(
         screen.getByRole("tablist").closest("[data-view-switch]"),
       ).not.toBeNull();
+      // The strip is not a filter-sheet control: no sheet exists to hold it.
+      expect(screen.queryByRole("dialog")).toBeNull();
     } finally {
       window.matchMedia = original;
       window.innerWidth = originalWidth;
