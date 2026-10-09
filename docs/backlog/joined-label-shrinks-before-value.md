@@ -1,14 +1,24 @@
 ---
 area: layout
-opened: 2026-10-09
-status: ready
-value: normal
-depends_on: [pageframe-toolbar-overflow-collapse-rule]
+opened: '2026-10-09'
+status: blocked
 gate:
   score: 5
-  passed: [title, context, what_to_do, acceptance, related]
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
   failed: []
-  graded_at: 2026-10-09T00:00:00Z
+  graded_at: '2026-10-09T00:00:00.000Z'
+value: normal
+depends_on:
+  - pageframe-toolbar-overflow-collapse-rule
+blocked_reason: >-
+  review: PR https://github.com/aleph11111/design-baseline/pull/531 had 5 /ship review-gate rounds
+  that did not approve. Read the <!-- review-gate --> comments on the PR, decide how to proceed,
+  then release the ticket with back 2 ready.
 ---
 
 # Joined toolbar label shrinks before the control value
