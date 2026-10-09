@@ -9,6 +9,7 @@ import {
 import { PageFrame } from "./PageFrame";
 import { SelectField } from "../archetypes/raw-select";
 import { SegmentedControl } from "../ui/segmented-control";
+import { ControlDensityProvider } from "../ui/toolbar-band";
 
 afterEach(cleanup);
 
@@ -279,5 +280,27 @@ describe("PageFrame — desktop toolbar cap", () => {
     expect(within(sheet).getByText("field5")).toBeTruthy();
     expect(within(sheet).getByText("field6")).toBeTruthy();
     expect(within(sheet).queryByText("field1")).toBeNull();
+  });
+});
+
+describe("PageFrame — touch density", () => {
+  it("band View button and mobile view-options trigger resolve to the lg step", () => {
+    render(
+      <ControlDensityProvider density="touch">
+        <PageFrame title="T" toolbar={<span>scope</span>} viewOptions={<div />} viewOptionsLabel="Ansicht">
+          body
+        </PageFrame>
+      </ControlDensityProvider>,
+    );
+    expect(screen.getByRole("button", { name: /Ansicht/ }).className).toContain("h-11");
+  });
+
+  it("is unchanged without a provider", () => {
+    render(
+      <PageFrame title="T" toolbar={<span>scope</span>} viewOptions={<div />} viewOptionsLabel="Ansicht">
+        body
+      </PageFrame>,
+    );
+    expect(screen.getByRole("button", { name: /Ansicht/ }).className).toContain("h-9");
   });
 });

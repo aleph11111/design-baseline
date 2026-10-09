@@ -6,7 +6,7 @@ value: high
 gate:
   score: 4
   passed: [title, context, what_to_do, acceptance, related]
-  failed:
+  failed: []
   graded_at: "2026-10-09T00:00:00Z"
 ---
 
