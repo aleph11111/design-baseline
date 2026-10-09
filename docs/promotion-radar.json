@@ -381,6 +381,24 @@
       "promotedAt": "2026-10-10",
       "axisB": "on-token (rides ConfirmationDialog / Dialog)",
       "notes": "Promoted 2026-10-10 as component-kind archetype N (native-browser-dialog): useConfirm() -> { askConfirm, dialog } resolving boolean, usePrompt() -> { askPrompt, dialog } resolving string | null. Distilled from two independent hand-rolls of the same promise hook (controlling-app useConfirm in 14 files, brickshop useDiscardConfirm) over ConfirmationDialog; hk-crm had already hand-migrated to ConfirmationDialog + a pending-row useDeleteConfirm (its scan hits were false positives: its own confirm() function). No fleet project had a prompt replacement, which is why controlling-app's 3 create/rename prompts and brickshop's URL prompt stayed native. Ask functions are named askConfirm/askPrompt so migrated call sites stay clean under the scan. Out of v1: in-dialog pending confirm (hk-crm ConfirmationDialog isPending) and moving crud-dialog's synchronous confirmDiscard off window.confirm (breaking change to J). scanSignal kept as 'native-browser-dialog' so the deterministic fleet scan keeps tracking regressions."
+    },
+    {
+      "id": "raw-input-label-missing-htmlfor",
+      "scanSignal": "raw-input-label-missing-htmlfor",
+      "pattern": "Bare <Label>text</Label> with no htmlFor — a caption placed near a control (or over a group of controls, or a read-only value) but not programmatically associated with anything",
+      "axisA": "promote",
+      "donorTarget": "FieldGroup (archetype I, raw-input v1.6) — the group-caption role (<fieldset> + <legend> in the field-label style, shared hint/error wiring) for captions naming several controls; single-control captions were already homed by NativeField (I) / SelectField (S) / TextareaField (T)",
+      "projects": [
+        "controlling-app",
+        "brickshop-manager",
+        "mistra",
+        "hk-crm"
+      ],
+      "count": 4,
+      "status": "promoted",
+      "promotedAt": "2026-10-10",
+      "axisB": "on-token (legend rides the Label type style + shared FieldHint/FieldError + RequiredMarker)",
+      "notes": "Promoted 2026-10-10 as an extension of archetype I, not a new archetype (one archetype owns the labeled-field shape — cf. the dropped Fd duplicate on raw-label). The 34 hit files split three ways: (A) controlling-app (14 files) — <Label> beside a shadcn Select/Textarea/Combobox with no wiring: pure ADOPTION DEBT, already homed by SelectField/TextareaField/NativeField, cleared on each consumer's tag bump; (B) brickshop-manager (13 of 14 files) — <Label id=X> + RadioGroup/role=group aria-labelledby=X: CORRECT wiring, a false positive the signal regex now exempts via an `id=` lookahead (re-scan 2026-10-10: 34 -> 21 files: controlling-app 14, mistra 6, brickshop 1); (C) mistra (6 files) + brickshop (1: a read-only mapping caption) — a <Label> captioning a checkbox list / toggle row / line-item editor / read-only value: the genuinely un-homed shape, now FieldGroup (groups) or the detail-overview key/value term (read-only values). hk-crm's single hit is its vendored ui/file-field.tsx caption, the signal's documented sanctioned residual. scanSignal kept as 'raw-input-label-missing-htmlfor' so the deterministic fleet scan keeps tracking regressions."
     }
   ],
   "sanctioned": [

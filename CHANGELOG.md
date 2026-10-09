@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.10.2
+
+- **Added:** `FieldGroup` (archetype I, `design-baseline/archetypes/raw-input`, v1.6) — the group caption for several controls (checkbox list, radio set, toggle row, line-item editor): `<fieldset>` + `<legend>` in the field-label style, with the shared hint/error lines linked via `aria-describedby`; `disabled` disables every child natively. Shared `RequiredMarker` exported from `archetypes/shared`. Contract rule (raw-input L11): a label element names exactly one control — a caption over a group is a legend, over a read-only value a key/value term.
+- **Scan:** the `raw-input-label-missing-htmlfor` signal now exempts `<Label id=…>` (an `aria-labelledby` target — correct wiring for group/button controls), cutting false positives (fleet: 34 → 21 files).
+- **Consumer:** replace a bare `<Label>Topics</Label>` above a group of controls with `<FieldGroup label="Topics">…</FieldGroup>`; a bare `<Label>` beside a `Select`/`Textarea` becomes `SelectField`/`TextareaField`.
+- **Breaking:** no.
+
 ## v0.10.1
 
 - **Fixed:** `scripts/scan-adoption-quality.mjs` and `docs/audit-signals.json` were missing from the published tarball, so the documented consumer command could not run. Both now ship, and the script's default signals file resolves beside the script itself (not under the consumer's `--root`); `--signals` still overrides. New `verify:exports` invariant 10 fails when either file drops out of `files`.
