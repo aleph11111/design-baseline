@@ -25,7 +25,7 @@ export type SettingsTab = {
 type SettingsPageTitleProps = Pick<PageFrameProps, "title" | "subtitle">;
 
 export type SettingsPageShellProps = SettingsPageTitleProps & {
-  /** The settings categories, in tab order. The tab strip is the toolbar. */
+  /** The settings categories, in tab order. The tab strip is the frame's `viewSwitch`. */
   tabs: SettingsTab[];
   /** Initially selected tab (uncontrolled). Defaults to the first tab. */
   defaultTab?: string;
@@ -44,7 +44,7 @@ export type SettingsPageShellProps = SettingsPageTitleProps & {
 /**
  * SettingsPageShell — the tabbed-settings (F2) archetype shell. Renders
  * through `PageFrame` (ADR-0008): the page header (title once) above the
- * page's one raised surface, whose toolbar band is the tab strip and whose
+ * page's one raised surface, whose view-switch band is the tab strip and whose
  * body is the selected tab. Rendered inside another `PageFrame` (a settings
  * sub-route under a layout that owns the page) it nests automatically.
  *
@@ -64,7 +64,7 @@ export function SettingsPageShell({
       <Tabs value={tab} defaultValue={defaultTab} onValueChange={onTabChange}>
         <PageFrame
           {...header}
-          toolbar={
+          viewSwitch={
             <TabsList>
               {tabs.map((t) => (
                 <TabsTrigger key={t.value} value={t.value}>
