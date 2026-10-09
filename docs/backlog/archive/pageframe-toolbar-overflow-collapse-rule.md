@@ -1,21 +1,14 @@
 ---
 area: layout
-opened: '2026-10-08'
-status: ready
+opened: 2026-10-08
+status: done
+value: normal
 gate:
   score: 4
-  passed:
-    - title
-    - context
-    - what_to_do
-    - acceptance
-    - related
+  passed: [title, context, what_to_do, acceptance, related]
   failed:
-    - open_question: >-
-        threshold mechanism unresolved — fixed cap N vs. measured overflow; confirm the operator's
-        pick before /feat
-  graded_at: '2026-10-08T00:00:00.000Z'
-value: normal
+    - open_question: "threshold mechanism unresolved — fixed cap N vs. measured overflow; confirm the operator's pick before /feat"
+  graded_at: 2026-10-08T00:00:00Z
 ---
 
 # PageFrame crowded toolbar band overflow rule, enforcement, and version bump
@@ -62,21 +55,6 @@ core of the work.
 - [docs/PLACEMENT.md "The page frame"](/docs/PLACEMENT.md) — describes the below-`md` collapse; needs the desktop cap-and-collapse added.
 - [src/components/layout/PageFrame.tsx](/src/components/layout/PageFrame.tsx) — the desktop band (`flex flex-wrap`) and the mobile-only `MobileBand` / `data-filter-sheet` to generalize.
 
-## Open question
+## Decision
 
-**Threshold mechanism — fixed cap vs. measured overflow.** (Auto-resolved to the recommended
-default in the What-to-do bullets; alternatives recorded so the choice is reversible on review.)
-
-- **(A, Recommended) Fixed cap N.** First N scoping fields render inline; the rest always collapse
-  into the sheet (same trigger as mobile). Deterministic and testable, no layout-measurement
-  machinery — fits the donor's no-extra-dependency stack and the "maximum of N scoping fields
-  inline" wording the thought gives. Cost: a band with a few wide fields can under-use the row, and
-  N must be picked (? suggest 6, the ~130px label column + a typical 1440px row; confirm in review).
-- **(B) Measured overflow.** The band measures available width (a ResizeObserver/measure hook) and
-  collapses any box that does not fit the current viewport. Handles "5 fits, 6 doesn't" gracefully
-  across widths. Cost: introduces a width-measuring hook the donor does not have today — new
-  machinery in a no-build source package.
-
-## Operator unblock (round cap)
-
-Operator unblocked after round-cap: joined-label shrink split to joined-label-shrinks-before-value; re-shipping PR #514.
+Fixed cap N=4 (operator, 2026-10-09): at most 4 scoping fields inline, search counts as one; the rest collapse into the filter sheet on desktop. Reason: hk-sales-agent truncates at 5 fields on 1440px.

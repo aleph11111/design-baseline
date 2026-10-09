@@ -154,6 +154,11 @@ export function PageFrame({
   // `cond && <X />` yields `false`: an absent slot, not an empty band.
   const has = (slot: React.ReactNode) => slot != null && slot !== false;
   const hasBand = has(toolbar) || has(viewSwitch) || has(count) || has(viewOptions);
+  // Desktop: one row of at most MAX_INLINE_FIELDS scoping fields; the rest
+  // collapse into the same filter sheet the phone band uses.
+  const fields = flattenFields(toolbar);
+  const inlineFields = fields.slice(0, MAX_INLINE_FIELDS);
+  const overflowFields = fields.slice(MAX_INLINE_FIELDS);
   const band = !hasBand ? null : isMobile ? (
     <MobileBand
       toolbar={has(toolbar) ? toolbar : null}
@@ -167,12 +172,21 @@ export function PageFrame({
       viewOptionsLabel={viewOptionsLabel}
     />
   ) : (
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
+      <div className="flex flex-nowrap items-center justify-between gap-x-4">
+        <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-2">
           <ToolbarBandContext.Provider value={true}>
             {viewSwitch}
-            {toolbar}
+            {inlineFields}
           </ToolbarBandContext.Provider>
+          {overflowFields.length > 0 && (
+            <FilterSheet
+              filterCount={filterCount}
+              onResetFilters={onResetFilters}
+              labels={filterLabels}
+            >
+              {overflowFields}
+            </FilterSheet>
+          )}
         </div>
         {has(count) || has(viewOptions) ? (
           <div className="ml-auto flex shrink-0 items-center gap-3">
@@ -238,6 +252,96 @@ export function PageFrame({
 
 PageFrame.displayName = "PageFrame";
 
+/** Most scoping fields the desktop toolbar band renders inline; the rest go
+ *  into the filter sheet (STYLE.md "Toolbar field labels"). */
+export const MAX_INLINE_FIELDS = 4;
+
+/** The top-level toolbar fields, looking through fragments. */
+function flattenFields(node: React.ReactNode, prefix = ""): React.ReactNode[] {
+  return React.Children.toArray(node).flatMap((child) => {
+    const key = `${prefix}${React.isValidElement(child) ? child.key : ""}`;
+    if (React.isValidElement<{ children?: React.ReactNode }>(child) && child.type === React.Fragment) {
+      return flattenFields(child.props.children, `${key}/`);
+    }
+    return [prefix && React.isValidElement(child) ? React.cloneElement(child, { key: `${prefix}${child.key}` }) : child];
+  });
+}
+
+/**
+ * The Filter button and its bottom sheet. Below `md` it holds every `toolbar`
+ * filter; on desktop only the fields past `MAX_INLINE_FIELDS`. Each filter is
+ * still a joined-label row (the band context), at the `lg` touch step with one
+ * shared label column.
+ */
+function FilterSheet({
+  children,
+  filterCount,
+  onResetFilters,
+  labels,
+}: {
+  children: React.ReactNode;
+  filterCount?: number;
+  onResetFilters?: () => void;
+  labels?: PageFrameProps["filterLabels"];
+}): React.ReactElement {
+  const L = useLabels();
+  const filterLabel = labels?.filter ?? L.filter;
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="outline" className="shrink-0">
+          <ListFilter className="h-4 w-4" />
+          {filterLabel}
+          {filterCount ? (
+            <span
+              data-filter-count=""
+              className="rounded-full bg-primary px-1.5 text-xs tabular-nums text-primary-foreground"
+            >
+              {filterCount}
+            </span>
+          ) : null}
+        </Button>
+      </SheetTrigger>
+      <SheetContent
+        side="bottom"
+        showCloseButton={false}
+        aria-describedby={undefined}
+        className="flex max-h-[85svh] flex-col overflow-y-auto rounded-t-xl"
+      >
+        <SheetHeader className="text-left">
+          <SheetTitle>{filterLabel}</SheetTitle>
+        </SheetHeader>
+        {/* Back inside the band (the sheet ended it), at the touch step;
+            every joined label shares one column so the boxes line up.
+            An app's own flex wrapper (div/form/fieldset, any depth) stacks too;
+            the joined trigger is a button, so it is never matched. */}
+        <ToolbarBandContext.Provider value={true}>
+          <ToolbarSizeContext.Provider value="lg">
+            <div
+              data-filter-sheet=""
+              className="flex flex-col gap-3 [&_[data-joined-label]]:w-[130px] [&>*]:w-full! [&_:is(div,form,fieldset).flex]:flex-col [&_:is(div,form,fieldset).flex]:items-stretch [&_:is(div,form,fieldset).flex]:gap-3 [&_:is(div,form,fieldset).flex>*]:w-full!"
+            >
+              {children}
+            </div>
+          </ToolbarSizeContext.Provider>
+        </ToolbarBandContext.Provider>
+        <SheetFooter className="flex-row gap-2 sm:space-x-0">
+          {onResetFilters && (
+            <Button variant="ghost" size="lg" className="px-4" onClick={onResetFilters}>
+              {labels?.reset ?? L.reset}
+            </Button>
+          )}
+          <SheetClose asChild>
+            <Button size="lg" className="ml-auto">
+              {labels?.done ?? L.done}
+            </Button>
+          </SheetClose>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 /**
  * The band below `md`: the view switch (if any) on its own sideways-scrolling
  * line, then one row — a Filter button carrying the set-filter count, the
@@ -266,8 +370,6 @@ function MobileBand({
   viewOptions: React.ReactNode;
   viewOptionsLabel: string;
 }): React.ReactElement {
-  const L = useLabels();
-  const filterLabel = labels?.filter ?? L.filter;
   return (
     <div className="flex flex-col gap-2">
       {viewSwitch && (
@@ -277,58 +379,9 @@ function MobileBand({
       )}
       <div className="flex items-center gap-2">
         {toolbar && (
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" className="shrink-0">
-                <ListFilter className="h-4 w-4" />
-                {filterLabel}
-                {filterCount ? (
-                  <span
-                    data-filter-count=""
-                    className="rounded-full bg-primary px-1.5 text-xs tabular-nums text-primary-foreground"
-                  >
-                    {filterCount}
-                  </span>
-                ) : null}
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="bottom"
-              showCloseButton={false}
-              aria-describedby={undefined}
-              className="flex max-h-[85svh] flex-col overflow-y-auto rounded-t-xl"
-            >
-              <SheetHeader className="text-left">
-                <SheetTitle>{filterLabel}</SheetTitle>
-              </SheetHeader>
-              {/* Back inside the band (the sheet ended it), at the touch step;
-                  every joined label shares one column so the boxes line up.
-                  An app's own flex wrapper (div/form/fieldset, any depth) stacks too;
-                  the joined trigger is a button, so it is never matched. */}
-              <ToolbarBandContext.Provider value={true}>
-                <ToolbarSizeContext.Provider value="lg">
-                  <div
-                    data-filter-sheet=""
-                    className="flex flex-col gap-3 [&_[data-joined-label]]:w-[130px] [&>*]:w-full! [&_:is(div,form,fieldset).flex]:flex-col [&_:is(div,form,fieldset).flex]:items-stretch [&_:is(div,form,fieldset).flex]:gap-3 [&_:is(div,form,fieldset).flex>*]:w-full!"
-                  >
-                    {toolbar}
-                  </div>
-                </ToolbarSizeContext.Provider>
-              </ToolbarBandContext.Provider>
-              <SheetFooter className="flex-row gap-2 sm:space-x-0">
-                {onResetFilters && (
-                  <Button variant="ghost" size="lg" className="px-4" onClick={onResetFilters}>
-                    {labels?.reset ?? L.reset}
-                  </Button>
-                )}
-                <SheetClose asChild>
-                  <Button size="lg" className="ml-auto">
-                    {labels?.done ?? L.done}
-                  </Button>
-                </SheetClose>
-              </SheetFooter>
-            </SheetContent>
-          </Sheet>
+          <FilterSheet filterCount={filterCount} onResetFilters={onResetFilters} labels={labels}>
+            {toolbar}
+          </FilterSheet>
         )}
         {filterSummary != null && filterSummary !== false && (
           <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
