@@ -60,7 +60,7 @@ npm run check:desk-width          # gallery:build + real-Chrome check of AppShel
 ## Architecture Quick Reference
 
 - One idea: `docs/archetypes/MANIFEST.json` is the versioned source of truth for what baseline ships; every archetype is **one contract plus the exported component** — the stack-agnostic contract (`<slug>.md`) and the shipped typed primitives (`src/components/archetypes/<slug>/`, export `design-baseline/archetypes/<slug>`) — plus a sandbox demo (`src/examples/<slug>-demo.tsx`).
-- `src/components/ui/` (42 shadcn/ui primitives), `src/components/layout/` (AppShell/Sidebar/Header + shared chrome), `src/components/archetypes/` (one dir per shipped archetype; 22 registered in MANIFEST) — see `docs/ARCHITECTURE.md` for the full map.
+- `src/components/ui/` (42 shadcn/ui primitives), `src/components/layout/` (AppShell/Sidebar/Header + shared chrome), `src/components/archetypes/` (one dir per shipped archetype; 23 registered in MANIFEST) — see `docs/ARCHITECTURE.md` for the full map.
 - Promotion flow: a real project matures an archetype through Phases 1–4 (scope-lock → audit → spec → migration) → `/promote-archetype` applies maturity gates, de-source-ifies, and writes both donor docs + primitives + demo + MANIFEST entry.
 - Fleet-scale audit measurement is the read-only sweep described in `docs/STYLE.md` ("The fleet audit rubric") + `docs/ADOPTION-QUALITY.md` (Axis C) + `docs/PROMOTION-RADAR.md` (the durable candidate radar); the machine form is `docs/audit-signals.json`, and dated reports land in `docs/audits/`. It scores other repos without ever writing to them.
 - Full component map, promotion flow detail, and open questions: `docs/ARCHITECTURE.md`.

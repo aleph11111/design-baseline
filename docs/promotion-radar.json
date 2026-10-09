@@ -364,6 +364,23 @@
       "promotedAt": "2026-09-28",
       "axisB": "on-token (`--primary`)",
       "notes": "Single-project promotion by operator decision (2026-09-28). This is the last hk-crm layout file that differed only because the consumer was ahead. The #214 `accent` flag was a free per-call-site toggle and stays deleted; it returns as `keyFigure`, which the detail-overview v3.2 contract derives from the data (at most one row, the metric the entity is valued by), so ADR-0004's derived test passes. hk-crm swaps `accent` → `keyFigure` and deletes its local MetricList.tsx."
+    },
+    {
+      "id": "native-browser-dialog",
+      "scanSignal": "native-browser-dialog",
+      "pattern": "Native browser modal (window.alert / window.confirm / window.prompt, or bare global forms) on a product code path instead of an app surface",
+      "axisA": "promote",
+      "donorTarget": "useConfirm + usePrompt (archetype N, component kind) — awaitable confirm over ConfirmationDialog and a single-field prompt Dialog; alert routes to the sonner toast",
+      "projects": [
+        "brickshop-manager",
+        "hk-crm",
+        "controlling-app"
+      ],
+      "count": 3,
+      "status": "promoted",
+      "promotedAt": "2026-10-10",
+      "axisB": "on-token (rides ConfirmationDialog / Dialog)",
+      "notes": "Promoted 2026-10-10 as component-kind archetype N (native-browser-dialog): useConfirm() -> { askConfirm, dialog } resolving boolean, usePrompt() -> { askPrompt, dialog } resolving string | null. Distilled from two independent hand-rolls of the same promise hook (controlling-app useConfirm in 14 files, brickshop useDiscardConfirm) over ConfirmationDialog; hk-crm had already hand-migrated to ConfirmationDialog + a pending-row useDeleteConfirm (its scan hits were false positives: its own confirm() function). No fleet project had a prompt replacement, which is why controlling-app's 3 create/rename prompts and brickshop's URL prompt stayed native. Ask functions are named askConfirm/askPrompt so migrated call sites stay clean under the scan. Out of v1: in-dialog pending confirm (hk-crm ConfirmationDialog isPending) and moving crud-dialog's synchronous confirmDiscard off window.confirm (breaking change to J). scanSignal kept as 'native-browser-dialog' so the deterministic fleet scan keeps tracking regressions."
     }
   ],
   "sanctioned": [

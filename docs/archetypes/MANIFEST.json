@@ -8,7 +8,7 @@
   "plugin": {
     "kind": "design",
     "name": "design-baseline",
-    "version": "0.11.1",
+    "version": "0.12.0",
     "taxonomy": "docs/TAXONOMY.md",
     "surface": {
       "type": "vite-app",
@@ -347,6 +347,20 @@
       "spec": "docs/archetypes/entity-circle.md",
       "primitives_dir": "src/components/archetypes/entity-circle",
       "example": "src/examples/entity-circle-demo.tsx"
+    },
+    {
+      "key": "N",
+      "namespace": "baseline",
+      "slug": "native-browser-dialog",
+      "displayName": "Native browser dialog",
+      "kind": "component",
+      "version": "1.0",
+      "promoted_from": "fleet synthesis (brickshop-manager, controlling-app, hk-crm)",
+      "promoted_at": "2026-10-10",
+      "source_spec_version": "n/a (fleet synthesis — no single source spec)",
+      "spec": "docs/archetypes/native-browser-dialog.md",
+      "primitives_dir": "src/components/archetypes/native-browser-dialog",
+      "example": "src/examples/native-browser-dialog-demo.tsx"
     }
   ],
   "_methodology_note": "Cross-archetype methodology docs — the selection/placement/stack/adoption laws the individual archetype specs defer to. Not page shapes; no primitives or demos. `governs` lists the archetype keys each doc's rules bear on. Adopted from the hk-crm 360° audit (2026-07); see docs/adr/0002-adopt-baseline-upstream-methodology.md.",

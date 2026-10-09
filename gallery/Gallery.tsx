@@ -16,6 +16,7 @@ import {
   FileText,
   LayoutDashboard,
   Loader,
+  MessageSquareWarning,
   Settings,
   TextCursorInput,
   UploadCloud,
@@ -59,6 +60,7 @@ const ICON_BY_SLUG: Record<string, LucideIcon> = {
   "skeleton-loader": Loader,
   "raw-textarea": TextCursorInput,
   "entity-circle": CircleUser,
+  "native-browser-dialog": MessageSquareWarning,
 };
 
 function toNavItem(a: ArchetypeEntry): NavItem {
