@@ -29,4 +29,4 @@ export type {
   UseCrudDialogControllerResult,
 } from "./useCrudDialogController";
 
-export { CRUD_ERRORS, CRUD_DISCARD_PROMPT, confirmDiscard, useCrudErrors } from "./crudStrings";
+export { CRUD_ERRORS, CRUD_DISCARD_PROMPT, confirmDiscard, useConfirmDiscard, useCrudErrors } from "./crudStrings";

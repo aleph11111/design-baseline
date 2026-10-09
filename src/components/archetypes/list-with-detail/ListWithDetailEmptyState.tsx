@@ -66,8 +66,8 @@ export function ListWithDetailEmptyState({
 }: ListWithDetailEmptyStateProps) {
   const L = useLabels();
   // The shared renderer owns the `"empty"` phase; this component folds its
-  // `"filtered-empty"` sub-mode into a message override (its own default
-  // "No matches. Try clearing filters."). The no-filter empty message comes
+  // `"filtered-empty"` sub-mode into a message override (its default is the
+  // provider's `filteredEmpty`). The no-filter empty message comes
   // from the shared renderer — `labels.empty` or its single default
   // ("No items yet").
   const phase: ListStatePhase = mode === "loading" || mode === "error" ? mode : "empty";
