@@ -1,13 +1,12 @@
 ---
 area: tooling
 opened: 2026-10-08
-status: needs-enrichment
+status: done
 value: normal
 gate:
   score: 4
   passed: [title, context, what_to_do, acceptance, related]
-  failed:
-    - open_question: "unresolved design fork under ## Open question — needs an interactive operator decision before /feat"
+  failed: []
   graded_at: 2026-10-08T18:56:36Z
 ---
 
@@ -40,6 +39,6 @@ A `PageFrame` page that switches what it shows (Plan / Checkliste, synchronisati
 - [ADR-0008](/docs/adr/0008-one-page-frame-slot-owned-placement.md) — one page frame, slot-owned placement
 - [PageFrame source](/src/components/layout/PageFrame.tsx) — the `viewSwitch` prop and the `data-filter-sheet` container
 
-## Open question
+## Decision
 
-Lint is a text scan: "page navigation" is not mechanically distinguishable from a tab group that genuinely scopes the body (a tabbed table). Auto-resolved for this draft: flag any `Tabs` / `TabsList` / `SegmentedControl` inside a `PageFrame` `toolbar` — all three are one-of-N navigation controls per `docs/STYLE.md`'s table-vs-tabs guidance, and a body-scope tab group belongs in the body, not the band. Alternative considered: a dev-only `PageFrame` `console.warn` when the `toolbar` contains these components — weaker (dev-only, no CI gate, invisible to the fleet scan) and would still need the lint rule anyway.
+Operator (2026-10-09): flag any `Tabs` / `TabsList` / `SegmentedControl` inside a `PageFrame` `toolbar`, with an inline opt-out comment (`// adherence-ok: page-tabs-in-toolbar — <reason>`, reason required) for a tab group that genuinely scopes the body.
