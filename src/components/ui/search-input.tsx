@@ -3,7 +3,7 @@ import * as React from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "./input";
 import { cn } from "../../lib/utils";
-import { useControlSize } from "./toolbar-band";
+import { useAppDensity } from "./toolbar-band";
 import { useLabels } from "../../lib/labels";
 
 export type SearchInputProps = Omit<
@@ -55,7 +55,8 @@ export function SearchInput({
   const placeholder = placeholderProp ?? L.searchPlaceholder;
   const clearLabel = clearLabelProp ?? L.clearSearch;
   const ref = React.useRef<HTMLInputElement>(null);
-  const inputSize = inputSizeProp ?? useControlSize() ?? "default";
+  const density = useAppDensity();
+  const inputSize = inputSizeProp ?? density ?? "default";
   const size = SIZE[inputSize];
   const current = value ?? "";
   const showClear = clearable && current.length > 0;

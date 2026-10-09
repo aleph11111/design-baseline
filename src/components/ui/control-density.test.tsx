@@ -6,7 +6,8 @@ import { SearchInput } from "./search-input";
 import { Tabs, TabsList, TabsTrigger } from "./tabs";
 import { SegmentedControl } from "./segmented-control";
 import { Select, SelectTrigger, SelectValue } from "./select";
-import { ControlDensityProvider, OutsideToolbarBand } from "./toolbar-band";
+import { ToggleField } from "./toggle-field";
+import { ControlDensityProvider, OutsideToolbarBand, ToolbarSizeContext } from "./toolbar-band";
 
 afterEach(cleanup);
 
@@ -28,6 +29,7 @@ function Controls() {
         onValueChange={() => {}}
         options={[{ value: "a", label: "A" }]}
       />
+      <ToggleField aria-label="tog">t</ToggleField>
       <Select>
         <SelectTrigger data-testid="sel">
           <SelectValue />
@@ -46,6 +48,23 @@ describe("app control density", () => {
     expect(cls(screen.getByLabelText("in"))).toContain("h-9");
     expect(cls(screen.getByTestId("list"))).toContain("h-9");
     expect(cls(screen.getByTestId("sel"))).toContain("h-9");
+    expect(cls(screen.getByRole("searchbox"))).toContain("h-9");
+    expect(cls(screen.getByRole("tab"))).not.toContain("h-9");
+    expect(cls(screen.getByRole("tablist")).startsWith("inline-flex h-9 items-center")).toBe(true);
+    expect(cls(screen.getByRole("switch"))).toContain("h-9");
+    expect(screen.getByRole("radiogroup").outerHTML).toContain("h-9");
+  });
+
+  it("band step (filter sheet) still sets lg on ladder fields but leaves Button/Tabs/SearchInput alone", () => {
+    render(
+      <ToolbarSizeContext.Provider value="lg">
+        <Controls />
+      </ToolbarSizeContext.Provider>,
+    );
+    expect(cls(screen.getByLabelText("in"))).toContain("h-11");
+    expect(cls(screen.getByTestId("sel"))).toContain("h-11");
+    expect(cls(screen.getByText("btn"))).toContain("h-9");
+    expect(cls(screen.getByTestId("list"))).toContain("h-9");
   });
 
   it("resolves unsized controls to h-11 under touch; explicit size wins", () => {
@@ -61,6 +80,8 @@ describe("app control density", () => {
     expect(cls(screen.getByTestId("list"))).toContain("h-11");
     expect(cls(screen.getByTestId("sel"))).toContain("h-11");
     expect(cls(screen.getByRole("button", { name: /clear/i }))).toContain("h-11");
+    expect(cls(screen.getByRole("switch"))).toContain("h-11");
+    expect(screen.getByRole("radiogroup").outerHTML).toContain("h-11");
   });
 
   it("persists across overlays (OutsideToolbarBand)", () => {

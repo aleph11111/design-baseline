@@ -3,7 +3,7 @@ import * as React from "react"
 import * as TabsPrimitive from "@radix-ui/react-tabs"
 
 import { cn } from "../../lib/utils"
-import { useControlSize } from "./toolbar-band"
+import { useAppDensity } from "./toolbar-band"
 
 const Tabs = TabsPrimitive.Root
 
@@ -11,13 +11,14 @@ const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
 >(({ className, ...props }, ref) => {
-  const lg = useControlSize() === "lg"
+  const lg = useAppDensity() === "lg"
   return (
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
-      lg ? "h-11" : "h-9",
+      lg
+        ? "inline-flex h-11 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground"
+        : "inline-flex h-9 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
       className
     )}
     {...props}
@@ -30,7 +31,7 @@ const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
 >(({ className, ...props }, ref) => {
-  const lg = useControlSize() === "lg"
+  const lg = useAppDensity() === "lg"
   return (
   <TabsPrimitive.Trigger
     ref={ref}

@@ -64,6 +64,11 @@ export function ControlDensityProvider({
   );
 }
 
+/** App density alone (no band step) — for primitives that predate the band context and must not resize in the filter sheet. */
+export function useAppDensity(): "lg" | undefined {
+  return React.useContext(ControlDensityContext);
+}
+
 /**
  * The step a control takes when it has no explicit `size`: the band's step,
  * else the app density's, else `undefined` (the control's own default).
