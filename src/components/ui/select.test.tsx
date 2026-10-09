@@ -76,6 +76,8 @@ describe("SelectTrigger joined label", () => {
     expect(classes).toContain("w-40");
     expect(classes).not.toContain("grid");
     expect(classes).not.toContain("min-w-min");
+    // a fixed box is never squeezed by a crowded band
+    expect(classes).toContain("shrink-0");
     // the label keeps its content width and yields first; surplus goes to the value
     const labelClasses = classSet(screen.getByRole("combobox").querySelector("[data-joined-label]") as HTMLElement);
     expect(labelClasses).toContain("shrink-[1000]");

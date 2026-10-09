@@ -61,7 +61,7 @@ const SelectTrigger = React.forwardRef<
         label != null &&
           (fixed
             ? // fixed box: plain flex row — the label gives way first (FIXED_BOX_LABEL_CLASS), then the value truncates
-              "overflow-hidden pl-0"
+              "shrink-0 overflow-hidden pl-0"
             : "grid min-w-min grid-cols-[minmax(3rem,auto)_minmax(max-content,1fr)_auto] overflow-hidden pl-0"),
         className
       )}
