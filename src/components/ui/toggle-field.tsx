@@ -2,7 +2,7 @@
 import * as React from "react";
 import * as SwitchPrimitives from "@radix-ui/react-switch";
 import { cn } from "../../lib/utils";
-import { JOINED_LABEL_CLASS, ToolbarSizeContext, useInToolbarBand } from "./toolbar-band";
+import { JOINED_LABEL_CLASS, useControlSize, useInToolbarBand } from "./toolbar-band";
 
 export type ToggleFieldProps = Omit<
   React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>,
@@ -43,7 +43,7 @@ export const ToggleField = React.forwardRef<
   const labelId = React.useId();
   const joined = useInToolbarBand();
   const textId = React.useId();
-  const bandSize = React.useContext(ToolbarSizeContext);
+  const bandSize = useControlSize();
   const size = SIZE[sizeProp ?? bandSize ?? "default"];
   const box = (
     <SwitchPrimitives.Root

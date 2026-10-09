@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import { AppShell } from "./AppShell";
+import { Button } from "../ui/button";
 
 afterEach(cleanup);
 
@@ -91,5 +92,20 @@ describe("AppShell toaster", () => {
   it("renders no Sonner toaster with toaster={false}", () => {
     const { baseElement } = renderShell({ toaster: false });
     expect(baseElement.querySelectorAll(TOASTER)).toHaveLength(0);
+  });
+});
+
+describe("AppShell density", () => {
+  const shell = (density?: "touch") =>
+    render(
+      <AppShell sidebar={<nav />} header={<header />} density={density}>
+        <Button>go</Button>
+      </AppShell>,
+    ).getByText("go").className;
+
+  it("touch resolves unsized controls to h-11; default leaves h-9", () => {
+    expect(shell("touch")).toContain("h-11");
+    cleanup();
+    expect(shell()).toContain("h-9");
   });
 });

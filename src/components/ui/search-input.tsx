@@ -3,6 +3,7 @@ import * as React from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "./input";
 import { cn } from "../../lib/utils";
+import { useControlSize } from "./toolbar-band";
 import { useLabels } from "../../lib/labels";
 
 export type SearchInputProps = Omit<
@@ -44,7 +45,7 @@ export function SearchInput({
   onChange,
   placeholder: placeholderProp,
   className,
-  inputSize = "default",
+  inputSize: inputSizeProp,
   clearable = false,
   count,
   clearLabel: clearLabelProp,
@@ -54,6 +55,7 @@ export function SearchInput({
   const placeholder = placeholderProp ?? L.searchPlaceholder;
   const clearLabel = clearLabelProp ?? L.clearSearch;
   const ref = React.useRef<HTMLInputElement>(null);
+  const inputSize = inputSizeProp ?? useControlSize() ?? "default";
   const size = SIZE[inputSize];
   const current = value ?? "";
   const showClear = clearable && current.length > 0;
@@ -99,7 +101,11 @@ export function SearchInput({
                 onChange?.("");
                 ref.current?.focus();
               }}
-              className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className={cn(
+                "rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                // 44pt target on the touch step
+                inputSize === "lg" && "-mr-2.5 flex h-11 w-11 items-center justify-center"
+              )}
             >
               <X className="h-4 w-4" />
             </button>

@@ -16,6 +16,7 @@ export * from "@/components/ui/color-field.test";
 export * from "@/components/ui/color-field";
 export * from "@/components/ui/command";
 export * from "@/components/ui/confirmation-dialog";
+export * from "@/components/ui/control-density.test";
 export * from "@/components/ui/dialog";
 export * from "@/components/ui/dropdown-menu";
 export * from "@/components/ui/error-boundary";

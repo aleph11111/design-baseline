@@ -37,10 +37,42 @@ export function OutsideToolbarBand({ children }: { children: React.ReactNode }):
  * The control-ladder step a band imposes on controls that don't pick one.
  * `PageFrame`'s mobile filter sheet sets `"lg"` (the 44pt touch target, 16px
  * text so iOS does not zoom); unset everywhere else, so controls keep their own
- * default. Read by SelectTrigger, Input and SegmentedControl; an explicit
+ * default. Read (via `useControlSize`) by every ladder control; an explicit
  * `size` always wins.
  */
 export const ToolbarSizeContext = React.createContext<"lg" | undefined>(undefined);
+
+/**
+ * App-level touch density (`AppShell density="touch"`): every control that
+ * doesn't pick a step resolves to `lg`. Unlike `ToolbarSizeContext` it is NOT
+ * reset by overlays — dialogs, sheets and popovers in a touch app stay 44pt.
+ */
+const ControlDensityContext = React.createContext<"lg" | undefined>(undefined);
+
+/** Sets the app's control density. `"touch"` resolves the default step to `lg`; `"default"` is a no-op. */
+export function ControlDensityProvider({
+  density = "default",
+  children,
+}: {
+  density?: "default" | "touch";
+  children: React.ReactNode;
+}): React.ReactElement {
+  return (
+    <ControlDensityContext.Provider value={density === "touch" ? "lg" : undefined}>
+      {children}
+    </ControlDensityContext.Provider>
+  );
+}
+
+/**
+ * The step a control takes when it has no explicit `size`: the band's step,
+ * else the app density's, else `undefined` (the control's own default).
+ */
+export function useControlSize(): "lg" | undefined {
+  const band = React.useContext(ToolbarSizeContext);
+  const app = React.useContext(ControlDensityContext);
+  return band ?? app;
+}
 
 /**
  * The joined label cell: a shaded caption fused to a control's left edge, so a

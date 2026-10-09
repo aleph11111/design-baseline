@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { cn } from "../../lib/utils";
-import { JOINED_LABEL_CLASS, ToolbarSizeContext } from "./toolbar-band";
+import { JOINED_LABEL_CLASS, useControlSize } from "./toolbar-band";
 
 export type SegmentedOption<T extends string> = {
   value: T;
@@ -62,7 +62,7 @@ export function SegmentedControl<T extends string>({
   ...rest
 }: SegmentedControlProps<T>): React.ReactElement {
   const labelId = React.useId();
-  const bandSize = React.useContext(ToolbarSizeContext);
+  const bandSize = useControlSize();
   const size = sizeProp ?? bandSize ?? "default";
   const geometry = SIZE[size];
   return (
