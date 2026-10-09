@@ -3,10 +3,10 @@
 // their own (see useCrudDialogController's `labels` option and confirmDiscard's
 // `message` argument). i18n is the consumer's concern, not the baseline's.
 
-import { labelsEn } from "../../../lib/labels";
+import { labelsEn, useLabels } from "../../../lib/labels";
 
-// English defaults, re-exported from the shared label module; a mounted
-// `BaselineLabelsProvider` supplies the localized equivalents.
+// English presets only — module constants cannot read the provider. Inside a
+// component use `useCrudErrors()` (localized by `BaselineLabelsProvider`).
 export const CRUD_ERRORS = {
   load: labelsEn.crudLoadError,
   create: labelsEn.crudCreateError,
@@ -14,7 +14,14 @@ export const CRUD_ERRORS = {
   delete: labelsEn.crudDeleteError,
 } as const;
 
+/** English preset; pass `useLabels().discardPrompt` to `confirmDiscard` for a localized prompt. */
 export const CRUD_DISCARD_PROMPT = labelsEn.discardPrompt;
+
+/** The crud-dialog mutation/load error strings from the active label provider. */
+export function useCrudErrors(): { load: string; create: string; update: string; delete: string } {
+  const L = useLabels();
+  return { load: L.crudLoadError, create: L.crudCreateError, update: L.crudUpdateError, delete: L.crudDeleteError };
+}
 
 /**
  * Shared onConfirmDiscard implementation for useCrudDialogMode and

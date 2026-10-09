@@ -7,7 +7,7 @@ import { labelsEn } from "./labels";
 // Class-level sweep: no English default string from the preset may be re-inlined
 // as a literal in a component — every default reads the provider.
 // `completed`/`current`/`upcoming` are also state enum values, so they are skipped.
-const SKIP = new Set(["completed", "current", "upcoming", "pagination"]);
+const SKIP = new Set(["completed", "current", "upcoming"]);
 
 function walk(dir: string): string[] {
   return readdirSync(dir).flatMap((n) => {
@@ -29,7 +29,7 @@ describe("label sweep", () => {
         .filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l));
       for (const line of code) {
         for (const lit of literals) {
-          if (line.includes(`"${lit}"`) || line.includes(`'${lit}'`)) hits.push(`${file}: ${lit}`);
+          if (["\"", "'", "`"].some((q) => line.includes(q + lit + q)) || line.includes(`>${lit}<`) || new RegExp(`>\\s*${lit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`).test(line)) hits.push(`${file}: ${lit}`);
         }
       }
     }

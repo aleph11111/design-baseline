@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { BaselineLabelsProvider, labelsDe } from "./labels";
 import { StateView } from "../components/ui/state-view";
@@ -31,10 +31,8 @@ describe("BaselineLabelsProvider — de preset", () => {
   });
 
   it("ErrorBoundary (class component) reads the provider", () => {
-    const spy = console.error;
-    console.error = () => {};
-    de(<ErrorBoundary><Boom /></ErrorBoundary>);
-    console.error = spy;
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    try { de(<ErrorBoundary><Boom /></ErrorBoundary>); } finally { spy.mockRestore(); }
     expect(screen.getByText("Ein Fehler ist aufgetreten")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Erneut versuchen" })).toBeTruthy();
   });
@@ -84,10 +82,8 @@ describe("override precedence", () => {
   });
 
   it("ErrorBoundary props beat the preset", () => {
-    const spy = console.error;
-    console.error = () => {};
-    de(<ErrorBoundary title="Mist" description="kaputt" retryLabel="Noch mal"><Boom /></ErrorBoundary>);
-    console.error = spy;
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    try { de(<ErrorBoundary title="Mist" description="kaputt" retryLabel="Noch mal"><Boom /></ErrorBoundary>); } finally { spy.mockRestore(); }
     expect(screen.getByText("Mist")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Noch mal" })).toBeTruthy();
   });

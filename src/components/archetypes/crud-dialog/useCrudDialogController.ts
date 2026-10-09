@@ -52,6 +52,7 @@ export type CrudDialogLabels = {
   creating?: string;
 };
 
+/** English preset only; the controller itself reads defaults from `BaselineLabelsProvider`. */
 export const DEFAULT_CRUD_DIALOG_LABELS: CrudDialogLabels = {
   edit: labelsEn.edit,
   create: labelsEn.create,
