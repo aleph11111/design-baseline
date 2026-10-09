@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from "./tabs";
 import { SegmentedControl } from "./segmented-control";
 import { Select, SelectTrigger, SelectValue } from "./select";
 import { ToggleField } from "./toggle-field";
-import { ControlDensityProvider, OutsideToolbarBand, ToolbarSizeContext } from "./toolbar-band";
+import { ControlDensityProvider, OutsideToolbarBand, ToolbarBandContext, ToolbarSizeContext } from "./toolbar-band";
 
 afterEach(cleanup);
 
@@ -93,5 +93,25 @@ describe("app control density", () => {
       </ControlDensityProvider>,
     );
     expect(cls(screen.getByText("btn"))).toContain("h-11");
+  });
+});
+
+describe("SearchInput band floor", () => {
+  const wrapper = (el: HTMLElement) => el.parentElement as HTMLElement;
+
+  it("floors at 14rem in a band, overridable via minWidth", () => {
+    render(
+      <ToolbarBandContext.Provider value={true}>
+        <SearchInput aria-label="a" />
+        <SearchInput aria-label="b" minWidth="20rem" />
+      </ToolbarBandContext.Provider>
+    );
+    expect(wrapper(screen.getByLabelText("a")).style.minWidth).toBe("14rem");
+    expect(wrapper(screen.getByLabelText("b")).style.minWidth).toBe("20rem");
+  });
+
+  it("is unchanged outside a band", () => {
+    render(<SearchInput aria-label="c" minWidth="20rem" />);
+    expect(wrapper(screen.getByLabelText("c")).style.minWidth).toBe("");
   });
 });

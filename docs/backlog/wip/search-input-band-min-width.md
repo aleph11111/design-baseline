@@ -8,8 +8,7 @@ value: normal
 gate:
   score: 4
   passed: [title, context, what_to_do, acceptance, related]
-  failed:
-    - open_question: "floor value fixed 14rem vs placeholder-measured — confirm before /feat"
+  failed: []
   graded_at: 2026-10-09T00:00:00Z
 ---
 
@@ -42,7 +41,3 @@ gate:
 - [[native-field-joined-label-sheet-column]] — adjacent joined-label width work in the same band
 - [ADR-0008](/docs/adr/0008-one-page-frame-slot-owned-placement.md) — One page frame, slot-owned placement
 - [docs/STYLE.md](/docs/STYLE.md) — Toolbar field labels
-
-## Open question
-
-Floor value: fixed 14rem (chosen — matches mistra's hack, deterministic) vs. sizing to the placeholder text width (adapts to locale, but needs measurement and varies per page). Recommended default asserted above; confirm before /feat.
