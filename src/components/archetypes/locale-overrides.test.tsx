@@ -7,6 +7,8 @@ import { SettingsTableShell } from "./settings-table";
 import { ListWithDetailShell } from "./list-with-detail";
 import { GroupedListShell } from "./grouped-list";
 import { WizardShell } from "./import-wizard";
+import { PageFrame } from "../layout/PageFrame";
+import { BaselineLabelsProvider, labelsEn } from "../../lib/labels";
 import { FeedItem } from "./feed-inbox";
 import { CrudDialogBody } from "./crud-dialog";
 
@@ -390,5 +392,50 @@ describe("CrudDialogBody loadingLabel", () => {
     expect(screen.getByRole("status").textContent).toBe("Lädt…");
     rerender(<CrudDialogBody isLoading>x</CrudDialogBody>);
     expect(screen.getByRole("status").textContent).toBe("Loading…");
+  });
+});
+
+describe("PageFrame filter-sheet labels", () => {
+  const frame = (props: Record<string, unknown> = {}) =>
+    render(
+      <PageFrame title="T" toolbar={<span />} filterCount={1} onResetFilters={() => {}} {...props}>x</PageFrame>,
+    );
+  const sheetText = () => {
+    fireEvent.click(screen.getAllByRole("button", { name: /^Filter/ })[0]!);
+    return document.body.textContent ?? "";
+  };
+  afterEach(() => {
+    document.documentElement.lang = "";
+  });
+
+  it("lang=de without a provider renders German", () => {
+    document.documentElement.lang = "de-DE";
+    frame();
+    const t = sheetText();
+    expect(t).toContain("Zurücksetzen");
+    expect(t).toContain("Fertig");
+  });
+  it("lang=en / absent renders English", () => {
+    document.documentElement.lang = "en";
+    frame();
+    const t = sheetText();
+    expect(t).toContain("Reset");
+    expect(t).toContain("Done");
+  });
+  it("a provider beats lang", () => {
+    document.documentElement.lang = "de";
+    render(
+      <BaselineLabelsProvider labels={labelsEn}>
+        <PageFrame title="T" toolbar={<span />} filterCount={1} onResetFilters={() => {}}>x</PageFrame>
+      </BaselineLabelsProvider>,
+    );
+    expect(sheetText()).toContain("Reset");
+  });
+  it("filterLabels beats lang", () => {
+    document.documentElement.lang = "de";
+    frame({ filterLabels: { reset: "Clear", done: "OK" } });
+    const t = sheetText();
+    expect(t).toContain("Clear");
+    expect(t).toContain("OK");
   });
 });

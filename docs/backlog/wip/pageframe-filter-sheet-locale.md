@@ -1,13 +1,12 @@
 ---
 area: layout
 opened: 2026-10-08
-status: needs-enrichment
+status: ready
 value: normal
 gate:
   score: 4
   passed: [title, context, what_to_do, acceptance, related]
-  failed:
-    - open_question: "locale-resolution route (LocaleProvider vs document.documentElement.lang) auto-resolved — confirm before /feat"
+  failed: []
   graded_at: "2026-10-08T13:45:00Z"
 ---
 
@@ -54,11 +53,9 @@ sibling `[[component-locale-provider]]`.
 - [docs/PACKAGE.md](/docs/PACKAGE.md) — the consumption-contract locale row this extends one tier down
 - [[pageframe-filter-sheet-stacks-nested-fields]] — same `data-filter-sheet` container
 
-## Open question
+## Decision
 
-Resolving the defaults — an explicit LocaleProvider (per `[[component-locale-provider]]`)
-or `document.documentElement.lang`? Auto-resolved to provider-first with `document.documentElement.lang` as
-the absent-provider fallback (recommended: matches the mechanism the i18n sibling is
-already building, and degrades gracefully to English where neither is mounted).
-Alternative: `document.documentElement.lang` only, provider coupling deferred until
-`[[component-locale-provider]]` ships.
+Provider-first (`BaselineLabelsProvider`, shipped v0.8.0 / #516), `document.documentElement.lang`
+as the no-provider fallback, English last (orchestrator, 2026-10-09). #516 already routes the sheet
+labels through `useLabels()` but left the no-provider case English and `labelsDe.filter` as "Filter",
+so the ticket was not fully subsumed; shipped as v0.8.1 in `useLabels()` (all components, not just PageFrame).
