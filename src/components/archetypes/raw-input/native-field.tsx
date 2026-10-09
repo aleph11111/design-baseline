@@ -272,7 +272,7 @@ export function NativeField({
   return (
     <FieldFrame className={className}>
       {joined ? (
-        <div className="grid grid-cols-[minmax(3rem,auto)_1fr]">
+        <div className="grid grid-cols-[minmax(3rem,auto)_minmax(max-content,1fr)]">
           {fieldLabel}
           <div>{control}</div>
         </div>

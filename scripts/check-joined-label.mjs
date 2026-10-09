@@ -1,6 +1,8 @@
 // Real-browser check: a joined toolbar label yields (ellipsis) before the
 // control value truncates. jsdom can't measure layout. Run: npm run check:joined-label
-// (builds gallery-dist first, uses local Chrome). Fails if JOINED_LABEL_CLASS is shrink-0 again.
+// (builds gallery-dist first, uses local Chrome). Guards the grid layout of joined controls
+// (label column minmax(3rem,auto), value columns floored at content width): dropping those
+// templates from SelectTrigger, SegmentedControl or NativeField fails the 1440px/900px runs.
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
@@ -37,7 +39,9 @@ console.log(`joined-label check: ${total} widths against ${DIST} (Chrome: ${CHRO
 const measure = (root) =>
   [...root.querySelectorAll("[data-joined-label]")].map((label) => {
     const trigger = label.parentElement;
-    const value = [...trigger.children].filter((c) => c !== label && c.tagName.toLowerCase() !== "svg").pop();
+    const cell = [...trigger.children].filter((c) => c !== label && c.tagName.toLowerCase() !== "svg").pop();
+    // a native field wraps its input: measure the input, whose own overflow is the clipped text
+    const value = cell.querySelector("input") ?? cell;
     const text = label.firstElementChild;
     const t = trigger.getBoundingClientRect();
     const v = value.getBoundingClientRect();
@@ -62,18 +66,17 @@ const run = async (width, openSheet, allowFloor = false) => {
     const all = await page.evaluate(
       `(${measure})(document.querySelector(${JSON.stringify(openSheet ? '[role="dialog"]' : '[data-testid="crowded-band"]')}))`,
     );
-    const rows = all;
+
     const expected = 4; // select, select, segmented control, native field
-    if (rows.length !== expected) throw new Error(`expected ${expected} joined controls, found ${rows.length}`);
+    if (all.length !== expected) throw new Error(`expected ${expected} joined controls, found ${all.length}`);
     // At 1440/430 every label is crowded enough to truncate; at the narrow desktop width
     // the labels may already sit at their floor, so only "value whole" is asserted there.
+    const rows = all;
     const bad = rows.filter((r) => !r.valueWhole);
     // crowded for real: at least one label must have given way (else the demo proves nothing)
     if (!allowFloor && !rows.some((r) => r.labelTruncated)) bad.push({ error: "no label truncated — demo not crowded" });
     // sheet column must stay the fixed 130px on every row
     const widthOk = !openSheet || rows.every((r) => r.labelW === 130);
-    // a narrow desktop band must scroll rather than clip: scrollWidth >= clientWidth always holds,
-    // so the value-whole assertion above is the real check; record the band's scroll state.
     report(`joined labels @ ${label}`, bad.length === 0 && widthOk, JSON.stringify(rows));
     await page.close();
   } catch (e) {

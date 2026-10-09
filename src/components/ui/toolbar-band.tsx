@@ -90,7 +90,8 @@ export function useControlSize(): "lg" | undefined {
  * label lays out as a grid whose label column is `minmax(JOINED_LABEL_FLOOR,
  * auto)` and whose value columns are never narrower than their content, so the
  * control's own minimum width is label floor + full value: it stops shrinking
- * there and the band scrolls instead of clipping the value.
+ * there and the band scrolls instead of clipping the value. (`shrink` here only
+ * serves custom flex consumers; it is not the mechanism for the built-ins.)
  */
 export const JOINED_LABEL_CLASS =
   "flex min-w-0 shrink items-center overflow-hidden self-stretch whitespace-nowrap bg-muted px-3 font-normal text-muted-foreground";
