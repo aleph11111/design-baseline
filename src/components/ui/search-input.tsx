@@ -3,7 +3,7 @@ import * as React from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "./input";
 import { cn } from "../../lib/utils";
-import { useAppDensity } from "./toolbar-band";
+import { useAppDensity, useInToolbarBand } from "./toolbar-band";
 import { useLabels } from "../../lib/labels";
 
 export type SearchInputProps = Omit<
@@ -22,6 +22,12 @@ export type SearchInputProps = Omit<
   count?: React.ReactNode;
   /** Accessible name of the clear-X button. Override in a non-English app. */
   clearLabel?: string;
+  /**
+   * Floor width of the wrapper inside a `PageFrame` toolbar band (any CSS length).
+   * Defaults to `14rem` so a crowded band scrolls instead of clipping the
+   * placeholder; ignored outside a band.
+   */
+  minWidth?: string;
 };
 
 // Per-size geometry. The molecule owns these so a compact toolbar box and a
@@ -49,6 +55,7 @@ export function SearchInput({
   clearable = false,
   count,
   clearLabel: clearLabelProp,
+  minWidth = "14rem",
   ...rest
 }: SearchInputProps): React.ReactElement {
   const L = useLabels();
@@ -56,6 +63,7 @@ export function SearchInput({
   const clearLabel = clearLabelProp ?? L.clearSearch;
   const ref = React.useRef<HTMLInputElement>(null);
   const density = useAppDensity();
+  const inBand = useInToolbarBand();
   const inputSize = inputSizeProp ?? density ?? "default";
   const size = SIZE[inputSize];
   const current = value ?? "";
@@ -63,7 +71,10 @@ export function SearchInput({
   const hasTrailing = showClear || count != null;
 
   return (
-    <div className={cn("relative max-w-sm flex-1", className)}>
+    <div
+      className={cn("relative max-w-sm flex-1", className)}
+      style={inBand ? { minWidth } : undefined}
+    >
       <Search
         className={cn(
           "pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted-foreground",

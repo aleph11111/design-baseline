@@ -853,6 +853,33 @@ function PageFrameDemo() {
           </PageFrame>
         </div>
       </Variant>
+      <Variant label="crowded band — SearchInput holds its 14rem floor (placeholder never clipped); the band scrolls instead. minWidth overrides it">
+        <div className="w-[34rem] max-w-full">
+          <PageFrame
+            title="Aufgaben"
+            toolbar={
+              <>
+                <SearchInput placeholder="Aufgabe" />
+                <SelectField
+                  label="Status"
+                  value="a"
+                  onChange={() => {}}
+                  options={[{ value: "a", label: "Alle Status" }]}
+                />
+                <SelectField
+                  label="Bearbeiter"
+                  value="a"
+                  onChange={() => {}}
+                  options={[{ value: "a", label: "Alle Bearbeiter" }]}
+                />
+                <SearchInput placeholder="Wide floor (minWidth=20rem)" minWidth="20rem" />
+              </>
+            }
+          >
+            <p className="text-sm text-muted-foreground">Rows</p>
+          </PageFrame>
+        </div>
+      </Variant>
       <Variant label="nested PageFrame (derived, no prop) — titles itself with NestedPageHeading and joins the parent's surface">
         <PageFrame
           title="Einstellungen"
