@@ -17,8 +17,8 @@ import { cn } from "../../lib/utils";
 export const HEADING_ROW_CLASSES = {
   /** Outer wrapper. */
   outer: "space-y-1.5",
-  /** Two-column row: title block left, actions right. */
-  row: "flex items-start justify-between gap-4",
+  /** Title block left, actions right from `sm`; stacked (actions beneath) on phones. */
+  row: "flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between",
   /** Title block. */
   titleBlock: "min-w-0 space-y-1",
   /** Title/badges row. */
@@ -27,8 +27,8 @@ export const HEADING_ROW_CLASSES = {
   badges: "flex flex-wrap items-center gap-1.5",
   /** Subtitle scale. */
   subtitle: "text-xs text-muted-foreground",
-  /** Right-aligned actions wrapper. */
-  actions: "flex shrink-0 items-center gap-3",
+  /** Actions wrapper: right-aligned from `sm`, wrapping beneath the title below it. */
+  actions: "flex shrink-0 flex-wrap items-center gap-3",
 } as const;
 
 // ---------------------------------------------------------------------------

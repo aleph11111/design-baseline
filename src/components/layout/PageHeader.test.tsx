@@ -174,4 +174,25 @@ describe("PageHeader", () => {
       "text-display-title font-semibold leading-tight tracking-tight text-foreground",
     );
   });
+
+  it("stacks the actions beneath a long title below sm", () => {
+    const { getByRole, getByTestId } = render(
+      <PageHeader
+        title="A very long page title that would otherwise be squeezed beside the actions"
+        subtitle="A long subtitle that also needs the full row width on phones"
+        actions={
+          <>
+            <button>Export</button>
+            <button data-testid="action">Edit</button>
+          </>
+        }
+      />,
+    );
+
+    const row = getByRole("heading", { level: 1 }).parentElement!.parentElement!
+      .parentElement!;
+    expect(row.className).toContain("flex-col");
+    expect(row.className).toContain("sm:flex-row");
+    expect(getByTestId("action").parentElement!.className).toContain("flex-wrap");
+  });
 });

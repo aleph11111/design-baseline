@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-10-10
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "scoped responsive-class change on one shared row constant plus test, demo and version bump; cause is established"
