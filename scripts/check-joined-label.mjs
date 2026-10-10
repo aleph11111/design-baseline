@@ -1,10 +1,10 @@
 // Real-browser check: a joined toolbar label yields (ellipsis) before the
 // control value truncates. jsdom can't measure layout. Run: npm run check:joined-label
 // (builds gallery-dist first, uses local Chrome). Guards the grid layout of joined controls
-// (label column minmax(3rem,auto), value columns floored at content width): dropping those
+// (label column auto = its text up to 8rem, value columns floored at content width): dropping those
 // templates from SelectTrigger, SegmentedControl or NativeField fails the 1440px/900px runs.
-// The custom flex consumer row guards JOINED_LABEL_CLASS itself: with `shrink-0` its label
-// refuses to yield and the value overflows the row (verified: the check fails on that revert).
+// The custom flex consumer row guards JOINED_LABEL_CLASS's own floor: a label narrower than
+// min(text, 8rem) (a `max-w-24` cap, a `min-w-0` + shrink regression) fails the stub assertion.
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
@@ -26,7 +26,7 @@ const url = `http://localhost:${server.address().port}/#/l/page-frame`;
 const browser = await chromium.launch({ executablePath: CHROME });
 const failures = [];
 let n = 0;
-const total = 5;
+const total = 8;
 const report = (label, ok, detail) => {
   n++;
   console.log(`[${new Date().toTimeString().slice(0, 8)}] ${n}/${total} ${ok ? "ok  " : "FAIL"} ${label}: ${detail}`);
@@ -52,6 +52,9 @@ const measure = (root) =>
       // the first value cell starts right after the label (gap-1/gap-2 at most): no stretched label track
       gapOk: label.nextElementSibling.getBoundingClientRect().left - label.getBoundingClientRect().right <= 12,
       builtin: !label.closest("[data-flex-consumer]"),
+      // the floor: the label cell is never narrower than its full text capped at 8rem (128px) —
+      // covers "≥4 characters" and "truncates only at the cap" at once
+      stubbed: label.getBoundingClientRect().width < Math.min(text.scrollWidth + parseFloat(getComputedStyle(label).paddingLeft) + parseFloat(getComputedStyle(label).paddingRight) + parseFloat(getComputedStyle(label).borderRightWidth), 128) - 1,
       labelW: Math.round(label.getBoundingClientRect().width),
       labelTruncated: text.scrollWidth > text.clientWidth,
       valueWhole: parts.every((p) => p.scrollWidth <= p.clientWidth + 1 && p.scrollHeight <= p.clientHeight + 1 && p.getBoundingClientRect().right <= t.right + 1),
@@ -80,7 +83,7 @@ const run = async (width, openSheet, allowFloor = false, testid = "crowded-band"
     const rows = all;
     // fixed-width boxes truncate their value by design; only content-sized controls must keep it whole
     const fixedBox = testid === "fixed-width-band";
-    const bad = rows.filter((r) => !r.gapOk || (!fixedBox && !r.valueWhole));
+    const bad = rows.filter((r) => !r.gapOk || (!openSheet && r.stubbed) || (!fixedBox && !r.valueWhole));
     // crowded for real: at least one BUILT-IN control's label must have given way (else the demo proves nothing)
     if (!allowFloor && !rows.filter((r) => r.builtin).some((r) => r.labelTruncated)) bad.push({ error: "no label truncated — demo not crowded" });
     // sheet column must stay the fixed 130px on every row
@@ -92,8 +95,11 @@ const run = async (width, openSheet, allowFloor = false, testid = "crowded-band"
   }
 };
 await run(1440, false);
-await run(430, true);
+await run(430, true, true); // sheet labels wrap (v0.10.4): "a label truncated" cannot hold there
 await run(900, false, true);
+await run(1024, false, true);
+await run(1440, false, true, "german-label-band", 3);
+await run(1024, false, true, "german-label-band", 3);
 await run(430, true, true, "fixed-width-band", 4); // width-classed fields in the sheet: no gap after the label
 
 // Explicit width (w-28 / w-40) sets the WHOLE box: the grid must fit its frame, and the frame
@@ -112,10 +118,10 @@ try {
       const cs = getComputedStyle(label);
       const natural = label.firstElementChild.scrollWidth + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + parseFloat(cs.borderRightWidth);
       const labelStretched = label.getBoundingClientRect().width > natural + 2;
-      return { labelW: Math.round(label.getBoundingClientRect().width), labelSW: label.scrollWidth, frameW: Math.round(f.width), gridFits: grid.scrollWidth <= grid.clientWidth + 1 && Math.max(...kids) <= f.right + 1, labelStretched };
+      return { labelW: Math.round(label.getBoundingClientRect().width), labelSW: label.scrollWidth, frameW: Math.round(f.width), gridFits: grid.scrollWidth <= grid.clientWidth + 1 && Math.max(...kids) <= f.right + 1, labelStretched, stubbed: label.getBoundingClientRect().width < Math.min(natural, 56) - 1 /* narrow box: ≥ ~4ch + padding (the 60% cap) */ };
     }),
   );
-  const ok = fixed.length === 4 && [112, 320, 256, 160].every((w, i) => fixed[i].frameW === w) && fixed.every((r) => r.gridFits && !r.labelStretched);
+  const ok = fixed.length === 4 && [112, 320, 256, 160].every((w, i) => fixed[i].frameW === w) && fixed.every((r) => r.gridFits && !r.labelStretched && !r.stubbed);
   report("fixed-width boxes @ 1440px (w-28, w-80, w-64, w-40)", ok, JSON.stringify(fixed));
   await page.close();
 } catch (e) {

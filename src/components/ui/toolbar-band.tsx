@@ -85,16 +85,16 @@ export function useControlSize(): "lg" | undefined {
  * height (STYLE.md "Toolbar field labels"). Shared by SelectTrigger's and
  * SegmentedControl's `label`, and by SelectField / NativeField in a band.
  *
- * The label is the elastic part of a crowded band: it shrinks (and ellipsizes
- * via `JoinedLabelText`) before the control's value does. A control with a
- * label lays out as a grid whose label column is `minmax(JOINED_LABEL_FLOOR,
- * auto)` and whose value columns are never narrower than their content, so the
+ * The label's floor is its own text up to `max-w-32` (8rem, padding included): `overflow-clip`
+ * (not `hidden`) keeps the automatic minimum size, so a short label never shrinks and a long
+ * one ellipsizes (via `JoinedLabelText`) only at the cap. Past that the band scrolls. A control with a
+ * label lays out as a grid whose label column is `auto` and whose value columns are never narrower than their content, so the
  * control's own minimum width is label floor + full value: it stops shrinking
  * there and the band scrolls instead of clipping the value. (`shrink` here only
  * serves custom flex consumers; it is not the mechanism for the built-ins.)
  */
 export const JOINED_LABEL_CLASS =
-  "flex min-w-0 shrink items-center overflow-hidden self-stretch whitespace-nowrap bg-muted px-3 font-normal text-muted-foreground";
+  "flex max-w-32 shrink items-center overflow-clip self-stretch whitespace-nowrap bg-muted px-3 font-normal text-muted-foreground";
 
 /** The label's text, ellipsized — `text-overflow` is inert on the label's own flex container. */
 export function JoinedLabelText({ children }: { children: React.ReactNode }): React.ReactElement {
@@ -116,6 +116,6 @@ export function hasWidthClass(className?: string): boolean {
 /**
  * Label class inside a FIXED-width joined box (a width class on the control): the box is a
  * plain flex row, the label keeps its content width, gives way first (weight 1000, down to
- * a 3rem floor), and any surplus width goes to the value, never to the label.
+ * its text floor, capped at 8rem, or 60% of the box when that is narrower, but never below ~4ch of text), and any surplus width goes to the value, never to the label.
  */
-export const FIXED_BOX_LABEL_CLASS = "min-w-12 shrink-[1000]";
+export const FIXED_BOX_LABEL_CLASS = "max-w-[max(min(8rem,60%),calc(4ch+1.5rem))] shrink-[1000]";

@@ -81,7 +81,8 @@ describe("SelectTrigger joined label", () => {
     // the label keeps its content width and yields first; surplus goes to the value
     const labelClasses = classSet(screen.getByRole("combobox").querySelector("[data-joined-label]") as HTMLElement);
     expect(labelClasses).toContain("shrink-[1000]");
-    expect(labelClasses).toContain("min-w-12");
+    expect(labelClasses).not.toContain("min-w-12");
+    expect(labelClasses).toContain("max-w-[max(min(8rem,60%),calc(4ch+1.5rem))]");
   });
 
   it("a content-sized labelled trigger floors at label floor + full value", () => {
@@ -94,7 +95,7 @@ describe("SelectTrigger joined label", () => {
     );
     const classes = classSet(screen.getByRole("combobox"));
     expect(classes).toContain("min-w-min");
-    expect(classes).toContain("grid-cols-[minmax(3rem,auto)_minmax(max-content,1fr)_auto]");
+    expect(classes).toContain("grid-cols-[auto_minmax(max-content,1fr)_auto]");
   });
 
   it("renders no label cell without the prop", () => {

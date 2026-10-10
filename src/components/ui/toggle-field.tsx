@@ -53,7 +53,7 @@ export const ToggleField = React.forwardRef<
       className={cn(
         "group inline-flex items-stretch overflow-hidden rounded-md border font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
         size.box,
-        label != null && joined && !fixed && "inline-grid min-w-min grid-cols-[minmax(3rem,auto)_auto]",
+        label != null && joined && !fixed && "inline-grid min-w-min grid-cols-[auto_auto]",
         fixed && "shrink-0",
         className,
       )}
