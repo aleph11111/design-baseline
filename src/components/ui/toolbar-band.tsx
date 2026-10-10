@@ -116,6 +116,6 @@ export function hasWidthClass(className?: string): boolean {
 /**
  * Label class inside a FIXED-width joined box (a width class on the control): the box is a
  * plain flex row, the label keeps its content width, gives way first (weight 1000, down to
- * its text floor, capped at 8rem or 60% of the box so a narrow box keeps room for its value), and any surplus width goes to the value, never to the label.
+ * its text floor, capped at 8rem, or 60% of the box when that is narrower, but never below ~4ch of text), and any surplus width goes to the value, never to the label.
  */
-export const FIXED_BOX_LABEL_CLASS = "max-w-[min(8rem,60%)] shrink-[1000]";
+export const FIXED_BOX_LABEL_CLASS = "max-w-[max(min(8rem,60%),calc(4ch+1.5rem))] shrink-[1000]";

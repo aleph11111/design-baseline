@@ -5,7 +5,7 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 ## v0.10.5
 
 - **Fixed:** a joined toolbar label (select, segmented control, toggle field, native field) no longer collapses to a one-letter stub (`V…`) in a crowded band: its floor is now its own text up to an 8rem cap (`JOINED_LABEL_CLASS`) instead of a 3rem track. Past the cap it ellipsizes; when the band cannot fit, it scrolls or collapses to the filter sheet as before. The sheet's 130px label column is unchanged.
-- **Consumer:** none.
+- **Consumer:** a custom flex row that uses the exported `JOINED_LABEL_CLASS` no longer lets the label shrink below its text (≤8rem, `min-w-0` is gone) — size such rows for label floor + value, or the value overflows. Built-in controls need nothing.
 - **Breaking:** no.
 
 ## v0.10.4

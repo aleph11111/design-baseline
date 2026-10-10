@@ -835,6 +835,23 @@ function PageFrameDemo() {
           </div>
         </div>
       </Variant>
+      <Variant label="short and long German labels keep their text — never a one-letter stub at 1440px and 1024px; checked by `npm run check:joined-label`">
+        <div data-testid="german-label-band">
+          <PageFrame
+            title="Gesellschaften"
+            filterCount={3}
+            toolbar={
+              <>
+                {["Status", "Periodenvergleich", "Inhabergeführt"].map((l) => (
+                  <SelectField key={l} label={l} value="all" onChange={() => {}} options={[{ value: "all", label: "Alle" }]} />
+                ))}
+              </>
+            }
+          >
+            {rows}
+          </PageFrame>
+        </div>
+      </Variant>
       <Variant label="filter sheet at 430px — long German labels wrap to at most two lines in the fixed 130px label column instead of truncating (open Filter)">
         <div className="w-[430px] max-w-full">
           <PageFrame

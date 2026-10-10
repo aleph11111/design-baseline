@@ -26,7 +26,7 @@ const url = `http://localhost:${server.address().port}/#/l/page-frame`;
 const browser = await chromium.launch({ executablePath: CHROME });
 const failures = [];
 let n = 0;
-const total = 5;
+const total = 8;
 const report = (label, ok, detail) => {
   n++;
   console.log(`[${new Date().toTimeString().slice(0, 8)}] ${n}/${total} ${ok ? "ok  " : "FAIL"} ${label}: ${detail}`);
@@ -96,6 +96,9 @@ const run = async (width, openSheet, allowFloor = false, testid = "crowded-band"
 await run(1440, false);
 await run(430, true, true); // sheet labels wrap (v0.10.4): "a label truncated" cannot hold there
 await run(900, false, true);
+await run(1024, false, true);
+await run(1440, false, true, "german-label-band", 3);
+await run(1024, false, true, "german-label-band", 3);
 await run(430, true, true, "fixed-width-band", 4); // width-classed fields in the sheet: no gap after the label
 
 // Explicit width (w-28 / w-40) sets the WHOLE box: the grid must fit its frame, and the frame
@@ -114,10 +117,10 @@ try {
       const cs = getComputedStyle(label);
       const natural = label.firstElementChild.scrollWidth + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + parseFloat(cs.borderRightWidth);
       const labelStretched = label.getBoundingClientRect().width > natural + 2;
-      return { labelW: Math.round(label.getBoundingClientRect().width), labelSW: label.scrollWidth, frameW: Math.round(f.width), gridFits: grid.scrollWidth <= grid.clientWidth + 1 && Math.max(...kids) <= f.right + 1, labelStretched };
+      return { labelW: Math.round(label.getBoundingClientRect().width), labelSW: label.scrollWidth, frameW: Math.round(f.width), gridFits: grid.scrollWidth <= grid.clientWidth + 1 && Math.max(...kids) <= f.right + 1, labelStretched, stubbed: label.firstElementChild.clientWidth < Math.min(label.firstElementChild.scrollWidth, 32) };
     }),
   );
-  const ok = fixed.length === 4 && [112, 320, 256, 160].every((w, i) => fixed[i].frameW === w) && fixed.every((r) => r.gridFits && !r.labelStretched);
+  const ok = fixed.length === 4 && [112, 320, 256, 160].every((w, i) => fixed[i].frameW === w) && fixed.every((r) => r.gridFits && !r.labelStretched && !r.stubbed);
   report("fixed-width boxes @ 1440px (w-28, w-80, w-64, w-40)", ok, JSON.stringify(fixed));
   await page.close();
 } catch (e) {
