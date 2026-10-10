@@ -839,7 +839,7 @@ function PageFrameDemo() {
         <div className="w-[430px] max-w-full">
           <PageFrame
             title="Gruppen"
-            filterCount={3}
+            filterCount={4}
             toolbar={
               <>
                 {["Inhabergeführt", "Konsolidierungsgruppe"].map((l) => (
@@ -851,6 +851,7 @@ function PageFrameDemo() {
                   onValueChange={() => {}}
                   options={[{ value: "a", label: "Alle" }, { value: "b", label: "Offen" }]}
                 />
+                <NativeField label="Inhabergeführt" type="number" value={2026} onChange={() => {}} />
               </>
             }
           >
