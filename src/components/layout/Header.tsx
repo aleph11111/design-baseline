@@ -38,6 +38,9 @@ export interface AppHeaderProps {
   showSidebarTrigger?: boolean;
 }
 
+/** The row sets `contain: inline-size`, so it takes its width from its parent
+ *  (a block or a stretched flex-column child, as in `AppShell`) and never
+ *  widens it; don't place it in a shrink-to-fit context. */
 export function AppHeader({
   title,
   breadcrumb,
@@ -72,7 +75,7 @@ export function AppHeader({
         )}
       </div>
 
-      {center && <div className="flex-1 min-w-0 overflow-hidden flex justify-center">{center}</div>}
+      {center && <div className="flex-1 min-w-0 flex justify-center">{center}</div>}
 
       {(right || user) && (
         <div className="flex min-w-0 items-center gap-2 sm:gap-4">

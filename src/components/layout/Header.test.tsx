@@ -40,6 +40,7 @@ describe("AppHeader phone overflow", () => {
     const header = container.querySelector("header")!;
     expect(header.className).toContain("min-w-0");
     expect(header.className).toContain("overflow-hidden");
+    expect(header.className).toContain("[contain:inline-size]");
     for (const slot of Array.from(header.children)) {
       expect(slot.className, slot.outerHTML.slice(0, 60)).toContain("min-w-0");
       expect(slot.className).not.toContain("flex-shrink-0");
@@ -59,12 +60,18 @@ describe("AppHeader phone overflow", () => {
     renderHeader({ user: { email: LONG_EMAIL, onSignOut } });
     expect(screen.getByLabelText("Account menu").className).toContain("sm:hidden");
     const inline = screen.getByTitle(LONG_EMAIL);
-    expect(inline.className).toContain("hidden");
+    expect(inline.className.split(/\s+/)).toContain("hidden");
     expect(inline.className).toContain("truncate");
     const out = screen.getByRole("button", { name: "Sign out", hidden: true });
-    expect(out.className).toContain("hidden");
+    expect(out.className.split(/\s+/)).toContain("hidden");
     out.click();
     expect(onSignOut).toHaveBeenCalled();
+  });
+
+  it("does not clip the center slot's focus ring", () => {
+    const { container } = renderHeader({ center: <input /> });
+    const center = container.querySelector("input")!.parentElement!;
+    expect(center.className).not.toContain("overflow-hidden");
   });
 
   it("renders unchanged without the new inputs", () => {

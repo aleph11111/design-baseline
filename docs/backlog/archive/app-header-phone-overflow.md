@@ -6,7 +6,8 @@ value: high
 gate:
   score: 4
   passed: [title, context, what-to-do, acceptance]
-  failed: []
+  failed:
+    - open_question: "AppHeader API shape resolved to Recommended by the orchestrator on the operator's behalf (2026-10-10); operator confirmation still pending"
   graded_at: 2026-10-10T00:00:00Z
 ---
 
