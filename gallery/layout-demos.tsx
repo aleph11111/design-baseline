@@ -88,6 +88,18 @@ function PageHeaderDemo() {
           }
         />
       </Variant>
+      <Variant label="Long title + actions (stacks below sm; resize to 430px)">
+        <PageHeader
+          title="Quarterly capacity planning for the regional operations team"
+          subtitle="Covers staffing, budget and open requisitions across every site."
+          actions={
+            <>
+              <Button variant="outline">Export</Button>
+              <Button>Edit</Button>
+            </>
+          }
+        />
+      </Variant>
       <Variant label="With back link">
         <PageHeader title="New contact" backHref="#" backLabel="Back to contacts" />
       </Variant>

@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.10.3
+
+- **Fixed:** `HeadingRow` (shared by `PageHeader`, `NestedPageHeading` and every shell through `PageFrame`) now stacks below `sm` — title and subtitle keep the full row width with the actions wrapping beneath — instead of squeezing the title into a one-word-per-line column beside the actions on phones. From `sm` up the row is unchanged.
+- **Consumer:** none required; drop any local phone workaround for the header row (controlling-app).
+- **Breaking:** no.
+
 ## v0.10.2
 
 - **Added:** `FieldGroup` (archetype I, `design-baseline/archetypes/raw-input`, v1.6) — the group caption for several controls (checkbox list, radio set, toggle row, line-item editor): `<fieldset>` + `<legend>` in the field-label style, with the shared hint/error lines linked via `aria-describedby`; `disabled` disables every child natively. Shared `RequiredMarker` exported from `archetypes/shared`. Contract rule (raw-input L11): a label element names exactly one control — a caption over a group is a legend, over a read-only value a key/value term.
