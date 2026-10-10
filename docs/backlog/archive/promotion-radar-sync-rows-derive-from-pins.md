@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: 2026-10-10
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "design is the deliverable: where the pin derivation lives (donor JSON vs dashboard read-time overlay) spans two repos and changes who owns the sync rows"
