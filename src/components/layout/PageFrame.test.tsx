@@ -8,6 +8,7 @@ import {
 } from "@testing-library/react";
 import { PageFrame } from "./PageFrame";
 import { SelectField } from "../archetypes/raw-select";
+import { NativeField } from "../archetypes/raw-input";
 import { SegmentedControl } from "../ui/segmented-control";
 import { ControlDensityProvider } from "../ui/toolbar-band";
 
@@ -214,6 +215,56 @@ describe("PageFrame — mobile filter sheet (below md)", () => {
           expect(["DIV", "FORM", "FIELDSET"]).toContain(el.tagName);
       }
     }
+  });
+
+  it("lets long German labels wrap (not truncate) in the fixed 130px sheet column, for every joined row kind", () => {
+    setViewport(430);
+    render(
+      <PageFrame
+        title="Gruppen"
+        toolbar={
+          <>
+            <SelectField
+              label="Inhabergeführt"
+              value="a"
+              onChange={() => {}}
+              options={[{ value: "a", label: "A" }]}
+            />
+            <SegmentedControl
+              label="Konsolidierungsgruppe"
+              value="a"
+              onValueChange={() => {}}
+              options={[
+                { value: "a", label: "Alle" },
+                { value: "b", label: "Offen" },
+              ]}
+            />
+            <NativeField label="Inhabergeführt" type="number" value={1} onChange={() => {}} />
+          </>
+        }
+        filterCount={3}
+      >
+        body
+      </PageFrame>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /Filter/ }));
+    const sheet = document.querySelector("[data-filter-sheet]") as HTMLElement;
+    // jsdom has no stylesheet: assert the rules the sheet applies, and that in every row
+    // kind the `.truncate` span they target sits inside the joined label.
+    for (const rule of [
+      "[&_[data-joined-label]]:w-[130px]",
+      "[&_[data-joined-label]_.truncate]:line-clamp-2",
+      "[&_[data-joined-label]_.truncate]:whitespace-normal!",
+      "[&_[data-joined-label]_.truncate]:[overflow-wrap:anywhere]",
+    ])
+      expect(sheet.className).toContain(rule);
+    const labels = [...sheet.querySelectorAll("[data-joined-label]")];
+    expect(labels.map((l) => l.textContent)).toEqual([
+      "Inhabergeführt",
+      "Konsolidierungsgruppe",
+      "Inhabergeführt",
+    ]);
+    for (const l of labels) expect(l.querySelector(".truncate")).not.toBeNull();
   });
 
   it("keeps the view switch outside the sheet", () => {

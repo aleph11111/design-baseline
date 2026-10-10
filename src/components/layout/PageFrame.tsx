@@ -320,7 +320,7 @@ function FilterSheet({
           <ToolbarSizeContext.Provider value="lg">
             <div
               data-filter-sheet=""
-              className="flex flex-col gap-3 [&_[data-joined-label]]:w-[130px] [&_[data-joined-label]]:shrink-0! [&_button:has([data-joined-label])]:grid-cols-[130px_minmax(0,1fr)_auto]! [&_[role=radiogroup]:has(>[data-joined-label])]:justify-start! [&>*]:w-full! [&_:is(div,form,fieldset).flex]:flex-col [&_:is(div,form,fieldset).flex]:items-stretch [&_:is(div,form,fieldset).flex]:gap-3 [&_:is(div,form,fieldset).flex>*]:w-full!"
+              className="flex flex-col gap-3 [&_[data-joined-label]]:w-[130px] [&_[data-joined-label]]:shrink-0! [&_[data-joined-label]_.truncate]:line-clamp-2 [&_[data-joined-label]_.truncate]:min-w-0 [&_[data-joined-label]_.truncate]:whitespace-normal! [&_[data-joined-label]_.truncate]:[overflow-wrap:anywhere] [&_button:has([data-joined-label])]:grid-cols-[130px_minmax(0,1fr)_auto]! [&_[role=radiogroup]:has(>[data-joined-label])]:justify-start! [&>*]:w-full! [&_:is(div,form,fieldset).flex]:flex-col [&_:is(div,form,fieldset).flex]:items-stretch [&_:is(div,form,fieldset).flex]:gap-3 [&_:is(div,form,fieldset).flex>*]:w-full!"
             >
               {children}
             </div>
