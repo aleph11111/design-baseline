@@ -1,13 +1,13 @@
 ---
 area: layout
 opened: 2026-10-10
-status: needs-enrichment
+status: done
 value: high
 gate:
   score: 4
   passed: [title, context, what-to-do, acceptance]
   failed:
-    - open_question: "unresolved fork (AppHeader API shape) auto-resolved to Recommended; operator confirms before /feat"
+    - open_question: "AppHeader API shape resolved to Recommended by the orchestrator on the operator's behalf (2026-10-10); operator confirmation still pending"
   graded_at: 2026-10-10T00:00:00Z
 ---
 
@@ -40,6 +40,6 @@ gate:
 - [[refactor-shell-surface-header-slot-duplication]] — earlier header slot consolidation in the same area
 - [ADR-0008](/docs/adr/0008-one-page-frame-slot-owned-placement.md) — one page frame, slot-owned placement
 
-## Open question
+## Decision
 
-How should `AppHeader` receive the breadcrumb and user menu? Recommended (asserted above): new optional props (`breadcrumb`, `user`) so truncation and the user-menu move are owned by the donor. Alternative: leave `center`/`right` as opaque slots, only harden the layout (`min-w-0`, truncation) and have each consumer build its own responsive breadcrumb/user menu — smaller API, but every consumer re-solves the same phone overflow.
+The open question (AppHeader API shape) was resolved by the orchestrator on the operator's behalf on 2026-10-10: the Recommended option — optional `breadcrumb` and `user` props owned by the donor; `center`/`right` slots keep working. Operator did not confirm in person; revisit if the API shape is unwanted.

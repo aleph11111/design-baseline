@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.10.6
+
+- **Fixed:** `AppHeader` no longer widens the page past the viewport on phones: the row and every slot (`title`, `center`, `right`) now shrink (`min-w-0`, truncation) and the header contains its inline size (`contain: inline-size`), so an ancestor without `min-w-0` cannot be widened by long content instead of pushing the document wider.
+- **Added:** optional `AppHeader` inputs `breadcrumb?: string[]` (below `sm` only the current segment, full path in its `title` attribute) and `user?: { email, onSignOut }` (an account menu below `sm`, inline email + sign-out from `sm` up). New labels `userMenu` / `signOut`. `AppHeaderUser` exported.
+- **Consumer:** controlling-app can pass `breadcrumb` and `user` instead of building them in `right`/`center`. Consumers passing neither are unchanged from `sm` up.
+- **Breaking:** no.
+
 ## v0.10.5
 
 - **Fixed:** a joined toolbar label (select, segmented control, toggle field, native field) no longer collapses to a one-letter stub (`V…`) in a crowded band: its floor is now its own text up to an 8rem cap (`JOINED_LABEL_CLASS`) instead of a 3rem track. Past the cap it ellipsizes; when the band cannot fit, it scrolls or collapses to the filter sheet as before. The sheet's 130px label column is unchanged.

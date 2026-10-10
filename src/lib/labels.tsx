@@ -52,6 +52,9 @@ export type BaselineLabels = {
   done: string;
   showMore: string;
   showLess: string;
+  // Account
+  userMenu: string;
+  signOut: string;
   // Theme
   toggleTheme: string;
   light: string;
@@ -124,6 +127,8 @@ export const labelsEn: BaselineLabels = {
   done: "Done",
   showMore: "Show more",
   showLess: "Show less",
+  userMenu: "Account menu",
+  signOut: "Sign out",
   toggleTheme: "Toggle color scheme",
   light: "Light",
   dark: "Dark",
@@ -195,6 +200,8 @@ export const labelsDe: BaselineLabels = {
   done: "Fertig",
   showMore: "Mehr anzeigen",
   showLess: "Weniger anzeigen",
+  userMenu: "Kontomenü",
+  signOut: "Abmelden",
   toggleTheme: "Farbschema umschalten",
   light: "Hell",
   dark: "Dunkel",

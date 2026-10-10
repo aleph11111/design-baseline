@@ -49,6 +49,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { RowActionsMenu } from "@/components/archetypes/shared";
+import { AppHeader } from "@/components/layout/Header";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { SectionNavDemo } from "@/examples/section-nav-demo";
 
 export type LayoutPrim = {
@@ -1019,6 +1021,35 @@ function ControlDensityDemo(): React.ReactElement {
   );
 }
 
+/** Phone-width AppHeader: long breadcrumb + long email. Resize the window to
+ *  ~430px (or run `npm run check:app-header-phone`) to see the one-row layout. */
+function AppHeaderPhoneDemo(): React.ReactElement {
+  const props = {
+    title: "Customers",
+    breadcrumb: ["Workspace", "Customers", "Contracts", "A very long contract title that would otherwise push the header past the viewport"],
+    user: { email: "someone.with.a.very.long.address@a-rather-long-company-domain.example.com", onSignOut: () => {} },
+  };
+  const frame = (center?: React.ReactNode) => (
+    <div className="w-full rounded-md border" data-testid="app-header-phone-demo">
+      <SidebarProvider>
+        <div className="flex flex-1 flex-col">
+          <AppHeader {...props} center={center} />
+        </div>
+      </SidebarProvider>
+    </div>
+  );
+  return (
+    <div className="space-y-4">
+      <Variant label="Long breadcrumb + long email (below sm: current segment + account menu, one row)">
+        {frame()}
+      </Variant>
+      <Variant label="Same, with a center search slot (it keeps width; the account button stays visible)">
+        {frame(<input className="h-9 w-full rounded-md border bg-background px-3 text-sm" placeholder="Search…" />)}
+      </Variant>
+    </div>
+  );
+}
+
 export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "button-sizes", displayName: "Button sizes", Demo: ButtonSizesDemo },
   { slug: "page-frame", displayName: "PageFrame", Demo: PageFrameDemo },
@@ -1040,6 +1071,7 @@ export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "status-chip-tier", displayName: "Status chip tier (Badge / Alert)", Demo: StatusChipTierDemo },
   { slug: "cell-field", displayName: "CellInput / CellSelect", Demo: CellFieldDemo },
   { slug: "section-nav", displayName: "SectionNavShell", Demo: SectionNavDemo },
+  { slug: "app-header-phone", displayName: "AppHeader (phone width)", Demo: AppHeaderPhoneDemo },
   { slug: "control-density", displayName: "Control density (AppShell density)", Demo: ControlDensityDemo },
 ];
 
