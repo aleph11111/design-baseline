@@ -102,7 +102,7 @@
       "slug": "crud-dialog",
       "displayName": "CRUD dialog",
       "kind": "dialog",
-      "version": "3.9",
+      "version": "3.10",
       "promoted_from": "brickshop-manager",
       "promoted_at": "2026-08-04",
       "source_spec_version": "1.7",

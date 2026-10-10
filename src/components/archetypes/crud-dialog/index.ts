@@ -11,6 +11,11 @@ export type { CrudDialogBodyProps } from "./CrudDialogBody";
 export { CrudDialogFooter } from "./CrudDialogFooter";
 export type { CrudDialogFooterProps } from "./CrudDialogFooter";
 
+export { CrudDialogSubmitOnEnter } from "./CrudDialogSubmitOnEnter";
+
+export { useCrudDialogFormReport } from "./useCrudDialogFormReport";
+export type { CrudDialogFooterReport } from "./useCrudDialogFormReport";
+
 export { useCrudDialogMode } from "./useCrudDialogMode";
 export type {
   CrudDialogMode,

@@ -1,6 +1,6 @@
 {
   "name": "design-baseline",
-  "version": "0.10.6",
+  "version": "0.11.0",
   "private": true,
   "engines": {
     "node": ">=22"

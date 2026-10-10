@@ -415,6 +415,23 @@
       "promotedAt": "2026-10-10",
       "axisB": "on-token (legend rides the Label type style + shared FieldHint/FieldError + RequiredMarker)",
       "notes": "Promoted 2026-10-10 as an extension of archetype I, not a new archetype (one archetype owns the labeled-field shape — cf. the dropped Fd duplicate on raw-label). The 34 hit files split three ways: (A) controlling-app (14 files) — <Label> beside a shadcn Select/Textarea/Combobox with no wiring: pure ADOPTION DEBT, already homed by SelectField/TextareaField/NativeField, cleared on each consumer's tag bump; (B) brickshop-manager (13 of 14 files) — <Label id=X> + RadioGroup/role=group aria-labelledby=X: CORRECT wiring, a false positive the signal regex now exempts via an `id=` lookahead (re-scan 2026-10-10: 34 -> 21 files: controlling-app 14, mistra 6, brickshop 1); (C) mistra (6 files) + brickshop (1: a read-only mapping caption) — a <Label> captioning a checkbox list / toggle row / line-item editor / read-only value: the genuinely un-homed shape, now FieldGroup (groups) or the detail-overview key/value term (read-only values). hk-crm's single hit is its vendored ui/file-field.tsx caption, the signal's documented sanctioned residual. scanSignal kept as 'raw-input-label-missing-htmlfor' so the deterministic fleet scan keeps tracking regressions."
+    },
+    {
+      "id": "crud-dialog-form-owns-footer",
+      "scanSignal": "crud-dialog-form-owns-footer",
+      "pattern": "Form island that owns its dialog footer: a form component renders the J footer (or B's page-form footer) in its own output and is mounted inside the dialog body, so the footer scrolls with the content",
+      "axisA": "promote",
+      "donorTarget": "extend J (crud-dialog) v3.10: `CrudDialogSubmitOnEnter` + `useCrudDialogFormReport` / `CrudDialogFooterReport`, and Layer 14's two sanctioned footer-lift shapes",
+      "projects": [
+        "brickshop-manager",
+        "hk-crm",
+        "mistra"
+      ],
+      "count": 3,
+      "status": "promoted",
+      "promotedAt": "2026-10-10",
+      "axisB": "on-token (composes the existing footer)",
+      "notes": "Promoted 2026-10-10 as a fleet synthesis. The fleet's real gap was not the anti-pattern itself but the bridge that avoids it. brickshop-manager and mistra lift `useForm` into the dialog; mistra adds a hidden submit-on-Enter shim; brickshop has none, so Enter submits nothing. hk-crm lets form islands report up through `useCrudDialogFormReport`. Both bridges now ship from J. The report hook is single-source (hk-crm) and was promoted by operator decision. It fixes an hk-crm stale-memo edge: the report now re-creates when `onDelete` appears or disappears. Scan-count caveat: the `crud-dialog-form-owns-footer` regex matches every `<CrudDialogFooter` / `<FormPageActions`, including conformant shells. brickshop's 37 and mistra's 8 are conformant (0 real offenders, verified 2026-10-10). hk-crm has 5 real offenders, its dialog-hosted forms that still return `FormPageActions`: holding, lookup, user, project-phase, service-assignment-renewal. `project-form.tsx` is a legitimate B page. Precision fix belongs to the dashboard scanner: a negative co-occurrence gate (footer present AND `CrudDialogSheet` absent). Downstream self-heal is in CHANGELOG v0.11.0."
     }
   ],
   "sanctioned": [
