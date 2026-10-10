@@ -2,7 +2,7 @@
 key: I
 slug: raw-input
 kind: component
-version: 1.3
+version: 1.4
 promoted_from: fleet synthesis (controlling-app, my-finance-app, mistra, dashboard, brickshop-manager)
 promoted_at: 2026-07-23
 source_spec_version: n/a (fleet synthesis — no single source spec)
@@ -42,6 +42,11 @@ idea should collapse onto.
   enum choice (the select/combobox control's role), or for a value flush inside a
   data-grid cell (the cell-input control's role). The field assembly is for a
   standalone labeled field, not those specialized controls.
+- **A caption naming more than one control is a group legend, not a label.** A
+  checkbox list, a radio set, a row of toggles, or a repeating line-item editor
+  takes the **group-caption role** shipped beside this field: a native group whose
+  legend is its accessible name, with the same hint/error lines. A read-only value
+  under a caption is not a field at all — it is the detail-overview key/value role.
 - **Compose, don't replace, a form library.** Where a form-binding role already owns
   value/validation state (a react-hook-form-style context), this molecule is the
   presentational field *inside* it — the binding role stays the owner of value and
@@ -135,3 +140,10 @@ non-negotiable in the baseline version:
 - A hint, when present, is likewise associated with the control.
 - A required field conveys "required" through the native required semantics, not by
   the visual marker alone.
+- A label element is used **only** to name the one control it is associated with.
+  A caption over several controls is the group-caption role's legend (the group's
+  accessible name); a caption over a read-only value is the key/value role's term.
+  A label placed near something it does not name is announced as nothing — the
+  `raw-input-label-missing-htmlfor` scan signal tracks exactly that shape. A
+  caption for a control that cannot take a native association (a button-based
+  choice control, a custom group) carries an id the control references instead.

@@ -38,6 +38,7 @@ export {
   FieldLabel,
   FieldHint,
   FieldError,
+  RequiredMarker,
   useFieldIds,
   type FieldFrameProps,
   type FieldLabelProps,

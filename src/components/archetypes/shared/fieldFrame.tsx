@@ -72,6 +72,15 @@ export function FieldFrame({ className, children }: FieldFrameProps): React.Reac
   return <div className={cn("flex flex-col gap-1.5", className)}>{children}</div>;
 }
 
+/** The visual-only required `*` after a caption — shared by `FieldLabel` and the group legend. */
+export function RequiredMarker(): React.ReactElement {
+  return (
+    <span className="ml-0.5 text-status-danger-fg" aria-hidden="true">
+      *
+    </span>
+  );
+}
+
 export interface FieldLabelProps extends React.ComponentPropsWithoutRef<typeof Label> {
   /** Renders the required marker after the caption. */
   required?: boolean;
@@ -92,11 +101,7 @@ export function FieldLabel({
   return (
     <Label {...props}>
       {children}
-      {required && (
-        <span className="ml-0.5 text-status-danger-fg" aria-hidden="true">
-          *
-        </span>
-      )}
+      {required && <RequiredMarker />}
     </Label>
   );
 }

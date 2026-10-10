@@ -1,5 +1,7 @@
 import * as React from "react";
-import { NativeField } from "@/components/archetypes/raw-input";
+import { FieldGroup, NativeField } from "@/components/archetypes/raw-input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { PageFrame } from "@/components/layout/PageFrame";
 
@@ -12,6 +14,9 @@ import { PageFrame } from "@/components/layout/PageFrame";
  * Exercises every NativeField control: required text + error, number, date,
  * range (slider), and multiline. Plain controlled state, no react-hook-form.
  *
+ * "Hops" is a `FieldGroup`: a caption over several checkboxes is a fieldset legend,
+ * never a bare `<Label>` (the `raw-input-label-missing-htmlfor` scan signal).
+ *
  * The second block shows the same field inside a `PageFrame` toolbar band, where it
  * joins its label to the box by itself (STYLE.md "Toolbar field labels").
  */
@@ -23,7 +28,10 @@ interface Batch {
   costPerLitre: string; // prefixed text adornment
   fermTemp: number; // range
   notes: string; // multiline
+  hops: string[]; // FieldGroup of checkboxes
 }
+
+const HOPS = ["Citra", "Saaz", "Cascade", "Hallertau"];
 
 const EMPTY: Batch = {
   name: "",
@@ -32,6 +40,7 @@ const EMPTY: Batch = {
   costPerLitre: "1.80",
   fermTemp: 20,
   notes: "",
+  hops: [],
 };
 
 export function RawInputDemo(): React.ReactElement {
@@ -41,6 +50,7 @@ export function RawInputDemo(): React.ReactElement {
   // A trivial validation rule so the error slot has something to show.
   const nameError =
     batch.name.trim() === "" ? "Give the batch a name before logging it." : undefined;
+  const hopsError = batch.hops.length === 0 ? "Pick at least one hop." : undefined;
 
   function set<K extends keyof Batch>(key: K, value: Batch[K]) {
     setBatch((b) => ({ ...b, [key]: value }));
@@ -66,7 +76,7 @@ export function RawInputDemo(): React.ReactElement {
         className="space-y-4"
         onSubmit={(e) => {
           e.preventDefault();
-          if (!nameError) setSubmitted(batch);
+          if (!nameError && !hopsError) setSubmitted(batch);
         }}
       >
         <NativeField
@@ -129,7 +139,24 @@ export function RawInputDemo(): React.ReactElement {
           placeholder="Aroma, body, anything to change next time…"
         />
 
-        <Button type="submit" disabled={!!nameError}>
+        <FieldGroup label="Hops" required hint="Every hop that went in." error={hopsError}>
+          {HOPS.map((hop) => (
+            <div key={hop} className="flex items-center gap-2">
+              <Checkbox
+                id={`hop-${hop}`}
+                checked={batch.hops.includes(hop)}
+                onCheckedChange={(on) =>
+                  set("hops", on ? [...batch.hops, hop] : batch.hops.filter((h) => h !== hop))
+                }
+              />
+              <Label htmlFor={`hop-${hop}`} className="font-normal">
+                {hop}
+              </Label>
+            </div>
+          ))}
+        </FieldGroup>
+
+        <Button type="submit" disabled={!!nameError || !!hopsError}>
           Log batch
         </Button>
       </form>
