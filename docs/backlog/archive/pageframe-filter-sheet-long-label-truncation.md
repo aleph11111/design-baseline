@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-10-10
-status: needs-enrichment
+status: done
 value: normal
 depends_on:
   - native-field-joined-label-sheet-column
