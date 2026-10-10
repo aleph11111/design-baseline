@@ -86,6 +86,12 @@ describe("AppHeader phone overflow", () => {
     expect(left.className).toContain("sm:max-w-[50%]");
   });
 
+  it("with center and no breadcrumb, the left slot stays content-sized", () => {
+    const { container } = renderHeader({ center: <input /> });
+    const left = container.querySelector("header")!.firstElementChild!;
+    expect(left.className.split(/\s+/)).not.toContain("flex-1");
+  });
+
   it("does not clip the center slot's focus ring", () => {
     const { container } = renderHeader({ center: <input /> });
     const center = container.querySelector("input")!.parentElement!;

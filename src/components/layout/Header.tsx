@@ -53,7 +53,7 @@ export function AppHeader({
   const current = breadcrumb?.[breadcrumb.length - 1];
   return (
     <header className="h-16 min-w-0 overflow-hidden [contain:inline-size] border-b border-border px-2 sm:px-4 flex items-center justify-between gap-2">
-      <div className={`flex min-w-0 flex-1 items-center gap-2${center ? " sm:max-w-[50%] sm:flex-initial" : ""}`}>
+      <div className={`flex min-w-0 items-center gap-2${center ? (breadcrumb ? " flex-1 sm:max-w-[50%] sm:flex-initial" : "") : " flex-1"}`}>
         {showSidebarTrigger && (
           <SidebarTrigger className="md:hidden shrink-0">
             <Menu className="h-5 w-5" />
