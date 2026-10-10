@@ -312,7 +312,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 - **The dialog renders the footer; a form never does.** The footer is a sibling of the dialog-body primitive inside the shell, so it stays pinned while the body scrolls. Two sanctioned ways get the form's state to it:
   1. **Dialog owns the form** (the default). The schema-validated form hook lives in the dialog, alongside the action-flow controller; the body holds only fields.
   2. **Form island.** The form owns its form hook and its save (it is reused across dialogs, or its submit is a server action). It renders no footer and reports `submit`, `isSubmitting`, `isDeleting` and an optional delete trigger up through the **form-report hook**. The dialog keeps that report in state, renders the footer from it, and renders none until a report arrives (so no footer shows over the body skeleton). The same hook feeds the form's dirty flag to the mode-state hook.
-- **Enter still submits.** The footer's primary sits outside the body's `<form>`, so every dialog body `<form>` renders the **submit-on-Enter control** once, and its submit handler runs the same action as the footer's primary.
+- **Enter still submits.** The footer's primary sits outside the body's `<form>`, so every dialog body `<form>` renders the **submit-on-Enter control** once, and its submit handler runs the same action as the footer's primary, under the same in-flight gate: the control is disabled while the primary is submitting, so a repeated Enter cannot save twice.
 
 **Mode-aware layout:**
 

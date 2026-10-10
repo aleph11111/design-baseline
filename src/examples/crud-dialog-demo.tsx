@@ -352,7 +352,7 @@ function WorkoutDialog({
       className="contents"
       onSubmit={(e) => {
         e.preventDefault();
-        if (!isView) void controller.handlePrimary();
+        if (!isView && !controller.isSubmitting) void controller.handlePrimary();
       }}
     >
       <FormField
@@ -446,7 +446,7 @@ function WorkoutDialog({
           </FormItem>
         )}
       />
-      <CrudDialogSubmitOnEnter />
+      <CrudDialogSubmitOnEnter disabled={controller.isSubmitting} />
     </form>
   );
 
@@ -586,7 +586,7 @@ function QuickLogForm({
         className="space-y-4"
         onSubmit={(e) => {
           e.preventDefault();
-          void submit();
+          if (!form.formState.isSubmitting) void submit();
         }}
       >
         <FormField
@@ -620,7 +620,7 @@ function QuickLogForm({
             </FormItem>
           )}
         />
-        <CrudDialogSubmitOnEnter />
+        <CrudDialogSubmitOnEnter disabled={form.formState.isSubmitting} />
       </form>
     </Form>
   );
