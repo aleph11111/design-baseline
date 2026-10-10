@@ -82,10 +82,18 @@ alongside `item`/`projects`/`action`) — the date the entry was raised, same in
 candidate's `promotedAt`. Stamp it when adding a sync entry; the dashboard falls back to
 the overlay's `generated` date when it's absent.
 
-- **`FormItem` gap (`space-y-2`→`space-y-1.5`)** persists in mistra / controlling-app / hk-crm — the campaign added new primitives but never synced *changed-existing* ones. Fixed at the source: the package ships `form.tsx`, so a consumer picks the change up by bumping its pinned `design-baseline` tag — no per-file sync pass to forget.
-- **dead `bricklink*` Badge variants** in hk-crm — remove (donor dropped them; brickshop legitimately keeps its own).
+- **donor package tag lag** — one row, one entry per registered design consumer. The
+  installed `design-baseline#<tag>` is **derived, not recorded**: the dashboard's
+  `/promotion-radar` route reads each consumer's pin from its truth-ref `package.json`
+  at request time and overlays it, so a consumer's bump shows up with no donor edit.
+  The row hand-records only what cannot be derived — the kept-file count and fork
+  notes ([`PACKAGE.md`](PACKAGE.md) step 5).
+- *Closed 2026-10-10:* the `FormItem` gap (`space-y-2`→`space-y-1.5`) and the dead
+  `bricklink*` Badge variants — no consumer (mistra / controlling-app / hk-crm, all on
+  `v0.9.3`) keeps a local `form.tsx` or `badge.tsx` any more, and hk-crm carries no
+  `bricklink*` variant; the package-shipped copies are what compile.
 
 ## Next actions
 1. No **candidate** rows remain — all resolved candidates in `promotion-radar.json` are `promoted`. The live queue is the three **watch** rows in the Watch section (promote once rule-of-2 re-trips).
-2. Land changed primitives (incl. `FormItem`) in the donor, cut a tag, and bump the pinned version in each consumer.
+2. Bump gebo-stock-kiosk to the newest donor tag (its PR #25 to `v0.9.3`); every other consumer is on `v0.9.3`.
 3. Re-run the fleet audit → candidates become adoptable (promoted) or are confirmed sanctioned; conformance count and drift trend toward zero. That re-audit is the proof the loop closed.

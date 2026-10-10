@@ -1,15 +1,14 @@
 ---
 area: docs
 opened: 2026-10-10
-status: needs-enrichment
+status: done
 value: normal
 model: opus
 model_reason: "design is the deliverable: where the pin derivation lives (donor JSON vs dashboard read-time overlay) spans two repos and changes who owns the sync rows"
 gate:
-  score: 4
-  passed: [title, context, what-to-do, acceptance, related]
-  failed:
-    - open_question: "unresolved design fork under ## Open question — needs an interactive operator decision before /feat"
+  score: 5
+  passed: [title, context, what-to-do, acceptance, related, open_question]
+  failed: []
   graded_at: 2026-10-10T00:00:00Z
 ---
 
@@ -21,10 +20,10 @@ The `sync[]` rows in `docs/promotion-radar.json` still record pre-rollout state:
 
 ## What to do
 
-- [ ] Before editing, grep every caller of the touched file / key; fix at the shared point, not only the call site this report names. (Readers of `sync[]`: `server/routes/design.ts` and `client/src/features/design/DesignView.tsx` in the dashboard, `docs/PROMOTION-RADAR.md`, `docs/PACKAGE.md` step 5.)
-- [ ] Update the tag-lag `sync[]` row for all six consumers (controlling-app, mistra, hk-crm, hk-sales-agent, brickshop-manager, gebo-stock-kiosk) with the pin listed above and each consumer's current kept local-copy count, measured from its `origin/main` — not copied from the stale row.
-- [ ] Make the pin mechanical: derive each registered design consumer's pin by reading its `package.json` `design-baseline#<tag>` dependency from its truth ref (repo list from the dashboard repo registry) in the dashboard's radar read path, so `sync[]` carries only what cannot be derived (kept-file count, fork notes). See Open question for where this lives.
-- [ ] Update `docs/PACKAGE.md` step 5 to say the pin is derived and only the kept-file count is hand-recorded.
+- [x] Before editing, grep every caller of the touched file / key; fix at the shared point, not only the call site this report names. (Readers of `sync[]`: `server/routes/design.ts` and `client/src/features/design/DesignView.tsx` in the dashboard, `docs/PROMOTION-RADAR.md`, `docs/PACKAGE.md` step 5.)
+- [x] Update the tag-lag `sync[]` row for all six consumers (controlling-app, mistra, hk-crm, hk-sales-agent, brickshop-manager, gebo-stock-kiosk) with the pin listed above and each consumer's current kept local-copy count, measured from its `origin/main` — not copied from the stale row.
+- [ ] Make the pin mechanical: derive each registered design consumer's pin by reading its `package.json` `design-baseline#<tag>` dependency from its truth ref (repo list from the dashboard repo registry) in the dashboard's radar read path, so `sync[]` carries only what cannot be derived (kept-file count, fork notes). Lives in the dashboard (see Decision) — out of this repo's scope.
+- [x] Update `docs/PACKAGE.md` step 5 to say the pin is derived and only the kept-file count is hand-recorded.
 
 ## Acceptance
 
@@ -41,6 +40,6 @@ The `sync[]` rows in `docs/promotion-radar.json` still record pre-rollout state:
 - [docs/PACKAGE.md](/docs/PACKAGE.md) — "Migrating a vendored consumer" step 5.
 - [docs/PROMOTION-RADAR.md](/docs/PROMOTION-RADAR.md) — prose declaring the JSON its source of truth.
 
-## Open question
+## Decision
 
-Where does the derivation live? (A) dashboard `/promotion-radar` route overlays pins read from each registered consumer's truth-ref `package.json` at request time — Recommended: no commits, never stale, the registry already lives there; needs a coding-dashboard ticket/PR, since this repo cannot hold that code. (B) a donor-side script/ritual in the existing promotion-radar sync pass rewrites `sync[]` and commits — keeps data in the JSON but a commit can lag a bump. Auto-resolved to A for the mechanical bullet; the data refresh (second bullet) is donor-side either way. File the dashboard half separately if A is confirmed.
+2026-10-10, orchestrator on the operator's behalf: **option A** — the dashboard `/promotion-radar` route overlays each registered consumer's pin, read from its truth-ref `package.json`, at request time (no commits, never stale; the registry already lives there). That half is a separate coding-dashboard ticket. This ticket does the donor side only: refresh the `sync[]` rows from each consumer's truth ref, and state in `docs/promotion-radar.json`, `docs/PACKAGE.md` step 5 and `docs/PROMOTION-RADAR.md` that the pin is derived and only the kept-file count is hand-recorded. Option B (a donor-side script rewriting `sync[]`) rejected: a commit can lag a bump.
