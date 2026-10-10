@@ -94,4 +94,19 @@ describe("NestedPageHeading", () => {
     );
     expect(heading.className).toBe(NESTED_HEADING_CLASS);
   });
+
+  it("inherits the stack-below-sm row from HeadingRow", () => {
+    const { getByRole, getByTestId } = render(
+      <NestedPageHeading
+        title="A very long nested heading that would be squeezed beside the actions"
+        actions={<button data-testid="action" type="button">Manage</button>}
+      />,
+    );
+
+    const row = getByRole("heading", { level: 2 }).parentElement!.parentElement!
+      .parentElement!;
+    expect(row.className).toContain("flex-col");
+    expect(row.className).toContain("sm:flex-row");
+    expect(getByTestId("action").parentElement!.className).toContain("flex-wrap");
+  });
 });

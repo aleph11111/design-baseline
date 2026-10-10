@@ -27,7 +27,7 @@ export const HEADING_ROW_CLASSES = {
   badges: "flex flex-wrap items-center gap-1.5",
   /** Subtitle scale. */
   subtitle: "text-xs text-muted-foreground",
-  /** Right-aligned actions wrapper. */
+  /** Actions wrapper: right-aligned from `sm`, wrapping beneath the title below it. */
   actions: "flex shrink-0 flex-wrap items-center gap-3",
 } as const;
 
