@@ -1,0 +1,75 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { AppHeader } from "./Header";
+import { SidebarProvider } from "../ui/sidebar";
+
+afterEach(cleanup);
+
+window.matchMedia ??= ((query: string) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addEventListener: () => {},
+  removeEventListener: () => {},
+  addListener: () => {},
+  removeListener: () => {},
+  dispatchEvent: () => false,
+})) as typeof window.matchMedia;
+
+const LONG_EMAIL = "someone.with.a.very.long.address@a-rather-long-company-domain.example.com";
+const TRAIL = ["Workspace", "Customers", "A very long customer name that would wrap", "Contracts"];
+
+function renderHeader(props: Partial<Parameters<typeof AppHeader>[0]> = {}) {
+  return render(
+    <SidebarProvider>
+      <AppHeader title="App" {...props} />
+    </SidebarProvider>,
+  );
+}
+
+// jsdom does no layout, so scrollWidth <= innerWidth would pass vacuously. The
+// overflow class is closed by the shrink contract on the row and every slot.
+describe("AppHeader phone overflow", () => {
+  it("lets the row and every slot shrink instead of widening the page", () => {
+    const { container } = renderHeader({
+      breadcrumb: TRAIL,
+      center: <input />,
+      right: <button>x</button>,
+      user: { email: LONG_EMAIL, onSignOut: () => {} },
+    });
+    const header = container.querySelector("header")!;
+    expect(header.className).toContain("min-w-0");
+    expect(header.className).toContain("overflow-hidden");
+    for (const slot of Array.from(header.children)) {
+      expect(slot.className, slot.outerHTML.slice(0, 60)).toContain("min-w-0");
+      expect(slot.className).not.toContain("flex-shrink-0");
+    }
+  });
+
+  it("below sm shows only the current segment, full path in title", () => {
+    renderHeader({ breadcrumb: TRAIL });
+    const phone = screen.getByTitle(TRAIL.join(" / "));
+    expect(phone.textContent).toBe("Contracts");
+    expect(phone.className).toContain("sm:hidden");
+    expect(phone.className).toContain("truncate");
+  });
+
+  it("keeps the email and sign-out in a menu below sm, inline from sm up", () => {
+    const onSignOut = vi.fn();
+    renderHeader({ user: { email: LONG_EMAIL, onSignOut } });
+    expect(screen.getByLabelText("Account menu").className).toContain("sm:hidden");
+    const inline = screen.getByTitle(LONG_EMAIL);
+    expect(inline.className).toContain("hidden");
+    expect(inline.className).toContain("truncate");
+    const out = screen.getByRole("button", { name: "Sign out", hidden: true });
+    expect(out.className).toContain("hidden");
+    out.click();
+    expect(onSignOut).toHaveBeenCalled();
+  });
+
+  it("renders unchanged without the new inputs", () => {
+    const { container } = renderHeader();
+    expect(container.querySelector("nav")).toBeNull();
+    expect(screen.queryByLabelText("Account menu")).toBeNull();
+  });
+});

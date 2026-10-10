@@ -49,6 +49,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { RowActionsMenu } from "@/components/archetypes/shared";
+import { AppHeader } from "@/components/layout/Header";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { SectionNavDemo } from "@/examples/section-nav-demo";
 
 export type LayoutPrim = {
@@ -1019,6 +1021,28 @@ function ControlDensityDemo(): React.ReactElement {
   );
 }
 
+
+/** Phone-width AppHeader: a 360px frame forces the sub-`sm` layout regardless of
+ *  the gallery viewport. */
+function AppHeaderPhoneDemo(): React.ReactElement {
+  const props = {
+    title: "Customers",
+    breadcrumb: ["Workspace", "Customers", "A very long customer name that would wrap", "Contracts"],
+    user: { email: "someone.with.a.very.long.address@a-rather-long-company-domain.example.com", onSignOut: () => {} },
+  };
+  return (
+    <div className="space-y-4">
+      <Variant label="Below sm (360px) — current segment + account menu, one row">
+        <div className="w-[360px] max-w-full overflow-hidden rounded-md border">
+          <SidebarProvider>
+            <AppHeader {...props} />
+          </SidebarProvider>
+        </div>
+      </Variant>
+    </div>
+  );
+}
+
 export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "button-sizes", displayName: "Button sizes", Demo: ButtonSizesDemo },
   { slug: "page-frame", displayName: "PageFrame", Demo: PageFrameDemo },
@@ -1040,6 +1064,7 @@ export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "status-chip-tier", displayName: "Status chip tier (Badge / Alert)", Demo: StatusChipTierDemo },
   { slug: "cell-field", displayName: "CellInput / CellSelect", Demo: CellFieldDemo },
   { slug: "section-nav", displayName: "SectionNavShell", Demo: SectionNavDemo },
+  { slug: "app-header-phone", displayName: "AppHeader (phone width)", Demo: AppHeaderPhoneDemo },
   { slug: "control-density", displayName: "Control density (AppShell density)", Demo: ControlDensityDemo },
 ];
 

@@ -20,6 +20,12 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 - **Consumer:** none required; drop any local phone workaround for the header row (controlling-app).
 - **Breaking:** no.
 
+## v0.10.4
+
+- **Fixed:** `AppHeader` no longer widens the page past the viewport on phones: the row and every slot (`title`, `center`, `right`) now shrink (`min-w-0`, truncation) instead of pushing the document wider.
+- **Added:** optional `AppHeader` inputs `breadcrumb?: string[]` (below `sm` only the current segment, full path in its `title` attribute) and `user?: { email, onSignOut }` (an account menu below `sm`, inline email + sign-out from `sm` up). New labels `userMenu` / `signOut`. `AppHeaderUser` exported.
+- **Consumer:** controlling-app can pass `breadcrumb` and `user` instead of building them in `right`/`center`. Consumers passing neither are unchanged from `sm` up.
+
 ## v0.10.2
 
 - **Added:** `FieldGroup` (archetype I, `design-baseline/archetypes/raw-input`, v1.6) — the group caption for several controls (checkbox list, radio set, toggle row, line-item editor): `<fieldset>` + `<legend>` in the field-label style, with the shared hint/error lines linked via `aria-describedby`; `disabled` disables every child natively. Shared `RequiredMarker` exported from `archetypes/shared`. Contract rule (raw-input L11): a label element names exactly one control — a caption over a group is a legend, over a read-only value a key/value term.
