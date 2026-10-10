@@ -38,3 +38,7 @@ gate:
 - [[pageframe-mobile-filter-sheet]] — precedent for collapsing chrome into a sheet/menu below the mobile breakpoint
 - [[refactor-shell-surface-header-slot-duplication]] — earlier header slot consolidation in the same area
 - [ADR-0008](/docs/adr/0008-one-page-frame-slot-owned-placement.md) — one page frame, slot-owned placement
+
+## Decision
+
+The open question (AppHeader API shape) was resolved by the orchestrator on the operator's behalf on 2026-10-10: the Recommended option — optional `breadcrumb` and `user` props owned by the donor; `center`/`right` slots keep working. Operator did not confirm in person; revisit if the API shape is unwanted.

@@ -1021,21 +1021,22 @@ function ControlDensityDemo(): React.ReactElement {
   );
 }
 
-
-/** Phone-width AppHeader: a 360px frame forces the sub-`sm` layout regardless of
- *  the gallery viewport. */
+/** Phone-width AppHeader: long breadcrumb + long email. Resize the window to
+ *  ~430px (or run `npm run check:app-header-phone`) to see the one-row layout. */
 function AppHeaderPhoneDemo(): React.ReactElement {
   const props = {
     title: "Customers",
-    breadcrumb: ["Workspace", "Customers", "A very long customer name that would wrap", "Contracts"],
+    breadcrumb: ["Workspace", "Customers", "Contracts", "A very long contract title that would otherwise push the header past the viewport"],
     user: { email: "someone.with.a.very.long.address@a-rather-long-company-domain.example.com", onSignOut: () => {} },
   };
   return (
     <div className="space-y-4">
-      <Variant label="Below sm (360px) — current segment + account menu, one row">
-        <div className="w-[360px] max-w-full overflow-hidden rounded-md border">
+      <Variant label="Long breadcrumb + long email (below sm: current segment + account menu, one row)">
+        <div className="w-full rounded-md border" data-testid="app-header-phone-demo">
           <SidebarProvider>
-            <AppHeader {...props} />
+            <div className="flex flex-1 flex-col">
+              <AppHeader {...props} />
+            </div>
           </SidebarProvider>
         </div>
       </Variant>

@@ -12,6 +12,7 @@
     "gallery:preview": "vite preview --configLoader runner",
     "gallery:view": "vite build --configLoader runner && vite preview --configLoader runner --port 5173",
     "check:desk-width": "npm run gallery:build && node scripts/check-desk-width.mjs",
+    "check:app-header-phone": "npm run gallery:build && node scripts/check-app-header-phone.mjs",
     "check:joined-label": "npm run gallery:build && node scripts/check-joined-label.mjs",
     "verify:manifest": "node scripts/verify-manifest-versions.mjs",
     "verify:package-version": "node scripts/verify-package-version.mjs",
