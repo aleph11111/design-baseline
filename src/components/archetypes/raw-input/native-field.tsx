@@ -279,7 +279,7 @@ export function NativeField({
               ? // fixed box: plain flex row — the label gives way first, surplus goes to the input.
                 // inline-flex, not flex: the filter sheet stacks `div.flex` rows into columns.
                 "inline-flex w-full"
-              : "grid grid-cols-[minmax(3rem,auto)_minmax(max-content,1fr)]"
+              : "grid grid-cols-[auto_minmax(max-content,1fr)]"
           }
         >
           {fieldLabel}

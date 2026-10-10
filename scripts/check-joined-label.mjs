@@ -1,7 +1,7 @@
 // Real-browser check: a joined toolbar label yields (ellipsis) before the
 // control value truncates. jsdom can't measure layout. Run: npm run check:joined-label
 // (builds gallery-dist first, uses local Chrome). Guards the grid layout of joined controls
-// (label column minmax(3rem,auto), value columns floored at content width): dropping those
+// (label column auto = its text up to 8rem, value columns floored at content width): dropping those
 // templates from SelectTrigger, SegmentedControl or NativeField fails the 1440px/900px runs.
 // The custom flex consumer row guards JOINED_LABEL_CLASS itself: with `shrink-0` its label
 // refuses to yield and the value overflows the row (verified: the check fails on that revert).
@@ -52,6 +52,8 @@ const measure = (root) =>
       // the first value cell starts right after the label (gap-1/gap-2 at most): no stretched label track
       gapOk: label.nextElementSibling.getBoundingClientRect().left - label.getBoundingClientRect().right <= 12,
       builtin: !label.closest("[data-flex-consumer]"),
+      // never a stub: ≥ ~4 characters (32px) of text, or the whole label when shorter
+      stubbed: text.clientWidth < Math.min(text.scrollWidth, 32),
       labelW: Math.round(label.getBoundingClientRect().width),
       labelTruncated: text.scrollWidth > text.clientWidth,
       valueWhole: parts.every((p) => p.scrollWidth <= p.clientWidth + 1 && p.scrollHeight <= p.clientHeight + 1 && p.getBoundingClientRect().right <= t.right + 1),
@@ -80,7 +82,7 @@ const run = async (width, openSheet, allowFloor = false, testid = "crowded-band"
     const rows = all;
     // fixed-width boxes truncate their value by design; only content-sized controls must keep it whole
     const fixedBox = testid === "fixed-width-band";
-    const bad = rows.filter((r) => !r.gapOk || (!fixedBox && !r.valueWhole));
+    const bad = rows.filter((r) => !r.gapOk || (!openSheet && r.stubbed) || (!fixedBox && !r.valueWhole));
     // crowded for real: at least one BUILT-IN control's label must have given way (else the demo proves nothing)
     if (!allowFloor && !rows.filter((r) => r.builtin).some((r) => r.labelTruncated)) bad.push({ error: "no label truncated — demo not crowded" });
     // sheet column must stay the fixed 130px on every row
@@ -92,7 +94,7 @@ const run = async (width, openSheet, allowFloor = false, testid = "crowded-band"
   }
 };
 await run(1440, false);
-await run(430, true);
+await run(430, true, true); // sheet labels wrap (v0.10.4): "a label truncated" cannot hold there
 await run(900, false, true);
 await run(430, true, true, "fixed-width-band", 4); // width-classed fields in the sheet: no gap after the label
 

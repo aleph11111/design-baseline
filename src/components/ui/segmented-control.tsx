@@ -72,8 +72,8 @@ export function SegmentedControl<T extends string>({
       onValueChange={(next) => onValueChange(next as T)}
       aria-label={rest["aria-label"]}
       aria-labelledby={label != null && rest["aria-label"] == null ? labelId : undefined}
-      // Label column floors at 3rem; every segment keeps its content width. A fixed-width box stays a flex row.
-      style={label != null && !fixed ? { gridTemplateColumns: `minmax(3rem,auto) repeat(${options.length},auto)` } : undefined}
+      // Label column floors at its text (max 8rem); every segment keeps its content width. A fixed-width box stays a flex row.
+      style={label != null && !fixed ? { gridTemplateColumns: `auto repeat(${options.length},auto)` } : undefined}
       className={cn(
         "inline-flex items-stretch gap-1 overflow-hidden rounded-md border p-0.5",
         // min-w-min: overflow-hidden would otherwise zero the flex item's automatic minimum.
