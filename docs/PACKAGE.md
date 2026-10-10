@@ -448,12 +448,18 @@ step 1 triaged, in the same commit as the deletions, so a later `git blame`/diff
 shows the swap and the stamp-removal as one change. The stamps on the kept forks
 remain until each one resolves (step 1's promote-or-keep decision).
 
-### Step 5 — Record the tag (and the kept-file count) in the radar
+### Step 5 — Record the kept-file count in the radar (the tag is derived)
 
-Add the project to the package-tag `sync` row in `docs/promotion-radar.json`,
-naming **both** the installed `design-baseline#<tag>` and the **kept-file count**
-(C6). The tag is the single stamp that replaces 102 per-file ones; the kept-file
-count is the visible guard that the fork survived the swap. A consumer more than
+Add the project to the package-tag `sync` row in `docs/promotion-radar.json` with
+its **kept-file count** (C6) — the project-owned files left under
+`components/ui/` + `components/layout/` that shadow the package's copies — plus any
+fork notes. Do **not** hand-record the installed `design-baseline#<tag>`: the
+dashboard's `/promotion-radar` route derives each registered consumer's pin from its
+truth-ref `package.json` at request time, so a consumer's bump shows up with no
+donor edit (a consumer PR cannot edit this repo, which is why a recorded pin went
+stale by construction). The tag is still the single stamp that replaces 102
+per-file ones; the kept-file count is the visible guard that the fork survived the
+swap, and it is the one field you re-record when it changes. A consumer more than
 one minor behind the newest donor tag — or whose kept count grew since last
 recorded — is a `sync` row.
 
