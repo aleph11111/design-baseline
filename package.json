@@ -1,6 +1,6 @@
 {
   "name": "design-baseline",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "private": true,
   "engines": {
     "node": ">=22"
@@ -49,6 +49,8 @@
     "docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md",
     "docs/archetypes",
     "bin/new-page.mjs",
+    "scripts/scan-adoption-quality.mjs",
+    "docs/audit-signals.json",
     "templates"
   ],
   "peerDependencies": {

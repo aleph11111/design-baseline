@@ -9,7 +9,7 @@
 // against synthetic inputs, so a guard failing open (or a silent no-match
 // on the real tree) stays caught even if the donor tree is clean.
 //
-// Nine invariants of the package surface are checked:
+// Ten invariants of the package surface are checked:
 //
 //   1. No `@/` import specifier survives under the four packaged source
 //      dirs. The relativization (P1) must be total — `@/` would resolve
@@ -68,6 +68,11 @@
 //      "design-baseline/vite/design-baseline-ui"` in a correctly installed
 //      consumer, and invariant 2 only checks what IS listed, never what was
 //      lost.
+//  10. The adoption-quality scan a consumer runs from the installed package
+//      (`node node_modules/design-baseline/scripts/scan-adoption-quality.mjs`)
+//      and the signals file it reads by default are both covered by `files`.
+//      Without them the command is absent from the tarball (or exits 2 on a
+//      missing signals file) in every consumer.
 //
 // Usage:  node scripts/verify-exports.mjs [--json]
 //         exit 0 all invariants hold; exit 1 at least one broken; exit 2
@@ -245,6 +250,16 @@ function viteUiHelperExported(pkg) {
   return [];
 }
 
+// Invariant 10 — see header. Pure over the parsed manifest. A `files` entry
+// covers a path when equal to it or a parent directory of it.
+const SCAN_SHIPPED_PATHS = ['scripts/scan-adoption-quality.mjs', 'docs/audit-signals.json'];
+function scanFilesShipped(pkg) {
+  const files = (pkg.files ?? []).map((f) => String(f).replace(/^\.\//, '').replace(/\/$/, ''));
+  return SCAN_SHIPPED_PATHS
+    .filter((p) => !files.some((f) => p === f || p.startsWith(`${f}/`)))
+    .map((p) => `${p} (outside every "files" scope — the documented consumer scan command would not run)`);
+}
+
 function main() {
   const root = process.cwd();
   let pkg;
@@ -269,6 +284,7 @@ function main() {
   const consumerLeaves = consumerLeavesMissingDirective(root);
   const selfSubpath = exportsSelfSubpath(pkg);
   const viteUiHelper = viteUiHelperExported(pkg);
+  const scanShipped = scanFilesShipped(pkg);
   // The count for the ok label; a missing set already fails via the
   // predicate's message, so this must not throw on the same condition.
   let totalLeaves = 0;
@@ -287,6 +303,7 @@ function main() {
     [`${totalLeaves} consumer-measured leaves carry "use client" (ADR-0006)`, consumerLeaves, consumerLeaves.length === 0],
     ['exports declares "./package.json"', selfSubpath, selfSubpath.length === 0],
     ['Vite-consumer helper ./vite/design-baseline-ui is exported and in scope', viteUiHelper, viteUiHelper.length === 0],
+    ['adoption-quality scan script + default signals file are in files', scanShipped, scanShipped.length === 0],
   ];
   let failures = 0;
   for (const [label, items, ok] of report) {
@@ -316,6 +333,7 @@ if (process.argv[1] && pathToFileURL(realpathSync(process.argv[1])).href === imp
 }
 
 export {
+  scanFilesShipped,
   hasAtAliasImports,
   resolveExportTargets,
   barrelFiles,

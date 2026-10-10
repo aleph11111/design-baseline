@@ -22,6 +22,7 @@ import {
   consumerLeavesMissingDirective,
   exportsSelfSubpath,
   viteUiHelperExported,
+  scanFilesShipped,
 } from "./verify-exports.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -231,11 +232,31 @@ describe("viteUiHelperExported (invariant 9)", () => {
   });
 });
 
+describe("scanFilesShipped (invariant 10)", () => {
+  it("passes when both files are listed (directly or via a parent dir)", () => {
+    expect(scanFilesShipped({ files: ["scripts/scan-adoption-quality.mjs", "docs/audit-signals.json"] })).toEqual([]);
+    expect(scanFilesShipped({ files: ["scripts", "docs"] })).toEqual([]);
+  });
+
+  it("flags each dropped file", () => {
+    expect(scanFilesShipped({ files: ["docs/audit-signals.json"] })).toHaveLength(1);
+    expect(scanFilesShipped({ files: ["scripts/scan-adoption-quality.mjs"] })).toHaveLength(1);
+    expect(scanFilesShipped({})).toHaveLength(2);
+  });
+
+  it("the packed tarball contains the script and its default signals file", () => {
+    const [{ files }] = JSON.parse(execFileSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], { cwd: root, encoding: "utf8" }));
+    const packed = files.map((f) => f.path);
+    expect(packed).toContain("scripts/scan-adoption-quality.mjs");
+    expect(packed).toContain("docs/audit-signals.json");
+  });
+});
+
 describe("CLI exit codes", () => {
-  it("exits 0 on the clean donor tree and reports 9/9 ok", () => {
+  it("exits 0 on the clean donor tree and reports 10/10 ok", () => {
     const { status, stdout } = runScript(root);
     expect(status).toBe(0);
-    expect(stdout).toContain("verify:exports — 0 failing invariant(s), 9/9 ok");
+    expect(stdout).toContain("verify:exports — 0 failing invariant(s), 10/10 ok");
   });
 
   it("exits 1 when a barrel's directive is missing (fixture)", () => {
