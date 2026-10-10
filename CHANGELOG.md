@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.10.4
+
+- **Fixed:** in `PageFrame`'s mobile filter sheet a long joined label (e.g. `Inhabergeführt`) wraps to at most two lines instead of truncating to `Inhabergef…`; the shared 130px label column is unchanged, so label cells stay aligned. The desktop band still ellipsizes.
+- **Consumer:** none.
+- **Breaking:** no.
+
 ## v0.10.3
 
 - **Fixed:** `HeadingRow` (shared by `PageHeader`, `NestedPageHeading` and every shell through `PageFrame`) now stacks below `sm` — title and subtitle keep the full row width with the actions wrapping beneath — instead of squeezing the title into a one-word-per-line column beside the actions on phones. From `sm` up the row is unchanged.

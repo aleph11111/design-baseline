@@ -41,7 +41,3 @@ In the mobile filter sheet that `PageFrame` builds (`src/components/layout/PageF
 - [[joined-label-shrinks-before-value]] — introduced the `truncate` label span and the fixed sheet column this overrides.
 - [[pageframe-filter-sheet-stacks-nested-fields]] — owns the sheet's nested-field restack rules.
 - [[pageframe-mobile-filter-sheet]] — shipped the sheet and the 130px label column.
-
-## Open question
-
-Wrap vs. widen: the ticket offered "wrap to two lines" or "size the column to the longest label up to a cap". Defaulted to wrap with the fixed 130px column: it is CSS-only, keeps cells aligned with no measurement, and needs no subgrid across heterogeneous control kinds. Alternative: a column sized to the longest label (needs a shared grid/subgrid or JS measure across rows; wins only if a single compound exceeds two lines at 130px).

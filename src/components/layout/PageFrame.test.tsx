@@ -216,6 +216,36 @@ describe("PageFrame — mobile filter sheet (below md)", () => {
     }
   });
 
+  it("lets long German labels wrap (not truncate) in the fixed 130px sheet column", () => {
+    setViewport(430);
+    render(
+      <PageFrame
+        title="Gruppen"
+        toolbar={["Inhabergeführt", "Konsolidierungsgruppe"].map((label) => (
+          <SelectField
+            key={label}
+            label={label}
+            value="a"
+            onChange={() => {}}
+            options={[{ value: "a", label: "A" }]}
+          />
+        ))}
+        filterCount={2}
+      >
+        body
+      </PageFrame>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /Filter/ }));
+    const sheet = document.querySelector("[data-filter-sheet]") as HTMLElement;
+    // jsdom has no stylesheet: assert the rules the sheet applies, and that the label text is present in full.
+    expect(sheet.className).toContain("[&_[data-joined-label]]:w-[130px]");
+    expect(sheet.className).toContain("[&_[data-joined-label]_.truncate]:line-clamp-2");
+    expect(sheet.className).toContain("[&_[data-joined-label]_.truncate]:whitespace-normal!");
+    expect(sheet.className).toContain("[&_[data-joined-label]_.truncate]:[overflow-wrap:anywhere]");
+    const labels = [...sheet.querySelectorAll("[data-joined-label]")];
+    expect(labels.map((l) => l.textContent)).toEqual(["Inhabergeführt", "Konsolidierungsgruppe"]);
+  });
+
   it("keeps the view switch outside the sheet", () => {
     setViewport(430);
     renderVariance();

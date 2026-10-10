@@ -835,6 +835,29 @@ function PageFrameDemo() {
           </div>
         </div>
       </Variant>
+      <Variant label="filter sheet at 430px — long German labels wrap to at most two lines in the fixed 130px label column instead of truncating (open Filter)">
+        <div className="w-[430px] max-w-full">
+          <PageFrame
+            title="Gruppen"
+            filterCount={3}
+            toolbar={
+              <>
+                {["Inhabergeführt", "Konsolidierungsgruppe"].map((l) => (
+                  <SelectField key={l} label={l} value="all" onChange={() => {}} options={[{ value: "all", label: "Alle" }]} />
+                ))}
+                <SegmentedControl
+                  label="Genehmigungsstatus"
+                  value="a"
+                  onValueChange={() => {}}
+                  options={[{ value: "a", label: "Alle" }, { value: "b", label: "Offen" }]}
+                />
+              </>
+            }
+          >
+            {rows}
+          </PageFrame>
+        </div>
+      </Variant>
       <Variant label="explicit width sets the whole joined box (label + control): the label yields first, then the value truncates; nothing overflows — checked by `npm run check:joined-label`">
         <div data-testid="fixed-width-band">
           <PageFrame
