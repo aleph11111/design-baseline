@@ -82,12 +82,15 @@ describe("AppHeader phone overflow", () => {
     const { container } = renderHeader({ breadcrumb: TRAIL, center: <input /> });
     const left = container.querySelector("header")!.firstElementChild!;
     expect(left.className.split(/\s+/)).toContain("flex-1");
+    // from sm up its width is capped so a long trail can't collapse the center
+    expect(left.className).toContain("sm:max-w-[50%]");
   });
 
   it("does not clip the center slot's focus ring", () => {
     const { container } = renderHeader({ center: <input /> });
     const center = container.querySelector("input")!.parentElement!;
     expect(center.className).not.toContain("overflow-hidden");
+    expect(center.className).toContain("sm:min-w-32"); // floor so a long trail can't collapse it
   });
 
   it("renders unchanged without the new inputs", () => {
