@@ -30,21 +30,32 @@ for (const width of widths) {
   const page = await browser.newPage({ viewport: { width, height: 900 } });
   await page.goto(base);
   await page.waitForSelector('[data-testid="app-header-phone-demo"] header');
-  const m = await page.evaluate(() => {
-    const h = document.querySelector('[data-testid="app-header-phone-demo"] header');
-    return {
-      doc: document.documentElement.scrollWidth,
-      win: window.innerWidth,
-      headerScroll: h.scrollWidth,
-      headerClient: h.clientWidth,
-    };
-  });
-  // Document width is asserted at 430px (the ticket's viewport); at 360px the
-  // gallery's own info-bar <code> already overflows, unrelated to the header,
-  // so only the header and its demo frame are held to the viewport there.
-  const ok = (width !== 430 || m.doc <= m.win) && m.headerScroll <= m.headerClient && m.headerClient <= width;
+  const frames = await page.evaluate(() =>
+    [...document.querySelectorAll('[data-testid="app-header-phone-demo"] header')].map((h) => {
+      const hr = h.getBoundingClientRect();
+      const btn = h.querySelector('button[aria-label]:not([aria-label*="idebar"])');
+      const inp = h.querySelector("input");
+      return {
+        doc: document.documentElement.scrollWidth,
+        win: window.innerWidth,
+        headerScroll: h.scrollWidth,
+        headerClient: h.clientWidth,
+        // account button fully inside the header; center input keeps real width
+        btnInside: btn ? btn.getBoundingClientRect().right <= hr.right + 0.5 && btn.getBoundingClientRect().width >= 30 : false,
+        centerW: inp ? Math.round(inp.getBoundingClientRect().width) : null,
+      };
+    }),
+  );
+  const m = frames[0];
+  let ok = frames.length === 2;
+  for (const f of frames) {
+    // Document width is asserted at 430px (the ticket's viewport); at 360px the
+    // gallery's own info-bar <code> already overflows, unrelated to the header,
+    // so only the header and its demo frame are held to the viewport there.
+    ok = ok && (width !== 430 || f.doc <= f.win) && f.headerScroll <= f.headerClient && f.headerClient <= width && f.btnInside && (f.centerW === null || f.centerW >= 40);
+  }
   n++;
-  console.log(`[${new Date().toTimeString().slice(0, 8)}] ${n}/${widths.length} ${ok ? "ok  " : "FAIL"} ${width}px: document ${m.doc}/${m.win}, header ${m.headerScroll}/${m.headerClient}`);
+  console.log(`[${new Date().toTimeString().slice(0, 8)}] ${n}/${widths.length} ${ok ? "ok  " : "FAIL"} ${width}px: document ${m.doc}/${m.win}; ` + frames.map((f, i) => `frame${i + 1} header ${f.headerScroll}/${f.headerClient} account-btn ${f.btnInside ? "in" : "CLIPPED"} center ${f.centerW ?? "-"}px`).join("; "));
   if (!ok) failures.push(width);
   await page.close();
 }

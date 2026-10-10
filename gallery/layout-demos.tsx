@@ -1029,16 +1029,22 @@ function AppHeaderPhoneDemo(): React.ReactElement {
     breadcrumb: ["Workspace", "Customers", "Contracts", "A very long contract title that would otherwise push the header past the viewport"],
     user: { email: "someone.with.a.very.long.address@a-rather-long-company-domain.example.com", onSignOut: () => {} },
   };
+  const frame = (center?: React.ReactNode) => (
+    <div className="w-full rounded-md border" data-testid="app-header-phone-demo">
+      <SidebarProvider>
+        <div className="flex flex-1 flex-col">
+          <AppHeader {...props} center={center} />
+        </div>
+      </SidebarProvider>
+    </div>
+  );
   return (
     <div className="space-y-4">
       <Variant label="Long breadcrumb + long email (below sm: current segment + account menu, one row)">
-        <div className="w-full rounded-md border" data-testid="app-header-phone-demo">
-          <SidebarProvider>
-            <div className="flex flex-1 flex-col">
-              <AppHeader {...props} />
-            </div>
-          </SidebarProvider>
-        </div>
+        {frame()}
+      </Variant>
+      <Variant label="Same, with a center search slot (it keeps width; the account button stays visible)">
+        {frame(<input className="h-9 w-full rounded-md border bg-background px-3 text-sm" placeholder="Search…" />)}
       </Variant>
     </div>
   );

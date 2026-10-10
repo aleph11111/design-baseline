@@ -53,7 +53,7 @@ export function AppHeader({
   const current = breadcrumb?.[breadcrumb.length - 1];
   return (
     <header className="h-16 min-w-0 overflow-hidden [contain:inline-size] border-b border-border px-2 sm:px-4 flex items-center justify-between gap-2">
-      <div className={`flex min-w-0 items-center gap-2${center ? "" : " flex-1"}`}>
+      <div className={`flex min-w-0 flex-1 items-center gap-2${center ? " sm:flex-initial" : ""}`}>
         {showSidebarTrigger && (
           <SidebarTrigger className="md:hidden shrink-0">
             <Menu className="h-5 w-5" />
@@ -68,7 +68,7 @@ export function AppHeader({
             >
               {current}
             </span>
-            <nav className="hidden min-w-0 truncate text-sm text-muted-foreground sm:block">
+            <nav aria-label="Breadcrumb" className="hidden min-w-0 truncate text-sm text-muted-foreground sm:block">
               {breadcrumb.join(" / ")}
             </nav>
           </>
@@ -77,31 +77,28 @@ export function AppHeader({
 
       {center && <div className="flex-1 min-w-0 flex justify-center">{center}</div>}
 
-      {(right || user) && (
-        <div className="flex min-w-0 items-center gap-2 sm:gap-4">
-          {right}
-          {user && (
-            <>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" aria-label={L.userMenu} className="sm:hidden shrink-0">
-                    <User />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="max-w-[calc(100vw-1rem)]">
-                  <DropdownMenuLabel className="truncate font-normal">{user.email}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={user.onSignOut}>{L.signOut}</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <span className="hidden min-w-0 max-w-48 truncate text-sm sm:block" title={user.email}>
-                {user.email}
-              </span>
-              <Button variant="outline" size="sm" onClick={user.onSignOut} className="hidden shrink-0 sm:inline-flex">
-                {L.signOut}
+      {right && <div className="flex min-w-0 items-center gap-2 sm:gap-4">{right}</div>}
+
+      {user && (
+        <div className="flex shrink-0 items-center gap-2 sm:ml-2 sm:min-w-0 sm:shrink sm:gap-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label={L.userMenu} className="sm:hidden shrink-0">
+                <User />
               </Button>
-            </>
-          )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="max-w-[calc(100vw-1rem)]">
+              <DropdownMenuLabel className="truncate font-normal">{user.email}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={user.onSignOut}>{L.signOut}</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <span className="hidden min-w-0 max-w-48 truncate text-sm sm:block" title={user.email}>
+            {user.email}
+          </span>
+          <Button variant="outline" size="sm" onClick={user.onSignOut} className="hidden shrink-0 sm:inline-flex">
+            {L.signOut}
+          </Button>
         </div>
       )}
     </header>

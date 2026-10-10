@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { AppHeader } from "./Header";
 import { SidebarProvider } from "../ui/sidebar";
 
@@ -43,7 +43,7 @@ describe("AppHeader phone overflow", () => {
     expect(header.className).toContain("[contain:inline-size]");
     for (const slot of Array.from(header.children)) {
       expect(slot.className, slot.outerHTML.slice(0, 60)).toContain("min-w-0");
-      expect(slot.className).not.toContain("flex-shrink-0");
+      expect(slot.className.split(/\s+/)).not.toContain("flex-shrink-0");
     }
   });
 
@@ -66,6 +66,23 @@ describe("AppHeader phone overflow", () => {
     expect(out.className.split(/\s+/)).toContain("hidden");
     out.click();
     expect(onSignOut).toHaveBeenCalled();
+  });
+
+  it("account menu below sm holds the email and signs out", () => {
+    const onSignOut = vi.fn();
+    renderHeader({ user: { email: LONG_EMAIL, onSignOut } });
+    const trigger = screen.getByLabelText("Account menu");
+    fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false });
+    fireEvent.keyDown(trigger, { key: "Enter" });
+    expect(screen.getAllByText(LONG_EMAIL).length).toBeGreaterThan(1);
+    fireEvent.click(screen.getByRole("menuitem", { name: "Sign out" }));
+    expect(onSignOut).toHaveBeenCalled();
+  });
+
+  it("with center, the left slot shares space instead of claiming its content width", () => {
+    const { container } = renderHeader({ breadcrumb: TRAIL, center: <input /> });
+    const left = container.querySelector("header")!.firstElementChild!;
+    expect(left.className.split(/\s+/)).toContain("flex-1");
   });
 
   it("does not clip the center slot's focus ring", () => {
