@@ -73,7 +73,6 @@ describe("AppHeader phone overflow", () => {
     renderHeader({ user: { email: LONG_EMAIL, onSignOut } });
     const trigger = screen.getByLabelText("Account menu");
     fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false });
-    fireEvent.keyDown(trigger, { key: "Enter" });
     expect(screen.getAllByText(LONG_EMAIL).length).toBeGreaterThan(1);
     fireEvent.click(screen.getByRole("menuitem", { name: "Sign out" }));
     expect(onSignOut).toHaveBeenCalled();
