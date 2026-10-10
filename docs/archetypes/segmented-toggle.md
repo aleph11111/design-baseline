@@ -63,10 +63,10 @@ carry a rule. The rest are explicitly N/A.
 ### L1 — Invocation contract
 Rendered as one compact control inside a toolbar or section header, or **inside a form or
 dialog section** when the choice swaps the sub-form right next to it (pick "by reference" ·
-"by formula" and the matching editor appears below it). There the group's accessible
-label repeats the field's visible caption. The swap is a mode change, not a submitted value: a choice that is
-only a stored field value belongs to the enum-field molecule (see "When to use it"). Fully **controlled**:
-the caller passes the current value and receives the chosen option's raw value on change.
+"by formula" and the matching editor appears below it). There the group's accessible label
+repeats the field's visible caption. The swap is a mode change, not a submitted value: a
+choice that is only a stored field value belongs to the enum-field molecule (see "When to
+use it"). Fully **controlled**: the caller passes the current value and receives the chosen option's raw value on change.
 The option set is passed in as **data**, not composed as markup children.
 
 ### L2 — State shape
