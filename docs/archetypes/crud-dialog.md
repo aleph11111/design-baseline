@@ -2,7 +2,7 @@
 key: J
 slug: crud-dialog
 kind: dialog
-version: 3.4
+version: 3.10
 promoted_from: brickshop-manager
 promoted_at: 2026-08-04
 source_spec_version: 1.7
@@ -309,6 +309,10 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 - **i18n (submitting label).** The dialog-footer primitive's in-flight primary label defaults to an English derivation of `primaryLabel` (stripping a trailing "e" and appending "ing…"), which only produces correct output for "Save"/"Create". The action-flow controller resolves the real label from `labels.saving` / `labels.creating` (falling back to that same derivation from `labels.save` / `labels.create`) and exposes it as `submittingLabel` — read it off the controller and pass it straight to the dialog-footer primitive rather than letting the primitive derive it from a localized `primaryLabel`, which would mangle non-English words into invalid gerunds.
 - The footer enforces the mode-aware button layout described below.
 - Delete click must open the **confirm-dialog primitive** before executing the delete mutation. Never call the delete mutation directly on button click.
+- **The dialog renders the footer; a form never does.** The footer is a sibling of the dialog-body primitive inside the shell, so it stays pinned while the body scrolls. Two sanctioned ways get the form's state to it:
+  1. **Dialog owns the form** (the default). The schema-validated form hook lives in the dialog, alongside the action-flow controller; the body holds only fields.
+  2. **Form island.** The form owns its form hook and its save (it is reused across dialogs, or its submit is a server action). It renders no footer and reports `submit`, `isSubmitting`, `isDeleting` and an optional delete trigger up through the **form-report hook**. The dialog keeps that report in state, renders the footer from it, and renders none until a report arrives (so no footer shows over the body skeleton). The same hook feeds the form's dirty flag to the mode-state hook.
+- **Enter still submits.** The footer's primary sits outside the body's `<form>`, so every dialog body `<form>` renders the **submit-on-Enter control** once, and its submit handler runs the same action as the footer's primary.
 
 **Mode-aware layout:**
 
@@ -328,6 +332,7 @@ Mutations are the consumer's responsibility. The primitive's footer exposes call
 
 **Forbidden:**
 - Footer actions placed in the dialog header or inside the body.
+- A form component that renders the dialog footer (or a page-form footer) in its own output and is then mounted inside the dialog body. The footer scrolls away with the content. Use one of the two sanctioned shapes above instead.
 - Primary button on the left, secondary on the right (reversed order).
 - Using a raw browser confirm dialog for delete confirmation — use the confirm-dialog primitive.
 - Delete button visible in create mode.
@@ -402,6 +407,7 @@ When a target project applies this archetype, it wires the generic primitives to
 - **2026-09-25 — v3.2.** Promoted mistra's fork fixes: Cancel after a save resets the form to the last-saved values; the footer's Delete takes a static disabled gate distinct from the in-flight spinner (Layers 7 and 14). Additive.
 - **2026-09-30 — v3.3.** Optional `closeLabel` on the dialog shell and the dialog-header primitive (Layers 2–3) so the close affordance's accessible name is overridable per call site. Additive.
 - **2026-10-02 — v3.4.** Fetch-error state: the dialog-body primitive takes `error`, `errorMessage`, `onRetry` and `retryLabel`, and renders the shared inline-error primitive (announced, icon plus tint, retry) in place of the fields (Layers 5 and 7). The reference demo gains a "Simulate load failure" toggle. Additive.
+- **2026-10-10 — v3.10.** Footer lift (radar candidate `crud-dialog-form-owns-footer`, a fleet synthesis of brickshop-manager, hk-crm and mistra). Layer 14 now names the two sanctioned ways a form's state reaches the shell-level footer: the dialog owns the form, or a form island reports up through the new **form-report hook** (from hk-crm). It also requires the new **submit-on-Enter control** (from mistra) in every body `<form>`; brickshop-manager's dialogs lacked it, so Enter submitted nothing. Adds the Forbidden entry against a form that renders its own footer. The reference demo gains Enter-to-submit and a form-island "Quick log" variant. Additive.
 
 ---
 
@@ -422,6 +428,9 @@ When a target project applies this archetype, it wires the generic primitives to
 - [ ] **CRUD actions in the footer.** Save/Create/Edit/Delete live in
       the dialog-footer primitive; the header `actions` slot holds only mode-toggle/icon
       affordances. *Wrapper tell:* a Save button in the header or body.
+- [ ] **Footer rendered by the dialog, not the form** — the dialog-footer primitive
+      is a sibling of the dialog-body primitive in the dialog's own output. *Wrapper tell:*
+      a form component that returns the footer and is mounted inside the body.
 - [ ] **Body scroll owned by the dialog-body primitive** — no custom scroll/max-height
       override on the shell.
 - [ ] **Shell composition** — the dialog-header/body/footer primitives compose the

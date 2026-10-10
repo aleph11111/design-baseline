@@ -2,6 +2,18 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.11.0
+
+- **Added:** two exports on `design-baseline/archetypes/crud-dialog` (archetype J v3.10) so the footer can stay a pinned sibling of the body:
+  - `CrudDialogSubmitOnEnter` is the hidden submit control for a dialog body's `<form>`. The footer's primary sits outside the form, so without it Enter submits nothing.
+  - `useCrudDialogFormReport` plus the `CrudDialogFooterReport` type is for a form island: a form that owns its `useForm` and its save. The form reports `submit` / `isSubmitting` / `isDeleting` / `onDelete` and its dirty flag up. The dialog keeps the report in `useState` and renders `CrudDialogFooter` from it.
+- **Contract:** Layer 14 now forbids a form that renders its own footer inside the dialog body (radar candidate `crud-dialog-form-owns-footer`).
+- **Consumer:** none required. To adopt:
+  - hk-crm moves its five dialog-hosted forms that still return `FormPageActions` (holding, lookup, user, project-phase, service-assignment-renewal) onto the report hook, and swaps its local `use-crud-dialog-footer-report.ts` for the donor hook.
+  - mistra swaps its local `CrudDialogSubmitOnEnter` for the donor export.
+  - brickshop-manager adds `CrudDialogSubmitOnEnter` to its dialog forms; Enter submits nothing today.
+- **Breaking:** no.
+
 ## v0.10.6
 
 - **Changed:** archetype Sg (`segmented-toggle`) contract 1.1 → 1.2. It now records the second hand-roll idiom, a row of `Button`s whose `variant` flips on `mode === "x" ? "default" : "outline"` (or `"secondary"`), as drift that fails its keyboard and accessibility layers. It also allows the toggle inside a form or dialog section where the choice swaps the sub-form next to it. The gallery demo gains that form-section case. `SegmentedControl` is unchanged.
