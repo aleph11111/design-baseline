@@ -826,7 +826,7 @@ function PageFrameDemo() {
           >
             {rows}
           </PageFrame>
-          {/* a custom flex consumer of the shared class: the label keeps its text floor (≤8rem), so the row is sized to fit floor + value */}
+          {/* a custom flex consumer of the shared class: its label keeps the text floor (≤8rem), asserted by check:joined-label; row sized to fit floor + value */}
           <div data-flex-consumer="" className="mt-3 flex h-9 w-80 overflow-hidden rounded-md border">
             <span data-joined-label="" className={`${JOINED_LABEL_CLASS} border-r`}>
               <JoinedLabelText>Verantwortliche Abteilung</JoinedLabelText>

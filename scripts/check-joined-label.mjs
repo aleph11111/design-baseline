@@ -3,8 +3,8 @@
 // (builds gallery-dist first, uses local Chrome). Guards the grid layout of joined controls
 // (label column auto = its text up to 8rem, value columns floored at content width): dropping those
 // templates from SelectTrigger, SegmentedControl or NativeField fails the 1440px/900px runs.
-// The custom flex consumer row guards JOINED_LABEL_CLASS itself: with `shrink-0` its label
-// refuses to yield and the value overflows the row (verified: the check fails on that revert).
+// The custom flex consumer row guards JOINED_LABEL_CLASS's own floor: a label narrower than
+// min(text, 8rem) (a `max-w-24` cap, a `min-w-0` + shrink regression) fails the stub assertion.
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
@@ -52,8 +52,9 @@ const measure = (root) =>
       // the first value cell starts right after the label (gap-1/gap-2 at most): no stretched label track
       gapOk: label.nextElementSibling.getBoundingClientRect().left - label.getBoundingClientRect().right <= 12,
       builtin: !label.closest("[data-flex-consumer]"),
-      // never a stub: ≥ ~4 characters (32px) of text, or the whole label when shorter
-      stubbed: text.clientWidth < Math.min(text.scrollWidth, 32),
+      // the floor: the label cell is never narrower than its full text capped at 8rem (128px) —
+      // covers "≥4 characters" and "truncates only at the cap" at once
+      stubbed: label.getBoundingClientRect().width < Math.min(text.scrollWidth + parseFloat(getComputedStyle(label).paddingLeft) + parseFloat(getComputedStyle(label).paddingRight) + parseFloat(getComputedStyle(label).borderRightWidth), 128) - 1,
       labelW: Math.round(label.getBoundingClientRect().width),
       labelTruncated: text.scrollWidth > text.clientWidth,
       valueWhole: parts.every((p) => p.scrollWidth <= p.clientWidth + 1 && p.scrollHeight <= p.clientHeight + 1 && p.getBoundingClientRect().right <= t.right + 1),
@@ -117,7 +118,7 @@ try {
       const cs = getComputedStyle(label);
       const natural = label.firstElementChild.scrollWidth + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + parseFloat(cs.borderRightWidth);
       const labelStretched = label.getBoundingClientRect().width > natural + 2;
-      return { labelW: Math.round(label.getBoundingClientRect().width), labelSW: label.scrollWidth, frameW: Math.round(f.width), gridFits: grid.scrollWidth <= grid.clientWidth + 1 && Math.max(...kids) <= f.right + 1, labelStretched, stubbed: label.firstElementChild.clientWidth < Math.min(label.firstElementChild.scrollWidth, 32) };
+      return { labelW: Math.round(label.getBoundingClientRect().width), labelSW: label.scrollWidth, frameW: Math.round(f.width), gridFits: grid.scrollWidth <= grid.clientWidth + 1 && Math.max(...kids) <= f.right + 1, labelStretched, stubbed: label.getBoundingClientRect().width < Math.min(natural, 56) - 1 /* narrow box: ≥ ~4ch + padding (the 60% cap) */ };
     }),
   );
   const ok = fixed.length === 4 && [112, 320, 256, 160].every((w, i) => fixed[i].frameW === w) && fixed.every((r) => r.gridFits && !r.labelStretched && !r.stubbed);
