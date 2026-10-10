@@ -18,6 +18,9 @@
  *   - Opening the dialog in CREATE mode for a new workout.
  *   - Footer primary / secondary / destructive layout per mode, all derived.
  *   - Loading skeleton (simulated delay on open).
+ *   - Enter submits through CrudDialogSubmitOnEnter (footer sits outside the form).
+ *   - Form-island variant (Quick log): the form owns its save and reports up via
+ *     useCrudDialogFormReport; the dialog renders the footer.
  *
  * NOTE: discard confirmation uses the baseline's `useConfirmDiscard` (window.confirm).
  * Real consumers must swap it for a shadcn <AlertDialog> — window.confirm blocks
@@ -66,6 +69,9 @@ import {
   CrudDialogHeader,
   CrudDialogBody,
   CrudDialogFooter,
+  CrudDialogSubmitOnEnter,
+  useCrudDialogFormReport,
+  type CrudDialogFooterReport,
   useCrudDialogMode,
   useCrudDialogController,
   useConfirmDiscard,
@@ -338,8 +344,17 @@ function WorkoutDialog({
   // manual <Label>+<Input> stack. View mode renders the value as text. Fields
   // are flat siblings (no wrapping <div>s) so `<CrudDialogBody layout>` can
   // arrange them into a stack or a 2-col grid on its own — see Layer 6.
+  // The `<form>` is `contents` so it adds no box between the body and the
+  // fields. The footer sits outside it (Layer 14), so CrudDialogSubmitOnEnter
+  // keeps Enter submitting; view mode ignores it (the fields are read-only).
   const fields = (
-    <>
+    <form
+      className="contents"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!isView) void controller.handlePrimary();
+      }}
+    >
       <FormField
         control={form.control}
         name="date"
@@ -431,7 +446,8 @@ function WorkoutDialog({
           </FormItem>
         )}
       />
-    </>
+      <CrudDialogSubmitOnEnter />
+    </form>
   );
 
   return (
@@ -528,6 +544,140 @@ function WorkoutDialog({
 }
 
 // ---------------------------------------------------------------------------
+// Form-island variant (Layer 14) — the form owns its useForm + save
+// ---------------------------------------------------------------------------
+
+const quickLogSchema = workoutSchema.pick({ date: true, durationMinutes: true });
+type QuickLogValues = z.infer<typeof quickLogSchema>;
+
+/**
+ * A self-contained form: it owns its react-hook-form instance and its save,
+ * so it could be dropped into any dialog. It renders NO footer — it reports
+ * submit/isSubmitting up through useCrudDialogFormReport, and the dialog
+ * renders CrudDialogFooter as a sibling of the body.
+ */
+function QuickLogForm({
+  onSaved,
+  onFooterReady,
+  onDirtyChange,
+}: {
+  onSaved: (values: QuickLogValues) => void;
+  onFooterReady: (report: CrudDialogFooterReport | null) => void;
+  onDirtyChange: (dirty: boolean) => void;
+}): React.ReactElement {
+  const form = useForm<QuickLogValues>({
+    resolver: zodResolver(quickLogSchema),
+    defaultValues: { date: "", durationMinutes: 30 },
+  });
+  const submit = form.handleSubmit(
+    (values) =>
+      new Promise<void>((resolve) =>
+        setTimeout(() => {
+          onSaved(values);
+          resolve();
+        }, 600),
+      ),
+  );
+  useCrudDialogFormReport(form, { submit: () => void submit() }, { onFooterReady, onDirtyChange });
+
+  return (
+    <Form {...form}>
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void submit();
+        }}
+      >
+        <FormField
+          control={form.control}
+          name="date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Date</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="durationMinutes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Duration (min)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  min={1}
+                  {...field}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <CrudDialogSubmitOnEnter />
+      </form>
+    </Form>
+  );
+}
+
+/** Create-only dialog hosting the island: it owns only the shell and the footer. */
+function QuickLogDialog({
+  open,
+  onClose,
+  onCreate,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onCreate: (created: Omit<Workout, "id">) => void;
+}): React.ReactElement {
+  const [footer, setFooter] = React.useState<CrudDialogFooterReport | null>(null);
+  const [dirty, setDirty] = React.useState(false);
+  const confirmDiscard = useConfirmDiscard();
+
+  async function requestClose() {
+    if (dirty && !(await confirmDiscard())) return;
+    onClose();
+  }
+
+  return (
+    <CrudDialogSheet
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) void requestClose();
+      }}
+      width="sm"
+    >
+      <CrudDialogHeader title="Quick log" subtitle="Form island — the form reports, the dialog renders the footer" />
+      <CrudDialogBody>
+        <QuickLogForm
+          onSaved={(values) => {
+            onCreate({ ...values, kind: "run", notes: "" });
+            onClose();
+          }}
+          onFooterReady={setFooter}
+          onDirtyChange={setDirty}
+        />
+      </CrudDialogBody>
+      {footer && (
+        <CrudDialogFooter
+          primaryLabel="Create"
+          onPrimary={footer.submit}
+          isSubmitting={footer.isSubmitting}
+          secondaryLabel="Cancel"
+          onSecondary={() => void requestClose()}
+        />
+      )}
+    </CrudDialogSheet>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Demo list + orchestration
 // ---------------------------------------------------------------------------
 
@@ -541,6 +691,7 @@ export function CrudDialogDemo(): React.ReactElement {
   const [openSeq, setOpenSeq] = React.useState(0);
   const [bodyLayout, setBodyLayout] = React.useState<DialogBodyLayout>("flat");
   const [simulateLoadError, setSimulateLoadError] = React.useState(false);
+  const [quickLogOpen, setQuickLogOpen] = React.useState(false);
 
   function openView(id: string) {
     setSelectedId(id);
@@ -626,10 +777,15 @@ export function CrudDialogDemo(): React.ReactElement {
           <span className="text-sm text-muted-foreground">
             {workouts.length} workout{workouts.length !== 1 ? "s" : ""}
           </span>
-          <Button onClick={openCreate}>
-            <Plus className="h-4 w-4" />
-            Log workout
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setQuickLogOpen(true)}>
+              Quick log
+            </Button>
+            <Button onClick={openCreate}>
+              <Plus className="h-4 w-4" />
+              Log workout
+            </Button>
+          </div>
         </div>
 
         {workouts.length === 0 ? (
@@ -681,6 +837,12 @@ export function CrudDialogDemo(): React.ReactElement {
           <li>Click <strong>Save</strong> → simulates 0.6s save, then returns to VIEW mode showing the saved values (edit never closes the dialog).</li>
           <li>Click <strong>Log workout</strong> → dialog opens in CREATE mode (no fetch).</li>
           <li>Fill fields → click <strong>Create</strong> → new workout appears in list, dialog closes.</li>
+          <li>Press <strong>Enter</strong> in the Date or Duration field while editing → submits, same as the footer's primary.</li>
+          <li>
+            Click <strong>Quick log</strong> → the form-island variant: the form owns its
+            own form state and save and renders no footer; it reports up and the dialog
+            renders the pinned footer.
+          </li>
           <li>Open a workout → click <strong>Delete</strong> → confirm → removed from list.</li>
           <li>
             Toggle <strong>Layout</strong> to two-tab, open a workout with a
@@ -705,6 +867,11 @@ export function CrudDialogDemo(): React.ReactElement {
         bodyLayout={bodyLayout}
         simulateLoadError={simulateLoadError}
       />
+
+      {/* Form-island variant — mounted only while open so each open is a fresh form. */}
+      {quickLogOpen && (
+        <QuickLogDialog open onClose={() => setQuickLogOpen(false)} onCreate={handleCreate} />
+      )}
     </div>
   );
 }
