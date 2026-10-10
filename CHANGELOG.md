@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.10.6
+
+- **Changed:** archetype Sg (`segmented-toggle`) contract 1.1 → 1.2. It now records the second hand-roll idiom, a row of `Button`s whose `variant` flips on `mode === "x" ? "default" : "outline"` (or `"secondary"`), as drift that fails its keyboard and accessibility layers. It also allows the toggle inside a form or dialog section where the choice swaps the sub-form next to it. The gallery demo gains that form-section case. `SegmentedControl` is unchanged.
+- **Consumer:** replace each `variant={mode === … ? "default" : "outline"}` button row with `SegmentedControl` (the `segmented-toggle-button-variant` scan signal finds them).
+- **Breaking:** no.
+
 ## v0.10.5
 
 - **Fixed:** a joined toolbar label (select, segmented control, toggle field, native field) no longer collapses to a one-letter stub (`V…`) in a crowded band: its floor is now its own text up to an 8rem cap (`JOINED_LABEL_CLASS`) instead of a 3rem track. Past the cap it ellipsizes; when the band cannot fit, it scrolls or collapses to the filter sheet as before. The sheet's 130px label column is unchanged.

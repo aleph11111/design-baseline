@@ -2,7 +2,7 @@
 key: Sg
 slug: segmented-toggle
 kind: component
-version: 1.1
+version: 1.2
 promoted_from: brickshop-manager (fleet synthesis; hk-crm vendored the donor primitive)
 promoted_at: 2026-07-24
 source_spec_version: n/a (fleet synthesis — no single source spec)
@@ -21,7 +21,14 @@ Promoted as a fleet synthesis. The shape was hand-rolled at every call site with
 button padding (`px-2` / `px-2.5` / `px-3`) and, usually, no keyboard model — a plain row
 of `<button>`s toggling a brand-fill class. The donor consolidated it into one owner;
 brickshop-manager still carries a bespoke plain-button copy, and hk-crm vendored the donor
-primitive verbatim (`design-baseline@… — vendored` stamp). Rule-of-2 is met. This archetype
+primitive verbatim (`design-baseline@… — vendored` stamp). Rule-of-2 is met.
+
+A second hand-roll idiom surfaced later in mistra and controlling-app: a row of ordinary
+buttons whose fill flips on an **equality test against the current mode** (the active
+option takes the filled-button style, the rest the outline or secondary style). It looks
+like a segmented toggle but is not one. Each option is its own tab stop, arrows do nothing,
+no selected state reaches assistive tech, and only colour shows which option is active. It
+fails L4 and L11 and is the same drift this archetype consolidates. This archetype
 formalizes the already-consolidated molecule as a documented, gallery-demoed baseline entry
 so downstream repos inherit the *contract* (when to reach for it, its keyboard/a11y model)
 and not merely a stray component.
@@ -39,7 +46,9 @@ and not merely a stray component.
     tab-strip's role (larger hit targets, can overflow/scroll, may drive the URL).
   - **A binary on/off** of a single setting — that is the switch control's role.
   - **Multi-value filtering** (more than one active at once) — that is a pill/chip
-    filter bar, not a single-choice toggle.
+    filter bar, not a single-choice toggle. An independent on/off chip whose fill follows
+    its own boolean (not an equality test against a shared mode) belongs here too, not in
+    this archetype.
   - **A labeled form field** whose value is one choice from an option set — that is the
     enum-field molecule ([`raw-select`](./raw-select.md), S): it carries a label, a
     placeholder/empty affordance, and an error state, none of which a mode toggle has.
@@ -52,8 +61,12 @@ The `component` kind defines eleven layers; only the layers that bear on this mo
 carry a rule. The rest are explicitly N/A.
 
 ### L1 — Invocation contract
-Rendered as one compact control inside a toolbar or section header. Fully **controlled**:
-the caller passes the current value and receives the chosen option's raw value on change.
+Rendered as one compact control inside a toolbar or section header, or **inside a form or
+dialog section** when the choice swaps the sub-form right next to it (pick "by reference" ·
+"by formula" and the matching editor appears below it). There the group's accessible label
+repeats the field's visible caption. The swap is a mode change, not a submitted value: a
+choice that is only a stored field value belongs to the enum-field molecule (see "When to
+use it"). Fully **controlled**: the caller passes the current value and receives the chosen option's raw value on change.
 The option set is passed in as **data**, not composed as markup children.
 
 ### L2 — State shape
@@ -117,4 +130,6 @@ option count.
 - Each option exposes the **radio** role and its **checked** state, so a screen reader
   announces "N of M, selected".
 - The keyboard model of L4 is part of this contract, not an enhancement: a plain row of
-  buttons where every button is a separate tab stop and arrows do nothing fails it.
+  buttons where every button is a separate tab stop and arrows do nothing fails it — and
+  so does that same row with the fill flipped per option on an equality test against the
+  current mode, however close it looks to the real control.
