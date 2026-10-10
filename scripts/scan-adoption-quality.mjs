@@ -50,7 +50,8 @@
 //   node scripts/scan-adoption-quality.mjs [--root <dir>] [--signals <path>] [--targets <a,b>] [--json]
 // Options:
 //   --root <dir>      repo to scan (default: current working directory)
-//   --signals <path>  signals file (default: <root>/docs/audit-signals.json)
+//   --signals <path>  signals file (default: docs/audit-signals.json beside this script — the
+//                     copy shipped in the package, so an installed run needs no vendored file)
 //   --targets <a,b>   dirs relative to <root> to walk (default: src)
 //   --json            emit the machine-readable report on stdout
 // Exit: 0 on a completed scan (regardless of findings — radar, not gate);
@@ -65,7 +66,7 @@
 
 import { existsSync, globSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { dirname, join, matchesGlob, relative, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // A usage or config error. Carries the bare diagnostic; `main()` prefixes it,
 // prints it to stderr and exits 2 — thrown instead of exiting so the parsing
@@ -76,6 +77,10 @@ class ConfigError extends Error {
     this.name = 'ConfigError';
   }
 }
+
+// Resolved from the script's own location, not --root: installed under
+// node_modules/design-baseline/scripts/, --root is the consumer's repo.
+const DEFAULT_SIGNALS = fileURLToPath(new URL('../docs/audit-signals.json', import.meta.url));
 
 // --- args -----------------------------------------------------------------
 function parseArgs(args, cwd) {
@@ -93,7 +98,7 @@ function parseArgs(args, cwd) {
   }
   if (targets.length === 0) throw new ConfigError('--targets requires at least one directory');
   const rootResolved = resolve(root);
-  return { jsonMode, rootResolved, signalsPath: signalsPath ?? join(rootResolved, 'docs', 'audit-signals.json'), targets };
+  return { jsonMode, rootResolved, signalsPath: signalsPath ?? DEFAULT_SIGNALS, targets };
 }
 
 // --- excludes -----------------------------------------------------------------

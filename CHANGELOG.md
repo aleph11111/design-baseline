@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.10.1
+
+- **Fixed:** `scripts/scan-adoption-quality.mjs` and `docs/audit-signals.json` were missing from the published tarball, so the documented consumer command could not run. Both now ship, and the script's default signals file resolves beside the script itself (not under the consumer's `--root`); `--signals` still overrides. New `verify:exports` invariant 10 fails when either file drops out of `files`.
+- **Consumer:** brickshop-manager can run `node node_modules/design-baseline/scripts/scan-adoption-quality.mjs` again, with no vendored signals file.
+- **Breaking:** no.
+
 ## v0.10.0
 
 - **Added:** archetype `N` (`native-browser-dialog`, component kind), exported from `design-baseline/archetypes/native-browser-dialog`. It is the in-app replacement for `window.alert` / `confirm` / `prompt`. `useConfirm()` returns `{ askConfirm, dialog }`, where `askConfirm` resolves `boolean`; it renders the shared `ConfirmationDialog`, and `destructive` (default `true`) sets the tone. `usePrompt()` returns `{ askPrompt, dialog }`, where `askPrompt` resolves the trimmed value or `null`; it is a single-field `Dialog` whose form submits on Enter. Replace `alert` with the `sonner` toast. Contract: `docs/archetypes/native-browser-dialog.md`.

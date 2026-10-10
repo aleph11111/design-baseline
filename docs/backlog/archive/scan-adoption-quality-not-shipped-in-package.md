@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-10-10'
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "scoped package.json files edit plus one verify-exports invariant, following the existing invariants 8/9 pattern"

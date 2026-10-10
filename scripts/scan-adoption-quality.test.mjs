@@ -309,9 +309,9 @@ describe("scan-adoption-quality CLI smoke", () => {
 });
 
 describe("parseArgs", () => {
-  it("defaults to cwd, <root>/docs/audit-signals.json and the src target", () => {
+  it("defaults to cwd, the script-relative docs/audit-signals.json and the src target", () => {
     const opts = parseArgs([], "/repo");
-    expect(opts).toEqual({ jsonMode: false, rootResolved: "/repo", signalsPath: join("/repo", "docs", "audit-signals.json"), targets: ["src"] });
+    expect(opts).toEqual({ jsonMode: false, rootResolved: "/repo", signalsPath: signalsFile, targets: ["src"] });
   });
 
   it("reads --json/--root/--targets", () => {
