@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-10-09
-status: ready
+status: done
 value: normal
 gate:
   score: 5
@@ -32,3 +32,11 @@ In the `PageFrame` mobile filter sheet (`src/components/layout/PageFrame.tsx`), 
 
 - [[joined-label-shrinks-before-value]] — introduced the check that found this.
 - [[pageframe-filter-sheet-stacks-nested-fields]] — owns the nested-flex stacking rules.
+
+## Resolution (closed-subsumed)
+
+Already discharged on origin/main by #550 (de7a492 and the joined-label work around it); no re-implementation.
+
+- Criterion 1 (every sheet row incl. native = 130px at 430px): `native-field.tsx` fixed-box row is `inline-flex`, so the sheet's `:is(div).flex` stacking rules no longer match it. `npm run check:joined-label` (darwin, 2026-10-12) 430px sheet runs show `labelW:130` for all 4 rows (expected count 4 incl. native; `widthOk` asserts `labelW === 130`).
+- Criterion 2 (no other row stacked): same 430px runs pass `gapOk`/`valueWhole` for select, segmented and native rows plus the `fixed-width-band` sheet run; sheet selectors in `PageFrame.tsx` unchanged.
+- Criterion 3 (check passes without skipping native rows): `scripts/check-joined-label.mjs` has no native skip; run result `PASSED: 8/8`.
