@@ -2,7 +2,7 @@
 key: F
 slug: statement-with-filters
 kind: page
-version: 2.3
+version: 2.4
 promoted_from: controlling-app
 promoted_at: 2026-08-19
 source_spec_version: 1.0
@@ -84,6 +84,9 @@ read-only rule is the archetype's defining boundary).
 **Required:**
 - The project's top-level app shell (its main region supplies the page inset;
   the page adds none).
+- The page is **full-bleed**: a period statement is a working surface, so it
+  takes the whole content area instead of the centred reading column (fixed
+  by the archetype, not a page choice).
 - A render-error boundary wraps the page content; the toolbar and the
   statement load inside it.
 - A thin page guard + inner-component split: the outer page narrows the
@@ -284,6 +287,9 @@ never from the call site's taste. The mapping is exhaustive:
 ---
 
 ## Version log
+
+- **2.4** — Layer 2: the page is full-bleed (ADR-0007 amendment 2026-10-12),
+  so a twelve-period statement fits a laptop desk without horizontal scroll.
 
 - **2.3** — Layer 11: scoping stays reachable on a narrow viewport via the
   filter sheet instead of a wrapping toolbar; hiding selectors behind the

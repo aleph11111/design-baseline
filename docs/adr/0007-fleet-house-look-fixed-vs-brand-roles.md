@@ -105,4 +105,13 @@ A single 1180px cap left a 1920 window with ~370px of empty desk and a 2560–34
 
 - **Keyed to the desk, not the viewport.** `AppShell`'s `<main>` is a size container (`db-desk`), and the layer redefines `--db-content-max` on the column (`.db-content-column`) per container width. A collapsed sidebar is room the column can use; a viewport media query could not see it.
 - **The step rule:** a step applies once the desk holds it plus 88px (a 44px gutter each side), so the column never widens straight into the desk edge. The 88px, not a full 112px, is headroom for a classic ~17px vertical scrollbar (Windows, "always show scrollbars"): with it a 1920 window has a 1535px desk and still steps, so the width does not depend on whether the page is long enough to scroll.
-- **1680px is the ceiling.** Past it, dashboard card rows and detail sections stretch thinner than they read; the four full-bleed working surfaces are unaffected and still take the whole desk.
+- **1680px is the ceiling.** Past it, dashboard card rows and detail sections stretch thinner than they read; the full-bleed working surfaces are unaffected and still take the whole desk.
+
+## Amendment 2026-10-12 — `statement-with-filters` joins the full-bleed set
+
+A 12-month statement (label column, twelve periods, a total) needs about 1280px of surface. On a 14" laptop (1512px window, sidebar collapsed) the desk is about 1464px, under the first wide-desk step, so the 1180px column clipped the last months behind a horizontal scroll while ~170px of desk sat empty beside it. A period statement is a working surface (you scan across columns), not a reading column, which is the §1 test.
+
+- **The full-bleed set is now five:** `matrix-grid`, `list-with-detail`, `kanban-board`, `calendar`, `statement-with-filters`. Still closed and keyed by archetype, never a width prop.
+- **The page inset does not change.** Trimming 56px to 48px would gain 16px and move every page; lifting the column cap gains ~170px on this archetype alone.
+- **Uncapped, like the other four.** On a very wide desk a statement stretches to the desk edge; its own table decides column width and the surface scrolls internally if it ever has to.
+

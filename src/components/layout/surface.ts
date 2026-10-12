@@ -10,7 +10,7 @@ export const RaisedSurfaceContext = React.createContext(false);
 
 /**
  * Marker class on the root of a full-bleed archetype shell (`matrix-grid`,
- * `list-with-detail`, `kanban-board`, `calendar` — the closed set of ADR-0007
+ * `list-with-detail`, `kanban-board`, `calendar`, `statement-with-filters` — the closed set of ADR-0007
  * §1). `AppShell`'s content column drops its max width when it contains one,
  * so full-bleed is derived from the archetype, never a call-site prop.
  */
