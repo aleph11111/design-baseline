@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.11.1
+
+- **Fixed:** `AppHeader` no longer widens the page past the viewport on phones. The row and every slot (`title`, `center`, `right`) now shrink (`min-w-0`, `title` truncates, `right` loses `flex-shrink-0`), and the header contains its inline size (`contain: inline-size`), so long content cannot widen an ancestor that lacks `min-w-0`. From `sm` up the `center` slot keeps an 8rem floor, so a long title cannot collapse it.
+- **Added:** optional `AppHeader` input `user?: { email, onSignOut }`: below `sm` an account menu holds the email and sign-out, from `sm` up they render inline (email truncated). New labels `userMenu` / `signOut`; `AppHeaderUser` exported.
+- **Consumer:** controlling-app can pass `user` instead of building the email and sign-out in `right`. Consumers that pass no `user` are unchanged from `sm` up.
+- **Breaking:** no.
+
 ## v0.11.0
 
 - **Added:** two exports on `design-baseline/archetypes/crud-dialog` (archetype J v3.10) so the footer can stay a pinned sibling of the body:
