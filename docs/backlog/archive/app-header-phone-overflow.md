@@ -1,7 +1,8 @@
 ---
 area: layout
 opened: '2026-10-10'
-status: blocked
+status: done
+value: high
 gate:
   score: 4
   passed:
@@ -11,14 +12,9 @@ gate:
     - acceptance
   failed:
     - open_question: >-
-        unresolved fork (AppHeader API shape) auto-resolved to Recommended; operator confirms before
-        /feat
+        AppHeader API shape: the operator confirmed the overflow fix + `user` on 2026-10-12 and split
+        `breadcrumb` into its own ticket
   graded_at: '2026-10-10T00:00:00.000Z'
-value: high
-blocked_reason: >-
-  review: PR https://github.com/aleph11111/design-baseline/pull/548 had 5 /ship review-gate rounds
-  that did not approve. Read the <!-- review-gate --> comments on the PR, decide how to proceed,
-  then release the ticket with back 2 ready.
 ---
 
 # AppHeader overflows on phones and widens every page past the viewport
@@ -50,6 +46,10 @@ blocked_reason: >-
 - [[refactor-shell-surface-header-slot-duplication]] — earlier header slot consolidation in the same area
 - [ADR-0008](/docs/adr/0008-one-page-frame-slot-owned-placement.md) — one page frame, slot-owned placement
 
-## Open question
+## Decision
 
-How should `AppHeader` receive the breadcrumb and user menu? Recommended (asserted above): new optional props (`breadcrumb`, `user`) so truncation and the user-menu move are owned by the donor. Alternative: leave `center`/`right` as opaque slots, only harden the layout (`min-w-0`, truncation) and have each consumer build its own responsive breadcrumb/user menu — smaller API, but every consumer re-solves the same phone overflow.
+The open question (AppHeader API shape) was resolved by the orchestrator on the operator's behalf on 2026-10-10: the Recommended option — optional `breadcrumb` and `user` props owned by the donor; `center`/`right` slots keep working. Operator did not confirm in person; revisit if the API shape is unwanted.
+
+## Scope split (2026-10-12)
+
+PR #548 hit the review-gate round cap: rounds 3–5 were all the `breadcrumb` input fighting `center` for width, each flex tweak regressing the next combination. The operator split it: this ticket ships the overflow fix and `user`; the `breadcrumb` input and its acceptance line (current segment below `sm`, full path in `title`) move to a follow-up ticket, gated on a real-Chrome check across every breadcrumb × center × user combination.
