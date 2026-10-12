@@ -5,6 +5,7 @@ import { DayPicker } from "react-day-picker";
 import { cn } from "../../lib/utils";
 import { buttonVariants } from "./button";
 import { useLabels } from "../../lib/labels";
+import { useAppDensity } from "./toolbar-band";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -27,6 +28,10 @@ function Calendar({
   ...props
 }: CalendarProps) {
   const L = useLabels();
+  // Touch density lifts nav and day targets to 44pt; 7 x 44pt + padding (332pt) still fits a phone.
+  const touch = useAppDensity() === "lg";
+  const nav = touch ? "h-11 w-11" : "h-7 w-7";
+  const cell = touch ? "h-11 w-11" : "h-9 w-9";
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -41,21 +46,21 @@ function Calendar({
         caption_label: "text-sm font-medium",
         button_previous: cn(
           buttonVariants({ variant: "outline" }),
-          "col-start-1 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+          `col-start-1 ${nav} bg-transparent p-0 opacity-50 hover:opacity-100`
         ),
         button_next: cn(
           buttonVariants({ variant: "outline" }),
-          "col-start-3 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+          `col-start-3 ${nav} bg-transparent p-0 opacity-50 hover:opacity-100`
         ),
         month_grid: "col-span-3 w-full border-collapse space-y-1",
         weekdays: "flex",
         weekday:
-          "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
+          `text-muted-foreground rounded-md ${touch ? "w-11" : "w-9"} font-normal text-[0.8rem]`,
         week: "flex w-full mt-2",
-        day: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+        day: `${cell} text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20`,
         day_button: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
+          `${cell} p-0 font-normal aria-selected:opacity-100`
         ),
         range_end: "day-range-end",
         selected:
