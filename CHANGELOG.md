@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.11.3
+
+- **Changed:** `Calendar` follows `AppShell density="touch"`: nav buttons and day cells (and weekday headers) lift from 28/36pt to 44pt (`h-11 w-11`). 7 x 44pt plus padding is 332pt, so the grid still fits a phone.
+- **Consumer:** none required; calendars inside a touch-density shell grow on the version bump. Without density they are unchanged.
+- **Breaking:** no.
+
 ## v0.11.2
 
 - **Changed:** `StatementWithFiltersShell` (archetype F v2.4) is now full-bleed (ADR-0007 amendment 2026-10-12). It drops the centred 1180px content column and takes the whole desk, so a twelve-month statement plus total fits a 14" laptop without horizontal scroll. Nested in another raised surface it stays in the column, like the other full-bleed shells.
