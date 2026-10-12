@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.11.2
+
+- **Changed:** `StatementWithFiltersShell` (archetype F v2.4) is now full-bleed (ADR-0007 amendment 2026-10-12). It drops the centred 1180px content column and takes the whole desk, so a twelve-month statement plus total fits a 14" laptop without horizontal scroll. Nested in another raised surface it stays in the column, like the other full-bleed shells.
+- **Consumer:** none required; pages using the shell widen on the version bump (controlling-app P&L and balance sheet).
+- **Breaking:** no.
+
 ## v0.11.1
 
 - **Fixed:** `AppHeader` no longer widens the page past the viewport on phones. The row and every slot (`title`, `center`, `right`) now shrink (`min-w-0`, `title` truncates, `right` loses `flex-shrink-0`), and the header contains its inline size (`contain: inline-size`), so long content cannot widen an ancestor that lacks `min-w-0`. From `sm` up the `center` slot keeps an 8rem floor, so a long title cannot collapse it.

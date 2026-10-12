@@ -48,7 +48,7 @@ wrong desk, whole app feels wrong.
 | Slot | Home | Rule |
 |------|------|------|
 | **Sidebar / header chrome** | `AppShell` props | Never a hand-rolled flex frame |
-| **Content desk** | `AppShell`'s main | `bg-surface-canvas p-4 md:p-12 xl:p-14`, centred 1180px column, 1440/1680px on a wide desk (full-bleed only for the four working-surface archetypes) — pages add no outer inset or width of their own |
+| **Content desk** | `AppShell`'s main | `bg-surface-canvas p-4 md:p-12 xl:p-14`, centred 1180px column, 1440/1680px on a wide desk (full-bleed only for the five working-surface archetypes) — pages add no outer inset or width of their own |
 
 ---
 

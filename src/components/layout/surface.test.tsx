@@ -9,6 +9,7 @@ import { ListWithDetailShell, type ListColumn } from "../archetypes/list-with-de
 import { CalendarShell } from "../archetypes/calendar/CalendarShell";
 import { BoardShell } from "../archetypes/kanban-board/BoardShell";
 import { MatrixGridShell } from "../archetypes/matrix-grid/MatrixGridShell";
+import { StatementWithFiltersShell } from "../archetypes/statement-with-filters/StatementWithFiltersShell";
 
 // ListWithDetailShell's useIsMobile reads matchMedia, which jsdom lacks.
 window.matchMedia ??= ((query: string) => ({
@@ -34,6 +35,7 @@ const shells: [string, () => React.ReactElement][] = [
   ["ListWithDetailShell", () => <ListWithDetailShell title="People" rows={[{ id: "1", name: "Ada" }]} columns={columns} getRowId={(r) => r.id} />],
   ["CalendarShell", () => <CalendarShell title="Week" days={[{ id: "mon", dow: "Mo", date: "22", events: [] }]} />],
   ["BoardShell", () => <BoardShell title="Board"><div /></BoardShell>],
+  ["StatementWithFiltersShell", () => <StatementWithFiltersShell title="P&L"><div /></StatementWithFiltersShell>],
   ["MatrixGridShell", () => <MatrixGridShell title="Grid" columns={[{ key: "mon", label: "Mon" }]} rows={[{ id: "1", label: "Ada", cells: { mon: "P" } }]} renderCell={(c) => c.cell} />],
 ];
 
