@@ -8,6 +8,7 @@ export * from "@/components/ui/badge";
 export * from "@/components/ui/button.test";
 export * from "@/components/ui/button";
 export * from "@/components/ui/calendar";
+export * from "@/components/ui/calendar.test";
 export * from "@/components/ui/card";
 export * from "@/components/ui/cell-input";
 export * from "@/components/ui/checkbox";
