@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: 2026-10-09
-status: ready
+status: done
 value: low
 gate:
   score: 5
