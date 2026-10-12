@@ -38,13 +38,20 @@ describe("AppHeader phone overflow", () => {
       user: { email: LONG_EMAIL, onSignOut: () => {} },
     });
     const header = container.querySelector("header")!;
-    expect(header.className).toContain("min-w-0");
-    expect(header.className).toContain("overflow-hidden");
-    expect(header.className).toContain("[contain:inline-size]");
-    for (const slot of Array.from(header.children)) {
-      expect(slot.className, slot.outerHTML.slice(0, 60)).toContain("min-w-0");
-      expect(slot.className.split(/\s+/)).not.toContain("flex-shrink-0");
+    const tokens = (el: Element) => el.className.split(/\s+/);
+    expect(tokens(header)).toEqual(expect.arrayContaining(["min-w-0", "overflow-hidden", "[contain:inline-size]"]));
+    expect(header.children).toHaveLength(4);
+    const [left, center, right, user] = Array.from(header.children) as [Element, Element, Element, Element];
+    // title, center and right shrink at every width (unprefixed tokens, not sm: variants)
+    for (const slot of [left, center, right]) {
+      expect(tokens(slot), slot.outerHTML.slice(0, 60)).toContain("min-w-0");
+      expect(tokens(slot)).not.toContain("shrink-0");
+      expect(tokens(slot)).not.toContain("flex-shrink-0");
     }
+    // the user slot is the one exception below sm: a 36px icon that must stay
+    // visible; from sm up, where the email renders inline, it shrinks too
+    expect(tokens(user)).toEqual(expect.arrayContaining(["shrink-0", "sm:min-w-0", "sm:shrink"]));
+    expect(screen.getByRole("heading", { name: LONG_TITLE, hidden: true }).className.split(/\s+/)).toContain("truncate");
   });
 
   it("keeps the email and sign-out in a menu below sm, inline from sm up", () => {
