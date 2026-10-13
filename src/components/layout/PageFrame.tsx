@@ -176,7 +176,14 @@ export function PageFrame({
         {/* p-1/-m-1: room for the 4px focus ring + offset, which overflow-x clips. */}
         <div className="-m-1 flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-x-auto p-1">
           <ToolbarBandContext.Provider value={true}>
-            {viewSwitch}
+            {has(viewSwitch) && (
+              // max-w-full + overflow-x-auto: a switch wider than the band scrolls in its own
+              // box instead of being cut at the card edge. shrink-0: crowded inline fields
+              // must not squeeze it; the band scrolls instead. p-1/-m-1 keeps the focus ring unclipped.
+              <div data-view-switch="" className="-m-1 max-w-full shrink-0 overflow-x-auto p-1">
+                {viewSwitch}
+              </div>
+            )}
             {inlineFields}
           </ToolbarBandContext.Provider>
           {overflowFields.length > 0 && (

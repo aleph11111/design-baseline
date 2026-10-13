@@ -279,6 +279,15 @@ describe("PageFrame — mobile filter sheet (below md)", () => {
     ).not.toBeNull();
   });
 
+  it("wraps the desktop view switch in a shrinkable scroll slot", () => {
+    setViewport(1024);
+    renderVariance();
+    const slot = document.querySelector("[data-view-switch]");
+    expect(slot?.className).toContain("max-w-full");
+    expect(slot?.className).toContain("shrink-0");
+    expect(slot?.className).toContain("overflow-x-auto");
+  });
+
   it("renders the first fields inline at md and wider; the rest sit behind Filter", () => {
     setViewport(1024);
     renderVariance();

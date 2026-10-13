@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.11.4
+
+- **Fixed:** `PageFrame` desktop band wraps `viewSwitch` in a `max-w-full shrink-0 overflow-x-auto` slot (`data-view-switch`), so tabs wider than the band scroll instead of being clipped at the card edge; a crowded band scrolls rather than squeezing the switch.
+- **Consumer:** none; re-check pages whose view switch was cut off.
+- **Breaking:** no.
+
 ## v0.11.3
 
 - **Changed:** `Calendar` follows `AppShell density="touch"`: nav buttons and day cells (and weekday headers) lift from 28/36pt to 44pt (`h-11 w-11`). 7 x 44pt plus padding is 332pt, so the grid still fits a phone.
