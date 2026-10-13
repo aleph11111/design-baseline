@@ -97,6 +97,25 @@ describe("compileRules (no targets context)", () => {
     expect(r.re.flags).toBe("g"); // no `i` flag
   });
 
+  it("a multi-line opening tag (`<button` alone on a line) ends its line and the lookahead still fires", () => {
+    // The donor's line-by-line scanner splits a file's text on `\n`, so a multi-line JSX
+    // opening tag is one line that begins with `<button` and nothing else. Without the
+    // trailing `|$` in the lookahead the element slipped past every `tag` rule (the
+    // `no-bare-button` blind spot). With it, the lookahead succeeds at end-of-line.
+    const [r] = compileRules([{ id: "no-bare-button", tag: "button" }]);
+    r.re.lastIndex = 0;
+    expect(r.re.test("<button")).toBe(true); // EOL — the blind spot
+    r.re.lastIndex = 0;
+    expect(r.re.test("<button\n")).toBe(true); // trailing newline also EOL (defensive)
+    // The same fix extends to every other tag rule the single compile point serves.
+    const [h1] = compileRules([{ id: "no-bare-h1", tag: "h1" }]);
+    h1.re.lastIndex = 0;
+    expect(h1.re.test("<h1")).toBe(true);
+    const [tbl] = compileRules([{ id: "no-raw-table", tag: "table" }]);
+    tbl.re.lastIndex = 0;
+    expect(tbl.re.test("<table")).toBe(true);
+  });
+
   it("uses a `pattern` rule's source verbatim (with the `g` flag)", () => {
     const [r] = compileRules([
       { id: "raw", pattern: "focus:ring-1\\b", severity: "error" },

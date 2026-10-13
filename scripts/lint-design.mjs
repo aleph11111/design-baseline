@@ -297,7 +297,7 @@ function findToolbarTabs(text, tags = 'Tabs|TabsList|SegmentedControl', ruleId =
 // CLI always passes the config's `targets`.
 function compileRules(rules, targets) {
   return rules.map((rule) => {
-    const source = rule.swallowedSlots || rule.toolbarTabs || rule.toolbarSwitch ? '(?!)' : (rule.pattern ?? `<${rule.tag}(?=[\\s/>])`);
+    const source = rule.swallowedSlots || rule.toolbarTabs || rule.toolbarSwitch ? '(?!)' : (rule.pattern ?? `<${rule.tag}(?=[\\s/>]|$)`);
     // A `{{unionAliases}}` pattern cannot be compiled once — its alternation is per-file — so
     // it is carried as `aliasSource` and compiled in `scanFile`. Validate it here anyway (with
     // a stand-in name) so a bad pattern still fails at compile time, like every other rule.
