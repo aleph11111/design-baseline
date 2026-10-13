@@ -177,9 +177,10 @@ export function PageFrame({
         <div className="-m-1 flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-x-auto p-1">
           <ToolbarBandContext.Provider value={true}>
             {has(viewSwitch) && (
-              // min-w-0 + overflow-x-auto: the switch scrolls inside the band instead of
-              // being cut at the card edge. p-1/-m-1 keeps the focus ring unclipped.
-              <div data-view-switch="" className="-m-1 min-w-0 shrink overflow-x-auto p-1">
+              // max-w-full + overflow-x-auto: a switch wider than the band scrolls in its own
+              // box instead of being cut at the card edge. shrink-0: crowded inline fields
+              // must not squeeze it; the band scrolls instead. p-1/-m-1 keeps the focus ring unclipped.
+              <div data-view-switch="" className="-m-1 max-w-full shrink-0 overflow-x-auto p-1">
                 {viewSwitch}
               </div>
             )}

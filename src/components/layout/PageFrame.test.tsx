@@ -283,7 +283,8 @@ describe("PageFrame — mobile filter sheet (below md)", () => {
     setViewport(1024);
     renderVariance();
     const slot = document.querySelector("[data-view-switch]");
-    expect(slot?.className).toContain("min-w-0");
+    expect(slot?.className).toContain("max-w-full");
+    expect(slot?.className).toContain("shrink-0");
     expect(slot?.className).toContain("overflow-x-auto");
   });
 

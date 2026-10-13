@@ -4,7 +4,7 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 ## v0.11.4
 
-- **Fixed:** `PageFrame` desktop band wraps `viewSwitch` in a `min-w-0 overflow-x-auto` slot (`data-view-switch`), so tabs wider than the band scroll instead of being clipped at the card edge.
+- **Fixed:** `PageFrame` desktop band wraps `viewSwitch` in a `max-w-full shrink-0 overflow-x-auto` slot (`data-view-switch`), so tabs wider than the band scroll instead of being clipped at the card edge; a crowded band scrolls rather than squeezing the switch.
 - **Consumer:** none; re-check pages whose view switch was cut off.
 - **Breaking:** no.
 
