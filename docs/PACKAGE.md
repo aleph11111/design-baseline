@@ -461,7 +461,10 @@ stale by construction). The tag is still the single stamp that replaces 102
 per-file ones; the kept-file count is the visible guard that the fork survived the
 swap, and it is the one field you re-record when it changes. A consumer more than
 one minor behind the newest donor tag — or whose kept count grew since last
-recorded — is a `sync` row.
+recorded — is a `sync` row; the dashboard flags it, nobody files it. **A tag bump
+whose kept-file count is unchanged needs no donor edit at all** — do not file a
+follow-up to "record the new tag" here; the `projects` strings' tags are a dated
+snapshot, not a field to keep current.
 
 ### Step 6 — Retire the doc corpus the swap left without a reader
 
