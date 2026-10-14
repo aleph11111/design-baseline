@@ -458,7 +458,7 @@
       "projects": [
         "controlling-app — design-baseline#v0.9.3 (origin/main c41834a2, 2026-10-10); kept: 11 ui/ + 14 layout/ files under frontend/src/components/",
         "mistra — design-baseline#v0.9.3 (origin/main 0e41be0e, 2026-10-10); kept: 3 ui/ + 5 layout/ files under frontend/src/components/",
-        "hk-crm — design-baseline#v0.9.3 (origin/main db2237db, 2026-10-10); kept: 12 ui/ files (consumer-only leaves + their unit tests), no layout/",
+        "hk-crm — design-baseline#v0.11.4 (origin/main dfc0bda4, 2026-10-14); kept: 10 ui/ files (consumer-only leaves + their unit tests; native-field/select-field dropped for the donor archetypes in #1276), no layout/",
         "hk-sales-agent — design-baseline#v0.9.3 (origin/main dce5bee, 2026-10-10); kept: 0 ui/ + 0 layout/ (web/src/components/ holds only consumer components)",
         "brickshop-manager — design-baseline#v0.9.3 (origin/main 76c823e79, 2026-10-10); kept: 8 ui/ (editable/ family) + 9 layout/ files under src/components/",
         "gebo-stock-kiosk — design-baseline#v0.9.1 (origin/master dee2428, 2026-10-10; v0.9.3 bump is PR #25, pending); kept: 0 ui/ + 0 layout/"
