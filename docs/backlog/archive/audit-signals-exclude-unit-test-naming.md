@@ -1,7 +1,7 @@
 ---
 area: audit
 opened: 2026-10-13
-status: ready
+status: done
 value: low
 gate:
   score: 5
