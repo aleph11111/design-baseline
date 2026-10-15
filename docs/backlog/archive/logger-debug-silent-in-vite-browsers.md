@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-10-15
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "cause established and the fix already exists in the repo (isDevBuild in ListWithDetailShell.tsx); extract and reuse"
