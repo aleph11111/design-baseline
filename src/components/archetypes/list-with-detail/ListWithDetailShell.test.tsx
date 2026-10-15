@@ -214,6 +214,71 @@ describe("ListWithDetailShell", () => {
     expect(dialog.textContent).toContain("Details for Ada");
   });
 
+  it("detail overlay is content-sized: floor, ceiling, full-screen below sm, nowrap table cells", () => {
+    render(
+      <ListWithDetailShell title="T"
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+        selectedRowId="1"
+        detail={<div>Details for Ada</div>}
+      />,
+    );
+    const dialog = screen.getByRole("dialog");
+    for (const c of ["w-full", "sm:w-min", "sm:min-w-md", "sm:max-w-[calc(100vw-4rem)]"]) {
+      expect(dialog.className).toContain(c);
+    }
+    expect(dialog.className).not.toContain("sm:max-w-md");
+  });
+
+  it("dev overflow guard warns only when the detail scrolls sideways at the ceiling", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.stubGlobal("matchMedia", () => ({
+      matches: true,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+    let overflow = 0;
+    const sw = vi
+      .spyOn(HTMLElement.prototype, "scrollWidth", "get")
+      .mockImplementation(() => 500 + overflow);
+    const cw = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(() => 500);
+    const renderAt = (id: string, title: string, body = "Details") => (
+      <ListWithDetailShell title="T"
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+        selectedRowId={id}
+        detailTitle={title}
+        detail={<div>{body}</div>}
+      />
+    );
+    try {
+      const { rerender } = render(renderAt("1", "Fits"));
+      await new Promise((r) => setTimeout(r, 50));
+      expect(warn).not.toHaveBeenCalled();
+
+      // Same selection, content arrives after open (an async-loaded table) and
+      // now overflows: the guard re-measures on the content change.
+      overflow = 200;
+      rerender(renderAt("1", "Too wide", "Loaded table"));
+      await vi.waitFor(() => expect(warn).toHaveBeenCalledTimes(1));
+      const message = String(warn.mock.calls[0]?.[0]);
+      expect(message).toContain('"Too wide"');
+      expect(message).toContain("detail-overview");
+
+      // Once per opened selection: further changes don't repeat the warning.
+      rerender(renderAt("1", "Too wide", "Loaded table, more rows"));
+      await new Promise((r) => setTimeout(r, 50));
+      expect(warn).toHaveBeenCalledTimes(1);
+    } finally {
+      warn.mockRestore();
+      sw.mockRestore();
+      cw.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("dismissing the Sheet (Esc) calls onDetailClose", () => {
     const onDetailClose = vi.fn();
     render(

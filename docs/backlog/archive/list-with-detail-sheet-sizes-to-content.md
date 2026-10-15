@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-10-15
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "changes a locked archetype's presentation rule plus the surface-selection doc and needs an ADR; the rule boundary (sheet vs route) is a design tradeoff, not pattern-following"

@@ -1,6 +1,6 @@
 {
   "name": "design-baseline",
-  "version": "0.11.4",
+  "version": "0.11.5",
   "private": true,
   "engines": {
     "node": ">=22"
@@ -14,6 +14,7 @@
     "check:desk-width": "npm run gallery:build && node scripts/check-desk-width.mjs",
     "check:app-header-phone": "npm run gallery:build && node scripts/check-app-header-phone.mjs",
     "check:joined-label": "npm run gallery:build && node scripts/check-joined-label.mjs",
+    "check:detail-sheet": "NODE_ENV=development vite build --configLoader runner --mode development --outDir ../gallery-dist-dev --emptyOutDir && node scripts/check-detail-sheet.mjs",
     "verify:manifest": "node scripts/verify-manifest-versions.mjs",
     "verify:package-version": "node scripts/verify-package-version.mjs",
     "scan:adoption-quality": "node scripts/scan-adoption-quality.mjs",

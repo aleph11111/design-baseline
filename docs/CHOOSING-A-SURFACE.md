@@ -1,7 +1,7 @@
 ---
 slug: choosing-a-surface
 kind: methodology
-version: 2.0
+version: 2.1
 status: locked
 governs: [A, B, C, J, K, F2, M]
 ---
@@ -26,7 +26,7 @@ product — every page passes its own spec, and the whole still feels stitched t
 ### The two questions this doc answers
 
 1. **Part 1 — Entity surfaces.** For a single domain entity that is created, read, or
-   edited, which surface does it get? (the CRUD ladder: token → row → dialog → pane → page)
+   edited, which surface does it get? (the CRUD ladder: token → row → dialog → overlay → page)
 2. **Part 2 — Collection & overview surfaces.** For a page whose job is *not* one entity's
    CRUD lifecycle — presenting a collection, a set of numbers, a process, a configuration —
    which page archetype does it get?
@@ -70,7 +70,7 @@ primitive within one). Start at the bottom; stop at the first rung that holds.
 | 1 | **Token** | Badge / cell | is a single value or status | none |
 | 2 | **Row** | list row (A / K) | is one line among peers, no own screen | none |
 | 3 | **Dialog** | crud-dialog (J) | is created/edited from a parent that owns the context | overlay — origin stays mounted |
-| 4 | **Detail pane** | list-with-detail (A) | is read alongside its list (master-detail) | in-shell — list stays mounted |
+| 4 | **Detail overlay** | list-with-detail (A) | is read as a summary from its list (master-detail) | overlay — list stays mounted underneath |
 | 5 | **Detail page** | detail-overview (C) | owns collections, tabs, or sub-entities of its own | full route — page swap |
 
 **Escalation triggers — the only reasons to climb a rung:**
@@ -80,11 +80,14 @@ primitive within one). Start at the bottom; stop at the first rung that holds.
 - **3 → 5 (dialog → page):** the entity's form or view outgrows a side-sheet — it owns
   child collections, needs 3+ logical tabs, or the read view is a dashboard in its own
   right. (A J dialog caps at 2 tabs by spec; needing a third is the signal.)
-- **4 → 5 (detail pane → page):** the detail is no longer a summary — it's a workspace the
-  user parks in and navigates within (its own sub-tabs, its own child lists).
+- **4 → 5 (detail overlay → page):** the detail is no longer a summary — it's a workspace the
+  user parks in and navigates within (its own sub-tabs, its own child lists) — or its
+  content does not fit the overlay's ceiling without scrolling sideways.
 
 Never skip from rung 2 straight to rung 5 because "it'll probably grow." Build the rung the
-entity needs today; the archetypes are designed so climbing later is a bounded change.
+entity needs today; the archetypes are designed so climbing later is a bounded change. A
+row that already carries the summary may link straight to a page the entity needs *today*
+(see the read/detail spectrum below).
 
 ---
 
@@ -130,25 +133,33 @@ with the company pre-filled, instead of navigating away to a foreign namespace.
 
 ---
 
-## The read/detail spectrum — pane (A) vs. page (C)
+## The read/detail spectrum — overlay (A) vs. page (C)
 
-**Default: a shallow entity's detail is revealed in-shell, beside its list** — the
-`list-with-detail` (A) detail pane. Selecting a row shows the detail; the list stays
-mounted and the selection stays visible. The archetype is named *list-with-detail* for a
-reason: a list whose row-click always navigates to a separate route is a list-with-detail
-that never renders its detail — the shape promises master-detail and delivers a teleport.
+**Default: a shallow entity's detail opens in-shell, over its list** — the
+`list-with-detail` (A) detail overlay, a side sheet anchored to the trailing edge (since A
+v3.0 it never renders in the page flow beside the list). Selecting a row opens it; the list
+stays mounted underneath, its edge visible, and closing the overlay returns to the same
+scroll position. The overlay is as wide as its content needs, between a floor and a ceiling
+(A v4.2, ADR-0010), and never scrolls sideways.
 
 **Escalate to a `detail-overview` (C) page — a `/<resource>/[id]` route — when the entity
 owns depth of its own:** child collections (contacts, deals, devices, activity), its own
-sub-navigation/tabs, actions that operate on those children. Companies are a page; a
-lightweight contact usually is not.
+sub-navigation/tabs, actions that operate on those children — **or when its detail does not
+fit the overlay's ceiling** (a table the user would have to scroll sideways to read).
+Companies are a page; a lightweight contact usually is not.
 
-**When an entity has a C page, route to it *from* the pane, not instead of it.** The pane is
-the summary and the jump-off; the page is the workspace. `onRowSelect` opening a pane, with
-the pane offering "Open full page →", is coherent. `onRowSelect` hard-navigating with no
-pane in between is the drift.
+**Two ways to reach a C page from a list, chosen by what the row already shows:**
 
-`detail-target` (route vs. dialog vs. pane vs. none) is expressed through the consumer's
+- **Row → overlay → page** when the overlay adds a summary the row does not carry. The
+  overlay is the summary and the jump-off ("Open full page →"); the page is the workspace.
+- **Row → page directly** when the row already shows the entity's summary and the detail
+  *is* a child collection or workspace. An overlay in between would only repeat the row
+  and add a click. This is sanctioned, not drift.
+
+The drift is a row that navigates away when there is a summary to show and no workspace
+behind it, or an overlay that crams a workspace into a sheet.
+
+`detail-target` (route vs. dialog vs. overlay vs. none) is expressed through the consumer's
 `onRowSelect` handler — it is a composition choice governed by this document, not a prop and
 not per-page license to improvise.
 
@@ -176,7 +187,7 @@ across all of them.
 
 | The page's job | Archetype | Reach for it when | Use a different one if |
 |----------------|-----------|-------------------|------------------------|
-| Scan / act on a flat set of records | **list-with-detail (A)** | rows are peers in one table or grid; select → pane or page | rows fall into named groups → **K**; data is one measure across two axes → **M** |
+| Scan / act on a flat set of records | **list-with-detail (A)** | rows are peers in one table or grid; select → overlay or page | rows fall into named groups → **K**; data is one measure across two axes → **M** |
 | Present records already split into named groups | **grouped-list (K)** | items belong to sections (by owner, stage, category), each a bounded group | the groups are a pipeline you drag items between → **P** |
 | Move items through a workflow | **kanban-board (P)** | status *is* the process and changing it is the primary action | status is only read, not changed → **A** with a status badge |
 | Present one measure across two dimensions | **matrix-grid (M)** | data is inherently row × column (resource × period, plan × month) | it's just a list that happens to have columns → **A** |
@@ -204,7 +215,7 @@ documented one-off, excluded from the archetype set.
 | Create an entity from a list / detail you're on | Sheet dialog | **J** |
 | Edit an entity in place | Sheet dialog | **J** |
 | Create with no owning parent, or deep-linkable, or very large | Dedicated route | **B** |
-| Read a shallow entity next to its list | In-shell detail pane | **A** |
+| Read a shallow entity's summary from its list | Detail overlay over the list, content-sized | **A** |
 | Read an entity that owns collections + tabs | Dedicated route | **C** |
 | Add a child to a parent (contact → company) | Child's J dialog, opened over the parent, pre-filled | **J** (Layer 15) |
 | A settings / config record | Sheet dialog over the table | **J** + **D2** |
@@ -238,7 +249,7 @@ Template:
 
 | Entity | Create / Edit | Detail / Read | Notes |
 |--------|---------------|---------------|-------|
-| … | J dialog *(default)* | A pane / C page | escalation trigger, if any |
+| … | J dialog *(default)* | A overlay / C page | escalation trigger, if any |
 
 | Page | Archetype | Why |
 |------|-----------|-----|
@@ -261,6 +272,12 @@ Template:
 ---
 
 ## Revision log
+
+- **2.1** (2026-10-15) — The read/detail spectrum matches list-with-detail v3.0+: the A
+  detail is an overlay over the list, not a pane beside it, and it sizes to its content
+  (ADR-0010). A detail that cannot fit the overlay's ceiling escalates to C. Row → C route
+  directly is sanctioned when the row already shows the summary and the detail is a child
+  collection or workspace; it was previously called drift.
 
 - **2.0** — Promoted to the Design Baseline. Project-specific application tables replaced
   by the required per-project `docs/SURFACES.md` resolution.

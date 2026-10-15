@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.11.5
+
+- **Changed:** the `ListWithDetailShell` detail overlay (archetype A v4.5, contract v4.2) sizes to its content instead of a fixed 448px (ADR-0010). From `sm` up it is `min-content` wide, clamped between a 28rem floor (the old width) and a `100vw - 4rem` ceiling; table cells inside the detail stay on one line, so a wide table widens the sheet instead of scrolling sideways. Prose still wraps at the floor; a long `detailTitle` truncates and never widens it. Below `sm` the overlay stays full-screen.
+- **Added:** a dev-only `console.warn` when the open detail still scrolls sideways at the ceiling (the body or a nested scroll container). It names the `detailTitle` and points at the escalation rule: that detail belongs on its own `detail-overview` route.
+- **Consumer:** none required. Remove any cell-padding squeeze added to fit a 448px sheet (gebo-stock-kiosk #66). A detail that warns moves to its own route.
+- **Breaking:** no.
+
 ## v0.11.4
 
 - **Fixed:** `PageFrame` desktop band wraps `viewSwitch` in a `max-w-full shrink-0 overflow-x-auto` slot (`data-view-switch`), so tabs wider than the band scroll instead of being clipped at the card edge; a crowded band scrolls rather than squeezing the switch.
