@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-10-15
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "adds one audit-signals entry plus test fixtures, following the existing adoptionQuality/shadowedBaseline pattern; the gap is already diagnosed"
