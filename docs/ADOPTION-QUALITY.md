@@ -76,6 +76,13 @@ audit" split:
    page inset (`p-4 md:p-12 xl:p-14`) that lacks `@container/db-desk` or
    `db-content-column` — a vendored AppShell that missed the v0.2.26 width-step hooks
    and stays at 1180px on wide desks. A package importer renders no `<main>` and never hits.
+   `unshelled-list` (yellow) flags a page that imports `PageFrame` from `design-baseline/layout` and
+   renders a shadcn `Table` (`<Table>` / `<TableBody`) but imports no page-shell archetype
+   (`list-with-detail`, `settings-table`, `grouped-list`, `matrix-grid`, `statement-with-filters`) —
+   the hand-rolled list the shell-gated tripwires cannot see, because every one of them needs a shell
+   import to fire. The shell absence is a whole-file `\A(?!…)` check, so a hit reports line 1. A
+   non-shell archetype import (`raw-select`) does not clear it; a read-only data table that is
+   genuinely not a list surface also hits, so triage at the gate.
    `shadowed-baseline-file` (yellow, `audit-signals.json → shadowedBaseline`, reported under the
    report's `shadowedBaseline` key) flags a consumer-local file that shadows a baseline component
    behind a tsconfig `paths` fallback into `node_modules/design-baseline/src/`: a same-named file

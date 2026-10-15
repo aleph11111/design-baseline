@@ -395,6 +395,20 @@ describe("scanSource", () => {
     expect(scanSource("f.tsx", "FormPageShell\n<ErrorBoundary>\n", compiled)).toEqual([null]);
   });
 
+  it("applies the live unshelled-list signal: a PageFrame Table page with no page shell hits, a shell import or a table-less page clears", () => {
+    const compiled = compileSignals(signalsDoc.adoptionQuality.filter((s) => s.id === "unshelled-list"));
+    const page = (imports, body) => `${imports}\nexport const P = () => <PageFrame>${body}</PageFrame>;\n`;
+    const frame = `import { PageFrame } from "design-baseline/layout";`;
+    const table = "<Table><TableBody /></Table>";
+    const hit = [{ file: "p.tsx", line: 1 }];
+    expect(scanSource("p.tsx", page(frame, table), compiled)).toEqual(hit);
+    // a non-shell archetype import (raw-select) is not a shell
+    expect(scanSource("p.tsx", page(`${frame}\nimport { SelectField } from "design-baseline/archetypes/raw-select";`, table), compiled)).toEqual(hit);
+    expect(scanSource("p.tsx", page(`${frame}\nimport { ListWithDetailShell } from "design-baseline/archetypes/list-with-detail";`, table), compiled)).toEqual([null]);
+    expect(scanSource("p.tsx", page(frame, "<div />"), compiled)).toEqual([null]); // no table
+    expect(scanSource("p.tsx", page("", table), compiled)).toEqual([null]); // no PageFrame import
+  });
+
   it("keeps a mismatched indent out of a \\1 backreference window", () => {
     const compiled = compileSignals([sig("bw", "Panel", "\\n([ \\t]+)<Button\\b[\\s\\S]{0,100}?\\n\\1<Panel\\b")]);
     expect(scanSource("m.tsx", "Panel\n    <Button/>\n    <Panel/>\n", compiled)).toEqual([{ file: "m.tsx", line: 1 }]);
