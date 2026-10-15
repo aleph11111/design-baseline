@@ -20,6 +20,42 @@ import { resolveListState, type RowAction, type TableColumn } from "../shared";
 // import `RowAction` from this archetype.
 export type { RowAction };
 
+// Ambient `process` so the dev-only guard typechecks without `@types/node` —
+// same pattern as utils/logger.ts (Vite and Next both replace NODE_ENV).
+declare const process: { env: { NODE_ENV?: string } } | undefined;
+
+/**
+ * Dev-only: warn once when the open detail overlay scrolls sideways — its body,
+ * or any scroll container inside it (a nested table), is wider than it can show.
+ * The sheet already grows to its content up to the ceiling, so this only fires
+ * when the content outgrows the ceiling: the detail belongs on its own route.
+ * Skipped below `sm`, where the sheet is full-screen and a wide table scrolling
+ * inside its own container is accepted.
+ */
+function warnIfDetailOverflows(body: HTMLElement, detailTitle: React.ReactNode) {
+  // Not `typeof process`: Vite replaces only the `process.env.NODE_ENV` text, so
+  // `process` itself is undefined in the browser. An unreplaced reference throws.
+  try {
+    if (process!.env.NODE_ENV === "production") return;
+  } catch {
+    return;
+  }
+  if (!window.matchMedia?.("(min-width: 640px)").matches) return;
+  const scrollers = [body, ...Array.from(body.querySelectorAll<HTMLElement>("*"))].filter(
+    (el) => el === body || /auto|scroll/.test(getComputedStyle(el).overflowX),
+  );
+  if (!scrollers.some((el) => el.scrollWidth > el.clientWidth + 1)) return;
+  const name =
+    typeof detailTitle === "string" || typeof detailTitle === "number"
+      ? `"${detailTitle}"`
+      : "(untitled)";
+  console.warn(
+    `[list-with-detail] detail ${name} is wider than the overlay's ceiling and scrolls sideways. ` +
+      "A detail that cannot fit belongs on its own detail-overview route " +
+      "(list-with-detail contract, Layer 11 — detail overlay sizing).",
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Public types
 // ---------------------------------------------------------------------------
@@ -198,6 +234,17 @@ export function ListWithDetailBody<Row>(
   // Selecting a row opens the sheet. Opened unconditionally: a consumer that
   // only builds `detail` once a row is selected passes it on the next render.
   // A consumer that navigates instead never passes `detail`, so nothing shows.
+  // Dev overflow guard: measure once per open, after the portal has laid out.
+  const detailBodyRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (!sheetOpen || detail === undefined) return;
+    const frame = requestAnimationFrame(() => {
+      if (detailBodyRef.current) warnIfDetailOverflows(detailBodyRef.current, detailTitle);
+    });
+    return () => cancelAnimationFrame(frame);
+    // Re-measure per selection, not per render: `detail` is a fresh element each render.
+  }, [sheetOpen, selectedRowId]);
+
   const handleRowSelect = React.useCallback(
     (row: Row) => {
       setSheetOpen(true);
@@ -258,6 +305,13 @@ export function ListWithDetailBody<Row>(
   // forbidden (v3.0): it sits at the top of the list, so selecting a row far
   // down a long list renders the detail off-screen. A drawer is not a page: it
   // keeps its own header bar with the Radix SheetTitle (ADR-0008 §1).
+  //
+  // Content-sized (ADR-0010): from `sm` up the sheet is `min-content` wide,
+  // clamped between a floor (28rem, the old fixed width) and a ceiling (the
+  // viewport minus a 4rem gutter, so the list's edge stays visible). Prose wraps
+  // at the floor; only content that cannot wrap widens it — detail tables, whose
+  // cells are held on one line here so their data sets the width instead of
+  // scrolling sideways. Below `sm` the sheet is full-screen.
   const detailPanel =
     detail !== undefined ? (
       <Sheet
@@ -270,7 +324,7 @@ export function ListWithDetailBody<Row>(
         <SheetContent
           side="right"
           closeLabel={labels?.close}
-          className="flex w-full flex-col gap-0 p-0 sm:max-w-md"
+          className="flex w-full flex-col gap-0 p-0 sm:w-min sm:min-w-md sm:max-w-[calc(100vw-4rem)]"
         >
           {detailTitle !== undefined ? (
             // The shared bar chrome (padding + neutral fill) with the Radix
@@ -279,6 +333,8 @@ export function ListWithDetailBody<Row>(
             // the actions row clears it (structural, not appearance).
             <SurfaceHeaderBar
               actionsClassName="pr-8"
+              // The title column fills the bar (its content is contained below).
+              className="[&>:first-child]:flex-1"
               actions={
                 detailActions ? (
                   <div className="flex shrink-0 items-center gap-2">{detailActions}</div>
@@ -288,7 +344,8 @@ export function ListWithDetailBody<Row>(
               {/* SheetTitle so Radix Dialog gets an accessible name (aria-labelledby).
                   SheetDescription is screen-reader-only fallback so Content never
                   renders without a description — matching the J archetype fix. */}
-              <div className="min-w-0 flex-1">
+              {/* contain:inline-size — a long title truncates instead of widening the sheet. */}
+              <div className="[contain:inline-size]">
                 <SheetTitle className="truncate">{detailTitle}</SheetTitle>
                 <SheetDescription className="sr-only" />
               </div>
@@ -301,7 +358,12 @@ export function ListWithDetailBody<Row>(
               <SheetDescription className="sr-only" />
             </>
           )}
-          <div className="min-h-0 flex-1 overflow-y-auto">{detail}</div>
+          <div
+            ref={detailBodyRef}
+            className="min-h-0 flex-1 overflow-y-auto [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
+          >
+            {detail}
+          </div>
         </SheetContent>
       </Sheet>
     ) : null;

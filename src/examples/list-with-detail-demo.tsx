@@ -27,6 +27,14 @@ import {
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
 
@@ -203,6 +211,76 @@ const ACTION_ROW_COLUMNS: ListColumn<Podcast>[] = [
   { key: "host", header: "Host", cell: (p) => p.host },
 ];
 const PRESENTATION_ACTION_ROW = derivePresentation(ACTION_ROW_COLUMNS); // 1 data col → action-row
+
+// ---------------------------------------------------------------------------
+// Wide detail — the overlay sizes to its content (Layer 11, ADR-0010)
+// ---------------------------------------------------------------------------
+
+// Each show's detail is a per-episode table. Seven columns open the overlay
+// wider than its floor with no sideways scroll; "Three Things" adds a figure per
+// month, outgrows the ceiling, and trips the dev overflow warning — that detail
+// belongs on its own route.
+const EPISODE_COLUMNS = ["#", "Episode", "Guest", "Released", "Length", "Plays", "Rating"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const GUESTS = ["Ines Duarte", "Kwame Mensah", "Sora Ito", "Paula Brandt"];
+
+function EpisodeTable({ podcast }: { podcast: Podcast }) {
+  const monthly = podcast.id === "p3";
+  return (
+    <div className="p-5">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {EPISODE_COLUMNS.map((c) => (
+              <TableHead key={c}>{c}</TableHead>
+            ))}
+            {monthly && MONTHS.map((m) => <TableHead key={m}>Plays {m}</TableHead>)}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {GUESTS.map((guest, i) => (
+            <TableRow key={guest}>
+              <TableCell className="tabular-nums">{podcast.episodeCount - i}</TableCell>
+              <TableCell>{`${podcast.title}: part ${i + 1}`}</TableCell>
+              <TableCell>{guest}</TableCell>
+              <TableCell className="tabular-nums">{podcast.lastPublishedAt}</TableCell>
+              <TableCell className="text-right tabular-nums">{`${45 + i * 7} min`}</TableCell>
+              <TableCell className="text-right tabular-nums">
+                {(12_400 - i * 1_150).toLocaleString("en")}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">{(4.8 - i / 10).toFixed(1)}</TableCell>
+              {monthly &&
+                MONTHS.map((m, j) => (
+                  <TableCell key={m} className="text-right tabular-nums">
+                    {(900 + j * 37 * (i + 1)).toLocaleString("en")}
+                  </TableCell>
+                ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+function WideDetailPanel() {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = PODCASTS.find((p) => p.id === selectedId) ?? null;
+  return (
+    <ListWithDetailShell<Podcast>
+      title="Episode archive"
+      columns={TABLE_COLUMNS}
+      presentation={PRESENTATION_TABLE}
+      rows={PODCASTS}
+      getRowId={(p) => p.id}
+      onRowSelect={(p) => setSelectedId(p.id)}
+      selectedRowId={selectedId}
+      onDetailClose={() => setSelectedId(null)}
+      detailTitle={selected?.title}
+      detail={selected ? <EpisodeTable podcast={selected} /> : undefined}
+    />
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Demo page
@@ -417,6 +495,16 @@ export function ListWithDetailDemo() {
               </div>
             </section>
           ))}
+
+          {/* Wide detail: the overlay grows to fit a 7-column table instead of
+              scrolling sideways; past the ceiling the dev build warns. */}
+          <section className="space-y-2">
+            <h3 className="text-xs font-medium text-muted-foreground">
+              Wide detail — the overlay sizes to its table (&ldquo;Three Things&rdquo; outgrows the
+              ceiling and warns in dev)
+            </h3>
+            <WideDetailPanel />
+          </section>
 
           {/* The mobile filter sheet, localized: below `md` (view the gallery
               at 430px) the toolbar collapses into a German "Filtern" sheet with
