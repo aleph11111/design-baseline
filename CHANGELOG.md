@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.11.7
+
+- **Fixed:** `logger.debug` (`design-baseline/utils/logger`) printed nothing in Vite browser builds. Its dev gate was `typeof process !== "undefined" && ...`, but Vite replaces only the literal `process.env.NODE_ENV` text, so `typeof process` stayed `"undefined"`. The gate is now one shared `isDevBuild()` (`src/lib/env.ts`), also used by `ListWithDetailShell` and `SettingsTableShell`. Next.js was unaffected.
+- **Consumer:** none; Vite dev builds now show `logger.debug` output, production stays silent.
+- **Breaking:** no.
+
 ## v0.11.6
 
 - **Added:** `FreeTextCell` (exported from `design-baseline/archetypes/list-with-detail`, archetype A v4.6, contract v4.3, ADR-0010 amendment). A table cell in the detail overlay that holds free text wraps inside a ~24ch–48ch band from `sm` up, instead of holding the row on one line and pushing the sheet to the ceiling. Unmarked cells keep `nowrap`. No `className`/`style`: it marks content, not a width.

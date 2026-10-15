@@ -12,6 +12,7 @@ import {
 import { TableBody } from "./presentations/TableBody";
 import { CardGridBody } from "./presentations/CardGridBody";
 import { ActionRowBody } from "./presentations/ActionRowBody";
+import { isDevBuild } from "../../../lib/env";
 import { resolveListState, type RowAction, type TableColumn } from "../shared";
 
 // The per-row overflow menu and its action shape are owned by the shared
@@ -19,20 +20,6 @@ import { resolveListState, type RowAction, type TableColumn } from "../shared";
 // render an identical menu. Re-exported here for back-compat with consumers that
 // import `RowAction` from this archetype.
 export type { RowAction };
-
-// Ambient `process` so the dev-only guard typechecks without `@types/node` —
-// same pattern as utils/logger.ts (Vite and Next both replace NODE_ENV).
-declare const process: { env: { NODE_ENV?: string } } | undefined;
-
-function isDevBuild() {
-  // Not `typeof process`: Vite replaces only the `process.env.NODE_ENV` text, so
-  // `process` itself is undefined in the browser. An unreplaced reference throws.
-  try {
-    return process!.env.NODE_ENV !== "production";
-  } catch {
-    return false;
-  }
-}
 
 /**
  * Dev-only: warn when the open detail overlay scrolls sideways — its body, or

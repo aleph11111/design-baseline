@@ -25,9 +25,7 @@ import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
 import { cn } from "../../../lib/utils";
 import { useLabels, type BaselineLabels } from "../../../lib/labels";
 import { logger } from "../../../utils/logger";
-
-// Ambient so the donor typechecks without @types/node; consumers bring their own.
-declare const process: { env: { NODE_ENV?: string } };
+import { isDevBuild } from "../../../lib/env";
 
 // The row overflow menu + its action shape are shared with list-with-detail.
 export type { RowAction };
@@ -491,7 +489,7 @@ export function SettingsTableBody<Row>({
     typeof firstCell !== "string" &&
     typeof firstCell !== "number";
   React.useEffect(() => {
-    if (flatLabelFallback && process.env.NODE_ENV !== "production") {
+    if (flatLabelFallback && isDevBuild()) {
       logger.warn(
         "SettingsTableBody: identifier cell is not text, so every row checkbox is named \"Select row\". Pass `getRowLabel` or `labels.selectRow`.",
       );
