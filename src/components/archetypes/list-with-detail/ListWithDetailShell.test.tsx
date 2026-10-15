@@ -243,14 +243,14 @@ describe("ListWithDetailShell", () => {
       .spyOn(HTMLElement.prototype, "scrollWidth", "get")
       .mockImplementation(() => 500 + overflow);
     const cw = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(() => 500);
-    const renderAt = (id: string, title: string) => (
+    const renderAt = (id: string, title: string, body = "Details") => (
       <ListWithDetailShell title="T"
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
         selectedRowId={id}
         detailTitle={title}
-        detail={<div>Details</div>}
+        detail={<div>{body}</div>}
       />
     );
     try {
@@ -258,12 +258,19 @@ describe("ListWithDetailShell", () => {
       await new Promise((r) => setTimeout(r, 50));
       expect(warn).not.toHaveBeenCalled();
 
+      // Same selection, content arrives after open (an async-loaded table) and
+      // now overflows: the guard re-measures on the content change.
       overflow = 200;
-      rerender(renderAt("2", "Too wide"));
+      rerender(renderAt("1", "Too wide", "Loaded table"));
       await vi.waitFor(() => expect(warn).toHaveBeenCalledTimes(1));
       const message = String(warn.mock.calls[0]?.[0]);
       expect(message).toContain('"Too wide"');
       expect(message).toContain("detail-overview");
+
+      // Once per opened selection: further changes don't repeat the warning.
+      rerender(renderAt("1", "Too wide", "Loaded table, more rows"));
+      await new Promise((r) => setTimeout(r, 50));
+      expect(warn).toHaveBeenCalledTimes(1);
     } finally {
       warn.mockRestore();
       sw.mockRestore();

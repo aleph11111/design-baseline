@@ -24,27 +24,30 @@ export type { RowAction };
 // same pattern as utils/logger.ts (Vite and Next both replace NODE_ENV).
 declare const process: { env: { NODE_ENV?: string } } | undefined;
 
-/**
- * Dev-only: warn once when the open detail overlay scrolls sideways — its body,
- * or any scroll container inside it (a nested table), is wider than it can show.
- * The sheet already grows to its content up to the ceiling, so this only fires
- * when the content outgrows the ceiling: the detail belongs on its own route.
- * Skipped below `sm`, where the sheet is full-screen and a wide table scrolling
- * inside its own container is accepted.
- */
-function warnIfDetailOverflows(body: HTMLElement, detailTitle: React.ReactNode) {
+function isDevBuild() {
   // Not `typeof process`: Vite replaces only the `process.env.NODE_ENV` text, so
   // `process` itself is undefined in the browser. An unreplaced reference throws.
   try {
-    if (process!.env.NODE_ENV === "production") return;
+    return process!.env.NODE_ENV !== "production";
   } catch {
-    return;
+    return false;
   }
-  if (!window.matchMedia?.("(min-width: 640px)").matches) return;
+}
+
+/**
+ * Dev-only: warn when the open detail overlay scrolls sideways — its body, or
+ * any scroll container inside it (a nested table), is wider than it can show.
+ * The sheet already grows to its content up to the ceiling, so this only fires
+ * when the content outgrows the ceiling: the detail belongs on its own route.
+ * Skipped below `sm`, where the sheet is full-screen and a wide table scrolling
+ * inside its own container is accepted. Returns whether it warned.
+ */
+function warnIfDetailOverflows(body: HTMLElement, detailTitle: React.ReactNode): boolean {
+  if (!window.matchMedia?.("(min-width: 640px)").matches) return false;
   const scrollers = [body, ...Array.from(body.querySelectorAll<HTMLElement>("*"))].filter(
     (el) => el === body || /auto|scroll/.test(getComputedStyle(el).overflowX),
   );
-  if (!scrollers.some((el) => el.scrollWidth > el.clientWidth + 1)) return;
+  if (!scrollers.some((el) => el.scrollWidth > el.clientWidth + 1)) return false;
   const name =
     typeof detailTitle === "string" || typeof detailTitle === "number"
       ? `"${detailTitle}"`
@@ -54,6 +57,7 @@ function warnIfDetailOverflows(body: HTMLElement, detailTitle: React.ReactNode) 
       "A detail that cannot fit belongs on its own detail-overview route " +
       "(list-with-detail contract, Layer 11 — detail overlay sizing).",
   );
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -231,20 +235,40 @@ export function ListWithDetailBody<Row>(
     setSheetOpen(Boolean(selectedRowId));
   }, [selectedRowId]);
 
+  // Dev overflow guard. The detail body is held in state (a callback ref), so the
+  // effect runs once the portal has actually mounted it and stops when it
+  // unmounts. While open it re-measures whenever the content changes or the body
+  // resizes — a detail that loads its table after the first frame still warns —
+  // and warns at most once per opened selection.
+  const [detailBody, setDetailBody] = React.useState<HTMLDivElement | null>(null);
+  const detailTitleRef = React.useRef(detailTitle);
+  detailTitleRef.current = detailTitle;
+  React.useEffect(() => {
+    if (!detailBody || !isDevBuild()) return;
+    let warned = false;
+    let frame = 0;
+    const measure = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        if (!warned) warned = warnIfDetailOverflows(detailBody, detailTitleRef.current);
+      });
+    };
+    const mutations =
+      typeof MutationObserver === "undefined" ? null : new MutationObserver(measure);
+    mutations?.observe(detailBody, { childList: true, subtree: true, characterData: true });
+    const resizes = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    resizes?.observe(detailBody);
+    measure();
+    return () => {
+      cancelAnimationFrame(frame);
+      mutations?.disconnect();
+      resizes?.disconnect();
+    };
+  }, [detailBody, selectedRowId]);
+
   // Selecting a row opens the sheet. Opened unconditionally: a consumer that
   // only builds `detail` once a row is selected passes it on the next render.
   // A consumer that navigates instead never passes `detail`, so nothing shows.
-  // Dev overflow guard: measure once per open, after the portal has laid out.
-  const detailBodyRef = React.useRef<HTMLDivElement>(null);
-  React.useEffect(() => {
-    if (!sheetOpen || detail === undefined) return;
-    const frame = requestAnimationFrame(() => {
-      if (detailBodyRef.current) warnIfDetailOverflows(detailBodyRef.current, detailTitle);
-    });
-    return () => cancelAnimationFrame(frame);
-    // Re-measure per selection, not per render: `detail` is a fresh element each render.
-  }, [sheetOpen, selectedRowId]);
-
   const handleRowSelect = React.useCallback(
     (row: Row) => {
       setSheetOpen(true);
@@ -310,8 +334,9 @@ export function ListWithDetailBody<Row>(
   // clamped between a floor (28rem, the old fixed width) and a ceiling (the
   // viewport minus a 4rem gutter, so the list's edge stays visible). Prose wraps
   // at the floor; only content that cannot wrap widens it — detail tables, whose
-  // cells are held on one line here so their data sets the width instead of
-  // scrolling sideways. Below `sm` the sheet is full-screen.
+  // cells are held on one line here (from `sm` up only) so their data sets the
+  // width instead of scrolling sideways. Below `sm` the sheet is full-screen and
+  // cells wrap as before.
   const detailPanel =
     detail !== undefined ? (
       <Sheet
@@ -359,8 +384,8 @@ export function ListWithDetailBody<Row>(
             </>
           )}
           <div
-            ref={detailBodyRef}
-            className="min-h-0 flex-1 overflow-y-auto [&_td]:whitespace-nowrap [&_th]:whitespace-nowrap"
+            ref={setDetailBody}
+            className="min-h-0 flex-1 overflow-y-auto sm:[&_td]:whitespace-nowrap sm:[&_th]:whitespace-nowrap"
           >
             {detail}
           </div>
