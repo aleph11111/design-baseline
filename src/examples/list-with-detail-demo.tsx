@@ -36,6 +36,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { formatFigure } from "@/lib/format";
 import { Plus } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -246,13 +247,13 @@ function EpisodeTable({ podcast }: { podcast: Podcast }) {
               <TableCell className="tabular-nums">{podcast.lastPublishedAt}</TableCell>
               <TableCell className="text-right tabular-nums">{`${45 + i * 7} min`}</TableCell>
               <TableCell className="text-right tabular-nums">
-                {(12_400 - i * 1_150).toLocaleString("en")}
+                {formatFigure(12_400 - i * 1_150, "count", { locale: "en" })}
               </TableCell>
               <TableCell className="text-right tabular-nums">{(4.8 - i / 10).toFixed(1)}</TableCell>
               {monthly &&
                 MONTHS.map((m, j) => (
                   <TableCell key={m} className="text-right tabular-nums">
-                    {(900 + j * 37 * (i + 1)).toLocaleString("en")}
+                    {formatFigure(900 + j * 37 * (i + 1), "count", { locale: "en" })}
                   </TableCell>
                 ))}
             </TableRow>
