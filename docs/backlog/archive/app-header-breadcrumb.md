@@ -1,7 +1,9 @@
 ---
 area: layout
 opened: '2026-10-12'
-status: needs-enrichment
+status: done
+closed: '2026-10-16'
+resolution: closed-not-planned
 value: normal
 depends_on: [app-header-phone-overflow]
 gate:
@@ -47,3 +49,13 @@ Split out of PR #548 (`app-header-phone-overflow`), which shipped the phone over
 ## Open question
 
 Breadcrumb API shape. Recommended (assumed above): the donor owns `breadcrumb?: string[]` on `AppHeader`. Alternative: no new prop; document how to put a truncating trail in `center` and keep the donor API as is. The operator confirms before `/feat`.
+
+## Verdict — NOT PLANNED (closed 2026-10-16)
+
+Operator chose option C (close) after re-verification against `origin/main` (`83e7710`) and the fleet checkouts:
+
+- **The motivating claim does not hold.** controlling-app does not use `AppHeader`; it renders its own `frontend/src/components/layout/WorkspaceHeader.tsx`, whose trail is asset logo + name + two badges + page title. A `string[]` prop could not express it, so the consumer this ticket was built around would not adopt it.
+- **No consumer needs a header trail.** brickshop-manager is the only `AppHeader` consumer; its breadcrumbs live in the page frame (`DetailHeader`, `SettingsPageShell`), which matches the donor's own placement — `PageHeader`/`NestedPageHeading` defer breadcrumbs to the shell or section layout, and `SettingsPageShell`'s `subtitle` already carries a trail.
+- **High cost, proven.** The width matrix already exhausted PR #548's review-gate cap; paying that for zero adopters is YAGNI.
+
+Reopen trigger: an `AppHeader` consumer (e.g. controlling-app migrating `WorkspaceHeader`) asks for a header trail. Design it then as a `ReactNode` slot (logo, badges), not `string[]`, together with the full real-Chrome matrix this ticket describes.
