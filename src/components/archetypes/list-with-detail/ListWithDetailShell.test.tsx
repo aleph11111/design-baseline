@@ -266,11 +266,52 @@ describe("ListWithDetailShell", () => {
       const message = String(warn.mock.calls[0]?.[0]);
       expect(message).toContain('"Too wide"');
       expect(message).toContain("detail-overview");
+      expect(message).not.toContain("FreeTextCell");
 
       // Once per opened selection: further changes don't repeat the warning.
       rerender(renderAt("1", "Too wide", "Loaded table, more rows"));
       await new Promise((r) => setTimeout(r, 50));
       expect(warn).toHaveBeenCalledTimes(1);
+    } finally {
+      warn.mockRestore();
+      sw.mockRestore();
+      cw.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("dev overflow warning on a table names marking free-text columns first", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.stubGlobal("matchMedia", () => ({
+      matches: true,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+    const sw = vi.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockImplementation(() => 700);
+    const cw = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(() => 500);
+    try {
+      render(
+        <ListWithDetailShell title="T"
+          rows={rows}
+          columns={columns}
+          getRowId={(row) => row.id}
+          selectedRowId="1"
+          detailTitle="Lines"
+          detail={
+            <table>
+              <tbody>
+                <tr>
+                  <td>A long description held on one line</td>
+                </tr>
+              </tbody>
+            </table>
+          }
+        />,
+      );
+      await vi.waitFor(() => expect(warn).toHaveBeenCalledTimes(1));
+      const message = String(warn.mock.calls[0]?.[0]);
+      expect(message).toContain("FreeTextCell");
+      expect(message).toContain("detail-overview");
     } finally {
       warn.mockRestore();
       sw.mockRestore();

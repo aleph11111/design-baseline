@@ -27,11 +27,17 @@ const browser = await chromium.launch({ executablePath: CHROME });
 const failures = [];
 let n = 0;
 const CASES = [
-  // panel = the shell's page title; row = the identifier cell to click
+  // panel = the shell's page title; row = the identifier text to click (a table cell or an action row)
   { label: "7-column table @ 1280", width: 1280, panel: "Episode archive", row: "Riverbed", want: (w) => w > 448 && w < 1216, wantText: "> 448px, < ceiling 1216px", scrollFree: true, warns: false },
   { label: "summary detail @ 1280", width: 1280, panel: "Podcast Library", row: "Riverbed", want: (w) => w === 448, wantText: "448px (floor)", scrollFree: true, warns: false },
   { label: "over-ceiling table @ 1280", width: 1280, panel: "Episode archive", row: "Three Things", want: (w) => w === 1216, wantText: "1216px (ceiling)", scrollFree: false, warns: true },
   { label: "7-column table @ 390", width: 390, panel: "Episode archive", row: "Riverbed", want: (w) => w === 390, wantText: "390px (full-screen)", scrollFree: false, warns: false },
+  // Free text (ADR-0010 amendment): a marked description column wraps, so the
+  // sheet stays under the ceiling; unmarked, it reaches it and the warning
+  // names FreeTextCell before the route escalation.
+  { label: "free-text table, marked @ 1280", width: 1280, panel: "Materialanforderungen", row: "MA-2041", want: (w) => w > 448 && w < 1216, wantText: "> 448px, < ceiling 1216px", scrollFree: true, warns: false, wraps: true },
+  { label: "free-text table, unmarked @ 1280", width: 1280, panel: "Materialanforderungen", row: "MA-2042", want: (w) => w === 1216, wantText: "1216px (ceiling)", scrollFree: false, warns: true, warnText: "FreeTextCell" },
+  { label: "free-text table, marked @ 390", width: 390, panel: "Materialanforderungen", row: "MA-2041", want: (w) => w === 390, wantText: "390px (full-screen)", scrollFree: false, warns: false },
 ];
 const total = CASES.length;
 const report = (label, ok, detail) => {
@@ -48,9 +54,7 @@ for (const c of CASES) {
     page.on("console", (m) => m.type() === "warning" && m.text().includes("[list-with-detail]") && warnings.push(m.text()));
     await page.goto(url);
     const section = page.locator("section").filter({ has: page.getByRole("heading", { name: c.panel, exact: true }) });
-    await section.getByRole("cell", { name: c.row, exact: true }).first().click();
-    // The demo's first four panels share one selection, so each opens its own
-    // identical overlay (stacked modals aria-hide each other) — measure the first.
+    await section.getByText(c.row, { exact: true }).first().click();
     const dialog = page.locator('[role="dialog"]').first();
     await dialog.waitFor();
     await page.waitForTimeout(700); // slide-in animation + the guard's rAF
@@ -61,10 +65,20 @@ for (const c of CASES) {
         // the title is contained so it can't widen the sheet — it must still show
         title: Math.round(el.querySelector("h2")?.getBoundingClientRect().width ?? 0),
         sideways: scrollers.filter((e) => e.scrollWidth > e.clientWidth + 1).length,
+        // free-text cells that wrap onto more than one line; every other cell
+        // must stay on one line
+        wrapped: [...el.querySelectorAll("td[data-free-text] > div")].filter(
+          (d) => d.getBoundingClientRect().height > 1.5 * parseFloat(getComputedStyle(d).lineHeight),
+        ).length,
+        multiline: [...el.querySelectorAll("td:not([data-free-text])")].filter(
+          (td) => td.firstChild && getComputedStyle(td).whiteSpace !== "nowrap",
+        ).length,
       };
     });
-    const ok = c.want(m.w) && m.title > 0 && (!c.scrollFree || m.sideways === 0) && warnings.length === (c.warns ? 1 : 0);
-    report(c.label, ok, `${m.w}px (want ${c.wantText}), title ${m.title}px, ${m.sideways} sideways scroller(s), ${warnings.length} warning(s) (want ${c.warns ? 1 : 0})`);
+    const wrapOk = !c.wraps || (m.wrapped > 0 && m.multiline === 0);
+    const warnOk = warnings.length === (c.warns ? 1 : 0) && (!c.warnText || warnings.every((t) => t.includes(c.warnText)));
+    const ok = c.want(m.w) && m.title > 0 && (!c.scrollFree || m.sideways === 0) && warnOk && wrapOk;
+    report(c.label, ok, `${m.w}px (want ${c.wantText}), title ${m.title}px, ${m.sideways} sideways scroller(s), ${warnings.length} warning(s) (want ${c.warns ? 1 : 0}${c.warnText ? ` naming ${c.warnText}` : ""})${c.wraps ? `, ${m.wrapped} wrapped free-text cell(s), ${m.multiline} wrapping non-free-text cell(s)` : ""}`);
     await page.close();
   } catch (e) {
     report(c.label, false, e.message.split("\n")[0]);

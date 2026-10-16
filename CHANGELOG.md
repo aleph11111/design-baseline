@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.11.6
+
+- **Added:** `FreeTextCell` (exported from `design-baseline/archetypes/list-with-detail`, archetype A v4.6, contract v4.3, ADR-0010 amendment). A table cell in the detail overlay that holds free text wraps inside a ~24ch–48ch band from `sm` up, instead of holding the row on one line and pushing the sheet to the ceiling. Unmarked cells keep `nowrap`. No `className`/`style`: it marks content, not a width.
+- **Changed:** the dev overflow warning, when the detail contains a table, now says to mark free-text columns with `FreeTextCell` before escalating to a `detail-overview` route.
+- **Consumer:** render description / long-value cells in detail tables with `FreeTextCell`. A detail that warned only because of such a column now fits as an overlay.
+- **Breaking:** no.
+
 ## v0.11.5
 
 - **Changed:** the `ListWithDetailShell` detail overlay (archetype A v4.5, contract v4.2) sizes to its content instead of a fixed 448px (ADR-0010). From `sm` up it is `min-content` wide, clamped between a 28rem floor (the old width) and a `100vw - 4rem` ceiling; table cells inside the detail stay on one line, so a wide table widens the sheet instead of scrolling sideways. Prose still wraps at the floor; a long `detailTitle` truncates and never widens it. Below `sm` the overlay stays full-screen.

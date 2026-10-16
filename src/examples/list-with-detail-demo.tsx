@@ -19,6 +19,7 @@
 
 import { useMemo, useState } from "react";
 import {
+  FreeTextCell,
   ListWithDetailShell,
   ListWithDetailToolbar,
   type ListColumn,
@@ -283,6 +284,83 @@ function WideDetailPanel() {
   );
 }
 
+// Free text in a detail table (ADR-0010 amendment). The Beschreibung column is
+// marked with FreeTextCell, so it wraps in a readable band while codes,
+// quantities and badges stay on one line: the overlay opens below the ceiling
+// with the list still beside it. MA-2042 renders the same lines unmarked — the
+// descriptions hold the row on one line, reach the ceiling and warn in dev.
+type MaterialRequest = { id: string; costCentre: string; marked: boolean };
+
+const MATERIAL_REQUESTS: MaterialRequest[] = [
+  { id: "MA-2041", costCentre: "Montage Halle 3", marked: true },
+  { id: "MA-2042", costCentre: "Montage Halle 3 (unmarked)", marked: false },
+];
+
+const REQUEST_COLUMNS: ListColumn<MaterialRequest>[] = [
+  { key: "id", header: "Anforderung", cell: (r) => r.id, isIdentifier: true },
+  { key: "costCentre", header: "Kostenstelle", cell: (r) => r.costCentre },
+];
+
+const REQUEST_LINES = [
+  { pos: 10, item: "4711-020", text: "Sechskantschraube M8 × 40, verzinkt, DIN 933, für die Querstreben der Rahmenmontage", qty: "200 Stk", bin: "A-03-12", status: "ok" },
+  { pos: 20, item: "5530-114", text: "Dichtband EPDM 20 × 3 mm, selbstklebend, auf Rolle; Restmenge der letzten Lieferung zuerst verbrauchen, bevor eine neue Rolle angebrochen wird, sonst verfällt die Charge", qty: "3 Rol", bin: "C-11-02", status: "short" },
+  { pos: 30, item: "0912-007", text: "Kabelbinder 300 mm, schwarz, UV-beständig", qty: "1 VE", bin: "B-07-05", status: "ok" },
+] as const;
+
+function RequestLinesTable({ request }: { request: MaterialRequest }) {
+  const Text = request.marked ? FreeTextCell : TableCell;
+  return (
+    <div className="p-5">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {["Pos", "Artikel", "Beschreibung", "Menge", "Lagerplatz", "Status"].map((c) => (
+              <TableHead key={c}>{c}</TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {REQUEST_LINES.map((l) => (
+            <TableRow key={l.pos}>
+              <TableCell className="tabular-nums">{l.pos}</TableCell>
+              <TableCell className="tabular-nums">{l.item}</TableCell>
+              <Text>{l.text}</Text>
+              <TableCell className="text-right tabular-nums">{l.qty}</TableCell>
+              <TableCell className="tabular-nums">{l.bin}</TableCell>
+              <TableCell>
+                {l.status === "ok" ? (
+                  <Badge variant="success">Verfügbar</Badge>
+                ) : (
+                  <Badge variant="warning">Unterdeckung</Badge>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+function RequestLinesPanel() {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = MATERIAL_REQUESTS.find((r) => r.id === selectedId) ?? null;
+  return (
+    <ListWithDetailShell<MaterialRequest>
+      title="Materialanforderungen"
+      columns={REQUEST_COLUMNS}
+      presentation="action-row"
+      rows={MATERIAL_REQUESTS}
+      getRowId={(r) => r.id}
+      onRowSelect={(r) => setSelectedId(r.id)}
+      selectedRowId={selectedId}
+      onDetailClose={() => setSelectedId(null)}
+      detailTitle={selected?.id}
+      detail={selected ? <RequestLinesTable request={selected} /> : undefined}
+    />
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Demo page
 // ---------------------------------------------------------------------------
@@ -507,6 +585,16 @@ export function ListWithDetailDemo() {
               ceiling and warns in dev)
             </h3>
             <WideDetailPanel />
+          </section>
+
+          {/* Free text in a detail table: the marked description column wraps
+              instead of pushing the overlay to the ceiling. */}
+          <section className="space-y-2">
+            <h3 className="text-xs font-medium text-muted-foreground">
+              Wide detail with free text — the Beschreibung column is a FreeTextCell and wraps
+              (MA-2042 leaves it unmarked and warns in dev)
+            </h3>
+            <RequestLinesPanel />
           </section>
 
           {/* The mobile filter sheet, localized: below `md` (view the gallery

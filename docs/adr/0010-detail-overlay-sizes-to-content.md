@@ -31,6 +31,16 @@ Operator ruling (2026-10-15): the data decides the sheet's width. Scrolling side
 
 - A detail with a wide table now opens wider with no consumer change. In the gallery, a 7-column episode table opens at 723px at a 1280px viewport, with no sideways scroll.
 - Consumers that squeezed cell padding to fit 448px can drop the squeeze. A detail that triggers the warning moves to a `detail-overview` route. gebo-stock-kiosk is moving its item detail to a route separately.
-- Table cells in a detail no longer wrap. A table with a free-text column reaches the ceiling and warns. That is the intended signal: free text in a detail table means the detail is a workspace.
+- Table cells in a detail no longer wrap. ~~A table with a free-text column reaches the ceiling and warns. That is the intended signal: free text in a detail table means the detail is a workspace.~~ Superseded by the 2026-10-15 amendment below: a free-text column is marked and wraps; only an unmarked one reaches the ceiling and warns.
 - The guard is development-only. It reads `process.env.NODE_ENV` the way `utils/logger.ts` does, but inside a `try`, because Vite replaces only the `process.env.NODE_ENV` text and leaves `process` undefined in the browser.
 - The real-browser check is `npm run check:detail-sheet`. It needs local Chrome and is not run in CI, like `check:desk-width`. It builds a development gallery so the warning is live.
+
+## Amendment (2026-10-15) — free-text table cells wrap
+
+**Context.** Decision 2 held every table cell on one line, so a detail table with one free-text column (a description, a long key/value value) pushed the overlay to the ceiling and warned. That made an ordinary line-item table — codes, quantities, a bin, a status, and one description — read as a workspace, and the list behind it disappeared.
+
+**Decision (operator, option B of the mockup).** Free-text cells wrap. The donor exports one way to mark them: `FreeTextCell` from `design-baseline/archetypes/list-with-detail`. A marked cell wraps inside a readable band — a floor of about 24ch, so min-content sizing does not collapse it to one word, and a cap of about 48ch. Every unmarked cell keeps the one-line rule, so codes, numbers, dates and status badges never wrap. The overlay therefore grows only by its single-line columns plus one readable text column and stays an overlay with the list visible beside it. The no-sideways-scroll rule stands; for free text it is now met by wrapping, not by width. The marker names the kind of content, not a width: it takes no class or style, so rule 10 (ADR 0004) still holds. The band applies from the small breakpoint up; below it the sheet is full-screen and every cell wraps, as before.
+
+**Option A rejected** (keep one-line cells; a free-text column means the detail is a route). It sent ordinary line-item details — the most common detail table — off to a route just because one column holds a sentence, and it turned the overflow warning into noise consumers learn to ignore.
+
+**Consequences.** The overflow warning, when it fires on a detail that contains a table, now says to mark free-text columns with `FreeTextCell` before escalating to a route. In the gallery a six-column request-lines table with a marked description opens below the ceiling at 1280px without warning; the same table unmarked still reaches the ceiling and warns. `npm run check:detail-sheet` covers both, and the existing cases keep their widths.
