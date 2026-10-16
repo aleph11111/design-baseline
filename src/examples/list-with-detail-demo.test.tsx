@@ -20,6 +20,6 @@ afterEach(cleanup);
 // must not share one selection: one row click opens exactly one sheet.
 it("a row click in one panel opens exactly one detail sheet", () => {
   render(<ListWithDetailDemo />);
-  fireEvent.click(screen.getAllByText("Riverbed")[0]);
+  fireEvent.click(screen.getAllByText("Riverbed")[0]!);
   expect(screen.getAllByRole("dialog")).toHaveLength(1);
 });
