@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-10-10'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "cause established and design decided (owner-confirmed option D); scoped two-class change plus test, contract line and version bumps"
