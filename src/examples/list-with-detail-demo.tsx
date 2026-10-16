@@ -291,7 +291,9 @@ const STATES = ["loaded", "empty", "loading", "error"] as const;
 
 export function ListWithDetailDemo() {
   const [search, setSearch] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Selection is per panel: every shell opens its own overlay whenever its
+  // `selectedRowId` is set, so one shared id would stack one sheet per panel.
+  const [selection, setSelection] = useState<{ panel: string; id: string } | null>(null);
   // Data plane (Layer 7) — the state-view sub-modes, driven by the consumer's
   // own `isLoading`/`error` props. Not a per-page appearance axis; it shows
   // the loading/empty/error chrome the shell hands to the state-view.
@@ -315,7 +317,7 @@ export function ListWithDetailDemo() {
   }, [filtered, sortBy, sortDirection]);
 
   const isEmpty = state === "empty";
-  const selected = filtered.find((p) => p.id === selectedId) ?? null;
+  const selected = filtered.find((p) => p.id === selection?.id) ?? null;
   const isLoading = state === "loading";
   const error = state === "error" ? new Error("Failed to load podcasts.") : null;
   // The "No matches" (filtered-empty) plane, reached only when a live
@@ -350,19 +352,19 @@ export function ListWithDetailDemo() {
     </div>
   ) : undefined;
 
-  const shellProps = {
+  const shellProps = (panel: string) => ({
     rows: filtered,
     getRowId: (p: Podcast) => p.id,
-    onRowSelect: (p: Podcast) => setSelectedId(p.id),
-    selectedRowId: selectedId,
-    onDetailClose: () => setSelectedId(null),
-    detailTitle: selected ? selected.title : undefined,
+    onRowSelect: (p: Podcast) => setSelection({ panel, id: p.id }),
+    selectedRowId: selection?.panel === panel ? selection.id : null,
+    onDetailClose: () => setSelection(null),
+    detailTitle: selection?.panel === panel ? selected?.title : undefined,
     detailActions: (
       <Button variant="outline">
         Edit
       </Button>
     ),
-    detail,
+    detail: selection?.panel === panel ? detail : undefined,
     isLoading,
     error,
     filteredEmpty,
@@ -374,7 +376,7 @@ export function ListWithDetailDemo() {
         New show
       </Button>
     ),
-  };
+  });
 
   return (
     <div className="space-y-8">
@@ -490,7 +492,7 @@ export function ListWithDetailDemo() {
                       options={STATES.map((s) => ({ value: s, label: s }))}
                     />
                   }
-                  {...shellProps}
+                  {...shellProps(panel.label)}
                   rows={isEmpty ? [] : panel.rows}
                 />
               </div>
@@ -531,7 +533,7 @@ export function ListWithDetailDemo() {
               onResetFilters={() => setSearch("")}
               filterLabels={{ filter: "Filtern", done: "Fertig", reset: "Zurücksetzen" }}
               count={`${filtered.length} ${filtered.length === 1 ? "Ergebnis" : "Ergebnisse"}`}
-              {...shellProps}
+              {...shellProps("german")}
             />
           </section>
         </div>
