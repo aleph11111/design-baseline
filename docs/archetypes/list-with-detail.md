@@ -2,7 +2,7 @@
 key: A
 slug: list-with-detail
 kind: page
-version: 4.2
+version: 4.3
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.9
@@ -10,6 +10,14 @@ status: locked
 ---
 
 # Archetype A — List-with-detail
+
+> **v4.3 (2026-10-15) — free-text table cells wrap (ADR-0010 amendment).**
+> A table cell in the detail that holds free text (a description, a long
+> value) is marked as free text and wraps inside a readable band, so a
+> line-item table with one description column stays an overlay instead of
+> reaching the ceiling. Every unmarked cell still stays on one line. The
+> overflow warning on a table now says to mark free-text columns before
+> escalating to a route. Additive; no breaking change.
 
 > **v4.2 (2026-10-15) — the detail overlay sizes to its content (ADR-0010).**
 > The overlay is no longer one fixed width: from the small breakpoint up it is
@@ -331,8 +339,8 @@ Mutations are out of the primitive's scope. The consumer's row-click handler or 
 - **Detail panel slot** — whatever element the consumer passes as the `detail` prop renders inside an **overlay surface** (sheet) anchored to the viewport's trailing edge, on every width — full-screen on mobile, a side sheet on desktop. Selecting a row opens it; a `selectedRowId` set from outside (a deep link) opens it on mount. There is no in-flow presentation: the detail never renders inside the list's own column (see forbidden pattern 10), and there is no prop to choose one.
 - **Overlay dismissal** — dismissing the overlay (Esc, backdrop click, close button) is reported back to the consumer via a dismissal callback. Required whenever a consumer relies on the overlay to reflect a cleared selection — otherwise the consumer's own selection state can go stale after the surface closes.
 - **Overlay header** — the overlay is not a page: `detailTitle` titles it and `detailActions` sit beside the title, in the overlay's own header bar.
-- **Overlay width is the content's** (ADR-0010) — on mobile the overlay is full-screen. From the small breakpoint up it is exactly as wide as its content needs, clamped between a **floor** (28rem) and a **ceiling** (the viewport minus a 4rem gutter, so the list's edge stays visible behind it). Content that can wrap (prose, label/value pairs laid out outside a table) wraps at the floor, so a summary detail opens at the floor width. Table rows inside the detail do not wrap from the small breakpoint up, so a table's columns set the width. That includes a key/value table with a long free-text cell, which reaches the ceiling and counts as a workspace. On mobile, cells wrap as before. A long title truncates; it never widens the overlay. There is no width prop: two consumers passing the same detail get the same width.
-- **No sideways scroll inside the overlay** — neither the overlay body nor a nested table scrolls horizontally from the small breakpoint up. A detail whose content outgrows the ceiling escalates to its own `detail-overview` route (see `CHOOSING-A-SURFACE.md`, the read/detail spectrum). The shell warns in development builds when an open detail scrolls sideways at the ceiling, naming the detail. On mobile a wide table scrolls inside its own container, and that is accepted.
+- **Overlay width is the content's** (ADR-0010) — on mobile the overlay is full-screen. From the small breakpoint up it is exactly as wide as its content needs, clamped between a **floor** (28rem) and a **ceiling** (the viewport minus a 4rem gutter, so the list's edge stays visible behind it). Content that can wrap (prose, label/value pairs laid out outside a table) wraps at the floor, so a summary detail opens at the floor width. Table rows inside the detail do not wrap from the small breakpoint up, so a table's columns set the width — except cells marked as **free text** (a description, a long key/value value): those wrap inside a readable band (about 24ch to 48ch), so the overlay grows only by the single-line columns plus one readable text column. Codes, numbers, dates and status badges are never marked and never wrap. The marker names the kind of content, not a width. On mobile, cells wrap as before. A long title truncates; it never widens the overlay. There is no width prop: two consumers passing the same detail get the same width.
+- **No sideways scroll inside the overlay** — neither the overlay body nor a nested table scrolls horizontally from the small breakpoint up. A detail whose content outgrows the ceiling escalates to its own `detail-overview` route (see `CHOOSING-A-SURFACE.md`, the read/detail spectrum). For free text the rule is met by wrapping (mark the column), not by width. The shell warns in development builds when an open detail scrolls sideways at the ceiling, naming the detail; when the detail holds a table, the warning first says to mark free-text columns. On mobile a wide table scrolls inside its own container, and that is accepted.
 
 **Extension points (not shipped in baseline; consumer may add):**
 - **Card-collapse for the table body** — replacing the table with a stacked card layout on narrow viewports. Would be consumer-owned; the primitive does not provide this.
@@ -369,7 +377,7 @@ The following patterns are never permitted in a list-with-detail page, regardles
 8. **Static (non-lazy) page imports.** Always lazy-import list-with-detail pages.
 9. **Missing render-error boundary.** Every list-with-detail page must have one at the page-component level.
 10. **In-flow detail rail.** A detail panel rendered beside the list inside the page flow (a right column next to the table). It sits at the top of the list, so a row selected far down a long list shows its detail off-screen and the user scrolls back up to read it. Detail opens in the overlay (the `detail` slot) or on its own route — never in-flow, and never as a hand-built side column next to the shell.
-11. **Sideways-scrolling detail.** Content in the detail overlay that scrolls horizontally, or nested tables the user must scroll to read, from the small breakpoint up. The overlay already widens to its content up to the ceiling; content wider than that is a workspace, not a summary, and opens on its own route. Squeezing cell padding, or forcing a width, to cram it into the overlay is the same defect.
+11. **Sideways-scrolling detail.** Content in the detail overlay that scrolls horizontally, or nested tables the user must scroll to read, from the small breakpoint up. The overlay already widens to its content up to the ceiling, and free-text table cells marked as such wrap; content still wider than that is a workspace, not a summary, and opens on its own route. Squeezing cell padding, or forcing a width, to cram it into the overlay is the same defect.
 
 ---
 

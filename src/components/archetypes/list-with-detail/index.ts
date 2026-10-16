@@ -8,6 +8,9 @@ export type {
   SortDirection,
 } from "./ListWithDetailShell";
 
+export { FreeTextCell } from "./FreeTextCell";
+export type { FreeTextCellProps } from "./FreeTextCell";
+
 export { ListWithDetailToolbar } from "./ListWithDetailToolbar";
 export type { ListWithDetailToolbarProps } from "./ListWithDetailToolbar";
 

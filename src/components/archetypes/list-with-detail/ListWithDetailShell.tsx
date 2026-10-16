@@ -52,9 +52,16 @@ function warnIfDetailOverflows(body: HTMLElement, detailTitle: React.ReactNode):
     typeof detailTitle === "string" || typeof detailTitle === "number"
       ? `"${detailTitle}"`
       : "(untitled)";
+  // A table usually overflows through a free-text column held on one line —
+  // marking it is the fix to try before escalating.
+  const tableHint = body.querySelector("table")
+    ? "If a table column holds free text (a description, a long value), render those cells " +
+      "with FreeTextCell so they wrap; if it still does not fit, the detail " +
+      "belongs on its own detail-overview route "
+    : "A detail that cannot fit belongs on its own detail-overview route ";
   console.warn(
     `[list-with-detail] detail ${name} is wider than the overlay's ceiling and scrolls sideways. ` +
-      "A detail that cannot fit belongs on its own detail-overview route " +
+      tableHint +
       "(list-with-detail contract, Layer 11 — detail overlay sizing).",
   );
   return true;
