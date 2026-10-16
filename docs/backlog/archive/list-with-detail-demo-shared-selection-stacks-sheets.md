@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-10-15
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "cause established (one shellProps object with one selectedId spread into several shells); demo-only state split"
