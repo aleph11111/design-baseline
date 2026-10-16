@@ -16,6 +16,7 @@
     { "id": "overline-typed", "regex": "uppercase[^\"']*tracking-wider|tracking-wider[^\"']*uppercase", "shouldUse": "OVERLINE_CLASS" },
     {"id": "overline-typed-arbitrary-tracking", "regex": "uppercase[^\"'`]*tracking-\\[[^\\]]+\\]|tracking-\\[[^\\]]+\\][^\"'`]*uppercase", "smell": "a hand-typed uppercase overline whose tracking is an arbitrary value (`tracking-[0.1em]`, `tracking-[0.12em]`) instead of the shared `tracking-wider` signature, so the `overline-typed` signal misses it and the drift stays invisible. Single-line, line-scoped, no `-U`. Status pills (e.g. a \"Nur Admin\" tag) match too and are expected to be moved to the badge primitive; the gate triages them. Origin: mistra StructuredContent.tsx and RecordingBelowSections.tsx.", "shouldUse": "OVERLINE_CLASS"},
     { "id": "media-feed", "regex": "role=[\"']feed[\"']", "shouldUse": "FeedShell / FeedItem (archetype H)" },
+    { "id": "auth-card-static", "regex": "[\"'`](?=[^\"'`\\n]*\\bmin-h-(?:screen|svh|dvh|\\[\\d+vh\\]))(?=[^\"'`\\n]*\\bitems-center\\b)(?=[^\"'`\\n]*\\bjustify-center\\b)", "shouldUse": "AuthCard (design-baseline/layout) for a centered sign-in / not-authorized / error card; StateView for a full-viewport loading or empty plane" },
     {
       "id": "list-with-detail-outer-container-missing-space-y-6",
       "regex": "className=\"px-6 py-6\"(?!\\s*space-y-6)",
