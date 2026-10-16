@@ -1,5 +1,8 @@
 // @vitest-environment node
 // Console/env behaviour only — no DOM. See resolveListState.test.ts.
+import { runInNewContext } from "node:vm";
+import { fileURLToPath } from "node:url";
+import { buildSync } from "esbuild";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { logger } from "./logger";
 
@@ -38,9 +41,38 @@ describe("logger.debug", () => {
     const spy = vi.spyOn(console, "debug").mockImplementation(() => {});
     // Simulates a runtime that exposes no `process` global (e.g. a bare
     // browser bundle where the reference was not statically replaced) — the
-    // `typeof process !== "undefined"` guard is what keeps this safe.
+    // try/catch in `isDevBuild` is what keeps this safe.
     host.process = undefined;
     expect(() => logger.debug("hello")).not.toThrow();
     expect(spy).not.toHaveBeenCalled();
+  });
+
+});
+
+// Vite shape: the bundler substitutes only the literal `process.env.NODE_ENV`
+// text and the browser has no `process` global. Bundle the real logger with that
+// `define` (esbuild is what Vite uses) and run it in a context without `process`.
+describe("logger.debug in a Vite browser bundle", () => {
+  function runLoggerBundle(nodeEnv: "development" | "production") {
+    const { outputFiles } = buildSync({
+      entryPoints: [fileURLToPath(new URL("./logger.ts", import.meta.url))],
+      bundle: true,
+      write: false,
+      format: "cjs",
+      define: { "process.env.NODE_ENV": JSON.stringify(nodeEnv) },
+    });
+    const module = { exports: {} as { logger: typeof logger } };
+    const debug = vi.fn();
+    runInNewContext(outputFiles[0]!.text, { module, exports: module.exports, console: { debug } });
+    module.exports.logger.debug("x");
+    return debug;
+  }
+
+  it("emits console.debug in a development build", () => {
+    expect(runLoggerBundle("development")).toHaveBeenCalledWith("x");
+  });
+
+  it("stays silent in a production build", () => {
+    expect(runLoggerBundle("production")).not.toHaveBeenCalled();
   });
 });
