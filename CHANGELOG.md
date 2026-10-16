@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.11.6
+
+- **Fixed:** `DetailOverviewShell` (archetype C, manifest 4.4) drops the horizontal padding from its main-body wrapper in both `rail` and `vertical` layouts (was `p-5`, now `py-5`). Sections, stat tiles and key-value rows already own a `px-5` gutter, so the body pad doubled the inset: main-column labels sat 20px in from the rail and summary band, and on a 430px phone 60px from the viewport edge instead of 36px. No new prop — the single inset is the contract's rule ("Shell owns the inset"), not a per-page choice (ADR-0004).
+- **Consumer:** none required; main-column content moves 20px outward on the version bump. Remove any local negative-margin or padding override added to counter the double inset (hk-sales-agent Firmenakte).
+- **Breaking:** no.
+
 ## v0.11.5
 
 - **Changed:** the `ListWithDetailShell` detail overlay (archetype A v4.5, contract v4.2) sizes to its content instead of a fixed 448px (ADR-0010). From `sm` up it is `min-content` wide, clamped between a 28rem floor (the old width) and a `100vw - 4rem` ceiling; table cells inside the detail stay on one line, so a wide table widens the sheet instead of scrolling sideways. Prose still wraps at the floor; a long `detailTitle` truncates and never widens it. Below `sm` the overlay stays full-screen.

@@ -313,10 +313,10 @@ describe("DetailOverviewShell — empty body slots", () => {
     const { container } = render(
       <DetailOverviewShell title="T" summary={<div>summary-slot</div>} />,
     );
-    expect(container.querySelector(".border-t.border-border\\/60.p-5")).toBeNull();
+    expect(container.querySelector(".border-t.border-border\\/60.py-5")).toBeNull();
     cleanup();
     const filled = render(<DetailOverviewShell title="T" summary={<div>s</div>} content={<div>c</div>} />);
-    expect(filled.container.querySelector(".border-t.border-border\\/60.p-5")).not.toBeNull();
+    expect(filled.container.querySelector(".border-t.border-border\\/60.py-5")).not.toBeNull();
   });
 
   it("rail: summary/references-only renders no main column or grid", () => {
@@ -328,7 +328,21 @@ describe("DetailOverviewShell — empty body slots", () => {
         references={<div>references-slot</div>}
       />,
     );
-    expect(container.querySelector(".p-5")).toBeNull();
+    expect(container.querySelector(".py-5")).toBeNull();
     expect(container.querySelector('[class*="lg:grid-cols-"]')).toBeNull();
   });
+});
+
+describe("DetailOverviewShell — body inset", () => {
+  it.each(["vertical", "rail"] as const)(
+    "%s: the body wrapper pads vertically only, so sections own the one horizontal gutter",
+    (layout) => {
+      const { getByText } = render(
+        <DetailOverviewShell title="T" layout={layout} summary={<div>s</div>} content={<div>content-slot</div>} />,
+      );
+      const body = getByText("content-slot").parentElement as HTMLElement;
+      expect(body.className).toContain("py-5");
+      expect(body.className).not.toMatch(/(^|\s)(p|px|pl|pr)-\d/);
+    },
+  );
 });
