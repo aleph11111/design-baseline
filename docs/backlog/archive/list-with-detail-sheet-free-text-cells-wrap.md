@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-10-15
-status: ready
+status: done
 value: high
 depends_on: [list-with-detail-demo-shared-selection-stacks-sheets]
 model: opus
