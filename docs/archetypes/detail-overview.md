@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 4.1
+version: 4.2
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.6
@@ -11,6 +11,13 @@ status: locked
 
 # Archetype C — Detail Overview
 
+> **v4.2 (2026-10-16) — one horizontal gutter in the main column.** The main
+> body adds no horizontal inset of its own: its sections, figures and rows
+> carry the one gutter, so main-column content lines up with the rail and the
+> summary band, and on a phone a section starts at the frame edge. Fixed in the
+> shell; no prop, no per-page choice (ADR-0004). Ships in manifest 4.4. No API
+> change; every page's main-column content moves outward by one gutter.
+>
 > **v4.0 (2026-10-03) — one page frame (ADR-0008).** One header path. The
 > shell takes the page header directly — `title` (required), `subtitle`,
 > `badges`, `actions`, `icon`, `backHref` / `backLabel` / `renderBackLink` —
@@ -291,6 +298,10 @@ stripping every section:
 - the **main** column keeps its detail sections and stat-tile row as panels
   with their title bars; nested in the frame they never become cards of their
   own.
+- the **main** body adds no horizontal inset of its own: the sections, figures
+  and rows inside it carry the one gutter, so main-column content aligns with
+  the rail's and the summary band's (v4.2). A body inset on top of the
+  sections' gutter doubles it — the "double inset" drift.
 
 The acceptance gate's **"One outer frame, not a card scatter"** REQUIRED box
 scores this: a page is a wrapper adoption if it is loose cards on the bare
@@ -783,7 +794,10 @@ domain:
 - [ ] **Shell owns the inset.** The page adds no outer padding of its own; the
       shell owns the section stack (and, in vertical layout, the contained
       measure it renders by default — see Layer 2). The top-level app shell's
-      main region is the sole inset owner.
+      main region is the sole inset owner. Inside the frame there is one
+      horizontal gutter per column — the sections' own; the main body adds
+      none on top (v4.2). *Fails when:* main-column content sits one gutter
+      further in than the rail's or the summary band's.
 - [ ] **One outer frame, not a card scatter.** Every detail-overview page has
       exactly one title (the page header, above the frame) and one raised
       surface (the frame) holding summary + main — and, in `layout="rail"`,
