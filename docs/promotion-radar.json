@@ -1,6 +1,5 @@
 {
   "artifact": "promotion-radar",
-  "generated": "2026-06-15",
   "model": "Axis A = own as component (promote/wrap/adopt-existing); Axis B = conform to look (mandatory for all). rule-of-2 trips a pattern onto the radar.",
   "status_legend": [
     "candidate",
@@ -104,46 +103,6 @@
       "promotedAt": "2026-07-24",
       "axisB": "on-token",
       "notes": "Promoted 2026-07-24 as adopt-existing — no new donor artifact: archetype H (feed-inbox) already absorbed this candidate when H was promoted (2026-06-14). The feed-inbox contract names this candidate by id in its 'Timeline' sub-shape ('adopt the feed-item primitive with the media + body slots rather than hand-rolling a <ul>'), the baseline sibling binds <FeedItem body media>, FeedItem.tsx ships those slots (fixed rounded media holder, object-cover), and feed-inbox-demo.tsx ships a live TimelineDemo. Round-trip against the two sources confirmed the fit: both hand-roll a chronological event <ul>/<ol> feed — mistra's <ol> Agent-Log (MeetingSessionDetail.tsx) and brickshop's <ul> LotTransferHistoryTab.tsx — carrying icon/title/meta/body; media is optional (neither uses <img>). FeedItem covers them as-is, so NO extension. RESIDUAL (out of scope, future watch): both surfaces also recolor the whole row by status/error (border+bg+icon+title), which FeedItem's binary `unread` does not model — that is a distinct status/audit-log shape, a separate candidate if it trips rule-of-2 again. scanSignal = 'media-feed' (regex role=\"feed\", precision over recall: won't flood the dashboard with false feed-adoption debt from every nav/bullet <ul>; hand-rolled feeds missing the ARIA role are caught by the periodic LLM audit, not this deterministic scan)."
-    },
-    {
-      "id": "filter-bar",
-      "pattern": "Filter toolbar: pill row with synthetic 'all' + labeled filter caption above a control",
-      "axisA": "promote",
-      "donorTarget": "PillBar + LabeledFilter (hk-crm's are donor candidates)",
-      "projects": [
-        "hk-crm"
-      ],
-      "count": 1,
-      "status": "watch",
-      "axisB": "on-token",
-      "notes": "Distinct from SegmentedControl (mode toggle). Confirm a 2nd consumer (controlling-app/brickshop filter toolbars) before promoting."
-    },
-    {
-      "id": "iconavatar-tone",
-      "pattern": "Colored/semantic icon circle (accent/status), not the muted entity avatar",
-      "axisA": "promote",
-      "donorTarget": "IconAvatar `tone` prop (or a separate accent-circle molecule)",
-      "projects": [
-        "brickshop-manager"
-      ],
-      "count": 1,
-      "status": "watch",
-      "axisB": "tokenized accent colors",
-      "notes": "brickshop terminated the IconAvatar sweep because all its circles are colored-accent. Confirm rule-of-2."
-    },
-    {
-      "id": "contextual-menu",
-      "pattern": "Non-row contextual/overflow menu (tab-strip menu, custom-trigger status menu needing event access)",
-      "axisA": "watch",
-      "donorTarget": "possible RowActionsMenu sibling, or a generic ActionMenu with custom trigger + onSelect event access",
-      "projects": [
-        "controlling-app",
-        "brickshop-manager"
-      ],
-      "count": 2,
-      "status": "watch",
-      "axisB": "on-token",
-      "notes": "RowActionsMenu is row-specific; these need a custom trigger / event access. Evaluate a sibling primitive."
     },
     {
       "id": "raw-input-native-field",
@@ -354,18 +313,21 @@
     },
     {
       "id": "auth-card-static",
-      "pattern": "Auth / error static card — centered sign-in / not-authorized shell (gap row, 2026-06-13 sweep; held single-project shapes around it persist)",
-      "axisA": "watch",
-      "donorTarget": "an archetype; `AuthCard` (layout) is the existing primitive for the sign-in half",
+      "pattern": "Auth / error static card — centered sign-in / not-authorized / error shell hand-rolled from a full-viewport flex-center wrapper + Card (gap row, 2026-06-13 sweep)",
+      "axisA": "adopt-existing",
+      "donorTarget": "AuthCard (layout, already in the donor — title/description/icon/children/footer covers sign-in, not-authorized and error/404)",
       "projects": [
+        "brickshop-manager",
         "controlling-app",
         "hk-crm",
-        "pmo"
+        "mistra"
       ],
-      "count": 3,
-      "status": "watch",
+      "count": 4,
+      "status": "promoted",
       "axisB": "on-token",
-      "notes": "Gap-folded from the FLEET-AUDIT-era 2026-06-13 fleet sweep (salvage for the FLEET-AUDIT.md retirement) — an unpromoted row that the sweep's deletion requires on the radar. Rule-of-2 met (3 projects), so it trips as a promotion candidate; the sweep action was a promote-or-exclude decision. The sign-in surface is partially owned already (`AuthCard`), so confirm in a re-audit whether the shape still recurs before archiving."
+      "notes": "Promoted 2026-10-16 as adopt-existing — no new donor artifact: AuthCard (design-baseline/layout) already owns the centered single-card shell for sign-in, not-authorized and error/404, so the June gap row's 'needs an archetype' target was stale. Re-checked against each consumer's origin/main on 2026-10-16: the shape still recurs hand-rolled in brickshop-manager (ProtectedRoute, Auth, NotFound, SharedListGate), controlling-app (login, not-authorized, plus inline not-authorized cards in admin/users and settings/chart-colors), hk-crm ((auth)/layout) and mistra (App.tsx sign-in); gebo-stock-kiosk and hk-sales-agent already adopt AuthCard; pmo no longer hits. scanSignal = 'auth-card-static' (a class string carrying min-h-screen/svh/dvh/[Nvh] + items-center + justify-center). Expected residual the reader clears: full-viewport loading/empty planes (mistra's App.tsx spinners — those route to StateView, not AuthCard) and the donor's own AuthCard.tsx.",
+      "scanSignal": "auth-card-static",
+      "promotedAt": "2026-10-16"
     },
     {
       "id": "metric-row-key-figure",
@@ -450,6 +412,10 @@
     {
       "pattern": "<label>-wraps-control (checkbox/radio row, file dropzone with hidden input)",
       "reason": "already associated by DOM nesting — correct as raw markup; out of scope for NativeField (archetype I)."
+    },
+    {
+      "pattern": "non-row contextual/overflow menu (tab-strip menu, header overflow, custom-trigger status menu)",
+      "reason": "composed directly from the shadcn DropdownMenu with its own trigger — DropdownMenu is the primitive; RowActionsMenu stays row-only. Retired from watch 2026-10-16: present in every consumer as plain DropdownMenu use, no deterministic regex separates it from correct use, and no consumer re-rolled a menu primitive."
     }
   ],
   "sync": [

@@ -43,21 +43,25 @@ step belongs to the close-out, not "someday".
 | Import / ingestion wizard (upload → column-mapping → verify → commit) | promote | archetype W (`import-wizard`) | controlling-app, my-finance | **promoted 2026-06-14** (gap-fold) |
 | Kanban board (sortable columns of draggable cards) | promote | archetype P (`kanban-board`) | pmo, hk-crm | **promoted 2026-06-14** (gap-fold) |
 | Inbox / feed surface (conversation/activity feed + filter chips) | promote | archetype H (`feed-inbox`) | brickshop, hk-crm | **promoted 2026-06-14** (gap-fold) |
+| Auth / error static card (sign-in / not-authorized / error shell) | adopt-existing | `AuthCard` (layout, no new donor artifact) | brickshop, controlling-app, hk-crm, mistra | **promoted 2026-10-16** (gap-fold) |
 
 ## Watch (confirmed in a 2nd/3rd project on the next re-audit before promoting)
 
-| Pattern | Axis A | Donor target | Projects | Status |
-|---|---|---|---|---|
-| Filter bar (pill row + "all", labeled filter caption) | promote | `PillBar` + `LabeledFilter` (from hk-crm) | hk-crm | watch |
-| Colored/semantic icon circle | promote | `IconAvatar` `tone` prop | brickshop | watch |
-| Non-row contextual/overflow menu (custom trigger) | watch | `ActionMenu` sibling of `RowActionsMenu` | controlling-app, brickshop | watch |
-| Auth / error static card (sign-in / not-authorized shell) — gap-fold | watch | archetype; `AuthCard` owns the sign-in half | controlling-app, hk-crm, pmo | watch |
+No **watch** rows. *Retired 2026-10-16* after a re-check against every consumer's
+`origin/main` — none had tripped rule-of-2 in four months:
+- **Filter bar** (pill row + "all", labeled filter caption) — hk-crm retired its
+  `PillBar` / `LabeledFilter` onto DS primitives (hk-crm #258); no consumer carries it.
+- **Colored/semantic icon circle** (`IconAvatar` `tone`) — still one project
+  (brickshop, one file); the not-authorized icon circles elsewhere belong to `AuthCard`'s
+  `icon`.
+- **Non-row contextual/overflow menu** — moved to Sanctioned below.
 
 ## Sanctioned (genuine one-offs — conform-only, no component)
 - matrix/pivot `<table>` (sticky cols + group spans) — its inline cell control still routes to `CellSelect`.
 - combobox / `CommandInput` search — different widget.
 - test-fixture raw `<label>`/`<input>`.
 - `<label>`-wraps-control (checkbox/radio row, file dropzone with hidden input) — already associated by DOM nesting.
+- non-row contextual/overflow menu (tab-strip, header overflow, custom-trigger status menu) — composed from shadcn `DropdownMenu` directly; `RowActionsMenu` stays row-only.
 
 ## The feedback loop (both directions)
 
@@ -80,7 +84,9 @@ every consumer then inherits the fix.
 Each `sync` entry in `promotion-radar.json` carries an optional `since` (`YYYY-MM-DD`,
 alongside `item`/`projects`/`action`) — the date the entry was raised, same intent as a
 candidate's `promotedAt`. Stamp it when adding a sync entry; the dashboard falls back to
-the overlay's `generated` date when it's absent.
+the overlay's last-commit date when it's absent. (The overlay carries no hand-typed
+`generated` stamp — it was never bumped on edit, so the file's git commit date is its
+freshness.)
 
 - **donor package tag lag** — one row, one entry per registered design consumer. The
   installed `design-baseline#<tag>` is **derived, not recorded**: the dashboard's
@@ -94,6 +100,6 @@ the overlay's `generated` date when it's absent.
   `bricklink*` variant; the package-shipped copies are what compile.
 
 ## Next actions
-1. No **candidate** rows remain — all resolved candidates in `promotion-radar.json` are `promoted`. The live queue is the three **watch** rows in the Watch section (promote once rule-of-2 re-trips).
+1. No **candidate** or **watch** rows remain — every resolved row in `promotion-radar.json` is `promoted` or sanctioned. A new row trips on in the next fleet audit (rule-of-2); give it a `scanSignal` registered in `audit-signals.json` when its shape is deterministic.
 2. Bump gebo-stock-kiosk to the newest donor tag (its PR #25 to `v0.9.3`); every other consumer is on `v0.9.3`.
 3. Re-run the fleet audit → candidates become adoptable (promoted) or are confirmed sanctioned; conformance count and drift trend toward zero. That re-audit is the proof the loop closed.

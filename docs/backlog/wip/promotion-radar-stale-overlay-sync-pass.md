@@ -47,3 +47,10 @@ gate:
 ## Open question
 
 Drop `generated` entirely (Recommended — the only remaining consumer is one caption string and `DesignView.tsx` already degrades on `null`; a field nobody bumps on edit is a stale stamp by construction) vs. keep it and bump it on every edit (needs a habit or a check to stay honest). Auto-resolved to the drop; re-file under the keep-and-bump shape if the dashboard wants caption text distinct from the commit date.
+
+## Resolution (2026-10-16)
+
+- **Watch rows:** re-checked against each consumer's `origin/main`. `auth-card-static` → `promoted` as adopt-existing (`AuthCard` already ships) with a new `auth-card-static` molecule signal in `audit-signals.json` (hits brickshop, controlling-app, hk-crm, mistra). `filter-bar` and `iconavatar-tone` retired (never re-tripped rule-of-2; hk-crm #258 removed `PillBar`). `contextual-menu` moved to `sanctioned[]` (plain shadcn `DropdownMenu` use).
+- **Sync rows — superseded, no change:** #541 (2026-10-10) already closed the FormItem-gap and bricklink Badge rows, and decided the tag-lag row *stays* in `sync[]` (the dashboard's `/promotion-radar` route overlays live pins onto it; `PACKAGE.md` step 5 records only the kept-file count). Relocating it, as this ticket's step 4 asked, would break that overlay.
+- **`generated`:** dropped. The Radar tab already reads `overlayUpdated` (last commit date); the leftover `DesignView.tsx` caption degrades to empty on `null`.
+- `PROMOTION-RADAR.md` synced: watch table emptied with dated retire notes, auth card added to candidates, sanctioned entry added, `since` fallback wording and Next-actions §1 corrected.
