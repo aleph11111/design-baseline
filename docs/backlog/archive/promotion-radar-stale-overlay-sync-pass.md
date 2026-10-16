@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: 2026-10-09
-status: needs-enrichment
+status: done
 value: normal
 model: opus
 model_reason: "curate pass with four per-row judgment calls (signal-fit vs retire; close vs restate) and live per-consumer verification in mistra, hk-crm, controlling-app"
