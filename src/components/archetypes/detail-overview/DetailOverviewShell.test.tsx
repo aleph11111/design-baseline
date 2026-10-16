@@ -313,10 +313,10 @@ describe("DetailOverviewShell — empty body slots", () => {
     const { container } = render(
       <DetailOverviewShell title="T" summary={<div>summary-slot</div>} />,
     );
-    expect(container.querySelector(".border-t.border-border\\/60.p-5")).toBeNull();
+    expect(container.querySelector(".border-t.border-border\\/60.py-5")).toBeNull();
     cleanup();
     const filled = render(<DetailOverviewShell title="T" summary={<div>s</div>} content={<div>c</div>} />);
-    expect(filled.container.querySelector(".border-t.border-border\\/60.p-5")).not.toBeNull();
+    expect(filled.container.querySelector(".border-t.border-border\\/60.py-5")).not.toBeNull();
   });
 
   it("rail: summary/references-only renders no main column or grid", () => {
@@ -328,7 +328,37 @@ describe("DetailOverviewShell — empty body slots", () => {
         references={<div>references-slot</div>}
       />,
     );
-    expect(container.querySelector(".p-5")).toBeNull();
+    expect(container.querySelector(".py-5")).toBeNull();
     expect(container.querySelector('[class*="lg:grid-cols-"]')).toBeNull();
   });
+});
+
+/**
+ * The horizontal-padding classes in a className — any `p-`/`px-`/`pl-`/`pr-`/
+ * `ps-`/`pe-` utility, with or without a variant prefix (`sm:px-5`,
+ * `hover:pl-2`) or `!` modifier.
+ */
+function horizontalPadding(className: string): string[] {
+  return className
+    .split(/\s+/)
+    .filter((c) => /^!?(p|px|pl|pr|ps|pe)-/.test(c.slice(c.lastIndexOf(":") + 1)));
+}
+
+describe("DetailOverviewShell — body inset", () => {
+  it("the horizontal-padding matcher catches every form, including prefixed ones", () => {
+    expect(horizontalPadding("p-5 px-4 pl-2 pr-2 ps-3 pe-3 sm:px-5 lg:!pl-1")).toHaveLength(8);
+    expect(horizontalPadding("py-5 pt-2 pb-2 space-y-4 border-t lg:border-t-0")).toEqual([]);
+  });
+
+  it.each(["vertical", "rail"] as const)(
+    "%s: the body wrapper pads vertically only, so sections own the one horizontal gutter",
+    (layout) => {
+      const { getByText } = render(
+        <DetailOverviewShell title="T" layout={layout} summary={<div>s</div>} content={<div>content-slot</div>} />,
+      );
+      const body = getByText("content-slot").parentElement as HTMLElement;
+      expect(body.className).toContain("py-5");
+      expect(horizontalPadding(body.className)).toEqual([]);
+    },
+  );
 });

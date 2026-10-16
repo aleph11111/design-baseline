@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.11.8
+
+- **Fixed:** `DetailOverviewShell` (archetype C v4.4, contract v4.2) no longer pads its main body horizontally, in either `rail` or `vertical` layout (body wrapper `p-5` → `py-5`). Sections, stat tiles and key-value rows already own a `px-5` gutter, so the body pad doubled it. Main-column labels sat one gutter further in than rail and summary labels, and on a 430px phone a nested section started 20px inside the frame instead of at its edge. No prop: the contract states the single gutter as a rule (ADR-0004).
+- **Consumer:** every page using the shell sees its main-column content move 20px outward on the version bump (sections now start at the frame edge; their labels line up with the rail's). Remove any local padding or negative-margin override added to counter the double inset (hk-sales-agent Firmenakte).
+- **Breaking:** no API change (no prop added or removed, types unchanged), but a visible layout shift on every consumer. See Consumer.
+
 ## v0.11.7
 
 - **Fixed:** `logger.debug` (`design-baseline/utils/logger`) printed nothing in Vite browser builds. Its dev gate was `typeof process !== "undefined" && ...`, but Vite replaces only the literal `process.env.NODE_ENV` text, so `typeof process` stayed `"undefined"`. The gate is now one shared `isDevBuild()` (`src/lib/env.ts`), also used by `ListWithDetailShell` and `SettingsTableShell`. Next.js was unaffected.

@@ -161,11 +161,15 @@ export function DetailOverviewShell({
   // An empty body slot set renders no container — no ruled blank strip.
   const hasMain = Boolean(statStrip || content);
   const hasVerticalBody = hasMain || Boolean(references);
+  // Body wrappers pad vertically only: sections, stat tiles and key-value rows
+  // each own their `px-5` gutter, so a horizontal pad here doubled the inset
+  // and set the main column 20px in from the summary band (and, on a phone,
+  // 40px in from the page title).
 
   const main = hasMain && (
     <div
       className={cn(
-        "border-t border-border/60 p-5 lg:border-t-0 space-y-4",
+        "border-t border-border/60 py-5 lg:border-t-0 space-y-4",
       )}
     >
       {statStrip && <div>{statStrip}</div>}
@@ -189,7 +193,7 @@ export function DetailOverviewShell({
           <div className={cn("bg-muted/20", railDividers)}>{summary}</div>
         </UnifiedSurfaceContext.Provider>
         {hasVerticalBody && (
-          <div className="border-t border-border/60 p-5 space-y-4">
+          <div className="border-t border-border/60 py-5 space-y-4">
             {statStrip && <div>{statStrip}</div>}
             {content}
             {references && <div>{references}</div>}
