@@ -6,7 +6,7 @@ import { PageHeader, type PageHeaderProps } from "./PageHeader";
 import { NestedPageHeading } from "./NestedPageHeading";
 import { SurfaceFrame } from "./SurfaceFrame";
 import { ToolbarBandContext, ToolbarSizeContext, useControlSize } from "../ui/toolbar-band";
-import { OverlayHostContext } from "../ui/overlay-host";
+import { HeadingHostContext } from "../ui/heading-host";
 import { RaisedSurfaceContext } from "./surface";
 import { Button } from "../ui/button";
 import {
@@ -151,7 +151,7 @@ export function PageFrame({
   const L = useLabels();
   const viewOptionsLabel = viewOptionsLabelProp ?? L.view;
   const nested = React.useContext(PageFrameContext);
-  const inOverlay = React.useContext(OverlayHostContext);
+  const hostTitled = React.useContext(HeadingHostContext);
   const isMobile = useIsMobile();
 
   // `cond && <X />` yields `false`: an absent slot, not an empty band.
@@ -222,10 +222,11 @@ export function PageFrame({
       </div>
     );
 
-  if (inOverlay) {
-    // A dialog or drawer is not a page: its DialogTitle / SheetTitle is the
-    // one heading and the overlay is the raised surface (ADR-0008). Only the
-    // band and the body render; header actions stay reachable in a plain row.
+  if (hostTitled) {
+    // The host already titles this region — a dialog / drawer (DialogTitle /
+    // SheetTitle) or a titled SectionCard — and is the raised surface
+    // (ADR-0008). Only the band and the body render; header actions stay
+    // reachable in a plain row.
     return (
       <div className={cn("flex flex-col", className)}>
         {has(actions) && <div className="flex justify-end gap-2 px-4 pb-3">{actions}</div>}
