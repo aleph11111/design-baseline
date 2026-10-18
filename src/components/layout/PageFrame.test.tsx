@@ -11,6 +11,7 @@ import { SelectField } from "../archetypes/raw-select";
 import { NativeField } from "../archetypes/raw-input";
 import { SegmentedControl } from "../ui/segmented-control";
 import { ControlDensityProvider } from "../ui/toolbar-band";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../ui/sheet";
 
 afterEach(cleanup);
 
@@ -362,5 +363,27 @@ describe("PageFrame — touch density", () => {
       </PageFrame>,
     );
     expect(screen.getByRole("button", { name: /Ansicht/ }).className).toContain("h-9");
+  });
+});
+
+describe("PageFrame inside an overlay (ADR-0008: drawers are not pages)", () => {
+  it("renders no page heading or second surface in a Sheet, but keeps band, actions and body", () => {
+    render(
+      <Sheet open>
+        <SheetContent>
+          <SheetTitle>Drawer</SheetTitle>
+          <SheetDescription>d</SheetDescription>
+          <PageFrame title="Page" actions={<button>Act</button>} toolbar={<span>scope</span>}>
+            body
+          </PageFrame>
+        </SheetContent>
+      </Sheet>,
+    );
+    const sheet = screen.getByRole("dialog");
+    expect(within(sheet).queryByText("Page")).toBeNull();
+    expect(within(sheet).getAllByRole("heading").map((h) => h.textContent)).toEqual(["Drawer"]);
+    expect(within(sheet).getByText("scope")).toBeTruthy();
+    expect(within(sheet).getByRole("button", { name: "Act" })).toBeTruthy();
+    expect(within(sheet).getByText("body")).toBeTruthy();
   });
 });

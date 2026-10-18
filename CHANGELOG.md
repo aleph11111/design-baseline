@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.12.1
+
+- **Fixed:** a `PageFrame` rendered inside a `DialogContent` or `SheetContent` no longer draws a page heading or a second raised surface. Dialogs and drawers are not pages (ADR-0008): their `DialogTitle` / `SheetTitle` is the one heading. Inside an overlay the frame renders only its header actions (if any), toolbar band and body; inner `SectionCard`s flatten as before. Derived from a new `OverlayHostContext` that both overlay contents set, never a prop. Fixes every shell built on `PageFrame` (e.g. `WizardShell`, archetype W v3.6, contract v2.2) hosted in a dialog showing its title twice, the second as a page `h1`.
+- **Consumer:** dialog-hosted shells lose the duplicate heading on the version bump. `title` stays required; keep passing it. Put any `subtitle` text in the `DialogDescription`, since it no longer renders inside an overlay. Route-hosted pages are unchanged.
+- **Breaking:** no API change; visible change only inside dialogs and sheets.
+
 ## v0.12.0
 
 - **Changed:** `AuthCard` (`design-baseline/layout`) takes controlling-app's look as its fixed look: the icon, title and description are centered, and the icon sits in a 56px tinted circle. The title stays `text-lg` and the card `max-w-sm`.

@@ -6,6 +6,8 @@ import { PageHeader, type PageHeaderProps } from "./PageHeader";
 import { NestedPageHeading } from "./NestedPageHeading";
 import { SurfaceFrame } from "./SurfaceFrame";
 import { ToolbarBandContext, ToolbarSizeContext, useControlSize } from "../ui/toolbar-band";
+import { OverlayHostContext } from "../ui/overlay-host";
+import { RaisedSurfaceContext } from "./surface";
 import { Button } from "../ui/button";
 import {
   Sheet,
@@ -149,6 +151,7 @@ export function PageFrame({
   const L = useLabels();
   const viewOptionsLabel = viewOptionsLabelProp ?? L.view;
   const nested = React.useContext(PageFrameContext);
+  const inOverlay = React.useContext(OverlayHostContext);
   const isMobile = useIsMobile();
 
   // `cond && <X />` yields `false`: an absent slot, not an empty band.
@@ -218,6 +221,21 @@ export function PageFrame({
         ) : null}
       </div>
     );
+
+  if (inOverlay) {
+    // A dialog or drawer is not a page: its DialogTitle / SheetTitle is the
+    // one heading and the overlay is the raised surface (ADR-0008). Only the
+    // band and the body render; header actions stay reachable in a plain row.
+    return (
+      <div className={cn("flex flex-col", className)}>
+        {has(actions) && <div className="flex justify-end gap-2 px-4 pb-3">{actions}</div>}
+        {band && <div className="border-b px-4 py-3">{band}</div>}
+        <PageFrameContext.Provider value={true}>
+          <RaisedSurfaceContext.Provider value={true}>{children}</RaisedSurfaceContext.Provider>
+        </PageFrameContext.Provider>
+      </div>
+    );
+  }
 
   if (nested) {
     // Joins the parent's surface: a nested heading, then the band, then the
