@@ -2,6 +2,16 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.12.0
+
+- **Changed:** `AuthCard` (`design-baseline/layout`) takes controlling-app's look as its fixed look: the icon, title and description are centered, and the icon sits in a 56px tinted circle. The title stays `text-lg` and the card `max-w-sm`.
+- **Added:** required prop `purpose: "sign-in" | "denied" | "error"` (type `AuthCardPurpose`) keys the circle colour from what the screen is: `sign-in` = `bg-primary/10 text-primary`, `denied` = `bg-destructive/10 text-status-danger-fg`, `error` = `bg-muted text-muted-foreground`. Required, with no default, per RULES hard rule 10.
+- **Consumer:** add `purpose` to every `AuthCard` on the pin bump. Off-app pages put the card on a `bg-muted/30` plane (the wrapper stays transparent). Call sites:
+  - gebo-stock-kiosk `frontend/src/pages/SignIn.tsx` (two `AuthCard`s; pinned v0.9.3).
+  - controlling-app `frontend/src/app/admin/users/page.tsx` and `frontend/src/app/settings/chart-colors/page.tsx` (`denied`; pinned v0.11.4).
+  - controlling-app `/login` (`sign-in`) and `/not-authorized` (`denied`): replace the hand-built `rounded-full bg-*/10 p-3` markup with `AuthCard`.
+- **Breaking:** yes. `purpose` is required, so existing call sites fail typecheck until they pass it.
+
 ## v0.11.8
 
 - **Fixed:** `DetailOverviewShell` (archetype C v4.4, contract v4.2) no longer pads its main body horizontally, in either `rail` or `vertical` layout (body wrapper `p-5` → `py-5`). Sections, stat tiles and key-value rows already own a `px-5` gutter, so the body pad doubled it. Main-column labels sat one gutter further in than rail and summary labels, and on a 430px phone a nested section started 20px inside the frame instead of at its edge. No prop: the contract states the single gutter as a rule (ADR-0004).

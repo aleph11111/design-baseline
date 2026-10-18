@@ -44,6 +44,7 @@ step belongs to the close-out, not "someday".
 | Kanban board (sortable columns of draggable cards) | promote | archetype P (`kanban-board`) | pmo, hk-crm | **promoted 2026-06-14** (gap-fold) |
 | Inbox / feed surface (conversation/activity feed + filter chips) | promote | archetype H (`feed-inbox`) | brickshop, hk-crm | **promoted 2026-06-14** (gap-fold) |
 | Auth / error static card (sign-in / not-authorized / error shell) | adopt-existing | `AuthCard` (layout, no new donor artifact) | brickshop, controlling-app, hk-crm, mistra | **promoted 2026-10-16** (gap-fold) |
+| Auth card centered header + purpose-tinted icon circle (controlling-app `/login`, `/not-authorized`) | promote | `AuthCard` `purpose` (v0.12.0) | controlling-app | **promoted 2026-10-18** (operator decision) |
 
 ## Watch (confirmed in a 2nd/3rd project on the next re-audit before promoting)
 
@@ -53,7 +54,7 @@ No **watch** rows. *Retired 2026-10-16* after a re-check against every consumer'
   `PillBar` / `LabeledFilter` onto DS primitives (hk-crm #258); no consumer carries it.
 - **Colored/semantic icon circle** (`IconAvatar` `tone`) — still one project
   (brickshop, one file); the not-authorized icon circles elsewhere belong to `AuthCard`'s
-  `icon`.
+  `icon`, tinted by its `purpose` since v0.12.0.
 - **Non-row contextual/overflow menu** — moved to Sanctioned below.
 
 ## Sanctioned (genuine one-offs — conform-only, no component)

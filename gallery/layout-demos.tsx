@@ -5,7 +5,7 @@
  */
 
 import * as React from "react";
-import { Bell, Box, Inbox, Plus, Settings, User } from "lucide-react";
+import { Bell, Box, FileQuestion, Inbox, LogIn, Plus, Settings, ShieldX, User } from "lucide-react";
 import {
   AuthCard,
   MetricList,
@@ -230,41 +230,76 @@ function StatTilesDemo() {
 
 function AuthCardDemo() {
   return (
-    <AuthCard
-      title="Sign in"
-      description="Welcome back — enter your credentials."
-      icon={Settings}
-      footer={
-        <span className="text-muted-foreground">
-          No account?{" "}
-          <a className="font-medium text-primary hover:underline" href="#">
-            Register
-          </a>
-        </span>
-      }
-    >
-      <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-        <div className="space-y-1.5">
-          <Label htmlFor="auth-email">Email</Label>
-          <Input id="auth-email" type="email" placeholder="name@company.com" />
+    <div className="space-y-8">
+      <Variant label='purpose="sign-in" — login, on the bg-muted/30 off-app plane'>
+        <div className="rounded-lg bg-muted/30">
+          <AuthCard
+            purpose="sign-in"
+            title="Sign in"
+            description="Welcome back — enter your credentials."
+            icon={LogIn}
+            footer={
+              <span className="text-muted-foreground">
+                No account?{" "}
+                <a className="font-medium text-primary hover:underline" href="#">
+                  Register
+                </a>
+              </span>
+            }
+          >
+            <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+              <div className="space-y-1.5">
+                <Label htmlFor="auth-email">Email</Label>
+                <Input id="auth-email" type="email" placeholder="name@company.com" />
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="auth-pw">Password</Label>
+                  <a
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                    href="#"
+                  >
+                    Forgot?
+                  </a>
+                </div>
+                <Input id="auth-pw" type="password" placeholder="••••••••" />
+              </div>
+              <Button type="submit" className="w-full">
+                Sign in
+              </Button>
+            </form>
+          </AuthCard>
         </div>
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="auth-pw">Password</Label>
-            <a
-              className="text-xs text-muted-foreground hover:text-foreground"
-              href="#"
-            >
-              Forgot?
-            </a>
-          </div>
-          <Input id="auth-pw" type="password" placeholder="••••••••" />
+      </Variant>
+      <Variant label='purpose="denied" — signed in, missing role'>
+        <div className="rounded-lg bg-muted/30">
+          <AuthCard
+            purpose="denied"
+            title="Not authorized"
+            description="Your account has no access to this area. Ask an admin for the role."
+            icon={ShieldX}
+          >
+            <Button variant="outline" className="w-full">
+              Back to home
+            </Button>
+          </AuthCard>
         </div>
-        <Button type="submit" className="w-full">
-          Sign in
-        </Button>
-      </form>
-    </AuthCard>
+      </Variant>
+      <Variant label='purpose="error" — 404 / crash'>
+        <div className="rounded-lg bg-muted/30">
+          <AuthCard
+            purpose="error"
+            title="Page not found"
+            description="The page you opened does not exist or was moved."
+            icon={FileQuestion}
+          >
+            <Button variant="outline" className="w-full">
+              Back to home
+            </Button>
+          </AuthCard>
+        </div>
+      </Variant>
+    </div>
   );
 }
 
