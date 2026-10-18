@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { WizardShell } from "./WizardShell";
 import { type WizardStep } from "./WizardStepper";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../ui/dialog";
 
 afterEach(() => {
   cleanup();
@@ -109,5 +110,31 @@ describe("WizardShell done state", () => {
     expect(screen.getByText("All imported")).toBeTruthy();
     expect(screen.queryByText("step body")).toBeNull();
     expect(screen.queryByRole("button", { name: "Next" })).toBeNull();
+  });
+});
+
+describe("WizardShell hosted in a Dialog (ADR-0008: dialogs are not pages)", () => {
+  it("leaves the DialogTitle as the one heading — no page h1, title not repeated", () => {
+    render(
+      <Dialog open>
+        <DialogContent>
+          <DialogTitle>Import members</DialogTitle>
+          <DialogDescription>From a CSV file</DialogDescription>
+          <WizardShell title="Import members" steps={steps} current={0}>
+            <div>step body</div>
+          </WizardShell>
+        </DialogContent>
+      </Dialog>,
+    );
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getAllByRole("heading").map((h) => h.textContent)).toEqual(["Import members", "Upload"]);
+    expect(screen.getAllByText("Import members")).toHaveLength(1);
+    expect(screen.getByText("step body")).toBeTruthy();
+    expect(next()).toBeTruthy();
+  });
+
+  it("keeps the page heading when route-hosted", () => {
+    renderShell();
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Import members");
   });
 });

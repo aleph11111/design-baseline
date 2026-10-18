@@ -2,7 +2,7 @@
 key: W
 slug: import-wizard
 kind: page
-version: 2.1
+version: 2.2
 promoted_from: fleet-audit-2026-06-13 (controlling-app, my-finance-app)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -38,6 +38,11 @@ title; there is no other title. `subtitle` carries a one-line source name
 (e.g. "CSV · Checking account"); `badges` carry read-only status. The wizard
 takes **no `actions`**: its only verbs are the flow's own Back / Next / Commit,
 which are commit actions and live in the footer.
+
+Hosted in a dialog or drawer (a sanctioned variation), the overlay's own title is
+the one heading: the wizard draws no page heading and no second surface there,
+derived from the host, never a prop. Put the subtitle text in the overlay's
+description.
 
 ## Layer 4 — Toolbar / history toggle
 An import wizard usually lives beside an **import history** (past runs: when, who,
@@ -117,3 +122,5 @@ without import rights sees history (read-only) but not the wizard.
   `badges` added; the stepper is body content, not toolbar.
 - **2.1** — `done` slot: the done state renders inside the one page frame
   instead of the consumer swapping the shell out.
+- **2.2** — dialog / drawer host: the overlay's title is the one heading; the
+  wizard renders no page heading or second surface inside it (ADR-0008).
