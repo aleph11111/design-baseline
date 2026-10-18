@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: '2026-10-18'
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "the prop shape must pass RULES hard rule 10 (derived, enumerated, no inherited default) — a design call, not a class swap"
