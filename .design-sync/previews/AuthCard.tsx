@@ -5,6 +5,7 @@ import { KeyRound, ShieldAlert } from "lucide-react";
 export function SignIn() {
   return (
     <AuthCard
+      purpose="sign-in"
       title="Sign in"
       description="Welcome back — enter your credentials to continue."
       icon={KeyRound}
@@ -43,6 +44,7 @@ export function SignIn() {
 export function NotAuthorized() {
   return (
     <AuthCard
+      purpose="denied"
       title="Not authorized"
       description="Your account doesn't have access to the Finance workspace."
       icon={ShieldAlert}

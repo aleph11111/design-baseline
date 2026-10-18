@@ -330,6 +330,20 @@
       "promotedAt": "2026-10-16"
     },
     {
+      "id": "auth-card-tinted-icon",
+      "pattern": "AuthCard look: centered header with the icon in a 56px tinted circle keyed by screen purpose (controlling-app /login, /not-authorized)",
+      "axisA": "promote",
+      "donorTarget": "AuthCard purpose: \"sign-in\" | \"denied\" | \"error\" (layout, v0.12.0)",
+      "projects": [
+        "controlling-app"
+      ],
+      "count": 1,
+      "status": "promoted",
+      "axisB": "on-token",
+      "notes": "Promoted 2026-10-18 as an operator decision (single source, like metric-row-key-figure): controlling-app hand-built the centered tinted-icon look for /login and /not-authorized; the operator picked it as the fleet default (mockup variant C). Shape: fixed centered look plus a required, screen-derived purpose enum (RULES hard rule 10) — optional tone/align props were rejected.",
+      "promotedAt": "2026-10-18"
+    },
+    {
       "id": "metric-row-key-figure",
       "pattern": "MetricRow value tinted with the brand accent for the entity's value metric (hk-crm's local `accent` on the opportunity ARR row)",
       "axisA": "promote",

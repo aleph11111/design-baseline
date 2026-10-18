@@ -25,7 +25,7 @@ export {
   type MetricListProps,
   type MetricRowProps,
 } from "./MetricList";
-export { AuthCard, type AuthCardProps } from "./AuthCard";
+export { AuthCard, type AuthCardProps, type AuthCardPurpose } from "./AuthCard";
 export {
   SectionNavShell,
   type SectionNavGroup,
