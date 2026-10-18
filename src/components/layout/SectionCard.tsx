@@ -2,6 +2,7 @@
 import * as React from "react";
 import { SectionHeading } from "./SectionHeading";
 import { RaisedSurfaceContext } from "./surface";
+import { HeadingHostContext } from "../ui/heading-host";
 import { cn } from "../../lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -92,6 +93,13 @@ export function SectionCard({
   const bar = (
     <SectionHeading title={title} description={description} actions={actions} />
   );
+  // A titled section owns its region's heading: a shell inside draws none.
+  const body = flush ? children : <div className={chrome ? "px-5 py-4" : "px-5"}>{children}</div>;
+  const content = hasBar ? (
+    <HeadingHostContext.Provider value={true}>{body}</HeadingHostContext.Provider>
+  ) : (
+    body
+  );
 
   // Chromeless (embedded in an already-bounded surface, e.g. the unified rail):
   // no card, and the title is a plain overline — NOT a bordered title bar — so
@@ -102,7 +110,7 @@ export function SectionCard({
     return (
       <section className={cn("py-4", className)}>
         {hasBar && <div className="mb-3 px-5">{bar}</div>}
-        {flush ? children : <div className="px-5">{children}</div>}
+        {content}
       </section>
     );
   }
@@ -124,7 +132,7 @@ export function SectionCard({
         {hasBar && (
           <div className="border-b border-border px-5 py-3">{bar}</div>
         )}
-        {flush ? children : <div className="px-5 py-4">{children}</div>}
+        {content}
       </RaisedSurfaceContext.Provider>
     </section>
   );

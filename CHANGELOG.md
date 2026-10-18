@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.12.2
+
+- **Fixed:** a `PageFrame` inside a titled `SectionCard` (so also a titled `DetailSection`) draws no heading of its own, the same as inside a dialog or drawer since v0.12.1. The section's `SectionHeading` is the one heading; the frame renders its header actions (if any), toolbar band and body. The context is renamed `OverlayHostContext` → `HeadingHostContext` (`src/components/ui/heading-host.ts`, internal, not exported). Fixes a `MatrixGridShell` (archetype M v3.5, contract v3.3) placed in a titled detail section repeating the section title as a nested `h2`. An untitled `SectionCard` changes nothing.
+- **Consumer:** a shell inside a titled section loses its duplicate heading on the version bump. Keep passing `title` (it is required).
+- **Breaking:** no API change; visible change only for shells inside a titled section.
+
 ## v0.12.1
 
 - **Fixed:** a `PageFrame` rendered inside a `DialogContent` or `SheetContent` no longer draws a page heading or a second raised surface. Dialogs and drawers are not pages (ADR-0008): their `DialogTitle` / `SheetTitle` is the one heading. Inside an overlay the frame renders only its header actions (if any), toolbar band and body; inner `SectionCard`s flatten as before. Derived from a new `OverlayHostContext` that both overlay contents set, never a prop. Fixes every shell built on `PageFrame` (e.g. `WizardShell`, archetype W v3.6, contract v2.2) hosted in a dialog showing its title twice, the second as a page `h1`.

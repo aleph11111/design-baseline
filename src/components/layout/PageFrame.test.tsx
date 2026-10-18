@@ -12,6 +12,7 @@ import { NativeField } from "../archetypes/raw-input";
 import { SegmentedControl } from "../ui/segmented-control";
 import { ControlDensityProvider } from "../ui/toolbar-band";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../ui/sheet";
+import { SectionCard } from "./SectionCard";
 
 afterEach(cleanup);
 
@@ -385,5 +386,27 @@ describe("PageFrame inside an overlay (ADR-0008: drawers are not pages)", () => 
     expect(within(sheet).getByText("scope")).toBeTruthy();
     expect(within(sheet).getByRole("button", { name: "Act" })).toBeTruthy();
     expect(within(sheet).getByText("body")).toBeTruthy();
+  });
+});
+
+describe("PageFrame inside a titled SectionCard (the section owns the heading)", () => {
+  it("renders only the section heading; an untitled section keeps the frame's own", () => {
+    const { container } = render(
+      <PageFrame title="Item">
+        <SectionCard title="Market Intelligence">
+          <PageFrame title="Market Intelligence" actions={<button>Sync</button>}>
+            grid
+          </PageFrame>
+        </SectionCard>
+        <SectionCard>
+          <PageFrame title="Untitled host">body</PageFrame>
+        </SectionCard>
+      </PageFrame>,
+    );
+    expect(screen.getAllByText("Market Intelligence")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Sync" })).toBeTruthy();
+    expect(screen.getByText("grid")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Untitled host" })).toBeTruthy();
+    expect(container.querySelectorAll("h1")).toHaveLength(1);
   });
 });

@@ -2,7 +2,7 @@
 key: M
 slug: matrix-grid
 kind: page
-version: 3.2
+version: 3.3
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -66,7 +66,7 @@ If the page is a single-axis list of rows (no meaningful columns beyond display 
 - **Bulk actions** on the whole grid (e.g. "Export CSV") are `actions`. Per-cell actions belong in the side overlay that opens on cell click (Layer 6's click contract).
 
 **Allowed variation:**
-- **Nested matrix** — when the matrix is a tab inside a page that already owns the title, it still passes its own `title`; the shell renders it as the nested heading and joins the parent's surface (derived from where it renders, never a prop).
+- **Nested matrix** — when the matrix is a tab inside a page that already owns the title, it still passes its own `title`; the shell renders it as the nested heading and joins the parent's surface (derived from where it renders, never a prop). Inside a titled section or a dialog / drawer, the host's heading is the one heading: the shell draws none and still passes `title`.
 
 **Forbidden:**
 - Inline `<h1>` or a hand-rolled title bar bypassing the shell's `title`.
@@ -354,6 +354,8 @@ When a target project applies this archetype, it wires the generic primitive to 
 
 ## Version log
 
+- **3.3** — a matrix inside a titled section or a dialog / drawer draws no
+  heading of its own; the host's heading is the one heading (ADR-0008 ladder).
 - **3.1** — resolved the contract's self-contradiction on in-cell editing.
   Forbidden pattern #1 no longer bans all in-cell editing; it now bans only
   bare native `<input>`/`<select>` and hand-rolled in-cell editors, and names the
