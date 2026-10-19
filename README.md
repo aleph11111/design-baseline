@@ -59,7 +59,7 @@ already vendored a copy, and the proof matrix) lives in
 [`docs/PACKAGE.md`](docs/PACKAGE.md).
 
 ```jsonc
-// package.json — pin a tag; a version bump is a one-digit change
+// package.json — pin a tag; newest tag lookup and MAJOR-bump caveat in docs/PACKAGE.md
 "design-baseline": "github:aleph11111/design-baseline#vX.Y.Z"
 ```
 
