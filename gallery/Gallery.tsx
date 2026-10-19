@@ -53,6 +53,7 @@ const ICON_BY_SLUG: Record<string, LucideIcon> = {
   "grouped-list": FileText,
   "matrix-grid": BarChart3,
   "tabbed-settings": Settings,
+  "settings-sections": Settings,
   "analytics-dashboard": BarChart3,
   "import-wizard": UploadCloud,
   "feed-inbox": Bell,

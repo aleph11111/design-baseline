@@ -8,7 +8,7 @@
   "plugin": {
     "kind": "design",
     "name": "design-baseline",
-    "version": "0.12.0",
+    "version": "0.13.0",
     "taxonomy": "docs/TAXONOMY.md",
     "surface": {
       "type": "vite-app",
@@ -361,6 +361,20 @@
       "spec": "docs/archetypes/native-browser-dialog.md",
       "primitives_dir": "src/components/archetypes/native-browser-dialog",
       "example": "src/examples/native-browser-dialog-demo.tsx"
+    },
+    {
+      "key": "D3",
+      "namespace": "baseline",
+      "slug": "settings-sections",
+      "displayName": "Settings sections",
+      "kind": "page",
+      "version": "1.0",
+      "promoted_from": "brickshop-manager",
+      "promoted_at": "2026-10-19",
+      "source_spec_version": "n/a (no source spec — distilled from brickshop-manager's card-stack settings pages)",
+      "spec": "docs/archetypes/settings-sections.md",
+      "primitives_dir": "src/components/archetypes/settings-sections",
+      "example": "src/examples/settings-sections-demo.tsx"
     }
   ],
   "_methodology_note": "Cross-archetype methodology docs — the selection/placement/stack/adoption laws the individual archetype specs defer to. Not page shapes; no primitives or demos. `governs` lists the archetype keys each doc's rules bear on. Adopted from the hk-crm 360° audit (2026-07); see docs/adr/0002-adopt-baseline-upstream-methodology.md.",
@@ -377,6 +391,7 @@
         "C",
         "J",
         "K",
+        "D3",
         "F2",
         "M"
       ]

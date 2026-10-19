@@ -35,7 +35,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `src/utils/logger.ts` | console logger — `logger.debug` (gated on `NODE_ENV !== "production"`) + `info`/`warn`/`error` pass-throughs; framework-agnostic. Not an archetype and carries no per-file version: it is plain copy-source, and the invariant that governs it is **the donor surface must be a superset of what the fleet calls** (see §3a) |
 | `src/components/ui/` | 42 shadcn/ui primitives (button, dialog, table, sidebar, form, sheet, command, calendar, segmented-control, state-view, cell-input, confirmation-dialog, icon-avatar, search-input, color-field, file-field, error-boundary, …) |
 | `src/components/layout/` | App-shell layer: `AppShell`, `AppSidebar` (`Sidebar.tsx`, + `NavItem`/`NavGroup` types), `AppHeader` (`Header.tsx`), `PageHeader` (h1 rung) + `NestedPageHeading` (h2 rung) sharing row classes from `HeadingRow.tsx`, `SectionHeading`, `SectionCard`, `PageFrame` (the one page frame every page shell renders through — `PageHeader` + one untitled raised surface with the toolbar/count/View band, ADR-0008), `SurfaceHeaderBar` (the dialog/drawer header bar, one neutral treatment), plus the internal (not barrel-exported) `SurfaceFrame` (the untitled raised surface), `StatTile`/`StatTileRow`, `ProgressTracker`, `MetricList`, `AuthCard`, `SectionNavShell` (`SectionNav.tsx`), `BottomNav` (its `BottomNavItem` extends `NavItem`), `ThemeToggle`; `navMatch.ts` (`isNavPathActive` — the one active-route rule all three navs share); `overline.ts` (`OVERLINE_CLASS` — the single source of the uppercase-label signature); `surface.ts` (`RaisedSurfaceContext` — no card-in-card — and the full-bleed `FULL_BLEED_CLASS` marker, ADR-0007) |
-| `src/components/archetypes/<slug>/` | Reference primitives per shipped archetype (one dir each; 23 registered in MANIFEST — see §4). Plus a non-archetype `shared/` dir (`RowActionsMenu`, `interactiveRow`, `tableColumn`, `resolveListState`, `ActionFooterBar`, `submittingLabel`, `FigureTable`, `fieldFrame`) holding primitives reused across archetypes — correctly absent from MANIFEST |
+| `src/components/archetypes/<slug>/` | Reference primitives per shipped archetype (one dir each; 24 registered in MANIFEST — see §4). Plus a non-archetype `shared/` dir (`RowActionsMenu`, `interactiveRow`, `tableColumn`, `resolveListState`, `ActionFooterBar`, `submittingLabel`, `FigureTable`, `fieldFrame`) holding primitives reused across archetypes — correctly absent from MANIFEST |
 | `src/vite/design-baseline-ui.mjs` | Vite wiring helper shipped as the `./vite/design-baseline-ui` export — the project-first `ui/`/`layout/` resolution arrays + `optimizeDeps` include list a Vite consumer's `vite.config.ts` needs (`docs/PACKAGE.md` wiring line 2). Plain Node ESM `.mjs`, not `.ts`, because Node refuses to type-strip files under `node_modules` |
 | `scripts/` | Zero-dep donor Node scripts: `lint-design.mjs` (adherence scanner, ADR-0003), `scan-adoption-quality.mjs` (Axis C, ADR-0005), `verify-exports.mjs` (package-surface invariants incl. ADR-0006's `"use client"` leaves, driven by `consumer-directive-set.json`), `verify-manifest-versions.mjs` + `verify-package-version.mjs` (run as `pretest`), `check-desk-width.mjs` (real-Chrome AppShell desk-width check), `new-page.test.mjs` (template typecheck) |
 | `bin/new-page.mjs` + `templates/` | The shipped page scaffolder and its one template per page archetype (see §7) |
@@ -78,7 +78,7 @@ does (14 `logger.info` + 5 `logger.warn` as of 2026-08-27), and the donor is the
 Widening a leaf util is cheap; a downstream typecheck break is not. See
 `docs/backlog/archive/promote-logger-to-archetype.md` for the decision record.
 
-## 4. The 23 shipped archetypes (per `MANIFEST.json`)
+## 4. The 24 shipped archetypes (per `MANIFEST.json`)
 
 | Key | Slug | Kind | Promoted from |
 |---|---|---|---|
@@ -86,6 +86,7 @@ Widening a leaf util is cheap; a downstream typecheck break is not. See
 | B | form-page | page | hk-crm |
 | C | detail-overview | page | hk-crm |
 | D2 | settings-table | page | brickshop-manager |
+| D3 | settings-sections | page | brickshop-manager |
 | J | crud-dialog | dialog | brickshop-manager |
 | K | grouped-list | page | hk-crm |
 | M | matrix-grid | page | hk-crm |
@@ -149,7 +150,7 @@ Source project (e.g. brickshop-manager)
 ## 7. Downstream consumption
 
 - **The package** — a consumer pins `"design-baseline": "github:aleph11111/design-baseline#vX.Y.Z"`, adds the two CSS lines and the `tsconfig` `paths` entries, and imports `design-baseline/layout`, `design-baseline/ui/*`, `design-baseline/archetypes/<slug>`. `docs/PACKAGE.md` is the contract: the four wiring lines, the migration runbook for a project that had vendored a copy, and the enforcement stack. The donor owns the sidebar/header *behavior*; nav *content* stays project-owned (see README "Ownership boundary"). Propagation is a **tag bump** — cut a tag here, bump the pinned version there. `src/examples/` is not in the package `files` list, so sandbox demos never reach a consumer.
-- **Page scaffolder** — the package ships a bin, `design-baseline new-page <archetype> <Name>` (`bin/new-page.mjs`, zero-dep), which writes `<Name>Page.tsx` from `templates/<archetype>.tsx`: one minimal page per page archetype (all 14; a two-way test against `MANIFEST.json` keeps them in step), importing only its own `design-baseline/archetypes/<slug>` plus consumer-local paths and rendering loading / error / empty (route-owned for detail-overview and matrix-grid, per their contracts). Route registration stays consumer-owned via `--register <cmd>`. `scripts/new-page.test.mjs` generates every template and runs `tsc` on it, so a shell API change that breaks a template fails `npm test`.
+- **Page scaffolder** — the package ships a bin, `design-baseline new-page <archetype> <Name>` (`bin/new-page.mjs`, zero-dep), which writes `<Name>Page.tsx` from `templates/<archetype>.tsx`: one minimal page per page archetype (all 15; a two-way test against `MANIFEST.json` keeps them in step), importing only its own `design-baseline/archetypes/<slug>` plus consumer-local paths and rendering loading / error / empty (route-owned for detail-overview and matrix-grid, per their contracts). Route registration stays consumer-owned via `--register <cmd>`. `scripts/new-page.test.mjs` generates every template and runs `tsc` on it, so a shell API change that breaks a template fails `npm test`.
 - **Dashboard hub binding** — the hub (a separate managed project) treats this repo as a `design` plugin per `docs/PLUGIN-CONTRACT.md`: it validates `MANIFEST.json` has a `plugin` block, serves the built `gallery-dist/` (`npm run gallery:build`), and maps declared `actions` (`install-package`, `promote-archetype`, `iterate-baseline`) to its own machinery. Connection is optional and path-configured — the hub degrades gracefully if disconnected.
 
 ## 8. Fleet audit system
