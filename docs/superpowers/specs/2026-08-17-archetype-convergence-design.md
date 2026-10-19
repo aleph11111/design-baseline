@@ -584,7 +584,7 @@ The failure mode worth naming: four consumers pinned to four different tags is
 the same fork problem with better labels. The guard is one number per consumer
 — the installed tag — recorded as a single `sync` entry in
 `docs/promotion-radar.json`, the array the fleet audit already reads. No new
-script, no watcher. A consumer more than one minor behind the donor tag is a
+script, no watcher. A consumer whose pinned tag is more than 14 days older than the newest donor tag is a
 `sync` row, exactly as a stale primitive is today.
 
 ### Ticket batch

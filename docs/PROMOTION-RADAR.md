@@ -94,7 +94,9 @@ freshness.)
   recorded**: the dashboard's `/promotion-radar` route reads each consumer's pin from its
   truth-ref `package.json` and counts its kept `components/ui/` + `components/layout/`
   files on that ref at request time and overlays them, so a consumer's bump or new fork
-  shows up with no donor edit ([`PACKAGE.md`](PACKAGE.md) step 5: nothing to record).
+  shows up with no donor edit ([`PACKAGE.md`](PACKAGE.md) step 5: nothing to record). A
+  consumer is a `sync` row when its pinned tag's date is more than 14 days older than the
+  newest donor tag's date, or when its kept count grew since last recorded.
 - *Closed 2026-10-10:* the `FormItem` gap (`space-y-2`→`space-y-1.5`) and the dead
   `bricklink*` Badge variants — no consumer (mistra / controlling-app / hk-crm, all on
   `v0.9.3`) keeps a local `form.tsx` or `badge.tsx` any more, and hk-crm carries no

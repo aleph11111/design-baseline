@@ -467,8 +467,8 @@ each registered consumer's installed `design-baseline#<tag>` from its truth-ref
 them on the same ref, at request time. A consumer PR cannot edit this repo, which is why
 a hand-recorded pin or count went stale by construction. The tag is still the single
 stamp that replaces 102 per-file ones; the kept-file count is the visible guard that the
-fork survived the swap. A consumer more than one minor behind the newest donor tag — or
-whose kept count grew — is a `sync` row; the dashboard flags it, nobody files it. Do not
+fork survived the swap. A consumer whose pinned tag's date is more than 14 days older than the newest donor tag's date (dates from `git tag --format='%(creatordate:short)'`) — or
+whose kept count grew since last recorded — is a `sync` row; the dashboard flags it, nobody files it. Do not
 file a follow-up to "record the new tag" or the new count here; the `projects` strings in
 `docs/promotion-radar.json` are a dated snapshot, not a field to keep current.
 
