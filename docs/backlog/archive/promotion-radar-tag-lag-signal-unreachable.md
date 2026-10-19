@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: 2026-10-19
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "scoped doc edit across three files with an established cause; the signal definition is decided in the ticket"
