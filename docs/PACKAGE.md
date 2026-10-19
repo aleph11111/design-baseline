@@ -4,7 +4,7 @@ The Design Baseline can be consumed as a **git source package** instead of a `cp
 copy. A consumer adds one dependency line and four wiring lines:
 
 ```
-"design-baseline": "github:aleph11111/design-baseline#v0.2.3"
+"design-baseline": "github:aleph11111/design-baseline#vX.Y.Z"
 ```
 
 Everything below is load-bearing — each line was proven in a throwaway Vite +
@@ -26,8 +26,18 @@ covers.
 
 ### 1. `package.json` — pin the tag
 
-A git dependency against a tag, so a version bump is a one-digit change and the
-consumed commit is pinned (P7 of the spec — no registry publish).
+A git dependency against a tag, so a bump re-pins one tag and the consumed commit
+is pinned (P7 of the spec — no registry publish). Crossing a MAJOR is not a
+one-line change: read the migration notes below first. Replace `vX.Y.Z` with the
+newest tag, never a version copied from a doc:
+
+```
+git ls-remote --tags --refs origin 'v*' | cut -f2 | sed 's|refs/tags/||' | sort -V | tail -1
+```
+
+(or `package.json` `"version"` on `main`; `--refs` drops the peeled `^{}` lines and
+`cut` keeps `sort -V` off the SHA column).
+
 Tags are created automatically: `.github/workflows/tag-version.yml` pushes an
 annotated `v<version>` tag on the merge commit whenever a `package.json` `"version"`
 bump lands on `main` — never tag by hand. A run that failed or was never triggered
@@ -43,7 +53,7 @@ bad release, bump to a new version rather than moving a tag.
 
 ```jsonc
 // package.json
-"design-baseline": "github:aleph11111/design-baseline#v0.2.3"
+"design-baseline": "github:aleph11111/design-baseline#vX.Y.Z"
 ```
 
 `react` / `react-dom` are the package's **peer dependencies** (`^19`) — the
