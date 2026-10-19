@@ -75,6 +75,7 @@ export * from "@/components/archetypes/raw-select";
 export * from "@/components/archetypes/raw-textarea";
 export * from "@/components/archetypes/report";
 export * from "@/components/archetypes/segmented-toggle";
+export * from "@/components/archetypes/settings-sections";
 export * from "@/components/archetypes/settings-table";
 export * from "@/components/archetypes/shared";
 export * from "@/components/archetypes/skeleton-loader";

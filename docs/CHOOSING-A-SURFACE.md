@@ -1,9 +1,9 @@
 ---
 slug: choosing-a-surface
 kind: methodology
-version: 2.1
+version: 2.2
 status: locked
-governs: [A, B, C, J, K, F2, M]
+governs: [A, B, C, J, K, D3, F2, M]
 ---
 
 # Choosing a surface
@@ -195,8 +195,9 @@ across all of them.
 | Present a formal, itemized, printable document | **report (R)** | line items + totals, meant to be read / exported / printed | it's an interactive, editable set → **A** / **M** |
 | Triage a time-ordered stream of events | **feed-inbox (H)** | scannable events / notifications, read-or-act | entries are anchored to dates you navigate → **calendar** |
 | Place time-anchored entries on a grid | **calendar** | day / week / month position carries meaning | order matters but the date does not → **H** |
-| Administer many records of one config kind | **settings-table (D2)** | CRUD over a lookup / config table (create/edit via **J**) | it's a handful of grouped options → **F2** |
-| Configure one thing across grouped options | **tabbed-settings (F2)** | settings divided into tabbed sections | it's a flat table of records → **D2** |
+| Administer many records of one config kind | **settings-table (D2)** | CRUD over a lookup / config table (create/edit via **J**) | it's a handful of grouped options → **D3** / **F2** |
+| Configure one area through a few independent groups | **settings-sections (D3)** | a short stack of titled sections on one scroll, each saving itself; page verbs (Refresh, New …) in the header | a group needs the whole surface → **F2**; it's many records of one kind → **D2**; it's one entity with one commit → **B** |
+| Configure one thing across grouped options | **tabbed-settings (F2)** | settings divided into tabbed sections, each big enough to need the whole surface | the groups fit together on one scroll → **D3**; it's a flat table of records → **D2** |
 | Walk a user through a staged operation | **import-wizard (W)** | multi-step input with a step indicator, no single owned entity | it's a single form → **B** / **J** |
 
 **When nothing fits.** Do not invent a one-off page shape. If two or more pages independently
@@ -232,7 +233,7 @@ documented one-off, excluded from the archetype set.
 | Itemized printable document | **R** |
 | Stream of events | **H** |
 | Time-anchored entries | **calendar** |
-| Config table / grouped settings | **D2** / **F2** |
+| Config table / stacked settings sections / tabbed settings | **D2** / **D3** / **F2** |
 | Staged operation | **W** |
 
 ---
@@ -253,7 +254,7 @@ Template:
 
 | Page | Archetype | Why |
 |------|-----------|-----|
-| … | A / K / P / M / G / R / H / D2 / F2 / W | one line |
+| … | A / K / P / M / G / R / H / D2 / D3 / F2 / W | one line |
 
 ---
 
@@ -272,6 +273,11 @@ Template:
 ---
 
 ## Revision log
+
+- **2.2** (2026-10-19) — Part 2 adds **settings-sections (D3)**: a short stack of
+  independent, self-saving sections on one scroll. Pick it over F2 when the groups
+  fit together without tabs, over D2 when the page edits options rather than many
+  records, and over B when sections save independently instead of one commit.
 
 - **2.1** (2026-10-15) — The read/detail spectrum matches list-with-detail v3.0+: the A
   detail is an overlay over the list, not a pane beside it, and it sizes to its content

@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.13.0
+
+- **Added:** archetype `D3` (`settings-sections`, page kind), exported from `design-baseline/archetypes/settings-sections`. `SettingsSectionsShell` takes `title` / `subtitle` / `actions` (page verbs such as "Refresh" or "New template") and renders them once through `PageFrame`; its children are `SettingsSection`s stacked in the one surface, each with a required `title`, optional `description` / `actions`, and its own save at its foot (`onSave`, `saveLabel`, `isSaving`, `savingLabel`, `saveDisabled`). Contract: `docs/archetypes/settings-sections.md`; scaffold with `design-baseline new-page settings-sections <Name>`. `docs/CHOOSING-A-SURFACE.md` (v2.2) says when to pick it over `tabbed-settings`, `settings-table` and `form-page`; the adoption scan's `page-header-above-shell` signal now also co-occurs on `SettingsSectionsShell`.
+- **Consumer:** none required. brickshop-manager can move its card-stack settings pages off the local `SettingsPageShell` + `PageHeader` onto this shell.
+- **Breaking:** no.
+
 ## v0.12.2
 
 - **Fixed:** a `PageFrame` inside a titled `SectionCard` (so also a titled `DetailSection`) draws no heading of its own, the same as inside a dialog or drawer since v0.12.1. The section's `SectionHeading` is the one heading; the frame renders its header actions (if any), toolbar band and body. The context is renamed `OverlayHostContext` → `HeadingHostContext` (`src/components/ui/heading-host.ts`, internal, not exported). Fixes a `MatrixGridShell` (archetype M v3.5, contract v3.3) placed in a titled detail section repeating the section title as a nested `h2`. An untitled `SectionCard` changes nothing.
