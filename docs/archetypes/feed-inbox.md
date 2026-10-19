@@ -2,7 +2,7 @@
 key: H
 slug: feed-inbox
 kind: page
-version: 2.1
+version: 2.2
 promoted_from: fleet-audit-2026-06-13 (brickshop-manager, hk-crm)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -21,7 +21,7 @@ Promoted from the 2026-06-13 fleet audit (recurs as a standalone activity feed i
 brickshop — its internal "archetype H" — and hk-crm; rule-of-2). Key `H` mirrors
 brickshop's existing naming.
 
-> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/feed-inbox`; the **page feed shell** (frame + page title; the `title`-required page form) and the **frameless feed body** (the content without a page frame; the overlay surface) are the API, and the sandbox demo (`src/examples/feed-inbox-demo.tsx`) is the gallery reference.
+> **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/feed-inbox`; the **page feed shell** (frame + page title; the `title`-required page form), the **master-detail feed shell** (the same page form with the selected item's detail beside the list) and the **frameless feed body** (the content without a page frame; the overlay surface) are the API, and the sandbox demo (`src/examples/feed-inbox-demo.tsx`) is the gallery reference.
 
 ### Two sub-shapes — same molecule
 
@@ -51,9 +51,16 @@ forms (ADR-0008: one page frame, slot-owned):
 | Surface | Export | What it owns |
 |---------|--------|--------------|
 | **Page** (top-level route) | the page feed shell | the page frame: page title, frame `toolbar` (filters), `count`, `actions`, the raised page surface — plus the content |
+| **Page, master-detail** (top-level route where an item is read beside the feed — a message inbox, an activity log with event detail) | the master-detail feed shell | the same page frame, with the surface split into a list pane and a detail pane (Layer 5/6) |
 | **Overlay** (header-bell popover / sheet) | the frameless feed body | the content only: the time-grouped stack or the empty state. No page frame, no title, no raised page surface — the enclosing popover / sheet owns the chrome |
 
-There is no third form. A consumer who wants a feed inside a popover / sheet
+**Choosing master-detail.** Use it when opening an item reads it in place and
+the reader moves item to item (triage a message inbox, inspect events one after
+another). When an item only links out to its source record, or is read once and
+done, use the single-pane page shell — its row opens the source. A table of
+records with a detail is list-with-detail (A), not this.
+
+There is no further form. A consumer who wants a feed inside a popover / sheet
 reaches for the body export, never a page shell inside a drawer — that would
 put a page title and a raised page surface inside the overlay (see Layer 3).
 
@@ -88,6 +95,20 @@ unread dot + one inline action (inbox) or a `body` excerpt + a trailing `media`
 thumbnail (timeline). Group by recency buckets; drop empty groups after filtering.
 The trailing `media` slot is a fixed-size rounded holder so an `<img>` fills it
 uniformly without per-feed CSS.
+
+**Master-detail.** The page's one surface splits into a list pane (the
+time-grouped feed, at a fixed reading width) and a detail pane (the selected
+item). Selection is consumer-owned and URL-syncable; the open item is marked
+selected in the list. The split keys off the **surface's own width** at the
+`md` step (48rem), not the viewport — beside an open sidebar a `md`-wide
+window leaves too little room for two panes. From there up both panes show
+side by side and each scrolls on its own; with nothing selected the detail
+pane shows the empty-detail state (a centered "select an item" state view),
+never a blank pane. Narrower, one column shows: the list, or — once an item is selected —
+the detail in its place, headed by a Back control that clears the selection
+and returns to the list. The detail pane carries no page title of its own
+(the page title stays the one heading); its content heads itself as a
+section. When the feed has no items at all, `empty` replaces both panes.
 
 **Forbidden:** sortable column headers / a data table (that's A — link out to the
 record from an item instead); more than one inline action per row (push extra
@@ -137,6 +158,13 @@ viewer; never leak another user's items.
 - [ ] **[spine] S1, S2, S3, S4, S5, S6.**
 
 ## Version log
+- **2.2** — the master-detail page form: the master-detail feed shell splits
+  the one page surface into a list pane and a detail pane (side by side once
+  the surface is `md` wide, an empty-detail state when nothing is selected;
+  narrower, the detail replaces the list and Back returns), and a feed item can be marked
+  selected. Additive — the single-pane page shell and the frameless body are
+  unchanged. Brickshop's `/activity` and `/messages` (rule of 2) ran this
+  shape as a local extension.
 - **2.1** — the overlay surface (Layer 1) gets its own frameless form: the
   frameless feed body export carries the time-grouped stack / empty state
   without a page frame, and the page feed shell renders the same body inside

@@ -1,5 +1,9 @@
 import * as React from "react";
+import { ArrowLeft } from "lucide-react";
 import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
+import { Button } from "../../ui/button";
+import { cn } from "../../../lib/utils";
+import { useLabels } from "../../../lib/labels";
 
 export type FeedBodyProps = {
   /**
@@ -53,3 +57,84 @@ export function FeedShell({
 }
 
 FeedShell.displayName = "FeedShell";
+
+export type FeedMasterDetailShellProps = PageShellFrameProps & {
+  /** The list pane: the time-grouped stack of `<FeedItem>`s (mark the open one
+   *  `selected`). Rendered through `FeedBody`. */
+  children: React.ReactNode;
+  /** The selected item's detail. Pass nothing (`null`) when no item is
+   *  selected — selection state is consumer-owned. */
+  detail?: React.ReactNode;
+  /** Fills the detail pane when nothing is selected (on an `md`-wide surface;
+   *  narrower, the list shows instead). Pass a `<StateView variant="empty">`. */
+  emptyDetail: React.ReactNode;
+  /** Clears the selection. On a narrow surface the shell renders a Back
+   *  control above the detail that calls it, returning to the list. */
+  onBack: () => void;
+  /** Shown instead of both panes when the feed has no items at all. */
+  empty?: React.ReactNode;
+};
+
+/**
+ * FeedMasterDetailShell — the master-detail form of the feed/inbox (H) page:
+ * the feed list beside the selected item's detail, both inside the one page
+ * surface (ADR-0008). Same frame slots as `FeedShell` (`title`, `toolbar`,
+ * `count`, `actions`, ...). Once the surface is `md` wide the panes sit side
+ * by side and scroll independently; narrower, one column shows — the list, or
+ * the selected detail with a Back control that calls `onBack`.
+ */
+export function FeedMasterDetailShell({
+  children,
+  detail,
+  emptyDetail,
+  onBack,
+  empty,
+  ...frame
+}: FeedMasterDetailShellProps): React.ReactElement {
+  const L = useLabels();
+  const selected = detail != null && detail !== false;
+  return (
+    <PageFrame {...frame}>
+      {empty != null && empty !== false ? (
+        <FeedBody empty={empty}>{children}</FeedBody>
+      ) : (
+        // The split keys off the surface's own width (a container query at the
+        // md step, 48rem), not the viewport: beside an open sidebar a md-wide
+        // viewport leaves the surface too narrow for two panes.
+        <div className="@container">
+          <div data-slot="feed-split" className="flex @3xl:h-[calc(100svh-12rem)] @3xl:min-h-96">
+            <div
+              data-slot="feed-list"
+              className={cn(
+                "min-w-0 flex-1 @3xl:w-96 @3xl:flex-none @3xl:overflow-y-auto @3xl:border-r",
+                selected && "@max-3xl:hidden",
+              )}
+            >
+              <FeedBody>{children}</FeedBody>
+            </div>
+            <div
+              data-slot="feed-detail"
+              className={cn("min-w-0 flex-1 @3xl:overflow-y-auto", !selected && "@max-3xl:hidden")}
+            >
+              {selected ? (
+                <>
+                  <div className="border-b px-4 py-2 @3xl:hidden">
+                    <Button variant="ghost" size="sm" onClick={onBack}>
+                      <ArrowLeft className="h-4 w-4" />
+                      {L.back}
+                    </Button>
+                  </div>
+                  {detail}
+                </>
+              ) : (
+                <div className="grid h-full place-items-center p-5">{emptyDetail}</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </PageFrame>
+  );
+}
+
+FeedMasterDetailShell.displayName = "FeedMasterDetailShell";

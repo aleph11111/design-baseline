@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-10-18
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "design is the deliverable — slot/prop API for a new archetype variant and its contract layers"

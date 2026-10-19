@@ -1,7 +1,8 @@
+import * as React from "react";
 import { afterEach, describe, expect, it } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { FeedShell } from "./FeedShell";
-import { FeedBody, FeedShell as BarrelFeedShell } from "./index";
+import { FeedBody, FeedItem, FeedMasterDetailShell, FeedShell as BarrelFeedShell } from "./index";
 
 afterEach(() => {
   cleanup();
@@ -98,6 +99,79 @@ describe("FeedBody", () => {
     );
 
     expect(getByText("feed rows")).not.toBeNull();
+  });
+});
+
+describe("FeedMasterDetailShell", () => {
+  function Page() {
+    const [id, setId] = React.useState<string | null>(null);
+    return (
+      <FeedMasterDetailShell
+        title="Messages"
+        toolbar={<span>All</span>}
+        detail={id && <p>detail of {id}</p>}
+        emptyDetail={<p>Select a message</p>}
+        onBack={() => setId(null)}
+      >
+        <FeedItem title="Order shipped" selected={id === "a"} onClick={() => setId("a")} />
+      </FeedMasterDetailShell>
+    );
+  }
+  // jsdom has no layout: assert the narrow-surface hide class; the real-Chrome
+  // breakpoint behaviour is checked against the gallery.
+  const NARROW_HIDDEN = "@max-3xl:hidden";
+  const pane = (c: HTMLElement, slot: string) =>
+    c.querySelector(`[data-slot="${slot}"]`) as HTMLElement;
+
+  it("renders one page title and one raised surface holding both panes", () => {
+    const { container } = render(<Page />);
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getAllByText("Messages")).toHaveLength(1);
+    const surfaces = container.querySelectorAll(".bg-surface-raised");
+    expect(surfaces).toHaveLength(1);
+    expect(surfaces[0]?.contains(pane(container, "feed-list"))).toBe(true);
+    expect(surfaces[0]?.contains(pane(container, "feed-detail"))).toBe(true);
+  });
+
+  it("shows list and empty detail side by side from md up when nothing is selected", () => {
+    const { container } = render(<Page />);
+    expect(pane(container, "feed-list").className).not.toContain(NARROW_HIDDEN);
+    // The detail pane hides only below md; from md up it shows the empty state.
+    expect(pane(container, "feed-detail").className).toContain(NARROW_HIDDEN);
+    expect(screen.getByText("Select a message")).not.toBeNull();
+  });
+
+  it("below md, selecting swaps the list for the detail and Back returns", () => {
+    const { container } = render(<Page />);
+    fireEvent.click(screen.getByText("Order shipped"));
+    expect(screen.getByText("detail of a")).not.toBeNull();
+    expect(pane(container, "feed-list").className).toContain(NARROW_HIDDEN);
+    expect(pane(container, "feed-detail").className).not.toContain(NARROW_HIDDEN);
+    expect(container.querySelector('[aria-current="true"]')).not.toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(screen.queryByText("detail of a")).toBeNull();
+    expect(pane(container, "feed-list").className).not.toContain(NARROW_HIDDEN);
+  });
+
+  it("renders `empty` instead of both panes", () => {
+    const { container } = render(
+      <FeedMasterDetailShell title="Messages" emptyDetail={null} onBack={() => {}} empty={<p>No messages</p>}>
+        <div>rows</div>
+      </FeedMasterDetailShell>,
+    );
+    expect(screen.getByText("No messages")).not.toBeNull();
+    expect(pane(container, "feed-split")).toBeNull();
+  });
+
+  it("leaves the single-pane FeedShell without split panes", () => {
+    const { container } = render(
+      <FeedShell title="Inbox">
+        <div>feed rows</div>
+      </FeedShell>,
+    );
+    expect(container.querySelector('[data-slot="feed-split"]')).toBeNull();
+    expect(container.querySelector(".space-y-5")?.textContent).toBe("feed rows");
   });
 });
 
