@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.14.1
+
+- **Fixed:** `AppHeader` renders its `title` as a `<span>` (same classes), no longer an `<h1>`. The brand title sat beside every page's `PageHeader` `<h1>`, so each page had two h1s; the page title is the one h1 (ADR-0008). Looks unchanged.
+- **Consumer:** none required. A test that finds the header title by `getByRole("heading")` should use `getByText`.
+- **Breaking:** no API change; the header title leaves the heading outline.
+
 ## v0.14.0
 
 - **Added:** `FeedMasterDetailShell` (`design-baseline/archetypes/feed-inbox`, archetype H v3.7, contract v2.2): the master-detail form of the feed page. The feed list sits beside the selected item's detail inside the one page surface (ADR-0008), with the same frame slots as `FeedShell` (`title`, `subtitle`, `badges`, `actions`, `toolbar`, `count`, ...). Props: `children` (the list pane), `detail` (the selected item's detail; nothing when none is selected), `emptyDetail` (required, fills the detail pane when nothing is selected), `onBack` (required, clears the selection), `empty` (replaces both panes when there are no items). Once the surface itself is `md` wide (48rem, a container query, not the viewport) the panes sit side by side and scroll independently; narrower, one column shows, and a selected detail carries a Back control that calls `onBack`. Checked in real Chrome against the gallery at 1440/1280 (split) and 1024/768/430 (swap, sidebar open at 1024 and 768).
