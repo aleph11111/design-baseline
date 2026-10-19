@@ -90,11 +90,11 @@ the overlay's last-commit date when it's absent. (The overlay carries no hand-ty
 freshness.)
 
 - **donor package tag lag** — one row, one entry per registered design consumer. The
-  installed `design-baseline#<tag>` is **derived, not recorded**: the dashboard's
-  `/promotion-radar` route reads each consumer's pin from its truth-ref `package.json`
-  at request time and overlays it, so a consumer's bump shows up with no donor edit.
-  The row hand-records only what cannot be derived — the kept-file count and fork
-  notes ([`PACKAGE.md`](PACKAGE.md) step 5).
+  installed `design-baseline#<tag>` and the kept-file count are both **derived, not
+  recorded**: the dashboard's `/promotion-radar` route reads each consumer's pin from its
+  truth-ref `package.json` and counts its kept `components/ui/` + `components/layout/`
+  files on that ref at request time and overlays them, so a consumer's bump or new fork
+  shows up with no donor edit ([`PACKAGE.md`](PACKAGE.md) step 5: nothing to record).
 - *Closed 2026-10-10:* the `FormItem` gap (`space-y-2`→`space-y-1.5`) and the dead
   `bricklink*` Badge variants — no consumer (mistra / controlling-app / hk-crm, all on
   `v0.9.3`) keeps a local `form.tsx` or `badge.tsx` any more, and hk-crm carries no
