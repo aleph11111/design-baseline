@@ -32,6 +32,8 @@ export type FeedItemProps = {
   unread?: boolean;
   /** Accessible name of the unread dot. Default "Unread". */
   unreadLabel?: string;
+  /** The item open in a master-detail feed's detail pane. */
+  selected?: boolean;
   /** Optional trailing controls (a small action button, a dismiss). */
   actions?: React.ReactNode;
   /** When set, the whole row is clickable (open the source / mark read). */
@@ -53,6 +55,7 @@ export function FeedItem({
   media,
   unread,
   unreadLabel: unreadLabelProp,
+  selected,
   actions,
   onClick,
   className,
@@ -63,10 +66,12 @@ export function FeedItem({
     <div
       onClick={onClick}
       data-state={unread ? "unread" : undefined}
+      aria-current={selected || undefined}
       className={cn(
         "flex items-start gap-3 px-5 py-3",
         unread && "bg-primary/[0.03]",
         onClick && "cursor-pointer hover:bg-muted/50",
+        selected && "bg-muted hover:bg-muted",
         onClick && interactiveRowFocusRing,
         className,
       )}

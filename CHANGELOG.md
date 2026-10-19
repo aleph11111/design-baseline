@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.14.0
+
+- **Added:** `FeedMasterDetailShell` (`design-baseline/archetypes/feed-inbox`, archetype H v3.7, contract v2.2): the master-detail form of the feed page. The feed list sits beside the selected item's detail inside the one page surface (ADR-0008), with the same frame slots as `FeedShell` (`title`, `subtitle`, `badges`, `actions`, `toolbar`, `count`, ...). Props: `children` (the list pane), `detail` (the selected item's detail; nothing when none is selected), `emptyDetail` (required, fills the detail pane when nothing is selected), `onBack` (required, clears the selection), `empty` (replaces both panes when there are no items). Once the surface itself is `md` wide (48rem, a container query, not the viewport) the panes sit side by side and scroll independently; narrower, one column shows, and a selected detail carries a Back control that calls `onBack`. Checked in real Chrome against the gallery at 1440/1280 (split) and 1024/768/430 (swap, sidebar open at 1024 and 768).
+- **Added:** `FeedItem` `selected` marks the item open in the detail pane (muted surface, `aria-current`).
+- **Consumer:** brickshop-manager can replace its local `FeedShell mode="master-detail"` (`/activity`, `/messages`): `FeedShell.Filters` → `toolbar`, `FeedShell.List` → children, `FeedShell.Detail` → `detail`, `emptyDetail` stays, add `onBack` (the selection clear) and drop the page's own below-`md` back button. Single-pane `FeedShell` consumers change nothing.
+- **Breaking:** no.
+
 ## v0.13.0
 
 - **Added:** archetype `D3` (`settings-sections`, page kind), exported from `design-baseline/archetypes/settings-sections`. `SettingsSectionsShell` takes `title` / `subtitle` / `actions` (page verbs such as "Refresh" or "New template") and renders them once through `PageFrame`; its children are `SettingsSection`s stacked in the one surface, each with a required `title`, optional `description` / `actions`, and its own save at its foot (`onSave`, `saveLabel`, `isSaving`, `savingLabel`, `saveDisabled`). Contract: `docs/archetypes/settings-sections.md`; scaffold with `design-baseline new-page settings-sections <Name>`. `docs/CHOOSING-A-SURFACE.md` (v2.2) says when to pick it over `tabbed-settings`, `settings-table` and `form-page`; the adoption scan's `page-header-above-shell` signal now also co-occurs on `SettingsSectionsShell`.

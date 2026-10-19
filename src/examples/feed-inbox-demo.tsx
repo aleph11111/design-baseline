@@ -12,6 +12,8 @@
  *  3. Overlay — the page feed body rendered inside a header-bell Sheet: no
  *     page title, no raised page surface (Layer 1's two surfaces, two exports —
  *     the page shell vs the frameless body).
+ *  4. Master-detail — the inbox list beside the selected item's detail in one
+ *     page surface; below md the two swap (FeedMasterDetailShell).
  *
  * 1 + 2 are both H — distinct from list-with-detail (a sortable table of
  * records); 3 is the same H molecule in the overlay surface.
@@ -28,7 +30,12 @@ import {
 } from "lucide-react";
 import { SectionCard } from "@/components/layout/SectionCard";
 import { Button } from "@/components/ui/button";
-import { FeedShell, FeedBody, FeedItem } from "@/components/archetypes/feed-inbox";
+import {
+  FeedShell,
+  FeedBody,
+  FeedItem,
+  FeedMasterDetailShell,
+} from "@/components/archetypes/feed-inbox";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { StateView } from "@/components/ui/state-view";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -319,12 +326,76 @@ function TimelineDemo(): React.ReactElement {
   );
 }
 
+/**
+ * Master-detail form: the feed beside the selected item's detail, one page
+ * surface. Below md the list and the detail swap; Back returns to the list.
+ */
+function MasterDetailDemo(): React.ReactElement {
+  const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const selected = SEED.find((n) => n.id === selectedId);
+
+  return (
+    <section className="space-y-3">
+      <p className="max-w-prose text-sm text-muted-foreground">
+        <strong>Master-detail</strong> — <code>FeedMasterDetailShell</code>:
+        list and detail side by side once the surface is <code>md</code> wide;
+        narrower, the detail replaces the list and Back returns.
+      </p>
+      <FeedMasterDetailShell
+        title="Inbox"
+        count={`${SEED.length} messages`}
+        detail={
+          selected && (
+            <article data-demo="feed-detail" className="space-y-2 p-5">
+              <h2 className="text-base font-semibold">{selected.title}</h2>
+              <p className="text-xs text-muted-foreground">{selected.meta}</p>
+              <p className="text-sm">
+                The full message renders here — thread, attachments, and the
+                item&apos;s one primary action.
+              </p>
+            </article>
+          )
+        }
+        emptyDetail={
+          <StateView variant="empty" icon={MessageSquare} message="Select a message to read it." />
+        }
+        onBack={() => setSelectedId(null)}
+      >
+        {GROUP_ORDER.map((group) => {
+          const groupItems = SEED.filter((n) => n.group === group);
+          if (groupItems.length === 0) return null;
+          return (
+            <SectionCard key={group} title={group} flush>
+              <div className="divide-y divide-border">
+                {groupItems.map((n) => (
+                  <FeedItem
+                    key={n.id}
+                    icon={ICON[n.type]}
+                    title={n.title}
+                    meta={n.meta}
+                    unread={n.unread}
+                    selected={n.id === selectedId}
+                    onClick={() => setSelectedId(n.id)}
+                  />
+                ))}
+              </div>
+            </SectionCard>
+          );
+        })}
+      </FeedMasterDetailShell>
+    </section>
+  );
+}
+
 export function FeedInboxDemo(): React.ReactElement {
   return (
-    <div className="max-w-3xl space-y-12">
-      <InboxDemo />
-      <TimelineDemo />
-      <OverlayDemo />
+    <div className="space-y-12">
+      <div className="max-w-3xl space-y-12">
+        <InboxDemo />
+        <TimelineDemo />
+        <OverlayDemo />
+      </div>
+      <MasterDetailDemo />
     </div>
   );
 }
