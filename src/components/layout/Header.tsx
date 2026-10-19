@@ -52,7 +52,7 @@ export function AppHeader({
             <Menu className="h-5 w-5" />
           </SidebarTrigger>
         )}
-        <h1 className="text-xl font-semibold hidden sm:block truncate">{title}</h1>
+        <span className="text-xl font-semibold hidden sm:block truncate">{title}</span>
       </div>
 
       {center && <div className="flex-1 min-w-0 sm:min-w-32 flex justify-center">{center}</div>}
