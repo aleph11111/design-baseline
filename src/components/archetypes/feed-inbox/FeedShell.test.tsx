@@ -154,6 +154,19 @@ describe("FeedMasterDetailShell", () => {
     expect(pane(container, "feed-list").className).not.toContain(NARROW_HIDDEN);
   });
 
+  it("below md, Back returns focus to the opened row and restores scroll", () => {
+    render(<Page />);
+    const row = screen.getByText("Order shipped").closest("[tabindex]") as HTMLElement;
+    const scroller = document.documentElement; // jsdom has no scrollingElement; the shell falls back to this
+    scroller.scrollTop = 120;
+    row.focus();
+    fireEvent.click(row);
+    scroller.scrollTop = 0; // the hidden list clamps the page scroll
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(document.activeElement).toBe(screen.getByText("Order shipped").closest("[tabindex]"));
+    expect(scroller.scrollTop).toBe(120);
+  });
+
   it("renders `empty` instead of both panes", () => {
     const { container } = render(
       <FeedMasterDetailShell title="Messages" emptyDetail={null} onBack={() => {}} empty={<p>No messages</p>}>
