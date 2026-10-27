@@ -56,6 +56,20 @@ bad release, bump to a new version rather than moving a tag.
 "design-baseline": "github:aleph11111/design-baseline#vX.Y.Z"
 ```
 
+**Adding or re-pinning is an install command, not a hand edit.** Editing the `#vX.Y.Z`
+suffix and running plain `npm install` exits 0 but keeps the existing
+`package-lock.json` entry, so `node_modules` stays on the old commit. Run:
+
+```
+npm install 'design-baseline@github:aleph11111/design-baseline#vX.Y.Z'
+```
+
+then confirm the new version landed — the output must show the new version:
+
+```
+grep '"version"' node_modules/design-baseline/package.json
+```
+
 `react` / `react-dom` are the package's **peer dependencies** (`^19`) — the
 consumer brings its own. The Radix set and the rest of the primitive stack are
 real `dependencies` and install with the package; do not duplicate them.
@@ -435,8 +449,8 @@ a prop.
 
 ### Step 3 — Install, wire, delete
 
-1. Add the dependency pin (wiring line 1) and the `paths` entries (wiring line 2),
-   and `transpilePackages` (wiring line 4) for Next consumers.
+1. Add the dependency pin with wiring line 1's `npm install` command (not a bare
+   `package.json` edit) and the `paths` entries (wiring line 2), and `transpilePackages` (wiring line 4) for Next consumers.
 2. **Delete only the project files step 1 ruled as delete-or-take-the-package's**,
    in the same commit as the wiring, so the alias array alone resolves the
    package's copy of them. At `v0.2.1` that is the full 30-identical set — none
