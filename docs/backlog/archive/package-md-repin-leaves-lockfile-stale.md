@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: 2026-10-20
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "doc-only edit with an established cause and a verified working command"
