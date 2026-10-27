@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-10-19
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "scoped fix in one shell with clear acceptance; mechanism established from FeedShell.tsx"
