@@ -16,21 +16,21 @@ gate:
 
 ## Context
 
-`docs/RULES.md` hard rule 12 (line 28) and `docs/PACKAGE.md` ("The page-shape rule") say "never ship a stopgap page", yet both also call `// archetype-gap: <slug>` "the only waiver" with no condition, so consumers read the waiver as a self-service path. Evidence: the controlling-app PR #1990 review found its `_adherence.NOTES.md` and rule message saying a no-fit page "may carry the waiver" while its pattern doc says "block the page work". Operator policy (team-lead decision 2026-10-28, applied in coding-dashboard PRs #2386/#2387 and controlling-app #1990): on no fit, page work stops and the page ticket is blocked on the gap ticket; the waiver is allowed only when the operator explicitly approves shipping before the gap closes, recorded in the PR body. The waiver text consumers see at lint time is `PAGE_SHELL_HINT` in `scripts/lint-design.mjs` (appended to every page-shape hit); `findPageShellIssues` clears a file with a well-formed waiver silently, so the condition must live in the hint and docs, not in scanner logic.
+`docs/RULES.md` hard rule 12 (line 28) and `docs/PACKAGE.md` ("The page-shape rule") say "never ship a stopgap page", yet both also call `// archetype-gap: <slug>` "the only waiver" with no condition, so consumers read the waiver as a self-service path. Evidence: the controlling-app PR #1990 review found its `_adherence.NOTES.md` and rule message saying a no-fit page "may carry the waiver" while its pattern doc says "block the page work". Operator policy (team-lead decision 2026-10-28, applied in coding-dashboard PRs #2386/#2387 and controlling-app #1990): on no fit, page work stops and the page ticket is blocked on the gap ticket; an agent never adds the waiver, and the automated `/ship` review gate always fails a page without its archetype shell. Only the operator can ship a waived page, by merging it by hand (a human override of the gate). **Correction 2026-10-28 (folds in inbox item 2fe55dbc's follow-up):** this ticket first said the waiver is allowed when operator approval is "recorded in the PR body"; coding-dashboard PR #2387 review showed that is forgeable, because the implementing agent writes the PR body itself during `/ship`, so the reviewer cannot tell a real approval from a fabricated line. The waiver text consumers see at lint time is `PAGE_SHELL_HINT` in `scripts/lint-design.mjs` (appended to every page-shape hit); `findPageShellIssues` clears a file with a well-formed waiver silently, so the condition must live in the hint and docs, not in scanner logic.
 
 ## What to do
 
 - [ ] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
-- [ ] In `docs/RULES.md` rule 12, change "The only waiver is a `// archetype-gap: …` comment" to state the condition: allowed only when the operator explicitly approves shipping before the gap closes, recorded in the PR body; otherwise page work stops and the page ticket is blocked on the gap ticket.
-- [ ] In `docs/PACKAGE.md` ("The page-shape rule", the **The waiver** bullet and the **No fit** paragraph), state the same condition.
-- [ ] In `scripts/lint-design.mjs`, reword `PAGE_SHELL_HINT` (and the malformed-waiver problem text in `findPageShellIssues` if it implies self-service) so the waiver reads "requires operator approval in the PR". Wording only; no change to matching, severity or the grandfather ratchet.
+- [ ] In `docs/RULES.md` rule 12, change "The only waiver is a `// archetype-gap: …` comment" to state the policy: an agent never adds the waiver; the automated `/ship` review gate always fails a page without its archetype shell; only the operator can ship a waived page, by merging it by hand (a human override of the gate); otherwise page work stops and the page ticket is blocked on the gap ticket. Do not use "recorded in the PR body" wording (forgeable).
+- [ ] In `docs/PACKAGE.md` ("The page-shape rule", the **The waiver** bullet and the **No fit** paragraph), state the same policy.
+- [ ] In `scripts/lint-design.mjs`, reword `PAGE_SHELL_HINT` (and the malformed-waiver problem text in `findPageShellIssues` if it implies self-service) so the waiver reads "agents never add this; only the operator ships a waived page, by merging it by hand". Wording only; no change to matching, severity or the grandfather ratchet.
 - [ ] Grep the repo for other statements of the waiver (`grep -rn "archetype-gap" docs scripts src`) and align any that present it unconditionally.
 
 ## Acceptance
 
-- `docs/RULES.md` rule 12 and `docs/PACKAGE.md` "The page-shape rule" each state that the waiver requires explicit operator approval recorded in the PR body.
-- The `pageShell` lint output shows "requires operator approval in the PR" in its waiver wording.
-- No other doc or message in the repo presents `archetype-gap:` as an unconditional or self-service waiver.
+- `docs/RULES.md` rule 12 and `docs/PACKAGE.md` "The page-shape rule" each state that an agent never adds the waiver, the `/ship` review gate always fails a page without its archetype shell, and only the operator can ship a waived page by merging it by hand.
+- The `pageShell` lint output shows the operator-only, merge-by-hand waiver wording and no longer says the waiver is approved in the PR body.
+- No other doc or message in the repo presents `archetype-gap:` as an unconditional or self-service waiver, or as approvable via the PR body.
 - `scripts/lint-design.mjs` matching logic and existing tests are unchanged and still pass.
 
 ## Related
