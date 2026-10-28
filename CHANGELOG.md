@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.14.2
+
+- **Fixed:** `FeedMasterDetailShell` below `@3xl`: selecting an item scrolls the detail pane (and its Back button) into view, and Back restores the list's scroll position and returns focus to the row that was opened, instead of dropping focus to `body`. Wide-surface behaviour is unchanged.
+- **Consumer:** none required.
+- **Breaking:** no.
+
 ## v0.14.1
 
 - **Fixed:** `AppHeader` renders its `title` as a `<span>` (same classes), no longer an `<h1>`. The brand title sat beside every page's `PageHeader` `<h1>`, so each page had two h1s; the page title is the one h1 (ADR-0008). Looks unchanged.
