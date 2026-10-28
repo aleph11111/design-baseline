@@ -112,6 +112,7 @@ export function FeedMasterDetailShell({
   // Below @3xl the list is display:none while an item is open, so the page
   // scroll is clamped and the focused row unmounts from the tab order. Keep the
   // list's scroll and the opened row, put both back when the selection clears.
+  const mounted = React.useRef(false);
   const hiddenAtClear = React.useRef(false);
   const openRowAtClear = React.useRef<HTMLElement | null>(null);
   if (selected && !wasSelected.current && splitRef.current) {
@@ -143,16 +144,29 @@ export function FeedMasterDetailShell({
       } else {
         if (snap) snap.row ??= listRef.current?.querySelector<HTMLElement>('[aria-current="true"]') ?? null;
         detailRef.current?.scrollIntoView?.({ block: "start" });
+        // The focused row just went display:none (focus fell to body): hand focus to
+        // Back. Not on first mount — a deep link must not steal focus on load.
+        if (mounted.current) {
+          detailRef.current?.querySelector<HTMLElement>('[data-slot="feed-back"]')?.focus({ preventScroll: true });
+        }
       }
     } else if (!selected && was) {
       snapshot.current = null;
       if (!hiddenAtClear.current) return;
-      if (snap) snap.scroller.scrollTop = snap.top;
       // The opened row may be gone (removed while open) or unknown (deep link): first row left.
       const row = [openRowAtClear.current, snap?.row].find((r) => r?.isConnected)
         ?? listRef.current?.querySelector<HTMLElement>('[tabindex]:not([tabindex="-1"])');
-      row?.focus({ preventScroll: true });
+      if (snap && row === snap.row) {
+        // The saved scroll belongs to this row: put the page back, focus without scrolling.
+        snap.scroller.scrollTop = snap.top;
+        row.focus({ preventScroll: true });
+      } else {
+        // No saved position for this row (deep link, narrowed while open, selection
+        // moved): let focus scroll the row into view rather than leave it off-screen.
+        row?.focus();
+      }
     }
+    mounted.current = true;
   }, [selected]);
 
   return (
@@ -183,7 +197,7 @@ export function FeedMasterDetailShell({
               {selected ? (
                 <>
                   <div className="border-b px-4 py-2 @3xl:hidden">
-                    <Button variant="ghost" size="sm" onClick={onBack}>
+                    <Button variant="ghost" size="sm" data-slot="feed-back" onClick={onBack}>
                       <ArrowLeft className="h-4 w-4" />
                       {L.back}
                     </Button>

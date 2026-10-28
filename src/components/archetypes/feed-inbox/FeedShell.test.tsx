@@ -181,6 +181,14 @@ describe("FeedMasterDetailShell", () => {
     expect(document.activeElement).toBe(document.body);
   });
 
+  it("below md, selecting moves focus to Back instead of dropping it to body", () => {
+    render(<Page />);
+    const row = screen.getByText("Order shipped").closest("[tabindex]") as HTMLElement;
+    row.focus();
+    fireEvent.click(row);
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Back" }));
+  });
+
   it("below md, Back after a deep link (detail set on mount) focuses the opened row", () => {
     function Deep() {
       const [id, setId] = React.useState<string | null>("b");
