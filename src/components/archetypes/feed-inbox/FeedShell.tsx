@@ -156,7 +156,7 @@ export function FeedMasterDetailShell({
       // The opened row may be gone (removed while open) or unknown (deep link): first row left.
       const row = [openRowAtClear.current, snap?.row].find((r) => r?.isConnected)
         ?? listRef.current?.querySelector<HTMLElement>('[tabindex]:not([tabindex="-1"])');
-      if (snap && row === snap.row) {
+      if (snap && row && row === snap.row) {
         // The saved scroll belongs to this row: put the page back, focus without scrolling.
         snap.scroller.scrollTop = snap.top;
         row.focus({ preventScroll: true });
