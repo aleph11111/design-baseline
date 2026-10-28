@@ -92,6 +92,17 @@ reachable, never executed. The widening (2026-09-07) surfaced exactly one live d
 narrow walk hid: `tableColumn.ts`'s `identifierMono` / `align` (triaged by exclude, see the
 rule messages).
 
+### The consumer page-shape rule — `pageShell` (RULES.md hard rule 12)
+
+`pageShell: true` makes a rule enforce one `kind: "page"` archetype shell per page file and ban
+a direct `PageFrame` import there. The donor's own `_adherence.json` does not carry it: the donor
+has no page files, only `src/examples/` demos. Consumers configure it with their own page glob
+(`include`) and a shrink-only `grandfathered` list. The config shape, the waiver
+(`archetype-gap: <slug>`), the MANIFEST lookup and the no-fit path are in `docs/PACKAGE.md`,
+"The page-shape rule". Fixtures are in `scripts/lint-design.test.mjs`. The waiver slug is
+checked for shape only, because a lint cannot reach the backlog offline (ADR-0003). Its
+`ponytail:` comment names the upgrade path.
+
 Two boundaries of the widened walk:
 
 - **`gallery/` is intentionally OUT of `targets`.** `gallery/` is donor-dev demo-hosting code

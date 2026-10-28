@@ -66,7 +66,7 @@
 // `bare-switch-in-toolbar`.
 //
 // A rule may carry `pageShell: true` instead: the page-shape check `findPageShellIssues`
-// (RULES.md hard rule 13). Every file the rule's `include` (the consumer's page glob, e.g.
+// (RULES.md hard rule 12, one page shell). Every file the rule's `include` (the consumer's page glob, e.g.
 // `src/app/**/page.tsx`) matches must import a `kind: "page"` archetype shell — from
 // `design-baseline/archetypes/<slug>` or the `@/components/archetypes/<slug>` alias — and must
 // not import `PageFrame` directly. The slug list is read from the installed MANIFEST (see
@@ -143,7 +143,7 @@ function includeReachableUnder(glob, targets) {
 const ALIAS_TOKEN = '{{unionAliases}}';
 
 // Appended to every page-shape hit, whatever message the consumer's config carries: the
-// no-fit path (RULES.md hard rule 13) and the skill that walks an agent through the choice.
+// no-fit path (RULES.md hard rule 12, one page shell) and the skill that walks an agent through the choice.
 const PAGE_SHELL_HINT =
   'Pick a kind:page archetype — see skill choosing-a-page-archetype (and CHOOSING-A-SURFACE.md). ' +
   'No fit: stop page work and file an archetype-gap ticket in design-baseline, then mark the page ' +
