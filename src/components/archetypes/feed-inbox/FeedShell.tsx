@@ -128,13 +128,22 @@ export function FeedMasterDetailShell({
     const snap = snapshot.current;
     // A hidden list has no offsetParent: that is the narrow single-column state.
     const narrow = listRef.current?.offsetParent === null;
-    if (selected && !was && narrow) {
-      if (snap) snap.row ??= listRef.current?.querySelector<HTMLElement>('[aria-current="true"]') ?? null;
-      detailRef.current?.scrollIntoView?.({ block: "start" });
+    if (selected && !was) {
+      if (!narrow) {
+        // Wide: the list stays visible, nothing was lost — never restore on clear.
+        snapshot.current = null;
+      } else {
+        if (snap) snap.row ??= listRef.current?.querySelector<HTMLElement>('[aria-current="true"]') ?? null;
+        detailRef.current?.scrollIntoView?.({ block: "start" });
+      }
     } else if (!selected && was && snap) {
       snapshot.current = null;
       snap.scroller.scrollTop = snap.top;
-      if (snap.row?.isConnected) snap.row.focus({ preventScroll: true });
+      // The opened row may be gone (removed while open): fall back to the first row left.
+      const row = snap.row?.isConnected
+        ? snap.row
+        : listRef.current?.querySelector<HTMLElement>("[tabindex]");
+      row?.focus({ preventScroll: true });
     }
   }, [selected]);
 

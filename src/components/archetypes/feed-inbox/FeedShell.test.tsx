@@ -167,6 +167,20 @@ describe("FeedMasterDetailShell", () => {
     expect(scroller.scrollTop).toBe(120);
   });
 
+  it("on a wide surface, clearing the selection leaves scroll and focus alone", () => {
+    const { container } = render(<Page />);
+    // jsdom's offsetParent is always null (= narrow); stub a visible list.
+    Object.defineProperty(pane(container, "feed-list"), "offsetParent", { get: () => document.body });
+    const scroller = document.documentElement;
+    scroller.scrollTop = 120;
+    fireEvent.click(screen.getByText("Order shipped"));
+    scroller.scrollTop = 900;
+    (document.activeElement as HTMLElement | null)?.blur();
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(scroller.scrollTop).toBe(900);
+    expect(document.activeElement).toBe(document.body);
+  });
+
   it("renders `empty` instead of both panes", () => {
     const { container } = render(
       <FeedMasterDetailShell title="Messages" emptyDetail={null} onBack={() => {}} empty={<p>No messages</p>}>
