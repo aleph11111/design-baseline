@@ -154,6 +154,61 @@ describe("FeedMasterDetailShell", () => {
     expect(pane(container, "feed-list").className).not.toContain(NARROW_HIDDEN);
   });
 
+  it("below md, Back returns focus to the opened row and restores scroll", () => {
+    render(<Page />);
+    const row = screen.getByText("Order shipped").closest("[tabindex]") as HTMLElement;
+    const scroller = document.documentElement; // jsdom has no scrollingElement; the shell falls back to this
+    scroller.scrollTop = 120;
+    row.focus();
+    fireEvent.click(row);
+    scroller.scrollTop = 0; // the hidden list clamps the page scroll
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(document.activeElement).toBe(screen.getByText("Order shipped").closest("[tabindex]"));
+    expect(scroller.scrollTop).toBe(120);
+  });
+
+  it("on a wide surface, clearing the selection leaves scroll and focus alone", () => {
+    const { container } = render(<Page />);
+    // jsdom's offsetParent is always null (= narrow); stub a visible list.
+    Object.defineProperty(pane(container, "feed-list"), "offsetParent", { get: () => document.body });
+    const scroller = document.documentElement;
+    scroller.scrollTop = 120;
+    fireEvent.click(screen.getByText("Order shipped"));
+    scroller.scrollTop = 900;
+    (document.activeElement as HTMLElement | null)?.blur();
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(scroller.scrollTop).toBe(900);
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  it("below md, selecting moves focus to Back instead of dropping it to body", () => {
+    render(<Page />);
+    const row = screen.getByText("Order shipped").closest("[tabindex]") as HTMLElement;
+    row.focus();
+    fireEvent.click(row);
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Back" }));
+  });
+
+  it("below md, Back after a deep link (detail set on mount) focuses the opened row", () => {
+    function Deep() {
+      const [id, setId] = React.useState<string | null>("b");
+      return (
+        <FeedMasterDetailShell
+          title="Messages"
+          detail={id && <p>detail of {id}</p>}
+          emptyDetail={null}
+          onBack={() => setId(null)}
+        >
+          <FeedItem title="Order shipped" selected={id === "a"} onClick={() => setId("a")} />
+          <FeedItem title="Password reset" selected={id === "b"} onClick={() => setId("b")} />
+        </FeedMasterDetailShell>
+      );
+    }
+    render(<Deep />);
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(document.activeElement).toBe(screen.getByText("Password reset").closest("[tabindex]"));
+  });
+
   it("renders `empty` instead of both panes", () => {
     const { container } = render(
       <FeedMasterDetailShell title="Messages" emptyDetail={null} onBack={() => {}} empty={<p>No messages</p>}>

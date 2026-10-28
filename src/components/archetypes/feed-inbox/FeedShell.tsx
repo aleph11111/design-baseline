@@ -58,6 +58,16 @@ export function FeedShell({
 
 FeedShell.displayName = "FeedShell";
 
+/** Nearest vertically scrolling ancestor — the window or `main`, whichever the host app scrolls. */
+function scrollerOf(el: HTMLElement): HTMLElement {
+  for (let p = el.parentElement; p; p = p.parentElement) {
+    if (/auto|scroll/.test(getComputedStyle(p).overflowY) && p.scrollHeight > p.clientHeight) return p;
+  }
+  return (document.scrollingElement as HTMLElement | null) ?? document.documentElement;
+}
+
+type NarrowSnapshot = { scroller: HTMLElement; top: number; row: HTMLElement | null };
+
 export type FeedMasterDetailShellProps = PageShellFrameProps & {
   /** The list pane: the time-grouped stack of `<FeedItem>`s (mark the open one
    *  `selected`). Rendered through `FeedBody`. */
@@ -93,6 +103,72 @@ export function FeedMasterDetailShell({
 }: FeedMasterDetailShellProps): React.ReactElement {
   const L = useLabels();
   const selected = detail != null && detail !== false;
+  const splitRef = React.useRef<HTMLDivElement>(null);
+  const listRef = React.useRef<HTMLDivElement>(null);
+  const detailRef = React.useRef<HTMLDivElement>(null);
+  const wasSelected = React.useRef(false);
+  const snapshot = React.useRef<NarrowSnapshot | null>(null);
+
+  // Below @3xl the list is display:none while an item is open, so the page
+  // scroll is clamped and the focused row unmounts from the tab order. Keep the
+  // list's scroll and the opened row, put both back when the selection clears.
+  const mounted = React.useRef(false);
+  const hiddenAtClear = React.useRef(false);
+  const openRowAtClear = React.useRef<HTMLElement | null>(null);
+  if (selected && !wasSelected.current && splitRef.current) {
+    // Render phase on purpose: the DOM still shows the list, so scrollTop is not yet clamped.
+    const scroller = scrollerOf(splitRef.current);
+    const active = document.activeElement;
+    snapshot.current = {
+      scroller,
+      top: scroller.scrollTop,
+      row: active instanceof HTMLElement && listRef.current?.contains(active) ? active : null,
+    };
+  } else if (!selected && wasSelected.current) {
+    // A hidden list has no offsetParent: the narrow single-column state. Read it
+    // now, before the commit re-shows the list — whatever opened the detail (a
+    // click, a deep link, a surface that narrowed while open), Back must land on a row.
+    hiddenAtClear.current = listRef.current?.offsetParent === null;
+    // The row still marked open is the one Back must return to — also right when
+    // no snapshot exists (deep link, narrowed while open) or the selection moved.
+    openRowAtClear.current = listRef.current?.querySelector<HTMLElement>('[aria-current="true"]') ?? null;
+  }
+  React.useLayoutEffect(() => {
+    const was = wasSelected.current;
+    wasSelected.current = selected;
+    const snap = snapshot.current;
+    if (selected && !was) {
+      if (listRef.current?.offsetParent !== null) {
+        // Wide: the list stays visible, nothing was lost.
+        snapshot.current = null;
+      } else {
+        if (snap) snap.row ??= listRef.current?.querySelector<HTMLElement>('[aria-current="true"]') ?? null;
+        detailRef.current?.scrollIntoView?.({ block: "start" });
+        // The focused row just went display:none (focus fell to body): hand focus to
+        // Back. Not on first mount — a deep link must not steal focus on load.
+        if (mounted.current) {
+          detailRef.current?.querySelector<HTMLElement>('[data-slot="feed-back"]')?.focus({ preventScroll: true });
+        }
+      }
+    } else if (!selected && was) {
+      snapshot.current = null;
+      if (!hiddenAtClear.current) return;
+      // The opened row may be gone (removed while open) or unknown (deep link): first row left.
+      const row = [openRowAtClear.current, snap?.row].find((r) => r?.isConnected)
+        ?? listRef.current?.querySelector<HTMLElement>('[tabindex]:not([tabindex="-1"])');
+      if (snap && row && row === snap.row) {
+        // The saved scroll belongs to this row: put the page back, focus without scrolling.
+        snap.scroller.scrollTop = snap.top;
+        row.focus({ preventScroll: true });
+      } else {
+        // No saved position for this row (deep link, narrowed while open, selection
+        // moved): let focus scroll the row into view rather than leave it off-screen.
+        row?.focus();
+      }
+    }
+    mounted.current = true;
+  }, [selected]);
+
   return (
     <PageFrame {...frame}>
       {empty != null && empty !== false ? (
@@ -102,8 +178,9 @@ export function FeedMasterDetailShell({
         // md step, 48rem), not the viewport: beside an open sidebar a md-wide
         // viewport leaves the surface too narrow for two panes.
         <div className="@container">
-          <div data-slot="feed-split" className="flex @3xl:h-[calc(100svh-12rem)] @3xl:min-h-96">
+          <div ref={splitRef} data-slot="feed-split" className="flex @3xl:h-[calc(100svh-12rem)] @3xl:min-h-96">
             <div
+              ref={listRef}
               data-slot="feed-list"
               className={cn(
                 "min-w-0 flex-1 @3xl:w-96 @3xl:flex-none @3xl:overflow-y-auto @3xl:border-r",
@@ -113,13 +190,14 @@ export function FeedMasterDetailShell({
               <FeedBody>{children}</FeedBody>
             </div>
             <div
+              ref={detailRef}
               data-slot="feed-detail"
               className={cn("min-w-0 flex-1 @3xl:overflow-y-auto", !selected && "@max-3xl:hidden")}
             >
               {selected ? (
                 <>
                   <div className="border-b px-4 py-2 @3xl:hidden">
-                    <Button variant="ghost" size="sm" onClick={onBack}>
+                    <Button variant="ghost" size="sm" data-slot="feed-back" onClick={onBack}>
                       <ArrowLeft className="h-4 w-4" />
                       {L.back}
                     </Button>
