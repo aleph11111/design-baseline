@@ -112,6 +112,7 @@ export function FeedMasterDetailShell({
   // Below @3xl the list is display:none while an item is open, so the page
   // scroll is clamped and the focused row unmounts from the tab order. Keep the
   // list's scroll and the opened row, put both back when the selection clears.
+  const hiddenAtClear = React.useRef(false);
   if (selected && !wasSelected.current && splitRef.current) {
     // Render phase on purpose: the DOM still shows the list, so scrollTop is not yet clamped.
     const scroller = scrollerOf(splitRef.current);
@@ -121,28 +122,32 @@ export function FeedMasterDetailShell({
       top: scroller.scrollTop,
       row: active instanceof HTMLElement && listRef.current?.contains(active) ? active : null,
     };
+  } else if (!selected && wasSelected.current) {
+    // A hidden list has no offsetParent: the narrow single-column state. Read it
+    // now, before the commit re-shows the list — whatever opened the detail (a
+    // click, a deep link, a surface that narrowed while open), Back must land on a row.
+    hiddenAtClear.current = listRef.current?.offsetParent === null;
   }
   React.useLayoutEffect(() => {
     const was = wasSelected.current;
     wasSelected.current = selected;
     const snap = snapshot.current;
-    // A hidden list has no offsetParent: that is the narrow single-column state.
-    const narrow = listRef.current?.offsetParent === null;
     if (selected && !was) {
-      if (!narrow) {
-        // Wide: the list stays visible, nothing was lost — never restore on clear.
+      if (listRef.current?.offsetParent !== null) {
+        // Wide: the list stays visible, nothing was lost.
         snapshot.current = null;
       } else {
         if (snap) snap.row ??= listRef.current?.querySelector<HTMLElement>('[aria-current="true"]') ?? null;
         detailRef.current?.scrollIntoView?.({ block: "start" });
       }
-    } else if (!selected && was && snap) {
+    } else if (!selected && was) {
       snapshot.current = null;
-      snap.scroller.scrollTop = snap.top;
-      // The opened row may be gone (removed while open): fall back to the first row left.
-      const row = snap.row?.isConnected
+      if (!hiddenAtClear.current) return;
+      if (snap) snap.scroller.scrollTop = snap.top;
+      // The opened row may be gone (removed while open) or unknown (deep link): first row left.
+      const row = snap?.row?.isConnected
         ? snap.row
-        : listRef.current?.querySelector<HTMLElement>("[tabindex]");
+        : listRef.current?.querySelector<HTMLElement>('[tabindex]:not([tabindex="-1"])');
       row?.focus({ preventScroll: true });
     }
   }, [selected]);
