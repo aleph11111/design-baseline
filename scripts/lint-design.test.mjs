@@ -1434,3 +1434,102 @@ describe("the `bare-switch-in-toolbar` rule — a bare Switch never goes in a to
     expect(scan(frame("adherence-ok: bare-switch-in-toolbar"))).toHaveLength(1);
   });
 });
+
+describe("the `pageShell` rule — a page renders one kind:page archetype shell, never PageFrame alone", async () => {
+  const { compileRules, scanFile, loadPageShells, staleGrandfathered } = await import("./lint-design.mjs");
+  const shells = loadPageShells(root);
+  const rule = { id: "page-requires-archetype-shell", pageShell: true, include: "src/app/**/page.tsx", severity: "error", message: "RULES.md hard rule 13." };
+  const compiled = compileRules([{ ...rule, grandfathered: ["src/app/legacy/page.tsx"] }], ["src"], shells);
+  const scan = (src, file = "src/app/x/page.tsx") => scanFile(file, src, compiled);
+  const pkgShell = 'import { ListWithDetailShell } from "design-baseline/archetypes/list-with-detail";\n';
+
+  it("derives the shell list from MANIFEST kind:page entries, not a hardcoded list", () => {
+    const { archetypes } = JSON.parse(readFileSync(join(root, "docs/archetypes/MANIFEST.json"), "utf8"));
+    expect(shells).toEqual(archetypes.filter((a) => a.kind === "page").map((a) => a.slug));
+    expect(shells).not.toContain("crud-dialog");
+  });
+
+  it("flags a page file with no shell import, pointing at the choosing-a-page-archetype skill", () => {
+    const hits = scan('import { Card } from "@/components/ui/card";\n');
+    expect(hits).toHaveLength(1);
+    expect(hits[0]).toMatchObject({ rule: "page-requires-archetype-shell", severity: "error", line: 1 });
+    expect(hits[0].message).toContain("choosing-a-page-archetype");
+    expect(hits[0].message).toContain("archetype-gap");
+  });
+
+  it("flags a component-kind archetype import as no shell", () => {
+    expect(scan('import { CrudDialogSheet } from "design-baseline/archetypes/crud-dialog";\n')).toHaveLength(1);
+  });
+
+  it("passes a shell imported via the package path or the @/components/archetypes alias", () => {
+    expect(scan(pkgShell)).toEqual([]);
+    expect(scan('import { FormPageShell } from "@/components/archetypes/form-page/FormPageShell";\n')).toEqual([]);
+  });
+
+  it("flags a direct PageFrame import, even beside a shell import", () => {
+    const hits = scan(`${pkgShell}import {\n  PageFrame,\n  PageHeader,\n} from "design-baseline/layout";\n`);
+    expect(hits).toHaveLength(1);
+    expect(hits[0]).toMatchObject({ line: 2 });
+    expect(hits[0].message).toContain("PageFrame");
+    expect(scan('import { PageFrame } from "@/components/layout/PageFrame";\n')).toHaveLength(2);
+    expect(scan(`${pkgShell}import type { PageFrameProps } from "design-baseline/layout";\n`)).toEqual([]);
+  });
+
+  it("honours `archetype-gap: <slug>`; a waiver with no slug, or a non-slug, is flagged", () => {
+    expect(scan('// archetype-gap: bank-reporting-shape\nimport { PageFrame } from "design-baseline/layout";\n')).toEqual([]);
+    for (const bad of ["// archetype-gap:\n", "// archetype-gap: TODO later\n"]) {
+      const hits = scan(bad);
+      expect(hits).toHaveLength(1);
+      expect(hits[0].message).toContain("ticket slug");
+    }
+  });
+
+  it("does not flag a grandfathered violator, but flags it once fixed (shrink-only)", () => {
+    expect(scan("export default function P() {}\n", "src/app/legacy/page.tsx")).toEqual([]);
+    const fixed = scan(pkgShell, "src/app/legacy/page.tsx");
+    expect(fixed).toHaveLength(1);
+    expect(fixed[0].message).toContain("remove it from `grandfathered`");
+  });
+
+  it("flags a file removed from the grandfather list again", () => {
+    const ungrandfathered = compileRules([rule], ["src"], shells);
+    expect(scanFile("src/app/legacy/page.tsx", "export default function P() {}\n", ungrandfathered)).toHaveLength(1);
+  });
+
+  it("flags a grandfathered entry that is no longer a scanned page file", () => {
+    expect(staleGrandfathered(compiled, ["src/app/legacy/page.tsx"])).toEqual([]);
+    const stale = staleGrandfathered(compiled, ["src/app/other/page.tsx"]);
+    expect(stale).toHaveLength(1);
+    expect(stale[0]).toMatchObject({ file: "src/app/legacy/page.tsx", severity: "error" });
+  });
+
+  it("leaves a non-page file alone", () => {
+    expect(scan('import { PageFrame } from "design-baseline/layout";\n', "src/components/Thing.tsx")).toEqual([]);
+  });
+
+  it("refuses to compile without a kind:page list", () => {
+    expect(() => compileRules([rule], ["src"], null)).toThrow(/kind: "page"/);
+  });
+
+  it("CLI: exits 1 on an unshelled page and reads the MANIFEST itself", () => {
+    const dir = mkdtempSync(join(tmpdir(), "lint-design-page-shell-"));
+    try {
+      mkdirSync(join(dir, "src", "app", "bad"), { recursive: true });
+      mkdirSync(join(dir, "src", "app", "good"), { recursive: true });
+      writeFileSync(join(dir, "src", "app", "bad", "page.tsx"), 'import { PageFrame } from "design-baseline/layout";\n');
+      writeFileSync(join(dir, "src", "app", "good", "page.tsx"), pkgShell);
+      writeFileSync(join(dir, "_adherence.json"), JSON.stringify({ targets: ["src"], rules: [{ ...rule, grandfathered: ["src/app/gone/page.tsx"] }] }));
+      let r;
+      try {
+        r = { status: 0, stdout: execFileSync("node", [join(root, script), "--json"], { cwd: dir, encoding: "utf8" }) };
+      } catch (err) {
+        r = { status: err.status, stdout: err.stdout ?? "" };
+      }
+      expect(r.status).toBe(1);
+      const files = JSON.parse(r.stdout).violations.map((v) => v.file).sort();
+      expect(files).toEqual(["src/app/bad/page.tsx", "src/app/bad/page.tsx", "src/app/gone/page.tsx"]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});

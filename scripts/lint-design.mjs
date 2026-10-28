@@ -65,6 +65,17 @@
 // `toolbarSwitch: true` is the same check for a bare `Switch` (use `ToggleField`), opt-out id
 // `bare-switch-in-toolbar`.
 //
+// A rule may carry `pageShell: true` instead: the page-shape check `findPageShellIssues`
+// (RULES.md hard rule 13). Every file the rule's `include` (the consumer's page glob, e.g.
+// `src/app/**/page.tsx`) matches must import a `kind: "page"` archetype shell — from
+// `design-baseline/archetypes/<slug>` or the `@/components/archetypes/<slug>` alias — and must
+// not import `PageFrame` directly. The slug list is read from the installed MANIFEST (see
+// `loadPageShells`), never hardcoded. The one waiver is an `archetype-gap: <ticket-slug>` comment
+// citing a design-baseline archetype-gap ticket. `grandfathered` (array of repo-root-relative
+// paths) is the shrink-only ratchet: a listed file is not flagged while it violates, and is an
+// error once it no longer violates or is no longer a scanned page file — so the list can only
+// shrink as pages are fixed.
+//
 // Usage:  node scripts/lint-design.mjs [--json] [--ci-threshold <n>]
 // Config: ADHERENCE_CONFIG=path overrides the default `_adherence.json`.
 //
@@ -74,9 +85,9 @@
 // and the exit code, and it runs only when the file is the entry point — importing it
 // scans nothing.
 
-import { globSync, readFileSync, realpathSync } from 'node:fs';
+import { existsSync, globSync, readFileSync, realpathSync } from 'node:fs';
 import { join, matchesGlob, relative } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 // A rule failed to compile (a bad `pattern`, or a rule whose `include` globs are all
 // unreachable under the configured targets). Carries the already-formatted
@@ -130,6 +141,13 @@ function includeReachableUnder(glob, targets) {
 // The placeholder a rule's `pattern` may carry to mean "any union type alias declared in
 // THIS file" (see `harvestUnionAliases`). Substituted per scanned file in `scanFile`.
 const ALIAS_TOKEN = '{{unionAliases}}';
+
+// Appended to every page-shape hit, whatever message the consumer's config carries: the
+// no-fit path (RULES.md hard rule 13) and the skill that walks an agent through the choice.
+const PAGE_SHELL_HINT =
+  'Pick a kind:page archetype — see skill choosing-a-page-archetype (and CHOOSING-A-SURFACE.md). ' +
+  'No fit: stop page work and file an archetype-gap ticket in design-baseline, then mark the page ' +
+  '`// archetype-gap: <ticket-slug>` — never PageFrame alone or a hand-rolled stopgap.';
 
 // Harvest the union type-alias NAMES one file declares — the pre-pass that lets a rule reach
 // a prop typed `size?: EntityAvatarSize` instead of an inline `"xs" | "sm"`. Two shapes, both
@@ -281,6 +299,82 @@ function findToolbarTabs(text, tags = 'Tabs|TabsList|SegmentedControl', ruleId =
   return hits;
 }
 
+// The slugs of every `kind: "page"` archetype in the design-baseline MANIFEST — the shells a
+// page may render. Resolution order: the rule's `manifest` path (repo-root-relative), then the
+// installed package (`node_modules/design-baseline/…`, what a consumer's vendored copy of this
+// script reads), then the MANIFEST beside this script (the donor itself, or the script run
+// from the package). The installed package wins over the script-relative one because a
+// consumer's own `docs/archetypes/MANIFEST.json` (brickshop-manager keeps local rows there)
+// is not the donor's. Returns null when no MANIFEST is found.
+function loadPageShells(root, manifestPath) {
+  const candidates = manifestPath
+    ? [join(root, manifestPath)]
+    : [
+        join(root, 'node_modules/design-baseline/docs/archetypes/MANIFEST.json'),
+        fileURLToPath(new URL('../docs/archetypes/MANIFEST.json', import.meta.url)),
+      ];
+  const found = candidates.find((c) => existsSync(c));
+  if (!found) return null;
+  return JSON.parse(readFileSync(found, 'utf8')).archetypes.filter((a) => a.kind === 'page').map((a) => a.slug);
+}
+
+// The page-shape check (`pageShell` rule). Returns hits `{ line, col, problem }` for one page
+// file: no `kind: "page"` shell import, a direct `PageFrame` import, or a malformed
+// `archetype-gap:` waiver. A well-formed waiver clears the file entirely — the page is parked
+// on its gap ticket, not judged.
+// ponytail: the waiver's slug is checked for shape only (kebab-case), not that it names an OPEN
+// design-baseline ticket — that needs the network or the donor's backlog, and a lint stays
+// offline (ADR-0003). Upgrade path: a CI step that resolves the slug against
+// docs/backlog/ on design-baseline's origin/main.
+// Ceiling (no parser): imports are matched by text, so a commented-out import still counts,
+// and a namespace import (`import * as L from 'design-baseline/layout'` then `<L.PageFrame>`)
+// is not seen as a PageFrame import.
+function findPageShellIssues(text, pageShells) {
+  const lineOf = (index) => text.slice(0, index).split('\n').length;
+  const gap = /archetype-gap:[ \t]*(\S*)/.exec(text);
+  if (gap) {
+    return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(gap[1])
+      ? []
+      : [{ line: lineOf(gap.index), col: 1, problem: 'waiver `archetype-gap:` must name a design-baseline archetype-gap ticket slug (`archetype-gap: <kebab-case-slug>`)' }];
+  }
+  const hits = [];
+  for (const m of text.matchAll(/\bimport\s+(?!type\b)[^;]*?\{([^}]*)\}\s*from\s*['"][^'"]+['"]/g)) {
+    if (/(?:^|[\s,])PageFrame\b(?!\w)/.test(m[1])) {
+      hits.push({ line: lineOf(m.index), col: 1, problem: 'direct `PageFrame` import — PageFrame is the frame the shells render through, never a page\'s choice' });
+    }
+  }
+  const shell = new RegExp(`from\\s*['"](?:design-baseline|@/components)/archetypes/(?:${pageShells.join('|')})(?:/[^'"]*)?['"]`);
+  if (!shell.test(text)) {
+    hits.unshift({ line: 1, col: 1, problem: `imports no \`kind: "page"\` archetype shell (one of: ${pageShells.join(', ')})` });
+  }
+  return hits;
+}
+
+// The ratchet's other half: a `grandfathered` entry that is not a scanned, in-scope page file
+// (renamed, deleted, typo, outside the glob) must leave the list too, or it sits there unread.
+// `fileRels` is every walked file. Returns violations in `scanFile`'s shape.
+function staleGrandfathered(compiled, fileRels) {
+  return compiled
+    .filter((c) => c.pageShell)
+    .flatMap(({ label, severity, includes, excludes, grandfathered }) =>
+      grandfathered
+        .filter(
+          (f) =>
+            !fileRels.includes(f) ||
+            (includes.length && !includes.some((inc) => matchesGlob(f, inc))) ||
+            excludes.some((ex) => matchesGlob(f, ex)),
+        )
+        .map((f) => ({
+          file: f,
+          line: 1,
+          col: 1,
+          rule: label,
+          severity,
+          message: `grandfathered entry is not a scanned page file under this rule's include — remove it from \`grandfathered\` (the list only shrinks).`,
+        })),
+    );
+}
+
 // Compile every rule once. `pattern` is used verbatim; a `tag` rule matches a bare lowercase
 // element — `<tag` immediately followed by whitespace, `/`, or `>` — case-sensitive (no `i`
 // flag) so the capitalized DS primitive `<Button>` is not a hit.
@@ -295,9 +389,19 @@ function findToolbarTabs(text, tags = 'Tabs|TabsList|SegmentedControl', ruleId =
 // a no-match `exclude` just removes nothing. When `targets` is omitted the guard is
 // skipped — core-level tests of the compile/scan semantics carry no target context; the
 // CLI always passes the config's `targets`.
-function compileRules(rules, targets) {
+//
+// `pageShells` (the `kind: "page"` slugs, see `loadPageShells`) is required when any rule
+// carries `pageShell: true` — without it the rule could not tell a shell import from any
+// other, so it fails to compile rather than flagging every page.
+function compileRules(rules, targets, pageShells) {
   return rules.map((rule) => {
-    const source = rule.swallowedSlots || rule.toolbarTabs || rule.toolbarSwitch ? '(?!)' : (rule.pattern ?? `<${rule.tag}(?=[\\s/>]|$)`);
+    if (rule.pageShell && !pageShells?.length) {
+      throw new CompileError(
+        `lint:design — rule ${rule.id}: no \`kind: "page"\` archetype list — install design-baseline ` +
+          `(node_modules/design-baseline/docs/archetypes/MANIFEST.json) or set the rule's \`manifest\` path.`,
+      );
+    }
+    const source = rule.swallowedSlots || rule.toolbarTabs || rule.toolbarSwitch || rule.pageShell ? '(?!)' : (rule.pattern ?? `<${rule.tag}(?=[\\s/>]|$)`);
     // A `{{unionAliases}}` pattern cannot be compiled once — its alternation is per-file — so
     // it is carried as `aliasSource` and compiled in `scanFile`. Validate it here anyway (with
     // a stand-in name) so a bad pattern still fails at compile time, like every other rule.
@@ -327,6 +431,8 @@ function compileRules(rules, targets) {
       slots: rule.swallowedSlots ?? null,
       toolbarTabs: Boolean(rule.toolbarTabs),
       toolbarSwitch: Boolean(rule.toolbarSwitch),
+      pageShell: rule.pageShell ? pageShells : null,
+      grandfathered: rule.grandfathered ?? [],
       includes,
       excludes: compileGlobs(rule, 'exclude'),
     };
@@ -344,7 +450,7 @@ function scanFile(fileRel, text, compiled) {
   // The union-type-alias pre-pass: harvested once per file, and only when some rule asks for
   // it (`{{unionAliases}}`), so a config without such a rule pays nothing.
   const aliases = compiled.some((c) => c.aliasSource) ? harvestUnionAliases(text) : [];
-  for (const { re: compiledRe, aliasSource, label, severity, message, slots, toolbarTabs, toolbarSwitch, includes, excludes } of compiled) {
+  for (const { re: compiledRe, aliasSource, label, severity, message, slots, toolbarTabs, toolbarSwitch, pageShell, grandfathered, includes, excludes } of compiled) {
     // No `include` (or a rule whose `include` list is empty) matches every walked file;
     // with one or more `include` globs the rule applies only when ANY of them matches.
     // The scope globs are matched by `path.matchesGlob` (stdlib since v22) — `**` spans
@@ -361,6 +467,19 @@ function scanFile(fileRel, text, compiled) {
     if (toolbarTabs) {
       for (const { tag, line, col } of findToolbarTabs(text)) {
         violations.push({ file: fileRel, line, col, rule: label, severity, message: `\`<${tag}>\` inside \`toolbar\`. ${message}` });
+      }
+      continue;
+    }
+    if (pageShell) {
+      const issues = findPageShellIssues(text, pageShell);
+      if (grandfathered.includes(fileRel)) {
+        if (!issues.length) {
+          violations.push({ file: fileRel, line: 1, col: 1, rule: label, severity, message: `grandfathered page now renders a page shell — remove it from \`grandfathered\` (the list only shrinks). ${message}` });
+        }
+        continue;
+      }
+      for (const { line, col, problem } of issues) {
+        violations.push({ file: fileRel, line, col, rule: label, severity, message: `Page ${problem}. ${PAGE_SHELL_HINT} ${message}` });
       }
       continue;
     }
@@ -418,9 +537,13 @@ function main() {
   const targets = config.targets?.length ? config.targets : ['src'];
   const rules = config.rules ?? [];
 
+  const pageShells = rules.some((r) => r.pageShell)
+    ? loadPageShells(root, rules.find((r) => r.pageShell).manifest)
+    : null;
+
   let compiled;
   try {
-    compiled = compileRules(rules, targets);
+    compiled = compileRules(rules, targets, pageShells);
   } catch (err) {
     console.error(err.message);
     process.exit(2);
@@ -448,7 +571,8 @@ function main() {
     fileRel: relative(root, file),
     violations: scanFile(relative(root, file), readFileSync(file, 'utf8'), compiled),
   }));
-  const violations = allViolations.flatMap(({ violations }) => violations);
+  const stale = staleGrandfathered(compiled, allViolations.map(({ fileRel }) => fileRel));
+  const violations = [...allViolations.flatMap(({ violations }) => violations), ...stale];
   const warnings = violations.filter((v) => v.severity === 'warn').length;
   const errors = violations.filter((v) => v.severity === 'error').length;
 
@@ -475,10 +599,8 @@ function main() {
     };
     process.stdout.write(JSON.stringify(result) + '\n');
   } else {
-    for (const { fileRel, violations: fileViolations } of allViolations) {
-      for (const v of fileViolations) {
-        console.log(`${fileRel}:${v.line}:${v.col}  ${v.severity}  ${v.rule}  ${v.message}`);
-      }
+    for (const v of violations) {
+      console.log(`${v.file}:${v.line}:${v.col}  ${v.severity}  ${v.rule}  ${v.message}`);
     }
     const summary = `lint:design — ${files.length} file(s) scanned, ${warnings} warning(s), ${errors} error(s)`;
     if (errors) {
@@ -505,4 +627,4 @@ if (process.argv[1] && pathToFileURL(realpathSync(process.argv[1])).href === imp
   main();
 }
 
-export { compileGlobs, compileRules, scanFile, findSwallowedSlots, findToolbarTabs, harvestUnionAliases, includeReachableUnder, CompileError };
+export { compileGlobs, compileRules, scanFile, findSwallowedSlots, findToolbarTabs, findPageShellIssues, loadPageShells, staleGrandfathered, harvestUnionAliases, includeReachableUnder, CompileError };
