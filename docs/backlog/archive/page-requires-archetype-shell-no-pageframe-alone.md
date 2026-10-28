@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-10-28
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "adds an error-severity rule type and a per-file shrink-only ratchet to the zero-dep scanner, plus a cross-repo no-fit workflow; schema and ratchet-storage design are open"
