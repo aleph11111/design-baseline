@@ -181,9 +181,9 @@ describe("FeedMasterDetailShell", () => {
     expect(document.activeElement).toBe(document.body);
   });
 
-  it("below md, Back after a deep link (detail set on mount) still focuses a row", () => {
+  it("below md, Back after a deep link (detail set on mount) focuses the opened row", () => {
     function Deep() {
-      const [id, setId] = React.useState<string | null>("a");
+      const [id, setId] = React.useState<string | null>("b");
       return (
         <FeedMasterDetailShell
           title="Messages"
@@ -192,12 +192,13 @@ describe("FeedMasterDetailShell", () => {
           onBack={() => setId(null)}
         >
           <FeedItem title="Order shipped" selected={id === "a"} onClick={() => setId("a")} />
+          <FeedItem title="Password reset" selected={id === "b"} onClick={() => setId("b")} />
         </FeedMasterDetailShell>
       );
     }
     render(<Deep />);
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
-    expect(document.activeElement).toBe(screen.getByText("Order shipped").closest("[tabindex]"));
+    expect(document.activeElement).toBe(screen.getByText("Password reset").closest("[tabindex]"));
   });
 
   it("renders `empty` instead of both panes", () => {

@@ -113,6 +113,7 @@ export function FeedMasterDetailShell({
   // scroll is clamped and the focused row unmounts from the tab order. Keep the
   // list's scroll and the opened row, put both back when the selection clears.
   const hiddenAtClear = React.useRef(false);
+  const openRowAtClear = React.useRef<HTMLElement | null>(null);
   if (selected && !wasSelected.current && splitRef.current) {
     // Render phase on purpose: the DOM still shows the list, so scrollTop is not yet clamped.
     const scroller = scrollerOf(splitRef.current);
@@ -127,6 +128,9 @@ export function FeedMasterDetailShell({
     // now, before the commit re-shows the list — whatever opened the detail (a
     // click, a deep link, a surface that narrowed while open), Back must land on a row.
     hiddenAtClear.current = listRef.current?.offsetParent === null;
+    // The row still marked open is the one Back must return to — also right when
+    // no snapshot exists (deep link, narrowed while open) or the selection moved.
+    openRowAtClear.current = listRef.current?.querySelector<HTMLElement>('[aria-current="true"]') ?? null;
   }
   React.useLayoutEffect(() => {
     const was = wasSelected.current;
@@ -145,9 +149,8 @@ export function FeedMasterDetailShell({
       if (!hiddenAtClear.current) return;
       if (snap) snap.scroller.scrollTop = snap.top;
       // The opened row may be gone (removed while open) or unknown (deep link): first row left.
-      const row = snap?.row?.isConnected
-        ? snap.row
-        : listRef.current?.querySelector<HTMLElement>('[tabindex]:not([tabindex="-1"])');
+      const row = [openRowAtClear.current, snap?.row].find((r) => r?.isConnected)
+        ?? listRef.current?.querySelector<HTMLElement>('[tabindex]:not([tabindex="-1"])');
       row?.focus({ preventScroll: true });
     }
   }, [selected]);
