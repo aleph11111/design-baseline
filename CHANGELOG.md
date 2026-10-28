@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.15.0
+
+- **Added:** a `pageShell` rule type in `scripts/lint-design.mjs` (`docs/RULES.md` hard rule 12). Every file under the rule's `include` page glob must import a `kind: "page"` archetype shell from `design-baseline/archetypes/<slug>` or `@/components/archetypes/<slug>`. The slug list comes from the installed MANIFEST. A direct `PageFrame` import in a page file is an error. The one waiver is `// archetype-gap: <design-baseline ticket slug>`. `grandfathered` is a shrink-only list: a listed page that no longer violates, or no longer exists, is an error until its entry is removed. Each hit names the skill `choosing-a-page-archetype` and the no-fit path.
+- **Added:** `scripts/lint-design.mjs` now ships in the package. Run it as `node node_modules/design-baseline/scripts/lint-design.mjs`.
+- **Consumer:** to turn the gate on, add the rule to `_adherence.json` with your page glob and the list of current violators as `grandfathered` (`docs/PACKAGE.md`, "The page-shape rule"). Add the new-page line to `CLAUDE.md`. A vendored `scripts/lint-design.mjs` must be refreshed from the package before it understands `pageShell`. Configs without the rule behave exactly as before.
+- **Breaking:** no. The rule is opt-in per consumer.
+
 ## v0.14.2
 
 - **Fixed:** `FeedMasterDetailShell` below `@3xl`: selecting an item scrolls the detail pane (and its Back button) into view, and Back restores the list's scroll position and returns focus to the row that was opened, instead of dropping focus to `body`. Wide-surface behaviour is unchanged.

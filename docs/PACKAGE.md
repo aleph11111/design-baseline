@@ -309,9 +309,9 @@ drift. The contract a project takes on with the package, in mechanical order:
 | Gate | Catches | Mechanism | When |
 |------|---------|-----------|------|
 | 1. Types | wrong props, wrong variants | vendored `.d.ts` / package types, `tsc --noEmit` | on save / CI |
-| 2. Adherence lint | literal Tailwind palette classes, weak focus rings, raw `<h1>`/`<table>`/`<button>`/`<input>`/`<select>`/`<textarea>`, inline figure formatting (`no-inline-number-format` — figures route through `formatFigure`, `design-baseline/lib/format`) | `scripts/lint-design.mjs` (zero-dep scan, tag + regex rules in `_adherence.json`) | pre-commit + CI |
+| 2. Adherence lint | surface choice (every page renders one `kind: "page"` archetype shell, never `PageFrame` alone — the `pageShell` rule below), literal Tailwind palette classes, weak focus rings, raw `<h1>`/`<table>`/`<button>`/`<input>`/`<select>`/`<textarea>`, inline figure formatting (`no-inline-number-format` — figures route through `formatFigure`, `design-baseline/lib/format`) | `scripts/lint-design.mjs` (zero-dep scan, tag + regex rules in `_adherence.json`) | pre-commit + CI |
 | 3. Visual baselines | drift the linter can't see (spacing, chrome, states) | Playwright `toHaveScreenshot()` per archetype page | CI |
-| 4. Review against docs | surface choice, placement, navigation model | `SURFACES.md` + `PLACEMENT.md` + `CHOOSING-A-SURFACE.md` as the review checklist | PR review |
+| 4. Review against docs | which shell fits (the lint only proves one is used), placement, navigation model | `SURFACES.md` + `PLACEMENT.md` + `CHOOSING-A-SURFACE.md` as the review checklist | PR review |
 
 Gates 1–3 are mechanical; gate 4 is human but checklist-driven. A rule that lives
 only in prose (gate 4) and keeps being violated should be pushed down the stack —
@@ -319,6 +319,61 @@ into the lint config (gate 2) or a snapshot (gate 3) — so it stops costing
 review attention. The two-way feedback loop that feeds gate 2 (project scars
 upstream, donor changes downstream) is documented in
 [`docs/PROMOTION-RADAR.md`](PROMOTION-RADAR.md).
+
+### The page-shape rule (`pageShell`)
+
+`docs/RULES.md` hard rule 12: a consumer page renders exactly one `kind: "page"`
+archetype shell, and `PageFrame` alone is never a choice. A consumer enables the
+gate by adding one rule to its own `_adherence.json`:
+
+```json
+{
+  "id": "page-requires-archetype-shell",
+  "pageShell": true,
+  "include": "frontend/src/app/**/page.tsx",
+  "grandfathered": [
+    "frontend/src/app/workspace/bankenreporting/page.tsx"
+  ],
+  "severity": "error",
+  "message": "design-baseline RULES.md hard rule 12."
+}
+```
+
+- **`include`** is the page glob, relative to the repo root like every other
+  `include`. It must sit under one of the config's `targets`.
+- **The shell list** is every `kind: "page"` slug in
+  `node_modules/design-baseline/docs/archetypes/MANIFEST.json`. The fallback is
+  the MANIFEST next to the script. Set `"manifest": "<path>"` on the rule to
+  override. A page passes when it imports
+  `design-baseline/archetypes/<slug>` or `@/components/archetypes/<slug>`
+  (sub-paths allowed). Any `{ PageFrame }` import in a page file is an error,
+  even beside a shell import.
+- **The waiver** is the comment `// archetype-gap: <ticket-slug>`, naming the
+  design-baseline archetype-gap ticket the page waits on. A waiver with no slug,
+  or a slug that is not kebab-case, is itself an error. The lint runs offline, so
+  it cannot check that the ticket is open. Review checks that.
+- **`grandfathered`** is the shrink-only ratchet. A listed page is not flagged
+  while it still violates. Once it renders a shell, or is renamed, deleted or
+  falls out of the glob, its entry is an error until it is removed from the list.
+  Nothing can stop a file being re-added, so review guards that.
+
+The script ships in the package as of v0.15.0. Run it as
+`node node_modules/design-baseline/scripts/lint-design.mjs`, or refresh a vendored
+copy from that path.
+
+**No fit.** An agent that finds no fitting archetype stops page work. It files an
+archetype-gap ticket in design-baseline (dashboard `POST /api/ticket/create`,
+`repoName: design-baseline`) that describes the page's shape, and blocks the page
+ticket on it. That ticket starts a define/find-archetype session, which either
+maps the shape to an existing archetype (find) or runs brainstorm, then promotion
+(define). There is never a hand-rolled stopgap page in between. The skill
+`choosing-a-page-archetype` covers both the choice and this path.
+
+Add this line to the consumer's `CLAUDE.md`, verbatim:
+
+> New page: pick a kind:page archetype (CHOOSING-A-SURFACE.md), scaffold with npx design-baseline new-page <archetype> <Name>; no fit means file an archetype-gap ticket in design-baseline, never PageFrame alone.
+
+Then add a pointer to the fleet skill: "See skill `choosing-a-page-archetype`."
 
 ## Migrating a vendored consumer
 
