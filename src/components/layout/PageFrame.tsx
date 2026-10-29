@@ -230,7 +230,7 @@ export function PageFrame({
     return (
       <div className={cn("flex flex-col", className)}>
         {has(actions) && <div className="flex justify-end gap-2 px-4 pb-3">{actions}</div>}
-        {band && <div className="border-b px-4 py-3">{band}</div>}
+        {band && <div data-toolbar-band="" className="border-b px-4 py-3">{band}</div>}
         <PageFrameContext.Provider value={true}>
           <RaisedSurfaceContext.Provider value={true}>{children}</RaisedSurfaceContext.Provider>
         </PageFrameContext.Provider>
@@ -250,7 +250,7 @@ export function PageFrame({
           actions={actions}
           className="px-5 pt-4 pb-3"
         />
-        {band && <div className="border-b px-4 py-3">{band}</div>}
+        {band && <div data-toolbar-band="" className="border-b px-4 py-3">{band}</div>}
         {children}
       </div>
     );

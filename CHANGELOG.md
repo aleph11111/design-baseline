@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.16.0
+
+- **Added:** `design-baseline/testing/devices`, the device triad every page is tested at: `desk27` (2560x1440, scale 1), `laptop14` (1512x982, scale 2), `phone` (390x844, scale 3, `isMobile`, `hasTouch`), plus `playwrightProjects` ready to spread into a Playwright config. Zero-dependency `.mjs` with types (STYLE.md "The device triad").
+- **Added:** the toolbar band of `SurfaceFrame` and `PageFrame` carries `data-toolbar-band`, a stable hook for layout checks. Looks unchanged.
+- **Donor:** `npm run check:viewports` replaces `check:desk-width`. It renders every `kind: "page"` archetype at the three devices in real Chrome, asserts the layout invariants (no sideways scroll, nothing cut off, column widths, one-row desktop toolbar, phone filters in the sheet, phone nav, 44px phone tap targets) and writes a contact sheet. It runs in CI. Phone tap targets are a known gap for now (`phone-tap-targets-touch-density-default`): reported, not failing.
+- **Consumer:** replace hand-typed Playwright viewports (controlling-app 1440x900, hk-crm 1280x800) with `projects: playwrightProjects` from `design-baseline/testing/devices`.
+- **Breaking:** no.
+
 ## v0.15.0
 
 - **Added:** a `pageShell` rule type in `scripts/lint-design.mjs` (`docs/RULES.md` hard rule 12). Every file under the rule's `include` page glob must import a `kind: "page"` archetype shell from `design-baseline/archetypes/<slug>` or `@/components/archetypes/<slug>`. The slug list comes from the installed MANIFEST. A direct `PageFrame` import in a page file is an error. The one waiver is `// archetype-gap: <design-baseline ticket slug>`. `grandfathered` is a shrink-only list: a listed page that no longer violates, or no longer exists, is an error until its entry is removed. Each hit names the skill `choosing-a-page-archetype` and the no-fit path.

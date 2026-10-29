@@ -310,7 +310,7 @@ drift. The contract a project takes on with the package, in mechanical order:
 |------|---------|-----------|------|
 | 1. Types | wrong props, wrong variants | vendored `.d.ts` / package types, `tsc --noEmit` | on save / CI |
 | 2. Adherence lint | surface choice (every page renders one `kind: "page"` archetype shell, never `PageFrame` alone — the `pageShell` rule below), literal Tailwind palette classes, weak focus rings, raw `<h1>`/`<table>`/`<button>`/`<input>`/`<select>`/`<textarea>`, inline figure formatting (`no-inline-number-format` — figures route through `formatFigure`, `design-baseline/lib/format`) | `scripts/lint-design.mjs` (zero-dep scan, tag + regex rules in `_adherence.json`) | pre-commit + CI |
-| 3. Visual baselines | drift the linter can't see (spacing, chrome, states) | Playwright `toHaveScreenshot()` per archetype page | CI |
+| 3. Visual baselines | drift the linter can't see (spacing, chrome, states) | Playwright `toHaveScreenshot()` per archetype page, at each device of the triad — `projects: playwrightProjects` from `design-baseline/testing/devices` (`desk27` 2560x1440, `laptop14` 1512x982 @2x, `phone` 390x844 @3x touch; STYLE.md "The device triad"), never a hand-typed viewport | CI |
 | 4. Review against docs | which shell fits (the lint only proves one is used), placement, navigation model | `SURFACES.md` + `PLACEMENT.md` + `CHOOSING-A-SURFACE.md` as the review checklist | PR review |
 
 Gates 1–3 are mechanical; gate 4 is human but checklist-driven. A rule that lives

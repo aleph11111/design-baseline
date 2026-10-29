@@ -1,6 +1,6 @@
 {
   "name": "design-baseline",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "private": true,
   "engines": {
     "node": ">=22"
@@ -11,7 +11,7 @@
     "gallery:build": "vite build --configLoader runner",
     "gallery:preview": "vite preview --configLoader runner",
     "gallery:view": "vite build --configLoader runner && vite preview --configLoader runner --port 5173",
-    "check:desk-width": "npm run gallery:build && node scripts/check-desk-width.mjs",
+    "check:viewports": "npm run gallery:build && node scripts/check-viewports.mjs",
     "check:app-header-phone": "npm run gallery:build && node scripts/check-app-header-phone.mjs",
     "check:joined-label": "npm run gallery:build && node scripts/check-joined-label.mjs",
     "check:detail-sheet": "NODE_ENV=development vite build --configLoader runner --mode development --outDir ../gallery-dist-dev --emptyOutDir && node scripts/check-detail-sheet.mjs",
@@ -31,6 +31,7 @@
     "./archetypes/*": "./src/components/archetypes/*/index.ts",
     "./ui/*": "./src/components/ui/*.tsx",
     "./vite/design-baseline-ui": "./src/vite/design-baseline-ui.mjs",
+    "./testing/devices": "./src/testing/devices.mjs",
     "./lib/utils": "./src/lib/utils.ts",
     "./lib/format": "./src/lib/format.ts",
     "./lib/labels": "./src/lib/labels.tsx",
@@ -44,6 +45,7 @@
     "src/hooks",
     "src/utils",
     "src/vite",
+    "src/testing",
     "src/styles",
     "docs/CHOOSING-A-SURFACE.md",
     "docs/PLACEMENT.md",

@@ -678,6 +678,42 @@ recurring machine half is the donor's zero-dep
 `scripts/scan-adoption-quality.mjs` ([ADR-0005](adr/0005-adoption-quality-scan-zero-dep-donor-script.md))
 — discovery radar, never a gate.
 
+## The device triad — every page at three devices
+
+Every page is tested at the three devices the fleet delivers to (operator
+requirement 2026-10-29). One copy ships as `design-baseline/testing/devices`
+(`src/testing/devices.mjs`, zero-dependency); the donor's check and every
+consumer's Playwright config import it and never retype the numbers.
+
+| Name | CSS viewport | Scale | Flags | Stands for |
+|------|--------------|-------|-------|------------|
+| `desk27` | 2560 x 1440 | 1 | — | 27-inch QHD monitor (a 27-inch 5K at 2x gives the same CSS size) |
+| `laptop14` | 1512 x 982 | 2 | — | MacBook Pro 14-inch at its default scaling |
+| `phone` | 390 x 844 | 3 | `isMobile`, `hasTouch` | iPhone 15 class |
+
+A consumer adds them as Playwright projects:
+
+```ts
+import { playwrightProjects } from "design-baseline/testing/devices";
+export default defineConfig({ projects: playwrightProjects /* , ... */ });
+```
+
+The donor's `npm run check:viewports` (`scripts/check-viewports.mjs`, run in CI)
+renders every `kind: "page"` MANIFEST archetype's gallery demo at all three in
+real Chrome and asserts what needs no image baseline:
+
+- the page never scrolls sideways, and no visible element is cut off at the viewport edge outside a scroll container;
+- the content column is 1144px on `laptop14` and 1680px on `desk27` (none on full-bleed pages; the 1903/1920 steps stay measured on `form-page` — "Spacing & rhythm");
+- the desktop toolbar band is one row ("Toolbar field labels", desktop cap);
+- on `phone` the toolbar's filter fields live in the filter sheet, the navigation is a `BottomNav` or the sidebar sheet, and tap targets are at least 44px.
+
+Each run writes a contact sheet, `viewport-report/index.html` (gitignored), with
+every page at the three devices side by side, failures framed red. An invariant
+that fails donor-wide for a ticketed reason sits in the script's `KNOWN_GAPS`
+with its ticket slug: it still runs and prints on every run, and the entry is
+deleted when the ticket ships. Pixel baselines per page and device are the next
+slice (`device-triad-screenshot-baselines`).
+
 ## Conventions
 
 - **Path alias**: `@/` → `src/`. Configure in `tsconfig.json` and your bundler (vite or next).

@@ -28,3 +28,7 @@ jobs:
       - run: npx tsc --noEmit
       - run: npm test
       - run: npm run verify:exports
+      # every kind:page archetype at the device triad, in the runner's preinstalled Chrome
+      - run: npm run check:viewports
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
