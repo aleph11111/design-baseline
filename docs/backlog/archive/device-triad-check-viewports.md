@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-10-29
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "new export + real-browser invariant suite across every page archetype; real defects may surface and need triage"
