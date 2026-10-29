@@ -70,6 +70,13 @@ then confirm the new version landed — the output must show the new version:
 grep '"version"' node_modules/design-baseline/package.json
 ```
 
+**Re-pinning across v0.17.0 changes phones with no code change.** From v0.17.0 an
+`AppShell` without a `density` prop is touch below `md`: its controls grow from
+36px to the 44pt step on phones, and small boxes (checkboxes, switches, row
+action triggers) get a 44pt hit area. Desktop renders are unchanged. Check the
+consumer's phone screens after the bump; `density="default"` opts back out
+(STYLE.md "App touch density").
+
 `react` / `react-dom` are the package's **peer dependencies** (`^19`) — the
 consumer brings its own. The Radix set and the rest of the primitive stack are
 real `dependencies` and install with the package; do not duplicate them.

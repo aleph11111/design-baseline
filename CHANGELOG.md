@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.17.0
+
+- **Changed (consumer-visible):** phones are touch by default. An `AppShell` (or `ControlDensityProvider`) with no `density` prop resolves to touch below `md`, so on phones every control without an explicit size takes the 44pt `lg` step. Desktop renders are unchanged. An explicit `density` wins at every width.
+- **Added:** `TOUCH_TARGET_CLASS` / `useTouchTarget()` (`design-baseline/ui/toolbar-band`). Under touch density this is a centred hit area of at least 44pt, an `::after`, around a box that keeps its size. It is applied to `Checkbox`, `Switch`, `Button` (so a className-shrunk `h-8` row-actions trigger still gets a 44pt target), segmented pills, tab triggers, `CollapsibleTrigger`, clickable matrix cells, list-with-detail's sortable headers and `PageHeader`'s back link. `SidebarTrigger` drops its 28px size under touch and becomes a 44pt icon button.
+- **Donor:** `check:viewports` now enforces 44pt phone tap targets. The `KNOWN_GAPS` entry is gone, and all 15 page archetypes pass at all three devices.
+- **Consumer:** after re-pinning, check your phone screens; controls are taller. To keep the old 36px phone controls, pass `density="default"` to `AppShell`. Give your own small tap targets `useTouchTarget()`.
+- **Breaking:** no API change. Phone layouts change visually.
+
 ## v0.16.0
 
 - **Added:** `design-baseline/testing/devices`, the device triad every page is tested at: `desk27` (2560x1440, scale 1), `laptop14` (1512x982, scale 2), `phone` (390x844, scale 3, `isMobile`, `hasTouch`), plus `playwrightProjects` ready to spread into a Playwright config. Zero-dependency `.mjs` with types (STYLE.md "The device triad").
