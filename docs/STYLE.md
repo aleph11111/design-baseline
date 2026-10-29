@@ -711,8 +711,23 @@ Each run writes a contact sheet, `viewport-report/index.html` (gitignored), with
 every page at the three devices side by side, failures framed red. An invariant
 that fails donor-wide for a ticketed reason sits in the script's `KNOWN_GAPS`
 with its ticket slug: it still runs and prints on every run, and the entry is
-deleted when the ticket ships. Pixel baselines per page and device are the next
-slice (`device-triad-screenshot-baselines`).
+deleted when the ticket ships.
+
+**Pixel baselines.** On top of the invariants, every `kind: "page"` archetype
+has one committed screenshot per device (`tests/screenshots/<device>/<slug>.png`,
+Playwright `toHaveScreenshot()`, CSS-pixel scale, clock pinned). Pixels differ
+between machines (fonts, antialiasing), so baselines are rendered and compared
+**only inside one pinned image**, `PLAYWRIGHT_IMAGE` from
+`design-baseline/testing/docker` (`mcr.microsoft.com/playwright:v1.63.0-noble`,
+the version `@playwright/test` is pinned to exactly). The screenshot config calls
+`assertInPlaywrightImage()`, so a host run refuses. `npm run screenshots`
+compares and prints the HTML report path (expected / actual / diff per failure);
+`npm run screenshots:update` regenerates after an intended visual change, and the
+new PNGs are reviewed in the PR diff. Both run through the package's
+`design-baseline-playwright` bin, which runs any command in that image with the
+project mounted; CI's `screenshots` job runs in the same image. A consumer
+reuses the image, the bin and the device projects rather than inventing its own
+(`docs/PACKAGE.md`, gate 3).
 
 ## Conventions
 

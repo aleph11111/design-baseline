@@ -5,6 +5,9 @@ tasks/
 gallery-dist/
 gallery-dist-dev/
 viewport-report/
+# npm run screenshots — Playwright's report and per-run diffs (baselines live in tests/screenshots/)
+playwright-report/
+test-results/
 
 # parallel-workflow scratch: /feat worktrees + dashboard capture worktree
 .worktrees/

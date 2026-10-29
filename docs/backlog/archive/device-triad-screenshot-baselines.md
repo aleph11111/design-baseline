@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-10-29'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -21,7 +21,7 @@ depends_on:
 ---
 area: tooling
 opened: 2026-10-29
-status: ready
+status: done
 value: normal
 model: opus
 depends_on: [device-triad-check-viewports]

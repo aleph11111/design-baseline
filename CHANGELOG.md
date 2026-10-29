@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.18.0
+
+- **Added:** `design-baseline/testing/docker`: `PLAYWRIGHT_VERSION` (1.63.0), `PLAYWRIGHT_IMAGE` (`mcr.microsoft.com/playwright:v1.63.0-noble`), `inPlaywrightImage()` and `assertInPlaywrightImage()`. The assert throws outside that image, or when the installed Playwright version is not exactly that one.
+- **Added:** the `design-baseline-playwright` bin. `npx design-baseline-playwright <command>` runs any command inside the pinned image, with the project mounted and a Linux `node_modules` kept on a named volume.
+- **Donor:** pixel baselines for every `kind: "page"` archetype at the device triad, 45 PNGs under `tests/screenshots/`. `npm run screenshots` compares them and `npm run screenshots:update` regenerates them, both only inside the image. CI gains a `screenshots` job in the same image. `@playwright/test` and `playwright-core` are pinned exactly.
+- **Consumer:** to add gate 3, follow `docs/PACKAGE.md` "Gate 3 setup": pin `@playwright/test` exactly, use `playwrightProjects` plus `assertInPlaywrightImage()`, and run through `npx design-baseline-playwright`. No change is needed otherwise.
+- **Breaking:** no.
+
 ## v0.17.0
 
 - **Changed (consumer-visible):** phones are touch by default. An `AppShell` (or `ControlDensityProvider`) with no `density` prop resolves to touch below `md`, so on phones every control without an explicit size takes the 44pt `lg` step. Desktop renders are unchanged. An explicit `density` wins at every width.

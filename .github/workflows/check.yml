@@ -32,3 +32,17 @@ jobs:
       - run: npm run check:viewports
         env:
           CHROME_PATH: /usr/bin/google-chrome
+
+  # Pixel baselines (tests/screenshots/), compared inside the same pinned image
+  # `npm run screenshots` uses locally — PLAYWRIGHT_IMAGE in src/testing/docker.mjs
+  # (src/testing/docker.test.ts fails if this tag drifts from it).
+  screenshots:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: npm ci
+      - run: npm run gallery:build
+      - run: npx playwright test

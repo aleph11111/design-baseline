@@ -317,7 +317,7 @@ drift. The contract a project takes on with the package, in mechanical order:
 |------|---------|-----------|------|
 | 1. Types | wrong props, wrong variants | vendored `.d.ts` / package types, `tsc --noEmit` | on save / CI |
 | 2. Adherence lint | surface choice (every page renders one `kind: "page"` archetype shell, never `PageFrame` alone — the `pageShell` rule below), literal Tailwind palette classes, weak focus rings, raw `<h1>`/`<table>`/`<button>`/`<input>`/`<select>`/`<textarea>`, inline figure formatting (`no-inline-number-format` — figures route through `formatFigure`, `design-baseline/lib/format`) | `scripts/lint-design.mjs` (zero-dep scan, tag + regex rules in `_adherence.json`) | pre-commit + CI |
-| 3. Visual baselines | drift the linter can't see (spacing, chrome, states) | Playwright `toHaveScreenshot()` per archetype page, at each device of the triad — `projects: playwrightProjects` from `design-baseline/testing/devices` (`desk27` 2560x1440, `laptop14` 1512x982 @2x, `phone` 390x844 @3x touch; STYLE.md "The device triad"), never a hand-typed viewport | CI |
+| 3. Visual baselines | drift the linter can't see (spacing, chrome, states) | Playwright `toHaveScreenshot()` per archetype page, at each device of the triad — `projects: playwrightProjects` from `design-baseline/testing/devices` (`desk27` 2560x1440, `laptop14` 1512x982 @2x, `phone` 390x844 @3x touch; STYLE.md "The device triad"), never a hand-typed viewport — rendered only inside the pinned image (`design-baseline/testing/docker`, run through `npx design-baseline-playwright`; setup below) | CI |
 | 4. Review against docs | which shell fits (the lint only proves one is used), placement, navigation model | `SURFACES.md` + `PLACEMENT.md` + `CHOOSING-A-SURFACE.md` as the review checklist | PR review |
 
 Gates 1–3 are mechanical; gate 4 is human but checklist-driven. A rule that lives
@@ -326,6 +326,38 @@ into the lint config (gate 2) or a snapshot (gate 3) — so it stops costing
 review attention. The two-way feedback loop that feeds gate 2 (project scars
 upstream, donor changes downstream) is documented in
 [`docs/PROMOTION-RADAR.md`](PROMOTION-RADAR.md).
+
+### Gate 3 setup — screenshot baselines in the pinned image
+
+Baselines are only comparable when every machine renders in the same image, so
+a consumer takes the image, the device projects and the runner from the package:
+
+1. Pin Playwright to the image's version exactly:
+   `npm install --save-dev --save-exact @playwright/test@<PLAYWRIGHT_VERSION>`
+   (`PLAYWRIGHT_VERSION` in `design-baseline/testing/docker`; v0.18.0 ships 1.63.0).
+2. In `playwright.config`:
+   ```ts
+   import { defineConfig } from "@playwright/test";
+   import { playwrightProjects } from "design-baseline/testing/devices";
+   import { assertInPlaywrightImage } from "design-baseline/testing/docker";
+   assertInPlaywrightImage(); // a host run refuses instead of writing host pixels
+   export default defineConfig({
+     projects: playwrightProjects.map(({ name, use }) => ({ name, use: { ...use } })),
+     expect: { toHaveScreenshot: { scale: "css", animations: "disabled" } },
+     // testDir, webServer, baseURL: the app's own
+   });
+   ```
+3. Run every screenshot command through the image:
+   `npx design-baseline-playwright npx playwright test` (add `--update-snapshots`
+   to regenerate). The bin mounts the project at `/work` and keeps a Linux
+   `node_modules` on a named volume (`npm ci` when `package-lock.json` changes).
+4. In CI, run the job in `container: image: <PLAYWRIGHT_IMAGE>`; the donor's
+   `.github/workflows/check.yml` `screenshots` job is the reference.
+
+The donor itself runs this exact setup (`playwright.config.mjs`,
+`npm run screenshots`). Bumping Playwright is a donor version bump: the image tag,
+the exact pins and the CI job move together (`src/testing/docker.test.ts` fails
+if they drift).
 
 ### The page-shape rule (`pageShell`)
 
