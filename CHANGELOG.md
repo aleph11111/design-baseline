@@ -2,6 +2,16 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.19.0
+
+- **Added:** `design-baseline/testing/invariants`, the `check:viewports` layout invariants as a Playwright helper.
+  - `assertPageInvariants(page, device, options?)` throws, listing every failure, and returns the known-gap warnings. `checkPageInvariants` returns `{ failures, knownGaps }`. `TAP_TARGET_MIN` is 44.
+  - The checks: no sideways scroll; nothing cut off at the viewport edge; one-row desktop toolbar; phone filters in the filter sheet; phone nav (BottomNav or sidebar sheet); 44pt phone tap targets; and the edge-tap overlap probe. With the options `column` / `fullBleed` it also checks the content column.
+  - Each problem carries a code (`overflow`, `clipped`, `column`, `fullBleed`, `toolbarRows`, `phoneToolbar`, `phoneNav`, `tapTargets`, `tapOverlap`). `options.knownGaps: { <code>: "<ticket-slug>" }` downgrades that code to a reported warning.
+- **Donor:** `check:viewports` now calls the export, so there is one implementation. Its results are unchanged.
+- **Consumer:** in your Playwright suite, call `await assertPageInvariants(page, devices.<name>)` per page and device, after the page settles (`docs/PACKAGE.md` gate 3). Don't port the checks.
+- **Breaking:** no.
+
 ## v0.18.0
 
 - **Added:** `design-baseline/testing/docker`: `PLAYWRIGHT_VERSION` (1.63.0), `PLAYWRIGHT_IMAGE` (`mcr.microsoft.com/playwright:v1.63.0-noble`), `inPlaywrightImage()` and `assertInPlaywrightImage()`. The assert throws outside that image, or when the installed Playwright version is not exactly that one.

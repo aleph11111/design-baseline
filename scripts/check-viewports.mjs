@@ -11,6 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
 import { devices } from "../src/testing/devices.mjs";
+import { checkPageInvariants } from "../src/testing/invariants.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = path.join(ROOT, "gallery-dist");
@@ -34,10 +35,10 @@ const STEPS = [
   { label: "1903 (1920 minus scrollbar)", width: 1903, want: 1440 },
   { label: "1920 sidebar collapsed", width: 1920, want: 1440, collapse: true },
 ];
-const TAP = 44;
-// Invariants that fail donor-wide for a known, ticketed reason. Each still runs
-// and prints on every run and in the contact sheet, as a warning naming its
-// ticket; delete the entry when the ticket ships so the invariant fails again.
+// Invariant codes that fail donor-wide for a known, ticketed reason
+// (code → ticket slug). Each still runs and prints on every run and in the
+// contact sheet, as a warning naming its ticket; delete the entry when the
+// ticket ships so the invariant fails again.
 const KNOWN_GAPS = {};
 
 const server = http.createServer((req, res) => {
@@ -54,14 +55,13 @@ const browser = await chromium.launch({ executablePath: CHROME });
 const failures = [];
 const total = PAGES.length * Object.keys(devices).length + STEPS.length;
 let n = 0;
-const gapOf = (p) => KNOWN_GAPS[p.split(":")[0]];
-const report = (label, problems) => {
+const report = (label, { failures: bad, knownGaps: warn }) => {
   n++;
-  const ok = problems.every(gapOf);
-  const lines = problems.map((p) => (gapOf(p) ? `known gap (${gapOf(p)}): ${p}` : p));
-  console.log(`[${new Date().toTimeString().slice(0, 8)}] ${n}/${total} ${ok ? (problems.length ? "warn" : "ok  ") : "FAIL"} ${label}${lines.length ? `\n      - ${lines.join("\n      - ")}` : ""}`);
-  if (!ok) failures.push(label);
+  const lines = [...bad, ...warn];
+  console.log(`[${new Date().toTimeString().slice(0, 8)}] ${n}/${total} ${bad.length ? "FAIL" : warn.length ? "warn" : "ok  "} ${label}${lines.length ? `\n      - ${lines.join("\n      - ")}` : ""}`);
+  if (bad.length) failures.push(label);
 };
+const fail = (message) => ({ failures: [message], knownGaps: [] });
 console.log(`viewports check: ${PAGES.length} pages x ${Object.keys(devices).length} devices + ${STEPS.length} column steps against ${DIST} (Chrome: ${CHROME})`);
 
 const open = async (slug, device) => {
@@ -76,130 +76,6 @@ const open = async (slug, device) => {
   return { ctx, page };
 };
 
-// Everything here runs in the page; it returns one problem string per breach.
-const measure = (page, { mobile, column, fullBleed }) =>
-  page.evaluate(({ mobile, column, fullBleed, TAP }) => {
-    const problems = [];
-    const W = window.innerWidth;
-    const visible = (el) => {
-      const r = el.getBoundingClientRect();
-      if (r.width === 0 || r.height === 0) return false;
-      const s = getComputedStyle(el);
-      return s.visibility !== "hidden" && s.display !== "none" && !el.closest("[aria-hidden=true],[inert]");
-    };
-    const describe = (el) => {
-      const label = el.getAttribute("aria-label") || el.textContent.trim().replace(/\s+/g, " ").slice(0, 40);
-      return `<${el.tagName.toLowerCase()}${label ? ` "${label}"` : ""}>`;
-    };
-
-    const sw = document.documentElement.scrollWidth;
-    if (sw > W) problems.push(`page scrolls sideways: scrollWidth ${sw}px > ${W}px`);
-
-    // An element past the viewport edge that no scroll container holds, and
-    // no ancestor clips back inside the viewport, is cut off for the user.
-    const clipped = [];
-    for (const el of document.body.querySelectorAll("*")) {
-      const r = el.getBoundingClientRect();
-      if (r.right <= W + 1 && r.left >= -1) continue;
-      if (!visible(el)) continue;
-      let lo = -Infinity, hi = Infinity, scrolls = false;
-      for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
-        const ox = getComputedStyle(a).overflowX;
-        if (ox === "auto" || ox === "scroll") { scrolls = true; break; }
-        if (ox === "hidden" || ox === "clip") {
-          const ar = a.getBoundingClientRect();
-          lo = Math.max(lo, ar.left);
-          hi = Math.min(hi, ar.right);
-        }
-      }
-      if (scrolls) continue;
-      if (Math.min(r.right, hi) > W + 1 || Math.max(r.left, lo) < -1) {
-        // report the outermost offender only, not every child inside it
-        if (!clipped.some((c) => c.contains(el))) clipped.push(el);
-      }
-    }
-    for (const el of clipped.slice(0, 5)) {
-      const r = el.getBoundingClientRect();
-      problems.push(`${describe(el)} cut off at the viewport edge (${Math.round(r.left)}..${Math.round(r.right)}px of ${W}px)`);
-    }
-
-    const marked = !!document.querySelector(".db-full-bleed");
-    if (fullBleed && !marked) problems.push("full-bleed archetype lost its .db-full-bleed marker");
-    if (!fullBleed && marked) problems.push("carries .db-full-bleed but is not in the full-bleed set (ADR-0007)");
-    const col = document.querySelector(".db-content-column");
-    if (column && col) {
-      const w = Math.round(col.getBoundingClientRect().width);
-      const max = getComputedStyle(col).maxWidth;
-      if (fullBleed ? max !== "none" : w !== column)
-        problems.push(fullBleed ? `full-bleed column max-width ${max}, want none` : `content column ${w}px, want ${column}px`);
-    }
-
-    const bands = [...document.querySelectorAll("[data-toolbar-band],[data-slot=settings-table-band]")].filter(visible);
-    for (const band of bands) {
-      if (!mobile) {
-        const tops = [...band.querySelectorAll("button,input,select,[role=combobox],[role=radiogroup]")]
-          .filter(visible)
-          .map((el) => { const r = el.getBoundingClientRect(); return { top: r.top, bottom: r.bottom }; });
-        if (tops.length && Math.min(...tops.map((t) => t.bottom)) <= Math.max(...tops.map((t) => t.top)))
-          problems.push("desktop toolbar wraps onto more than one row");
-      } else if ([...band.querySelectorAll("[data-joined-label]")].some(visible)) {
-        problems.push("phone toolbar shows filter fields inline instead of in the filter sheet");
-      }
-    }
-
-    if (mobile) {
-      const bottomNav = [...document.querySelectorAll("nav")].some((nav) => visible(nav) && getComputedStyle(nav).position === "fixed");
-      const trigger = [...document.querySelectorAll("[data-sidebar=trigger]")].some(visible);
-      const desktopSidebar = [...document.querySelectorAll("[data-sidebar=sidebar]:not([data-mobile])")].some(visible);
-      if (!bottomNav && !trigger) problems.push("phone has no navigation: neither a BottomNav nor a sidebar trigger");
-      if (desktopSidebar) problems.push("phone shows the desktop sidebar instead of the sidebar sheet");
-
-      const TARGETS = "button,a[href],input:not([type=hidden]),select,textarea,[role=button],[role=tab],[role=checkbox],[role=radio],[role=switch],[role=combobox],[role=menuitem]";
-      const small = [];
-      const stolen = [];
-      for (const el of document.querySelectorAll(TARGETS)) {
-        if (!visible(el) || el.closest("[role=dialog]")) continue;
-        // A tap inside a target's visible box must reach that target: a
-        // neighbour's hit area (a TOUCH_TARGET_CLASS overhang) must not cover
-        // its edges. Probed 1px inside each edge, clipped to viewport and
-        // overflow ancestors.
-        let b = el.getBoundingClientRect();
-        let [x0, y0, x1, y1] = [Math.max(b.left, 0), Math.max(b.top, 0), Math.min(b.right, W), Math.min(b.bottom, window.innerHeight)];
-        for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
-          if (getComputedStyle(a).overflow === "visible") continue;
-          const ar = a.getBoundingClientRect();
-          [x0, y0, x1, y1] = [Math.max(x0, ar.left), Math.max(y0, ar.top), Math.min(x1, ar.right), Math.min(y1, ar.bottom)];
-        }
-        if (x1 - x0 > 2 && y1 - y0 > 2) {
-          const [cx, cy] = [(x0 + x1) / 2, (y0 + y1) / 2];
-          for (const [x, y] of [[x0 + 1, cy], [x1 - 1, cy], [cx, y0 + 1], [cx, y1 - 1]]) {
-            const other = document.elementFromPoint(x, y)?.closest(TARGETS);
-            if (other && other !== el && !el.contains(other) && !other.contains(el)) {
-              stolen.push(`${describe(el)} edge tap reaches ${describe(other)}`);
-              break;
-            }
-          }
-        }
-        // a link inside running text is exempt (WCAG 2.5.8 inline exception)
-        if (el.tagName === "A" && getComputedStyle(el).display === "inline") continue;
-        // a control wrapped in its own larger hit area (a label) counts at that size
-        const r = el.getBoundingClientRect();
-        const lr = el.closest("label")?.getBoundingClientRect() ?? r;
-        let w = Math.max(r.width, lr.width), h = Math.max(r.height, lr.height);
-        // TOUCH_TARGET_CLASS: an absolutely positioned ::after is the hit area around a smaller box
-        const after = getComputedStyle(el, "::after");
-        if (after.content !== "none" && after.position === "absolute") {
-          w = Math.max(w, parseFloat(after.width) || 0);
-          h = Math.max(h, parseFloat(after.height) || 0);
-        }
-        if (h < TAP - 0.5 || w < TAP - 0.5) small.push(`${describe(el)} ${Math.round(w)}x${Math.round(h)}`);
-      }
-      if (small.length) problems.push(`tapTargets: ${small.length} tap target(s) under ${TAP}px: ${small.slice(0, 6).join(", ")}${small.length > 6 ? ", ..." : ""}`);
-      if (stolen.length) problems.push(`tapOverlap: ${stolen.length} target(s) whose edge tap reaches a neighbour: ${stolen.slice(0, 4).join(", ")}${stolen.length > 4 ? ", ..." : ""}`);
-    }
-    return [...new Set(problems)];
-  }, { mobile, column, fullBleed, TAP });
-
 const shots = [];
 for (const slug of PAGES) {
   for (const [name, device] of Object.entries(devices)) {
@@ -208,13 +84,13 @@ for (const slug of PAGES) {
     try {
       let page;
       ({ ctx, page } = await open(slug, device));
-      const problems = await measure(page, { mobile: device.isMobile, column: COLUMN[name], fullBleed: FULL_BLEED.includes(slug) });
+      const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: COLUMN[name], fullBleed: FULL_BLEED.includes(slug) });
       const file = `${slug}--${name}.jpg`;
       await page.screenshot({ path: path.join(OUT, file), type: "jpeg", quality: 70, scale: "css" });
-      shots.push({ slug, name, file, problems });
-      report(label, problems);
+      shots.push({ slug, name, file, problems: [...result.failures, ...result.knownGaps] });
+      report(label, result);
     } catch (e) {
-      report(label, [e.message.split("\n")[0]]);
+      report(label, fail(e.message.split("\n")[0]));
     } finally {
       await ctx?.close();
     }
@@ -234,9 +110,9 @@ for (const s of STEPS) {
       await page.waitForTimeout(400); // sidebar width transition
     }
     const w = await page.$eval(".db-content-column", (el) => Math.round(el.getBoundingClientRect().width));
-    report(label, w === s.want ? [] : [`${w}px, want ${s.want}px`]);
+    report(label, w === s.want ? { failures: [], knownGaps: [] } : fail(`column: ${w}px, want ${s.want}px`));
   } catch (e) {
-    report(label, [e.message.split("\n")[0]]);
+    report(label, fail(e.message.split("\n")[0]));
   } finally {
     await page.close();
   }
