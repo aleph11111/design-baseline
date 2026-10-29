@@ -58,7 +58,7 @@ export function SurfaceFrame({
   const nested = React.useContext(RaisedSurfaceContext);
   const body = (
     <>
-      {toolbar != null && <div className="border-b px-4 py-3">{toolbar}</div>}
+      {toolbar != null && <div data-toolbar-band="" className="border-b px-4 py-3">{toolbar}</div>}
       {children}
     </>
   );
