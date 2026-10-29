@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-10-29'
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "cause not established — the nondeterministic phone render source must be diagnosed from CI diffs before it can be fixed"
