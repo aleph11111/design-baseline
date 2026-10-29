@@ -5,8 +5,10 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 ## v0.17.0
 
 - **Changed (consumer-visible):** phones are touch by default. An `AppShell` (or `ControlDensityProvider`) with no `density` prop resolves to touch below `md`, so on phones every control without an explicit size takes the 44pt `lg` step. Desktop renders are unchanged. An explicit `density` wins at every width.
-- **Added:** `TOUCH_TARGET_CLASS` / `useTouchTarget()` (`design-baseline/ui/toolbar-band`). Under touch density this is a centred hit area of at least 44pt, an `::after`, around a box that keeps its size. It is applied to `Checkbox`, `Switch`, `Button` (so a className-shrunk `h-8` row-actions trigger still gets a 44pt target), segmented pills, tab triggers, `CollapsibleTrigger`, clickable matrix cells, list-with-detail's sortable headers and `PageHeader`'s back link. `SidebarTrigger` drops its 28px size under touch and becomes a 44pt icon button.
-- **Donor:** `check:viewports` now enforces 44pt phone tap targets. The `KNOWN_GAPS` entry is gone, and all 15 page archetypes pass at all three devices.
+- **Added:** `TOUCH_TARGET_CLASS` / `useTouchTarget()` (`design-baseline/ui/toolbar-band`). Under touch density this is a centred hit area of at least 44pt, an `::after`, around a box that keeps its size. It is applied to `Checkbox`, `Switch`, `Button` (so a className-shrunk `h-8` row-actions trigger still gets a 44pt target), `CollapsibleTrigger`, list-with-detail's sortable headers and `PageHeader`'s back link.
+- **Added:** `TOUCH_TARGET_ROW_CLASS`, for flush siblings. Segmented pills and tab triggers get a real 44pt minimum width and a vertical-only hit area, so an edge tap never selects the neighbouring option.
+- **Changed:** under touch, clickable matrix cells get a real 44pt height instead of an overlapping hit area. `SidebarTrigger` drops its 28px size and becomes a 44pt icon button.
+- **Donor:** `check:viewports` now enforces 44pt phone tap targets. The `KNOWN_GAPS` entry is gone. A new edge-tap probe (`elementFromPoint` 1px inside each edge) fails when a tap reaches a neighbour's hit area. All 15 page archetypes pass at all three devices.
 - **Consumer:** after re-pinning, check your phone screens; controls are taller. To keep the old 36px phone controls, pass `density="default"` to `AppShell`. Give your own small tap targets `useTouchTarget()`.
 - **Breaking:** no API change. Phone layouts change visually.
 
