@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { useIsMobile } from "../../hooks/use-mobile";
 
 /**
  * True inside `PageFrame`'s toolbar band. A labeled field (SelectField,
@@ -49,16 +50,22 @@ export const ToolbarSizeContext = React.createContext<"lg" | undefined>(undefine
  */
 const ControlDensityContext = React.createContext<"lg" | undefined>(undefined);
 
-/** Sets the app's control density. `"touch"` resolves the default step to `lg`; `"default"` is a no-op. */
+/**
+ * Sets the app's control density. `"touch"` resolves the default step to `lg`;
+ * `"default"` is a no-op. Unset, it follows the viewport: touch below `md` (a
+ * phone is a deliverable device, STYLE.md "App touch density"), default above.
+ */
 export function ControlDensityProvider({
-  density = "default",
+  density,
   children,
 }: {
   density?: "default" | "touch";
   children: React.ReactNode;
 }): React.ReactElement {
+  const isMobile = useIsMobile();
+  const touch = (density ?? (isMobile ? "touch" : "default")) === "touch";
   return (
-    <ControlDensityContext.Provider value={density === "touch" ? "lg" : undefined}>
+    <ControlDensityContext.Provider value={touch ? "lg" : undefined}>
       {children}
     </ControlDensityContext.Provider>
   );
@@ -67,6 +74,29 @@ export function ControlDensityProvider({
 /** App density alone (no band step) — for primitives that predate the band context and must not resize in the filter sheet. */
 export function useAppDensity(): "lg" | undefined {
   return React.useContext(ControlDensityContext);
+}
+
+/**
+ * A centred hit area of at least 44pt around a box that stays its own size (a
+ * 16px checkbox, a 24px switch), as an absolutely positioned `::after`. Put it
+ * before a caller's `className`, so a caller's own position wins. Only for a
+ * target with no flush neighbour of its own kind — the overhang would steal
+ * that neighbour's edge taps; flush targets (grid cells) get a real 44pt box.
+ */
+export const TOUCH_TARGET_CLASS =
+  "relative after:absolute after:left-1/2 after:top-1/2 after:size-full after:min-h-11 after:min-w-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']";
+
+/**
+ * For a target in a row of flush siblings (segmented pills, tab triggers): a
+ * real 44pt minimum width, and a hit area that grows only vertically, into the
+ * rail's padding, never into the next sibling.
+ */
+export const TOUCH_TARGET_ROW_CLASS =
+  "relative min-w-11 after:absolute after:inset-x-0 after:top-1/2 after:h-full after:min-h-11 after:-translate-y-1/2 after:content-['']";
+
+/** `TOUCH_TARGET_CLASS` under touch density, else nothing (STYLE.md "App touch density"). */
+export function useTouchTarget(): string | undefined {
+  return useAppDensity() === "lg" ? TOUCH_TARGET_CLASS : undefined;
 }
 
 /**

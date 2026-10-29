@@ -7,7 +7,9 @@ import { Tabs, TabsList, TabsTrigger } from "./tabs";
 import { SegmentedControl } from "./segmented-control";
 import { Select, SelectTrigger, SelectValue } from "./select";
 import { ToggleField } from "./toggle-field";
-import { ControlDensityProvider, OutsideToolbarBand, ToolbarBandContext, ToolbarSizeContext } from "./toolbar-band";
+import { Checkbox } from "./checkbox";
+import { Switch } from "./switch";
+import { ControlDensityProvider, OutsideToolbarBand, TOUCH_TARGET_CLASS, ToolbarBandContext, ToolbarSizeContext } from "./toolbar-band";
 
 afterEach(cleanup);
 
@@ -82,6 +84,75 @@ describe("app control density", () => {
     expect(cls(screen.getByRole("button", { name: /clear/i }))).toContain("h-11");
     expect(cls(screen.getByRole("switch"))).toContain("h-11");
     expect(screen.getByRole("radiogroup").outerHTML).toContain("h-11");
+  });
+
+  describe("unset density follows the viewport", () => {
+    const original = { mm: window.matchMedia, w: window.innerWidth };
+    const viewport = (width: number) => {
+      window.innerWidth = width;
+      // useIsMobile asks `(max-width: 767px)`
+      window.matchMedia = ((query: string) => ({
+        matches: width < 768 && /max-width/.test(query),
+        media: query,
+        onchange: null,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
+        dispatchEvent: () => false,
+      })) as typeof window.matchMedia;
+    };
+    afterEach(() => {
+      window.matchMedia = original.mm;
+      window.innerWidth = original.w;
+    });
+
+    it("is touch on a phone", () => {
+      viewport(390);
+      render(
+        <ControlDensityProvider>
+          <Button>btn</Button>
+          <Checkbox aria-label="row" />
+          <Switch aria-label="on" />
+        </ControlDensityProvider>,
+      );
+      expect(cls(screen.getByText("btn"))).toContain("h-11");
+      // 44pt hit areas around boxes that keep their size
+      expect(cls(screen.getByLabelText("row"))).toContain("h-4");
+      expect(cls(screen.getByLabelText("row"))).toContain(TOUCH_TARGET_CLASS);
+      expect(cls(screen.getByLabelText("on"))).toContain(TOUCH_TARGET_CLASS);
+    });
+
+    it("stays default on a laptop", () => {
+      viewport(1512);
+      render(
+        <ControlDensityProvider>
+          <Button>btn</Button>
+          <Checkbox aria-label="row" />
+        </ControlDensityProvider>,
+      );
+      expect(cls(screen.getByText("btn"))).toContain("h-9");
+      expect(cls(screen.getByText("btn"))).not.toContain("after:");
+      expect(cls(screen.getByLabelText("row"))).not.toContain("after:");
+    });
+
+    it("explicit density wins at both widths", () => {
+      viewport(390);
+      render(
+        <ControlDensityProvider density="default">
+          <Button>phone-opt-out</Button>
+        </ControlDensityProvider>,
+      );
+      expect(cls(screen.getByText("phone-opt-out"))).toContain("h-9");
+      cleanup();
+      viewport(1512);
+      render(
+        <ControlDensityProvider density="touch">
+          <Button>desk-touch</Button>
+        </ControlDensityProvider>,
+      );
+      expect(cls(screen.getByText("desk-touch"))).toContain("h-11");
+    });
   });
 
   it("persists across overlays (OutsideToolbarBand)", () => {

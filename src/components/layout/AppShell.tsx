@@ -18,7 +18,9 @@ export interface AppShellProps {
   toaster?: boolean;
   /**
    * `"touch"` resolves every control that takes no explicit `size` to the `lg`
-   * step (44pt) across the whole app, overlays included. Defaults to `"default"`.
+   * step (44pt) across the whole app, overlays included. Unset, phones (below
+   * `md`) get `"touch"` and wider viewports `"default"`; pass `"default"` to
+   * keep the 36px step on phones too.
    */
   density?: "default" | "touch";
 }
@@ -29,7 +31,7 @@ export function AppShell({
   children,
   defaultSidebarOpen = true,
   toaster = true,
-  density = "default",
+  density,
 }: AppShellProps) {
   // Publish the sticky header slot's height as --db-sticky-top, so page-level
   // sticky elements (the detail-overview rail) pin just below it rather than

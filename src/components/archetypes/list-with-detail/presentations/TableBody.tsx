@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "../../../ui/table";
 import { cn } from "../../../../lib/utils";
+import { useTouchTarget } from "../../../ui/toolbar-band";
 import { RowActionsMenu, alignClass, hideBelowClass, identifierCell } from "../../shared";
 import type { RowAction } from "../../shared";
 import type { ListColumn, SortDirection } from "../ListWithDetailShell";
@@ -74,6 +75,7 @@ export function TableBody<Row>({
   onRowSelect,
 }: TableBodyProps<Row>): React.ReactElement {
   const L = useLabels();
+  const touchTarget = useTouchTarget();
   const hasActions = rowActions !== undefined && rowActions.length > 0;
 
   function handleSortClick(columnKey: string) {
@@ -116,7 +118,7 @@ export function TableBody<Row>({
                   // header cell, where assistive tech reads it.
                   <button
                     type="button"
-                    className="flex cursor-pointer select-none items-center gap-2 rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className={cn("flex cursor-pointer select-none items-center gap-2 rounded hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2", touchTarget)}
                     onClick={() => handleSortClick(col.key)}
                   >
                     {col.header}

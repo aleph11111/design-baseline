@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: '2026-10-29'
-status: ready
+status: done
 gate:
   score: 5
   passed:
@@ -24,7 +24,7 @@ depends_on:
 ---
 area: ui
 opened: 2026-10-29
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "design is the deliverable — density default policy (auto below md vs consumer opt-in) changes the shell contract every consumer inherits"

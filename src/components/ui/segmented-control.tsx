@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { cn } from "../../lib/utils";
-import { FIXED_BOX_LABEL_CLASS, JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useControlSize } from "./toolbar-band";
+import { FIXED_BOX_LABEL_CLASS, JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, TOUCH_TARGET_ROW_CLASS, useAppDensity, useControlSize } from "./toolbar-band";
 
 export type SegmentedOption<T extends string> = {
   value: T;
@@ -66,6 +66,8 @@ export function SegmentedControl<T extends string>({
   const size = sizeProp ?? bandSize ?? "default";
   const geometry = SIZE[size];
   const fixed = label != null && hasWidthClass(className);
+  // touch density: pills are flush, so each gets a 44pt width and a vertical-only hit area
+  const touchTarget = useAppDensity() === "lg" ? TOUCH_TARGET_ROW_CLASS : undefined;
   return (
     <RadioGroupPrimitive.Root
       value={value}
@@ -104,6 +106,7 @@ export function SegmentedControl<T extends string>({
               "inline-flex items-center gap-1.5 rounded font-medium transition-colors",
               label != null && "whitespace-nowrap",
               geometry.pill,
+              touchTarget,
               active
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground",

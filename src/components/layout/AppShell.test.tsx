@@ -96,16 +96,28 @@ describe("AppShell toaster", () => {
 });
 
 describe("AppShell density", () => {
-  const shell = (density?: "touch") =>
+  const shell = (density?: "touch" | "default") =>
     render(
       <AppShell sidebar={<nav />} header={<header />} density={density}>
         <Button>go</Button>
       </AppShell>,
     ).getByText("go").className;
 
-  it("touch resolves unsized controls to h-11; default leaves h-9", () => {
+  it("touch resolves unsized controls to h-11; unset on a desk leaves h-9", () => {
     expect(shell("touch")).toContain("h-11");
     cleanup();
     expect(shell()).toContain("h-9");
+  });
+
+  it("unset is touch on a phone; density=\"default\" opts out", () => {
+    const width = window.innerWidth;
+    window.innerWidth = 390; // useIsMobile reads innerWidth after mount
+    try {
+      expect(shell()).toContain("h-11");
+      cleanup();
+      expect(shell("default")).toContain("h-9");
+    } finally {
+      window.innerWidth = width;
+    }
   });
 });
