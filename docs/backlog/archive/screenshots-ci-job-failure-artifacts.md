@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-10-29'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "one pinned upload-artifact step in check.yml; pattern and report paths already established"

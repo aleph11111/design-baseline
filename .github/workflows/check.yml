@@ -46,3 +46,11 @@ jobs:
       - run: npm ci
       - run: npm run gallery:build
       - run: npx playwright test
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: failure()
+        with:
+          name: screenshot-diffs
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
