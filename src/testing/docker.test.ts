@@ -1,9 +1,11 @@
 import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 // through the package's own export, as a consumer imports it
 import { PLAYWRIGHT_IMAGE, PLAYWRIGHT_VERSION, assertInPlaywrightImage } from "design-baseline/testing/docker";
 
-const read = (p: string) => fs.readFileSync(new URL(`../../${p}`, import.meta.url), "utf8");
+// vitest runs from the repo root; jsdom's import.meta.url is not a file URL
+const read = (p: string) => fs.readFileSync(path.join(process.cwd(), p), "utf8");
 
 describe("pinned Playwright image", () => {
   it("is the image of the pinned Playwright version", () => {
