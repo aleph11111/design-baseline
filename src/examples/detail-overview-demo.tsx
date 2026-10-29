@@ -461,7 +461,7 @@ export function DetailOverviewDemo(): React.ReactElement {
                   <li key={d.name}>
                     <a
                       href="#"
-                      className="flex items-center gap-2.5 rounded-md border border-border bg-card px-2.5 py-2 hover:bg-accent"
+                      className="flex items-center gap-2.5 rounded-md border border-border bg-card px-2.5 py-2 hover:bg-accent max-md:min-h-11"
                     >
                       <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
                       <span className="flex-1 truncate text-[11.5px] font-medium text-foreground">

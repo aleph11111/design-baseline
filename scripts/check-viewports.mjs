@@ -160,15 +160,14 @@ const measure = (page, { mobile, column, fullBleed }) =>
         // a link inside running text is exempt (WCAG 2.5.8 inline exception)
         if (el.tagName === "A" && getComputedStyle(el).display === "inline") continue;
         // a control wrapped in its own larger hit area (a label) counts at that size
-        const hit = el.closest("label") ?? el;
-        const r = hit.getBoundingClientRect();
-        let w = r.width, h = r.height;
-        // an absolutely positioned ::after that overhangs the box widens the hit area (Checkbox under touch)
-        const after = getComputedStyle(hit, "::after");
+        const r = el.getBoundingClientRect();
+        const lr = el.closest("label")?.getBoundingClientRect() ?? r;
+        let w = Math.max(r.width, lr.width), h = Math.max(r.height, lr.height);
+        // TOUCH_TARGET_CLASS: an absolutely positioned ::after is the hit area around a smaller box
+        const after = getComputedStyle(el, "::after");
         if (after.content !== "none" && after.position === "absolute") {
-          const px = (v) => -Math.min(0, parseFloat(v) || 0);
-          w += px(after.left) + px(after.right);
-          h += px(after.top) + px(after.bottom);
+          w = Math.max(w, parseFloat(after.width) || 0);
+          h = Math.max(h, parseFloat(after.height) || 0);
         }
         if (h < TAP - 0.5 || w < TAP - 0.5) small.push(`${describe(el)} ${Math.round(w)}x${Math.round(h)}`);
       }

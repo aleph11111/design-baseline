@@ -77,6 +77,19 @@ export function useAppDensity(): "lg" | undefined {
 }
 
 /**
+ * A centred hit area of at least 44pt around a box that stays its own size (a
+ * 16px checkbox, a 24px switch, a 37px grid cell), as an absolutely positioned
+ * `::after`. Put it before a caller's `className`, so a caller's own position wins.
+ */
+export const TOUCH_TARGET_CLASS =
+  "relative after:absolute after:left-1/2 after:top-1/2 after:size-full after:min-h-11 after:min-w-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']";
+
+/** `TOUCH_TARGET_CLASS` under touch density, else nothing (STYLE.md "App touch density"). */
+export function useTouchTarget(): string | undefined {
+  return useAppDensity() === "lg" ? TOUCH_TARGET_CLASS : undefined;
+}
+
+/**
  * The step a control takes when it has no explicit `size`: the band's step,
  * else the app density's, else `undefined` (the control's own default).
  */

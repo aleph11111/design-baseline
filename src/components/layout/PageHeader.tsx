@@ -3,6 +3,8 @@ import * as React from "react";
 import { ChevronLeft } from "lucide-react";
 import { HeadingRow } from "./HeadingRow";
 import { useLabels } from "../../lib/labels";
+import { cn } from "../../lib/utils";
+import { useTouchTarget } from "../ui/toolbar-band";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -96,6 +98,7 @@ export function PageHeader({
   className,
 }: PageHeaderProps): React.ReactElement {
   const L = useLabels();
+  const touchTarget = useTouchTarget();
   const backLabel = backLabelProp ?? L.back;
   const backLink = backHref
     ? renderBackLink
@@ -103,7 +106,7 @@ export function PageHeader({
       : (
         <a
           href={backHref}
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          className={cn("inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground", touchTarget)}
         >
           <ChevronLeft className="h-4 w-4" />
           {backLabel}
