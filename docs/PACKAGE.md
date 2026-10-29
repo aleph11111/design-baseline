@@ -327,6 +327,33 @@ review attention. The two-way feedback loop that feeds gate 2 (project scars
 upstream, donor changes downstream) is documented in
 [`docs/PROMOTION-RADAR.md`](PROMOTION-RADAR.md).
 
+### Gate 3 setup — layout invariants
+
+The donor's `check:viewports` invariants ship as `design-baseline/testing/invariants`
+— call them, never port them (STYLE.md "The device triad"):
+
+```ts
+import { test } from "@playwright/test";
+import { devices } from "design-baseline/testing/devices";
+import { assertPageInvariants } from "design-baseline/testing/invariants";
+
+test("orders page", async ({ page }, info) => {
+  await page.goto("/orders");
+  await page.waitForLoadState("networkidle");
+  // the project's device: the triad's `name` (desk27 / laptop14 / phone)
+  await assertPageInvariants(page, devices[info.project.name as keyof typeof devices], {
+    knownGaps: { tapTargets: "orders-row-actions-touch" }, // code → ticket slug; delete when it ships
+  });
+});
+```
+
+A failure throws one error listing every breach, each prefixed with its code
+(`overflow`, `clipped`, `toolbarRows`, `phoneToolbar`, `phoneNav`, `tapTargets`,
+`tapOverlap`; `column` / `fullBleed` only when those options are passed).
+`knownGaps` downgrades a code to a returned warning naming its ticket, never a
+silent pass. The check needs no image baseline, so it runs on any machine; only
+screenshot baselines need the pinned image below.
+
 ### Gate 3 setup — screenshot baselines in the pinned image
 
 Baselines are only comparable when every machine renders in the same image, so

@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-10-29
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "move existing in-page checks behind an export; behaviour unchanged, pattern set by testing/devices"

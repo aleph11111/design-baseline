@@ -713,6 +713,12 @@ that fails donor-wide for a ticketed reason sits in the script's `KNOWN_GAPS`
 with its ticket slug: it still runs and prints on every run, and the entry is
 deleted when the ticket ships.
 
+The checks themselves are one implementation, exported as
+`design-baseline/testing/invariants` (`assertPageInvariants(page, device,
+{ knownGaps })`): `check:viewports` calls it, and a consumer's Playwright suite
+calls the same function per page and device rather than porting it
+(`docs/PACKAGE.md`, gate 3).
+
 **Pixel baselines.** On top of the invariants, every `kind: "page"` archetype
 has one committed screenshot per device (`tests/screenshots/<device>/<slug>.png`,
 Playwright `toHaveScreenshot()`, CSS-pixel scale, clock pinned). Pixels differ
