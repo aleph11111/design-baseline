@@ -12,7 +12,7 @@
     "gallery:preview": "vite preview --configLoader runner",
     "gallery:view": "vite build --configLoader runner && vite preview --configLoader runner --port 5173",
     "check:viewports": "npm run gallery:build && node scripts/check-viewports.mjs",
-    "screenshots": "node bin/design-baseline-playwright.mjs sh -c 'npm run gallery:build && npx playwright test'",
+    "screenshots": "node bin/design-baseline-playwright.mjs sh -c 'npm run gallery:build && npx playwright test; rc=$?; echo \"screenshot report (expected/actual/diff): playwright-report/index.html\"; exit $rc'",
     "screenshots:update": "node bin/design-baseline-playwright.mjs sh -c 'npm run gallery:build && npx playwright test --update-snapshots'",
     "check:app-header-phone": "npm run gallery:build && node scripts/check-app-header-phone.mjs",
     "check:joined-label": "npm run gallery:build && node scripts/check-joined-label.mjs",

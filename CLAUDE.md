@@ -55,6 +55,8 @@ npm run gallery:build             # build gallery-dist/ — the static surface t
 npm run gallery:preview           # preview the built gallery
 npm run gallery:view              # gallery:build + preview on :5173
 npm run check:viewports           # gallery:build + real-Chrome check of every kind:page archetype at the device triad (desk27/laptop14/phone; layout invariants + desk-width column steps) + contact sheet at viewport-report/index.html; runs in CI
+npm run screenshots               # pixel baselines (tests/screenshots/) compared inside the pinned Playwright docker image; prints the report path; runs in CI
+npm run screenshots:update        # regenerate the baselines after an intended visual change (same image; review the PNG diff)
 npm run check:detail-sheet        # dev gallery build + real-Chrome check of list-with-detail's content-sized overlay (ADR-0010; local Chrome, not in CI)
 ```
 
