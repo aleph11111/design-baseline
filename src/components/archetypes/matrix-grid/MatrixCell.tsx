@@ -5,7 +5,7 @@ import {
   TooltipTrigger,
 } from "../../ui/tooltip";
 import { cn } from "../../../lib/utils";
-import { useTouchTarget } from "../../ui/toolbar-band";
+import { useAppDensity } from "../../ui/toolbar-band";
 import { getInteractiveRowProps, interactiveRowFocusRing } from "../shared";
 import type { MatrixCellContext } from "./MatrixGridShell";
 
@@ -49,7 +49,8 @@ export function MatrixCell<Cell>({
 }: MatrixCellProps<Cell>): React.ReactElement {
   const { isFilled: filled } = ctx;
   const clickable = activate !== undefined;
-  const touchTarget = useTouchTarget();
+  // cells are flush, so touch gets a real 44pt row height, not an overlapping hit area
+  const touch = useAppDensity() === "lg";
 
   const tooltip = style?.tooltip;
   const hasTooltip = tooltip !== undefined && tooltip !== null;
@@ -64,7 +65,7 @@ export function MatrixCell<Cell>({
         "px-2 py-2 text-center border-r border-border/60",
         clickable && "cursor-pointer select-none touch-manipulation",
         clickable && interactiveRowFocusRing,
-        clickable && touchTarget,
+        clickable && touch && "h-11",
         style?.className,
       )}
       title={isPlainTextTooltip ? String(tooltip) : undefined}

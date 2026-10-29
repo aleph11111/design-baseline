@@ -154,9 +154,32 @@ const measure = (page, { mobile, column, fullBleed }) =>
       if (!bottomNav && !trigger) problems.push("phone has no navigation: neither a BottomNav nor a sidebar trigger");
       if (desktopSidebar) problems.push("phone shows the desktop sidebar instead of the sidebar sheet");
 
+      const TARGETS = "button,a[href],input:not([type=hidden]),select,textarea,[role=button],[role=tab],[role=checkbox],[role=radio],[role=switch],[role=combobox],[role=menuitem]";
       const small = [];
-      for (const el of document.querySelectorAll("button,a[href],input:not([type=hidden]),select,textarea,[role=button],[role=tab],[role=checkbox],[role=radio],[role=switch],[role=combobox],[role=menuitem]")) {
+      const stolen = [];
+      for (const el of document.querySelectorAll(TARGETS)) {
         if (!visible(el) || el.closest("[role=dialog]")) continue;
+        // A tap inside a target's visible box must reach that target: a
+        // neighbour's hit area (a TOUCH_TARGET_CLASS overhang) must not cover
+        // its edges. Probed 1px inside each edge, clipped to viewport and
+        // overflow ancestors.
+        let b = el.getBoundingClientRect();
+        let [x0, y0, x1, y1] = [Math.max(b.left, 0), Math.max(b.top, 0), Math.min(b.right, W), Math.min(b.bottom, window.innerHeight)];
+        for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+          if (getComputedStyle(a).overflow === "visible") continue;
+          const ar = a.getBoundingClientRect();
+          [x0, y0, x1, y1] = [Math.max(x0, ar.left), Math.max(y0, ar.top), Math.min(x1, ar.right), Math.min(y1, ar.bottom)];
+        }
+        if (x1 - x0 > 2 && y1 - y0 > 2) {
+          const [cx, cy] = [(x0 + x1) / 2, (y0 + y1) / 2];
+          for (const [x, y] of [[x0 + 1, cy], [x1 - 1, cy], [cx, y0 + 1], [cx, y1 - 1]]) {
+            const other = document.elementFromPoint(x, y)?.closest(TARGETS);
+            if (other && other !== el && !el.contains(other) && !other.contains(el)) {
+              stolen.push(`${describe(el)} edge tap reaches ${describe(other)}`);
+              break;
+            }
+          }
+        }
         // a link inside running text is exempt (WCAG 2.5.8 inline exception)
         if (el.tagName === "A" && getComputedStyle(el).display === "inline") continue;
         // a control wrapped in its own larger hit area (a label) counts at that size
@@ -172,6 +195,7 @@ const measure = (page, { mobile, column, fullBleed }) =>
         if (h < TAP - 0.5 || w < TAP - 0.5) small.push(`${describe(el)} ${Math.round(w)}x${Math.round(h)}`);
       }
       if (small.length) problems.push(`tapTargets: ${small.length} tap target(s) under ${TAP}px: ${small.slice(0, 6).join(", ")}${small.length > 6 ? ", ..." : ""}`);
+      if (stolen.length) problems.push(`tapOverlap: ${stolen.length} target(s) whose edge tap reaches a neighbour: ${stolen.slice(0, 4).join(", ")}${stolen.length > 4 ? ", ..." : ""}`);
     }
     return [...new Set(problems)];
   }, { mobile, column, fullBleed, TAP });

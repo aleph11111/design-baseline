@@ -78,11 +78,21 @@ export function useAppDensity(): "lg" | undefined {
 
 /**
  * A centred hit area of at least 44pt around a box that stays its own size (a
- * 16px checkbox, a 24px switch, a 37px grid cell), as an absolutely positioned
- * `::after`. Put it before a caller's `className`, so a caller's own position wins.
+ * 16px checkbox, a 24px switch), as an absolutely positioned `::after`. Put it
+ * before a caller's `className`, so a caller's own position wins. Only for a
+ * target with no flush neighbour of its own kind — the overhang would steal
+ * that neighbour's edge taps; flush targets (grid cells) get a real 44pt box.
  */
 export const TOUCH_TARGET_CLASS =
   "relative after:absolute after:left-1/2 after:top-1/2 after:size-full after:min-h-11 after:min-w-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']";
+
+/**
+ * For a target in a row of flush siblings (segmented pills, tab triggers): a
+ * real 44pt minimum width, and a hit area that grows only vertically, into the
+ * rail's padding, never into the next sibling.
+ */
+export const TOUCH_TARGET_ROW_CLASS =
+  "relative min-w-11 after:absolute after:inset-x-0 after:top-1/2 after:h-full after:min-h-11 after:-translate-y-1/2 after:content-['']";
 
 /** `TOUCH_TARGET_CLASS` under touch density, else nothing (STYLE.md "App touch density"). */
 export function useTouchTarget(): string | undefined {
