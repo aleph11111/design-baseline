@@ -12,6 +12,9 @@ for (const { slug } of manifest.archetypes.filter((a) => a.kind === "page")) {
     await page.waitForSelector(".db-content-column h1");
     await page.waitForLoadState("networkidle");
     await page.evaluate(() => document.fonts.ready);
-    await expect(page).toHaveScreenshot(`${slug}.png`);
+    // pixel budget, not a ratio: a ratio gives the 390x844 phone only ~330 px, below CI's
+    // run-to-run noise there (352-610 px, runs 40859802818..40860402722); floor it at 1500
+    const { width, height } = page.viewportSize();
+    await expect(page).toHaveScreenshot(`${slug}.png`, { maxDiffPixels: Math.max(1500, Math.round(width * height * 0.001)) });
   });
 }
