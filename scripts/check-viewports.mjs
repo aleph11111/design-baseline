@@ -25,6 +25,10 @@ const PAGES = JSON.parse(fs.readFileSync(path.join(ROOT, "docs/archetypes/MANIFE
 // Content-column width per desktop device (ADR-0007 amendment); full-bleed
 // pages have no max-width instead.
 const COLUMN = { laptop14: 1144, desk27: 1680 };
+// The full-bleed archetypes, a closed set (ADR-0007 §1, STYLE.md "Spacing &
+// rhythm"). Pinned by name: a shell that loses its marker would otherwise pass
+// as a plain column.
+const FULL_BLEED = ["matrix-grid", "list-with-detail", "kanban-board", "calendar", "statement-with-filters"];
 // The steps between the triad's two desktop widths, measured on form-page.
 const STEPS = [
   { label: "1903 (1920 minus scrollbar)", width: 1903, want: 1440 },
@@ -77,8 +81,8 @@ const open = async (slug, device) => {
 };
 
 // Everything here runs in the page; it returns one problem string per breach.
-const measure = (page, { mobile, column }) =>
-  page.evaluate(({ mobile, column, TAP }) => {
+const measure = (page, { mobile, column, fullBleed }) =>
+  page.evaluate(({ mobile, column, fullBleed, TAP }) => {
     const problems = [];
     const W = window.innerWidth;
     const visible = (el) => {
@@ -123,9 +127,11 @@ const measure = (page, { mobile, column }) =>
       problems.push(`${describe(el)} cut off at the viewport edge (${Math.round(r.left)}..${Math.round(r.right)}px of ${W}px)`);
     }
 
+    const marked = !!document.querySelector(".db-full-bleed");
+    if (fullBleed && !marked) problems.push("full-bleed archetype lost its .db-full-bleed marker");
+    if (!fullBleed && marked) problems.push("carries .db-full-bleed but is not in the full-bleed set (ADR-0007)");
     const col = document.querySelector(".db-content-column");
     if (column && col) {
-      const fullBleed = !!document.querySelector(".db-full-bleed");
       const w = Math.round(col.getBoundingClientRect().width);
       const max = getComputedStyle(col).maxWidth;
       if (fullBleed ? max !== "none" : w !== column)
@@ -165,7 +171,7 @@ const measure = (page, { mobile, column }) =>
       if (small.length) problems.push(`tapTargets: ${small.length} tap target(s) under ${TAP}px: ${small.slice(0, 6).join(", ")}${small.length > 6 ? ", ..." : ""}`);
     }
     return [...new Set(problems)];
-  }, { mobile, column, TAP });
+  }, { mobile, column, fullBleed, TAP });
 
 const shots = [];
 for (const slug of PAGES) {
@@ -175,7 +181,7 @@ for (const slug of PAGES) {
     try {
       let page;
       ({ ctx, page } = await open(slug, device));
-      const problems = await measure(page, { mobile: device.isMobile, column: COLUMN[name] });
+      const problems = await measure(page, { mobile: device.isMobile, column: COLUMN[name], fullBleed: FULL_BLEED.includes(slug) });
       const file = `${slug}--${name}.jpg`;
       await page.screenshot({ path: path.join(OUT, file), type: "jpeg", quality: 70, scale: "css" });
       shots.push({ slug, name, file, problems });
