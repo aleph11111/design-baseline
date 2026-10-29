@@ -38,11 +38,7 @@ const TAP = 44;
 // Invariants that fail donor-wide for a known, ticketed reason. Each still runs
 // and prints on every run and in the contact sheet, as a warning naming its
 // ticket; delete the entry when the ticket ships so the invariant fails again.
-const KNOWN_GAPS = {
-  // touch density is an app opt-in (STYLE.md "App touch density"), so phones
-  // keep the 36px default step outside the filter sheet
-  tapTargets: "phone-tap-targets-touch-density-default",
-};
+const KNOWN_GAPS = {};
 
 const server = http.createServer((req, res) => {
   const p = path.join(DIST, req.url === "/" ? "index.html" : decodeURIComponent(req.url.split("?")[0]));
@@ -166,7 +162,15 @@ const measure = (page, { mobile, column, fullBleed }) =>
         // a control wrapped in its own larger hit area (a label) counts at that size
         const hit = el.closest("label") ?? el;
         const r = hit.getBoundingClientRect();
-        if (r.height < TAP - 0.5 || r.width < TAP - 0.5) small.push(`${describe(el)} ${Math.round(r.width)}x${Math.round(r.height)}`);
+        let w = r.width, h = r.height;
+        // an absolutely positioned ::after that overhangs the box widens the hit area (Checkbox under touch)
+        const after = getComputedStyle(hit, "::after");
+        if (after.content !== "none" && after.position === "absolute") {
+          const px = (v) => -Math.min(0, parseFloat(v) || 0);
+          w += px(after.left) + px(after.right);
+          h += px(after.top) + px(after.bottom);
+        }
+        if (h < TAP - 0.5 || w < TAP - 0.5) small.push(`${describe(el)} ${Math.round(w)}x${Math.round(h)}`);
       }
       if (small.length) problems.push(`tapTargets: ${small.length} tap target(s) under ${TAP}px: ${small.slice(0, 6).join(", ")}${small.length > 6 ? ", ..." : ""}`);
     }

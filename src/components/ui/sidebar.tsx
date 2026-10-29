@@ -12,6 +12,7 @@ import { Separator } from "./separator"
 import { Sheet, SheetContent } from "./sheet"
 import { Skeleton } from "./skeleton"
 import { useLabels } from "../../lib/labels"
+import { useAppDensity } from "./toolbar-band"
 import {
   Tooltip,
   TooltipContent,
@@ -265,6 +266,8 @@ const SidebarTrigger = React.forwardRef<
 >(({ className, onClick, ...props }, ref) => {
   const { toggleSidebar } = useSidebar()
   const L = useLabels()
+  // the compact 28px square, except under touch density where Button lifts it to 44pt
+  const touch = useAppDensity() === "lg"
 
   return (
     <Button
@@ -272,7 +275,7 @@ const SidebarTrigger = React.forwardRef<
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-7 w-7", className)}
+      className={cn(!touch && "h-7 w-7", className)}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()

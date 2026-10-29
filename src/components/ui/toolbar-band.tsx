@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { useIsMobile } from "../../hooks/use-mobile";
 
 /**
  * True inside `PageFrame`'s toolbar band. A labeled field (SelectField,
@@ -49,16 +50,22 @@ export const ToolbarSizeContext = React.createContext<"lg" | undefined>(undefine
  */
 const ControlDensityContext = React.createContext<"lg" | undefined>(undefined);
 
-/** Sets the app's control density. `"touch"` resolves the default step to `lg`; `"default"` is a no-op. */
+/**
+ * Sets the app's control density. `"touch"` resolves the default step to `lg`;
+ * `"default"` is a no-op. Unset, it follows the viewport: touch below `md` (a
+ * phone is a deliverable device, STYLE.md "App touch density"), default above.
+ */
 export function ControlDensityProvider({
-  density = "default",
+  density,
   children,
 }: {
   density?: "default" | "touch";
   children: React.ReactNode;
 }): React.ReactElement {
+  const isMobile = useIsMobile();
+  const touch = (density ?? (isMobile ? "touch" : "default")) === "touch";
   return (
-    <ControlDensityContext.Provider value={density === "touch" ? "lg" : undefined}>
+    <ControlDensityContext.Provider value={touch ? "lg" : undefined}>
       {children}
     </ControlDensityContext.Provider>
   );
