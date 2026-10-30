@@ -35,6 +35,7 @@ step belongs to the close-out, not "someday".
 | Raw `<label>` + control, no htmlFor/aria wiring | promote | `NativeField` (archetype I, label-side scan) | controlling-app, my-finance-app, dashboard, pmo, mistra, hk-crm | **promoted 2026-07-23** |
 | Labeled multi-line text field re-composed per site | promote | `TextareaField` (archetype T) | dashboard, controlling-app, my-finance-app, brickshop, mistra, hk-crm, pmo | **promoted 2026-07-23** |
 | Labeled enum field (`<label>` + `<select>`/`<Select>`, no a11y wiring) | promote | `SelectField` (archetype S) | mistra, my-finance-app, dashboard, brickshop, controlling-app | **promoted 2026-07-24** |
+| Searchable picker hand-rolled from local open + search state + filtered list (no combobox ARIA) | promote | `ComboboxField` (archetype Cb, Popover + Command on the shared field frame) | controlling-app, my-finance-app, hk-crm | **promoted 2026-10-30** |
 | Overline/eyebrow/kicker label re-typed inline | promote | `Overline` (archetype O, composes `OVERLINE_CLASS` + closed tone set) | mistra, hk-crm, my-finance-app, dashboard | **promoted 2026-07-24** |
 | Single-choice mode/filter toggle hand-rolled as button row | adopt-existing | `SegmentedControl` (archetype Sg, Radix radio-group) | brickshop, hk-crm | **promoted 2026-07-24** |
 | Initials avatar for a named entity (image fallback, tone) | promote | `EntityAvatar` (archetype E, `entityInitials()`) | brickshop, mistra | **promoted 2026-07-24** |
@@ -59,7 +60,6 @@ No **watch** rows. *Retired 2026-10-16* after a re-check against every consumer'
 
 ## Sanctioned (genuine one-offs — conform-only, no component)
 - matrix/pivot `<table>` (sticky cols + group spans) — its inline cell control still routes to `CellSelect`.
-- combobox / `CommandInput` search — different widget.
 - test-fixture raw `<label>`/`<input>`.
 - `<label>`-wraps-control (checkbox/radio row, file dropzone with hidden input) — already associated by DOM nesting.
 - non-row contextual/overflow menu (tab-strip, header overflow, custom-trigger status menu) — composed from shadcn `DropdownMenu` directly; `RowActionsMenu` stays row-only.

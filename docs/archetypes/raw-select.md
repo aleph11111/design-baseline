@@ -40,7 +40,7 @@ convergence target that shape should collapse onto — and the exact residual th
 - **Do not use** for free text or a native-only input type (that is the native-field
   molecule's role — I, `raw-input`), for a boolean (the checkbox/switch control's
   role), for a **multi-value** selection, for a **type-ahead / combobox / async
-  search** (a command-palette or autocomplete widget, structurally different), or for a
+  search** (that is the searchable sibling — Cb, [`raw-combobox`](./raw-combobox.md)), or for a
   choice control sitting **flush inside a data-grid cell** (the cell-select control's
   role — no label, transparent chrome).
 - **Compose, don't replace, a form library.** Where a form-binding role already owns
@@ -107,7 +107,8 @@ sanctioned per-site deviation.
 N/A — the option set is supplied as `{ value, label }` data, not by a render prop. A
 field whose control is outside this molecule's set (free text, a boolean, a combobox)
 is built by composing that dedicated control inside the same label + hint + error
-assembly, not by extending this molecule.
+assembly, not by extending this molecule — the searchable picker already is one
+([`raw-combobox`](./raw-combobox.md)).
 
 ### L9 — Error surface
 **Owned here.** When the caller supplies an error, the field: renders the message below

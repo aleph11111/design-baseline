@@ -35,7 +35,8 @@ import {
 // Plain controlled — no react-hook-form coupling (that is the form-field role's job;
 // compose SelectField inside it). Value in / raw string out, mirroring NativeField.
 //
-// Scoped out: multi-value selection, combobox/type-ahead, async search, and the
+// Scoped out: multi-value selection, combobox/type-ahead and async search (that is
+// ComboboxField, archetype Cb `raw-combobox`), and the
 // flush grid-cell select (that is `CellSelect`, a label-less sibling).
 
 /** One choice in the option set. `label` is shown; `value` is emitted on change. */

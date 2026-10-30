@@ -8,7 +8,7 @@
   "plugin": {
     "kind": "design",
     "name": "design-baseline",
-    "version": "0.13.0",
+    "version": "0.14.0",
     "taxonomy": "docs/TAXONOMY.md",
     "surface": {
       "type": "vite-app",
@@ -305,6 +305,20 @@
       "spec": "docs/archetypes/raw-select.md",
       "primitives_dir": "src/components/archetypes/raw-select",
       "example": "src/examples/raw-select-demo.tsx"
+    },
+    {
+      "key": "Cb",
+      "namespace": "baseline",
+      "slug": "raw-combobox",
+      "displayName": "Combobox field",
+      "kind": "component",
+      "version": "1.0",
+      "promoted_from": "fleet synthesis (controlling-app, my-finance-app, hk-crm)",
+      "promoted_at": "2026-10-30",
+      "source_spec_version": "n/a (fleet synthesis — no single source spec)",
+      "spec": "docs/archetypes/raw-combobox.md",
+      "primitives_dir": "src/components/archetypes/raw-combobox",
+      "example": "src/examples/raw-combobox-demo.tsx"
     },
     {
       "key": "O",

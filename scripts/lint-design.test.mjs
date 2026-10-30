@@ -1435,6 +1435,48 @@ describe("the `bare-switch-in-toolbar` rule — a bare Switch never goes in a to
   });
 });
 
+describe("the `hand-rolled-combobox` rule — a searchable picker routes through ComboboxField", async () => {
+  const { compileRules, scanFile } = await import("./lint-design.mjs");
+  const compiled = compileRules([{ id: "hand-rolled-combobox", handRolledCombobox: true, severity: "warn", message: "use ComboboxField" }]);
+  const scan = (src) => scanFile("src/components/picker.tsx", src, compiled);
+  // The controlling-app AccountCombobox shape, cut down: open + search state, a derived
+  // query filtering the options, and its own keyboard handling.
+  const handRolled = [
+    "export function Picker({ options }) {",
+    "  const [open, setOpen] = React.useState(false);",
+    "  const [search, setSearch] = React.useState(\"\");",
+    "  const filtered = React.useMemo(() => {",
+    "    const q = search.toLowerCase();",
+    "    return options.filter(",
+    "      (o) => o.name.toLowerCase().includes(q)",
+    "    );",
+    "  }, [options, search]);",
+    "  function onKeyDown(e) { if (e.key === \"ArrowDown\") setOpen(true); }",
+    "  return open && filtered.map((o) => <Button key={o.value}>{o.name}</Button>);",
+    "}",
+  ].join("\n");
+
+  it("warns at the filter of a hand-rolled combobox (consumer fixture)", () => {
+    const hits = scan(handRolled);
+    expect(hits).toHaveLength(1);
+    expect(hits[0]).toMatchObject({ rule: "hand-rolled-combobox", line: 6, severity: "warn" });
+  });
+
+  it("is clean for a search-filtered list page with a dialog but no popup plumbing", () => {
+    expect(scan(handRolled.replace(/function onKeyDown.*\n/, ""))).toEqual([]);
+  });
+
+  it("is clean for the shipped ComboboxField itself", () => {
+    const src = readFileSync(join(root, "src/components/archetypes/raw-combobox/combobox-field.tsx"), "utf8");
+    expect(scanFile("src/components/archetypes/raw-combobox/combobox-field.tsx", src, compiled)).toEqual([]);
+  });
+
+  it("honours an inline opt-out only when it names a reason", () => {
+    expect(scan(`// adherence-ok: hand-rolled-combobox — command palette, not a field\n${handRolled}`)).toEqual([]);
+    expect(scan(`// adherence-ok: hand-rolled-combobox\n${handRolled}`)).toHaveLength(1);
+  });
+});
+
 describe("the `pageShell` rule — a page renders one kind:page archetype shell, never PageFrame alone", async () => {
   const { compileRules, scanFile, loadPageShells, staleGrandfathered } = await import("./lint-design.mjs");
   const shells = loadPageShells(root);

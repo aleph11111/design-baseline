@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-10-30'
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "new component archetype API (props, a11y wiring, async seam) plus a lint-design rule — design is the deliverable"

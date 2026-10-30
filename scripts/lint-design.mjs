@@ -65,6 +65,12 @@
 // `toolbarSwitch: true` is the same check for a bare `Switch` (use `ToggleField`), opt-out id
 // `bare-switch-in-toolbar`.
 //
+// A rule may carry `handRolledCombobox: true` instead: the file-level check
+// `findHandRolledCombobox` flags a searchable picker built from local state — an open flag,
+// a search-query state, an options array `.filter(`ed by that query, and the popup's own
+// keyboard (`ArrowDown`) or outside-click (`mousedown`) handling — the shape `ComboboxField`
+// (`design-baseline/archetypes/raw-combobox`) owns. Opt-out id `hand-rolled-combobox`.
+//
 // A rule may carry `pageShell: true` instead: the page-shape check `findPageShellIssues`
 // (RULES.md hard rule 12, one page shell). Every file the rule's `include` (the consumer's page glob, e.g.
 // `src/app/**/page.tsx`) matches must import a `kind: "page"` archetype shell — from
@@ -299,6 +305,41 @@ function findToolbarTabs(text, tags = 'Tabs|TabsList|SegmentedControl', ruleId =
   return hits;
 }
 
+// Report a hand-rolled combobox: one file holding an open-flag `useState`, a search-query
+// `useState`, a `.filter(` whose call (or the two lines above it) references that query, and popup plumbing of its own
+// (an `ArrowDown` key branch or a `mousedown` outside-click listener). All four must co-occur:
+// open + query + filter alone is also a list page with a search box and a dialog. Reported at
+// the `.filter(` line. Opt-out: `adherence-ok: hand-rolled-combobox — <reason>` anywhere in the file.
+// Ceiling (ADR-0003, no parser): a hand-roll that splits state and list across files, or has
+// neither keyboard nor outside-click handling, is not seen; state names outside the two
+// name lists below are not recognised.
+function findHandRolledCombobox(text) {
+  if (/adherence-ok:\s*hand-rolled-combobox\s*[—–:-]+\s*\S/.test(text)) return [];
+  const state = (names) =>
+    [...text.matchAll(/const\s*\[\s*(\w+)\s*,\s*set\w+\s*\]\s*=\s*(?:React\.)?useState\b/g)]
+      .map((m) => m[1])
+      .filter((n) => names.test(n));
+  const opens = state(/^(?:is)?(?:open|expanded|show(?:List|Dropdown|Options|Results|Suggestions)?)$/i);
+  const queries = state(/(?:search|query|filter(?:Text)?|term)$/i);
+  if (!opens.length || !queries.length) return [];
+  if (!/["']ArrowDown["']|["']mousedown["']/.test(text)) return [];
+  const hits = [];
+  for (const m of text.matchAll(/\.filter\(/g)) {
+    // The filter's own call: from `(` to its matching `)`.
+    let depth = 1;
+    let i = m.index + m[0].length;
+    for (; i < text.length && depth; i++) depth += text[i] === '(' ? 1 : text[i] === ')' ? -1 : 0;
+    // The call plus the two lines above it: hand-rolls often derive `const q = search.toLowerCase()`
+    // right before filtering on `q`.
+    const lineStart = text.lastIndexOf('\n', text.lastIndexOf('\n', text.lastIndexOf('\n', m.index) - 1) - 1);
+    const call = text.slice(Math.max(0, lineStart), i);
+    if (!queries.some((q) => new RegExp(`\\b${q}\\b`).test(call))) continue;
+    const before = text.slice(0, m.index).split('\n');
+    hits.push({ line: before.length, col: before.at(-1).length + 1 });
+  }
+  return hits;
+}
+
 // The slugs of every `kind: "page"` archetype in the design-baseline MANIFEST — the shells a
 // page may render. Resolution order: the rule's `manifest` path (repo-root-relative), then the
 // installed package (`node_modules/design-baseline/…`, what a consumer's vendored copy of this
@@ -401,7 +442,7 @@ function compileRules(rules, targets, pageShells) {
           `(node_modules/design-baseline/docs/archetypes/MANIFEST.json) or set the rule's \`manifest\` path.`,
       );
     }
-    const source = rule.swallowedSlots || rule.toolbarTabs || rule.toolbarSwitch || rule.pageShell ? '(?!)' : (rule.pattern ?? `<${rule.tag}(?=[\\s/>]|$)`);
+    const source = rule.swallowedSlots || rule.toolbarTabs || rule.toolbarSwitch || rule.handRolledCombobox || rule.pageShell ? '(?!)' : (rule.pattern ?? `<${rule.tag}(?=[\\s/>]|$)`);
     // A `{{unionAliases}}` pattern cannot be compiled once — its alternation is per-file — so
     // it is carried as `aliasSource` and compiled in `scanFile`. Validate it here anyway (with
     // a stand-in name) so a bad pattern still fails at compile time, like every other rule.
@@ -431,6 +472,7 @@ function compileRules(rules, targets, pageShells) {
       slots: rule.swallowedSlots ?? null,
       toolbarTabs: Boolean(rule.toolbarTabs),
       toolbarSwitch: Boolean(rule.toolbarSwitch),
+      handRolledCombobox: Boolean(rule.handRolledCombobox),
       pageShell: rule.pageShell ? pageShells : null,
       grandfathered: rule.grandfathered ?? [],
       includes,
@@ -450,7 +492,7 @@ function scanFile(fileRel, text, compiled) {
   // The union-type-alias pre-pass: harvested once per file, and only when some rule asks for
   // it (`{{unionAliases}}`), so a config without such a rule pays nothing.
   const aliases = compiled.some((c) => c.aliasSource) ? harvestUnionAliases(text) : [];
-  for (const { re: compiledRe, aliasSource, label, severity, message, slots, toolbarTabs, toolbarSwitch, pageShell, grandfathered, includes, excludes } of compiled) {
+  for (const { re: compiledRe, aliasSource, label, severity, message, slots, toolbarTabs, toolbarSwitch, handRolledCombobox, pageShell, grandfathered, includes, excludes } of compiled) {
     // No `include` (or a rule whose `include` list is empty) matches every walked file;
     // with one or more `include` globs the rule applies only when ANY of them matches.
     // The scope globs are matched by `path.matchesGlob` (stdlib since v22) — `**` spans
@@ -480,6 +522,12 @@ function scanFile(fileRel, text, compiled) {
       }
       for (const { line, col, problem } of issues) {
         violations.push({ file: fileRel, line, col, rule: label, severity, message: `Page ${problem}. ${PAGE_SHELL_HINT} ${message}` });
+      }
+      continue;
+    }
+    if (handRolledCombobox) {
+      for (const { line, col } of findHandRolledCombobox(text)) {
+        violations.push({ file: fileRel, line, col, rule: label, severity, message });
       }
       continue;
     }
@@ -627,4 +675,4 @@ if (process.argv[1] && pathToFileURL(realpathSync(process.argv[1])).href === imp
   main();
 }
 
-export { compileGlobs, compileRules, scanFile, findSwallowedSlots, findToolbarTabs, findPageShellIssues, loadPageShells, staleGrandfathered, harvestUnionAliases, includeReachableUnder, CompileError };
+export { compileGlobs, compileRules, scanFile, findSwallowedSlots, findToolbarTabs, findHandRolledCombobox, findPageShellIssues, loadPageShells, staleGrandfathered, harvestUnionAliases, includeReachableUnder, CompileError };
