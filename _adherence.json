@@ -231,6 +231,7 @@
     {
       "id": "hand-rolled-combobox",
       "handRolledCombobox": true,
+      "include": "src/**",
       "severity": "warn",
       "message": "A searchable picker built from local open + search state and a filtered options list is a hand-rolled combobox — use `ComboboxField` from `design-baseline/archetypes/raw-combobox` (docs/archetypes/raw-combobox.md), which owns the keyboard model and the combobox/listbox ARIA. Rollout: `warn`; flip to `error` per the ADR-0003 ratchet once the class is clean."
     },

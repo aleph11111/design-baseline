@@ -33,6 +33,16 @@ import {
 // Plain controlled, value in / raw string out, options as data — mirroring SelectField.
 // Async options: pass `onSearch` and the caller owns filtering (it receives every query
 // and swaps `options`); without it, the list filters locally on label + keywords.
+
+/**
+ * Local filter: case-insensitive substring over label + keywords only. cmdk's default
+ * also fuzzy-scores the item's `value` — an opaque id (UUID) would then match almost
+ * any query — and re-sorts by score, breaking the caller's option order.
+ */
+function matchKeywords(_value: string, search: string, keywords?: string[]): number {
+  const q = search.trim().toLowerCase();
+  return !q || keywords?.some((k) => k.toLowerCase().includes(q)) ? 1 : 0;
+}
 //
 // Scoped out: multi-value selection, free-text entry (creatable values), and the
 // toolbar-band joined label (the field always stacks its label).
@@ -183,6 +193,7 @@ export function ComboboxField({
         <PopoverContent align="start" className="w-[var(--radix-popover-trigger-width)] min-w-56 p-0">
           <Command
             shouldFilter={!onSearch}
+            filter={matchKeywords}
             label={`${L.search}: ${label}`}
             {...(onSearch && { value: active, onValueChange: setActive })}
           >

@@ -73,6 +73,19 @@ describe("ComboboxField — keyboard and filtering", () => {
     expect(screen.getByText("No results.")).toBeTruthy();
   });
 
+  it("never matches on the hidden value, only label and keywords", () => {
+    const ids: ComboboxOption[] = [
+      { value: "3fa85f64-5717-4562", label: "Rent" },
+      { value: "9b1deb4d-3b7d-4bad", label: "Groceries" },
+    ];
+    render(<Harness options={ids} />);
+    fireEvent.click(trigger());
+    fireEvent.change(search(), { target: { value: "5" } });
+    expect(screen.queryAllByRole("option")).toHaveLength(0);
+    fireEvent.change(search(), { target: { value: "gro" } });
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual(["Groceries"]);
+  });
+
   it("arrow keys move the highlight and Enter selects", () => {
     const onChange = vi.fn();
     render(<ComboboxField label="Timber" value="" onChange={onChange} options={OPTS} />);
