@@ -35,7 +35,7 @@ Two independent verification paths, both donor-only (never copied to targets):
 | `src/utils/logger.ts` | console logger — `logger.debug` (gated on `NODE_ENV !== "production"`) + `info`/`warn`/`error` pass-throughs; framework-agnostic. Not an archetype and carries no per-file version: it is plain copy-source, and the invariant that governs it is **the donor surface must be a superset of what the fleet calls** (see §3a) |
 | `src/components/ui/` | 42 shadcn/ui primitives (button, dialog, table, sidebar, form, sheet, command, calendar, segmented-control, state-view, cell-input, confirmation-dialog, icon-avatar, search-input, color-field, file-field, error-boundary, …) |
 | `src/components/layout/` | App-shell layer: `AppShell`, `AppSidebar` (`Sidebar.tsx`, + `NavItem`/`NavGroup` types), `AppHeader` (`Header.tsx`), `PageHeader` (h1 rung) + `NestedPageHeading` (h2 rung) sharing row classes from `HeadingRow.tsx`, `SectionHeading`, `SectionCard`, `PageFrame` (the one page frame every page shell renders through — `PageHeader` + one untitled raised surface with the toolbar/count/View band, ADR-0008), `SurfaceHeaderBar` (the dialog/drawer header bar, one neutral treatment), plus the internal (not barrel-exported) `SurfaceFrame` (the untitled raised surface), `StatTile`/`StatTileRow`, `ProgressTracker`, `MetricList`, `AuthCard`, `SectionNavShell` (`SectionNav.tsx`), `BottomNav` (its `BottomNavItem` extends `NavItem`), `ThemeToggle`; `navMatch.ts` (`isNavPathActive` — the one active-route rule all three navs share); `overline.ts` (`OVERLINE_CLASS` — the single source of the uppercase-label signature); `surface.ts` (`RaisedSurfaceContext` — no card-in-card — and the full-bleed `FULL_BLEED_CLASS` marker, ADR-0007) |
-| `src/components/archetypes/<slug>/` | Reference primitives per shipped archetype (one dir each; 24 registered in MANIFEST — see §4). Plus a non-archetype `shared/` dir (`RowActionsMenu`, `interactiveRow`, `tableColumn`, `resolveListState`, `ActionFooterBar`, `submittingLabel`, `FigureTable`, `fieldFrame`) holding primitives reused across archetypes — correctly absent from MANIFEST |
+| `src/components/archetypes/<slug>/` | Reference primitives per shipped archetype (one dir each; 25 registered in MANIFEST — see §4). Plus a non-archetype `shared/` dir (`RowActionsMenu`, `interactiveRow`, `tableColumn`, `resolveListState`, `ActionFooterBar`, `submittingLabel`, `FigureTable`, `fieldFrame`) holding primitives reused across archetypes — correctly absent from MANIFEST |
 | `src/vite/design-baseline-ui.mjs` | Vite wiring helper shipped as the `./vite/design-baseline-ui` export — the project-first `ui/`/`layout/` resolution arrays + `optimizeDeps` include list a Vite consumer's `vite.config.ts` needs (`docs/PACKAGE.md` wiring line 2). Plain Node ESM `.mjs`, not `.ts`, because Node refuses to type-strip files under `node_modules` |
 | `scripts/` | Zero-dep donor Node scripts: `lint-design.mjs` (adherence scanner, ADR-0003), `scan-adoption-quality.mjs` (Axis C, ADR-0005), `verify-exports.mjs` (package-surface invariants incl. ADR-0006's `"use client"` leaves, driven by `consumer-directive-set.json`), `verify-manifest-versions.mjs` + `verify-package-version.mjs` (run as `pretest`), `check-viewports.mjs` (real-Chrome check of every page archetype at the device triad from `src/testing/devices.mjs` — layout invariants, desk-width column steps, contact sheet; STYLE.md "The device triad"; its pixel-baseline sibling is `playwright.config.mjs` + `tests/screenshots.spec.mjs`, run in the pinned image via `bin/design-baseline-playwright.mjs`), `new-page.test.mjs` (template typecheck) |
 | `bin/new-page.mjs` + `templates/` | The shipped page scaffolder and its one template per page archetype (see §7) |
@@ -78,7 +78,7 @@ does (14 `logger.info` + 5 `logger.warn` as of 2026-08-27), and the donor is the
 Widening a leaf util is cheap; a downstream typecheck break is not. See
 `docs/backlog/archive/promote-logger-to-archetype.md` for the decision record.
 
-## 4. The 24 shipped archetypes (per `MANIFEST.json`)
+## 4. The 25 shipped archetypes (per `MANIFEST.json`)
 
 | Key | Slug | Kind | Promoted from |
 |---|---|---|---|
@@ -102,12 +102,13 @@ Widening a leaf util is cheap; a downstream typecheck break is not. See
 | I | raw-input | component | fleet synthesis (controlling-app, my-finance-app, mistra, dashboard, brickshop-manager) |
 | T | raw-textarea | component | brickshop-manager (fleet synthesis; dashboard, controlling-app, my-finance-app, mistra, hk-crm, pmo) |
 | S | raw-select | component | fleet synthesis (mistra, my-finance-app, dashboard, brickshop-manager, controlling-app) |
+| Cb | raw-combobox | component | fleet synthesis (controlling-app, my-finance-app, hk-crm) |
 | O | overline-typed | component | fleet synthesis (mistra, hk-crm, my-finance-app, dashboard) |
 | Sg | segmented-toggle | component | brickshop-manager (fleet synthesis; hk-crm vendored the donor primitive) |
 | E | entity-circle | component | fleet synthesis (brickshop-manager, mistra) |
 | N | native-browser-dialog | component | fleet synthesis (brickshop-manager, controlling-app, hk-crm) |
 
-`Sk` (skeleton-loader), `I` (raw-input), `T` (raw-textarea), `S` (raw-select), `O` (overline-typed), `Sg` (segmented-toggle), `E` (entity-circle), and `N` (native-browser-dialog) are the **component**-kind archetypes — molecules reused across page archetypes rather than page shapes of their own. The `flow` kind remains **deferred** (no baseline archetypes yet; formalized once two projects independently need the shape, per Rule of 2).
+`Sk` (skeleton-loader), `I` (raw-input), `T` (raw-textarea), `S` (raw-select), `Cb` (raw-combobox), `O` (overline-typed), `Sg` (segmented-toggle), `E` (entity-circle), and `N` (native-browser-dialog) are the **component**-kind archetypes — molecules reused across page archetypes rather than page shapes of their own. The `flow` kind remains **deferred** (no baseline archetypes yet; formalized once two projects independently need the shape, per Rule of 2).
 
 ## 5. The contract and its binding
 

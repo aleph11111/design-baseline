@@ -19,6 +19,7 @@ export type BaselineLabels = {
   search: string;
   searchPlaceholder: string;
   clearSearch: string;
+  noResults: string;
   // Dialogs / sheets / forms
   confirm: string;
   cancel: string;
@@ -96,6 +97,7 @@ export const labelsEn: BaselineLabels = {
   search: "Search",
   searchPlaceholder: "Search…",
   clearSearch: "Clear search",
+  noResults: "No results.",
   confirm: "Confirm",
   cancel: "Cancel",
   close: "Close",
@@ -169,6 +171,7 @@ export const labelsDe: BaselineLabels = {
   search: "Suchen",
   searchPlaceholder: "Suchen…",
   clearSearch: "Suche löschen",
+  noResults: "Keine Treffer.",
   confirm: "Bestätigen",
   cancel: "Abbrechen",
   close: "Schließen",

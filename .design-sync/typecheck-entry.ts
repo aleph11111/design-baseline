@@ -72,6 +72,7 @@ export * from "@/components/archetypes/native-browser-dialog";
 export * from "@/components/archetypes/overline-typed";
 export * from "@/components/archetypes/raw-input";
 export * from "@/components/archetypes/raw-select";
+export * from "@/components/archetypes/raw-combobox";
 export * from "@/components/archetypes/raw-textarea";
 export * from "@/components/archetypes/report";
 export * from "@/components/archetypes/segmented-toggle";

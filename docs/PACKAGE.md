@@ -316,7 +316,7 @@ drift. The contract a project takes on with the package, in mechanical order:
 | Gate | Catches | Mechanism | When |
 |------|---------|-----------|------|
 | 1. Types | wrong props, wrong variants | vendored `.d.ts` / package types, `tsc --noEmit` | on save / CI |
-| 2. Adherence lint | surface choice (every page renders one `kind: "page"` archetype shell, never `PageFrame` alone — the `pageShell` rule below), literal Tailwind palette classes, weak focus rings, raw `<h1>`/`<table>`/`<button>`/`<input>`/`<select>`/`<textarea>`, inline figure formatting (`no-inline-number-format` — figures route through `formatFigure`, `design-baseline/lib/format`) | `scripts/lint-design.mjs` (zero-dep scan, tag + regex rules in `_adherence.json`) | pre-commit + CI |
+| 2. Adherence lint | surface choice (every page renders one `kind: "page"` archetype shell, never `PageFrame` alone — the `pageShell` rule below), literal Tailwind palette classes, weak focus rings, raw `<h1>`/`<table>`/`<button>`/`<input>`/`<select>`/`<textarea>`, inline figure formatting (`no-inline-number-format` — figures route through `formatFigure`, `design-baseline/lib/format`), hand-rolled searchable pickers (`hand-rolled-combobox` — the rule below) | `scripts/lint-design.mjs` (zero-dep scan, tag + regex rules in `_adherence.json`) | pre-commit + CI |
 | 3. Visual baselines | drift the linter can't see (spacing, chrome, states) | Playwright `toHaveScreenshot()` per archetype page, at each device of the triad — `projects: playwrightProjects` from `design-baseline/testing/devices` (`desk27` 2560x1440, `laptop14` 1512x982 @2x, `phone` 390x844 @3x touch; STYLE.md "The device triad"), never a hand-typed viewport — rendered only inside the pinned image (`design-baseline/testing/docker`, run through `npx design-baseline-playwright`; setup below) | CI |
 | 4. Review against docs | which shell fits (the lint only proves one is used), placement, navigation model | `SURFACES.md` + `PLACEMENT.md` + `CHOOSING-A-SURFACE.md` as the review checklist | PR review |
 
@@ -385,6 +385,29 @@ The donor itself runs this exact setup (`playwright.config.mjs`,
 `npm run screenshots`). Bumping Playwright is a donor version bump: the image tag,
 the exact pins and the CI job move together (`src/testing/docker.test.ts` fails
 if they drift).
+
+### The hand-rolled combobox rule (`handRolledCombobox`)
+
+A searchable picker routes through `ComboboxField`
+(`design-baseline/archetypes/raw-combobox`, contract `docs/archetypes/raw-combobox.md`),
+never local open + search state over a filtered options list. Enable it in the
+consumer's `_adherence.json`:
+
+```json
+{
+  "id": "hand-rolled-combobox",
+  "handRolledCombobox": true,
+  "severity": "warn",
+  "message": "Use ComboboxField from design-baseline/archetypes/raw-combobox."
+}
+```
+
+It fires on a file that holds an open-flag `useState`, a search-query `useState`
+(`search` / `query` / `filter` / `term`), a `.filter(` referencing that query, and
+its own `ArrowDown` or `mousedown` handling — reported at the `.filter(`. A command
+palette or other genuine one-off opts out with
+`// adherence-ok: hand-rolled-combobox — <reason>` (reason required). It starts at
+`warn`; flip it to `error` once the class is clean (ADR-0003 ratchet).
 
 ### The page-shape rule (`pageShell`)
 

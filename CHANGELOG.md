@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.20.0
+
+- **Added:** archetype `Cb` (`raw-combobox`, component kind), exported from `design-baseline/archetypes/raw-combobox`. `ComboboxField` is the searchable sibling of `SelectField`: label + trigger + popover search list with groups, keyboard (arrows / Enter / Escape, typing filters) and combobox/listbox ARIA, on the shared field frame (hint, error, required). Options are `{ value, label, group?, keywords?, disabled? }` data. Async: pass `onSearch` (and `loading`) and the caller owns filtering. Contract: `docs/archetypes/raw-combobox.md`.
+- **Added:** `selectTriggerVariants` is exported from `design-baseline/ui/select`; the `noResults` label key (`BaselineLabels`, En "No results." / De "Keine Treffer.").
+- **Added:** lint rule `hand-rolled-combobox` (`handRolledCombobox: true`, `warn`) — flags a picker built from local open + search state filtering an options list with its own keyboard / outside-click handling (`docs/PACKAGE.md` gate 2).
+- **Consumer:** none required. To adopt, add the `hand-rolled-combobox` rule to your `_adherence.json` and replace flagged pickers with `ComboboxField` (controlling-app `AccountCombobox` first). A custom `BaselineLabels` object must add `noResults`.
+- **Breaking:** no, unless you build a full `BaselineLabels` object by hand (add `noResults`).
+
 ## v0.19.0
 
 - **Added:** `design-baseline/testing/invariants`, the `check:viewports` layout invariants as a Playwright helper.

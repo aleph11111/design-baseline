@@ -184,6 +184,23 @@
       "notes": "Promoted 2026-07-24 as the enum sibling of I (raw-input) and T (raw-textarea): archetype S (raw-select / SelectField). Closes the RESIDUAL the raw-label entry flagged when raw-input scoped enums OUT — the label+wiring assembly around a Select. Fleet is genuinely split native <select> (my-finance ~34 sites 100% native, mistra 11 files, dashboard 2, brickshop CellSelect) vs shadcn <Select> (controlling + brickshop all-shadcn), so the contract is control-agnostic and the baseline binds to the canonical shadcn Select. Universal gap closed: label association (aria-labelledby — Radix trigger is a button, htmlFor won't associate), aria-invalid, aria-describedby, and a standardized placeholder/none affordance (real option, not a __none__ sentinel). Options carried as {value,label}[] data — the convention no fleet project reached (all pass <option>/<SelectItem> markup per site). Scoped OUT: multiselect, combobox/cmdk, async-search, filter-bar label-less selects, and the flush grid-cell select (CellSelect sibling). scanSignal kept as 'raw-select' so the deterministic fleet scan keeps tracking regressions."
     },
     {
+      "id": "raw-combobox",
+      "scanSignal": "hand-rolled-combobox",
+      "pattern": "Hand-rolled searchable picker: local open + search state, an options array filtered by the query into a clickable list, own arrow/Enter/Escape and outside-click handling, no combobox/listbox ARIA",
+      "axisA": "promote",
+      "donorTarget": "ComboboxField (archetype Cb, component kind) — the labeled searchable single-select composing the donor Popover + Command on the shared field frame, options as {value,label,group?,keywords?}[] data, async via onSearch",
+      "projects": [
+        "controlling-app",
+        "my-finance-app",
+        "hk-crm"
+      ],
+      "count": 3,
+      "status": "promoted",
+      "promotedAt": "2026-10-30",
+      "axisB": "on-token (rides the SelectTrigger chrome + Popover/Command)",
+      "notes": "Promoted 2026-10-30 as the searchable sibling of S (raw-select). Retires the former sanctioned entry 'combobox / CommandInput search' (filed as 'different widget' — true of a command palette, not of a searchable form field). Evidence: controlling-app AccountCombobox (own open/search/highlight state, swaps button for <input>, own keyboard, no ARIA), my-finance-app CategoryCombobox (raw cmdk + own open/search + mousedown outside-click), hk-crm local ComboboxShell + CompanyComboboxField. Command palettes (coding-dashboard CommandPalette) stay out of scope. Deterministic signal is the lint-design file-level check `hand-rolled-combobox` (open + query state + query-referencing .filter( + ArrowDown/mousedown); no audit-signals.json regex — a single-line regex cannot see state-plus-filter."
+    },
+    {
       "id": "overline-typed",
       "scanSignal": "overline-typed",
       "pattern": "Hand-rolled overline/eyebrow/kicker label above a heading: uppercase + tracking-* + small size + muted color, re-typed inline or copied as a class const; some sites recolor it per domain state/category (the 'typed' layer)",
@@ -414,10 +431,6 @@
     {
       "pattern": "matrix/pivot <table> (sticky cols + group spans)",
       "reason": "not a record list; structurally unique. Inline cell control still routes to CellSelect (Axis A)."
-    },
-    {
-      "pattern": "combobox / CommandInput search",
-      "reason": "different widget (command palette), not a toolbar search box."
     },
     {
       "pattern": "test-fixture raw <label>/<input>",

@@ -13,6 +13,7 @@ import {
   Box,
   ChevronsUpDown,
   CircleUser,
+  TextSearch,
   FileText,
   LayoutDashboard,
   Loader,
@@ -62,6 +63,7 @@ const ICON_BY_SLUG: Record<string, LucideIcon> = {
   "raw-textarea": TextCursorInput,
   "entity-circle": CircleUser,
   "native-browser-dialog": MessageSquareWarning,
+  "raw-combobox": TextSearch,
 };
 
 function toNavItem(a: ArchetypeEntry): NavItem {

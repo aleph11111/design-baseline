@@ -202,6 +202,7 @@ SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
 
 export {
   Select,
+  selectTriggerVariants,
   SelectGroup,
   SelectValue,
   SelectTrigger,

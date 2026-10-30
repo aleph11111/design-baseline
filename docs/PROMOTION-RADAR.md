@@ -59,7 +59,6 @@ No **watch** rows. *Retired 2026-10-16* after a re-check against every consumer'
 
 ## Sanctioned (genuine one-offs — conform-only, no component)
 - matrix/pivot `<table>` (sticky cols + group spans) — its inline cell control still routes to `CellSelect`.
-- combobox / `CommandInput` search — different widget.
 - test-fixture raw `<label>`/`<input>`.
 - `<label>`-wraps-control (checkbox/radio row, file dropzone with hidden input) — already associated by DOM nesting.
 - non-row contextual/overflow menu (tab-strip, header overflow, custom-trigger status menu) — composed from shadcn `DropdownMenu` directly; `RowActionsMenu` stays row-only.

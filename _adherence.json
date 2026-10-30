@@ -229,6 +229,12 @@
       "message": "A bare `Switch` is a fixed 24px (`h-6`) pill and never goes in a toolbar band — use `ToggleField` (the on-ladder boolean filter, `size` follows the band step; STYLE.md \"Control heights\"). A Switch that genuinely belongs there opts out with `// adherence-ok: bare-switch-in-toolbar — <reason>` on the `toolbar=` line or the line above; the reason is required."
     },
     {
+      "id": "hand-rolled-combobox",
+      "handRolledCombobox": true,
+      "severity": "warn",
+      "message": "A searchable picker built from local open + search state and a filtered options list is a hand-rolled combobox — use `ComboboxField` from `design-baseline/archetypes/raw-combobox` (docs/archetypes/raw-combobox.md), which owns the keyboard model and the combobox/listbox ARIA. Rollout: `warn`; flip to `error` per the ADR-0003 ratchet once the class is clean."
+    },
+    {
       "id": "detail-overview-surface-prop",
       "pattern": "^\\s*surface\\?\\s*:",
       "severity": "error",
