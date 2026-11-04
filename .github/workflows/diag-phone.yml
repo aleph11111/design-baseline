@@ -1,0 +1,28 @@
+# TEMPORARY diagnostic for phone-screenshot-baselines-flake — removed before ship.
+name: diag-phone
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  phone:
+    strategy:
+      fail-fast: false
+      matrix:
+        run: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: npm ci
+      - run: npm run gallery:build
+      - run: npx playwright test --project=phone --repeat-each=3
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: failure()
+        with:
+          name: diffs-${{ matrix.run }}
+          path: test-results/
+          retention-days: 3
