@@ -1,7 +1,7 @@
 ---
 area: hygiene-security
 opened: '2026-11-04'
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "scoped dependency bumps plus one renovate.json field; cause established, acceptance checkable with npm audit"
