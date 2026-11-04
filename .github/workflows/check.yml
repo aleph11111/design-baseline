@@ -1,4 +1,6 @@
-# PR gate: auto-merge waits on this job (register `check` as a required status on main).
+# PR gate: auto-merge waits on the required statuses `check` and `screenshots`
+# (main-protected ruleset, required_status_checks rule). Both jobs below are required;
+# no other workflow runs on pull_request.
 name: check
 
 on:
