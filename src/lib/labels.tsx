@@ -78,6 +78,9 @@ export type BaselineLabels = {
   addNew: string;
   unread: string;
   reportColumns: readonly [string, string, string, string];
+  // Print
+  printHint: string;
+  printAction: string;
   // Wizard / progress
   commitImport: string;
   importing: string;
@@ -153,6 +156,8 @@ export const labelsEn: BaselineLabels = {
   addNew: "Add new",
   unread: "Unread",
   reportColumns: ["Position", "Qty", "Unit", "Sum"],
+  printHint: "Print view — choose “Save as PDF” in the print dialog.",
+  printAction: "Print / Save as PDF",
   commitImport: "Commit import",
   importing: "Importing…",
   completed: "completed",
@@ -227,6 +232,8 @@ export const labelsDe: BaselineLabels = {
   addNew: "Neu hinzufügen",
   unread: "Ungelesen",
   reportColumns: ["Position", "Menge", "Einheit", "Summe"],
+  printHint: "Druckansicht — im Druckdialog „Als PDF speichern“ wählen.",
+  printAction: "Drucken / Als PDF speichern",
   commitImport: "Import abschließen",
   importing: "Wird importiert…",
   completed: "abgeschlossen",

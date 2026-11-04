@@ -1,7 +1,7 @@
 ---
 slug: choosing-a-surface
 kind: methodology
-version: 2.2
+version: 2.3
 status: locked
 governs: [A, B, C, J, K, D3, F2, M]
 ---
@@ -192,7 +192,8 @@ across all of them.
 | Move items through a workflow | **kanban-board (P)** | status *is* the process and changing it is the primary action | status is only read, not changed → **A** with a status badge |
 | Present one measure across two dimensions | **matrix-grid (M)** | data is inherently row × column (resource × period, plan × month) | it's just a list that happens to have columns → **A** |
 | Show a domain's state at a glance | **analytics-dashboard (G)** | KPIs + mixed read-only widgets, drill-down leads out | it's one itemized document with totals → **R** |
-| Present a formal, itemized, printable document | **report (R)** | line items + totals, meant to be read / exported / printed | it's an interactive, editable set → **A** / **M** |
+| Present a formal, itemized, printable document | **report (R)** | line items + totals, meant to be read / exported / printed | it's an interactive, editable set → **A** / **M**; it's a wide multi-page statement for print-to-PDF → **Pr** |
+| Print a wide financial statement to PDF | **print-statement (Pr)** | a print-only route with no app chrome; multi-column tables over several A4 pages, scope fixed by the route | it's one bounded invoice-shaped document → **R**; the user still re-scopes it with filters → **F** |
 | Triage a time-ordered stream of events | **feed-inbox (H)** | scannable events / notifications, read-or-act | entries are anchored to dates you navigate → **calendar** |
 | Place time-anchored entries on a grid | **calendar** | day / week / month position carries meaning | order matters but the date does not → **H** |
 | Administer many records of one config kind | **settings-table (D2)** | CRUD over a lookup / config table (create/edit via **J**) | it's a handful of grouped options → **D3** / **F2** |
@@ -273,6 +274,11 @@ Template:
 ---
 
 ## Revision log
+
+- **2.3** (2026-11-04) — Part 2 adds **print-statement (Pr)**: the print-only
+  route for a wide, multi-page statement. Pick it over R when the document is
+  unbounded and printed rather than read in the app, and over F when nothing on
+  the page re-scopes it.
 
 - **2.2** (2026-10-19) — Part 2 adds **settings-sections (D3)**: a short stack of
   independent, self-saving sections on one scroll. Pick it over F2 when the groups

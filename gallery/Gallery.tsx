@@ -18,6 +18,7 @@ import {
   LayoutDashboard,
   Loader,
   MessageSquareWarning,
+  Printer,
   Settings,
   TextCursorInput,
   UploadCloud,
@@ -64,6 +65,7 @@ const ICON_BY_SLUG: Record<string, LucideIcon> = {
   "entity-circle": CircleUser,
   "native-browser-dialog": MessageSquareWarning,
   "raw-combobox": TextSearch,
+  "print-statement": Printer,
 };
 
 function toNavItem(a: ArchetypeEntry): NavItem {

@@ -70,6 +70,7 @@ export * from "@/components/archetypes/list-with-detail";
 export * from "@/components/archetypes/matrix-grid";
 export * from "@/components/archetypes/native-browser-dialog";
 export * from "@/components/archetypes/overline-typed";
+export * from "@/components/archetypes/print-statement";
 export * from "@/components/archetypes/raw-input";
 export * from "@/components/archetypes/raw-select";
 export * from "@/components/archetypes/raw-combobox";
