@@ -4,7 +4,7 @@
   "enabledManagers": ["npm", "github-actions"],
   "dependencyDashboard": true,
   "minimumReleaseAge": "3 days",
-  "vulnerabilityAlerts": { "labels": ["security"], "minimumReleaseAge": null },
+  "vulnerabilityAlerts": { "description": "Security PRs bypass the release-age delay on purpose; dev-tool security patches still automerge.", "labels": ["security"], "minimumReleaseAge": null },
   "packageRules": [
     {
       "description": "Radix family moves in one PR",

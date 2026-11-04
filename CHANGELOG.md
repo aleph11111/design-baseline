@@ -4,7 +4,7 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 ## v0.20.2
 
-- **Changed:** `zod` floor raised to `^4.6.6` (GHSA-mrhx-c7xc-m3w5, memory exhaustion validating oversized collections); donor-dev toolchain (`vite`, `vitest`, `react-router-dom`) and transitive advisories patched in the lockfile.
+- **Changed:** `zod` floor raised to `^4.6.7` (GHSA-mrhx-c7xc-m3w5, memory exhaustion validating oversized collections); donor-dev toolchain (`vite`, `vitest`, `react-router-dom`) and transitive advisories patched in the lockfile.
 - **Consumer:** none required beyond installing; the `zod` range now excludes vulnerable versions, so a consumer lockfile pinned below 4.6.6 will be bumped.
 - **Breaking:** no.
 
