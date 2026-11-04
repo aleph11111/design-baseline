@@ -3,6 +3,8 @@
   "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
   "enabledManagers": ["npm", "github-actions"],
   "dependencyDashboard": true,
+  "minimumReleaseAge": "3 days",
+  "vulnerabilityAlerts": { "labels": ["security"], "minimumReleaseAge": null },
   "packageRules": [
     {
       "description": "Radix family moves in one PR",
