@@ -444,7 +444,7 @@ gate by adding one rule to its own `_adherence.json`:
   The review gate always fails a page without its archetype shell; only the operator
   ships a waived page, by merging it by hand. A waiver with no slug,
   or a slug that is not kebab-case, is itself an error. The lint runs offline, so
-  it cannot check that the ticket is open. Review checks that.
+  it cannot check that the ticket is open. The operator checks that at the manual merge.
 - **`grandfathered`** is the shrink-only ratchet. A listed page is not flagged
   while it still violates. Once it renders a shell, or is renamed, deleted or
   falls out of the glob, its entry is an error until it is removed from the list.
