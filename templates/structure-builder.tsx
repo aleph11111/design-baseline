@@ -62,8 +62,11 @@ export function __Name__Page() {
       isLoading={isLoading}
       error={error}
       onRetry={refetch}
-      isEmpty={!isLoading && error == null && lines.length === 0}
+      // Empty = no structure exists yet; a loaded structure with zero lines still
+      // renders the tree so items can be placed into it.
+      isEmpty={!isLoading && error == null && loaded === null && edited === null}
       onCreate={() => {}}
+      // TODO: persist `lines` (one call with the structure version), then reload.
       onSave={() => setEdited(null)}
       dirty={edited !== null}
       paletteTitle="Unplaced"

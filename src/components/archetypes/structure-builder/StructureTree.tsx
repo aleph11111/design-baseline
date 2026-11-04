@@ -217,7 +217,28 @@ export function StructureTree<N extends StructureNode>({
 
   return (
     <div data-slot="structure-tree">
-      <ul role="tree" aria-label={label} className="space-y-0.5">
+      <ul
+        role="tree"
+        aria-label={label}
+        // A drop below the last row (or onto an empty tree) lands at the end
+        // of the root level; row drops stop propagation before reaching here.
+        onDragOver={draggable ? (e) => e.preventDefault() : undefined}
+        // dragend bubbles from the source row: a cancelled drag clears the hint.
+        onDragEnd={() => setHint(null)}
+        onDrop={
+          draggable
+            ? (e) => {
+                e.preventDefault();
+                setHint(null);
+                const dragged = e.dataTransfer.getData(NODE_TYPE);
+                if (dragged) return move(dragged, { parentId: null, index: nodes.length });
+                const placed = e.dataTransfer.getData(STRUCTURE_PALETTE_TYPE);
+                if (placed && onPlace) onPlace(placed, null, nodes.length);
+              }
+            : undefined
+        }
+        className="min-h-16 space-y-0.5 pb-4"
+      >
         {renderItems(nodes, 0)}
       </ul>
       {onMove ? (

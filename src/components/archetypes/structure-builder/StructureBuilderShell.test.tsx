@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { StructureBuilderShell } from "./StructureBuilderShell";
 import { StructureTree } from "./StructureTree";
 import { moveNode, type StructureNode } from "./tree";
+import { STRUCTURE_PALETTE_TYPE } from "./StructureTree";
 
 afterEach(cleanup);
 
@@ -70,6 +71,16 @@ describe("StructureTree — keyboard-only moves", () => {
   });
 });
 
+describe("StructureTree — root drop", () => {
+  it("a palette drop onto an empty tree places at the root", () => {
+    const onPlace = vi.fn();
+    render(<StructureTree nodes={[]} label="Lines" getLabel={() => ""} renderRow={() => null} onMove={() => {}} onPlace={onPlace} />);
+    const data = { getData: (t: string) => (t === STRUCTURE_PALETTE_TYPE ? "p1" : "") };
+    fireEvent.drop(screen.getByRole("tree"), { dataTransfer: data });
+    expect(onPlace).toHaveBeenCalledWith("p1", null, 0);
+  });
+});
+
 describe("StructureBuilderShell — page frame", () => {
   const base = {
     title: "Report templates",
@@ -127,5 +138,9 @@ describe("StructureBuilderShell — page frame", () => {
     );
     expect(screen.getByText("No structure yet")).toBeTruthy();
     expect(screen.queryByText("tree")).toBeNull();
+    const news = screen.getAllByRole("button", { name: "New" });
+    expect(news).toHaveLength(1);
+    fireEvent.click(news[0]!);
+    expect(onCreate).toHaveBeenCalledOnce();
   });
 });

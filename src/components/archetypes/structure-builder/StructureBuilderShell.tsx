@@ -109,7 +109,7 @@ export function StructureBuilderShell({
     templates || onCreate || onClone ? (
       <div className="flex flex-wrap items-center gap-2">
         {templates}
-        {create}
+        {isEmpty ? null : create}
         {onClone && ready ? (
           <Button type="button" variant="outline" size="sm" onClick={onClone}>
             <Copy aria-hidden />
