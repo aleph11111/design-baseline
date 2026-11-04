@@ -17,6 +17,7 @@ import {
   FileText,
   LayoutDashboard,
   Loader,
+  ListTree,
   MessageSquareWarning,
   Printer,
   Settings,
@@ -66,6 +67,7 @@ const ICON_BY_SLUG: Record<string, LucideIcon> = {
   "native-browser-dialog": MessageSquareWarning,
   "raw-combobox": TextSearch,
   "print-statement": Printer,
+  "structure-builder": ListTree,
 };
 
 function toNavItem(a: ArchetypeEntry): NavItem {

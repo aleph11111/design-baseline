@@ -16,3 +16,4 @@ Architecture Decision Records for design-baseline. One file per decision:
 | [0009](0009-figures-in-the-house-sans.md) | Figures in the house sans: Inter, tabular, regular weight; mono for code only | Accepted |
 | [0010](0010-detail-overlay-sizes-to-content.md) | The list-with-detail overlay sizes to its content; a detail that cannot fit gets its own route | Accepted |
 | [0011](0011-analytics-dashboard-edit-mode.md) | An editable dashboard tile layout is an edit mode of analytics-dashboard, not a new archetype | Accepted |
+| [0012](0012-structure-builder-page-archetype.md) | The report-structure builder is its own `kind: page` archetype (structure-builder, Sb) | Accepted |

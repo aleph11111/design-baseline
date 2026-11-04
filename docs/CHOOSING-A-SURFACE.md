@@ -1,7 +1,7 @@
 ---
 slug: choosing-a-surface
 kind: methodology
-version: 2.3
+version: 2.4
 status: locked
 governs: [A, B, C, J, K, D3, F2, M]
 ---
@@ -194,6 +194,7 @@ across all of them.
 | Show a domain's state at a glance | **analytics-dashboard (G)** | KPIs + mixed read-only widgets, drill-down leads out | it's one itemized document with totals → **R** |
 | Present a formal, itemized, printable document | **report (R)** | line items + totals, meant to be read / exported / printed | it's an interactive, editable set → **A** / **M**; it's a wide multi-page statement for print-to-PDF → **Pr** |
 | Print a wide financial statement to PDF | **print-statement (Pr)** | a print-only route with no app chrome; multi-column tables over several A4 pages, scope fixed by the route | it's one bounded invoice-shaped document → **R**; the user still re-scopes it with filters → **F** |
+| Build or edit a hierarchical structure from a pool of items | **structure-builder (Sb)** | an editable line tree (reorder, re-parent) beside a palette of items to place, a coverage check, versions and a template list with New / clone | the structure is only read → **F** / **R**; the rows are flat and edited one by one → **D2** / **A** |
 | Triage a time-ordered stream of events | **feed-inbox (H)** | scannable events / notifications, read-or-act | entries are anchored to dates you navigate → **calendar** |
 | Place time-anchored entries on a grid | **calendar** | day / week / month position carries meaning | order matters but the date does not → **H** |
 | Administer many records of one config kind | **settings-table (D2)** | CRUD over a lookup / config table (create/edit via **J**) | it's a handful of grouped options → **D3** / **F2** |
@@ -274,6 +275,11 @@ Template:
 ---
 
 ## Revision log
+
+- **2.4** (2026-11-05) — Part 2 adds **structure-builder (Sb)**: the editor
+  for a hierarchical structure (a report's line tree) built from a palette of
+  items, with a coverage check, version history and a template list. Pick it
+  over F/R when the structure itself is edited, not read.
 
 - **2.3** (2026-11-04) — Part 2 adds **print-statement (Pr)**: the print-only
   route for a wide, multi-page statement. Pick it over R when the document is
