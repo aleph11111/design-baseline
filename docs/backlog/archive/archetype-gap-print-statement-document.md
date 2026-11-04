@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-04
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "new archetype contract + shell design: print chrome, @page policy and slot set are open design"
