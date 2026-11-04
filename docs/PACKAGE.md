@@ -374,13 +374,25 @@ a consumer takes the image, the device projects and the runner from the package:
      // testDir, webServer, baseURL: the app's own
    });
    ```
-3. Run every screenshot command through the image:
+3. Self-host the exact Inter build the baselines render with, so no baseline
+   depends on a live Google Fonts response. Google intermittently answers the
+   css2 `Inter` `<link>` with a *different* build (the `/l/font?kit=` response,
+   ~38 KB) rather than the pinned v20 latin woff2; that build renders 12px
+   semibold about a pixel wider and pushed ~1 in 8 of the donor's own `[phone]`
+   screenshots past the `maxDiffPixelRatio` budget (CI run 41873948155 — 6/6
+   failing renders got the kit CSS, 0/46 passing). Vendor the pinned v20 latin
+   woff2 (the same file the donor keeps as `gallery/fonts/inter-latin-v20.woff2`)
+   into the project (e.g. `public/fonts/inter-latin-v20.woff2`) and declare it
+   with `@font-face` — or `next/font/local` on Next — then point the FONT BINDING
+   at that local Inter. Baseline renders stay deterministic; the app's
+   non-baseline runtime font is a separate concern.
+4. Run every screenshot command through the image:
    `npx design-baseline-playwright npx playwright test` (add `--update-snapshots`
    to regenerate). The bin mounts the project at `/work` and keeps a Linux
    `node_modules` on a named volume (`npm ci` when `package-lock.json` changes).
    On a Linux host it runs as your uid:gid (`HOME=/tmp`, npm cache volume at
    `/tmp/.npm`, volumes chowned per run) so nothing it writes is root-owned.
-4. In CI, run the job in `container: image: <PLAYWRIGHT_IMAGE>`; the donor's
+5. In CI, run the job in `container: image: <PLAYWRIGHT_IMAGE>`; the donor's
    `.github/workflows/check.yml` `screenshots` job is the reference.
 
 The donor itself runs this exact setup (`playwright.config.mjs`,
@@ -573,7 +585,7 @@ deleted or tightened by the MAJOR bumps that shipped in `v0.2.0`:
 | `Input` / `NativeField` (v0.5.1) | `h-*` className overrides | `size` `sm` / `default` / `lg` | Drop the override and pass `size`; optional, additive |
 | **all controls** (v0.5.0, STYLE.md "Control heights") | `Button`/`SelectTrigger`/`Input`/`SearchInput`/`TabsList` default `h-10`; `Button sm` `h-9`; `lg` fields `h-12`; `SegmentedControl` unsized `text-xs` pills | one ladder: `sm` `h-8` · `default` `h-9` · `lg` `h-11`; `SegmentedControl` takes `size` (default `h-9`, `text-sm` pills) | Delete every `className` height override on a control (`h-7`, `h-9`) and pick the `size` step instead — on v0.6.5+ a `Button` `className h-auto` (content-sized link / multi-line button) becomes `size="inline"` and a dense-row icon override becomes `size="icon-sm"` (see the v0.6.5 row; before v0.6.5 keep the override); re-check touch screens that relied on `h-10`/`h-12` and pass `lg` |
 | **toolbar fields** (v0.5.0, STYLE.md "Toolbar field labels") | loose `Label:` captions or stacked labels in a `PageFrame` toolbar | `SelectField` / `NativeField` join their label to the box inside the band automatically; `SelectTrigger label` / `SegmentedControl label` for bare controls | Replace hand-rolled toolbar captions with `label` on the control (or a `SelectField`/`NativeField`); drop `aria-label` the label now supplies |
-| **all figure surfaces** (v0.4.0, ADR-0009) | IBM Plex faces; `font-mono` + medium/semibold on figure values | Inter; figures `tabular-nums`, regular weight | Load Inter instead of IBM Plex (`next/font/google` `Inter` with `variable: "--font-inter"`, or the Google Fonts `<link>`); re-point an uncommented FONT BINDING to `var(--font-inter)`; delete hand-written `font-mono` on figure / ID cells |
+| **all figure surfaces** (v0.4.0, ADR-0009) | IBM Plex faces; `font-mono` + medium/semibold on figure values | Inter; figures `tabular-nums`, regular weight | Load Inter instead of IBM Plex (`next/font/google` `Inter` with `variable: "--font-inter"`, or the Google Fonts `<link>`) — fine for a runtime app, but a project running `design-baseline-playwright` screenshot baselines must self-host the pinned v20 latin woff2 (`@font-face` / `next/font/local`) and not load Inter from Google at all: Google intermittently serves a different build that breaks pixel baselines (CI run 41873948155; see the Gate 3 self-host step); re-point an uncommented FONT BINDING to `var(--font-inter)`; delete hand-written `font-mono` on figure / ID cells |
 | `list-with-detail` / `grouped-list` (v0.4.0, ADR-0009) | `TableColumn identifierMono` | deleted | Drop it; identifiers render in the house sans |
 | **all page shells** (v0.3.0, ADR-0008) | `kicker`, `headerActions`, untitled/unframed branches | deleted; `title` required | Pass `title` once to the shell and delete any `PageHeader` beside it. Page verbs (create, export, print) → `actions`; scoping controls → `toolbar`; result count → `count`; display toggles → `viewOptions` (`DropdownMenuCheckboxItem`s) |
 | **all page shells** (v0.3.0) | `subtitle` / `icon` accepted but never rendered | `subtitle` + `badges` now render; `icon` only on detail-overview / form-page | Keep `subtitle`; drop `icon` elsewhere |
