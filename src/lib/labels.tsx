@@ -78,6 +78,12 @@ export type BaselineLabels = {
   addNew: string;
   unread: string;
   reportColumns: readonly [string, string, string, string];
+  // Layout editing (analytics-dashboard edit mode)
+  rename: string;
+  configureNamed: (name: string) => string;
+  removeNamed: (name: string) => string;
+  moveEarlier: (name: string) => string;
+  moveLater: (name: string) => string;
   // Print
   printHint: string;
   printAction: string;
@@ -156,6 +162,11 @@ export const labelsEn: BaselineLabels = {
   addNew: "Add new",
   unread: "Unread",
   reportColumns: ["Position", "Qty", "Unit", "Sum"],
+  rename: "Rename",
+  configureNamed: (name) => `Configure ${name}`,
+  removeNamed: (name) => `Remove ${name}`,
+  moveEarlier: (name) => `Move ${name} earlier`,
+  moveLater: (name) => `Move ${name} later`,
   printHint: "Print view — choose “Save as PDF” in the print dialog.",
   printAction: "Print / Save as PDF",
   commitImport: "Commit import",
@@ -232,6 +243,11 @@ export const labelsDe: BaselineLabels = {
   addNew: "Neu hinzufügen",
   unread: "Ungelesen",
   reportColumns: ["Position", "Menge", "Einheit", "Summe"],
+  rename: "Umbenennen",
+  configureNamed: (name) => `${name} konfigurieren`,
+  removeNamed: (name) => `${name} entfernen`,
+  moveEarlier: (name) => `${name} nach vorne verschieben`,
+  moveLater: (name) => `${name} nach hinten verschieben`,
   printHint: "Druckansicht — im Druckdialog „Als PDF speichern“ wählen.",
   printAction: "Drucken / Als PDF speichern",
   commitImport: "Import abschließen",

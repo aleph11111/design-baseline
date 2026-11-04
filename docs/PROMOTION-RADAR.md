@@ -46,6 +46,7 @@ step belongs to the close-out, not "someday".
 | Inbox / feed surface (conversation/activity feed + filter chips) | promote | archetype H (`feed-inbox`) | brickshop, hk-crm | **promoted 2026-06-14** (gap-fold) |
 | Auth / error static card (sign-in / not-authorized / error shell) | adopt-existing | `AuthCard` (layout, no new donor artifact) | brickshop, controlling-app, hk-crm, mistra | **promoted 2026-10-16** (gap-fold) |
 | Auth card centered header + purpose-tinted icon circle (controlling-app `/login`, `/not-authorized`) | promote | `AuthCard` `purpose` (v0.12.0) | controlling-app | **promoted 2026-10-18** (operator decision) |
+| Editable dashboard tile layout (rename, add/configure/remove/reorder tiles, assignment) | promote | extend G (`analytics-dashboard`) v4.2 edit mode (ADR-0011) | controlling-app (2 pages) | **promoted 2026-11-05** (gap-fold) |
 
 ## Watch (confirmed in a 2nd/3rd project on the next re-audit before promoting)
 

@@ -2,7 +2,7 @@
 key: G
 slug: analytics-dashboard
 kind: page
-version: 4.1
+version: 4.2
 promoted_from: fleet-audit-2026-06-13 (brickshop-manager, my-finance-app, hk-crm, mistra)
 promoted_at: 2026-06-14
 source_spec_version: 1.3
@@ -30,8 +30,13 @@ no archetype to adopt — a clear rule-of-2 gap.
 
 ## Layer 1 — Route config
 A top-level route (e.g. `/dashboard`, `/reports`, `/analytics`). Code-split behind
-the framework's **lazy-load boundary**, like any page. Read-only — no create/edit
-routes hang off it.
+the framework's **lazy-load boundary**, like any page. Read-only by default — the
+figures are never edited here. The one sanctioned write is the **layout** itself,
+in **edit mode** (below, [ADR-0011](../adr/0011-analytics-dashboard-edit-mode.md)),
+entered either on a layout-editor route of its own (a template that is only ever
+edited) or through an "Edit layout" toggle in the live dashboard's `actions`.
+Either way it is this archetype's shell; no other archetype edits a dashboard
+layout.
 
 ## Layer 2 — Page shell
 Renders inside the project's **top-level app shell** (the app shell's main region
@@ -40,7 +45,8 @@ errors degrade to a per-widget message, never a blank page.
 
 ## Layer 3 — Page header
 The dashboard's name is the page `title`, passed once. No page-level write
-actions (the page is read-only); export/share are `actions`.
+actions outside edit mode; export/share and the "Edit layout" toggle are `actions`.
+In edit mode the `actions` are "Add tile" (the primary verb) and "Done".
 
 ## Layer 4 — Toolbar (filter bar)
 Everything that re-scopes the dashboard goes in `toolbar`: a **period** control
@@ -86,6 +92,36 @@ A widget that "looks cramped" is not grounds to widen it — either it matches o
 of the two wider kinds above, or its body is too dense for a widget and belongs on
 its own page.
 
+## Edit mode (layout editing)
+Edit mode changes the layout, never the figures, and keeps every other layer:
+same frame, same grid, same span keying rule, same per-widget states.
+
+- **Inline rename** — the `title` becomes the archetype's **title editor**: the
+  name with a rename button; renaming swaps in an input at the title's own size
+  (Enter or the save button saves, Escape cancels, blur saves; an unchanged or
+  empty name saves nothing). The name stays the page's one heading.
+- **Add** — "Add tile" is the primary header action; an empty grid shows the
+  canonical empty state with the same action.
+- **Remove / configure / reorder** — every widget carries the archetype's **edit
+  controls** in its heading bar: move earlier, move later, configure, remove,
+  each named after the tile. **Reorder is keyboard-operable**: the move buttons
+  are ordinary buttons in tab order, disabled at the ends. Pointer
+  drag-and-drop of a widget onto another is an addition on top, never the only
+  way. Order is the layout — no free x/y placement, no resizable cells.
+- **Tile config dialog** — adding or configuring a tile opens a **modal dialog
+  owned by the consumer**; tile settings are never edited inline in the cell. The
+  dialog sets what the tile *is* (its metric, its kind); its width is then
+  derived by the Layer 6 span keying rule, so the dialog offers no width
+  control.
+- **Assignment** — who the layout applies to (assets, teams, sites) is the
+  archetype's **assignment list**: a titled cell after the widget grid, one
+  checkbox per target, each saving on its own with a per-row pending state.
+- **Widget body** — still the consumer's: a live chart (live dashboard) or a
+  summary of the tile's configuration (template editor).
+- **Forbidden:** a hand-rolled sortable card list for the tiles; reorder by
+  pointer drag only; a width/columns control in the config dialog; a page-level
+  "Save layout" that batches every edit (each edit saves on its own).
+
 ## Layer 7 — States
 - **Loading** — per-widget skeletons (a widget loads independently); never a
   single page-level spinner that blanks the whole dashboard.
@@ -96,10 +132,11 @@ its own page.
 ## Layers 8–12
 Data: one query per widget (or a batched endpoint), keyed by the active filters so
 each filter combo caches separately; a freshness window ≥ 60s (dashboards tolerate
-mild staleness). Types: a KPI shape + per-widget series shapes. Mutations: none
-(read-only). Mobile: the grid is already responsive; the filter bar wraps. Permissions:
+mild staleness). Types: a KPI shape + per-widget series shapes. Mutations: none on
+the figures; in edit mode, layout mutations only (rename, add/configure/remove a
+tile, reorder — optimistic, reverted on error — and toggle one assignment). Mobile: the grid is already responsive; the filter bar wraps. Permissions:
 gate the whole route; gate individual widgets by hiding (not disabling) when a role
-can't see a metric.
+can't see a metric; hide the "Edit layout" toggle from a role that can't edit.
 
 ---
 
@@ -126,6 +163,11 @@ can't see a metric.
 - [ ] **Loading/empty/error per widget** use canonical states, not per-chart spinners.
 - [ ] **Single inset; no nested page padding** around the widget grid. **[spine] S1–S6.**
 
+- [ ] **Edit mode (if the page edits its layout) via the archetype's title editor,
+      widget edit controls and assignment list** — reorder works from the
+      keyboard. *Wrapper tell:* a sortable list of bespoke tile cards beside or
+      instead of the widget grid.
+
 **SHOULD** (yellow, not red)
 
 - [ ] Filter/date-range controls sit in `toolbar`, not scattered per widget.
@@ -137,6 +179,10 @@ can't see a metric.
 ---
 
 ## Version log
+
+- **4.2** (ADR-0011) — edit mode: inline rename, add / configure (consumer
+  dialog) / remove / keyboard-operable reorder of widgets, and the assignment
+  list. Layer 1 now allows the layout (never the figures) to be edited.
 
 - **4.0** (ADR-0008) — one page frame. The dashboard's name is the page
   `title` (once); filters are `toolbar`, export/share `actions`; the KPI row

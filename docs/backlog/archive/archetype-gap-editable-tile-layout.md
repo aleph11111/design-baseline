@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-04
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "archetype shape is the deliverable: new kind:page vs edit mode on analytics-dashboard is an open design tradeoff"

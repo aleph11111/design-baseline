@@ -425,6 +425,20 @@
       "promotedAt": "2026-10-10",
       "axisB": "on-token (composes the existing footer)",
       "notes": "Promoted 2026-10-10 as a fleet synthesis. The fleet's real gap was not the anti-pattern itself but the bridge that avoids it. brickshop-manager and mistra lift `useForm` into the dialog; mistra adds a hidden submit-on-Enter shim; brickshop has none, so Enter submits nothing. hk-crm lets form islands report up through `useCrudDialogFormReport`. Both bridges now ship from J. The report hook is single-source (hk-crm) and was promoted by operator decision. It fixes an hk-crm stale-memo edge: the report now re-creates when `onDelete` appears or disappears. Scan-count caveat: the `crud-dialog-form-owns-footer` regex matches every `<CrudDialogFooter` / `<FormPageActions`, including conformant shells. brickshop's 37 and mistra's 8 are conformant (0 real offenders, verified 2026-10-10). hk-crm has 5 real offenders, its dialog-hosted forms that still return `FormPageActions`: holding, lookup, user, project-phase, service-assignment-renewal. `project-form.tsx` is a legitimate B page. Precision fix belongs to the dashboard scanner: a negative co-occurrence gate (footer present AND `CrudDialogSheet` absent). Downstream self-heal is in CHANGELOG v0.11.0."
+    },
+    {
+      "id": "editable-dashboard-tile-layout",
+      "pattern": "Editable dashboard tile layout: inline-renamed dashboard/template name, tiles added/configured (dialog)/removed/reordered by drag, plus assignment of the layout to targets — hand-rolled as a sortable card list beside or instead of the dashboard grid",
+      "axisA": "promote",
+      "donorTarget": "extend G (analytics-dashboard) v4.2 edit mode: DashboardTitleEditor, DashboardWidget `edit`, DashboardAssignmentList (ADR-0011)",
+      "projects": [
+        "controlling-app"
+      ],
+      "count": 1,
+      "status": "promoted",
+      "promotedAt": "2026-11-05",
+      "axisB": "on-token (composes the existing widget cells)",
+      "notes": "Promoted 2026-11-05 from archetype-gap ticket archetype-gap-editable-tile-layout as an extension of G, not a new archetype (ADR-0011). Rule of 2 met by two controlling-app pages of the same shape: admin/dashboard-templates/[id] (template editor, grandfathered under page-requires-archetype-shell) and workspace/dashboard (live dashboard whose layout unlocks into the same editor). Both use @dnd-kit pointer+keyboard sorting and the same TileConfigDialog; the donor edit mode replaces the sortable list with move buttons (keyboard) plus native drag-and-drop."
     }
   ],
   "sanctioned": [
