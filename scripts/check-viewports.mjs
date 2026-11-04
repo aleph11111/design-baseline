@@ -130,7 +130,7 @@ for (const s of STEPS) {
     const got = await page.evaluate(() => {
       const toolbar = document.querySelector('[data-slot="print-toolbar"]');
       const rule = [...document.styleSheets]
-        .flatMap((s) => [...s.cssRules])
+        .flatMap((s) => { try { return [...s.cssRules]; } catch { return []; } }) // cross-origin sheets throw
         .find((r) => r instanceof CSSPageRule);
       return {
         toolbar: toolbar ? getComputedStyle(toolbar).display : "missing",

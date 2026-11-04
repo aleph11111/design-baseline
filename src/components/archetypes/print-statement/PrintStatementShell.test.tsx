@@ -1,3 +1,4 @@
+import * as React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { PRINT_DELAY_MS, PrintStatementShell } from "./PrintStatementShell";
@@ -63,6 +64,29 @@ describe("PrintStatementShell", () => {
     vi.advanceTimersByTime(1);
     rerender(<PrintStatementShell title="T" subtitle="again" />);
     vi.advanceTimersByTime(PRINT_DELAY_MS * 2);
+    expect(print).toHaveBeenCalledTimes(1);
+  });
+
+  it("still auto-prints once when the document flickers back to loading inside the delay", () => {
+    const print = vi.spyOn(window, "print").mockImplementation(() => {});
+    vi.useFakeTimers();
+    const { rerender } = render(<PrintStatementShell title="T" />);
+    vi.advanceTimersByTime(PRINT_DELAY_MS / 2);
+    rerender(<PrintStatementShell title="T" isLoading />);
+    rerender(<PrintStatementShell title="T" />);
+    vi.advanceTimersByTime(PRINT_DELAY_MS * 3);
+    expect(print).toHaveBeenCalledTimes(1);
+  });
+
+  it("auto-prints once under StrictMode's effect re-run", () => {
+    const print = vi.spyOn(window, "print").mockImplementation(() => {});
+    vi.useFakeTimers();
+    render(
+      <React.StrictMode>
+        <PrintStatementShell title="T" />
+      </React.StrictMode>,
+    );
+    vi.advanceTimersByTime(PRINT_DELAY_MS * 3);
     expect(print).toHaveBeenCalledTimes(1);
   });
 });

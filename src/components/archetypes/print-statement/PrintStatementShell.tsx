@@ -66,8 +66,12 @@ export function PrintStatementShell({
   const printed = React.useRef(false);
   React.useEffect(() => {
     if (!autoPrint || !ready || printed.current) return;
-    printed.current = true;
-    const t = setTimeout(() => window.print(), PRINT_DELAY_MS);
+    // The guard is set when the dialog actually opens: a cleanup inside the
+    // delay (StrictMode's re-run, a ready→loading flicker) must reschedule.
+    const t = setTimeout(() => {
+      printed.current = true;
+      window.print();
+    }, PRINT_DELAY_MS);
     return () => clearTimeout(t);
   }, [autoPrint, ready]);
 
