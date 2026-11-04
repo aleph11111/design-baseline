@@ -9,6 +9,7 @@
 // changes.
 // ponytail: npm projects only; add a lockfile switch when a pnpm/yarn consumer adopts it.
 import { spawnSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { PLAYWRIGHT_IMAGE } from "../src/testing/docker.mjs";
@@ -29,15 +30,38 @@ const script = [
   `exec ${cmd.map(quote).join(" ")}`,
 ].join("\n");
 
+// Linux hosts don't remap bind-mount ownership (Docker Desktop does), so run as the
+// invoking user or every file the container writes is root-owned. The named volumes
+// are created root-owned, so chown them once per run first; HOME=/tmp gives npm a
+// writable home, with the cache volume at /tmp/.npm.
+const linux = process.platform === "linux";
+const cacheDir = linux ? "/tmp/.npm" : "/root/.npm";
+const nmVol = `design-baseline-nm-${id}`;
+const cacheVol = "design-baseline-npm-cache";
+if (linux) {
+  const owner = `${process.getuid()}:${process.getgid()}`;
+  mkdirSync(path.join(cwd, "node_modules"), { recursive: true }); // else docker creates the mountpoint as root
+  const chown = spawnSync(
+    "docker",
+    ["run", "--rm", "--user", "0", "--entrypoint", "chown", "-v", `${nmVol}:/nm`, "-v", `${cacheVol}:/cache`, PLAYWRIGHT_IMAGE, "-R", owner, "/nm", "/cache"],
+    { stdio: "inherit" },
+  );
+  if (chown.status !== 0) {
+    console.error("design-baseline-playwright: could not chown the docker volumes");
+    process.exit(chown.status ?? 1);
+  }
+}
+
 console.log(`design-baseline-playwright: ${PLAYWRIGHT_IMAGE} — ${cmd.join(" ")}`);
 const r = spawnSync(
   "docker",
   [
     "run", "--rm", "--init", "--ipc=host",
+    ...(linux ? ["--user", `${process.getuid()}:${process.getgid()}`, "-e", "HOME=/tmp"] : []),
     ...(process.stdout.isTTY ? ["-t"] : []),
     "-v", `${cwd}:/work`,
-    "-v", `design-baseline-nm-${id}:/work/node_modules`,
-    "-v", "design-baseline-npm-cache:/root/.npm",
+    "-v", `${nmVol}:/work/node_modules`,
+    "-v", `${cacheVol}:${cacheDir}`,
     "-w", "/work",
     "-e", "CI",
     PLAYWRIGHT_IMAGE,

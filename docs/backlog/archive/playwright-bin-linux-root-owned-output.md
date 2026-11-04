@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-10-29'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "one spawnSync arg list in bin/design-baseline-playwright.mjs; cause established (container runs as root)"
