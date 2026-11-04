@@ -44,7 +44,19 @@ describe("StructureTree — keyboard-only moves", () => {
     fireEvent.keyDown(x(), { key: "ArrowDown", altKey: true });
     fireEvent.keyDown(x(), { key: "ArrowRight", altKey: true });
     expect(order()).toEqual(["1:Group 1", "2:Y", "1:Group 2", "2:X"]);
-    expect(screen.getByText("Moved X")).toBeTruthy();
+    expect(screen.getByText("Moved X to position 1 in Group 2")).toBeTruthy();
+  });
+
+  it("announces every consecutive move, not just the first", () => {
+    render(<Harness />);
+    const x = () => screen.getAllByRole("treeitem").find((li) => li.textContent === "X")!;
+    const live = () => document.querySelector("[aria-live=polite]")!.textContent;
+    x().focus();
+    fireEvent.keyDown(x(), { key: "ArrowDown", altKey: true });
+    const first = live();
+    fireEvent.keyDown(x(), { key: "ArrowLeft", altKey: true });
+    expect(first).toBe("Moved X to position 2 in Group 1");
+    expect(live()).toBe("Moved X to position 2 at the top level");
   });
 
   it("arrow keys alone move focus and selection, not lines", () => {

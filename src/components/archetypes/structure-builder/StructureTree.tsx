@@ -101,7 +101,10 @@ export function StructureTree<N extends StructureNode>({
     if (!to || !onMove) return;
     onMove(id, to.parentId, to.index);
     const node = findNode(nodes, id);
-    if (node) setAnnouncement(L.structureMoved(getLabel(node)));
+    const parent = to.parentId === null ? undefined : findNode(nodes, to.parentId);
+    // Position + parent differ on every real move, so consecutive moves always
+    // change the live region's text (an identical string is never re-spoken).
+    if (node) setAnnouncement(L.structureMoved(getLabel(node), to.index + 1, parent ? getLabel(parent) : null));
     pendingFocus.current = id;
   };
 
@@ -174,7 +177,10 @@ export function StructureTree<N extends StructureNode>({
                   }
                 : undefined
             }
-            onDragLeave={() => setHint(null)}
+            onDragLeave={(e) => {
+              // Crossing into the row's own children is not leaving the row.
+              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHint(null);
+            }}
             onDrop={(e) => {
               e.preventDefault();
               e.stopPropagation();

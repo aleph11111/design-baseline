@@ -94,7 +94,7 @@ export type BaselineLabels = {
   structureTree: string;
   structureEmpty: string;
   structureMoveHint: string;
-  structureMoved: (label: string) => string;
+  structureMoved: (label: string, position: number, parent: string | null) => string;
   structurePlace: (label: string) => string;
   unsavedChanges: string;
   coverageComplete: string;
@@ -188,7 +188,8 @@ export const labelsEn: BaselineLabels = {
   structureTree: "Structure",
   structureEmpty: "No structure yet",
   structureMoveHint: "Alt + arrow keys move the selected line: up / down reorders, right indents, left outdents.",
-  structureMoved: (label) => `Moved ${label}`,
+  structureMoved: (label, position, parent) =>
+    `Moved ${label} to position ${position}${parent ? ` in ${parent}` : " at the top level"}`,
   structurePlace: (label) => `Place ${label} in the selected line`,
   unsavedChanges: "Unsaved changes",
   coverageComplete: "Everything is placed",
@@ -281,7 +282,8 @@ export const labelsDe: BaselineLabels = {
   structureTree: "Struktur",
   structureEmpty: "Noch keine Struktur",
   structureMoveHint: "Alt + Pfeiltasten verschieben die gewählte Zeile: hoch / runter ordnet um, rechts rückt ein, links rückt aus.",
-  structureMoved: (label) => `${label} verschoben`,
+  structureMoved: (label, position, parent) =>
+    `${label} verschoben an Position ${position}${parent ? ` in ${parent}` : " auf oberster Ebene"}`,
   structurePlace: (label) => `${label} in die gewählte Zeile einfügen`,
   unsavedChanges: "Ungespeicherte Änderungen",
   coverageComplete: "Alles ist zugeordnet",
