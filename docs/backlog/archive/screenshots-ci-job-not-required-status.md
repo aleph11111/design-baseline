@@ -1,7 +1,8 @@
 ---
 area: tooling
 opened: '2026-10-29'
-status: ready
+status: done
+closed: subsumed-plus-header-fix
 value: high
 model: sonnet
 model_reason: "one ruleset API call plus a header-comment edit; the fold-into-check alternative is ruled out by the container split in check.yml"
@@ -22,10 +23,10 @@ Folding the compare into the `check` job is not viable: `check` runs on the bare
 
 ## What to do
 
-- [ ] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
-- [ ] Add a `required_status_checks` rule to the `main-protected` ruleset requiring both contexts `check` and `screenshots` (one rule, so this also discharges [[code-health-no-pr-check-workflow]]). This is an admin action on origin; the operator or an admin-authed session runs it.
-- [ ] Update the header comment of `.github/workflows/check.yml` to name both `check` and `screenshots` as required statuses.
-- [ ] Re-check every other job in `.github/workflows/*.yml` that runs on `pull_request`; each must be either required or noted in its header as advisory.
+- [x] Before editing, grep every caller of the touched function / query pattern; fix at the shared point, not only the call site this report names.
+- [x] Add a `required_status_checks` rule to the `main-protected` ruleset requiring both contexts `check` and `screenshots` (one rule, so this also discharges [[code-health-no-pr-check-workflow]]). This is an admin action on origin; the operator or an admin-authed session runs it.
+- [x] Update the header comment of `.github/workflows/check.yml` to name both `check` and `screenshots` as required statuses.
+- [x] Re-check every other job in `.github/workflows/*.yml` that runs on `pull_request`; each must be either required or noted in its header as advisory.
 
 ## Acceptance
 
@@ -38,3 +39,7 @@ Folding the compare into the `check` job is not viable: `check` runs on the bare
 
 - [[code-health-no-pr-check-workflow]] — same ruleset gap for `check`; one rule covers both
 - [[device-triad-screenshot-baselines]] — shipped the `screenshots` job in PR #624
+
+## Resolution
+
+Ruleset 24341708 already carries `required_status_checks` with contexts `check` + `screenshots` (verified via `gh api` 2026-11-04). `check.yml` is the only `pull_request` workflow (`tag-version.yml` is push-to-main). Header comment updated in this change to name both required statuses.
