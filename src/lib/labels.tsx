@@ -80,7 +80,7 @@ export type BaselineLabels = {
   reportColumns: readonly [string, string, string, string];
   // Layout editing (analytics-dashboard edit mode)
   rename: string;
-  editNamed: (name: string) => string;
+  configureNamed: (name: string) => string;
   removeNamed: (name: string) => string;
   moveEarlier: (name: string) => string;
   moveLater: (name: string) => string;
@@ -163,7 +163,7 @@ export const labelsEn: BaselineLabels = {
   unread: "Unread",
   reportColumns: ["Position", "Qty", "Unit", "Sum"],
   rename: "Rename",
-  editNamed: (name) => `Configure ${name}`,
+  configureNamed: (name) => `Configure ${name}`,
   removeNamed: (name) => `Remove ${name}`,
   moveEarlier: (name) => `Move ${name} earlier`,
   moveLater: (name) => `Move ${name} later`,
@@ -244,7 +244,7 @@ export const labelsDe: BaselineLabels = {
   unread: "Ungelesen",
   reportColumns: ["Position", "Menge", "Einheit", "Summe"],
   rename: "Umbenennen",
-  editNamed: (name) => `${name} konfigurieren`,
+  configureNamed: (name) => `${name} konfigurieren`,
   removeNamed: (name) => `${name} entfernen`,
   moveEarlier: (name) => `${name} nach vorne verschieben`,
   moveLater: (name) => `${name} nach hinten verschieben`,

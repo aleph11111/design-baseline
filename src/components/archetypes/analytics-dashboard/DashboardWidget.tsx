@@ -32,15 +32,33 @@ const DRAG_TYPE = "application/x-dashboard-widget";
 function EditControls({ edit }: { edit: DashboardWidgetEdit }): React.ReactElement {
   const t = useLabels();
   const { name, index, count, onMove } = edit;
+  const earlier = React.useRef<HTMLButtonElement>(null);
+  const later = React.useRef<HTMLButtonElement>(null);
+  const pressed = React.useRef<"earlier" | "later" | null>(null);
+  // A move re-orders the DOM node holding the focused button, which drops
+  // focus to <body>. Put it back on the pressed move button — or its sibling
+  // when the move landed on an end and disabled it — so a keyboard user can
+  // keep moving the tile.
+  React.useEffect(() => {
+    const which = pressed.current;
+    if (!which) return;
+    pressed.current = null;
+    const [own, other] = which === "earlier" ? [earlier, later] : [later, earlier];
+    (own.current && !own.current.disabled ? own.current : other.current)?.focus();
+  }, [index]);
+  const move = (which: "earlier" | "later") => {
+    pressed.current = which;
+    onMove(index, which === "earlier" ? index - 1 : index + 1);
+  };
   return (
     <div className="-my-1.5 flex items-center gap-0.5">
-      <Button type="button" variant="ghost" size="icon-sm" aria-label={t.moveEarlier(name)} disabled={index === 0} onClick={() => onMove(index, index - 1)}>
+      <Button ref={earlier} type="button" variant="ghost" size="icon-sm" aria-label={t.moveEarlier(name)} disabled={index === 0} onClick={() => move("earlier")}>
         <ChevronLeft />
       </Button>
-      <Button type="button" variant="ghost" size="icon-sm" aria-label={t.moveLater(name)} disabled={index === count - 1} onClick={() => onMove(index, index + 1)}>
+      <Button ref={later} type="button" variant="ghost" size="icon-sm" aria-label={t.moveLater(name)} disabled={index === count - 1} onClick={() => move("later")}>
         <ChevronRight />
       </Button>
-      <Button type="button" variant="ghost" size="icon-sm" aria-label={t.editNamed(name)} onClick={edit.onConfigure}>
+      <Button type="button" variant="ghost" size="icon-sm" aria-label={t.configureNamed(name)} onClick={edit.onConfigure}>
         <Pencil />
       </Button>
       <Button type="button" variant="ghost" size="icon-sm" aria-label={t.removeNamed(name)} onClick={edit.onRemove}>

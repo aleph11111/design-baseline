@@ -31,16 +31,24 @@ export function DashboardTitleEditor({
 }: DashboardTitleEditorProps): React.ReactElement {
   const t = useLabels();
   const [draft, setDraft] = React.useState<string | null>(null);
+  // Enter then blur (or a double Enter) must not send the rename twice, and a
+  // blur fired while Escape unmounts the input must not save the abandoned draft.
+  const busy = React.useRef(false);
 
+  const cancel = () => {
+    busy.current = true;
+    setDraft(null);
+  };
   const save = async () => {
-    if (draft === null) return;
+    if (draft === null || busy.current) return;
     const next = draft.trim();
-    if (!next || next === value) return setDraft(null);
+    if (!next || next === value) return cancel();
+    busy.current = true;
     try {
       await onRename(next);
       setDraft(null);
     } catch {
-      // keep editing; the consumer shows the error
+      busy.current = false; // keep editing; the consumer shows the error
     }
   };
 
@@ -48,7 +56,10 @@ export function DashboardTitleEditor({
     return (
       <span className="inline-flex items-center gap-2">
         {value || placeholder}
-        <Button type="button" variant="ghost" size="icon-sm" aria-label={t.rename} onClick={() => setDraft(value)}>
+        <Button type="button" variant="ghost" size="icon-sm" aria-label={t.rename} onClick={() => {
+            busy.current = false;
+            setDraft(value);
+          }}>
           <Pencil />
         </Button>
       </span>
@@ -65,7 +76,7 @@ export function DashboardTitleEditor({
         onBlur={save}
         onKeyDown={(e) => {
           if (e.key === "Enter") void save();
-          if (e.key === "Escape") setDraft(null);
+          if (e.key === "Escape") cancel();
         }}
         className="h-auto py-0 text-[length:inherit] font-[inherit] tracking-[inherit] md:text-[length:inherit]"
       />
