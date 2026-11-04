@@ -70,6 +70,7 @@ step (stamp/directive/imports) already imposes on the migration.
 ## Consequences
 
 - `node scripts/verify-exports.mjs` gains a seventh row and reports `7/7 ok`
+  (later invariants brought it to 10 rows; this one is still row 7)
   on the fixed tree; its header and this ADR are the standing explanation of
   the difference from invariant 3.
 - Consumers resolving `ui/`, `layout/`, or `archetypes/` leaves through the

@@ -32,8 +32,8 @@ Operator ruling (2026-10-15): the data decides the sheet's width. Scrolling side
 - A detail with a wide table now opens wider with no consumer change. In the gallery, a 7-column episode table opens at 723px at a 1280px viewport, with no sideways scroll.
 - Consumers that squeezed cell padding to fit 448px can drop the squeeze. A detail that triggers the warning moves to a `detail-overview` route. gebo-stock-kiosk is moving its item detail to a route separately.
 - Table cells in a detail no longer wrap. ~~A table with a free-text column reaches the ceiling and warns. That is the intended signal: free text in a detail table means the detail is a workspace.~~ Superseded by the 2026-10-15 amendment below: a free-text column is marked and wraps; only an unmarked one reaches the ceiling and warns.
-- The guard is development-only. It reads `process.env.NODE_ENV` the way `utils/logger.ts` does, but inside a `try`, because Vite replaces only the `process.env.NODE_ENV` text and leaves `process` undefined in the browser.
-- The real-browser check is `npm run check:detail-sheet`. It needs local Chrome and is not run in CI, like `check:desk-width`. It builds a development gallery so the warning is live.
+- The guard is development-only. It reads `process.env.NODE_ENV` through `isDevBuild()` in `src/lib/env.ts` (the one dev gate `utils/logger.ts` also uses), inside a `try`, because Vite replaces only the `process.env.NODE_ENV` text and leaves `process` undefined in the browser.
+- The real-browser check is `npm run check:detail-sheet`. It needs local Chrome and is not run in CI, like `check:app-header-phone` and `check:joined-label` (the former `check:desk-width` was absorbed into `check:viewports`, which does run in CI). It builds a development gallery so the warning is live.
 
 ## Amendment (2026-10-15) — free-text table cells wrap
 
