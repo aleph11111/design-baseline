@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.22.1
+
+- **Changed:** the `pageShell` lint hint (`scripts/lint-design.mjs`) and `docs/RULES.md` rule 12 / `docs/PACKAGE.md` now say an agent never adds the `// archetype-gap:` waiver; only the operator ships a waived page, by merging it by hand. The old "approval recorded in the PR body" wording was forgeable. Wording only; waiver matching, severity and the grandfather ratchet are unchanged.
+- **Consumer:** none required. Refresh a vendored `lint-design.mjs` to see the new hint. Agent skills that still say approval is recorded in the PR body (e.g. `choosing-a-page-archetype`) should be reworded the same way.
+- **Breaking:** no.
+
 ## v0.22.0
 
 - **Added:** analytics-dashboard (G) **edit mode** (contract v4.2, MANIFEST 4.4, ADR-0011) for pages that edit a dashboard's tile layout. `DashboardTitleEditor` is the inline rename passed as the shell's `title` (Enter / save button saves, Escape cancels, blur saves; a rejected `onRename` keeps it open). `DashboardWidget` takes an optional `edit` object (`name`, `index`, `count`, `onMove(from, to)`, `onConfigure`, `onRemove`): the cell gains move earlier / move later / configure / remove buttons named after the tile (keyboard-operable reorder) and becomes a native drag-and-drop source and target. `DashboardAssignmentList` is the assignment checklist after the grid (`targets` with `assigned` / `pending`, `onToggle`). The tile config dialog stays consumer-owned; it sets the tile's kind, and `span` is still derived by the Layer 6 keying rule.
