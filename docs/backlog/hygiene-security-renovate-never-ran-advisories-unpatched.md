@@ -1,7 +1,8 @@
 ---
 area: hygiene-security
 opened: '2026-11-04'
-status: ready
+status: blocked
+blocked_reason: "needs operator: install the Renovate GitHub App on aleph11111/design-baseline (admin step, not doable from a worktree), then confirm the first Dependency Dashboard issue or bot PR. Code criteria shipped in PR #654: npm audit clean, minimumReleaseAge + vulnerabilityAlerts added."
 value: high
 model: sonnet
 model_reason: "scoped dependency bumps plus one renovate.json field; cause established, acceptance checkable with npm audit"

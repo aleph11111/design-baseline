@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.20.2
+
+- **Changed:** `zod` floor raised to `^4.6.7` (GHSA-mrhx-c7xc-m3w5, memory exhaustion validating oversized collections); donor-dev toolchain (`vite`, `vitest`, `react-router-dom`) and transitive advisories patched in the lockfile.
+- **Consumer:** none required beyond installing; the `zod` range now excludes vulnerable versions, so a consumer lockfile pinned below 4.6.6 will be bumped.
+- **Breaking:** no.
+
 ## v0.20.1
 
 - **Changed:** the `pageShell` lint hint and `docs/RULES.md` rule 12 / `docs/PACKAGE.md` now say the `// archetype-gap: <ticket-slug>` waiver requires explicit operator approval to ship before the gap closes, recorded in the PR body; otherwise page work stops and the page ticket is blocked on the gap ticket. Wording only: matching, severity and the grandfather ratchet are unchanged.
