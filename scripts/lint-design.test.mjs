@@ -348,7 +348,7 @@ describe("lint-design per-rule include glob", () => {
     // `archetype-appearance-noun-prop`, `archetype-look-union-prop` and
     // `archetype-numeric-union-prop` each carry `src/components/layout/**` as a
     // second root: the chrome the archetype shells compose (SectionCard,
-    // SurfaceFrame) lives outside `src/components/archetypes/`, and hard rule 12
+    // SurfaceFrame) lives outside `src/components/archetypes/`, and hard rule 10
     // governs an appearance prop there on the same terms. Without the root a
     // closed archetype can forward a prop it is supposed to fully key to an
     // ungated owner one directory over (DetailSection.tone -> SectionCard.tone).

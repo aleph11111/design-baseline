@@ -135,12 +135,12 @@ Two boundaries of the widened walk:
 > keys oxlint rejects as `unknown field` — so it loaded nothing and enforced nothing. Replaced by
 > this zero-dep scanner (ADR-0003).
 
-## The `archetype-*` appearance-prop rules (enforcing hard rule 12)
+## The `archetype-*` appearance-prop rules (enforcing hard rule 10)
 
 These ship in the archetype-convergence Phase 1
 (`docs/backlog/archetype-convergence.md`) and are `include`-scoped to
 `src/components/archetypes/` so the shadcn leaf layer (`src/components/ui/`) is never flagged.
-Their `message` cites `docs/RULES.md` hard rule 12 — an appearance is either global (a token, or
+Their `message` cites `docs/RULES.md` hard rule 10 — an appearance is either global (a token, or
 one of the closed project contexts set once at `<AppShell>`) or fixed in the component; a
 per-call-site prop is legal only if the contract derives it. They exist because prose has not held
 the rule: eighty-nine `archetype-rollout` tickets were filed against hk-crm before the mechanical
@@ -166,7 +166,7 @@ check landed.
 (widened with the `SectionCard.header` slot its own ticket surfaced and
 deleted). The chrome the archetype shells compose — `SectionCard`,
 `SurfaceFrame`, `StatTileRow`, `ProgressTracker` — lives outside
-`src/components/archetypes/`, and hard rule 12 governs an appearance prop
+`src/components/archetypes/`, and hard rule 10 governs an appearance prop
 there on identical terms: without the root a closed archetype can forward a
 prop it is supposed to fully key to an ungated owner one directory over
 (`DetailSection.tone` → `SectionCard.tone` was exactly that). Because the
@@ -308,7 +308,7 @@ axes are re-gated by name.
 The `unstyled` prop is replaced by the internal `ListChromeContext` (the analogue of detail-overview's
 `UnifiedSurfaceContext`). A composing archetype that owns the surrounding surface sets the context
 to `flush`; the shell then drops its own card chrome. The prop itself is no longer part of the
-per-page API, and re-adding one reopens the escape-hatch defect (RULES.md hard rule 12).
+per-page API, and re-adding one reopens the escape-hatch defect (RULES.md hard rule 10).
 
 ### The `settings-table` ratchet
 

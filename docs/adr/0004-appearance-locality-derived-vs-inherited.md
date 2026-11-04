@@ -20,7 +20,7 @@ The discriminator is not *where the value is passed* but *whether it was derived
 
 ## Decision
 
-**The governing rule is *derived, not inherited*.** This ADR is the single statement of the rule; `docs/RULES.md` hard rule 12 restates it as the enforceable form.
+**The governing rule is *derived, not inherited*.** This ADR is the single statement of the rule; `docs/RULES.md` hard rule 10 restates it as the enforceable form.
 
 > A visual choice is either **global** — a token, or one of a closed set of project contexts declared once at `<AppShell>` — or **fixed in the component**.
 >

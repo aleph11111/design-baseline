@@ -24,7 +24,7 @@ status: locked
 > **v2.0 (2026-08-18) — width and className API closes (archetype-convergence
 > Phase 1, archetype B).** The shell's `className` prop is deleted — an
 > unenumerable superset escape hatch on a `*Shell`, re-adding it reopens the
-> inherited-look defect (ADR-0004 / RULES.md hard rule 12). The `width` axis is
+> inherited-look defect (ADR-0004 / RULES.md hard rule 10). The `width` axis is
 > **kept but no longer a free choice**: an exhaustive keying rule (Layer 2)
 > keys every step to the form's field count and body column layout, and the
 > two-column body clause is corrected to read as a *consequence* of the keying

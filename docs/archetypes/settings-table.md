@@ -125,7 +125,7 @@ status: locked
 > Layer 6 rather than offered as an optional variation (identifiers always use the house sans, ADR-0009). `toolbar` / `bulkActions`
 > / `headerActions` remain `ReactNode` composition slots — they compose the
 > contract's documented toolbar and header primitives, so they vary only content,
-> never the shell's look (spec D5; RULES.md hard rule 12). Deliberate spec-rule
+> never the shell's look (spec D5; RULES.md hard rule 10). Deliberate spec-rule
 > change; see Layer 6 (table / grid) for the two keying rules.
 
 ## Purpose

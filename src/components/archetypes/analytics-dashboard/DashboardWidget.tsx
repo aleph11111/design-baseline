@@ -49,7 +49,7 @@ export type DashboardWidgetProps = {
  * the archetype owns the frame, not the chart.
  *
  * `span` carries no default — a backwards-compatible default is what disqualified
- * it under RULES.md hard rule 12 (ADR-0004); it stays a per-call-site prop only
+ * it under RULES.md hard rule 10 (ADR-0004); it stays a per-call-site prop only
  * because the contract keys it exhaustively to the widget's kind.
  */
 export function DashboardWidget({
