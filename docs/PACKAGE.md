@@ -378,6 +378,8 @@ a consumer takes the image, the device projects and the runner from the package:
    `npx design-baseline-playwright npx playwright test` (add `--update-snapshots`
    to regenerate). The bin mounts the project at `/work` and keeps a Linux
    `node_modules` on a named volume (`npm ci` when `package-lock.json` changes).
+   On a Linux host it runs as your uid:gid (`HOME=/tmp`, npm cache volume at
+   `/tmp/.npm`, volumes chowned per run) so nothing it writes is root-owned.
 4. In CI, run the job in `container: image: <PLAYWRIGHT_IMAGE>`; the donor's
    `.github/workflows/check.yml` `screenshots` job is the reference.
 
