@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-11-04
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "wording only across three known sites; policy already decided, no scanner logic change"
