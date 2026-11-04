@@ -138,6 +138,11 @@ export function StructureTree<N extends StructureNode>({
 
   const draggable = !!onMove || !!onPlace;
 
+  const belowLastRow = (e: React.DragEvent<HTMLElement>) => {
+    const last = e.currentTarget.lastElementChild;
+    return !last || e.clientY >= last.getBoundingClientRect().bottom;
+  };
+
   const renderItems = (list: N[], depth: number): React.ReactNode =>
     list.map((node) => {
       const kids = node.children as N[] | undefined;
@@ -178,7 +183,7 @@ export function StructureTree<N extends StructureNode>({
                 : undefined
             }
             onDragLeave={(e) => {
-              // Crossing into the row's own children is not leaving the row.
+              // Crossing over the row's own content (label, badges) is not leaving the row.
               if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHint(null);
             }}
             onDrop={(e) => {
@@ -220,18 +225,31 @@ export function StructureTree<N extends StructureNode>({
       <ul
         role="tree"
         aria-label={label}
-        // A drop below the last row (or onto an empty tree) lands at the end
-        // of the root level; row drops stop propagation before reaching here.
-        onDragOver={draggable ? (e) => e.preventDefault() : undefined}
+        // Only a drop BELOW the last row (or onto an empty tree) lands at the
+        // end of the root level. Drops in indent gutters and gaps between rows
+        // are refused rather than read as root drops; row drops stop
+        // propagation before reaching here.
+        onDragOver={
+          draggable
+            ? (e) => {
+                if (belowLastRow(e)) e.preventDefault();
+              }
+            : undefined
+        }
         // dragend bubbles from the source row: a cancelled drag clears the hint.
         onDragEnd={() => setHint(null)}
         onDrop={
           draggable
             ? (e) => {
-                e.preventDefault();
                 setHint(null);
+                if (!belowLastRow(e)) return;
+                e.preventDefault();
                 const dragged = e.dataTransfer.getData(NODE_TYPE);
-                if (dragged) return move(dragged, { parentId: null, index: nodes.length });
+                if (dragged) {
+                  // moveNode counts after removal: a root line leaves one slot.
+                  const end = nodes.length - (nodes.some((n) => n.id === dragged) ? 1 : 0);
+                  return move(dragged, { parentId: null, index: end });
+                }
                 const placed = e.dataTransfer.getData(STRUCTURE_PALETTE_TYPE);
                 if (placed && onPlace) onPlace(placed, null, nodes.length);
               }

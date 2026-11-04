@@ -40,7 +40,8 @@ export function __Name__Page() {
   const [edited, setEdited] = useState<__Name__Line[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const lines = edited ?? loaded ?? [];
-  const palette = items.filter((item) => !placed(lines).has(item.id));
+  const inTree = placed(lines);
+  const palette = items.filter((item) => !inTree.has(item.id));
 
   const place = (id: string, parentId: string | null, index: number) => {
     const item = items.find((i) => i.id === id);

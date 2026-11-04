@@ -166,7 +166,7 @@ export function StructureBuilderShell({
   return (
     <PageFrame {...frame} viewSwitch={viewSwitch} actions={headerActions} badges={headerBadges}>
       {body}
-      {history ? (
+      {history && ready ? (
         <Sheet open={historyOpen} onOpenChange={openHistory}>
           <SheetContent side="right">
             <SheetHeader>

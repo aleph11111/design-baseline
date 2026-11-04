@@ -1,6 +1,6 @@
 import * as React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, createEvent, fireEvent, render, screen } from "@testing-library/react";
 import { StructureBuilderShell } from "./StructureBuilderShell";
 import { StructureTree } from "./StructureTree";
 import { moveNode, type StructureNode } from "./tree";
@@ -78,6 +78,38 @@ describe("StructureTree — root drop", () => {
     const data = { getData: (t: string) => (t === STRUCTURE_PALETTE_TYPE ? "p1" : "") };
     fireEvent.drop(screen.getByRole("tree"), { dataTransfer: data });
     expect(onPlace).toHaveBeenCalledWith("p1", null, 0);
+  });
+});
+
+// jsdom ignores clientY in a drag event's init dict; set it on the event.
+function dropAt(el: HTMLElement, getData: (t: string) => string, clientY: number) {
+  const ev = createEvent.drop(el, { dataTransfer: { getData } });
+  Object.defineProperty(ev, "clientY", { value: clientY });
+  fireEvent(el, ev);
+}
+
+describe("StructureTree — root drop refuses gutters", () => {
+  it("a drop that misses every row but is not below the last row changes nothing", () => {
+    const onMove = vi.fn();
+    render(<StructureTree nodes={SEED} label="Lines" getLabel={(n) => n.name} renderRow={(n) => <span>{n.name}</span>} onMove={onMove} />);
+    const tree = screen.getByRole("tree");
+    const last = tree.lastElementChild as HTMLElement;
+    last.getBoundingClientRect = () => ({ bottom: 100 }) as DOMRect;
+    const data = { getData: (t: string) => (t === "application/x-structure-node" ? "x" : "") };
+    dropAt(tree, data.getData, 50);
+    expect(onMove).not.toHaveBeenCalled();
+    dropAt(tree, data.getData, 150);
+    expect(onMove).toHaveBeenCalledWith("x", null, 2);
+  });
+
+  it("a root line dropped at the end lands at the last index, not one past it", () => {
+    const onMove = vi.fn();
+    render(<StructureTree nodes={SEED} label="Lines" getLabel={(n) => n.name} renderRow={(n) => <span>{n.name}</span>} onMove={onMove} />);
+    const tree = screen.getByRole("tree");
+    const data = { getData: (t: string) => (t === "application/x-structure-node" ? "g1" : "") };
+    dropAt(tree, data.getData, 1e6);
+    expect(onMove).toHaveBeenCalledWith("g1", null, 1);
+    expect(screen.getByText("Moved Group 1 to position 2 at the top level")).toBeTruthy();
   });
 });
 
