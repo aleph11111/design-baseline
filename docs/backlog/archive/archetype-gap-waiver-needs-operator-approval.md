@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-10-28
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "doc and message wording only; policy decided, no scanner logic change"

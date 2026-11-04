@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.20.1
+
+- **Changed:** the `pageShell` lint hint and `docs/RULES.md` rule 12 / `docs/PACKAGE.md` now say the `// archetype-gap: <ticket-slug>` waiver requires explicit operator approval to ship before the gap closes, recorded in the PR body; otherwise page work stops and the page ticket is blocked on the gap ticket. Wording only: matching, severity and the grandfather ratchet are unchanged.
+- **Consumer:** none required. Update the pin to see the new hint text.
+- **Breaking:** no.
+
 ## v0.20.0
 
 - **Added:** archetype `Cb` (`raw-combobox`, component kind), exported from `design-baseline/archetypes/raw-combobox`. `ComboboxField` is the searchable sibling of `SelectField`: label + trigger + popover search list with groups, keyboard (arrows / Enter / Escape, typing filters) and combobox/listbox ARIA, on the shared field frame (hint, error, required). Options are `{ value, label, group?, keywords?, disabled? }` data. Async: pass `onSearch` (and `loading`) and the caller owns filtering. Contract: `docs/archetypes/raw-combobox.md`.

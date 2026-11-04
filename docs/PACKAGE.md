@@ -438,7 +438,9 @@ gate by adding one rule to its own `_adherence.json`:
   (sub-paths allowed). Any `{ PageFrame }` import in a page file is an error,
   even beside a shell import.
 - **The waiver** is the comment `// archetype-gap: <ticket-slug>`, naming the
-  design-baseline archetype-gap ticket the page waits on. A waiver with no slug,
+  design-baseline archetype-gap ticket the page waits on. It requires explicit
+  operator approval to ship before the gap closes, recorded in the PR body; it is
+  never self-service. A waiver with no slug,
   or a slug that is not kebab-case, is itself an error. The lint runs offline, so
   it cannot check that the ticket is open. Review checks that.
 - **`grandfathered`** is the shrink-only ratchet. A listed page is not flagged
@@ -455,7 +457,9 @@ archetype-gap ticket in design-baseline (dashboard `POST /api/ticket/create`,
 `repoName: design-baseline`) that describes the page's shape, and blocks the page
 ticket on it. That ticket starts a define/find-archetype session, which either
 maps the shape to an existing archetype (find) or runs brainstorm, then promotion
-(define). There is never a hand-rolled stopgap page in between. The skill
+(define). There is never a hand-rolled stopgap page in between, unless the
+operator explicitly approves shipping before the gap closes (recorded in the PR
+body), which is the only case the `// archetype-gap:` waiver may be used. The skill
 `choosing-a-page-archetype` covers both the choice and this path.
 
 Add this line to the consumer's `CLAUDE.md`, verbatim:
