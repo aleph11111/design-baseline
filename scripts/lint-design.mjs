@@ -78,7 +78,7 @@
 // not import `PageFrame` directly. The slug list is read from the installed MANIFEST (see
 // `loadPageShells`), never hardcoded. The one waiver is an `archetype-gap: <ticket-slug>` comment
 // citing a design-baseline archetype-gap ticket;
-// it requires operator approval in the PR. `grandfathered` (array of repo-root-relative
+// an agent never writes it; only the operator ships a waived page, by merging it by hand. `grandfathered` (array of repo-root-relative
 // paths) is the shrink-only ratchet: a listed file is not flagged while it violates, and is an
 // error once it no longer violates or is no longer a scanned page file — so the list can only
 // shrink as pages are fixed.
@@ -154,8 +154,8 @@ const ALIAS_TOKEN = '{{unionAliases}}';
 const PAGE_SHELL_HINT =
   'Pick a kind:page archetype — see skill choosing-a-page-archetype (and CHOOSING-A-SURFACE.md). ' +
   'No fit: stop page work and file an archetype-gap ticket in design-baseline, and block the page ticket on it. ' +
-  'The `// archetype-gap: <ticket-slug>` waiver requires operator approval in the PR (recorded in the PR body); ' +
-  'without it, page work stops — never PageFrame alone or a hand-rolled stopgap.';
+  'An agent never adds the `// archetype-gap: <ticket-slug>` waiver; only the operator ships a waived page, by merging it by hand. ' +
+  'Otherwise page work stops — never PageFrame alone or a hand-rolled stopgap.';
 
 // Harvest the union type-alias NAMES one file declares — the pre-pass that lets a rule reach
 // a prop typed `size?: EntityAvatarSize` instead of an inline `"xs" | "sm"`. Two shapes, both
