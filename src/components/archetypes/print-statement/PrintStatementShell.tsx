@@ -30,7 +30,8 @@ export type PrintStatementShellProps = {
   children?: React.ReactNode;
   /** While true, a loading state replaces the whole document (no print action). */
   isLoading?: boolean;
-  /** When set, an error state replaces the whole document (no print action). */
+  /** When set, an error state replaces the whole document (no print action).
+   *  Wins over `isLoading`, so a failed fetch never shows as loading. */
   error?: unknown;
   /** Adds a retry button to the error state. */
   onRetry?: () => void;
@@ -78,10 +79,10 @@ export function PrintStatementShell({
   if (!ready) {
     return (
       <div data-slot="print-statement" className="p-6">
-        {isLoading ? (
-          <StateView variant="loading" />
-        ) : (
+        {error != null ? (
           <StateView variant="error" error={error} onRetry={onRetry} />
+        ) : (
+          <StateView variant="loading" />
         )}
       </div>
     );

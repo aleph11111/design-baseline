@@ -62,7 +62,8 @@ emits the page rule — `a4-landscape` (the default; wide statements) or
 
 **Early states.** While loading, or on error, the state **replaces the whole
 document**: no toolbar, no header, no body, no print action, no auto print. A
-partial statement is never offered for print.
+partial statement is never offered for print. An error wins over loading, so a
+failed fetch shows its error and retry, never an endless loading state.
 
 **Auto print.** Once the document first renders ready, the shell opens the
 print dialog once, after a short paint delay. Re-renders never open it again.

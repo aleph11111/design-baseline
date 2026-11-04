@@ -54,6 +54,12 @@ describe("PrintStatementShell", () => {
     expect(print).not.toHaveBeenCalled();
   });
 
+  it("shows the error, with its retry, when a failed fetch also reports loading", () => {
+    render(<PrintStatementShell title="T" isLoading error={new Error("Boom")} onRetry={() => {}} />);
+    expect(screen.getByText("Boom")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
+  });
+
   it("auto-prints exactly once, after the delay, once the document is ready", () => {
     const print = vi.spyOn(window, "print").mockImplementation(() => {});
     vi.useFakeTimers();
