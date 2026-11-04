@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.21.0
+
+- **Added:** archetype `Pr` (`print-statement`, page kind), exported from `design-baseline/archetypes/print-statement`. `PrintStatementShell` is the print-only statement route: no app chrome, a screen-only toolbar (hint + "Print / Save as PDF", hidden under print media), the document `title` / `subtitle` / `meta` header, and an unbounded body whose table header rows repeat on every printed page. `pageSize` (`"a4-landscape"` default, `"a4-portrait"`) emits the `@page` rule with a 12 mm margin. `isLoading` / `error` / `onRetry` replace the whole document, so no print action is offered for a partial statement. `autoPrint` (default `true`) opens the print dialog once, `PRINT_DELAY_MS` after the first ready render. Contract: `docs/archetypes/print-statement.md`; scaffold with `design-baseline new-page print-statement <Name>`.
+- **Added:** the `printHint` / `printAction` label keys (`BaselineLabels`, En + De).
+- **Added:** `npm run check:viewports` also checks `print-statement` under print media (toolbar hidden, `@page` A4 landscape / 12 mm).
+- **Consumer:** none required. controlling-app can move its eight `app/print/*` routes onto `PrintStatementShell` and delete `PrintPageShell` and `useAutoPrint`; each `Print*View` drops its own `<h1>` header into the shell's `title` / `subtitle` / `meta`. A custom `BaselineLabels` object must add `printHint` and `printAction`.
+- **Breaking:** no, unless you build a full `BaselineLabels` object by hand (add `printHint`, `printAction`).
+
 ## v0.20.2
 
 - **Changed:** `zod` floor raised to `^4.6.7` (GHSA-mrhx-c7xc-m3w5, memory exhaustion validating oversized collections); donor-dev toolchain (`vite`, `vitest`, `react-router-dom`) and transitive advisories patched in the lockfile.

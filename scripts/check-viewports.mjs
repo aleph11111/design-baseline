@@ -53,7 +53,7 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch({ executablePath: CHROME });
 const failures = [];
-const total = PAGES.length * Object.keys(devices).length + STEPS.length;
+const total = PAGES.length * Object.keys(devices).length + STEPS.length + 1; // + the print-media check
 let n = 0;
 const report = (label, { failures: bad, knownGaps: warn }) => {
   n++;
@@ -115,6 +115,37 @@ for (const s of STEPS) {
     report(label, fail(e.message.split("\n")[0]));
   } finally {
     await page.close();
+  }
+}
+
+// print-statement under print media: the toolbar is hidden and the shell's
+// @page rule is in the document (A4 landscape, 12mm — the default pageSize).
+{
+  const label = "print-statement @ print media";
+  let ctx;
+  try {
+    let page;
+    ({ ctx, page } = await open("print-statement", devices.desk27));
+    await page.emulateMedia({ media: "print" });
+    const got = await page.evaluate(() => {
+      const toolbar = document.querySelector('[data-slot="print-toolbar"]');
+      const rule = [...document.styleSheets]
+        .flatMap((s) => { try { return [...s.cssRules]; } catch { return []; } }) // cross-origin sheets throw
+        .find((r) => r instanceof CSSPageRule);
+      return {
+        toolbar: toolbar ? getComputedStyle(toolbar).display : "missing",
+        size: rule?.style.getPropertyValue("size") ?? "",
+        margin: rule?.style.getPropertyValue("margin") ?? "",
+      };
+    });
+    const bad = [];
+    if (got.toolbar !== "none") bad.push(`print toolbar display ${got.toolbar}, want none`);
+    if (got.size.toLowerCase() !== "a4 landscape" || got.margin !== "12mm") bad.push(`@page size "${got.size}" margin "${got.margin}", want "A4 landscape" / "12mm"`);
+    report(label, { failures: bad, knownGaps: [] });
+  } catch (e) {
+    report(label, fail(e.message.split("\n")[0]));
+  } finally {
+    await ctx?.close();
   }
 }
 

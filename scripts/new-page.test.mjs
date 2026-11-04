@@ -77,6 +77,7 @@ describe("new-page templates", () => {
       loading: "no page-level fetch; the wizard starts from user input",
       empty: "no page-level fetch; the wizard starts from user input",
     },
+    "print-statement": { empty: "a print route renders the one statement its parameters name; no data is the loading or error plane (contract Structure)" },
     calendar: { empty: "an empty day renders emptyDayLabel; an empty range is still the grid (contract)" },
   };
 
