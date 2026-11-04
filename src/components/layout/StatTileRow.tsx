@@ -25,7 +25,7 @@ export type StatTileRowProps = {
  *
  * The cell count is derived from the number of `<StatTile>` children (clamped to
  * 2–4), never passed in: a call-site column count is an appearance the contract
- * does not derive (RULES.md hard rule 10 / ADR-0004), and "must match the child
+ * does not derive (RULES.md hard rule 12 / ADR-0004), and "must match the child
  * count" is a rule the component can enforce itself. The strip always collapses
  * to a single stacked column on narrow viewports (horizontal hairlines), then
  * expands at `sm` (vertical hairlines).
