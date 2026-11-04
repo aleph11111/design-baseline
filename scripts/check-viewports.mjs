@@ -53,7 +53,7 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch({ executablePath: CHROME });
 const failures = [];
-const total = PAGES.length * Object.keys(devices).length + STEPS.length + 1; // + the print-media check
+const total = PAGES.length * Object.keys(devices).length + STEPS.length + 1 + Object.keys(devices).length; // + the print-media check + analytics-dashboard edit mode
 let n = 0;
 const report = (label, { failures: bad, knownGaps: warn }) => {
   n++;
@@ -149,11 +149,34 @@ for (const s of STEPS) {
   }
 }
 
+// analytics-dashboard in edit mode (ADR-0011): the same invariants at the
+// device triad once "Edit layout" has swapped in the edit controls.
+for (const [name, device] of Object.entries(devices)) {
+  const label = `analytics-dashboard edit mode @ ${name}`;
+  let ctx;
+  try {
+    let page;
+    ({ ctx, page } = await open("analytics-dashboard", device));
+    await page.getByRole("button", { name: "Edit layout" }).click();
+    await page.waitForSelector('[data-slot="dashboard-widget-edit"]', { timeout: 5000 });
+    await page.waitForTimeout(300);
+    const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: COLUMN[name], fullBleed: false });
+    const file = `analytics-dashboard-edit--${name}.jpg`;
+    await page.screenshot({ path: path.join(OUT, file), type: "jpeg", quality: 70, scale: "css" });
+    shots.push({ slug: "analytics-dashboard-edit", name, file, problems: [...result.failures, ...result.knownGaps] });
+    report(label, result);
+  } catch (e) {
+    report(label, fail(e.message.split("\n")[0]));
+  } finally {
+    await ctx?.close();
+  }
+}
+
 await browser.close();
 server.close();
 
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-const rows = PAGES.map((slug) => {
+const rows = [...PAGES, "analytics-dashboard-edit"].map((slug) => {
   const cells = Object.keys(devices).map((name) => {
     const s = shots.find((x) => x.slug === slug && x.name === name);
     if (!s) return `<figure class="bad"><figcaption>${name}: not rendered</figcaption></figure>`;

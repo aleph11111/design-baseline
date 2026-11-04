@@ -14,16 +14,34 @@
  * (<StatTileRow>/<StatTile>) and the widget grid (<DashboardGrid> of
  * <DashboardWidget>s) as hairline-divided cells of the one surface — no
  * card-in-card, no mat.
+ *
+ * Edit mode (ADR-0011): "Edit layout" swaps the header for an inline title
+ * editor + "Add tile" / "Done", gives every widget its move / configure /
+ * remove controls (keyboard-operable; drag-and-drop on top), opens a tile
+ * config dialog that sets what a tile *is* (its span is derived from that),
+ * and shows the assignment checklist after the grid.
  */
 
 import * as React from "react";
 import { StatTile, StatTileRow } from "@/components/layout";
-import { Download, Share2 } from "lucide-react";
+import { Check, Download, LayoutGrid, Plus, Share2 } from "lucide-react";
 import {
+  DashboardAssignmentList,
   DashboardGrid,
   DashboardShell,
+  DashboardTitleEditor,
   DashboardWidget,
+  type DashboardAssignmentTarget,
 } from "@/components/archetypes/analytics-dashboard";
+import { NativeField } from "@/components/archetypes/raw-input";
+import { SelectField } from "@/components/archetypes/raw-select";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -146,7 +164,7 @@ function ChartPalette({ dark = false }: { dark?: boolean }): React.ReactElement 
 // Layer 7, the per-widget planes are page-composed inside the widget body via
 // the canonical StateView + a skeleton, not a primitive-owned prop.
 
-type WidgetKey = "revenue" | "channel" | "categories" | "funnel";
+type WidgetKey = "revenue" | "channel" | "categories" | "funnel" | "figure";
 type WidgetPlane = "loaded" | "loading" | "empty" | "error";
 type WidgetMode = "Loaded" | "Loading" | "Mixed";
 
@@ -157,6 +175,7 @@ const MIXED_PLANES: Record<WidgetKey, WidgetPlane> = {
   channel: "empty",
   categories: "error",
   funnel: "loaded",
+  figure: "loaded",
 };
 
 function widgetPlane(key: WidgetKey, mode: WidgetMode): WidgetPlane {
@@ -192,14 +211,144 @@ function WidgetBody({
   return <>{children}</>;
 }
 
+// --- tiles: the layout the edit mode changes -----------------------------------
+
+// What a tile *is* decides its span (contract Layer 6 keying rule) — the config
+// dialog picks the kind, never a width.
+type TileKind = "trend" | "breakdown" | "figure";
+const SPAN: Record<TileKind, 1 | 2 | 3> = { trend: 3, breakdown: 2, figure: 1 };
+const KIND_OPTIONS = [
+  { value: "trend", label: "Primary trend (full width)" },
+  { value: "breakdown", label: "Comparison / breakdown (wide)" },
+  { value: "figure", label: "Figure or short list (one column)" },
+];
+
+type Tile = { id: string; title: string; kind: TileKind; body: WidgetKey; description?: string };
+
+const INITIAL_TILES: Tile[] = [
+  { id: "revenue", title: "Revenue over time", kind: "trend", body: "revenue", description: "Trailing 12 months, net of refunds" },
+  { id: "channel", title: "Orders by channel", kind: "figure", body: "channel" },
+  { id: "categories", title: "Top categories", kind: "figure", body: "categories" },
+  { id: "funnel", title: "Conversion funnel", kind: "breakdown", body: "funnel" },
+];
+
+const INITIAL_SHOPS: DashboardAssignmentTarget[] = [
+  { id: "north", label: "North shop", assigned: true },
+  { id: "harbour", label: "Harbour shop", assigned: true },
+  { id: "online", label: "Online store", assigned: false },
+  { id: "outlet", label: "Outlet", assigned: false },
+];
+
+function TileChart({ body, trend }: { body: WidgetKey; trend: number[] }): React.ReactElement {
+  switch (body) {
+    case "revenue":
+      return <Sparkline values={trend} />;
+    case "channel":
+      return <HBars data={[{ label: "Web", value: 540 }, { label: "Retail", value: 210 }, { label: "Wholesale", value: 62 }]} />;
+    case "categories":
+      return (
+        <Bars
+          data={[
+            { label: "Sets", value: 38 },
+            { label: "Parts", value: 27 },
+            { label: "Minifigs", value: 19 },
+            { label: "Books", value: 9 },
+            { label: "Other", value: 7 },
+          ]}
+        />
+      );
+    case "funnel":
+      return (
+        <HBars
+          data={[
+            { label: "Visits", value: 100 },
+            { label: "Added to cart", value: 42 },
+            { label: "Checkout", value: 28 },
+            { label: "Purchased", value: 21 },
+          ]}
+        />
+      );
+    default:
+      return <p className="text-2xl font-semibold tabular-nums">—</p>;
+  }
+}
+
+/** The consumer-owned tile config dialog: it sets what the tile is. */
+function TileConfigDialog({
+  tile,
+  onClose,
+  onSave,
+}: {
+  tile: Tile | "new" | null;
+  onClose: () => void;
+  onSave: (title: string, kind: TileKind) => void;
+}): React.ReactElement {
+  const [title, setTitle] = React.useState("");
+  const [kind, setKind] = React.useState<TileKind>("figure");
+  React.useEffect(() => {
+    if (tile === null) return;
+    setTitle(tile === "new" ? "" : tile.title);
+    setKind(tile === "new" ? "figure" : tile.kind);
+  }, [tile]);
+  return (
+    <Dialog open={tile !== null} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{tile === "new" ? "Add tile" : "Configure tile"}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <NativeField label="Title" value={title} onChange={setTitle} required />
+          <SelectField
+            label="Kind"
+            value={kind}
+            onChange={(v) => setKind(v as TileKind)}
+            options={KIND_OPTIONS}
+            hint="The kind decides the tile's width."
+          />
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button disabled={!title.trim()} onClick={() => onSave(title.trim(), kind)}>
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ------------------------------------------------------------------------------
 
 export function AnalyticsDashboardDemo(): React.ReactElement {
   const [period, setPeriod] = React.useState<Period>("Month");
   const [channel, setChannel] = React.useState("all");
   const [widgetMode, setWidgetMode] = React.useState<WidgetMode>("Loaded");
+  const [editing, setEditing] = React.useState(false);
+  const [name, setName] = React.useState("Revenue Analytics");
+  const [tiles, setTiles] = React.useState(INITIAL_TILES);
+  const [configuring, setConfiguring] = React.useState<Tile | "new" | null>(null);
+  const [shops, setShops] = React.useState(INITIAL_SHOPS);
   const k = KPIS[period];
   const retry = () => setWidgetMode("Loaded");
+
+  const move = (from: number, to: number) =>
+    setTiles((ts) => {
+      const next = [...ts];
+      next.splice(to, 0, ...next.splice(from, 1));
+      return next;
+    });
+  const saveTile = (title: string, kind: TileKind) => {
+    setTiles((ts) =>
+      configuring === "new"
+        ? [...ts, { id: `tile-${Date.now()}`, title, kind, body: "figure" }]
+        : ts.map((t) => (configuring && t.id === configuring.id ? { ...t, title, kind } : t)),
+    );
+    setConfiguring(null);
+  };
+  const toggleShop = (id: string) =>
+    setShops((ss) => ss.map((s) => (s.id === id ? { ...s, assigned: !s.assigned } : s)));
 
   return (
     <div className="space-y-5">
@@ -209,7 +358,8 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
           the loading/empty/error planes (per docs Layer 7). Widget width is not a
           control: each widget&apos;s <code>span</code> follows the contract&apos;s
           widget-span keying rule (primary trend full width · breakdown wide ·
-          everything else one column).
+          everything else one column). <strong>Edit layout</strong> shows the
+          edit mode (ADR-0011).
         </p>
         <div className="flex flex-wrap items-center gap-3">
           <SegmentedControl
@@ -231,19 +381,36 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
       </div>
 
       <DashboardShell
-        title="Revenue Analytics"
+        title={editing ? <DashboardTitleEditor value={name} onRename={setName} /> : name}
         subtitle="Shop · all figures net of refunds"
         actions={
-          <>
-            <Button variant="outline">
-              <Share2 className="h-4 w-4" />
-              Share
-            </Button>
-            <Button variant="outline">
-              <Download className="h-4 w-4" />
-              Export
-            </Button>
-          </>
+          editing ? (
+            <>
+              <Button variant="outline" onClick={() => setEditing(false)}>
+                <Check className="h-4 w-4" />
+                Done
+              </Button>
+              <Button onClick={() => setConfiguring("new")}>
+                <Plus className="h-4 w-4" />
+                Add tile
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" onClick={() => setEditing(true)}>
+                <LayoutGrid className="h-4 w-4" />
+                Edit layout
+              </Button>
+              <Button variant="outline">
+                <Share2 className="h-4 w-4" />
+                Share
+              </Button>
+              <Button variant="outline">
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+            </>
+          )
         }
         // adherence-ok: page-tabs-in-toolbar — the period selector scopes the dashboard data, it does not switch pages
         toolbar={
@@ -276,56 +443,54 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
           <StatTile label="Active customers" value={k.customers} hint="bought at least once" />
         </StatTileRow>
 
-        {/* Widget grid — chart bodies are placeholders (consumer brings the chart lib). */}
-        <DashboardGrid>
-          {/* Primary trend — the series the dashboard is read against: span 3. */}
-          <DashboardWidget
-            title="Revenue over time"
-            description="Trailing 12 months, net of refunds"
-            span={3}
-          >
-            <WidgetBody plane={widgetPlane("revenue", widgetMode)} onRetry={retry}>
-              <Sparkline values={k.trend} />
-            </WidgetBody>
-          </DashboardWidget>
-          <DashboardWidget title="Orders by channel" span={1}>
-            <WidgetBody plane={widgetPlane("channel", widgetMode)} onRetry={retry}>
-              <HBars
-                data={[
-                  { label: "Web", value: 540 },
-                  { label: "Retail", value: 210 },
-                  { label: "Wholesale", value: 62 },
-                ]}
-              />
-            </WidgetBody>
-          </DashboardWidget>
-          <DashboardWidget title="Top categories" span={1}>
-            <WidgetBody plane={widgetPlane("categories", widgetMode)} onRetry={retry}>
-              <Bars
-                data={[
-                  { label: "Sets", value: 38 },
-                  { label: "Parts", value: 27 },
-                  { label: "Minifigs", value: 19 },
-                  { label: "Books", value: 9 },
-                  { label: "Other", value: 7 },
-                ]}
-              />
-            </WidgetBody>
-          </DashboardWidget>
-          <DashboardWidget title="Conversion funnel" span={2}>
-            <WidgetBody plane={widgetPlane("funnel", widgetMode)} onRetry={retry}>
-              <HBars
-                data={[
-                  { label: "Visits", value: 100 },
-                  { label: "Added to cart", value: 42 },
-                  { label: "Checkout", value: 28 },
-                  { label: "Purchased", value: 21 },
-                ]}
-              />
-            </WidgetBody>
-          </DashboardWidget>
-        </DashboardGrid>
+        {/* Widget grid — chart bodies are placeholders (consumer brings the chart lib).
+            Span is derived from the tile's kind (primary trend 3 · breakdown 2 · else 1). */}
+        {tiles.length === 0 ? (
+          <StateView
+            variant="empty"
+            message="No tiles yet."
+            action={
+              <Button onClick={() => setConfiguring("new")}>
+                <Plus className="h-4 w-4" />
+                Add tile
+              </Button>
+            }
+          />
+        ) : (
+          <DashboardGrid>
+            {tiles.map((tile, index) => (
+              <DashboardWidget
+                key={tile.id}
+                title={tile.title}
+                description={tile.description}
+                span={SPAN[tile.kind]}
+                edit={
+                  editing
+                    ? {
+                        name: tile.title,
+                        index,
+                        count: tiles.length,
+                        onMove: move,
+                        onConfigure: () => setConfiguring(tile),
+                        onRemove: () => setTiles((ts) => ts.filter((t) => t.id !== tile.id)),
+                      }
+                    : undefined
+                }
+              >
+                <WidgetBody plane={widgetPlane(tile.body, widgetMode)} onRetry={retry}>
+                  <TileChart body={tile.body} trend={k.trend} />
+                </WidgetBody>
+              </DashboardWidget>
+            ))}
+          </DashboardGrid>
+        )}
+
+        {editing && (
+          <DashboardAssignmentList title="Shown in shops" targets={shops} onToggle={toggleShop} />
+        )}
       </DashboardShell>
+
+      <TileConfigDialog tile={configuring} onClose={() => setConfiguring(null)} onSave={saveTile} />
     </div>
   );
 }

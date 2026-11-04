@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.22.0
+
+- **Added:** analytics-dashboard (G) **edit mode** (contract v4.2, MANIFEST 4.4, ADR-0011) for pages that edit a dashboard's tile layout. `DashboardTitleEditor` is the inline rename passed as the shell's `title` (Enter / save button saves, Escape cancels, blur saves; a rejected `onRename` keeps it open). `DashboardWidget` takes an optional `edit` object (`name`, `index`, `count`, `onMove(from, to)`, `onConfigure`, `onRemove`): the cell gains move earlier / move later / configure / remove buttons named after the tile (keyboard-operable reorder) and becomes a native drag-and-drop source and target. `DashboardAssignmentList` is the assignment checklist after the grid (`targets` with `assigned` / `pending`, `onToggle`). The tile config dialog stays consumer-owned; it sets the tile's kind, and `span` is still derived by the Layer 6 keying rule.
+- **Added:** label keys `rename`, `editNamed`, `removeNamed`, `moveEarlier`, `moveLater` (`BaselineLabels`, En + De).
+- **Added:** `npm run check:viewports` also checks analytics-dashboard in edit mode at the device triad.
+- **Consumer:** none required. controlling-app can move `admin/dashboard-templates/[id]` (and the layout-unlocked `workspace/dashboard`) onto `design-baseline/archetypes/analytics-dashboard` and drop the template editor from the `page-requires-archetype-shell` grandfathered list; `@dnd-kit` sortable lists of tiles go. A custom `BaselineLabels` object must add the five new keys.
+- **Breaking:** no, unless you build a full `BaselineLabels` object by hand (add the five keys).
+
 ## v0.21.0
 
 - **Added:** archetype `Pr` (`print-statement`, page kind), exported from `design-baseline/archetypes/print-statement`. `PrintStatementShell` is the print-only statement route: no app chrome, a screen-only toolbar (hint + "Print / Save as PDF", hidden under print media), the document `title` / `subtitle` / `meta` header, and an unbounded body whose table header rows repeat on every printed page. `pageSize` (`"a4-landscape"` default, `"a4-portrait"`) emits the `@page` rule with a 12 mm margin. `isLoading` / `error` / `onRetry` replace the whole document, so no print action is offered for a partial statement. `autoPrint` (default `true`) opens the print dialog once, `PRINT_DELAY_MS` after the first ready render. Contract: `docs/archetypes/print-statement.md`; scaffold with `design-baseline new-page print-statement <Name>`.
