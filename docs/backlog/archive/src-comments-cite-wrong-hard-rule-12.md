@@ -1,7 +1,7 @@
 ---
 area: other
 opened: 2026-11-04
-status: ready
+status: done
 value: low
 gate:
   score: 5
