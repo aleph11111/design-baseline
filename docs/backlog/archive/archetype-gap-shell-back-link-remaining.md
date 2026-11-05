@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-05
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "pattern-following additive prop per shell, grounded in the list-with-detail Pick intersection and detail-overview/form-page"
