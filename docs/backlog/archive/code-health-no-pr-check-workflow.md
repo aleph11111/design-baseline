@@ -1,8 +1,7 @@
 ---
 area: code-health
 opened: '2026-10-01'
-status: blocked
-blocked_reason: "needs admin ruleset on origin: register `check` as a required status on main (ruleset POST was denied in the unattended session). Workflow check.yml shipped in PR #396. To discharge: gh api repos/aleph11111/design-baseline/rulesets -X POST with a required_status_checks rule, context `check`, target ~DEFAULT_BRANCH."
+status: done
 gate:
   score: 5
   passed:
@@ -13,6 +12,11 @@ gate:
     - related
   failed: []
   graded_at: '2026-10-01T15:47:02.117Z'
+blocked_reason: >-
+  needs admin ruleset on origin: register `check` as a required status on main (ruleset POST was
+  denied in the unattended session). Workflow check.yml shipped in PR #396. To discharge: gh api
+  repos/aleph11111/design-baseline/rulesets -X POST with a required_status_checks rule, context
+  `check`, target ~DEFAULT_BRANCH.
 value: high
 model: sonnet
 model_reason: one workflow file wiring four existing npm commands; no design judgment beyond the job split
