@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: '2026-11-04'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "docs-only edit to two known passages with an established cause (CI run 41873948155)"
