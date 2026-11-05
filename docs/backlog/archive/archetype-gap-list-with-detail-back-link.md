@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-05
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "decision grounded in detail-overview and form-page, which already take the back-link props; scoped additive prop plus contract and version bump"

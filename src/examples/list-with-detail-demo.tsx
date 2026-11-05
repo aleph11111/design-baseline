@@ -507,8 +507,12 @@ export function ListWithDetailDemo() {
               ),
             },
             {
-              label: "Card grid (browse-y, 2–3 data cols)",
+              label: "Card grid (browse-y, 2–3 data cols, back link to the parent)",
               title: "Browse Podcasts",
+              // The list sits under a parent route (a podcast library): the
+              // back link is the page header's, not a bespoke leading control.
+              backHref: "#",
+              backLabel: "Podcast Library",
               columns: CARD_COLUMNS,
               presentation: PRESENTATION_CARD_GRID,
               rows: filtered,
@@ -528,6 +532,8 @@ export function ListWithDetailDemo() {
               <div>
                 <ListWithDetailShell<Podcast>
                   title={panel.title}
+                  backHref={panel.backHref}
+                  backLabel={panel.backLabel}
                   actions={
                     panel.presentation === "table" ? (
                       <>

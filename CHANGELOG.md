@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.24.0
+
+- **Added:** back link to the parent page on the `list-with-detail` shell (contract v4.4, MANIFEST 4.7). `ListWithDetailShell` now takes `backHref` / `backLabel`, with `renderBackLink` injecting the router link — same three props, same names as `detail-overview` and `form-page`. Layer 3 (page header) lists them as an allowed variation: "back to the parent page".
+- **Consumer:** none required — the props are optional; a shell without `backHref` renders no back link (unchanged). A list page that sits under a parent and renders `PageFrame` alone (hk-sales-agent's suchprofile list, Trefferliste, Export-Liste, Suchlauf-Liste) can switch to `ListWithDetailShell backHref=…` and keep its back link while passing the `pageShell` lint rule.
+- **Breaking:** no. Additive; no breaking change.
+
 ## v0.23.2
 
 - **Changed:** three source comments (`NestedPageHeading`, `StatTileRow`, `DashboardWidget`) cited RULES.md "hard rule 12" for appearance locality; it is rule 10. Comment text only.
