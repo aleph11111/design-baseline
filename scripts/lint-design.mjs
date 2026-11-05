@@ -388,14 +388,15 @@ function findPageShellIssues(text, pageShells) {
       hits.push({ line: lineOf(m.index), col: 1, problem: 'direct `PageFrame` import — PageFrame is the frame the shells render through, never a page\'s choice' });
     }
     if (/(?:^|[\s,])AppShell\b(?!\w)/.test(m[1])) appShell = true;
-    if (/(?:^|[\s,])AuthCard\b(?!\w)/.test(m[1]) && /^(?:design-baseline\/layout|@\/components\/layout\/AuthCard)$/.test(m[2])) authCard = true;
+    if (/(?:^|,)\s*AuthCard\b(?!\w)/.test(m[1]) && /^(?:design-baseline\/layout|@\/components\/layout\/AuthCard)$/.test(m[2])) authCard = true;
   }
   const shell = new RegExp(`from\\s*['"](?:design-baseline|@/components)/archetypes/(?:${pageShells.join('|')})(?:/[^'"]*)?['"]`);
   // An off-app centered-card page (sign-in, not-authorized, 404) takes `AuthCard` as its shell
   // (RULES hard rule 12). Only when the page has no in-app chrome: `AuthCard` is also an admin
   // wall inside `AppShell` content, and that use must not stand in for an archetype shell.
-  // ponytail: "off-app" is read from imports alone (no `AppShell` import in this file); a page
-  // that sits in an AppShell layout route and renders only an AuthCard wall passes. Upgrade
+  // ponytail: text match on named imports, no parser (same ceiling as above): a default
+  // `import AppShell from …` is not seen, and "off-app" is read from this file's imports alone,
+  // so a page in an AppShell layout route that renders only an AuthCard wall passes. Upgrade
   // path: resolve the route's layout file if such a page turns up.
   if (!shell.test(text) && !(authCard && !appShell)) {
     hits.unshift({ line: 1, col: 1, problem: `imports no \`kind: "page"\` archetype shell (one of: ${pageShells.join(', ')})` });

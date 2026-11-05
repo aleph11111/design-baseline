@@ -1512,6 +1512,7 @@ describe("the `pageShell` rule — a page renders one kind:page archetype shell,
     expect(scan('import { AuthCard } from "design-baseline/layout";\n')).toEqual([]);
     expect(scan('import { AuthCard } from "@/components/layout/AuthCard";\n')).toEqual([]);
     expect(scan('import type { AuthCardProps } from "design-baseline/layout";\n')).toHaveLength(1);
+    expect(scan('import { type AuthCard } from "design-baseline/layout";\n')).toHaveLength(1);
   });
 
   it("still flags AuthCard beside PageFrame or AppShell", () => {
