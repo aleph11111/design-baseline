@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../../ui/sheet";
-import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
 import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
 import {
@@ -135,12 +135,24 @@ export type ListWithDetailBodyProps<Row> = {
 };
 
 /**
- * The page (ADR-0008): `title` / `subtitle` / `badges` / `actions` (the create
- * action, export) in the page header; `toolbar` (search, filters — e.g. a
- * `<ListWithDetailToolbar>`) and `count` (the result count) in the frame's
- * toolbar band; the list body inside the page's one surface.
+ * The page header's back-link slot — `ListWithDetailShell` opts into the
+ * back-link header chrome that `PageShellFrameProps` omits (a list page can
+ * sit under a parent). Same three props, same names as `detail-overview` and
+ * `form-page`.
  */
-export type ListWithDetailShellProps<Row> = PageShellFrameProps & ListWithDetailBodyProps<Row>;
+type ListWithDetailBackLinkProps = Pick<
+  PageFrameProps,
+  "backHref" | "backLabel" | "renderBackLink"
+>;
+
+/**
+ * The page (ADR-0008): `title` / `subtitle` / `badges` / `actions` (the create
+ * action, export) in the page header — plus the back link when the list sits
+ * under a parent; `toolbar` (search, filters — e.g. a `<ListWithDetailToolbar>`)
+ * and `count` (the result count) in the frame's toolbar band; the list body
+ * inside the page's one surface.
+ */
+export type ListWithDetailShellProps<Row> = ListWithDetailBackLinkProps & PageShellFrameProps & ListWithDetailBodyProps<Row>;
 
 // ---------------------------------------------------------------------------
 // Component
@@ -151,6 +163,9 @@ export function ListWithDetailShell<Row>({
   subtitle,
   badges,
   actions,
+  backHref,
+  backLabel,
+  renderBackLink,
   toolbar,
   count,
   viewSwitch,
@@ -171,6 +186,9 @@ export function ListWithDetailShell<Row>({
       subtitle={subtitle}
       badges={badges}
       actions={actions}
+      backHref={backHref}
+      backLabel={backLabel}
+      renderBackLink={renderBackLink}
       toolbar={toolbar}
       count={count}
       viewSwitch={viewSwitch}

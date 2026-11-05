@@ -2,7 +2,7 @@
 key: A
 slug: list-with-detail
 kind: page
-version: 4.3
+version: 4.4
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.9
@@ -11,6 +11,14 @@ status: locked
 
 # Archetype A — List-with-detail
 
+> **v4.4 (2026-11-05) — back link to the parent page (Layer 3).** A list page
+> can sit under a parent (a workspace's suchprofile list, a Trefferliste):
+> the page header now takes the shared back-link props — `backHref` / `backLabel`,
+> with `renderBackLink` injecting the router link — so a consumer that was
+> rendering `PageFrame` alone for such a page can move onto the shell and keep
+> its back link. Same three props, same names as `detail-overview` and
+> `form-page`. Additive; no breaking change.
+>
 > **v4.3 (2026-10-15) — free-text table cells wrap (ADR-0010 amendment).**
 > A table cell in the detail that holds free text (a description, a long
 > value) is marked as free text and wraps inside a readable band, so a
@@ -155,6 +163,7 @@ A **list-with-detail** page shows a table of domain entities (items, users, orde
 **Allowed variation:**
 - **`subtitle`** / **`badges`** — compact metadata and read-only status next to the title.
 - **`actions`** — verbs on the whole page: the one primary creation action (e.g. "New show"), plus at most two secondary ones (Import, Export).
+- **Back link (optional): back to the parent page** — only when the list route sits under a parent. `backHref` / `backLabel`, with `renderBackLink` injecting the router link. Never a bespoke leading control beside the title.
 
 **Forbidden:**
 - A hand-rolled page title or header — always the shell's props.

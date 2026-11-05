@@ -489,3 +489,47 @@ describe("ListWithDetailShell — viewOptions", () => {
     expect(screen.getByTestId("vo")).toBeTruthy();
   });
 });
+
+describe("ListWithDetailShell — back link", () => {
+  it("renders PageFrame's back link when backHref is passed", () => {
+    render(
+      <ListWithDetailShell
+        title="People"
+        backHref="/workspace"
+        backLabel="Workspace"
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+      />,
+    );
+    expect(screen.getByRole("link", { name: "Workspace" }).getAttribute("href")).toBe(
+      "/workspace",
+    );
+  });
+
+  it("renders no back link without backHref (unchanged)", () => {
+    render(
+      <ListWithDetailShell
+        title="People"
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+      />,
+    );
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("routes the back link through renderBackLink", () => {
+    render(
+      <ListWithDetailShell
+        title="People"
+        backHref="/workspace"
+        renderBackLink={(href, label) => <a data-router href={href}>{label}</a>}
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+      />,
+    );
+    expect(screen.getByText("Back").hasAttribute("data-router")).toBe(true);
+  });
+});
