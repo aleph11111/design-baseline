@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-11-04
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "decision made (lint recognition); one scanner branch plus tests and three doc sites, cause established"
@@ -28,12 +28,12 @@ Operator decision (2026-11-05): the lint recognises `AuthCard`; no `auth-card` a
 
 ## What to do
 
-- [ ] Make a page whose only shell is `AuthCard` satisfy `pageShell` without a per-page waiver: in `scripts/lint-design.mjs` treat an import of `AuthCard` (from `design-baseline/layout` or `@/components/layout/AuthCard`) as an accepted off-app shell, and still reject `PageFrame` and `AppShell` content on the same page.
-- [ ] Guard the recognition: `AuthCard` counts as the shell only when the file imports no `kind: page` archetype shell, no `PageFrame` and no `AppShell`; mark the text-match heuristic with a `ponytail:` comment naming its ceiling (text match, no parser), matching the existing ceiling note on `findPageShellIssues`.
-- [ ] Document the recognition in `docs/RULES.md` hard rule 12, `docs/PACKAGE.md` ("The page-shape rule") and `docs/STYLE.md`'s `AuthCard` row, and extend `scripts/lint-design.test.mjs` (next to the `page-requires-archetype-shell` cases) with an `AuthCard`-only page that passes and an `AuthCard` + `PageFrame` page that fails.
-- [ ] Update the `choosing-a-page-archetype` no-fit path so a centered sign-in / not-authorized / error page points at `AuthCard`, not at a gap ticket.
-- [ ] Grep controlling-app, hk-crm and brickshop-manager for other centered-card pages (error, 404, status) to confirm `AuthCard`'s `purpose` set (`sign-in`, `denied`, `error`) covers them; hk-crm login should adopt `AuthCard` in its own page ticket.
-- [ ] Consumers remove their own `grandfathered` entries in their own tickets — the existing ratchet (`staleGrandfathered` / "grandfathered page now renders a page shell") forces it once the lint passes them; file those follow-ups, do not edit consumer repos here.
+- [x] Make a page whose only shell is `AuthCard` satisfy `pageShell` without a per-page waiver: in `scripts/lint-design.mjs` treat an import of `AuthCard` (from `design-baseline/layout` or `@/components/layout/AuthCard`) as an accepted off-app shell, and still reject `PageFrame` and `AppShell` content on the same page.
+- [x] Guard the recognition: `AuthCard` counts as the shell only when the file imports no `kind: page` archetype shell, no `PageFrame` and no `AppShell`; mark the text-match heuristic with a `ponytail:` comment naming its ceiling (text match, no parser), matching the existing ceiling note on `findPageShellIssues`.
+- [x] Document the recognition in `docs/RULES.md` hard rule 12, `docs/PACKAGE.md` ("The page-shape rule") and `docs/STYLE.md`'s `AuthCard` row, and extend `scripts/lint-design.test.mjs` (next to the `page-requires-archetype-shell` cases) with an `AuthCard`-only page that passes and an `AuthCard` + `PageFrame` page that fails.
+- [x] Update the `choosing-a-page-archetype` no-fit path so a centered sign-in / not-authorized / error page points at `AuthCard`, not at a gap ticket. — Handed off: the skill lives in coding-dashboard (`fleet/skills/choosing-a-page-archetype/SKILL.md`), not in this repo, so it cannot change on this branch. Filed as coding-dashboard ticket `choosing-a-page-archetype-authcard-path` (on its `origin/main`, 2026-11-05).
+- [x] Grep controlling-app, hk-crm and brickshop-manager for other centered-card pages (error, 404, status) to confirm `AuthCard`'s `purpose` set (`sign-in`, `denied`, `error`) covers them; hk-crm login should adopt `AuthCard` in its own page ticket.
+- [x] Consumers remove their own `grandfathered` entries in their own tickets — the existing ratchet (`staleGrandfathered` / "grandfathered page now renders a page shell") forces it once the lint passes them; file those follow-ups, do not edit consumer repos here.
 
 ## Acceptance
 
@@ -51,3 +51,10 @@ Operator decision (2026-11-05): the lint recognises `AuthCard`; no `auth-card` a
 - [[auth-card-centered-tinted-icon-promotion]] — decided `AuthCard`'s look and `purpose` prop
 - [docs/RULES.md](/docs/RULES.md) — hard rule 12
 - [scripts/lint-design.mjs](/scripts/lint-design.mjs) — `findPageShellIssues`
+
+## Resolution (2026-11-05)
+
+- Lint: `findPageShellIssues` accepts a named `AuthCard` import from `design-baseline/layout` or `@/components/layout/AuthCard` as the shell when the file imports no `AppShell`; `PageFrame` beside it still errors. Shipped as v0.27.0.
+- Verified with `findPageShellIssues` against each consumer's `origin/main` (no hits): controlling-app `frontend/src/app/login/page.tsx`, `frontend/src/app/not-authorized/page.tsx`; brickshop-manager `src/pages/Auth.tsx`, `src/pages/NotFound.tsx`, `src/pages/public/SharedListGate.tsx`; gebo-stock-kiosk `frontend/src/pages/SignIn.tsx`. controlling-app `admin/users/page.tsx` (AuthCard admin wall) still passes only through its `SettingsTableShell` import.
+- Centered-card grep: every `AuthCard` page in controlling-app, brickshop-manager and gebo-stock-kiosk is in the list above; their purposes are covered by `sign-in` / `denied` / `error`. hk-crm has no `AuthCard` page; its `(auth)/error.tsx` and `(app)/error.tsx` are Next.js error boundaries, not `page.tsx`, so they sit outside the `pageShell` include. The only remaining hand-rolled centered card is hk-crm `src/app/(auth)/login/page.tsx`.
+- Follow-ups filed: coding-dashboard `choosing-a-page-archetype-authcard-path` (skill no-fit path); hk-crm `login-page-adopt-authcard` (login page onto `AuthCard`). Consumer `grandfathered` entries are not ticketed separately: the ratchet errors on each stale entry once the consumer picks up v0.27.0, and the CHANGELOG v0.27.0 Consumer line names them.

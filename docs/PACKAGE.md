@@ -451,6 +451,10 @@ gate by adding one rule to its own `_adherence.json`:
   `design-baseline/archetypes/<slug>` or `@/components/archetypes/<slug>`
   (sub-paths allowed). Any `{ PageFrame }` import in a page file is an error,
   even beside a shell import.
+- **Off-app pages** (sign-in, not-authorized, 404) pass with `AuthCard` as their
+  shell: an `{ AuthCard }` import from `design-baseline/layout` or
+  `@/components/layout/AuthCard`, with no `AppShell` import in the same file.
+  `PageFrame` beside it is still an error.
 - **The waiver** is the comment `// archetype-gap: <ticket-slug>`, naming the
   design-baseline archetype-gap ticket the page waits on. An agent never adds it.
   The review gate always fails a page without its archetype shell; only the operator

@@ -1508,6 +1508,22 @@ describe("the `pageShell` rule — a page renders one kind:page archetype shell,
     expect(scan('import { FormPageShell } from "@/components/archetypes/form-page/FormPageShell";\n')).toEqual([]);
   });
 
+  it("passes an off-app page whose only shell is AuthCard (package path or @/components alias)", () => {
+    expect(scan('import { AuthCard } from "design-baseline/layout";\n')).toEqual([]);
+    expect(scan('import { AuthCard } from "@/components/layout/AuthCard";\n')).toEqual([]);
+    expect(scan('import type { AuthCardProps } from "design-baseline/layout";\n')).toHaveLength(1);
+    expect(scan('import { type AuthCard } from "design-baseline/layout";\n')).toHaveLength(1);
+  });
+
+  it("still flags AuthCard beside PageFrame or AppShell", () => {
+    const withFrame = scan('import { AuthCard, PageFrame } from "design-baseline/layout";\n');
+    expect(withFrame).toHaveLength(1);
+    expect(withFrame[0].message).toContain("PageFrame");
+    const withShell = scan('import { AuthCard } from "design-baseline/layout";\nimport { AppShell } from "design-baseline/layout";\n');
+    expect(withShell).toHaveLength(1);
+    expect(withShell[0].message).toContain("archetype shell");
+  });
+
   it("flags a direct PageFrame import, even beside a shell import", () => {
     const hits = scan(`${pkgShell}import {\n  PageFrame,\n  PageHeader,\n} from "design-baseline/layout";\n`);
     expect(hits).toHaveLength(1);
