@@ -34,4 +34,9 @@ export { KeyValueList } from "./KeyValueList";
 export type { KeyValueListProps } from "./KeyValueList";
 
 export { KeyValueRow } from "./KeyValueRow";
-export type { KeyValueRowProps } from "./KeyValueRow";
+export type {
+  KeyValueRowProps,
+  KeyValueProvenance,
+  KeyValueClaim,
+  KeyValueRowLabels,
+} from "./KeyValueRow";
