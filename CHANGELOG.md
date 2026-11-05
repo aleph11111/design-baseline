@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.26.0
+
+- **Added:** slide-deck variant of `print-statement` (contract v1.1, MANIFEST 1.1). `PrintStatementShell` takes `pageSize="none"` — no `@page` rule and no table-only print rules, so a body with its own page rule (a fixed 1280x720 deck, one slide per sheet) owns page size and margin — and `hideHeader`, which keeps the title in the DOM for assistive tech but takes the header out of the screen and print layout, so the deck's cover slide starts page 1. Toolbar, early states and once-only auto print are unchanged. Living demo: Mode "Slide deck" in the print-statement gallery entry.
+- **Consumer:** none required. controlling-app's `print/bankenreporting` and `print/internal-reporting` deck routes can move onto `PrintStatementShell pageSize="none" hideHeader`.
+- **Breaking:** no. Additive; defaults (`a4-landscape`, header shown) render unchanged.
+
 ## v0.25.0
 
 - **Added:** back link to the parent page on the four list/table-style full-frame shells — `GroupedListShell` (contract v4.1, MANIFEST 4.4), `FeedShell` and `FeedMasterDetailShell` (contract v2.3, MANIFEST 3.8), `BoardShell` (contract v3.1, MANIFEST 3.4), and `StatementWithFiltersShell` (contract v2.5, MANIFEST 2.7). Each now takes `backHref` / `backLabel`, with `renderBackLink` injecting the router link — same three props, same names as `detail-overview`, `form-page` and `list-with-detail` (v0.24.0). Layer 3 (page header) lists them as an allowed variation: "back to the parent page". The remaining shells (`settings-table`, `matrix-grid`, `calendar`, `analytics-dashboard`, `structure-builder`) sit at top-level routes and are unchanged until a consumer page under a parent needs one.

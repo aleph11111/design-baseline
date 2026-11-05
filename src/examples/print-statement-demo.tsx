@@ -9,6 +9,11 @@
  * header, the `@page` rule (A4 landscape, 12 mm) and repeating table header
  * rows. `autoPrint={false}` keeps the gallery from opening the print dialog;
  * a real print route leaves it on. Toggle State for the loading / error planes.
+ *
+ * Mode "Slide deck" is the second variant: a fixed 1280x720 deck, one slide
+ * per printed page. `pageSize="none"` hands the page rule to the deck's own
+ * `@page`, and `hideHeader` keeps the title for assistive tech only, so the
+ * cover slide (the deck's visible title) starts page 1.
  */
 
 import * as React from "react";
@@ -88,10 +93,44 @@ function CashStatementTable() {
   );
 }
 
+const SLIDES = [
+  { id: "cover", heading: "Bankenreporting Q3 2026", text: "Obsthof Talgrund eG · Ist · Juli–September" },
+  { id: "cash", heading: "Liquidität", text: "Netto-Cashflow im Quartal positiv; die Ernte trägt das Herbstquartal." },
+  { id: "outlook", heading: "Ausblick", text: "Saisonkräfte und Jungbäume binden Liquidität im Frühjahr." },
+];
+
+/** A body that owns its printed page: fixed 1280x720 slides, one per sheet.
+ *  The cover is the deck's visible title, so it is not a heading (one h1). */
+export function SlideDeck() {
+  return (
+    <div>
+      <style>
+        {`@media print {
+  @page { size: 1280px 720px; margin: 0; }
+  .demo-slide { break-after: page; }
+  .demo-slide:last-child { break-after: auto; }
+}`}
+      </style>
+      {SLIDES.map((slide, i) => (
+        <section
+          key={slide.id}
+          className="demo-slide flex h-[720px] w-[1280px] flex-col justify-center gap-4 border border-border bg-card px-24 print:border-0"
+        >
+          <p className={cn("font-semibold tracking-tight", i === 0 ? "text-5xl" : "text-3xl")}>{slide.heading}</p>
+          <p className="text-xl text-muted-foreground">{slide.text}</p>
+        </section>
+      ))}
+    </div>
+  );
+}
+
 const STATES = ["loaded", "loading", "error"] as const;
+const MODES = ["statement", "deck"] as const;
 
 export function PrintStatementDemo() {
   const [state, setState] = React.useState<(typeof STATES)[number]>("loaded");
+  const [mode, setMode] = React.useState<(typeof MODES)[number]>("statement");
+  const deck = mode === "deck";
 
   return (
     <div className="space-y-5">
@@ -100,29 +139,43 @@ export function PrintStatementDemo() {
           A print-only statement route: the toolbar shows on screen and is hidden in print;
           the page prints A4 landscape with 12&nbsp;mm margins and repeats the table header on
           every sheet. Loading and error replace the document, so nothing partial is printed.
+          Slide deck: the deck owns its 1280×720 page rule and the title is for screen readers only.
         </p>
-        <SegmentedControl
-          value={state}
-          onValueChange={(v) => setState(v as (typeof STATES)[number])}
-          options={[
-            { value: "loaded", label: "Loaded" },
-            { value: "loading", label: "Loading" },
-            { value: "error", label: "Error" },
-          ]}
-          aria-label="State"
-        />
+        <div className="flex flex-wrap gap-2">
+          <SegmentedControl
+            value={mode}
+            onValueChange={(v) => setMode(v as (typeof MODES)[number])}
+            options={[
+              { value: "statement", label: "Statement" },
+              { value: "deck", label: "Slide deck" },
+            ]}
+            aria-label="Mode"
+          />
+          <SegmentedControl
+            value={state}
+            onValueChange={(v) => setState(v as (typeof STATES)[number])}
+            options={[
+              { value: "loaded", label: "Loaded" },
+              { value: "loading", label: "Loading" },
+              { value: "error", label: "Error" },
+            ]}
+            aria-label="State"
+          />
+        </div>
       </div>
 
       <PrintStatementShell
-        title="Kapitalflussrechnung"
-        subtitle="Obsthof Talgrund eG · Szenario: Ist · Geschäftsjahr 2026 · Monatlich"
-        meta="Erstellt am 4. Nov. 2026, 09:12"
+        title={deck ? "Bankenreporting Q3 2026" : "Kapitalflussrechnung"}
+        subtitle={deck ? undefined : "Obsthof Talgrund eG · Szenario: Ist · Geschäftsjahr 2026 · Monatlich"}
+        meta={deck ? undefined : "Erstellt am 4. Nov. 2026, 09:12"}
+        pageSize={deck ? "none" : "a4-landscape"}
+        hideHeader={deck}
         isLoading={state === "loading"}
         error={state === "error" ? new Error("Der Bericht konnte nicht geladen werden.") : null}
         onRetry={() => setState("loaded")}
         autoPrint={false}
       >
-        <CashStatementTable />
+        {deck ? <SlideDeck /> : <CashStatementTable />}
       </PrintStatementShell>
     </div>
   );

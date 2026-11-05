@@ -35,6 +35,37 @@ describe("PrintStatementShell", () => {
     expect(styleOf(container)).toContain("size: A4 portrait;");
   });
 
+  it("emits no page rule and no table print rules with pageSize=\"none\", so the body's @page is the only one", () => {
+    const { container } = render(
+      <PrintStatementShell title="Deck" pageSize="none" autoPrint={false}>
+        <style>{"@page { size: 1280px 720px; margin: 0; }"}</style>
+      </PrintStatementShell>,
+    );
+    const all = [...container.querySelectorAll("style")].map((s) => s.textContent ?? "").join("\n");
+    expect(all.match(/@page/g)).toHaveLength(1);
+    expect(all).toContain("@page { size: 1280px 720px; margin: 0; }");
+    expect(styleOf(container)).not.toContain("thead");
+    expect(styleOf(container)).not.toContain("break-inside");
+    expect(styleOf(container)).toContain("print-color-adjust: exact");
+  });
+
+  it("keeps a hidden header for assistive tech only, so the body starts the printed page", () => {
+    const { container } = render(
+      <PrintStatementShell title="Bankenreporting" subtitle="Q3" hideHeader autoPrint={false}>
+        <section data-testid="cover" />
+      </PrintStatementShell>,
+    );
+    const h1 = screen.getByRole("heading", { level: 1 });
+    expect(h1.textContent).toBe("Bankenreporting");
+    expect(container.querySelector("header")!.className).toBe("sr-only");
+    expect(screen.getByTestId("cover")).toBeTruthy();
+  });
+
+  it("shows the header visibly by default", () => {
+    const { container } = render(<PrintStatementShell title="T" autoPrint={false} />);
+    expect(container.querySelector("header")!.className).not.toContain("sr-only");
+  });
+
   it.each([
     ["loading", { isLoading: true }],
     ["error", { error: new Error("Boom") }],
