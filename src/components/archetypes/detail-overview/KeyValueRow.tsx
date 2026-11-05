@@ -3,6 +3,7 @@ import * as React from "react";
 import { CircleDashed, TriangleAlert } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
+import { useTouchTarget } from "../../ui/toolbar-band";
 
 /**
  * Where a value came from. Every field is pre-formatted text — the row never
@@ -131,6 +132,8 @@ export function KeyValueRow({
   className,
 }: KeyValueRowProps): React.ReactElement {
   const contested = alternatives && alternatives.length > 0;
+  // touch density: a 44pt hit area around the small chip / marker
+  const touch = useTouchTarget();
   const body =
     provenance || contested || missing ? (
       <span
@@ -155,7 +158,7 @@ export function KeyValueRow({
           <Popover>
             <PopoverTrigger
               aria-label={`${labels?.source ?? "Source"}: ${provenance.source}`}
-              className={cn(chip, "border border-border font-sans text-muted-foreground hover:text-foreground")}
+              className={cn(chip, touch, "border border-border font-sans text-muted-foreground hover:text-foreground")}
             >
               <span className="truncate">{provenance.source}</span>
             </PopoverTrigger>
@@ -168,7 +171,7 @@ export function KeyValueRow({
           <Popover>
             <PopoverTrigger
               aria-label={`${labels?.contested ?? "Contested"} (${alternatives.length + 1})`}
-              className={cn(chip, "bg-status-warning-bg font-sans font-medium text-status-warning-fg")}
+              className={cn(chip, touch, "bg-status-warning-bg font-sans font-medium text-status-warning-fg")}
             >
               <TriangleAlert aria-hidden className="size-3 shrink-0" />
               {labels?.contested ?? "Contested"}
