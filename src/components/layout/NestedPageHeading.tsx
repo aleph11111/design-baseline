@@ -68,7 +68,7 @@ export type NestedPageHeadingProps = {
  *
  * The type scale and weight are FIXED in the component — it takes no `size`,
  * `level`, `weight`, or `variant` prop. That is deliberate: a per-call-site
- * appearance prop is hard rule 12's forbidden escape hatch, and the freedom to
+ * appearance prop is hard rule 10's forbidden escape hatch, and the freedom to
  * re-pick the weight is precisely what split the fleet's sub-tab headings.
  *
  * Prop shape matches the `PageHeader` page-title family (title / subtitle /

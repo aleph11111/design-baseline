@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.23.2
+
+- **Changed:** three source comments (`NestedPageHeading`, `StatTileRow`, `DashboardWidget`) cited RULES.md "hard rule 12" for appearance locality; it is rule 10. Comment text only.
+- **Consumer:** none.
+- **Breaking:** no.
+
 ## v0.23.1
 
 - **Changed:** `PLAYWRIGHT_IMAGE` (`design-baseline/testing/docker`) is pinned by `@sha256` digest instead of the mutable `-noble` tag, and the `screenshots` CI job uses the same ref. `design-baseline-playwright` mounts the project's `.git` read-only, so container code cannot plant git hooks that run on the host. `docker.test.ts` fails if the digest in `docker.mjs`, `check.yml` and `docs/STYLE.md` differ.
