@@ -1,7 +1,9 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath, URL } from "node:url";
+import path from "node:path";
+import { copyFileSync } from "node:fs";
 
 // ---------------------------------------------------------------------------
 // Donor-dev gallery harness — NOT part of the baseline broadcast.
@@ -16,13 +18,37 @@ import { fileURLToPath, URL } from "node:url";
 // one breaks runs from inside a worktree). `root: "gallery"` does not help.
 // ---------------------------------------------------------------------------
 
+// The Inter woff2 (gallery/fonts/) is licensed under SIL OFL 1.1, which requires
+// its copyright notice and license text to ship alongside it. Vite emits the
+// woff2 into <outDir>/<assetsDir>/ (hashed) but copies no un-referenced source
+// files, so the OFL.txt would be left behind. This build-only copy plugin puts
+// it in the exact same dir the woff2 lands in, so both travel together into the
+// built gallery (gallery-dist/, which is gitignored).
+const buildOutDir = "../gallery-dist";
+const buildAssetsDir = "assets";
+
+function copyOflLicense(): Plugin {
+  return {
+    name: "gallery-copy-inter-ofl",
+    apply: "build",
+    closeBundle() {
+      const from = fileURLToPath(new URL("./gallery/fonts/OFL.txt", import.meta.url));
+      // outDir is relative to root ("gallery"); resolve it the same way Vite
+      // does so the destination matches where the emitted woff2 lands exactly.
+      const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "gallery");
+      const to = path.resolve(appRoot, buildOutDir, buildAssetsDir, "OFL.txt");
+      copyFileSync(from, to);
+    },
+  };
+}
+
 export default defineConfig({
   root: "gallery",
   // Relative base + hash routing (see gallery/main.tsx) so the built gallery is
   // position-independent: it works served at "/" standalone AND iframed under an
   // arbitrary subpath by the hub (e.g. /api/design/gallery/) with no rewrites.
   base: "./",
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), copyOflLicense()],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -53,7 +79,8 @@ export default defineConfig({
     ],
   },
   build: {
-    outDir: "../gallery-dist",
+    outDir: buildOutDir,
+    assetsDir: buildAssetsDir,
     emptyOutDir: true,
   },
 });
