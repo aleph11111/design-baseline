@@ -1,7 +1,8 @@
 ---
 area: tooling
 opened: 2026-11-04
-status: ready
+status: done
+closed: not-needed
 value: low
 model: sonnet
 model_reason: "decision already made by the operator; at most a small lint exemption plus docs"
@@ -37,3 +38,11 @@ controlling-app `frontend/src/app/assets/[id]/import/page.tsx` (19 lines) calls 
 - [[page-requires-archetype-shell-no-pageframe-alone]] — shipped the page-shape rule this gap trips
 - [docs/RULES.md](/docs/RULES.md) — hard rule 12
 - [docs/PACKAGE.md](/docs/PACKAGE.md) — "The page-shape rule"
+
+## Resolution (2026-11-05)
+
+Closed as not-needed in the donor — Option 1 taken (documented default, no baseline change; assumption recorded for review).
+
+- `scripts/lint-design.mjs` on origin/main has no redirect exemption (0 hits for `redirect`); #661 only changed waiver wording, so Option 2 was not built. No archetype added (Option 3 rejected by the ticket).
+- Consumer action lives in controlling-app: `frontend/src/app/assets/[id]/import/page.tsx` still exists on origin/main and is still in `_adherence.json` (line 97). It is removed or redirected under controlling-app ticket `frontend-leftover-pages-archetype-shell-migration` (grep inbound links first).
+- Other redirect-only pages in hk-crm / brickshop-manager were not re-scanned here; any found get the same Option-1 consumer fix, never a donor waiver.
