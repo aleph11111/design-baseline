@@ -195,8 +195,11 @@ the donor-owned `tokens.layer.css` `@theme`. A project that loads its own faces 
 `next/font/google`; Vite/gallery: a `<link>` in `index.html`) binds them with a `@theme`
 re-declaration in its brand `src/styles/tokens.css` — the commented FONT BINDING block —
 since a later `@theme` replaces the donor's `--font-*` rather than stacking; leaving it
-commented is what lets a donor-side face change reach the project on a version bump.
-Everything stays
+commented is what lets a donor-side face change reach the project on a version bump. For a
+runtime app `next/font/google` / the Google `<link>` is fine; a project running screenshot
+baselines instead self-hosts the pinned Inter v20 latin woff2 (`@font-face` or
+`next/font/local`) — Google intermittently serves a different Inter build that shifts
+baseline pixels (the donor's own flake: CI run 41873948155). Everything stays
 `font-sans`; number cells add `tabular-nums` — the layout primitives (`StatTile`,
 `KeyValueRow`, `MetricRow`, the shared table rows) already carry it on their value,
 so consumers get it for free. Never hand-write `font-mono` on a figure or an ID. The brand accent's *value* is **not** part of the house style — it
@@ -767,7 +770,7 @@ When applying the baseline to a new project with its own brand:
      override the donor default only if the brand's rating marker genuinely
      needs a different hue.
    - Tweak `--sidebar-foreground` / `--sidebar-accent*` / `--sidebar-border` if desired; the sidebar *surface* is the fixed sunken step.
-2. Set the brand font in the project entry (Next: `next/font/google`; Vite: `<link>` in `index.html`).
+2. Set the brand font in the project entry (Next: `next/font/google`; Vite: `<link>` in `index.html`) — for screenshot-baseline projects instead self-host the pinned Inter v20 latin woff2 (`@font-face` / `next/font/local`), as in PACKAGE.md's Gate 3 setup; the runtime Google link intermittently serves a different Inter build that shifts baseline pixels (CI run 41873948155).
 3. Replace the `brand` and `appName` props on `<AppSidebar>` with real values.
 4. Wire up `renderLink` to the project's router.
 5. Plug in the project's auth (user menu, sign-out) via `<AppHeader right={...}>`.
