@@ -503,6 +503,44 @@ export function DetailOverviewDemo(): React.ReactElement {
                     <KeyValueRow label="Placed on" value={fmtDate(o.placedOn)} />
                   </KeyValueList>
                 </DetailSection>
+                {/* Enrichment ledger — provenance chip, contested value,
+                    missing field, and `block` with provenance. Tap a chip or
+                    marker (or focus it and press Enter) for the detail. */}
+                <DetailSection title="Data & sources" flush>
+                  <KeyValueList>
+                    <KeyValueRow
+                      label="Legal form"
+                      value="GmbH"
+                      provenance={{
+                        source: "Commercial register (district court Nuremberg)",
+                        id: "HRB 4207-2019-REG-0031",
+                        date: "05.11.2026",
+                        via: "Register lookup + shareholder list",
+                        cost: "33 credits",
+                      }}
+                    />
+                    <KeyValueRow
+                      label="Owner-managed"
+                      value="Yes"
+                      provenance={{ source: "Commercial register", date: "05.11.2026" }}
+                      alternatives={[
+                        {
+                          value: "No",
+                          provenance: { source: "Website imprint", date: "28.10.2026", via: "Site crawl", cost: "free" },
+                        },
+                      ]}
+                    />
+                    <KeyValueRow label="Employees" missing={{ reason: "Company database (5 credits): not enriched yet" }} />
+                    <KeyValueRow label="Founded" missing />
+                    <KeyValueRow label="Parent company" value="—" />
+                    <KeyValueRow
+                      block
+                      label="Business purpose"
+                      value="Brewing and distribution of beer and soft drinks, operation of restaurants and related services."
+                      provenance={{ source: "Commercial register", id: "HRB 4207", date: "05.11.2026" }}
+                    />
+                  </KeyValueList>
+                </DetailSection>
                 <DetailSection title="Raw payload" collapsible>
                   <pre className="overflow-x-auto font-mono text-[11px] text-muted-foreground">
                     {JSON.stringify({ id: o.id, number: o.number, channel: o.channel }, null, 2)}

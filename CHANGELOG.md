@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.28.0
+
+- **Added:** enrichment affordances on `KeyValueRow` (`detail-overview` contract v4.3, MANIFEST 4.5). `provenance` (`{ source, id?, date?, via?, cost? }`) renders a compact source chip beside the value; the full provenance opens in a popover on click, tap or keyboard. `alternatives` (`{ value, provenance? }[]`) keeps the row's value as the winning claim, adds a conflict marker, and lists every claim with its source in the same popover pattern. `missing` (`true | { reason? }`) renders a dashed, muted marker distinct from a real value and from `"—"`, with the reason when given. `labels` carries the copy (`missing`, `contested`, `source`; English defaults). New types `KeyValueProvenance`, `KeyValueClaim`, `KeyValueRowLabels`. `value` is now optional (omit it with `missing`). Living demo: section "Data & sources" in the nested detail-overview gallery entry.
+- **Consumer:** none required. hk-sales-agent's Firmenakte ledger ("Daten & Quellen", "Lücken & Konflikte") can drop its hand-rolled source lines, stacked claims and "Fehlt" rows for these props.
+- **Breaking:** no. A row with only `label` / `value` / `block` renders byte-identical markup.
+
 ## v0.27.0
 
 - **Added:** `lint-design`'s `pageShell` rule accepts `AuthCard` as the shell of an off-app centered-card page (sign-in, not-authorized, 404). A page passes when it imports `AuthCard` from `design-baseline/layout` or `@/components/layout/AuthCard`, imports no `AppShell`, and imports no `PageFrame` (still an error). No new archetype; `AuthCard` stays a layout primitive.

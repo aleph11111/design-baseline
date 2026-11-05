@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 4.2
+version: 4.3
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.6
@@ -11,6 +11,13 @@ status: locked
 
 # Archetype C — Detail Overview
 
+> **v4.3 (2026-11-05) — provenance, contested and missing values on a
+> key/value row.** A row may say where its value came from (a compact source
+> chip; the full provenance on demand), that sources disagree (a conflict
+> marker; every competing claim with its source on demand), or that the field
+> was never captured (a missing marker, distinct from `—`). See 6b. Ships in
+> manifest 4.5. Additive; a row without them renders unchanged.
+>
 > **v4.2 (2026-10-16) — one horizontal gutter in the main column.** The main
 > body adds no horizontal inset of its own: its sections, figures and rows
 > carry the one gutter, so main-column content lines up with the rail and the
@@ -515,6 +522,26 @@ detail-section boundary.
 - A `block` prop on a key-value row for long free-text fields (notes,
   reasons): stacked label-over-value with relaxed line height instead of
   fighting the right-aligned column.
+- **Provenance** (`provenance`: source, optional id, date, via, cost — all
+  pre-formatted data). The row shows a compact source chip beside the value,
+  never an inline source line. Activating the chip — click, tap or keyboard;
+  never hover-only — shows the full provenance in a popover.
+- **Contested value** (`alternatives`: the claims that lost, each a value plus
+  its provenance). The winning claim stays the row's value; a conflict marker
+  sits beside it, and activating it lists every claim, the winning one first,
+  each with its source — the same on-demand pattern as provenance.
+- **Missing value** (`missing`, optionally with a `reason`). The field was
+  never captured, as opposed to `—` (the data does not exist). It renders a
+  muted, dashed missing marker in place of the value — visibly distinct from
+  both a real value and `—` — carrying the reason when one is given.
+- These combine with each other and with `block`, and keep the row's
+  below-`md` stacking. Their copy (marker texts, the chip's accessible name)
+  comes in through `labels`; the row holds no consumer vocabulary.
+
+**Forbidden (enrichment rows):**
+- Hand-rolled source lines, stacked value/source pairs, or a "missing" text
+  value beside real ones. Provenance, competing claims and missing fields go
+  through the row's props.
 
 ### 6c. Bounded section
 
