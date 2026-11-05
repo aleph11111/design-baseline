@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-05
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "shell API design: @page ownership and optional header change a shipped archetype's contract"
@@ -26,11 +26,11 @@ archetype: print-statement (extend; no new archetype). Decision grounded in [ADR
 
 ## What to do
 
-- [ ] Add a page-rule opt-out to `PrintStatementShell` (e.g. `pageSize="none"`) so it emits no `@page` rule and the body owns page size and margin.
-- [ ] Make the printed document header optional (e.g. `hideHeader`): the title stays for a11y and `document.title`, but is not printed (screen-reader/`print:hidden`-safe, no layout space at print).
-- [ ] When the page rule is handed to the body, skip the table-only print CSS (`thead` repeat, `tr` break-inside) or leave it inert for non-table bodies.
-- [ ] Keep toolbar, loading/error early states and once-only auto print unchanged for the new mode.
-- [ ] Add a living demo of the slide-deck mode in `src/examples/print-statement-demo.tsx` (per the variants-need-demos convention), update `docs/archetypes/print-statement.md` (role-only wording, no Tailwind names) and bump the MANIFEST version.
+- [x] Add a page-rule opt-out to `PrintStatementShell` (e.g. `pageSize="none"`) so it emits no `@page` rule and the body owns page size and margin.
+- [x] Make the printed document header optional (e.g. `hideHeader`): the title stays for a11y and `document.title`, but is not printed (screen-reader/`print:hidden`-safe, no layout space at print).
+- [x] When the page rule is handed to the body, skip the table-only print CSS (`thead` repeat, `tr` break-inside) or leave it inert for non-table bodies.
+- [x] Keep toolbar, loading/error early states and once-only auto print unchanged for the new mode.
+- [x] Add a living demo of the slide-deck mode in `src/examples/print-statement-demo.tsx` (per the variants-need-demos convention), update `docs/archetypes/print-statement.md` (role-only wording, no Tailwind names) and bump the MANIFEST version.
 
 ## Acceptance
 
