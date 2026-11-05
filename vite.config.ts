@@ -2,8 +2,7 @@ import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath, URL } from "node:url";
-import path from "node:path";
-import { copyFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 
 // ---------------------------------------------------------------------------
 // Donor-dev gallery harness — NOT part of the baseline broadcast.
@@ -20,24 +19,33 @@ import { copyFileSync } from "node:fs";
 
 // The Inter woff2 (gallery/fonts/) is licensed under SIL OFL 1.1, which requires
 // its copyright notice and license text to ship alongside it. Vite emits the
-// woff2 into <outDir>/<assetsDir>/ (hashed) but copies no un-referenced source
-// files, so the OFL.txt would be left behind. This build-only copy plugin puts
-// it in the exact same dir the woff2 lands in, so both travel together into the
-// built gallery (gallery-dist/, which is gitignored).
+// woff2 via its asset pipeline but copies no un-referenced source files, so an
+// OFL.txt beside the .woff2 in source would be left behind. Emit it through
+// Rollup's asset pipeline (not a post-hoc disk copy) so it lands in the exact
+// assets dir the woff2 lands in — following any --outDir/--assetsDir override
+// (e.g. check:detail-sheet builds to ../gallery-dist-dev) and never touching a
+// directory that may not exist yet — so both travel together into the built
+// gallery (gallery-dist/, which is gitignored).
 const buildOutDir = "../gallery-dist";
 const buildAssetsDir = "assets";
 
 function copyOflLicense(): Plugin {
+  const from = fileURLToPath(new URL("./gallery/fonts/OFL.txt", import.meta.url));
+  let assetsDir = buildAssetsDir;
   return {
     name: "gallery-copy-inter-ofl",
     apply: "build",
-    closeBundle() {
-      const from = fileURLToPath(new URL("./gallery/fonts/OFL.txt", import.meta.url));
-      // outDir is relative to root ("gallery"); resolve it the same way Vite
-      // does so the destination matches where the emitted woff2 lands exactly.
-      const appRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "gallery");
-      const to = path.resolve(appRoot, buildOutDir, buildAssetsDir, "OFL.txt");
-      copyFileSync(from, to);
+    // Read the *resolved* config: build.outDir/--outDir may be overridden on
+    // the CLI (check:detail-sheet), so the config default is not authoritative.
+    configResolved(config) {
+      assetsDir = config.build.assetsDir;
+    },
+    generateBundle() {
+      this.emitFile({
+        type: "asset",
+        fileName: `${assetsDir}/OFL.txt`,
+        source: readFileSync(from),
+      });
     },
   };
 }
