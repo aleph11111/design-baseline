@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: '2026-11-04'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "single new text file beside a known asset; cause established"
