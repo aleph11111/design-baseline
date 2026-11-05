@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-11-04
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "decision made (lint recognition); one scanner branch plus tests and three doc sites, cause established"
