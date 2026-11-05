@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.27.0
+
+- **Added:** `lint-design`'s `pageShell` rule accepts `AuthCard` as the shell of an off-app centered-card page (sign-in, not-authorized, 404). A page passes when it imports `AuthCard` from `design-baseline/layout` or `@/components/layout/AuthCard`, imports no `AppShell`, and imports no `PageFrame` (still an error). No new archetype; `AuthCard` stays a layout primitive.
+- **Consumer:** remove the `grandfathered` entries of `AuthCard`-only pages from `_adherence.json` once you refresh the script (the ratchet reports them as stale): controlling-app `login/page.tsx` and `not-authorized/page.tsx`; brickshop-manager `src/pages/Auth.tsx`, `src/pages/NotFound.tsx` and `src/pages/public/SharedListGate.tsx`.
+- **Breaking:** no. Pages that passed before still pass.
+
 ## v0.26.0
 
 - **Added:** slide-deck variant of `print-statement` (contract v1.1, MANIFEST 1.1). `PrintStatementShell` takes `pageSize="none"` — no `@page` rule and no table-only print rules, so a body with its own page rule (a fixed 1280x720 deck, one slide per sheet) owns page size and margin — and `hideHeader`, which keeps the title in the DOM for assistive tech but takes the header out of the screen and print layout, so the deck's cover slide starts page 1. Toolbar, early states and once-only auto print are unchanged. Living demo: Mode "Slide deck" in the print-statement gallery entry.
