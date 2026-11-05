@@ -9,7 +9,7 @@
 // changes.
 // ponytail: npm projects only; add a lockfile switch when a pnpm/yarn consumer adopts it.
 import { spawnSync } from "node:child_process";
-import { mkdirSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { PLAYWRIGHT_IMAGE } from "../src/testing/docker.mjs";
@@ -60,6 +60,8 @@ const r = spawnSync(
     ...(linux ? ["--user", `${process.getuid()}:${process.getgid()}`, "-e", "HOME=/tmp"] : []),
     ...(process.stdout.isTTY ? ["-t"] : []),
     "-v", `${cwd}:/work`,
+    // .git read-only: container code must not plant hooks that run on the host. (A worktree's .git is a file; a bind mount handles both.)
+    ...(existsSync(path.join(cwd, ".git")) ? ["-v", `${cwd}/.git:/work/.git:ro`] : []),
     "-v", `${nmVol}:/work/node_modules`,
     "-v", `${cacheVol}:${cacheDir}`,
     "-w", "/work",

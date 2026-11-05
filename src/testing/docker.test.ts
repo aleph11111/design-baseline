@@ -9,7 +9,22 @@ const read = (p: string) => fs.readFileSync(path.join(process.cwd(), p), "utf8")
 
 describe("pinned Playwright image", () => {
   it("is the image of the pinned Playwright version", () => {
-    expect(PLAYWRIGHT_IMAGE).toBe(`mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble`);
+    expect(PLAYWRIGHT_IMAGE).toMatch(
+      new RegExp(`^mcr\\.microsoft\\.com/playwright:v${PLAYWRIGHT_VERSION.replace(/\./g, "\\.")}-noble@sha256:[0-9a-f]{64}$`),
+    );
+  });
+
+  it("names the same digest-pinned image everywhere the tag appears", () => {
+    const tagged = /mcr\.microsoft\.com\/playwright:\S+/g;
+    for (const f of [".github/workflows/check.yml", "docs/STYLE.md"]) {
+      const refs = (read(f).match(tagged) ?? []).map((r) => r.replace(/[`,.)]+$/, ""));
+      expect(refs.length, f).toBeGreaterThan(0);
+      for (const r of refs) expect(r, f).toBe(PLAYWRIGHT_IMAGE);
+    }
+  });
+
+  it("mounts .git read-only in the wrapper", () => {
+    expect(read("bin/design-baseline-playwright.mjs")).toContain(`/work/.git:ro`);
   });
 
   it("matches the exact Playwright pins and the CI screenshot job", () => {

@@ -361,7 +361,7 @@ a consumer takes the image, the device projects and the runner from the package:
 
 1. Pin Playwright to the image's version exactly:
    `npm install --save-dev --save-exact @playwright/test@<PLAYWRIGHT_VERSION>`
-   (`PLAYWRIGHT_VERSION` in `design-baseline/testing/docker`; v0.18.0 ships 1.63.0).
+   (`PLAYWRIGHT_VERSION` in `design-baseline/testing/docker`; v0.18.0 ships 1.63.0). The image is pinned by `@sha256` digest; bumping the version means re-resolving it (`docker buildx imagetools inspect <tag>`, the index `Digest:`) and updating `PLAYWRIGHT_IMAGE` and `.github/workflows/check.yml` together — `docker.test.ts` fails if they differ.
 2. In `playwright.config`:
    ```ts
    import { defineConfig } from "@playwright/test";

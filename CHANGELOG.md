@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.23.1
+
+- **Changed:** `PLAYWRIGHT_IMAGE` (`design-baseline/testing/docker`) is pinned by `@sha256` digest instead of the mutable `-noble` tag, and the `screenshots` CI job uses the same ref. `design-baseline-playwright` mounts the project's `.git` read-only, so container code cannot plant git hooks that run on the host. `docker.test.ts` fails if the digest in `docker.mjs`, `check.yml` and `docs/STYLE.md` differ.
+- **Consumer:** none required. A consumer workflow that names the image tag itself should use `PLAYWRIGHT_IMAGE`'s `@sha256` ref. Bumping `PLAYWRIGHT_VERSION` now means re-resolving the digest (`docs/PACKAGE.md`).
+- **Breaking:** no.
+
 ## v0.23.0
 
 - **Added:** archetype `Sb` (`structure-builder`, page kind), exported from `design-baseline/archetypes/structure-builder`. `StructureBuilderShell` is the page that edits a hierarchical structure against a palette of items to place: the template list plus "New" / "Clone" in the toolbar band, "Version history" (a side sheet holding the `history` content) and the deferred-bulk-save "Save" in the header, an "Unsaved changes" badge while `dirty`, and a body of the tree beside an aside holding the palette and the `coverage` check (`{ unplaced, duplicates? }`). `isLoading` / `error` / `isEmpty` replace the body; error wins over loading. `StructureTree` is the keyboard-operable WAI-ARIA tree (Alt+Arrow Up/Down reorders, Alt+Right indents into the line above, Alt+Left outdents; moves are announced) with native HTML5 pointer drag and palette drops (`STRUCTURE_PALETTE_TYPE`). Pure helpers `moveNode`, `insertNode`, `findNode`, `findPosition`, `keyboardTarget`, `dropTarget`. No DnD dependency. Contract: `docs/archetypes/structure-builder.md`; ADR-0012; scaffold with `design-baseline new-page structure-builder <Name>`.

@@ -9,7 +9,7 @@ import path from "node:path";
 /** Must equal the installed `@playwright/test` / `playwright-core`: the image ships that version's browsers. */
 export const PLAYWRIGHT_VERSION = "1.63.0";
 
-export const PLAYWRIGHT_IMAGE = `mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble`;
+export const PLAYWRIGHT_IMAGE = `mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27`;
 
 /** True inside the official image (it sets `PLAYWRIGHT_BROWSERS_PATH=/ms-playwright`). */
 export function inPlaywrightImage() {
