@@ -63,6 +63,92 @@ describe("FeedShell", () => {
   });
 });
 
+describe("FeedShell — back link", () => {
+  it("renders PageFrame's back link when backHref is passed", () => {
+    render(
+      <FeedShell
+        title="Inbox"
+        backHref="/workspace"
+        backLabel="Workspace"
+      >
+        <div>feed rows</div>
+      </FeedShell>,
+    );
+    expect(screen.getByRole("link", { name: "Workspace" }).getAttribute("href")).toBe(
+      "/workspace",
+    );
+  });
+
+  it("renders no back link without backHref (unchanged)", () => {
+    render(
+      <FeedShell title="Inbox">
+        <div>feed rows</div>
+      </FeedShell>,
+    );
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("routes the back link through renderBackLink", () => {
+    render(
+      <FeedShell
+        title="Inbox"
+        backHref="/workspace"
+        renderBackLink={(href, label) => <a data-router href={href}>{label}</a>}
+      >
+        <div>feed rows</div>
+      </FeedShell>,
+    );
+    expect(screen.getByText("Back").hasAttribute("data-router")).toBe(true);
+  });
+});
+
+describe("FeedMasterDetailShell — back link", () => {
+  it("renders PageFrame's back link when backHref is passed", () => {
+    render(
+      <FeedMasterDetailShell
+        title="Messages"
+        backHref="/workspace"
+        backLabel="Workspace"
+        emptyDetail={<p>Select a message</p>}
+        onBack={() => {}}
+      >
+        <FeedItem title="Order shipped" />
+      </FeedMasterDetailShell>,
+    );
+    expect(screen.getByRole("link", { name: "Workspace" }).getAttribute("href")).toBe(
+      "/workspace",
+    );
+  });
+
+  it("renders no back link without backHref (unchanged)", () => {
+    render(
+      <FeedMasterDetailShell
+        title="Messages"
+        emptyDetail={<p>Select a message</p>}
+        onBack={() => {}}
+      >
+        <FeedItem title="Order shipped" />
+      </FeedMasterDetailShell>,
+    );
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("routes the back link through renderBackLink", () => {
+    render(
+      <FeedMasterDetailShell
+        title="Messages"
+        backHref="/workspace"
+        renderBackLink={(href, label) => <a data-router href={href}>{label}</a>}
+        emptyDetail={<p>Select a message</p>}
+        onBack={() => {}}
+      >
+        <FeedItem title="Order shipped" />
+      </FeedMasterDetailShell>,
+    );
+    expect(screen.getByText("Back").hasAttribute("data-router")).toBe(true);
+  });
+});
+
 describe("FeedBody", () => {
   it("renders no page h1 and no raised page surface (overlay / sheet use)", () => {
     const { container } = render(

@@ -2,7 +2,7 @@
 key: H
 slug: feed-inbox
 kind: page
-version: 2.2
+version: 2.3
 promoted_from: fleet-audit-2026-06-13 (brickshop-manager, hk-crm)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -10,6 +10,17 @@ status: locked
 ---
 
 # Archetype H — feed-inbox
+
+> **v2.3 (2026-11-05) — back link to the parent page (Layer 3).** A feed
+> page can sit under a parent route: the page feed shell and the
+> master-detail feed shell now take the shared back-link props — `backHref`
+> / `backLabel`, with `renderBackLink` injecting the router link — so a
+> consumer that was rendering `PageFrame` alone for such a page can move
+> onto either shell and keep its back link. Same three props, same names as
+> `list-with-detail`, `detail-overview` and `form-page`. Additive; no
+> breaking change. The frameless feed body (the overlay surface) is
+> unchanged — the enclosing sheet owns the chrome there.
+>
 
 A **chronological stream of events** — notifications, activity, an inbox, a
 media/event feed — with optional read state and filter chips, time-grouped
@@ -74,6 +85,12 @@ title; there is no other title and no untitled form. `subtitle` carries a
 one-line description; `badges` carry read-only status. `actions` holds the
 page's verbs — "Mark all read" on the inbox sub-shape (the timeline has
 none). The read state's summary ("3 unread" / "All caught up") is the `count`.
+
+**Allowed variation:**
+- **Back link (optional): back to the parent page** — only when the feed
+  route sits under a parent. `backHref` / `backLabel`, with `renderBackLink`
+  injecting the router link, on the page feed shell and the master-detail feed
+  shell. Never a bespoke leading control beside the title.
 
 **Overlay surface:** the frameless feed body — the Layer 1 sheet / popover — has
 no `title` and no page header (the page form's required title is page-owned; a
@@ -158,6 +175,10 @@ viewer; never leak another user's items.
 - [ ] **[spine] S1, S2, S3, S4, S5, S6.**
 
 ## Version log
+- **2.3** — Layer 3: the page feed shell and the master-detail feed shell take
+  the shared back-link props (`backHref` / `backLabel`, and `renderBackLink`
+  injecting the router link) so a feed page under a parent keeps its back
+  link. Additive; no breaking change.
 - **2.2** — the master-detail page form: the master-detail feed shell splits
   the one page surface into a list pane and a detail pane (side by side once
   the surface is `md` wide, an empty-detail state when nothing is selected;

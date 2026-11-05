@@ -40,6 +40,45 @@ describe("StatementWithFiltersShell", () => {
   });
 });
 
+describe("StatementWithFiltersShell — back link", () => {
+  it("renders PageFrame's back link when backHref is passed", () => {
+    render(
+      <StatementWithFiltersShell
+        title="Yield 2026"
+        backHref="/workspace"
+        backLabel="Workspace"
+      >
+        <div>body</div>
+      </StatementWithFiltersShell>,
+    );
+    expect(screen.getByRole("link", { name: "Workspace" }).getAttribute("href")).toBe(
+      "/workspace",
+    );
+  });
+
+  it("renders no back link without backHref (unchanged)", () => {
+    render(
+      <StatementWithFiltersShell title="Yield 2026">
+        <div>body</div>
+      </StatementWithFiltersShell>,
+    );
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("routes the back link through renderBackLink", () => {
+    render(
+      <StatementWithFiltersShell
+        title="Yield 2026"
+        backHref="/workspace"
+        renderBackLink={(href, label) => <a data-router href={href}>{label}</a>}
+      >
+        <div>body</div>
+      </StatementWithFiltersShell>,
+    );
+    expect(screen.getByText("Back").hasAttribute("data-router")).toBe(true);
+  });
+});
+
 describe("StatementTable", () => {
   it("renders the column header row automatically from `columns`", () => {
     const { container } = render(

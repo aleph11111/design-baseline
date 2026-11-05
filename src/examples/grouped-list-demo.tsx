@@ -156,6 +156,10 @@ export function GroupedListDemo() {
 
       <GroupedListShell
         title="Recipe Book"
+        // The list sits under a parent route (the app's catalog section): the
+        // back link is the page header's, not a bespoke leading control.
+        backHref="#"
+        backLabel="Catalog"
         actions={
           <Button>
             <Plus className="mr-1 h-4 w-4" />

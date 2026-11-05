@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ArrowLeft } from "lucide-react";
-import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
 import { Button } from "../../ui/button";
 import { cn } from "../../../lib/utils";
 import { useLabels } from "../../../lib/labels";
@@ -32,7 +32,16 @@ export function FeedBody({
 
 FeedBody.displayName = "FeedBody";
 
-export type FeedShellProps = FeedBodyProps & PageShellFrameProps;
+/**
+ * The page header's back-link slot — `FeedShell` opts into the back-link
+ * header chrome that `PageShellFrameProps` omits (a feed page can sit under
+ * a parent). Same three props, same names as `list-with-detail`,
+ * `detail-overview` and `form-page`.
+ */
+export type FeedShellProps = Pick<
+  PageFrameProps,
+  "backHref" | "backLabel" | "renderBackLink"
+> & FeedBodyProps & PageShellFrameProps;
 
 /**
  * FeedShell — the page (ADR-0008) for a feed/inbox (H) surface: a chronological
@@ -68,7 +77,11 @@ function scrollerOf(el: HTMLElement): HTMLElement {
 
 type NarrowSnapshot = { scroller: HTMLElement; top: number; row: HTMLElement | null };
 
-export type FeedMasterDetailShellProps = PageShellFrameProps & {
+/** The back-link slot for the master-detail form — same three props as `FeedShellProps`. */
+export type FeedMasterDetailShellProps = Pick<
+  PageFrameProps,
+  "backHref" | "backLabel" | "renderBackLink"
+> & PageShellFrameProps & {
   /** The list pane: the time-grouped stack of `<FeedItem>`s (mark the open one
    *  `selected`). Rendered through `FeedBody`. */
   children: React.ReactNode;

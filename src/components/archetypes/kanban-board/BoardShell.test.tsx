@@ -38,3 +38,42 @@ describe("BoardShell — viewOptions", () => {
     expect(screen.getByTestId("vo")).toBeTruthy();
   });
 });
+
+describe("BoardShell — back link", () => {
+  it("renders PageFrame's back link when backHref is passed", () => {
+    render(
+      <BoardShell
+        title="Delivery board"
+        backHref="/workspace"
+        backLabel="Workspace"
+      >
+        {null}
+      </BoardShell>,
+    );
+    expect(screen.getByRole("link", { name: "Workspace" }).getAttribute("href")).toBe(
+      "/workspace",
+    );
+  });
+
+  it("renders no back link without backHref (unchanged)", () => {
+    render(
+      <BoardShell title="Delivery board">
+        {null}
+      </BoardShell>,
+    );
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("routes the back link through renderBackLink", () => {
+    render(
+      <BoardShell
+        title="Delivery board"
+        backHref="/workspace"
+        renderBackLink={(href, label) => <a data-router href={href}>{label}</a>}
+      >
+        {null}
+      </BoardShell>,
+    );
+    expect(screen.getByText("Back").hasAttribute("data-router")).toBe(true);
+  });
+});
