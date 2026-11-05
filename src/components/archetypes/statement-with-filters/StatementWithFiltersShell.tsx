@@ -1,9 +1,16 @@
 "use client";
 import * as React from "react";
-import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
 
-export type StatementWithFiltersShellProps = PageShellFrameProps & {
+/** The page header's back-link slot — `StatementWithFiltersShell` opts into
+ *  the back-link header chrome that `PageShellFrameProps` omits (a statement
+ *  page can sit under a parent). Same three props, same names as
+ *  `list-with-detail`, `detail-overview` and `form-page`. */
+export type StatementWithFiltersShellProps = Pick<
+  PageFrameProps,
+  "backHref" | "backLabel" | "renderBackLink"
+> & PageShellFrameProps & {
   /**
    * The governed statement body — the read-only comparison/report table. The
    * shell pads it and wraps it in a horizontal scroll region so wide

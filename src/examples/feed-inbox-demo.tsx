@@ -237,6 +237,10 @@ function InboxDemo(): React.ReactElement {
           header, filters + unread count in the toolbar band. */}
       <FeedShell
         title="Notifications"
+        // The feed sits under a parent route (the workspace's inbox section):
+        // the back link is the page header's, not a bespoke leading control.
+        backHref="#"
+        backLabel="Workspace"
         actions={
           <Button
             variant="outline"
@@ -343,6 +347,10 @@ function MasterDetailDemo(): React.ReactElement {
       </p>
       <FeedMasterDetailShell
         title="Inbox"
+        // Master-detail form under a parent route — the same header back
+        // link as the single-pane page shell, on the split form.
+        backHref="#"
+        backLabel="Messages"
         count={`${SEED.length} messages`}
         detail={
           selected && (

@@ -1,14 +1,23 @@
 "use client";
 import * as React from "react";
 import { ListStateView, resolveListState, type ListStateLabels } from "../shared";
-import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
 
 // The shared renderer's own labels type — one owner of the key set, so the
 // three list shells' `labels` props can't drift. Re-exported under the shell's
 // name for existing import sites.
 export type GroupedListShellLabels = ListStateLabels;
 
-export type GroupedListShellProps = PageShellFrameProps & {
+/**
+ * The page header's back-link slot — `GroupedListShell` opts into the
+ * back-link header chrome that `PageShellFrameProps` omits (a grouped-list
+ * page can sit under a parent). Same three props, same names as
+ * `list-with-detail`, `detail-overview` and `form-page`.
+ */
+export type GroupedListShellProps = Pick<
+  PageFrameProps,
+  "backHref" | "backLabel" | "renderBackLink"
+> & PageShellFrameProps & {
   /** True while the initial fetch is in flight. */
   isLoading?: boolean;
   /** Fetch error; null/undefined when healthy. */

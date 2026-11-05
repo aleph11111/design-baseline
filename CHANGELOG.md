@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.25.0
+
+- **Added:** back link to the parent page on the four list/table-style full-frame shells — `GroupedListShell` (contract v4.1, MANIFEST 4.4), `FeedShell` and `FeedMasterDetailShell` (contract v2.3, MANIFEST 3.8), `BoardShell` (contract v3.1, MANIFEST 3.4), and `StatementWithFiltersShell` (contract v2.5, MANIFEST 2.7). Each now takes `backHref` / `backLabel`, with `renderBackLink` injecting the router link — same three props, same names as `detail-overview`, `form-page` and `list-with-detail` (v0.24.0). Layer 3 (page header) lists them as an allowed variation: "back to the parent page". The remaining shells (`settings-table`, `matrix-grid`, `calendar`, `analytics-dashboard`, `structure-builder`) sit at top-level routes and are unchanged until a consumer page under a parent needs one.
+- **Consumer:** none required — the props are optional; a shell without `backHref` renders no back link (unchanged). A list/table-style page that sits under a parent and renders `PageFrame` alone (the motivating case: hk-sales-agent list pages under a parent route) can switch to the shell with `backHref=…` and keep its back link while passing the `pageShell` lint rule.
+- **Breaking:** no. Additive; no breaking change. `PageShellFrameProps` is unchanged, so the `TakesEveryFrameSlot` gate (`page-shell-frame-slots.test.tsx`) stays green for every shell.
+
 ## v0.24.0
 
 - **Added:** back link to the parent page on the `list-with-detail` shell (contract v4.4, MANIFEST 4.7). `ListWithDetailShell` now takes `backHref` / `backLabel`, with `renderBackLink` injecting the router link — same three props, same names as `detail-overview` and `form-page`. Layer 3 (page header) lists them as an allowed variation: "back to the parent page".

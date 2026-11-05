@@ -124,6 +124,10 @@ export function KanbanBoardDemo(): React.ReactElement {
          action, search/filter the toolbar; columns are recessed lanes. */}
       <BoardShell
         title="Delivery board"
+        // The board sits under a parent route (the delivery workspace): the
+        // back link is the page header's, not a bespoke leading control.
+        backHref="#"
+        backLabel="Delivery"
         actions={
           <Button>
             <Plus className="mr-1 h-4 w-4" />

@@ -2,7 +2,7 @@
 key: F
 slug: statement-with-filters
 kind: page
-version: 2.4
+version: 2.5
 promoted_from: controlling-app
 promoted_at: 2026-08-19
 source_spec_version: 1.0
@@ -10,6 +10,15 @@ status: locked
 ---
 
 # Archetype F — statement-with-filters
+
+> **v2.5 (2026-11-05) — back link to the parent page (Layer 3).** A
+> statement page can sit under a parent route: the shell now takes the
+> shared back-link props — `backHref` / `backLabel`, with `renderBackLink`
+> injecting the router link — so a consumer that was rendering `PageFrame`
+> alone for such a page can move onto the shell and keep its back link.
+> Same three props, same names as `list-with-detail`, `detail-overview`
+> and `form-page`. Additive; no breaking change.
+>
 
 A **statement-with-filters** page presents one **read-only financial statement
 or comparison table** under a **heavy filter/selector toolbar** that re-scopes
@@ -102,6 +111,12 @@ read-only rule is the archetype's defining boundary).
 **Required:**
 - The statement's name as the page `title`, passed once.
 - Document verbs (export, print/PDF, a freeze) in `actions`.
+
+**Allowed variation:**
+- **Back link (optional): back to the parent page** — only when the statement
+  route sits under a parent (a workspace page under the workspace route).
+  `backHref` / `backLabel`, with `renderBackLink` injecting the router link.
+  Never a bespoke leading control beside the title.
 
 **Forbidden:**
 - A second title for the same statement (e.g. the name repeated on the
@@ -287,6 +302,11 @@ never from the call site's taste. The mapping is exhaustive:
 ---
 
 ## Version log
+
+- **2.5** — Layer 3: the page header takes the shared back-link props
+  (`backHref` / `backLabel`, and `renderBackLink` injecting the router link)
+  so a statement page under a parent keeps its back link. Additive; no
+  breaking change.
 
 - **2.4** — Layer 2: the page is full-bleed (ADR-0007 amendment 2026-10-12),
   so a twelve-period statement fits a laptop desk without horizontal scroll.

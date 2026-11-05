@@ -1,9 +1,16 @@
 "use client";
 import * as React from "react";
-import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
 
-export type BoardShellProps = PageShellFrameProps & {
+/** The page header's back-link slot — `BoardShell` opts into the back-link
+ *  header chrome that `PageShellFrameProps` omits (a board can sit under a
+ *  parent). Same three props, same names as `list-with-detail`,
+ *  `detail-overview` and `form-page`. */
+export type BoardShellProps = Pick<
+  PageFrameProps,
+  "backHref" | "backLabel" | "renderBackLink"
+> & PageShellFrameProps & {
   /** `<BoardColumn>` children, laid out as a horizontally-scrolling row. */
   children: React.ReactNode;
 };

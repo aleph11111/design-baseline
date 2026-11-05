@@ -2,7 +2,7 @@
 key: P
 slug: kanban-board
 kind: page
-version: 3.0
+version: 3.1
 promoted_from: fleet-audit-2026-06-13 (pmo, hk-crm)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -10,6 +10,15 @@ status: locked
 ---
 
 # Archetype P — kanban-board
+
+> **v3.1 (2026-11-05) — back link to the parent page (Layer 3).** A board
+> can sit under a parent route: the board shell now takes the shared
+> back-link props — `backHref` / `backLabel`, with `renderBackLink`
+> injecting the router link — so a consumer that was rendering `PageFrame`
+> alone for such a page can move onto the board shell and keep its back link.
+> Same three props, same names as `list-with-detail`, `detail-overview` and
+> `form-page`. Additive; no breaking change.
+>
 
 A **board of columns of draggable cards** — a pipeline / kanban view where items
 move between user-meaningful stages (To do → In progress → Done; lead stages;
@@ -42,6 +51,12 @@ container; the page does not.
 The page title is required and passed once to the board shell. Slots:
 - `actions` — whole-board verbs: the one primary action (add card), export.
 - `toolbar` — everything that scopes the board: search, assignee / label filters.
+
+**Allowed variation:**
+- **Back link (optional): back to the parent page** — only when the board
+  route sits under a parent. `backHref` / `backLabel`, with `renderBackLink`
+  injecting the router link. Never a bespoke leading control beside the
+  title.
 
 A board is always framed; there is no untitled or unframed form.
 
@@ -105,6 +120,10 @@ view; a read-only viewer gets the board without drag handles.
 ---
 
 ## Version log
+- **3.1** — Layer 3: the board shell takes the shared back-link props
+  (`backHref` / `backLabel`, and `renderBackLink` injecting the router link)
+  so a board page under a parent keeps its back link. Additive; no breaking
+  change.
 - **3.0** — ADR-0008 page frame: `title` required; `kicker` / `headerActions` and
   the untitled form removed; add-card → `actions`, filters → `toolbar`; columns
   are recessed lanes, not cards.

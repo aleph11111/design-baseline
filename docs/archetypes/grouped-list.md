@@ -2,7 +2,7 @@
 key: K
 slug: grouped-list
 kind: page
-version: 4.0
+version: 4.1
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.6
@@ -10,6 +10,15 @@ status: locked
 ---
 
 # Archetype K — Grouped list
+
+> **v4.1 (2026-11-05) — back link to the parent page (Layer 3).** A
+> grouped-list page can sit under a parent route: the page header now takes
+> the shared back-link props — `backHref` / `backLabel`, with `renderBackLink`
+> injecting the router link — so a consumer that was rendering `PageFrame`
+> alone for such a page can move onto the grouped-list shell and keep its back
+> link. Same three props, same names as `list-with-detail`, `detail-overview`
+> and `form-page`. Additive; no breaking change.
+>
 
 ## Purpose
 
@@ -56,6 +65,7 @@ K **inherits A's table contract**. Layers 6–10 (table, empty states, data, typ
 **Allowed variation:**
 - **`subtitle`** / **`badges`** — compact metadata and read-only status next to the title.
 - **`actions`** — verbs on the whole page, most commonly the single Add action (primary). Independent of `toolbar`: omitting the toolbar never orphans the Add action.
+- **Back link (optional): back to the parent page** — only when the grouped-list route sits under a parent. `backHref` / `backLabel`, with `renderBackLink` injecting the router link. Never a bespoke leading control beside the title.
 
 ---
 
@@ -269,6 +279,10 @@ When a target project applies this archetype, it wires the generic primitives to
 ---
 
 ## Version log
+- **4.1** — Layer 3: the page header takes the shared back-link props
+  (`backHref` / `backLabel`, and `renderBackLink` injecting the router link)
+  so a grouped-list page under a parent keeps its back link. Additive; no
+  breaking change.
 - **4.0** — ADR-0008 page frame: `title` required and rendered once as the page
   title; `kicker` / `headerActions` / the on-surface header removed (Add →
   `actions`); groups are heading-separated sections inside the page's one

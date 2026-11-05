@@ -163,6 +163,10 @@ export function StatementWithFiltersDemo(): React.ReactElement {
 
       <StatementWithFiltersShell
         title="Profit & Loss"
+        // The statement sits under a parent route (the club's finance section):
+        // the back link is the page header's, not a bespoke leading control.
+        backHref="#"
+        backLabel="Finance"
         subtitle={`Beekeeping club · ${tuple.scenario === "actual" ? "Actual" : "Budget"} ${tuple.year}`}
         actions={
           <>

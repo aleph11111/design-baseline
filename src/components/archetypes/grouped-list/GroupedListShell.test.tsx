@@ -26,3 +26,34 @@ describe("GroupedListShell — page frame (ADR-0008)", () => {
     expect(surface.textContent).toContain("section");
   });
 });
+
+describe("GroupedListShell — back link", () => {
+  it("renders PageFrame's back link when backHref is passed", () => {
+    render(
+      <GroupedListShell
+        title="Products"
+        backHref="/workspace"
+        backLabel="Workspace"
+      />,
+    );
+    expect(screen.getByRole("link", { name: "Workspace" }).getAttribute("href")).toBe(
+      "/workspace",
+    );
+  });
+
+  it("renders no back link without backHref (unchanged)", () => {
+    render(<GroupedListShell title="Products" />);
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("routes the back link through renderBackLink", () => {
+    render(
+      <GroupedListShell
+        title="Products"
+        backHref="/workspace"
+        renderBackLink={(href, label) => <a data-router href={href}>{label}</a>}
+      />,
+    );
+    expect(screen.getByText("Back").hasAttribute("data-router")).toBe(true);
+  });
+});
