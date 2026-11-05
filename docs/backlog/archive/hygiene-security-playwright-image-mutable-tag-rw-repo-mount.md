@@ -1,7 +1,7 @@
 ---
 area: hygiene-security
 opened: '2026-11-04'
-status: ready
+status: done
 value: normal
 depends_on: [playwright-bin-linux-root-owned-output]
 model: sonnet
