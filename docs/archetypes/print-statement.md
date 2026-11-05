@@ -2,7 +2,7 @@
 key: Pr
 slug: print-statement
 kind: page
-version: 1.0
+version: 1.1
 promoted_from: controlling-app
 promoted_at: 2026-11-04
 source_spec_version: n/a (no source spec — distilled from controlling-app's PrintPageShell, ADR-0050)
@@ -47,7 +47,9 @@ hidden under print media, so it never reaches the paper.
 
 **2 — Document header.** The statement's `title`, once, as the page heading;
 an optional `subtitle` line (entity · scenario · period) and an optional `meta`
-line (generated-at stamp).
+line (generated-at stamp). When the body carries its own visible title (a slide
+deck's cover slide), `hideHeader` keeps the header for assistive tech only: it
+takes no space on screen or paper, so the body starts at the top of page 1.
 
 **3 — Body (unbounded).** The statement tables, banners and check strips, at the
 full width of the route. On a narrow screen the body scrolls sideways inside
@@ -59,6 +61,13 @@ across a page break.
 emits the page rule — `a4-landscape` (the default; wide statements) or
 `a4-portrait` — with a fixed 12 mm margin. Colors print exactly as rendered
 (row tints and highlights survive the print dialog's background stripping).
+
+**Slide-deck variant.** A body of fixed-size slides, one per printed page,
+owns its own page rule (size and zero margin). `pageSize="none"` makes the
+shell emit no page rule and drop the table-only print rules (repeating header
+rows, unsplit rows), so the body's page rule is the only one in the document.
+It pairs with `hideHeader`: the deck's cover slide is the visible title. The
+toolbar, early states and auto print are unchanged.
 
 **Early states.** While loading, or on error, the state **replaces the whole
 document**: no toolbar, no header, no body, no print action, no auto print. A
@@ -91,7 +100,8 @@ A preview context turns it off (`autoPrint={false}`).
 2. **A hand-built print wrapper.** The toolbar, page rule, header and early
    states come from the one shell — no per-route copy of them.
 3. **A second title.** The statement title is the shell's `title`, once; the
-   body does not repeat it as its own heading.
+   body does not repeat it as its own heading. A slide deck's cover slide is
+   the one visible title only with `hideHeader`.
 4. **Filters or re-scoping controls.** Scope arrives with the route; the only
    control is the print action.
 5. **Printing a partial document.** Loading and error render through the
@@ -119,7 +129,8 @@ A preview context turns it off (`autoPrint={false}`).
 
 - [ ] **One print-statement shell** owns the route: toolbar, page rule,
       `title`, early states — no hand-built print wrapper, no page-local
-      page rule, no own print button.
+      page rule (except a slide deck's own, under `pageSize="none"`), no own
+      print button.
 - [ ] **No app chrome** — the route renders outside the app shell.
 - [ ] **Early states via the shell** (`isLoading` / `error`), never a body
       rendered while data is missing.
@@ -140,5 +151,8 @@ A preview context turns it off (`autoPrint={false}`).
 
 ## Version log
 
+- **1.1** (2026-11-05) — slide-deck variant: `pageSize="none"` hands the page
+  rule to the body, `hideHeader` keeps the title for assistive tech only.
+  Motivated by controlling-app's two folien-bauen deck print routes.
 - **1.0** (2026-11-04) — initial contract, distilled from controlling-app's
   eight print routes (`PrintPageShell`, ADR-0050).

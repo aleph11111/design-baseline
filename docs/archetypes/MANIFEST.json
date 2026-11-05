@@ -396,7 +396,7 @@
       "slug": "print-statement",
       "displayName": "Print statement",
       "kind": "page",
-      "version": "1.0",
+      "version": "1.1",
       "promoted_from": "controlling-app",
       "promoted_at": "2026-11-04",
       "source_spec_version": "n/a (no source spec — distilled from controlling-app's PrintPageShell, ADR-0050)",

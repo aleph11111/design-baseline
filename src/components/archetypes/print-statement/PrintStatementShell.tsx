@@ -5,10 +5,12 @@ import { Button } from "../../ui/button";
 import { StateView } from "../../ui/state-view";
 import { useLabels } from "../../../lib/labels";
 
-/** The `@page` size each `pageSize` emits; the margin is fixed. */
+/** The `@page` size each `pageSize` emits; the margin is fixed. `"none"`
+ *  emits no page rule (and no table print rules): the body owns them. */
 const PAGE_SIZE = {
   "a4-landscape": "A4 landscape",
   "a4-portrait": "A4 portrait",
+  none: null,
 } as const;
 
 /** The page margin every printed statement uses. */
@@ -19,7 +21,8 @@ export const PRINT_PAGE_MARGIN = "12mm";
 export const PRINT_DELAY_MS = 300;
 
 export type PrintStatementShellProps = {
-  /** The document's title, rendered once as the page's h1 above the body. */
+  /** The document's title, rendered once as the page's h1 above the body
+   *  (visually hidden when `hideHeader`). */
   title: React.ReactNode;
   /** One muted line under the title: entity, scenario, period. */
   subtitle?: React.ReactNode;
@@ -35,8 +38,14 @@ export type PrintStatementShellProps = {
   error?: unknown;
   /** Adds a retry button to the error state. */
   onRetry?: () => void;
-  /** The printed page size, emitted as the `@page` rule. Defaults to `"a4-landscape"`. */
+  /** The printed page size, emitted as the `@page` rule. Defaults to `"a4-landscape"`.
+   *  `"none"` hands page size and margin to the body (e.g. a fixed-size slide
+   *  deck with its own `@page` rule) and drops the table-only print rules. */
   pageSize?: keyof typeof PAGE_SIZE;
+  /** Keeps the header for assistive tech but takes it out of the visual and
+   *  printed layout, so the body starts at the top of page 1 — for a body
+   *  that carries its own visible title (a deck's cover slide). */
+  hideHeader?: boolean;
   /** Opens the print dialog once, `PRINT_DELAY_MS` after the document first
    *  renders ready. Defaults to `true`; pass `false` for a preview. */
   autoPrint?: boolean;
@@ -59,6 +68,7 @@ export function PrintStatementShell({
   error,
   onRetry,
   pageSize = "a4-landscape",
+  hideHeader = false,
   autoPrint = true,
 }: PrintStatementShellProps): React.ReactElement {
   const L = useLabels();
@@ -91,7 +101,11 @@ export function PrintStatementShell({
   return (
     <div data-slot="print-statement" className="min-w-0 bg-background text-foreground">
       <style>
-        {`@page { size: ${PAGE_SIZE[pageSize]}; margin: ${PRINT_PAGE_MARGIN}; }
+        {PAGE_SIZE[pageSize] === null
+          ? `@media print {
+  body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}`
+          : `@page { size: ${PAGE_SIZE[pageSize]}; margin: ${PRINT_PAGE_MARGIN}; }
 @media print {
   body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   [data-slot="print-statement"] thead { display: table-header-group; }
@@ -109,7 +123,7 @@ export function PrintStatementShell({
         </Button>
       </div>
       <div className="p-6 print:p-0">
-        <header className="mb-4">
+        <header className={hideHeader ? "sr-only" : "mb-4"}>
           <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
           {subtitle ? <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p> : null}
           {meta ? <p className="mt-0.5 text-xs text-muted-foreground">{meta}</p> : null}
