@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.23.0
+
+- **Added:** archetype `Sb` (`structure-builder`, page kind), exported from `design-baseline/archetypes/structure-builder`. `StructureBuilderShell` is the page that edits a hierarchical structure against a palette of items to place: the template list plus "New" / "Clone" in the toolbar band, "Version history" (a side sheet holding the `history` content) and the deferred-bulk-save "Save" in the header, an "Unsaved changes" badge while `dirty`, and a body of the tree beside an aside holding the palette and the `coverage` check (`{ unplaced, duplicates? }`). `isLoading` / `error` / `isEmpty` replace the body; error wins over loading. `StructureTree` is the keyboard-operable WAI-ARIA tree (Alt+Arrow Up/Down reorders, Alt+Right indents into the line above, Alt+Left outdents; moves are announced) with native HTML5 pointer drag and palette drops (`STRUCTURE_PALETTE_TYPE`). Pure helpers `moveNode`, `insertNode`, `findNode`, `findPosition`, `keyboardTarget`, `dropTarget`. No DnD dependency. Contract: `docs/archetypes/structure-builder.md`; ADR-0012; scaffold with `design-baseline new-page structure-builder <Name>`.
+- **Added:** label keys `structureNew`, `structureClone`, `structureHistory`, `structureTree`, `structureEmpty`, `structureMoveHint`, `structureMoved`, `structurePlace`, `unsavedChanges`, `coverageComplete`, `coverageUnplaced`, `coverageDuplicates` (`BaselineLabels`, En + De).
+- **Consumer:** none required. controlling-app can move `workspace/pnl-builder` onto `StructureBuilderShell` (its `EditableReport` may stay the tree if it meets the contract's keyboard rule) and drop it from its grandfathered page-shape list; `bs-builder` unblocks. A custom `BaselineLabels` object must add the new keys.
+- **Breaking:** no, unless you build a full `BaselineLabels` object by hand (add the keys above).
+
 ## v0.22.1
 
 - **Changed:** the `pageShell` lint hint (`scripts/lint-design.mjs`) and `docs/RULES.md` rule 12 / `docs/PACKAGE.md` now say an agent never adds the `// archetype-gap:` waiver; only the operator ships a waived page, by merging it by hand. The old "approval recorded in the PR body" wording was forgeable. Wording only; waiver matching, severity and the grandfather ratchet are unchanged.

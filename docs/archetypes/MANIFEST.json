@@ -8,7 +8,7 @@
   "plugin": {
     "kind": "design",
     "name": "design-baseline",
-    "version": "0.15.0",
+    "version": "0.16.0",
     "taxonomy": "docs/TAXONOMY.md",
     "surface": {
       "type": "vite-app",
@@ -403,6 +403,20 @@
       "spec": "docs/archetypes/print-statement.md",
       "primitives_dir": "src/components/archetypes/print-statement",
       "example": "src/examples/print-statement-demo.tsx"
+    },
+    {
+      "key": "Sb",
+      "namespace": "baseline",
+      "slug": "structure-builder",
+      "displayName": "Structure builder",
+      "kind": "page",
+      "version": "1.0",
+      "promoted_from": "controlling-app",
+      "promoted_at": "2026-11-05",
+      "source_spec_version": "n/a (no source spec — distilled from controlling-app's pnl-builder page, docs/patterns/frontend-structure-builder.md and ADR-0027)",
+      "spec": "docs/archetypes/structure-builder.md",
+      "primitives_dir": "src/components/archetypes/structure-builder",
+      "example": "src/examples/structure-builder-demo.tsx"
     }
   ],
   "_methodology_note": "Cross-archetype methodology docs — the selection/placement/stack/adoption laws the individual archetype specs defer to. Not page shapes; no primitives or demos. `governs` lists the archetype keys each doc's rules bear on. Adopted from the hk-crm 360° audit (2026-07); see docs/adr/0002-adopt-baseline-upstream-methodology.md.",
