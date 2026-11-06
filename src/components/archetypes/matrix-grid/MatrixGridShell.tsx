@@ -127,8 +127,9 @@ export function MatrixGridShell<Cell>({
   // body's guard; a blocked switch leaves selection and inspector unchanged.
   async function requestSelect(next: MatrixSelection | null) {
     if (!inspector) return;
-    if (next && selection && next.rowId === selection.rowId && next.columnKey === selection.columnKey) return;
+    // bumped first: a click on the open cell ("stay") cancels a pending switch
     const seq = ++requestSeq.current;
+    if (next && selection && next.rowId === selection.rowId && next.columnKey === selection.columnKey) return;
     if (inspector.onBeforeSelect && !(await inspector.onBeforeSelect(next, selection))) return;
     if (seq !== requestSeq.current) return;
     inspector.onSelectionChange(next);
@@ -228,23 +229,20 @@ export function MatrixGridShell<Cell>({
       </div>
   );
 
-  if (!inspector || !selection) return <PageFrame {...frameProps}>{grid}</PageFrame>;
+  if (!inspector) return <PageFrame {...frameProps}>{grid}</PageFrame>;
 
+  // One stable wrapper whether the inspector is open or closed: swapping the
+  // grid's parent would remount the table (scroll position and focus lost).
   const { selection: _s, onSelectionChange: _c, onBeforeSelect: _g, ...panel } = inspector;
   const nav = { onClose: () => void requestSelect(null), onPrev: step(-1), onNext: step(1) };
+  const docked = selection !== null && !isMobile;
   return (
     <PageFrame {...frameProps}>
-      {isMobile ? (
-        <>
-          {grid}
-          <MatrixInspectorSheet {...panel} {...nav} />
-        </>
-      ) : (
-        <div className="flex items-start gap-4">
-          {grid}
-          <MatrixInspectorDock {...panel} {...nav} />
-        </div>
-      )}
+      <div className={cn(docked && "flex items-start gap-4")}>
+        {grid}
+        {selection !== null &&
+          (isMobile ? <MatrixInspectorSheet {...panel} {...nav} /> : <MatrixInspectorDock {...panel} {...nav} />)}
+      </div>
     </PageFrame>
   );
 }

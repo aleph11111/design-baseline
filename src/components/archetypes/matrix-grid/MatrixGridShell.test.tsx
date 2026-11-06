@@ -415,6 +415,31 @@ describe("MatrixGridShell horizontal scroll", () => {
       expect(screen.getByText("body c:y1")).toBeTruthy();
     });
 
+    it("opening and closing keeps the same grid node (no remount: scroll and focus survive)", async () => {
+      render(<Harness />);
+      const scroller = document.querySelector('[data-slot="matrix-scroll"]');
+      const cell = screen.getByRole("button", { name: "b1" });
+      fireEvent.click(cell);
+      await flush();
+      expect(dock()).not.toBeNull();
+      expect(document.querySelector('[data-slot="matrix-scroll"]')).toBe(scroller);
+      expect(screen.getByRole("button", { name: "b1" })).toBe(cell);
+      fireEvent.click(screen.getByRole("button", { name: "Close" }));
+      await flush();
+      expect(dock()).toBeNull();
+      expect(document.querySelector('[data-slot="matrix-scroll"]')).toBe(scroller);
+    });
+
+    it("a click on the open cell cancels a pending switch", async () => {
+      const resolvers: Array<(ok: boolean) => void> = [];
+      const guard = () => new Promise<boolean>((r) => resolvers.push(r));
+      render(<Harness guard={guard} initial={{ rowId: "a", columnKey: "y1" }} />);
+      fireEvent.click(screen.getByRole("button", { name: "b1" }));
+      fireEvent.click(screen.getByRole("button", { name: "a1" }));
+      await act(async () => resolvers[0]!(true));
+      expect(screen.getByText("body a:y1")).toBeTruthy();
+    });
+
     it("no guard: the switch is immediate (same tick)", () => {
       render(<Harness initial={{ rowId: "a", columnKey: "y1" }} />);
       fireEvent.click(screen.getByRole("button", { name: "b1" }));
