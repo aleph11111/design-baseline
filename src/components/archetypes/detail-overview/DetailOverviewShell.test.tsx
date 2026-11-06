@@ -54,6 +54,32 @@ describe("DetailOverviewShell — container model is single (unified)", () => {
     ).toBeNull();
   });
 
+  it("rail layout: references sorts after main below lg (narrow order), one mount per slot", () => {
+    const { container, getAllByText } = render(
+      <DetailOverviewShell
+        {...slots}
+        layout="rail"
+        stats={[{ label: "s", value: "v" }]}
+      />,
+    );
+    const rail = container.querySelector('[class*="lg:sticky"]') as HTMLElement;
+    // the rail dissolves below lg so its children join the body's flex flow
+    expect(rail.className).toContain("max-lg:contents");
+    expect((rail.parentElement as HTMLElement).className).toContain("flex-col");
+    const summary = getAllByText("summary-slot")[0]!.parentElement as HTMLElement;
+    const refs = getAllByText("references-slot")[0]!.parentElement as HTMLElement;
+    expect(getAllByText("summary-slot")).toHaveLength(1);
+    expect(getAllByText("references-slot")).toHaveLength(1);
+    expect(summary.className).not.toContain("max-lg:order-last");
+    expect(refs.className).toContain("max-lg:order-last");
+    // wide order unchanged: rail holds summary then references
+    expect(Array.from(rail.children)).toEqual([summary, refs]);
+    // vertical keeps references last in main, no order utilities
+    cleanup();
+    const v = render(<DetailOverviewShell {...slots} layout="vertical" />);
+    expect(v.container.querySelector('[class*="max-lg:order-last"]')).toBeNull();
+  });
+
   it("clamps the rail's sticky top by its published height so a tall rail's foot stays reachable", () => {
     const observed: Element[] = [];
     const saved = globalThis.ResizeObserver;

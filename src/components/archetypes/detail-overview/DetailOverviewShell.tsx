@@ -147,13 +147,23 @@ export function DetailOverviewShell({
       <div
         ref={railRef}
         className={cn(
-          "bg-muted/20 lg:border-r lg:border-border/60 lg:sticky lg:self-start",
+          // Below lg the rail div dissolves (`contents`) so summary and
+          // references become flex items of the body and references can sort
+          // after main (contract order: header, summary, stats, content,
+          // references) with one mount per slot.
+          "bg-muted/20 max-lg:contents lg:border-r lg:border-border/60 lg:sticky lg:self-start",
           "lg:top-[min(var(--db-sticky-top,0px),calc(100dvh_-_var(--db-rail-h,0px)))]",
           railDividers,
         )}
       >
-        {summary}
-        {references}
+        {summary && (
+          <div className={cn("max-lg:bg-muted/20", railDividers)}>{summary}</div>
+        )}
+        {references && (
+          <div className={cn("max-lg:order-last max-lg:bg-muted/20", railDividers)}>
+            {references}
+          </div>
+        )}
       </div>
     </UnifiedSurfaceContext.Provider>
   );
@@ -180,7 +190,10 @@ export function DetailOverviewShell({
   const body =
     layout === "rail" ? (
       <div
-        className={cn(hasMain && "lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start")}
+        className={cn(
+          "flex flex-col",
+          hasMain && "lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start",
+        )}
       >
         {rail}
         {main}
