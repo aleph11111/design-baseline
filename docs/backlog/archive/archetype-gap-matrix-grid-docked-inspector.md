@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-06
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "archetype shape is the deliverable: distil a non-modal docked slot and a line-switch guard from two consumer editors into a role-only contract"
