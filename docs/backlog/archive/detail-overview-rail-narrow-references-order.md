@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-05
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "cause established (one rail div holds summary and references); fix is a scoped CSS order change in one shell"
