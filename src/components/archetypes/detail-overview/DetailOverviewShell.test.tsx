@@ -65,7 +65,10 @@ describe("DetailOverviewShell — container model is single (unified)", () => {
     const rail = container.querySelector('[class*="lg:sticky"]') as HTMLElement;
     // the rail dissolves below lg so its children join the body's flex flow
     expect(rail.className).toContain("max-lg:contents");
-    expect((rail.parentElement as HTMLElement).className).toContain("flex-col");
+    // narrow-only flex column: at lg+ the body stays a grid (or a block), so
+    // the rail's `lg:self-start` never shrink-wraps it horizontally
+    expect((rail.parentElement as HTMLElement).className).toContain("max-lg:flex-col");
+    expect((rail.parentElement as HTMLElement).className).not.toMatch(/(^|\s)flex(\s|$)/);
     const summary = getAllByText("summary-slot")[0]!.parentElement as HTMLElement;
     const refs = getAllByText("references-slot")[0]!.parentElement as HTMLElement;
     expect(getAllByText("summary-slot")).toHaveLength(1);
@@ -74,6 +77,13 @@ describe("DetailOverviewShell — container model is single (unified)", () => {
     expect(refs.className).toContain("max-lg:order-last");
     // wide order unchanged: rail holds summary then references
     expect(Array.from(rail.children)).toEqual([summary, refs]);
+    // no main (summary/references only): still no lg-wide flex column
+    cleanup();
+    const bare = render(
+      <DetailOverviewShell title="T" layout="rail" summary={<div>s</div>} references={<div>r</div>} />,
+    );
+    const bareRail = bare.container.querySelector('[class*="lg:sticky"]') as HTMLElement;
+    expect(bareRail.parentElement!.className).not.toMatch(/(^|\s)flex(\s|$)/);
     // vertical keeps references last in main, no order utilities
     cleanup();
     const v = render(<DetailOverviewShell {...slots} layout="vertical" />);

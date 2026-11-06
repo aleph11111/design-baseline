@@ -191,7 +191,7 @@ export function DetailOverviewShell({
     layout === "rail" ? (
       <div
         className={cn(
-          "flex flex-col",
+          "max-lg:flex max-lg:flex-col",
           hasMain && "lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start",
         )}
       >
