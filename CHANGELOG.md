@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.28.1
+
+- **Fixed:** `DetailOverviewShell layout="rail"` rendered `references` above stats and content below `lg` (summary and references shared one rail block ahead of main). The rail now dissolves below `lg` and `references` sorts last, so the narrow order is the contract's `header → summary → stats → content → references`. One mount per slot; the wide-viewport rail (sticky, foot clamp, inset hairlines) and `layout="vertical"` are unchanged. MANIFEST `detail-overview` 4.6; the contract already states the narrow order, so its version (4.3) is unchanged.
+- **Consumer:** none. Rail pages that pass `references` now show them at the page end on phones.
+- **Breaking:** no.
+
 ## v0.28.0
 
 - **Added:** enrichment affordances on `KeyValueRow` (`detail-overview` contract v4.3, MANIFEST 4.5). `provenance` (`{ source, id?, date?, via?, cost? }`) renders a compact source chip beside the value; the full provenance opens in a popover on click, tap or keyboard. `alternatives` (`{ value, provenance? }[]`) keeps the row's value as the winning claim, adds a conflict marker, and lists every claim with its source in the same popover pattern. `missing` (`true | { reason? }`) renders a dashed, muted marker distinct from a real value and from `"—"`, with the reason when given. `labels` carries the copy (`missing`, `contested`, `source`; English defaults). New types `KeyValueProvenance`, `KeyValueClaim`, `KeyValueRowLabels`. `value` is now optional (omit it with `missing`). Living demo: section "Data & sources" in the nested detail-overview gallery entry.
