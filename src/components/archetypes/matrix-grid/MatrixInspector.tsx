@@ -72,7 +72,8 @@ export function MatrixInspectorDock({ title, description, footer, children, ...n
       data-slot="matrix-inspector"
       aria-label={typeof title === "string" ? title : undefined}
       onKeyDown={(e) => {
-        if (e.key === "Escape") {
+        // a popup in the body (Select, Popover) already handled its own Escape
+        if (e.key === "Escape" && !e.defaultPrevented) {
           e.stopPropagation();
           nav.onClose();
         }

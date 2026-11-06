@@ -303,8 +303,6 @@ The following patterns are never permitted in a matrix-grid page, regardless of 
 2. **Row-action menus.** Three-dots-per-row dropdowns. A matrix page edits intersections, not rows.
 3. **Multiple matrices on one route.** Each matrix view is its own page. Tabs/segments are allowed (each tab points at its own matrix view, route segment, or query param).
 4. **Side overlay rendered inside the shell.** Always a sibling — except the Layer 6 `inspector` slot.
-12. **A hand-rolled docked panel beside the shell.** A select → tune → next-line editor uses the `inspector` slot, not a page-level flex row with its own panel.
-13. **Tabs or sideways scrolling inside the inspector.** Reshape wide content instead.
 5. **Hand-rolled `<table>` outside the matrix-grid shell.**
 6. **Action buttons outside the slots.** Bulk actions are `actions`; per-cell actions belong in the side overlay.
 7. **Status filter rendered as a dropdown select.** Use pill bars.
@@ -312,6 +310,8 @@ The following patterns are never permitted in a matrix-grid page, regardless of 
 9. **Raw ISO date or number strings in cells.** Always route through a formatter inside `renderCell`.
 10. **Static (non-lazy) page imports.** Always lazy-import matrix-grid pages.
 11. **Missing render-error boundary.**
+12. **A hand-rolled docked panel beside the shell.** A select → tune → next-line editor uses the `inspector` slot, not a page-level flex row with its own panel.
+13. **Tabs or sideways scrolling inside the inspector.** Reshape wide content instead.
 
 ---
 

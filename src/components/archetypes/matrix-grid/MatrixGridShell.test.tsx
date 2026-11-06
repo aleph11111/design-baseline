@@ -393,6 +393,28 @@ describe("MatrixGridShell horizontal scroll", () => {
       ]);
     });
 
+    it("Escape a body popup already handled does not close the dock", async () => {
+      render(<Harness initial={{ rowId: "a", columnKey: "y1" }} />);
+      const ev = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
+      ev.preventDefault();
+      act(() => {
+        screen.getByText("body a:y1").dispatchEvent(ev);
+      });
+      await flush();
+      expect(dock()).not.toBeNull();
+    });
+
+    it("an earlier, slower guard answer never overrides a later switch", async () => {
+      const resolvers: Array<(ok: boolean) => void> = [];
+      const guard = () => new Promise<boolean>((r) => resolvers.push(r));
+      render(<Harness guard={guard} initial={{ rowId: "a", columnKey: "y1" }} />);
+      fireEvent.click(screen.getByRole("button", { name: "b1" }));
+      fireEvent.click(screen.getByRole("button", { name: "c1" }));
+      await act(async () => resolvers[1]!(true));
+      await act(async () => resolvers[0]!(true));
+      expect(screen.getByText("body c:y1")).toBeTruthy();
+    });
+
     it("no guard: the switch is immediate (same tick)", () => {
       render(<Harness initial={{ rowId: "a", columnKey: "y1" }} />);
       fireEvent.click(screen.getByRole("button", { name: "b1" }));

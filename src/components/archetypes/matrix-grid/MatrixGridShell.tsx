@@ -120,13 +120,17 @@ export function MatrixGridShell<Cell>({
   const rowIdOf = getRowId ?? ((r: MatrixRow<Cell>) => r.id);
   const clickable = onCellClick !== undefined || inspector !== undefined;
   const selection = inspector?.selection ?? null;
+  // Only the latest request may apply: an earlier, slower guard answer is dropped.
+  const requestSeq = React.useRef(0);
 
   // Every switch (grid click, prev / next, close, Escape) goes through the
   // body's guard; a blocked switch leaves selection and inspector unchanged.
   async function requestSelect(next: MatrixSelection | null) {
     if (!inspector) return;
     if (next && selection && next.rowId === selection.rowId && next.columnKey === selection.columnKey) return;
+    const seq = ++requestSeq.current;
     if (inspector.onBeforeSelect && !(await inspector.onBeforeSelect(next, selection))) return;
+    if (seq !== requestSeq.current) return;
     inspector.onSelectionChange(next);
   }
   // prev / next step the rows (lines), keeping the column.
