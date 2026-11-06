@@ -2,9 +2,16 @@
 import * as React from "react";
 import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
+import { useIsMobile } from "../../../hooks/use-mobile";
 import { cn } from "../../../lib/utils";
 import { MatrixCell } from "./MatrixCell";
 import { MatrixGridHead } from "./MatrixGridHead";
+import {
+  MatrixInspectorDock,
+  MatrixInspectorSheet,
+  type MatrixInspectorProps,
+  type MatrixSelection,
+} from "./MatrixInspector";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -66,6 +73,14 @@ export type MatrixGridShellProps<Cell> = {
   };
   /** Click handler. When present, cells receive `cursor-pointer select-none touch-manipulation`. */
   onCellClick?: (ctx: MatrixCellContext<Cell>) => void;
+  /**
+   * Selection-driven, non-modal inspector (contract Layer 6). When set, a cell
+   * click asks `onBeforeSelect` and selects that cell's row/column instead of
+   * calling `onCellClick`. Docked beside the narrowed, still-live grid from
+   * `md`; the full-screen overlay on phone. Layout and navigation only — the
+   * body owns its save model.
+   */
+  inspector?: MatrixInspectorProps;
 
   /**
    * Rendered in the body in place of the grid when set — typically an empty-state
@@ -95,13 +110,38 @@ export function MatrixGridShell<Cell>({
   renderEmptyCell,
   cellStyle,
   onCellClick,
+  inspector,
   emptyState,
   ...header
 }: MatrixGridShellProps<Cell>) {
   const fullBleed = useFullBleedClass();
+  const isMobile = useIsMobile();
   const isFilledFn = isFilled ?? defaultIsFilled;
   const rowIdOf = getRowId ?? ((r: MatrixRow<Cell>) => r.id);
-  const clickable = onCellClick !== undefined;
+  const clickable = onCellClick !== undefined || inspector !== undefined;
+  const selection = inspector?.selection ?? null;
+  // Only the latest request may apply: an earlier, slower guard answer is dropped.
+  const requestSeq = React.useRef(0);
+
+  // Every switch (grid click, prev / next, close, Escape) goes through the
+  // body's guard; a blocked switch leaves selection and inspector unchanged.
+  async function requestSelect(next: MatrixSelection | null) {
+    if (!inspector) return;
+    // bumped first: a click on the open cell ("stay") cancels a pending switch
+    const seq = ++requestSeq.current;
+    if (next && selection && next.rowId === selection.rowId && next.columnKey === selection.columnKey) return;
+    if (inspector.onBeforeSelect && !(await inspector.onBeforeSelect(next, selection))) return;
+    if (seq !== requestSeq.current) return;
+    inspector.onSelectionChange(next);
+  }
+  // prev / next step the rows (lines), keeping the column.
+  const at = selection ? rows.findIndex((r) => rowIdOf(r) === selection.rowId) : -1;
+  const step = (d: -1 | 1) => {
+    const row = at >= 0 ? rows[at + d] : undefined;
+    return row && selection
+      ? () => void requestSelect({ rowId: rowIdOf(row), columnKey: selection.columnKey })
+      : undefined;
+  };
 
   // One shared rich-tooltip key across the whole matrix (see MatrixCell for
   // why the matrix must not mount a Tooltip Root per cell).
@@ -120,16 +160,20 @@ export function MatrixGridShell<Cell>({
     return <PageFrame {...frameProps}>{emptyState}</PageFrame>;
   }
 
-  return (
-    <PageFrame {...frameProps}>
-      <div data-slot="matrix-scroll" className="relative overflow-x-auto">
+  const grid = (
+      <div data-slot="matrix-scroll" className="relative min-w-0 flex-1 overflow-x-auto">
         <table className="text-[13px] border-collapse">
           <MatrixGridHead columns={columns} rowHeaderLabel={rowHeaderLabel} />
           <tbody>
             {rows.map((row) => {
               const rowKey = rowIdOf(row);
+              const rowSelected = selection?.rowId === rowKey;
               return (
-                <tr key={rowKey} className="border-b border-border/60 hover:bg-muted/50">
+                <tr
+                  key={rowKey}
+                  data-selected={rowSelected ? "" : undefined}
+                  className={cn("border-b border-border/60 hover:bg-muted/50", rowSelected && "bg-muted/60")}
+                >
                   <th
                     scope="row"
                     className={cn(
@@ -163,7 +207,14 @@ export function MatrixGridShell<Cell>({
                               : null
                         }
                         style={style}
-                        activate={clickable ? () => onCellClick!(ctx) : undefined}
+                        activate={
+                          inspector
+                            ? () => void requestSelect({ rowId: rowKey, columnKey: col.key })
+                            : clickable
+                              ? () => onCellClick!(ctx)
+                              : undefined
+                        }
+                        selected={rowSelected && selection?.columnKey === col.key}
                         cellKey={`${rowKey}::${col.key}`}
                         hoveredCellKey={hoveredCellKey}
                         setHoveredCellKey={setHoveredCellKey}
@@ -175,6 +226,22 @@ export function MatrixGridShell<Cell>({
             })}
           </tbody>
         </table>
+      </div>
+  );
+
+  if (!inspector) return <PageFrame {...frameProps}>{grid}</PageFrame>;
+
+  // One stable wrapper whether the inspector is open or closed: swapping the
+  // grid's parent would remount the table (scroll position and focus lost).
+  const { selection: _s, onSelectionChange: _c, onBeforeSelect: _g, ...panel } = inspector;
+  const nav = { onClose: () => void requestSelect(null), onPrev: step(-1), onNext: step(1) };
+  const docked = selection !== null && !isMobile;
+  return (
+    <PageFrame {...frameProps}>
+      <div className={cn(docked && "flex items-start gap-4")}>
+        {grid}
+        {selection !== null &&
+          (isMobile ? <MatrixInspectorSheet {...panel} {...nav} /> : <MatrixInspectorDock {...panel} {...nav} />)}
       </div>
     </PageFrame>
   );

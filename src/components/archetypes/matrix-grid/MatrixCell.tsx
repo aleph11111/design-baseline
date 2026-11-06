@@ -23,6 +23,8 @@ export type MatrixCellProps<Cell> = {
   /** The grid-wide hovered-cell key — the single shared rich tooltip. */
   hoveredCellKey: string | null;
   setHoveredCellKey: React.Dispatch<React.SetStateAction<string | null>>;
+  /** The inspector's open cell. */
+  selected?: boolean;
 };
 
 // ---------------------------------------------------------------------------
@@ -46,6 +48,7 @@ export function MatrixCell<Cell>({
   cellKey,
   hoveredCellKey,
   setHoveredCellKey,
+  selected,
 }: MatrixCellProps<Cell>): React.ReactElement {
   const { isFilled: filled } = ctx;
   const clickable = activate !== undefined;
@@ -61,12 +64,15 @@ export function MatrixCell<Cell>({
   const td = (
     <td
       data-filled={filled ? "" : undefined}
+      data-selected={selected ? "" : undefined}
+      aria-current={selected ? "true" : undefined}
       className={cn(
         "px-2 py-2 text-center border-r border-border/60",
         clickable && "cursor-pointer select-none touch-manipulation",
         clickable && interactiveRowFocusRing,
         clickable && touch && "h-11",
         style?.className,
+        selected && "ring-2 ring-inset ring-primary",
       )}
       title={isPlainTextTooltip ? String(tooltip) : undefined}
       onClick={activate}
