@@ -6,3 +6,4 @@ export type {
   MatrixCellContext,
   MatrixGridShellProps,
 } from "./MatrixGridShell";
+export type { MatrixInspectorProps, MatrixSelection } from "./MatrixInspector";

@@ -53,7 +53,7 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch({ executablePath: CHROME });
 const failures = [];
-const total = PAGES.length * Object.keys(devices).length + STEPS.length + 1 + Object.keys(devices).length; // + the print-media check + analytics-dashboard edit mode
+const total = PAGES.length * Object.keys(devices).length + STEPS.length + 1 + 2 * Object.keys(devices).length; // + the print-media check + analytics-dashboard edit mode + matrix-grid inspector
 let n = 0;
 const report = (label, { failures: bad, knownGaps: warn }) => {
   n++;
@@ -172,11 +172,61 @@ for (const [name, device] of Object.entries(devices)) {
   }
 }
 
+// matrix-grid's docked inspector (contract Layer 6 "Inspector slot"): docked
+// at ~480px beside a still-live grid on the desktops, the full-screen overlay
+// on phone, and nothing inside it scrolls sideways.
+for (const [name, device] of Object.entries(devices)) {
+  const label = `matrix-grid inspector @ ${name}`;
+  let ctx;
+  try {
+    let page;
+    ({ ctx, page } = await open("matrix-grid", device));
+    await page.getByRole("radio", { name: "inspector" }).click();
+    await page.locator("td[data-filled]").first().click();
+    const dock = page.locator('[data-slot="matrix-inspector"]');
+    await dock.waitFor({ timeout: 5000 });
+    await dock.getByRole("button", { name: "Monthly attendance" }).click();
+    await page.waitForTimeout(400); // sheet slide-in / collapsible settle
+    const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: COLUMN[name], fullBleed: true });
+    // phone: the overlay is modal, so the page's nav is aria-hidden behind it by design
+    const bad = result.failures.filter((f) => !(name === "phone" && f.startsWith("phoneNav:")));
+    const box = await dock.boundingBox();
+    const W = device.viewport.width;
+    if (name === "phone") {
+      if (Math.abs(box.width - W) > 1) bad.push(`inspector: ${box.width}px wide on phone, want full-screen ${W}px`);
+    } else {
+      if (box.width < 440 || box.width > 500) bad.push(`inspector: ${box.width}px wide, want ~480px docked`);
+      const grid = await page.locator('[data-slot="matrix-scroll"]').boundingBox();
+      if (grid.x + grid.width > box.x) bad.push("inspector: overlaps the grid instead of docking beside it");
+      // the grid stays live: another row's cell re-roots the open inspector
+      const before = await dock.locator("h2").textContent();
+      await page.locator("tbody tr:nth-child(3) td").first().click();
+      await page.waitForTimeout(200);
+      const after = await dock.locator("h2").textContent();
+      if (after === before) bad.push(`inspector: a grid click did not switch the line (still "${after}")`);
+    }
+    const wide = await dock.evaluate((root) =>
+      [root, ...root.querySelectorAll("*")]
+        .filter((el) => el.scrollWidth > el.clientWidth + 1 && getComputedStyle(el).overflowX !== "visible")
+        .map((el) => `<${el.tagName.toLowerCase()}> ${el.scrollWidth}>${el.clientWidth}`),
+    );
+    for (const w of wide) bad.push(`inspector: scrolls sideways ${w}`);
+    const file = `matrix-grid-inspector--${name}.jpg`;
+    await page.screenshot({ path: path.join(OUT, file), type: "jpeg", quality: 70, scale: "css" });
+    shots.push({ slug: "matrix-grid-inspector", name, file, problems: [...bad, ...result.knownGaps] });
+    report(label, { failures: bad, knownGaps: result.knownGaps });
+  } catch (e) {
+    report(label, fail(e.message.split("\n")[0]));
+  } finally {
+    await ctx?.close();
+  }
+}
+
 await browser.close();
 server.close();
 
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-const rows = [...PAGES, "analytics-dashboard-edit"].map((slug) => {
+const rows = [...PAGES, "analytics-dashboard-edit", "matrix-grid-inspector"].map((slug) => {
   const cells = Object.keys(devices).map((name) => {
     const s = shots.find((x) => x.slug === slug && x.name === name);
     if (!s) return `<figure class="bad"><figcaption>${name}: not rendered</figcaption></figure>`;

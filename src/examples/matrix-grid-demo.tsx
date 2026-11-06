@@ -3,7 +3,14 @@ import {
   MatrixGridShell,
   type MatrixColumn,
   type MatrixRow,
+  type MatrixSelection,
 } from "@/components/archetypes/matrix-grid";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { StateView } from "@/components/ui/state-view";
 import {
@@ -24,7 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { ChevronRight, Download } from "lucide-react";
 
 // ---------------------------------------------------------------------------
 // Demo domain — a school-year gradebook.
@@ -123,6 +130,93 @@ type SheetState =
 
 const ALL_GRADES: Grade[] = ["A", "B", "C", "D", "F", "INCOMPLETE"];
 
+const GRADE_POINTS: Partial<Record<Grade, number>> = { A: 4, B: 3, C: 2, D: 1, F: 0 };
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** Deterministic attendance per month — demo data for the derivation section. */
+function attendance(studentId: string, year: string, month: number): number {
+  const seed = studentId.charCodeAt(1) * 7 + Number(year) + month * 13;
+  return 80 + (seed % 21);
+}
+
+/**
+ * The inspector body — tab-free: inputs and the live result first, the
+ * derivation below in a collapsible section. Wide content is reshaped, never
+ * scrolled sideways (12 months as a 6×2 grid plus a year toggle).
+ */
+function GradeInspectorBody({
+  studentId,
+  draft,
+  onDraft,
+  average,
+}: {
+  studentId: string;
+  draft: { grade: Grade; note: string };
+  onDraft: (d: { grade: Grade; note: string }) => void;
+  average: string;
+}) {
+  const [year, setYear] = useState("2026");
+  return (
+    <>
+      <div className="space-y-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="inspector-grade">Grade</Label>
+          <Select value={draft.grade} onValueChange={(v) => onDraft({ ...draft, grade: v as Grade })}>
+            <SelectTrigger id="inspector-grade">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ALL_GRADES.map((g) => (
+                <SelectItem key={g} value={g}>
+                  {g === "INCOMPLETE" ? "Incomplete" : g}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="inspector-note">Note (optional)</Label>
+          <Input
+            id="inspector-note"
+            value={draft.note}
+            onChange={(e) => onDraft({ ...draft, note: e.target.value })}
+            placeholder="Retake pending, makeup exam, …"
+          />
+        </div>
+      </div>
+      <div className="flex items-baseline justify-between rounded-md bg-muted/50 px-3 py-2">
+        <span className="text-sm text-muted-foreground">Term GPA with this grade</span>
+        <span className="text-lg font-semibold tabular-nums">{average}</span>
+      </div>
+      <Collapsible>
+        <CollapsibleTrigger className="group flex w-full items-center gap-1 text-sm font-medium">
+          <ChevronRight className="h-4 w-4 transition-transform group-data-[state=open]:rotate-90" />
+          Monthly attendance
+        </CollapsibleTrigger>
+        <CollapsibleContent className="space-y-3 pt-3">
+          <SegmentedControl
+            value={year}
+            onValueChange={setYear}
+            options={[
+              { value: "2025", label: "2025" },
+              { value: "2026", label: "2026" },
+            ]}
+            aria-label="Year"
+          />
+          <dl className="grid grid-cols-6 gap-x-2 gap-y-3">
+            {MONTHS.map((m, i) => (
+              <div key={m} className="min-w-0 text-center">
+                <dt className="text-[11px] text-muted-foreground">{m}</dt>
+                <dd className="text-sm tabular-nums">{attendance(studentId, year, i)}%</dd>
+              </div>
+            ))}
+          </dl>
+        </CollapsibleContent>
+      </Collapsible>
+    </>
+  );
+}
+
 export function MatrixGridDemo() {
   const [gradesByStudent, setGradesByStudent] = useState(SEED_GRADES);
   const [sheet, setSheet] = useState<SheetState>({ kind: "closed" });
@@ -133,7 +227,13 @@ export function MatrixGridDemo() {
   // (ui/cell-input) flush in each filled cell. v3.1: both modes are conformant;
   // forbidden #1 bans only bare native / hand-rolled in-cell editors, so
   // "inline" routes through the shared control, never a raw `<select>`.
-  const [mode, setMode] = useState<"click" | "inline">("click");
+  const [mode, setMode] = useState<"click" | "inline" | "inspector">("click");
+  // Inspector variant (Layer 6 "Inspector slot"): the shell docks the panel and
+  // asks `onBeforeSelect` before every switch; this body is draft-with-apply,
+  // so it guards unsaved edits. The shell prescribes no save model.
+  const [selection, setSelection] = useState<MatrixSelection | null>(null);
+  const [inspectorDraft, setInspectorDraft] = useState<{ grade: Grade; note: string }>({ grade: "A", note: "" });
+  const [guard, setGuard] = useState<((ok: boolean) => void) | null>(null);
   // Toolbar axis: a grid-scoping control (the term) is `toolbar`, never
   // `actions`. Switching to a term with no entries exercises the `emptyState`
   // slot while keeping the title + toolbar.
@@ -207,6 +307,45 @@ export function MatrixGridDemo() {
     closeSheet();
   }
 
+  const selectedEntry = selection ? gradesByStudent[selection.rowId]?.[selection.columnKey] : undefined;
+  const seedDraft = (entry?: GradeEntry) => ({ grade: entry?.grade ?? "A", note: entry?.note ?? "" });
+  const inspectorDirty =
+    selection !== null &&
+    (inspectorDraft.grade !== seedDraft(selectedEntry).grade ||
+      inspectorDraft.note !== seedDraft(selectedEntry).note);
+
+  function selectCell(next: MatrixSelection | null) {
+    setSelection(next);
+    if (next) setInspectorDraft(seedDraft(gradesByStudent[next.rowId]?.[next.columnKey]));
+  }
+
+  function applyInspector() {
+    if (!selection) return;
+    const today = new Date().toISOString().slice(0, 10);
+    setGradesByStudent((prev) => ({
+      ...prev,
+      [selection.rowId]: {
+        ...(prev[selection.rowId] ?? {}),
+        [selection.columnKey]: {
+          grade: inspectorDraft.grade,
+          recordedAt: today,
+          note: inspectorDraft.note.trim() === "" ? undefined : inspectorDraft.note.trim(),
+        },
+      },
+    }));
+  }
+
+  // Live result: the student's GPA with the draft grade swapped in.
+  function draftAverage(): string {
+    if (!selection) return "–";
+    const grades = { ...(gradesByStudent[selection.rowId] ?? {}) };
+    grades[selection.columnKey] = { grade: inspectorDraft.grade, recordedAt: "" };
+    const points = Object.values(grades)
+      .map((e) => GRADE_POINTS[e.grade])
+      .filter((p): p is number => p !== undefined);
+    return points.length ? (points.reduce((a, b) => a + b, 0) / points.length).toFixed(2) : "–";
+  }
+
   const editingSubjectLabel =
     sheet.kind === "closed"
       ? ""
@@ -229,10 +368,14 @@ export function MatrixGridDemo() {
         </p>
         <SegmentedControl
           value={mode}
-          onValueChange={(v) => setMode(v as "click" | "inline")}
+          onValueChange={(v) => {
+            setMode(v as "click" | "inline" | "inspector");
+            setSelection(null);
+          }}
           options={[
-            { value: "click", label: "side overlay" },
-            { value: "inline", label: "inline cells" },
+            { value: "click", label: "overlay" },
+            { value: "inline", label: "inline" },
+            { value: "inspector", label: "inspector" },
           ]}
           aria-label="Edit mode"
         />
@@ -313,10 +456,55 @@ export function MatrixGridDemo() {
           };
         }}
         onCellClick={
-          mode === "inline"
-            ? undefined
-            : (ctx) => openCell(ctx.row.id, ctx.column.key, ctx.cell)
+          mode === "click"
+            ? (ctx) => openCell(ctx.row.id, ctx.column.key, ctx.cell)
+            : undefined
         }
+        inspector={
+          mode === "inspector"
+            ? {
+                selection,
+                onSelectionChange: selectCell,
+                onBeforeSelect: () =>
+                  inspectorDirty ? new Promise<boolean>((resolve) => setGuard(() => resolve)) : true,
+                title: selection
+                  ? STUDENTS.find((s) => s.id === selection.rowId)?.name ?? ""
+                  : "",
+                description: selection
+                  ? SUBJECTS.find((s) => s.key === selection.columnKey)?.label
+                  : undefined,
+                footer: (
+                  <Button type="button" disabled={!inspectorDirty} onClick={applyInspector}>
+                    Apply
+                  </Button>
+                ),
+                children: selection && (
+                  <GradeInspectorBody
+                    studentId={selection.rowId}
+                    draft={inspectorDraft}
+                    onDraft={setInspectorDraft}
+                    average={draftAverage()}
+                  />
+                ),
+              }
+            : undefined
+        }
+      />
+
+      <ConfirmationDialog
+        isOpen={guard !== null}
+        onClose={() => {
+          guard?.(false);
+          setGuard(null);
+        }}
+        onConfirm={() => {
+          guard?.(true);
+          setGuard(null);
+        }}
+        title="Discard unsaved changes?"
+        description="This grade has edits that are not applied yet."
+        confirmText="Discard"
+        variant="destructive"
       />
 
       <Sheet

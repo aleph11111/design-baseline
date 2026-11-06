@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.29.0
+
+- **Added:** `inspector` slot on `MatrixGridShell` (`matrix-grid` contract v3.6, MANIFEST 3.6). A selection-driven, non-modal panel for the select → tune → next-line job: docked at ~480px beside the grid from `md` (no backdrop; the grid narrows and stays clickable, a click on another cell re-roots the open panel), the full-screen overlay on phone. The consumer owns `selection` (`{ rowId, columnKey }`) and `onSelectionChange`; the panel carries prev / next (rows, keeping the column), close and Escape. `onBeforeSelect(next, current)` — `boolean | Promise<boolean>` — guards every switch; omitted, switches are immediate. The shell owns no save model. New exported types `MatrixInspectorProps`, `MatrixSelection`. Living demo: mode "inspector" in the matrix-grid gallery entry (draft-with-apply body with a discard guard). `check:viewports` checks the inspector at the device triad.
+- **Consumer:** none required. controlling-app's planset `LinePanel` and planung `InspektorDrawer` can drop their `Sheet`s (and the local `InspectorDock` / `DockLayout` draft) for `inspector` on their grid's `MatrixGridShell`.
+- **Breaking:** no. Without `inspector` the shell renders unchanged (the scroll box gains `min-w-0 flex-1`, inert outside a flex row).
+
 ## v0.28.1
 
 - **Fixed:** `DetailOverviewShell layout="rail"` rendered `references` above stats and content below `lg` (summary and references shared one rail block ahead of main). The rail now dissolves below `lg` and `references` sorts last, so the narrow order is the contract's `header → summary → stats → content → references`. One mount per slot; the wide-viewport rail (sticky, foot clamp, inset hairlines) and `layout="vertical"` are unchanged. MANIFEST `detail-overview` 4.6; the contract already states the narrow order, so its version (4.3) is unchanged.

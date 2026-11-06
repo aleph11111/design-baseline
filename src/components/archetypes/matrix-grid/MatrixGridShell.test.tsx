@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import * as React from "react";
+import type { MatrixSelection } from "./MatrixInspector";
 import { TooltipProvider } from "../../ui/tooltip";
 import { MatrixGridShell, type MatrixColumn, type MatrixRow } from "./MatrixGridShell";
 
@@ -293,5 +295,111 @@ describe("MatrixGridShell horizontal scroll", () => {
       expect(scroller.contains(cell)).toBe(true);
     }
   });
-});
 
+  describe("inspector", () => {
+    const cols: MatrixColumn[] = [{ key: "y1", label: "Y1" }, { key: "y2", label: "Y2" }];
+    const lines: MatrixRow<string>[] = [
+      { id: "a", label: "Revenue", cells: { y1: "a1", y2: "a2" } },
+      { id: "b", label: "Costs", cells: { y1: "b1", y2: "b2" } },
+      { id: "c", label: "Result", cells: { y1: "c1", y2: "c2" } },
+    ];
+
+    function Harness({
+      guard,
+      onCellClick,
+      initial = null,
+    }: {
+      guard?: (n: MatrixSelection | null) => boolean | Promise<boolean>;
+      onCellClick?: () => void;
+      initial?: MatrixSelection | null;
+    }) {
+      const [sel, setSel] = React.useState<MatrixSelection | null>(initial);
+      return (
+        <MatrixGridShell<string>
+          title="Plan"
+          columns={cols}
+          rows={lines}
+          renderCell={(ctx) => ctx.cell}
+          onCellClick={onCellClick}
+          inspector={{
+            selection: sel,
+            onSelectionChange: setSel,
+            onBeforeSelect: guard,
+            title: sel ? `Line ${sel.rowId}` : "",
+            children: <p>body {sel?.rowId}:{sel?.columnKey}</p>,
+          }}
+        />
+      );
+    }
+    const dock = () => document.querySelector('[data-slot="matrix-inspector"]');
+    const flush = () => act(async () => {});
+
+    it("a cell click opens the dock beside the grid, without a backdrop, and skips onCellClick", async () => {
+      const onCellClick = vi.fn();
+      render(<Harness onCellClick={onCellClick} />);
+      expect(dock()).toBeNull();
+      fireEvent.click(screen.getByRole("button", { name: "b2" }));
+      await flush();
+      expect(dock()?.tagName).toBe("ASIDE");
+      expect(dock()?.className).toContain("w-[480px]");
+      expect(screen.getByText("body b:y2")).toBeTruthy();
+      expect(document.querySelector("[data-state=open][class*='bg-black']")).toBeNull();
+      expect(onCellClick).not.toHaveBeenCalled();
+      expect(screen.getByRole("button", { name: "b2" }).getAttribute("aria-current")).toBe("true");
+    });
+
+    it("another cell click re-roots the open inspector without closing it", async () => {
+      render(<Harness initial={{ rowId: "a", columnKey: "y1" }} />);
+      const first = dock();
+      fireEvent.click(screen.getByRole("button", { name: "c1" }));
+      await flush();
+      expect(dock()).toBe(first);
+      expect(screen.getByText("body c:y1")).toBeTruthy();
+    });
+
+    it("a blocking guard keeps selection and inspector unchanged (sync and async)", async () => {
+      for (const guard of [() => false, async () => false]) {
+        render(<Harness guard={guard} initial={{ rowId: "a", columnKey: "y1" }} />);
+        fireEvent.click(screen.getByRole("button", { name: "b1" }));
+        fireEvent.click(screen.getByRole("button", { name: "Next" }));
+        fireEvent.click(screen.getByRole("button", { name: "Close" }));
+        await flush();
+        expect(screen.getByText("body a:y1")).toBeTruthy();
+        cleanup();
+      }
+    });
+
+    it("the guard is asked for grid clicks, prev / next and close, and an allowing guard switches", async () => {
+      const guard = vi.fn(async () => true);
+      render(<Harness guard={guard} initial={{ rowId: "a", columnKey: "y2" }} />);
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+      await flush();
+      expect(screen.getByText("body b:y2")).toBeTruthy();
+      fireEvent.click(screen.getByRole("button", { name: "Previous" }));
+      await flush();
+      expect(screen.getByText("body a:y2")).toBeTruthy();
+      fireEvent.click(screen.getByRole("button", { name: "c1" }));
+      await flush();
+      expect(screen.getByText("body c:y1")).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Next" })).toHaveProperty("disabled", true);
+      fireEvent.keyDown(dock()!, { key: "Escape" });
+      await flush();
+      expect(dock()).toBeNull();
+      expect(guard.mock.calls.map((c) => (c as unknown[])[0])).toEqual([
+        { rowId: "b", columnKey: "y2" },
+        { rowId: "a", columnKey: "y2" },
+        { rowId: "c", columnKey: "y1" },
+        null,
+      ]);
+    });
+
+    it("no guard: the switch is immediate (same tick)", () => {
+      render(<Harness initial={{ rowId: "a", columnKey: "y1" }} />);
+      fireEvent.click(screen.getByRole("button", { name: "b1" }));
+      // no flush: an absent guard must not defer the switch to a microtask
+      expect(screen.getByText("body b:y1")).toBeTruthy();
+      fireEvent.click(screen.getByRole("button", { name: "Close" }));
+      expect(dock()).toBeNull();
+    });
+  });
+});

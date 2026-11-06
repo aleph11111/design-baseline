@@ -2,8 +2,8 @@
 key: M
 slug: matrix-grid
 kind: page
-version: 3.3
-promoted_from: hk-crm
+version: 3.6
+promoted_from: hk-crm (inspector slot: controlling-app planset LinePanel + planung InspektorDrawer, fleet synthesis)
 promoted_at: 2026-05-22
 source_spec_version: 1.4
 status: locked
@@ -151,6 +151,17 @@ This is the core layer. The matrix shell is generic over a single type parameter
 **Click contract:**
 - `onCellClick?: (ctx: MatrixCellContext<Cell>) => void` — fires when a cell is clicked. Consumers route this into their side overlay open/close state. The shell applies the **clickable-cell interaction treatment** (pointer cursor, no text selection) to cells when `onCellClick` is present.
 
+**Inspector slot (v3.6):**
+For a select → tune → next-line job — the user tunes one line, watches the result, then moves on without closing — the shell takes an optional `inspector`. It is selection-driven and non-modal:
+- **Selection.** The consumer owns the selection (`{ rowId, columnKey }` or none) and applies a switch in `onSelectionChange`. With `inspector` set, a cell click selects that row/column instead of calling `onCellClick`; selecting another cell re-roots the open inspector, it never closes and reopens. The selected row and cell are marked, and selection stays keyboard-operable (cells are tab stops; prev / next and close are buttons; Escape closes).
+- **Placement.** On the desktop and laptop the panel docks beside the grid at about 480px, with no backdrop: the grid narrows and stays interactive. On phone it falls back to the full-screen overlay (Layer 11).
+- **Navigation.** The panel carries prev / next (step the rows, keeping the column) and close.
+- **Line-switch guard.** `onBeforeSelect(next, current)` is asked before every switch — grid click, prev / next, close, Escape — and may answer late (e.g. after a confirm prompt). A blocked switch leaves selection and inspector unchanged; with no guard the switch is immediate.
+- **No save model.** The shell owns layout and navigation only. A draft-with-apply body (an explicit apply plus a dirty guard on line switch) and a per-field autosave body (no guard) are both conformant; the body decides.
+- **Body.** Tab-free: method and inputs with a live result first, the derivation below in collapsible sections. It never scrolls sideways — wide content is reshaped (e.g. twelve months as a 6×2 grid plus a year toggle); a full periodic view belongs in the grid itself (e.g. expandable rows), not in the panel.
+
+Rejected for this job: a modal side overlay (the grid goes inert behind a backdrop and a wide overlay covers half the desk) and a centered overlay (it only buys width, which list-with-detail's content-sized overlay already gives).
+
 **Number / date formatting:**
 - The shell does **not** format cell content. The consumer's `renderCell` is responsible for invoking project-level formatters (currency, date) on numbers and ISO strings.
 
@@ -249,7 +260,7 @@ Mutations are the side overlay's job, not the shell's. The shell only emits `onC
 - **Create-from-empty** — clicking an empty cell may open an overlay that creates the intersection. The consumer derives the necessary IDs from `ctx.row.id` and `ctx.column.key`.
 
 **Forbidden:**
-- Side overlay rendered inside the shell. The overlay is always a sibling so the shell stays stateless about its overlay.
+- Side overlay rendered inside the shell. The overlay is always a sibling so the shell stays stateless about its overlay. The one exception is the Layer 6 `inspector` slot: the shell places it, the consumer still owns its selection, body and mutations.
 - Imperative refetch of the matrix from a parent component via ref.
 
 ---
@@ -262,7 +273,7 @@ Matrices are inherently dense and wide. Mobile is a constrained surface.
 - No dedicated `/mobile/...` route.
 - The shell's outer wrapper provides horizontal scroll on overflow. Mobile users scroll horizontally over the sticky first column.
 - Tappable cells gain the **touch-friendly clickable-cell treatment** (pointer cursor, no text selection, touch-optimized) — the shell adds this when `onCellClick` is provided.
-- The side overlay renders as a full-width **overlay surface** on mobile — same pattern as other archetypes.
+- The side overlay renders as a full-width **overlay surface** on mobile — same pattern as other archetypes. The Layer 6 `inspector` does the same on phone: full-screen, with its prev / next and close.
 
 **Extension points (not shipped by default — consumer may add):**
 - **Column-collapse-to-pivot** — replacing the matrix with a stacked list (one card per row, columns as nested rows) on narrow viewports. Consumer-owned.
@@ -291,7 +302,9 @@ The following patterns are never permitted in a matrix-grid page, regardless of 
 1. **Bare or hand-rolled in-cell editors.** Editing a cell's fields in-place with a bare native `<input>`/`<select>` or hand-rolled in-cell editor. In-cell editing is conformant **only** through the shared editable-cell control documented in Layer 6 (read-only vs editable-cell variant); every other edit goes through the side overlay that opens on click.
 2. **Row-action menus.** Three-dots-per-row dropdowns. A matrix page edits intersections, not rows.
 3. **Multiple matrices on one route.** Each matrix view is its own page. Tabs/segments are allowed (each tab points at its own matrix view, route segment, or query param).
-4. **Side overlay rendered inside the shell.** Always a sibling.
+4. **Side overlay rendered inside the shell.** Always a sibling — except the Layer 6 `inspector` slot.
+12. **A hand-rolled docked panel beside the shell.** A select → tune → next-line editor uses the `inspector` slot, not a page-level flex row with its own panel.
+13. **Tabs or sideways scrolling inside the inspector.** Reshape wide content instead.
 5. **Hand-rolled `<table>` outside the matrix-grid shell.**
 6. **Action buttons outside the slots.** Bulk actions are `actions`; per-cell actions belong in the side overlay.
 7. **Status filter rendered as a dropdown select.** Use pill bars.
@@ -353,6 +366,13 @@ When a target project applies this archetype, it wires the generic primitive to 
 ---
 
 ## Version log
+
+- **3.6** — `inspector` slot (Layer 6): a selection-driven, non-modal panel
+  docked at ~480px beside the narrowed, still-live grid on desktop and laptop,
+  the full-screen overlay on phone. Prev / next / close, and a line-switch
+  guard (`onBeforeSelect`, may answer late) asked before every switch. The shell
+  prescribes no save model. Forbidden #4 names the slot as its one exception;
+  #12 and #13 added. Source: controlling-app's planset and planung line editors.
 
 - **3.3** — a matrix inside a titled section or a dialog / drawer draws no
   heading of its own; the host's heading is the one heading (ADR-0008 ladder).
