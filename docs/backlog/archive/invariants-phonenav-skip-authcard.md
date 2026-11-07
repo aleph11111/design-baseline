@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-11-06
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "scoped guard in one measurement plus a one-line marker on AuthCard; pattern set by the existing .db-full-bleed marker check"

@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.29.3
+
+- **Fixed:** `design-baseline/testing/invariants` no longer reports `phoneNav` ("phone has no navigation") on a centered off-app screen. `AuthCard` now carries `data-slot="auth-card"`, and the check is skipped when that marker is present and no `AppShell` content column is; the "desktop sidebar on phone" branch and every other invariant are unchanged.
+- **Consumer:** none needed; drop `phoneNav` from `KNOWN_FAILING` for sign-in / not-authorized / 404 cells (e.g. controlling-app `login` @ phone).
+- **Breaking:** no. An `AppShell` page with no BottomNav or sidebar trigger still breaches `phoneNav`.
+
 ## v0.29.2
 
 - **Changed:** under app touch density (phone default, `density="touch"`), an explicit compact step lifts to `lg` (`h-11`) on `SelectTrigger` (`size`), `Input` (`size` `sm` / `sm14` / `default`) and `SearchInput` (`inputSize` `sm` / `default`), the same lift `Button`'s `icon` / `icon-sm` already get. `lg` / `lg18` are unchanged. `docs/STYLE.md` "App touch density" documents it.
