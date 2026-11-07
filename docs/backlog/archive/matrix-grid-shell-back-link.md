@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-06
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "pattern-following additive prop, same Pick intersection as GroupedListShell/BoardShell/FeedShell"
