@@ -1,16 +1,15 @@
 ---
 area: archetypes
 opened: 2026-11-06
-status: needs-enrichment
+status: ready
 value: normal
 model: opus
-model_reason: "archetype shape is the deliverable: body/dock slots on matrix-grid vs a new kind:page archetype, and the one-matrix-per-route rule, are open design"
+model_reason: "archetype shape is the deliverable: body/dock slots on matrix-grid, the one-editable-matrix carve-out in the contract, and an ADR"
 gate:
-  score: 4
+  score: 5
   passed: [title, context, what-to-do, acceptance, related]
-  failed:
-    - open_question: "unresolved ## Open question caps the score at 4"
-  graded_at: 2026-11-06T16:00:00Z
+  failed: []
+  graded_at: 2026-11-07T23:00:00Z
 ---
 
 # Archetype gap: planning workbench body slots around matrix-grid
@@ -51,6 +50,8 @@ Since v0.29.0 matrix-grid has the docked `inspector` slot (selection-driven, `on
 - [ADR-0001](/docs/adr/0001-grandfather-authored-report-calendar.md) — baseline never originates archetypes
 - [matrix-grid contract](/docs/archetypes/matrix-grid.md)
 
-## Open question
+## Decision
 
-Matrix-grid extension or new `kind: page` archetype? Resolved to the recommended default so the ticket is not blocked: **extend matrix-grid** with `body` + `dock` slots. Reasons: the page's primary job is still one editable accounts × periods grid with a line inspector; the preview grids and panels are satellites, and a new archetype would duplicate matrix-grid's frame and inspector (the ADR-0011 argument). Least sure about the carve-out for read-only preview matrices: the `kombiniert` view stacks three of them, which stretches "one matrix per route". Alternative: a new `planning-workbench` archetype that composes `MatrixGridShell` as its editable region plus preview, config, dock and history slots (the ADR-0012 route). Confirm or overturn before `/feat`; if overturned, rewrite the first two What-to-do bullets.
+Matrix-grid extension or new `kind: page` archetype? Initially auto-resolved to the recommended default: **extend matrix-grid** with `body` + `dock` slots. Reasons: the page's primary job is still one editable accounts × periods grid with a line inspector; the preview grids and panels are satellites, and a new archetype would duplicate matrix-grid's frame and inspector (the ADR-0011 argument). Least sure about the carve-out for read-only preview matrices: the `kombiniert` view stacks three of them, which stretches "one matrix per route". Alternative: a new `planning-workbench` archetype that composes `MatrixGridShell` as its editable region plus preview, config, dock and history slots (the ADR-0012 route). Confirm or overturn before `/feat`; if overturned, rewrite the first two What-to-do bullets.
+
+**Answer (2026-11-07, operator delegated the call): confirmed — extend matrix-grid.** v0.29.0 already put the inspector on `MatrixGridShell`, so a separate workbench archetype would have to re-host it; the read-only preview matrices are satellites in `body`, and the carve-out keeps "one editable matrix per route" intact. The What-to-do bullets stand as written.
