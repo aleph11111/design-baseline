@@ -15,10 +15,10 @@ import { cn } from "../../lib/utils";
  * scale. See `HeadingRow` below.
  */
 export const HEADING_ROW_CLASSES = {
-  /** Outer wrapper. */
-  outer: "space-y-1.5",
-  /** Title block left, actions right from `sm`; stacked (actions beneath) on phones. */
-  row: "flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between",
+  /** Outer wrapper. Unnamed `@container`: the nearest container for any unnamed `@<size>:` variant in the header slots, so slot content must name its own container. */
+  outer: "@container space-y-1.5",
+  /** Title block left, actions right once the row itself is `@xl` wide; stacked (actions beneath) below it. Keyed on the row's container, not the viewport: the sidebar makes the content column far narrower than the viewport. */
+  row: "flex flex-col gap-4 @xl:flex-row @xl:items-start @xl:justify-between",
   /** Title block. */
   titleBlock: "min-w-0 space-y-1",
   /** Title/badges row. */
@@ -27,8 +27,8 @@ export const HEADING_ROW_CLASSES = {
   badges: "flex flex-wrap items-center gap-1.5",
   /** Subtitle scale. */
   subtitle: "text-xs text-muted-foreground",
-  /** Actions wrapper: right-aligned from `sm`, wrapping beneath the title below it. */
-  actions: "flex shrink-0 flex-wrap items-center gap-3",
+  /** Actions wrapper: wraps onto further lines and claims at most 60% of a side-by-side row, so the title keeps a usable width. */
+  actions: "flex min-w-0 flex-wrap items-center gap-3 @xl:max-w-[60%] @xl:justify-end",
 } as const;
 
 // ---------------------------------------------------------------------------

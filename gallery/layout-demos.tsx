@@ -90,7 +90,7 @@ function PageHeaderDemo() {
           }
         />
       </Variant>
-      <Variant label="Long title + actions (stacks below sm; resize to 430px)">
+      <Variant label="Long title + actions (stacks below @xl of its own width; resize to 430px)">
         <PageHeader
           title="Quarterly capacity planning for the regional operations team"
           subtitle="Covers staffing, budget and open requisitions across every site."
@@ -101,6 +101,22 @@ function PageHeaderDemo() {
             </>
           }
         />
+      </Variant>
+      <Variant label="Order title + 9 actions in a ~780px column (title keeps width, actions wrap)">
+        <div className="w-[780px] max-w-full" data-testid="page-header-nine-actions">
+          <PageHeader
+            title="SO-2026-00053"
+            subtitle="Sales order · Acme Corp"
+            actions={
+              <>
+                {["Print", "Export", "Duplicate", "Invoice", "Ship", "Email", "Archive", "Edit"].map((a) => (
+                  <Button key={a} variant="outline">{a}</Button>
+                ))}
+                <Button variant="destructive">Delete Order</Button>
+              </>
+            }
+          />
+        </div>
       </Variant>
       <Variant label="With back link">
         <PageHeader title="New contact" backHref="#" backLabel="Back to contacts" />
