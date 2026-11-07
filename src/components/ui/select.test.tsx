@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { Select, SelectTrigger, SelectValue } from "./select";
-import { hasWidthClass } from "./toolbar-band";
+import { ControlDensityProvider, hasWidthClass } from "./toolbar-band";
 
 afterEach(() => {
   cleanup();
@@ -117,5 +117,28 @@ describe("hasWidthClass", () => {
     expect(hasWidthClass("w-fit")).toBe(false);
     expect(hasWidthClass("w-full")).toBe(false);
     expect(hasWidthClass("md:w-40")).toBe(false);
+  });
+});
+
+describe("SelectTrigger under touch density", () => {
+  const touch = (size?: "sm" | "default") => {
+    render(
+      <ControlDensityProvider density="touch">
+        <Select>
+          <SelectTrigger aria-label="T" size={size}>
+            <SelectValue placeholder="x" />
+          </SelectTrigger>
+        </Select>
+      </ControlDensityProvider>
+    );
+    return classSet(screen.getByRole("combobox", { name: "T" }));
+  };
+  it("lifts explicit sm and default to h-11", () => {
+    expect(touch("sm")).toContain("h-11");
+    cleanup();
+    expect(touch("default")).toContain("h-11");
+  });
+  it("keeps sm at h-8 without touch", () => {
+    expect(classSet(renderTrigger({ size: "sm" }))).toContain("h-8");
   });
 });

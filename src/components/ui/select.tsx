@@ -4,7 +4,7 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { FIXED_BOX_LABEL_CLASS, JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useControlSize } from "./toolbar-band";
+import { FIXED_BOX_LABEL_CLASS, JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useControlSize, useTouchLift } from "./toolbar-band";
 
 // ---------------------------------------------------------------------------
 // Radix UI Select primitives
@@ -52,12 +52,13 @@ const SelectTrigger = React.forwardRef<
 >(({ className, children, size, label, fixedWidth, ...props }, ref) => {
   const labelId = React.useId();
   const bandSize = useControlSize();
+  const step = useTouchLift(size);
   const fixed = label != null && (fixedWidth ?? hasWidthClass(className));
   return (
     <SelectPrimitive.Trigger
       ref={ref}
       className={cn(
-        selectTriggerVariants({ size: size ?? bandSize }),
+        selectTriggerVariants({ size: step ?? bandSize }),
         label != null &&
           (fixed
             ? // fixed box: plain flex row — the label gives way first (FIXED_BOX_LABEL_CLASS), then the value truncates

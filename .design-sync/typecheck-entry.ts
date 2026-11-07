@@ -36,6 +36,7 @@ export * from "@/components/ui/progress";
 export * from "@/components/ui/radio-group";
 export * from "@/components/ui/scroll-area";
 export * from "@/components/ui/search-input";
+export * from "@/components/ui/search-input.test";
 export * from "@/components/ui/segmented-control.test";
 export * from "@/components/ui/segmented-control";
 export * from "@/components/ui/select.test";

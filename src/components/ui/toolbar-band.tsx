@@ -100,6 +100,15 @@ export function useTouchTarget(): string | undefined {
 }
 
 /**
+ * An explicit compact step (`sm`, `sm14`, `default`) lifts to `lg` under app
+ * touch density, so no field stays below 44pt; other steps pass through.
+ */
+export function useTouchLift<T extends string | null>(size: T | undefined): T | "lg" | undefined {
+  const app = React.useContext(ControlDensityContext);
+  return app && (size === "sm" || size === "sm14" || size === "default") ? "lg" : size;
+}
+
+/**
  * The step a control takes when it has no explicit `size`: the band's step,
  * else the app density's, else `undefined` (the control's own default).
  */

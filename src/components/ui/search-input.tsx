@@ -3,7 +3,7 @@ import * as React from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "./input";
 import { cn } from "../../lib/utils";
-import { useAppDensity, useInToolbarBand } from "./toolbar-band";
+import { useAppDensity, useInToolbarBand, useTouchLift } from "./toolbar-band";
 import { useLabels } from "../../lib/labels";
 
 export type SearchInputProps = Omit<
@@ -64,7 +64,7 @@ export function SearchInput({
   const ref = React.useRef<HTMLInputElement>(null);
   const density = useAppDensity();
   const inBand = useInToolbarBand();
-  const inputSize = inputSizeProp ?? density ?? "default";
+  const inputSize = useTouchLift(inputSizeProp) ?? density ?? "default";
   const size = SIZE[inputSize];
   const current = value ?? "";
   const showClear = clearable && current.length > 0;
