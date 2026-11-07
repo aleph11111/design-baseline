@@ -2,7 +2,7 @@
 key: M
 slug: matrix-grid
 kind: page
-version: 3.6
+version: 3.7
 promoted_from: hk-crm (inspector slot: controlling-app planset LinePanel + planung InspektorDrawer, fleet synthesis)
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -66,6 +66,7 @@ If the page is a single-axis list of rows (no meaningful columns beyond display 
 - **Bulk actions** on the whole grid (e.g. "Export CSV") are `actions`. Per-cell actions belong in the side overlay that opens on cell click (Layer 6's click contract).
 
 **Allowed variation:**
+- **Back link (optional): back to the parent page** — only when the matrix route sits under a parent. `backHref` / `backLabel`, with `renderBackLink` injecting the router link. Never a bespoke leading control beside the title.
 - **Nested matrix** — when the matrix is a tab inside a page that already owns the title, it still passes its own `title`; the shell renders it as the nested heading and joins the parent's surface (derived from where it renders, never a prop). Inside a titled section or a dialog / drawer, the host's heading is the one heading: the shell draws none and still passes `title`.
 
 **Forbidden:**
@@ -367,6 +368,10 @@ When a target project applies this archetype, it wires the generic primitive to 
 
 ## Version log
 
+- **3.7** — Layer 3: the matrix-grid shell takes the shared back-link props
+  (`backHref` / `backLabel`, and `renderBackLink` injecting the router link)
+  so a matrix page under a parent keeps its back link. Additive; no breaking
+  change.
 - **3.6** — `inspector` slot (Layer 6): a selection-driven, non-modal panel
   docked at ~480px beside the narrowed, still-live grid on desktop and laptop,
   the full-screen overlay on phone. Prev / next / close, and a line-switch

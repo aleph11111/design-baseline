@@ -13,6 +13,31 @@ afterEach(() => {
 });
 
 describe("MatrixGridShell", () => {
+  it("renders the back link from backHref / backLabel, and none without them", () => {
+    const { unmount } = render(
+      <MatrixGridShell title="M" backHref="/parent" backLabel="Up" columns={columns} rows={rows} renderCell={(ctx) => ctx.cell} />,
+    );
+    expect(screen.getByRole("link", { name: /Up/ }).getAttribute("href")).toBe("/parent");
+    unmount();
+    render(<MatrixGridShell title="M" columns={columns} rows={rows} renderCell={(ctx) => ctx.cell} />);
+    expect(screen.queryByRole("link", { name: /Up/ })).toBeNull();
+  });
+
+  it("renderBackLink is used when given", () => {
+    render(
+      <MatrixGridShell
+        title="M"
+        backHref="/parent"
+        backLabel="Up"
+        renderBackLink={(href, label) => <a data-custom href={href}>{label}</a>}
+        columns={columns}
+        rows={rows}
+        renderCell={(ctx) => ctx.cell}
+      />,
+    );
+    expect(document.querySelector("a[data-custom]")?.getAttribute("href")).toBe("/parent");
+  });
+
   it("clickable cells are focusable button-role cells that activate on Enter/Space", () => {
     const onCellClick = vi.fn();
     render(
