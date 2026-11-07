@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.29.4
+
+- **Changed:** completes the v0.29.2 touch lift. `useTouchLift` now reads `useAppDensity() === "lg"` and lifts only an explicit `sm` (and `Input`'s `sm14`) to `lg` (`h-11`); an explicit `default` is no longer lifted (it stays `h-9`, as `lg` / `lg18` stay). `Button size="sm"`, `SegmentedControl size="sm"` and `ToggleField size="sm"` now lift too, beside `Input`, `SelectTrigger` and `SearchInput`. `docs/STYLE.md` "App touch density" names all six primitives and the opt-out.
+- **Gallery:** the settings-table demo carries a dense `Input size="sm"` table column, so `check:viewports` runs `tapTargets` on it at the phone device.
+- **Consumer:** none needed. A consumer that relied on v0.29.2 lifting an explicit `default` on touch gets `h-9` back.
+- **Breaking:** no. Non-touch renders are byte-identical.
+
 ## v0.29.3
 
 - **Fixed:** `design-baseline/testing/invariants` no longer reports `phoneNav` ("phone has no navigation") on a centered off-app screen. `AuthCard` now carries `data-slot="auth-card"`, and the check is skipped when that marker is present and no `AppShell` content column is; the "desktop sidebar on phone" branch and every other invariant are unchanged.
@@ -10,7 +17,7 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 ## v0.29.2
 
-- **Changed:** under app touch density (phone default, `density="touch"`), an explicit compact `sm` (and `Input`'s `sm14`) lifts to `lg` (`h-11`) on `Button`, `SelectTrigger`, `Input`, `SearchInput` (`inputSize`), `SegmentedControl` and `ToggleField` (`useTouchLift` in `ui/toolbar-band`), the same lift `Button`'s `icon` / `icon-sm` already get. An explicit `default` / `lg` / `lg18` is unchanged. `docs/STYLE.md` "App touch density" documents it and the opt-out.
+- **Changed:** under app touch density (phone default, `density="touch"`), an explicit compact step lifts to `lg` (`h-11`) on `SelectTrigger` (`size`), `Input` (`size` `sm` / `sm14` / `default`) and `SearchInput` (`inputSize` `sm` / `default`), the same lift `Button`'s `icon` / `icon-sm` already get. `lg` / `lg18` are unchanged. `docs/STYLE.md` "App touch density" documents it.
 - **Consumer:** none needed; `size="sm"` call sites that failed the `tapTargets` invariant on phone now pass. Without touch density nothing changes.
 - **Breaking:** no. Non-touch renders are byte-identical.
 
