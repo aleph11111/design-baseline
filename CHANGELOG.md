@@ -6,7 +6,7 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 - **Fixed:** `HeadingRow` (so `PageHeader`, `NestedPageHeading` and every shell through `PageFrame`) keys its side-by-side layout on the row's own container width (`@container`, `@xl:`) instead of the viewport `sm:` breakpoint, and the actions block no longer carries `shrink-0`: it wraps within at most 60% of a side-by-side row. In a sidebar-narrowed content column a header with many actions no longer collapses the title or overflows `main`. Living demo: "Order title + 9 actions in a ~780px column" in the `PageHeader` gallery entry.
 - **Consumer:** none. Supersedes the v0.10.3 viewport-`sm` stacking.
-- **Breaking:** no. Wide columns render unchanged (title left, actions right).
+- **Breaking:** no. A header in a wide column renders unchanged (title left, actions right). A header whose own column is under 36rem now stacks its actions beneath the title even on a wide viewport (the `settings-table` desk27 baseline changed only for its ~430px "Empty (with CTA)" column).
 
 ## v0.29.4
 

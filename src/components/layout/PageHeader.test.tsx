@@ -24,9 +24,11 @@ describe("PageHeader", () => {
     expect(outer.className).toContain("@container");
     expect(HEADING_ROW_CLASSES.row).toContain("@xl:flex-row");
     expect(HEADING_ROW_CLASSES.row).not.toMatch(/(^|\s)sm:/);
-    expect(HEADING_ROW_CLASSES.actions).not.toContain("shrink-0");
-    expect(HEADING_ROW_CLASSES.actions).toContain("flex-wrap");
-    expect(HEADING_ROW_CLASSES.actions).toContain("min-w-0");
+    const actions = container.querySelector("button")!.parentElement as HTMLElement;
+    expect(actions.className).toBe(HEADING_ROW_CLASSES.actions);
+    expect(actions.className).not.toContain("shrink-0");
+    expect(actions.className).toContain("flex-wrap");
+    expect(actions.className).toContain("min-w-0");
     expect(container.querySelectorAll("button")).toHaveLength(9);
   });
 
