@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.29.2
+
+- **Changed:** under app touch density (phone default, `density="touch"`), an explicit compact step lifts to `lg` (`h-11`) on `SelectTrigger` (`size`), `Input` (`size` `sm` / `sm14` / `default`) and `SearchInput` (`inputSize` `sm` / `default`), the same lift `Button`'s `icon` / `icon-sm` already get. `lg` / `lg18` are unchanged. `docs/STYLE.md` "App touch density" documents it.
+- **Consumer:** none needed; `size="sm"` call sites that failed the `tapTargets` invariant on phone now pass. Without touch density nothing changes.
+- **Breaking:** no. Non-touch renders are byte-identical.
+
 ## v0.29.1
 
 - **Added:** `MatrixGridShell` takes `backHref` / `backLabel` (and `renderBackLink`), the same three props as the other shells (`matrix-grid` contract v3.7, MANIFEST 3.7). A matrix page under a parent route shows the page header's back link. Living demo: the matrix-grid gallery entry passes `backHref` / `backLabel`.

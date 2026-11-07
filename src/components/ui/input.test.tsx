@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { Input } from "./input";
+import { ControlDensityProvider } from "./toolbar-band";
 
 afterEach(() => {
   cleanup();
@@ -58,5 +59,18 @@ describe("Input size ladder", () => {
     const classes = classSet(renderInput({ size: "lg18", className: "h-7" }));
     expect(classes).toContain("h-7");
     expect(classes).not.toContain("h-11");
+  });
+});
+
+describe("Input under touch density", () => {
+  it("lifts explicit sm to h-11, keeps h-8 without touch", () => {
+    render(
+      <ControlDensityProvider density="touch">
+        <Input aria-label="Field" size="sm" />
+      </ControlDensityProvider>
+    );
+    expect(classSet(screen.getByRole("textbox", { name: "Field" }))).toContain("h-11");
+    cleanup();
+    expect(classSet(renderInput({ size: "sm" }))).toContain("h-8");
   });
 });
