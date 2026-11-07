@@ -1,3 +1,4 @@
+import * as React from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { Button } from "./button";
@@ -69,14 +70,14 @@ describe("app control density", () => {
     expect(cls(screen.getByTestId("list"))).toContain("h-9");
   });
 
-  it("resolves unsized controls to h-11 under touch; explicit size wins", () => {
+  it("resolves unsized controls and an explicit sm to h-11 under touch", () => {
     render(
       <ControlDensityProvider density="touch">
         <Controls />
       </ControlDensityProvider>,
     );
     expect(cls(screen.getByText("btn"))).toContain("h-11");
-    expect(cls(screen.getByText("small"))).toContain("h-8");
+    expect(cls(screen.getByText("small"))).toContain("h-11");
     expect(cls(screen.getByLabelText("in"))).toContain("h-11");
     expect(cls(screen.getByRole("searchbox"))).toContain("h-11");
     expect(cls(screen.getByTestId("list"))).toContain("h-11");
@@ -184,5 +185,70 @@ describe("SearchInput band floor", () => {
   it("is unchanged outside a band", () => {
     render(<SearchInput aria-label="c" minWidth="20rem" />);
     expect(wrapper(screen.getByLabelText("c")).style.minWidth).toBe("");
+  });
+});
+
+describe("explicit compact steps under touch density (useTouchLift)", () => {
+  function Compact() {
+    return (
+      <>
+        <Button size="sm">b</Button>
+        <Input aria-label="sm" size="sm" />
+        <Input aria-label="sm14" size="sm14" />
+        <SearchInput aria-label="search" inputSize="sm" />
+        <SegmentedControl
+          aria-label="seg"
+          size="sm"
+          value="a"
+          onValueChange={() => {}}
+          options={[{ value: "a", label: "A" }]}
+        />
+        <ToggleField aria-label="tog" size="sm">t</ToggleField>
+        <Select>
+          <SelectTrigger data-testid="sel" size="sm">
+            <SelectValue />
+          </SelectTrigger>
+        </Select>
+      </>
+    );
+  }
+  const heights = () => [
+    cls(screen.getByText("b")),
+    cls(screen.getByLabelText("sm")),
+    cls(screen.getByLabelText("sm14")),
+    cls(screen.getByRole("searchbox")),
+    screen.getByRole("radiogroup").outerHTML,
+    cls(screen.getByRole("switch")),
+    cls(screen.getByTestId("sel")),
+  ];
+
+  it("lifts sm / sm14 to h-11 under touch", () => {
+    render(
+      <ControlDensityProvider density="touch">
+        <Compact />
+      </ControlDensityProvider>,
+    );
+    for (const c of heights()) expect(c).toContain("h-11");
+  });
+
+  it.each([
+    ["without a provider", (n: React.ReactNode) => n],
+    ["with density=default", (n: React.ReactNode) => <ControlDensityProvider density="default">{n}</ControlDensityProvider>],
+  ])("keeps them compact %s", (_, wrap) => {
+    render(<>{wrap(<Compact />)}</>);
+    for (const c of heights()) expect(c).not.toContain("h-11");
+    expect(cls(screen.getByText("b"))).toContain("h-8");
+    expect(cls(screen.getByTestId("sel"))).toContain("h-8");
+  });
+
+  it("keeps an explicit default at h-9 under touch", () => {
+    render(
+      <ControlDensityProvider density="touch">
+        <Input aria-label="d" size="default" />
+        <Button size="default">bd</Button>
+      </ControlDensityProvider>,
+    );
+    expect(cls(screen.getByLabelText("d"))).toContain("h-9");
+    expect(cls(screen.getByText("bd"))).toContain("h-9");
   });
 });

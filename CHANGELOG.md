@@ -10,7 +10,7 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 ## v0.29.2
 
-- **Changed:** under app touch density (phone default, `density="touch"`), an explicit compact step lifts to `lg` (`h-11`) on `SelectTrigger` (`size`), `Input` (`size` `sm` / `sm14` / `default`) and `SearchInput` (`inputSize` `sm` / `default`), the same lift `Button`'s `icon` / `icon-sm` already get. `lg` / `lg18` are unchanged. `docs/STYLE.md` "App touch density" documents it.
+- **Changed:** under app touch density (phone default, `density="touch"`), an explicit compact `sm` (and `Input`'s `sm14`) lifts to `lg` (`h-11`) on `Button`, `SelectTrigger`, `Input`, `SearchInput` (`inputSize`), `SegmentedControl` and `ToggleField` (`useTouchLift` in `ui/toolbar-band`), the same lift `Button`'s `icon` / `icon-sm` already get. An explicit `default` / `lg` / `lg18` is unchanged. `docs/STYLE.md` "App touch density" documents it and the opt-out.
 - **Consumer:** none needed; `size="sm"` call sites that failed the `tapTargets` invariant on phone now pass. Without touch density nothing changes.
 - **Breaking:** no. Non-touch renders are byte-identical.
 

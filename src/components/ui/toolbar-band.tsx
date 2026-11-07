@@ -100,12 +100,12 @@ export function useTouchTarget(): string | undefined {
 }
 
 /**
- * An explicit compact step (`sm`, `sm14`, `default`) lifts to `lg` under app
- * touch density, so no field stays below 44pt; other steps pass through.
+ * An explicit compact step (`sm`, `sm14`) lifts to `lg` under app touch
+ * density, so no field stays below 44pt; `default` / `lg` / `lg18` and an
+ * unset size pass through (STYLE.md "App touch density").
  */
 export function useTouchLift<T extends string | null>(size: T | undefined): T | "lg" | undefined {
-  const app = React.useContext(ControlDensityContext);
-  return app && (size === "sm" || size === "sm14" || size === "default") ? "lg" : size;
+  return useAppDensity() === "lg" && (size === "sm" || size === "sm14") ? "lg" : size;
 }
 
 /**
