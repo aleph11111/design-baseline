@@ -87,7 +87,8 @@ function measure({ mobile, column, fullBleed, tap }) {
     const trigger = [...document.querySelectorAll("[data-sidebar=trigger]")].some(visible);
     const desktopSidebar = [...document.querySelectorAll("[data-sidebar=sidebar]:not([data-mobile])")].some(visible);
     // A centered off-app screen (sign-in, 404) renders AuthCard without AppShell: no nav by design.
-    const authCard = !!document.querySelector("[data-slot=auth-card]");
+    // AppShell's content column marks an in-app page: an AuthCard inside it keeps the check.
+    const authCard = !!document.querySelector("[data-slot=auth-card]") && !document.querySelector(".db-content-column");
     if (!bottomNav && !trigger && !authCard) problems.push("phoneNav: phone has no navigation, neither a BottomNav nor a sidebar trigger");
     if (desktopSidebar) problems.push("phoneNav: phone shows the desktop sidebar instead of the sidebar sheet");
 

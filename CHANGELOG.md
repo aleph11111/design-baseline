@@ -4,7 +4,7 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 ## v0.29.3
 
-- **Fixed:** `design-baseline/testing/invariants` no longer reports `phoneNav` ("phone has no navigation") on a centered off-app screen. `AuthCard` now carries `data-slot="auth-card"`, and the check is skipped when that marker is present; the "desktop sidebar on phone" branch and every other invariant are unchanged.
+- **Fixed:** `design-baseline/testing/invariants` no longer reports `phoneNav` ("phone has no navigation") on a centered off-app screen. `AuthCard` now carries `data-slot="auth-card"`, and the check is skipped when that marker is present and no `AppShell` content column is; the "desktop sidebar on phone" branch and every other invariant are unchanged.
 - **Consumer:** none needed; drop `phoneNav` from `KNOWN_FAILING` for sign-in / not-authorized / 404 cells (e.g. controlling-app `login` @ phone).
 - **Breaking:** no. An `AppShell` page with no BottomNav or sidebar trigger still breaches `phoneNav`.
 
