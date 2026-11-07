@@ -10,6 +10,26 @@ afterEach(() => {
 });
 
 describe("PageHeader", () => {
+  it("keys the side-by-side layout on its own container and never pins the actions block", () => {
+    const { container } = render(
+      <PageHeader
+        title="SO-2026-00053 with a very long order title"
+        actions={Array.from({ length: 9 }, (_, i) => (
+          <button key={i}>Action {i}</button>
+        ))}
+      />,
+    );
+
+    const outer = container.firstElementChild as HTMLElement;
+    expect(outer.className).toContain("@container");
+    expect(HEADING_ROW_CLASSES.row).toContain("@xl:flex-row");
+    expect(HEADING_ROW_CLASSES.row).not.toMatch(/(^|\s)sm:/);
+    expect(HEADING_ROW_CLASSES.actions).not.toContain("shrink-0");
+    expect(HEADING_ROW_CLASSES.actions).toContain("flex-wrap");
+    expect(HEADING_ROW_CLASSES.actions).toContain("min-w-0");
+    expect(container.querySelectorAll("button")).toHaveLength(9);
+  });
+
   it("renders no back link when backHref is omitted", () => {
     const { container, queryByText } = render(<PageHeader title="Orders" />);
 
@@ -192,7 +212,7 @@ describe("PageHeader", () => {
     const row = getByRole("heading", { level: 1 }).parentElement!.parentElement!
       .parentElement!;
     expect(row.className).toContain("flex-col");
-    expect(row.className).toContain("sm:flex-row");
+    expect(row.className).toContain("@xl:flex-row");
     expect(getByTestId("action").parentElement!.className).toContain("flex-wrap");
   });
 });

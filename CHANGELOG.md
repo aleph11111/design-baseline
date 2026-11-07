@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.29.5
+
+- **Fixed:** `HeadingRow` (so `PageHeader`, `NestedPageHeading` and every shell through `PageFrame`) keys its side-by-side layout on the row's own container width (`@container`, `@xl:`) instead of the viewport `sm:` breakpoint, and the actions block no longer carries `shrink-0`: it wraps within at most 60% of a side-by-side row. In a sidebar-narrowed content column a header with many actions no longer collapses the title or overflows `main`. Living demo: "Order title + 9 actions in a ~780px column" in the `PageHeader` gallery entry.
+- **Consumer:** none. Supersedes the v0.10.3 viewport-`sm` stacking.
+- **Breaking:** no. Wide columns render unchanged (title left, actions right).
+
 ## v0.29.4
 
 - **Changed:** completes the v0.29.2 touch lift. `useTouchLift` now reads `useAppDensity() === "lg"` and lifts only an explicit `sm` (and `Input`'s `sm14`) to `lg` (`h-11`); an explicit `default` is no longer lifted (it stays `h-9`, as `lg` / `lg18` stay). `Button size="sm"`, `SegmentedControl size="sm"` and `ToggleField size="sm"` now lift too, beside `Input`, `SelectTrigger` and `SearchInput`. `docs/STYLE.md` "App touch density" names all six primitives and the opt-out.

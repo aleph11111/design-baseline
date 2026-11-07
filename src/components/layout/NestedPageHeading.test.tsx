@@ -106,7 +106,7 @@ describe("NestedPageHeading", () => {
     const row = getByRole("heading", { level: 2 }).parentElement!.parentElement!
       .parentElement!;
     expect(row.className).toContain("flex-col");
-    expect(row.className).toContain("sm:flex-row");
+    expect(row.className).toContain("@xl:flex-row");
     expect(getByTestId("action").parentElement!.className).toContain("flex-wrap");
   });
 });
