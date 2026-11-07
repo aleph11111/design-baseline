@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: 2026-10-29
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "design is the deliverable — lifting explicit sm steps changes the control contract every consumer inherits (dense-row heights)"
