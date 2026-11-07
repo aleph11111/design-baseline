@@ -383,6 +383,10 @@ export function MatrixGridDemo() {
 
       <MatrixGridShell<GradeEntry>
         title="Student Grades"
+        // A matrix that sits under a parent page: the back link is the page
+        // header's, not a bespoke leading control.
+        backHref="#"
+        backLabel="Classes"
         actions={
           <Button variant="outline">
             <Download className="h-4 w-4" />

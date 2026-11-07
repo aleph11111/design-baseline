@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
+import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
 import { useIsMobile } from "../../../hooks/use-mobile";
 import { cn } from "../../../lib/utils";
@@ -88,7 +88,8 @@ export type MatrixGridShellProps<Cell> = {
    * show (e.g. an as-of control remains usable when the current date has no rows).
    */
   emptyState?: React.ReactNode;
-} & PageShellFrameProps;
+} & Pick<PageFrameProps, "backHref" | "backLabel" | "renderBackLink"> &
+  PageShellFrameProps;
 // `actions` = verbs on the whole grid (export CSV, bulk actions);
 // `toolbar` = what scopes it (an as-of date / period, filters); `count` = rows.
 
