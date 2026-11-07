@@ -29,4 +29,14 @@ describe("page invariants", () => {
       assertPageInvariants(page(["tapTargets: y", "overflow: x"]), devices.phone, { knownGaps: { tapTargets: "t" } }),
     ).rejects.toThrow(/overflow: x/);
   });
+
+  it("phoneNav: AuthCard page is exempt from no-navigation, an app page is not", async () => {
+    // jsdom has no layout, so `visible` is false everywhere: this exercises only the marker branch.
+    const run = (html: string) => {
+      document.body.innerHTML = html;
+      return checkPageInvariants({ evaluate: async (fn, a) => (fn as (a: unknown) => unknown)(a) as never }, devices.phone);
+    };
+    expect((await run('<div data-slot="auth-card"></div>')).failures.filter((f: string) => f.startsWith("phoneNav"))).toEqual([]);
+    expect((await run("<main></main>")).failures).toEqual(expect.arrayContaining([expect.stringMatching(/^phoneNav: phone has no navigation/)]));
+  });
 });

@@ -64,6 +64,7 @@ export function AuthCard({
 }: AuthCardProps): React.ReactElement {
   return (
     <div
+      data-slot="auth-card"
       className={cn(
         "flex min-h-[60vh] w-full items-center justify-center p-6",
         className,
