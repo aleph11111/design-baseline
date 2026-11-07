@@ -133,10 +133,10 @@ describe("SelectTrigger under touch density", () => {
     );
     return classSet(screen.getByRole("combobox", { name: "T" }));
   };
-  it("lifts explicit sm and default to h-11", () => {
+  it("lifts explicit sm to h-11, keeps an explicit default at h-9", () => {
     expect(touch("sm")).toContain("h-11");
     cleanup();
-    expect(touch("default")).toContain("h-11");
+    expect(touch("default")).toContain("h-9");
   });
   it("keeps sm at h-8 without touch", () => {
     expect(classSet(renderTrigger({ size: "sm" }))).toContain("h-8");

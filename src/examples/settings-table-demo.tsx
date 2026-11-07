@@ -82,13 +82,14 @@ type Series = {
   id: string;
   name: string;
   prefix: string;
+  next: number;
 };
 
 const SEED_SERIES: Series[] = [
-  { id: "n1", name: "Invoice", prefix: "INV" },
-  { id: "n2", name: "Delivery note", prefix: "DN" },
-  { id: "n3", name: "Credit note", prefix: "CR" },
-  { id: "n4", name: "Purchase order", prefix: "PO" },
+  { id: "n1", name: "Invoice", prefix: "INV", next: 1042 },
+  { id: "n2", name: "Delivery note", prefix: "DN", next: 318 },
+  { id: "n3", name: "Credit note", prefix: "CR", next: 27 },
+  { id: "n4", name: "Purchase order", prefix: "PO", next: 655 },
 ];
 
 // ---------------------------------------------------------------------------
@@ -264,6 +265,30 @@ export function SettingsTableDemo() {
       align: "center",
       cell: (s) => (
         <span className="text-muted-foreground">{s.prefix}-</span>
+      ),
+    },
+    {
+      key: "next",
+      header: "Next no.",
+      align: "right",
+      // A dense table input: explicit size="sm" lifts to the 44pt step under
+      // touch density (STYLE.md "App touch density"), so check:viewports runs
+      // tapTargets on it at the phone device.
+      cell: (s) => (
+        <Input
+          size="sm"
+          type="number"
+          min={1}
+          aria-label={`Next number for ${s.name}`}
+          className="ml-auto w-24 text-right tabular-nums"
+          value={s.next}
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+          onChange={(e) => {
+            const next = Number(e.target.value);
+            if (next > 0) setSeries((prev) => prev.map((x) => (x.id === s.id ? { ...x, next } : x)));
+          }}
+        />
       ),
     },
   ];

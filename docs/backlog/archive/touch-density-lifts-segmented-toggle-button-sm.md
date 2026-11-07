@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: 2026-11-07
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "pattern-following: reuse the existing useTouchLift hook in three primitives, cause established"
@@ -40,3 +40,7 @@ v0.29.2 ([[touch-density-lifts-explicit-sm-sizes]]) lifted an explicit `sm` / `s
 - [[touch-density-icon-button-step]] — the `icon` / `icon-sm` lift in `resolveButtonSize`.
 - [[phone-tap-targets-touch-density-default]] — made touch the phone default.
 - [[button-inline-and-icon-sm-sizes]] — Button size ladder.
+
+## Resolution
+
+Shipped with the v0.29.4 completion of [[touch-density-lifts-explicit-sm-sizes]]: `SegmentedControl` and `ToggleField` resolve their size through `useTouchLift`, `Button` lifts `sm` to `lg` in `resolveButtonSize` under app density. `control-density.test.tsx` covers all three at `h-11` under `density="touch"` and compact with no provider and with `density="default"`; `lg` passes through unchanged. `docs/STYLE.md` "App touch density" lists them.

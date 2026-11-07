@@ -74,14 +74,15 @@ function hasAccessibleName(props: LabelProps, asChild: boolean): boolean {
 }
 
 // App density resolution for a Button size: an unset size takes the density
-// step; icon squares lift to `icon-lg`. Shared with direct `buttonVariants`
+// step; icon squares lift to `icon-lg`, the compact `sm` to `lg`. Shared with direct `buttonVariants`
 // callers (PaginationLink) so they follow the density too.
 function resolveButtonSize(
   size: ButtonProps["size"],
   density: ReturnType<typeof useAppDensity>
 ): ButtonProps["size"] {
   size = size ?? density
-  return density && (size === "icon" || size === "icon-sm") ? "icon-lg" : size
+  if (density && (size === "icon" || size === "icon-sm")) return "icon-lg"
+  return density && size === "sm" ? "lg" : size
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(

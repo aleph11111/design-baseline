@@ -42,3 +42,10 @@ Precedent: `resolveButtonSize` already lifts `icon` / `icon-sm` to `icon-lg` und
 - [[touch-density-icon-button-step]] — the `icon`/`icon-sm` lift this extends.
 - [[app-touch-density-control-size]] — original density mechanism ("an explicit `size` wins" was decided there).
 - [[input-nativefield-size-prop]] — introduced the `Input` size ladder.
+
+## Resolution
+
+- `useTouchLift` (`src/components/ui/toolbar-band.tsx`) resolves an explicit `sm` / `sm14` to `lg` when `useAppDensity() === "lg"`; `default` / `lg` / `lg18` and an unset size pass through. Used in `Input`, `SelectTrigger`, `SearchInput`, `SegmentedControl`, `ToggleField`; `Button` lifts `sm` in `resolveButtonSize` beside the `icon` / `icon-sm` lift (so `PaginationLink` follows too).
+- Tests (`control-density.test.tsx`): all six primitives with explicit `sm` (and `Input sm14`) render `h-11` under `density="touch"`, stay compact with no provider and with `density="default"`; an explicit `default` stays `h-9` under touch.
+- Gallery: the settings-table demo's series table carries a dense `Input size="sm"` column. `npm run check:viewports`: 60/60 pass. Negative control with the lift disabled: `settings-table @ phone` fails `tapTargets` on the four 96x32 inputs, so the cell guards the lift.
+- `docs/STYLE.md` "App touch density" names the lifted steps, the six primitives and the opt-out (`className` height + `TOUCH_TARGET_CLASS` / `useTouchTarget()`).
