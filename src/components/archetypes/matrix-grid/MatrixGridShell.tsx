@@ -81,6 +81,15 @@ export type MatrixGridShellProps<Cell> = {
    * body owns its save model.
    */
   inspector?: MatrixInspectorProps;
+  /**
+   * Workbench satellites (contract Layer 5): content rendered below the grid,
+   * e.g. a config panel or read-only preview matrices (nested
+   * `MatrixGridShell`s without `onCellClick` / `inspector`). Never a second
+   * editable matrix. Stays beside an open docked inspector.
+   */
+  body?: React.ReactNode;
+  /** Summary region rendered last, after `body` (e.g. the plan result). */
+  dock?: React.ReactNode;
 
   /**
    * Rendered in the body in place of the grid when set — typically an empty-state
@@ -112,6 +121,8 @@ export function MatrixGridShell<Cell>({
   cellStyle,
   onCellClick,
   inspector,
+  body,
+  dock,
   emptyState,
   ...header
 }: MatrixGridShellProps<Cell>) {
@@ -230,7 +241,20 @@ export function MatrixGridShell<Cell>({
       </div>
   );
 
-  if (!inspector) return <PageFrame {...frameProps}>{grid}</PageFrame>;
+  // Workbench: grid, then body, then dock, in one column. With neither slot
+  // the grid is the column itself, so the DOM is unchanged.
+  const column =
+    body == null && dock == null ? (
+      grid
+    ) : (
+      <div className="flex min-w-0 flex-1 flex-col gap-6">
+        {grid}
+        {body != null && <div data-slot="matrix-body" className="min-w-0 space-y-6">{body}</div>}
+        {dock != null && <div data-slot="matrix-dock" className="min-w-0">{dock}</div>}
+      </div>
+    );
+
+  if (!inspector) return <PageFrame {...frameProps}>{column}</PageFrame>;
 
   // One stable wrapper whether the inspector is open or closed: swapping the
   // grid's parent would remount the table (scroll position and focus lost).
@@ -240,7 +264,7 @@ export function MatrixGridShell<Cell>({
   return (
     <PageFrame {...frameProps}>
       <div className={cn(docked && "flex items-start gap-4")}>
-        {grid}
+        {column}
         {selection !== null &&
           (isMobile ? <MatrixInspectorSheet {...panel} {...nav} /> : <MatrixInspectorDock {...panel} {...nav} />)}
       </div>

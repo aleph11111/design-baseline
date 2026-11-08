@@ -131,6 +131,13 @@ type SheetState =
 const ALL_GRADES: Grade[] = ["A", "B", "C", "D", "F", "INCOMPLETE"];
 
 const GRADE_POINTS: Partial<Record<Grade, number>> = { A: 4, B: 3, C: 2, D: 1, F: 0 };
+/** Mean grade points over the graded entries, or "–" when none count. */
+function gpa(entries: (GradeEntry | undefined)[]): string {
+  const points = entries
+    .map((e) => (e ? GRADE_POINTS[e.grade] : undefined))
+    .filter((p): p is number => p !== undefined);
+  return points.length ? (points.reduce((a, b) => a + b, 0) / points.length).toFixed(2) : "–";
+}
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /** Deterministic attendance per month — demo data for the derivation section. */
@@ -227,7 +234,11 @@ export function MatrixGridDemo() {
   // (ui/cell-input) flush in each filled cell. v3.1: both modes are conformant;
   // forbidden #1 bans only bare native / hand-rolled in-cell editors, so
   // "inline" routes through the shared control, never a raw `<select>`.
-  const [mode, setMode] = useState<"click" | "inline" | "inspector">("click");
+  // "workbench" (Layer 5 "Workbench satellites"): the inspector variant plus a
+  // read-only preview matrix in `body` and a summary in `dock`; the gradebook
+  // stays the route's one editable matrix.
+  const [mode, setMode] = useState<"click" | "inline" | "inspector" | "workbench">("click");
+  const withInspector = mode === "inspector" || mode === "workbench";
   // Inspector variant (Layer 6 "Inspector slot"): the shell docks the panel and
   // asks `onBeforeSelect` before every switch; this body is draft-with-apply,
   // so it guards unsaved edits. The shell prescribes no save model.
@@ -340,11 +351,24 @@ export function MatrixGridDemo() {
     if (!selection) return "–";
     const grades = { ...(gradesByStudent[selection.rowId] ?? {}) };
     grades[selection.columnKey] = { grade: inspectorDraft.grade, recordedAt: "" };
-    const points = Object.values(grades)
-      .map((e) => GRADE_POINTS[e.grade])
-      .filter((p): p is number => p !== undefined);
-    return points.length ? (points.reduce((a, b) => a + b, 0) / points.length).toFixed(2) : "–";
+    return gpa(Object.values(grades));
   }
+
+  // Workbench satellites: read-only figures derived from the live gradebook,
+  // so applying a grade in the inspector updates them.
+  const departments = [...new Set(SUBJECTS.map((s) => s.department))];
+  const departmentRows: MatrixRow<string>[] = STUDENTS.map((student) => ({
+    id: student.id,
+    label: student.name,
+    cells: Object.fromEntries(
+      departments.map((d) => [
+        d,
+        gpa(SUBJECTS.filter((s) => s.department === d).map((s) => gradesByStudent[student.id]?.[s.key])),
+      ]),
+    ),
+  }));
+  const allEntries = STUDENTS.flatMap((st) => Object.values(gradesByStudent[st.id] ?? {}));
+  const incomplete = allEntries.filter((e) => e.grade === "INCOMPLETE").length;
 
   const editingSubjectLabel =
     sheet.kind === "closed"
@@ -364,18 +388,21 @@ export function MatrixGridDemo() {
           The <strong>matrix-grid</strong> archetype — the <strong>Term</strong>{" "}
           selector scopes the grid from the toolbar; <strong>Export CSV</strong>{" "}
           acts on the whole grid from the page header. Toggle the cell-editing
+          variant; <strong>workbench</strong> adds a read-only preview matrix
+          and a summary below the grid.
           variant.
         </p>
         <SegmentedControl
           value={mode}
           onValueChange={(v) => {
-            setMode(v as "click" | "inline" | "inspector");
+            setMode(v as "click" | "inline" | "inspector" | "workbench");
             setSelection(null);
           }}
           options={[
             { value: "click", label: "overlay" },
             { value: "inline", label: "inline" },
             { value: "inspector", label: "inspector" },
+            { value: "workbench", label: "workbench" },
           ]}
           aria-label="Edit mode"
         />
@@ -464,8 +491,37 @@ export function MatrixGridDemo() {
             ? (ctx) => openCell(ctx.row.id, ctx.column.key, ctx.cell)
             : undefined
         }
+        body={
+          mode === "workbench" ? (
+            <MatrixGridShell<string>
+              title="Department GPA (preview)"
+              columns={departments.map((d) => ({ key: d, label: d }))}
+              rows={departmentRows}
+              rowHeaderLabel="Student"
+              renderCell={(ctx) => <span className="tabular-nums">{ctx.cell}</span>}
+            />
+          ) : undefined
+        }
+        dock={
+          mode === "workbench" ? (
+            <dl className="flex flex-wrap gap-x-8 gap-y-2 rounded-lg border bg-muted/40 px-4 py-3">
+              <div>
+                <dt className="text-xs text-muted-foreground">Class GPA</dt>
+                <dd className="text-lg font-semibold tabular-nums">{gpa(allEntries)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted-foreground">Grades recorded</dt>
+                <dd className="text-lg font-semibold tabular-nums">{allEntries.length}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted-foreground">Incomplete</dt>
+                <dd className="text-lg font-semibold tabular-nums">{incomplete}</dd>
+              </div>
+            </dl>
+          ) : undefined
+        }
         inspector={
-          mode === "inspector"
+          withInspector
             ? {
                 selection,
                 onSelectionChange: selectCell,
