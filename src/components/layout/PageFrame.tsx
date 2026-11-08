@@ -39,7 +39,8 @@ const PageFrameContext = React.createContext(false);
 /**
  * @deprecated The rendered-node form of `PageFrame` `actions`: renders
  * unchanged for one minor and bypasses the action hierarchy. Pass the typed
- * `HeaderActions` form instead.
+ * `HeaderActions` form instead. Removal: backlog ticket
+ * `remove-pageframe-flat-actions-node-form`.
  */
 export type LegacyHeaderActions = React.ReactNode;
 
