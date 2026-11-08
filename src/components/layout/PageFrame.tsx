@@ -26,6 +26,7 @@ import {
 } from "../ui/dropdown-menu";
 import { cn } from "../../lib/utils";
 import { useLabels } from "../../lib/labels";
+import { isHeaderActions, renderHeaderActions, type HeaderActions } from "./HeaderActions";
 
 /**
  * True inside a `PageFrame`. A `PageFrame` rendered inside another (a tabbed
@@ -52,10 +53,17 @@ export type PageFrameProps = {
   renderBackLink?: PageHeaderProps["renderBackLink"];
   /**
    * Header actions — verbs on the whole page or document: the one primary
-   * action (create included), export, print. At most one primary and two
-   * secondary buttons; collapse the rest into a `⋯` menu.
+   * action (create included), export, print. Pass the typed form
+   * `{ primary, secondary, menu }`; the frame enforces the hierarchy on every
+   * path (default, nested, host-titled): at most one primary and two
+   * secondary buttons inline, the rest behind one `⋯` menu, and any
+   * `destructive` action only inside that menu. Page-header actions only —
+   * form/dialog footers keep Delete at their left edge (PLACEMENT.md).
+   *
+   * @deprecated Rendered nodes (`<Button>`s) still render unchanged for one
+   * minor; they bypass the hierarchy. Move to the typed form.
    */
-  actions?: React.ReactNode;
+  actions?: HeaderActions | React.ReactNode;
   /**
    * The frame's toolbar band, left side — everything that **scopes** the body:
    * search, filters, scoping selectors, tabs. Keep these controls **controlled**
@@ -135,7 +143,7 @@ export function PageFrame({
   backHref,
   backLabel,
   renderBackLink,
-  actions,
+  actions: actionsProp,
   toolbar,
   viewSwitch,
   filterCount,
@@ -150,6 +158,7 @@ export function PageFrame({
 }: PageFrameProps): React.ReactElement {
   const L = useLabels();
   const viewOptionsLabel = viewOptionsLabelProp ?? L.view;
+  const actions = isHeaderActions(actionsProp) ? renderHeaderActions(actionsProp) : actionsProp;
   const nested = React.useContext(PageFrameContext);
   const hostTitled = React.useContext(HeadingHostContext);
   const isMobile = useIsMobile();

@@ -4,6 +4,13 @@ export { AppSidebar, type NavItem, type NavGroup, type AppSidebarProps } from ".
 export { AppHeader, type AppHeaderProps, type AppHeaderUser } from "./Header";
 export { PageHeader, type PageHeaderProps } from "./PageHeader";
 export { PageFrame, type PageFrameProps, type PageShellFrameProps } from "./PageFrame";
+export {
+  isHeaderActions,
+  MAX_SECONDARY_ACTIONS,
+  type HeaderAction,
+  type HeaderActionItem,
+  type HeaderActions,
+} from "./HeaderActions";
 export { ToolbarBandContext, useInToolbarBand } from "../ui/toolbar-band";
 export {
   NestedPageHeading,

@@ -44,6 +44,10 @@ export type PageHeaderProps = {
    * here. Some archetypes (form-page, crud-dialog) forbid header actions
    * entirely and own a footer instead; those wrappers simply don't expose
    * this slot.
+   *
+   * Pages never pass this directly: they pass typed actions to `PageFrame`,
+   * which enforces the hierarchy (≤ 1 primary + 2 secondary inline, the rest
+   * and every destructive action in one `⋯` menu) and renders the result here.
    */
   actions?: React.ReactNode;
   /**

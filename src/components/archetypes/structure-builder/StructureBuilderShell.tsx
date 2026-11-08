@@ -6,6 +6,7 @@ import { Button } from "../../ui/button";
 import { StateView } from "../../ui/state-view";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../../ui/sheet";
 import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
+import { isHeaderActions, type HeaderAction } from "../../layout/HeaderActions";
 import { useLabels } from "../../../lib/labels";
 
 /** The coverage check: how many palette items are not placed in the tree yet,
@@ -119,8 +120,22 @@ export function StructureBuilderShell({
       </div>
     ) : undefined;
 
-  const headerActions =
-    history || actions || onSave ? (
+  // Typed `actions`: History joins the secondaries and Save takes the primary
+  // slot (a consumer primary moves to the secondaries), so the frame's
+  // hierarchy rule still holds.
+  const historyAction: HeaderAction | undefined =
+    history && ready ? { label: L.structureHistory, icon: History, onSelect: () => openHistory(true) } : undefined;
+  const saveAction: HeaderAction | undefined =
+    onSave && ready ? { label: saving ? L.saving : L.save, onSelect: onSave, disabled: !dirty || saving } : undefined;
+  const headerActions = isHeaderActions(actions) ? {
+    ...actions,
+    primary: saveAction ?? actions.primary,
+    secondary: [
+      ...(historyAction ? [historyAction] : []),
+      ...(saveAction && actions.primary ? [actions.primary] : []),
+      ...(actions.secondary ?? []),
+    ],
+  } : history || actions || onSave ? (
       <>
         {history && ready ? (
           <Button type="button" variant="outline" onClick={() => openHistory(true)}>

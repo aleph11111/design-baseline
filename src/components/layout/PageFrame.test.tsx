@@ -1,4 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import * as React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   cleanup,
   fireEvent,
@@ -7,6 +8,7 @@ import {
   within,
 } from "@testing-library/react";
 import { PageFrame } from "./PageFrame";
+import type { HeaderActions } from "./HeaderActions";
 import { SelectField } from "../archetypes/raw-select";
 import { NativeField } from "../archetypes/raw-input";
 import { SegmentedControl } from "../ui/segmented-control";
@@ -408,5 +410,108 @@ describe("PageFrame inside a titled SectionCard (the section owns the heading)",
     expect(screen.getByText("grid")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Untitled host" })).toBeTruthy();
     expect(container.querySelectorAll("h1")).toHaveLength(1);
+  });
+});
+
+describe("PageFrame — typed header actions (≤ 1 primary + 2 secondary, rest in ⋯)", () => {
+  const nine: HeaderActions = {
+    primary: { label: "Ship" },
+    secondary: [
+      { label: "Edit" },
+      { label: "Delete order", destructive: true },
+      { label: "Print" },
+      { label: "Export" },
+      { label: "Email" },
+    ],
+    menu: [{ label: "Duplicate" }, { label: "History" }, { label: "Refund", destructive: true }],
+  };
+
+  const paths: [string, (actions: HeaderActions) => React.ReactElement][] = [
+    ["default", (actions) => <PageFrame title="Order" actions={actions}>body</PageFrame>],
+    [
+      "nested",
+      (actions) => (
+        <PageFrame title="Parent">
+          <PageFrame title="Order" actions={actions}>body</PageFrame>
+        </PageFrame>
+      ),
+    ],
+    [
+      "host-titled",
+      (actions) => (
+        <SectionCard title="Host">
+          <PageFrame title="Order" actions={actions}>body</PageFrame>
+        </SectionCard>
+      ),
+    ],
+  ];
+
+  function openHeaderMenu(): HTMLElement {
+    fireEvent.pointerDown(screen.getByRole("button", { name: "More actions" }), { button: 0, ctrlKey: false });
+    const menu = document.querySelector<HTMLElement>('[role="menu"]');
+    if (!menu) throw new Error("menu did not open");
+    return menu;
+  }
+
+  it.each(paths)("%s path: 1 primary + 2 secondary inline, the rest and every destructive in ⋯", (_, ui) => {
+    render(ui(nine));
+    expect(screen.getAllByRole("button").map((b) => b.textContent)).toEqual([
+      "Edit",
+      "Print",
+      "Ship",
+      "More actions",
+    ]);
+    expect(screen.queryByText("Delete order")).toBeNull();
+    const items = Array.from(openHeaderMenu().querySelectorAll('[role="menuitem"]')).map((i) => i.textContent);
+    expect(items).toEqual(["Export", "Email", "Duplicate", "History", "Refund", "Delete order"]);
+  });
+
+  it("moves a destructive primary into the menu", () => {
+    render(<PageFrame title="T" actions={{ primary: { label: "Delete", destructive: true } }}>body</PageFrame>);
+    expect(screen.getAllByRole("button").map((b) => b.textContent)).toEqual(["More actions"]);
+  });
+
+  it("renders 1 primary + 2 secondary unchanged, with no menu trigger", () => {
+    render(
+      <PageFrame title="T" actions={{ primary: { label: "New" }, secondary: [{ label: "Export" }, { label: "Print" }] }}>
+        body
+      </PageFrame>,
+    );
+    expect(screen.getAllByRole("button").map((b) => b.textContent)).toEqual(["Export", "Print", "New"]);
+  });
+
+  it("fires onSelect and renders href actions through renderLink", () => {
+    const onSelect = vi.fn();
+    render(
+      <PageFrame
+        title="T"
+        actions={{
+          primary: { label: "New", onSelect },
+          secondary: [{ label: "Open", href: "/orders/1" }],
+          renderLink: (href, children) => <a href={href} data-router-link="">{children}</a>,
+        }}
+      >
+        body
+      </PageFrame>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "New" }));
+    expect(onSelect).toHaveBeenCalledOnce();
+    const link = screen.getByRole("link", { name: "Open" });
+    expect(link.getAttribute("href")).toBe("/orders/1");
+    expect(link.hasAttribute("data-router-link")).toBe(true);
+  });
+
+  it("renders no actions row for an empty typed object", () => {
+    const { container } = render(
+      <SectionCard title="Host">
+        <PageFrame title="T" actions={{}}>body</PageFrame>
+      </SectionCard>,
+    );
+    expect(container.querySelector(".justify-end.gap-2")).toBeNull();
+  });
+
+  it("still renders the deprecated flat ReactNode form as before", () => {
+    render(<PageFrame title="T" actions={<><button>A</button><button>B</button><button>C</button><button>D</button></>}>body</PageFrame>);
+    expect(screen.getAllByRole("button").map((b) => b.textContent)).toEqual(["A", "B", "C", "D"]);
   });
 });

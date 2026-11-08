@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.31.0
+
+- **Added:** typed page-header actions on `PageFrame` (so every page shell): `actions={{ primary, secondary, menu, renderLink }}` with `HeaderAction = { label, onSelect?, href?, icon?, disabled?, destructive? }`. One shared renderer behind all three `PageFrame` paths (default `PageHeader`, nested `NestedPageHeading`, host-titled row) enforces the existing PLACEMENT.md rule: at most 1 primary + 2 secondary buttons inline, the rest behind one `⋯` menu (`RowActionsMenu` with a header trigger, label `headerActions` "More actions" / "Weitere Aktionen"), and a `destructive` action only inside that menu. `StructureBuilderShell` merges its History / Save into the typed form. `design-baseline/layout` exports `HeaderAction`, `HeaderActionItem`, `HeaderActions`, `isHeaderActions`, `MAX_SECONDARY_ACTIONS`. Living demo: "9 typed actions" in the `PageFrame` gallery entry.
+- **Added:** `RowActionsMenu` items take an optional `href` (rendered through a new optional `renderLink` hook, default `<a>`), `onSelect` is optional, and `row` may be omitted for `RowActionsMenu<void>`.
+- **Deprecated:** passing rendered nodes to `PageFrame` `actions`. It renders unchanged for this minor and bypasses the hierarchy; it will be removed in a later breaking bump.
+- **Consumer:** move header actions to the typed form (controlling-app, hk-crm, brickshop-manager — e.g. brickshop-manager `/orders/:id` with 9 actions incl. Delete Order).
+- **Breaking:** no.
+
 ## v0.30.0
 
 - **Added:** `body` and `dock` slots on `MatrixGridShell` (`matrix-grid` contract v3.8, MANIFEST 3.8, ADR-0013). `body` renders below the grid in the same column (a config panel, read-only preview matrices as nested `MatrixGridShell`s); `dock` renders last (a summary). With the `inspector` docked, grid, `body` and `dock` share the column beside it. The contract narrows "one matrix per route" to one *editable* matrix; read-only previews in `body` are conformant. Living demo: mode "workbench" in the matrix-grid gallery entry. `check:viewports` checks it at the device triad with the inspector open.

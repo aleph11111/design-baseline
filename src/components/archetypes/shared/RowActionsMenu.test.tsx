@@ -147,3 +147,25 @@ describe("RowActionsMenu", () => {
     expect(nth(items, 1).getAttribute("data-disabled")).toBeNull();
   });
 });
+
+describe("RowActionsMenu — href items and row-less use", () => {
+  it("renders an href item as a link through renderLink, and runs without a row", () => {
+    const onSelect = vi.fn();
+    render(
+      <RowActionsMenu<void>
+        actions={[
+          { label: "Open", href: "/orders/1" },
+          { label: "Copy", onSelect },
+        ]}
+        renderLink={(href, children) => <a href={href} data-router-link="">{children}</a>}
+      />,
+    );
+    fireEvent.pointerDown(screen.getByText("Row actions").closest("button")!, { button: 0, ctrlKey: false });
+    const link = screen.getByRole("menuitem", { name: "Open" });
+    expect(link.tagName).toBe("A");
+    expect(link.getAttribute("href")).toBe("/orders/1");
+    expect(link.hasAttribute("data-router-link")).toBe(true);
+    fireEvent.click(screen.getByRole("menuitem", { name: "Copy" }));
+    expect(onSelect).toHaveBeenCalledOnce();
+  });
+});
