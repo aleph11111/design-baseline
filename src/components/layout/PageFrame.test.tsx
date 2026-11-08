@@ -1,4 +1,5 @@
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   cleanup,
@@ -508,6 +509,11 @@ describe("PageFrame — typed header actions (≤ 1 primary + 2 secondary, rest 
       </SectionCard>,
     );
     expect(container.querySelector(".justify-end.gap-2")).toBeNull();
+  });
+
+  it("treats a portal as a rendered node, not a typed object", () => {
+    render(<PageFrame title="T" actions={createPortal(<button>Portaled</button>, document.body)}>body</PageFrame>);
+    expect(screen.getByRole("button", { name: "Portaled" })).toBeTruthy();
   });
 
   it("still renders the deprecated flat ReactNode form as before", () => {

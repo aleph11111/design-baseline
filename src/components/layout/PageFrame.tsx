@@ -36,6 +36,13 @@ import { isHeaderActions, renderHeaderActions, type HeaderActions } from "./Head
  */
 const PageFrameContext = React.createContext(false);
 
+/**
+ * @deprecated The rendered-node form of `PageFrame` `actions`: renders
+ * unchanged for one minor and bypasses the action hierarchy. Pass the typed
+ * `HeaderActions` form instead.
+ */
+export type LegacyHeaderActions = React.ReactNode;
+
 export type PageFrameProps = {
   /** The page title — passed once. Renders as the `PageHeader` `<h1>`
    *  (nested: the `NestedPageHeading` `<h2>`). */
@@ -60,10 +67,10 @@ export type PageFrameProps = {
    * `destructive` action only inside that menu. Page-header actions only —
    * form/dialog footers keep Delete at their left edge (PLACEMENT.md).
    *
-   * @deprecated Rendered nodes (`<Button>`s) still render unchanged for one
-   * minor; they bypass the hierarchy. Move to the typed form.
+   * Rendered nodes (`<Button>`s) still render unchanged for one minor but
+   * bypass the hierarchy — see `LegacyHeaderActions`. Move to the typed form.
    */
-  actions?: HeaderActions | React.ReactNode;
+  actions?: HeaderActions | LegacyHeaderActions;
   /**
    * The frame's toolbar band, left side — everything that **scopes** the body:
    * search, filters, scoping selectors, tabs. Keep these controls **controlled**

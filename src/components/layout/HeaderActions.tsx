@@ -56,6 +56,7 @@ export function isHeaderActions(value: unknown): value is HeaderActions {
     typeof value === "object" &&
     value !== null &&
     !React.isValidElement(value) &&
+    !("$$typeof" in value) && // portals and other React nodes
     !(Symbol.iterator in value)
   );
 }
