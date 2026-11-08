@@ -390,7 +390,6 @@ export function MatrixGridDemo() {
           acts on the whole grid from the page header. Toggle the cell-editing
           variant; <strong>workbench</strong> adds a read-only preview matrix
           and a summary below the grid.
-          variant.
         </p>
         <SegmentedControl
           value={mode}
