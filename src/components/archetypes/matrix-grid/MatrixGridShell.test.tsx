@@ -474,4 +474,37 @@ describe("MatrixGridShell horizontal scroll", () => {
       expect(dock()).toBeNull();
     });
   });
+
+  describe("workbench body / dock", () => {
+    it("without body or dock the shell renders no workbench regions", () => {
+      render(<MatrixGridShell title="M" columns={columns} rows={rows} renderCell={(ctx) => ctx.cell} />);
+      expect(document.querySelector('[data-slot="matrix-body"]')).toBeNull();
+      expect(document.querySelector('[data-slot="matrix-dock"]')).toBeNull();
+    });
+
+    it("renders body (a nested read-only matrix) after the grid and dock last, beside an open inspector", () => {
+      render(
+        <MatrixGridShell<string>
+          title="Plan"
+          columns={columns}
+          rows={rows}
+          renderCell={(ctx) => ctx.cell}
+          inspector={{ selection: { rowId: "1", columnKey: "mon" }, onSelectionChange: () => {}, title: "Line", children: null }}
+          body={<MatrixGridShell<string> title="Preview" columns={columns} rows={rows} renderCell={(ctx) => ctx.cell} />}
+          dock={<p>Summary</p>}
+        />,
+      );
+      const [grid, preview] = [...document.querySelectorAll('[data-slot="matrix-scroll"]')] as [Element, Element];
+      const body = document.querySelector('[data-slot="matrix-body"]')!;
+      const dockRegion = document.querySelector('[data-slot="matrix-dock"]')!;
+      expect(body.contains(preview)).toBe(true);
+      expect(grid.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(body.compareDocumentPosition(dockRegion) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(screen.getByRole("heading", { level: 2, name: "Preview" })).toBeTruthy();
+      expect(dockRegion.textContent).toBe("Summary");
+      // the docked inspector sits beside the column holding grid + body + dock
+      const inspector = document.querySelector('[data-slot="matrix-inspector"]')!;
+      expect(inspector.previousElementSibling?.contains(dockRegion)).toBe(true);
+    });
+  });
 });

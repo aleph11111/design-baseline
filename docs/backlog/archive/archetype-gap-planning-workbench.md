@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-06
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "archetype shape is the deliverable: body/dock slots on matrix-grid, the one-editable-matrix carve-out in the contract, and an ADR"

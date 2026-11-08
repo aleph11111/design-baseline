@@ -2,8 +2,8 @@
 key: M
 slug: matrix-grid
 kind: page
-version: 3.7
-promoted_from: hk-crm (inspector slot: controlling-app planset LinePanel + planung InspektorDrawer, fleet synthesis)
+version: 3.8
+promoted_from: hk-crm (inspector slot: controlling-app planset LinePanel + planung InspektorDrawer; body/dock slots: controlling-app workspace/planung, fleet synthesis)
 promoted_at: 2026-05-22
 source_spec_version: 1.4
 status: locked
@@ -31,14 +31,14 @@ If the page is a single-axis list of rows (no meaningful columns beyond display 
 ## Layer 1 — Route config
 
 **Required:**
-- Path: domain-scoped route under a single segment (e.g. `/matrix/<view>`, `/grids/<view>`, `/gradebook/<class>`). One matrix view per route — do not multiplex two matrices on one page.
+- Path: domain-scoped route under a single segment (e.g. `/matrix/<view>`, `/grids/<view>`, `/gradebook/<class>`). One **editable** matrix view per route — do not multiplex two editable matrices on one page. Carve-out (v3.8): read-only preview matrices live in the shell's `body` as nested matrices (Layer 5 "Workbench satellites").
 - Wrap in the project's **route-level auth guard**. No role-requirement prop unless RBAC is explicitly in scope for this page.
 - Code-split the page behind the framework's **lazy-load boundary** (lazy import + a suspense fallback that renders nothing).
 - **`as_of` (or equivalent point-in-time) query param is allowed and is the canonical way to express "what does this grid look like on date X".** Bookmarkable URLs are the right serialization for temporal views; in-memory state alone is not sufficient.
 
 **Forbidden:**
 - Static imports of matrix-grid pages.
-- Two matrix views on one route (use sibling routes).
+- Two editable matrix views on one route (use sibling routes). A read-only nested matrix in `body` is not a second view.
 
 ---
 
@@ -123,6 +123,10 @@ so they sit outside the scroller. The mapping is exhaustive:
   of view with the grid.
 
 **Allowed variation:**
+- **Workbench satellites (v3.8)** — a planning workbench keeps its one editable matrix and adds the content that reads from it, through two optional shell slots (with neither, the shell renders unchanged):
+  - `body` — rendered below the grid in the same column: a configuration panel, and **read-only preview matrices** as nested matrix-grid shells (no cell click, no inspector; each draws its own nested heading and owns its own sideways scroll). Several may stack.
+  - `dock` — a summary region rendered last, after `body` (e.g. the plan result).
+  With the inspector open, grid, `body` and `dock` share the narrowed column beside the docked panel, so all stay visible and nothing scrolls the page sideways. History stays a header `actions` entry; a view switch that picks which body shows stays in `toolbar`; page-level dialogs stay siblings.
 - A page-level flex container that lets the shell shrink and scroll rather than enforce its intrinsic width is allowed when the page composes the matrix with a fixed-width sibling (e.g. a permanent filter rail).
 
 **Forbidden:**
@@ -302,7 +306,7 @@ The following patterns are never permitted in a matrix-grid page, regardless of 
 
 1. **Bare or hand-rolled in-cell editors.** Editing a cell's fields in-place with a bare native `<input>`/`<select>` or hand-rolled in-cell editor. In-cell editing is conformant **only** through the shared editable-cell control documented in Layer 6 (read-only vs editable-cell variant); every other edit goes through the side overlay that opens on click.
 2. **Row-action menus.** Three-dots-per-row dropdowns. A matrix page edits intersections, not rows.
-3. **Multiple matrices on one route.** Each matrix view is its own page. Tabs/segments are allowed (each tab points at its own matrix view, route segment, or query param).
+3. **Multiple editable matrices on one route.** Each editable matrix view is its own page. Tabs/segments are allowed (each tab points at its own matrix view, route segment, or query param). Read-only preview matrices nested in `body` are the one carve-out (Layer 5 "Workbench satellites"); a second editable matrix there is still forbidden.
 4. **Side overlay rendered inside the shell.** Always a sibling — except the Layer 6 `inspector` slot.
 5. **Hand-rolled `<table>` outside the matrix-grid shell.**
 6. **Action buttons outside the slots.** Bulk actions are `actions`; per-cell actions belong in the side overlay.
@@ -367,6 +371,12 @@ When a target project applies this archetype, it wires the generic primitive to 
 ---
 
 ## Version log
+
+- **3.8** (ADR-0013) — `body` and `dock` slots (Layer 5 "Workbench satellites"):
+  content around the one editable grid — config panel and read-only preview
+  matrices in `body`, a summary in `dock` — that stays beside an open docked
+  inspector. Layer 1 and forbidden #3 narrow "one matrix per route" to one
+  *editable* matrix. Additive. Source: controlling-app `workspace/planung`.
 
 - **3.7** — Layer 3: the matrix-grid shell takes the shared back-link props
   (`backHref` / `backLabel`, and `renderBackLink` injecting the router link)

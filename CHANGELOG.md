@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.30.0
+
+- **Added:** `body` and `dock` slots on `MatrixGridShell` (`matrix-grid` contract v3.8, MANIFEST 3.8, ADR-0013). `body` renders below the grid in the same column (a config panel, read-only preview matrices as nested `MatrixGridShell`s); `dock` renders last (a summary). With the `inspector` docked, grid, `body` and `dock` share the column beside it. The contract narrows "one matrix per route" to one *editable* matrix; read-only previews in `body` are conformant. Living demo: mode "workbench" in the matrix-grid gallery entry. `check:viewports` checks it at the device triad with the inspector open.
+- **Consumer:** none required. controlling-app `workspace/planung` can move off bare `PageFrame` onto `MatrixGridShell` with `inspector` + `body` + `dock`.
+- **Breaking:** no. Without `body` / `dock` the shell renders unchanged.
+
 ## v0.29.5
 
 - **Fixed:** `HeadingRow` (so `PageHeader`, `NestedPageHeading` and every shell through `PageFrame`) keys its side-by-side layout on the row's own container width (`@container`, `@xl:`) instead of the viewport `sm:` breakpoint, and the actions block no longer carries `shrink-0`: it wraps within at most 60% of a side-by-side row. In a sidebar-narrowed content column a header with many actions no longer collapses the title or overflows `main`. Living demo: "Order title + 9 actions in a ~780px column" in the `PageHeader` gallery entry.

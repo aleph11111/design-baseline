@@ -53,7 +53,7 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch({ executablePath: CHROME });
 const failures = [];
-const total = PAGES.length * Object.keys(devices).length + STEPS.length + 1 + 2 * Object.keys(devices).length; // + the print-media check + analytics-dashboard edit mode + matrix-grid inspector
+const total = PAGES.length * Object.keys(devices).length + STEPS.length + 1 + 3 * Object.keys(devices).length; // + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench
 let n = 0;
 const report = (label, { failures: bad, knownGaps: warn }) => {
   n++;
@@ -222,11 +222,50 @@ for (const [name, device] of Object.entries(devices)) {
   }
 }
 
+// matrix-grid workbench (ADR-0013, contract Layer 5 "Workbench satellites"):
+// with the inspector open, the read-only preview matrix in `body` and the
+// `dock` summary stay rendered and on-screen, and the page never scrolls
+// sideways (checkPageInvariants).
+for (const [name, device] of Object.entries(devices)) {
+  const label = `matrix-grid workbench @ ${name}`;
+  let ctx;
+  try {
+    let page;
+    ({ ctx, page } = await open("matrix-grid", device));
+    await page.getByRole("radio", { name: "workbench" }).click();
+    await page.locator("td[data-filled]").first().click();
+    await page.locator('[data-slot="matrix-inspector"]').waitFor({ timeout: 5000 });
+    await page.waitForTimeout(400); // sheet slide-in
+    const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: COLUMN[name], fullBleed: true });
+    // phone: the overlay is modal, so the page's nav is aria-hidden behind it by design
+    const bad = result.failures.filter((f) => !(name === "phone" && f.startsWith("phoneNav:")));
+    const W = device.viewport.width;
+    for (const slot of ["matrix-body", "matrix-dock"]) {
+      const box = await page.locator(`[data-slot="${slot}"]`).boundingBox();
+      if (!box || box.width < 1) bad.push(`workbench: ${slot} not rendered`);
+      else if (box.x < 0 || box.x + box.width > W + 1) bad.push(`workbench: ${slot} spans ${box.x}..${box.x + box.width}, viewport ${W}`);
+    }
+    if (name !== "phone") {
+      const dock = await page.locator('[data-slot="matrix-inspector"]').boundingBox();
+      const body = await page.locator('[data-slot="matrix-body"]').boundingBox();
+      if (body && dock && body.x + body.width > dock.x) bad.push("workbench: body runs under the docked inspector");
+    }
+    const file = `matrix-grid-workbench--${name}.jpg`;
+    await page.screenshot({ path: path.join(OUT, file), type: "jpeg", quality: 70, scale: "css", fullPage: true });
+    shots.push({ slug: "matrix-grid-workbench", name, file, problems: [...bad, ...result.knownGaps] });
+    report(label, { failures: bad, knownGaps: result.knownGaps });
+  } catch (e) {
+    report(label, fail(e.message.split("\n")[0]));
+  } finally {
+    await ctx?.close();
+  }
+}
+
 await browser.close();
 server.close();
 
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-const rows = [...PAGES, "analytics-dashboard-edit", "matrix-grid-inspector"].map((slug) => {
+const rows = [...PAGES, "analytics-dashboard-edit", "matrix-grid-inspector", "matrix-grid-workbench"].map((slug) => {
   const cells = Object.keys(devices).map((name) => {
     const s = shots.find((x) => x.slug === slug && x.name === name);
     if (!s) return `<figure class="bad"><figcaption>${name}: not rendered</figcaption></figure>`;
