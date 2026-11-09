@@ -253,8 +253,12 @@ export function DetailOverviewDemo(): React.ReactElement {
             </>
           }
           actions={{
-            // A real order header's nine verbs (check:viewports' width sweep
-            // exercises the header row in a ~780px column at 1133 wide).
+            // A real order header's nine verbs. Inline: Create invoice, Print
+            // packing slip, Mark as shipped + the ⋯ menu (~494px). In the
+            // ~780px column at check:viewports' 1133 sweep width that exceeds
+            // HeadingRow's 60% actions cap, so the actions wrap to a second
+            // line beside the title (measured 2026-11-09: wraps at 1024/1133,
+            // one row from 1280) — the sweep checks the squeeze stays fixed.
             primary: { label: "Mark as shipped" },
             secondary: [
               { label: "Create invoice" },

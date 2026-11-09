@@ -718,7 +718,8 @@ column near 780px — inside the 1024-1512 band where viewport breakpoints (`sm`
 height 739, same flags). They are **not delivery devices**: they stay out of
 `devices` and `playwrightProjects`, get no pixel baselines and no contact-sheet
 entry. `check:viewports` runs the invariants above (no column check) for every
-`kind: "page"` archetype at each sweep width. A sweep finding with a ticket sits
+`kind: "page"` archetype at each sweep width (the full-bleed marker check
+included). A sweep finding with a ticket sits
 in the script's own `SWEEP_GAPS`, keyed `<slug>@<width>:<code>`, so it never
 downgrades that code at the triad.
 

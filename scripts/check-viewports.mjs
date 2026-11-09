@@ -43,6 +43,8 @@ const STEPS = [
 const KNOWN_GAPS = {};
 // Sweep findings with a ticket, keyed `<slug>@<width>:<code>` → ticket slug.
 // Per page and width, so a sweep gap never downgrades a code at the triad.
+// Empty on purpose: the first sweep run (2026-11-09, 51/51 ok) found no
+// finding at any width — toolbarRows at 1024 included.
 const SWEEP_GAPS = {};
 
 const server = http.createServer((req, res) => {
