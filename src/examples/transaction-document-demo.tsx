@@ -65,7 +65,7 @@ function salesOrder(): TransactionDocumentShellProps {
       id: "SO-2026-0412",
       status: "Paid",
       attention: "Address unverified",
-      summary: "BrickLink order from Bricks & Co., paid on 4 Nov by PayPal, waiting to ship.",
+      summary: "BrickLink order from Bricks & Co.: two sets plus shipping.",
       chain: [{ label: "BrickLink order 2981734", href: "#" }, { label: "Sales order", current: true }, { label: "Invoice RE-2026-0388", href: "#" }],
     },
     actions: {
@@ -97,7 +97,7 @@ function salesOrder(): TransactionDocumentShellProps {
     facts: [
       { label: "Customer", value: "Bricks & Co. Trading GmbH", change: { label: "Change", href: "#" } },
       { label: "Ordered", value: new Date("2026-11-03T10:12:00"), kind: "date" },
-      { label: "Payment", value: "PayPal · paid 4 Nov 2026" },
+      { label: "Payment", value: "PayPal · 4 Nov 2026" },
       {
         label: "Shipping address",
         value: "Speicherstadt 12, 20457 Hamburg, DE",
@@ -145,7 +145,7 @@ function useOffer(): TransactionDocumentShellProps {
     identity: {
       id: "AN-2026-0077",
       status: "Valuation",
-      summary: "Three sets Jana wants to sell; price each one, then send the offer.",
+      summary: "Our offer for three used and new sets Jana wants to sell.",
       chain: [{ label: "Lead L-0912", href: "#" }, { label: "Valuation", current: true }, { label: "Offer" }, { label: "Purchase order" }],
     },
     actions: { secondary: [{ label: "Preview offer", icon: FileDown, onSelect: noop }], menu: [{ label: "Discard offer", destructive: true, onSelect: noop }] },
@@ -198,7 +198,7 @@ function purchaseOrder(): TransactionDocumentShellProps {
     identity: {
       id: "PO-2026-0031",
       status: "Awaiting parcel",
-      summary: "Offer accepted on 7 Nov; the seller ships three sets to us.",
+      summary: "Three sets we buy from Jana, shipped to us by the seller.",
       chain: [{ label: "Lead L-0912", href: "#" }, { label: "Offer AN-2026-0077", href: "#" }, { label: "Purchase order", current: true }],
     },
     actions: { secondary: [{ label: "Print", icon: Printer, onSelect: noop }] },

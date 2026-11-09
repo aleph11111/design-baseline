@@ -130,7 +130,8 @@ shows its lock instead of the primary action.
 ## Forbidden patterns
 
 1. **A fact in two homes.** A total repeated in a summary card, a rail or a
-   badge; a status repeated in the next-step panel. The ledger owns money, the
+   badge; a status repeated in the next-step panel; a date, payment or status
+   restated in the summary sentence, which says only what the document is. The ledger owns money, the
    header owns status.
 2. **A primary action outside the next-step panel** — in the header, in a
    ledger row, in a fact.
