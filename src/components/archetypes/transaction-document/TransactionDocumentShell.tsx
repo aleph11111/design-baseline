@@ -26,9 +26,10 @@ export type TransactionIdentity = {
   summary?: React.ReactNode;
   /**
    * The document chain: related documents in order (Lead › Valuation › Offer ›
-   * Purchase order). The current document is the entry without `href`/`onSelect`.
+   * Purchase order). Mark this document `current`; an entry with a link is an
+   * existing document, one without is a step that doesn't exist yet.
    */
-  chain?: { label: string; href?: string; onSelect?: () => void }[];
+  chain?: { label: string; href?: string; onSelect?: () => void; current?: boolean }[];
 };
 
 /** An automatic side effect of the current state ("invoice created on payment"). */
@@ -139,10 +140,12 @@ export function TransactionDocumentShell({
               {identity.chain.map((d, i) => (
                 <li key={i} className="flex items-center gap-x-1.5">
                   {i > 0 ? <span aria-hidden>›</span> : null}
-                  {d.href || d.onSelect ? (
+                  {d.current ? (
+                    <span aria-current="page" className="font-medium text-foreground">{d.label}</span>
+                  ) : d.href || d.onSelect ? (
                     <ActionLink action={d} />
                   ) : (
-                    <span aria-current="page" className="font-medium text-foreground">{d.label}</span>
+                    <span>{d.label}</span>
                   )}
                 </li>
               ))}

@@ -48,8 +48,9 @@ five is not on this page.
 it: the **document number** (never wraps, with a copy action), **one status**
 and **at most one attention flag**. Under it: **one sentence** saying what the
 document is, and the optional **document chain** — the related documents in
-order (Lead › Valuation › Offer › Purchase order), each one a link except the
-current document.
+order (Lead › Valuation › Offer › Purchase order): the current document marked
+as current, an existing document as a link, a step that doesn't exist yet as
+plain text.
 
 **2 — Next step.** A panel keyed to the document's current state: what happens
 next, in one heading and an optional line, and the document's **one primary

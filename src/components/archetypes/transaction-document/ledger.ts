@@ -66,11 +66,17 @@ export function fitColumns(
  * Empty → null; anything that isn't a number → NaN.
  */
 export function parseFigure(text: string, locale: string): number | null {
-  // The locale's separators, read off a known figure: "12.345,6" → group ".", decimal ",".
-  const probe = formatFigure(12345.6, "count", { decimals: 1, locale });
-  const group = probe.charAt(2);
+  // The locale's separators, read off a known figure: "1.234.567,5" → group ".", decimal ",".
+  const probe = formatFigure(1234567.5, "count", { decimals: 1, locale });
   const decimal = probe.charAt(probe.length - 2);
-  const clean = text.replace(/[\s  €$£%]/g, "").split(group).join("").replace(decimal, ".").replace("−", "-");
-  if (clean === "") return null;
+  const group = probe.slice(0, -2).match(/\D/)?.[0] ?? (decimal === "," ? "." : ",");
+  let raw = text.replace(/[\s  €$£%]/g, "").replace("−", "-");
+  if (raw === "") return null;
+  // A group separator is only ever followed by exactly three digits. A single
+  // one that isn't ("195.5" typed into de-DE) was meant as the decimal point:
+  // never strip it into a silent 10× amount.
+  const parts = raw.split(group);
+  if (!raw.includes(decimal) && parts.length === 2 && !/^\d{3}$/.test(parts[1]!)) raw = parts.join(decimal);
+  const clean = raw.split(group).join("").replace(decimal, ".");
   return /^-?\d*\.?\d+$/.test(clean) ? Number(clean) : NaN;
 }

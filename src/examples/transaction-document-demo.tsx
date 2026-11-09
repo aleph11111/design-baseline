@@ -66,7 +66,7 @@ function salesOrder(): TransactionDocumentShellProps {
       status: "Paid",
       attention: "Address unverified",
       summary: "BrickLink order from Bricks & Co., paid on 4 Nov by PayPal, waiting to ship.",
-      chain: [{ label: "BrickLink order 2981734", href: "#" }, { label: "Sales order" }, { label: "Invoice RE-2026-0388", href: "#" }],
+      chain: [{ label: "BrickLink order 2981734", href: "#" }, { label: "Sales order", current: true }, { label: "Invoice RE-2026-0388", href: "#" }],
     },
     actions: {
       secondary: [
@@ -146,7 +146,7 @@ function useOffer(): TransactionDocumentShellProps {
       id: "AN-2026-0077",
       status: "Valuation",
       summary: "Three sets Jana wants to sell; price each one, then send the offer.",
-      chain: [{ label: "Lead L-0912", href: "#" }, { label: "Valuation" }, { label: "Offer" }, { label: "Purchase order" }],
+      chain: [{ label: "Lead L-0912", href: "#" }, { label: "Valuation", current: true }, { label: "Offer" }, { label: "Purchase order" }],
     },
     actions: { secondary: [{ label: "Preview offer", icon: FileDown, onSelect: noop }], menu: [{ label: "Discard offer", destructive: true, onSelect: noop }] },
     nextStep: {
@@ -199,7 +199,7 @@ function purchaseOrder(): TransactionDocumentShellProps {
       id: "PO-2026-0031",
       status: "Awaiting parcel",
       summary: "Offer accepted on 7 Nov; the seller ships three sets to us.",
-      chain: [{ label: "Lead L-0912", href: "#" }, { label: "Offer AN-2026-0077", href: "#" }, { label: "Purchase order" }],
+      chain: [{ label: "Lead L-0912", href: "#" }, { label: "Offer AN-2026-0077", href: "#" }, { label: "Purchase order", current: true }],
     },
     actions: { secondary: [{ label: "Print", icon: Printer, onSelect: noop }] },
     nextStep: {

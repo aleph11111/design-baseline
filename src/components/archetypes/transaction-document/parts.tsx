@@ -72,8 +72,9 @@ export function DocumentId({ id }: { id: string }): React.ReactElement {
         size="icon-sm"
         aria-label={copied ? L.idCopied : L.copyId(id)}
         onClick={() => {
-          void navigator.clipboard?.writeText(id);
-          setCopied(true);
+          // "Copied" only once the write succeeded: no clipboard (plain HTTP)
+          // or a denied write leaves the button as it was.
+          navigator.clipboard?.writeText(id).then(() => setCopied(true), () => {});
         }}
       >
         {copied ? <Check aria-hidden /> : <Copy aria-hidden />}

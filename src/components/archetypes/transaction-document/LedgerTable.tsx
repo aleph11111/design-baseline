@@ -25,6 +25,7 @@ function useWidth(ref: React.RefObject<HTMLElement | null>): number {
   React.useLayoutEffect(() => {
     const el = ref.current;
     if (!el || typeof ResizeObserver === "undefined") return;
+    setWidth(el.getBoundingClientRect().width || Infinity); // first paint already fitted
     const ro = new ResizeObserver(([entry]) => entry && setWidth(entry.contentRect.width));
     ro.observe(el);
     return () => ro.disconnect();

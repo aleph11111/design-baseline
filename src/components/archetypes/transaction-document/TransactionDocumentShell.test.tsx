@@ -78,6 +78,25 @@ const base: TransactionDocumentShellProps = {
 };
 
 describe("TransactionDocumentShell — rules", () => {
+  it("marks only the current chain entry as current", () => {
+    render(<TransactionDocumentDemo />);
+    variant("Offer");
+    const current = slot("td-chain").querySelectorAll("[aria-current=page]");
+    expect([...current].map((e) => e.textContent)).toEqual(["Valuation"]);
+  });
+
+  it("says Copied only after the clipboard write succeeds", async () => {
+    const writeText = vi.fn().mockRejectedValue(new Error("denied"));
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    render(<TransactionDocumentShell {...base} />);
+    fireEvent.click(screen.getByRole("button", { name: "Copy X-1" }));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(screen.getByRole("button", { name: "Copy X-1" })).toBeTruthy();
+    writeText.mockResolvedValue(undefined);
+    fireEvent.click(screen.getByRole("button", { name: "Copy X-1" }));
+    expect(await screen.findByRole("button", { name: "Copied" })).toBeTruthy();
+  });
+
   it("demotes a header primary an untyped caller passes", () => {
     const actions = { primary: { label: "Sneaky", onSelect: () => {} } } as TransactionDocumentShellProps["actions"];
     render(<TransactionDocumentShell {...base} actions={actions} />);
@@ -131,5 +150,9 @@ describe("parseFigure", () => {
     expect(parseFigure("12 €", "de-DE")).toBe(12);
     expect(parseFigure("", "de-DE")).toBeNull();
     expect(parseFigure("abc", "de-DE")).toBeNaN();
+    expect(parseFigure("195.5", "de-DE")).toBe(195.5); // a dot meant as the decimal point
+    expect(parseFigure("1.234.567,5", "de-DE")).toBe(1234567.5);
+    expect(parseFigure("1.234", "de-DE")).toBe(1234);
+    expect(parseFigure("195,5", "en-US")).toBe(195.5);
   });
 });
