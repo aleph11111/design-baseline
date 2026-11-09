@@ -18,3 +18,4 @@ Architecture Decision Records for design-baseline. One file per decision:
 | [0011](0011-analytics-dashboard-edit-mode.md) | An editable dashboard tile layout is an edit mode of analytics-dashboard, not a new archetype | Accepted |
 | [0012](0012-structure-builder-page-archetype.md) | The report-structure builder is its own `kind: page` archetype (structure-builder, Sb) | Accepted |
 | [0013](0013-matrix-grid-workbench-body-dock.md) | A planning workbench is matrix-grid with `body` and `dock` slots, not a new archetype | Accepted |
+| [0014](0014-transaction-document-page-archetype.md) | Transaction documents are their own `kind: page` archetype (transaction-document, Td) | Accepted |

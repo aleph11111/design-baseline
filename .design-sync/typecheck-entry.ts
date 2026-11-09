@@ -84,4 +84,5 @@ export * from "@/components/archetypes/shared";
 export * from "@/components/archetypes/skeleton-loader";
 export * from "@/components/archetypes/statement-with-filters";
 export * from "@/components/archetypes/structure-builder";
+export * from "@/components/archetypes/transaction-document";
 export * from "@/components/archetypes/tabbed-settings";

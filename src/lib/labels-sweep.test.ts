@@ -6,8 +6,9 @@ import { labelsEn } from "./labels";
 
 // Class-level sweep: no English default string from the preset may be re-inlined
 // as a literal in a component — every default reads the provider.
-// `completed`/`current`/`upcoming` are also state enum values, so they are skipped.
-const SKIP = new Set(["completed", "current", "upcoming"]);
+// `completed`/`current`/`upcoming` and the side-effect `done`/`pending`/`failed`
+// are also state enum values, so they are skipped.
+const SKIP = new Set(["completed", "current", "upcoming", "done", "pending", "failed"]);
 
 function walk(dir: string): string[] {
   return readdirSync(dir).flatMap((n) => {

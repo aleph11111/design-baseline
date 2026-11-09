@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.33.0
+
+- **Added:** archetype `Td` (`transaction-document`, page kind), exported from `design-baseline/archetypes/transaction-document`. `TransactionDocumentShell` is the page for a sales order, offer or purchase order: five typed slots placed by the shell and no free content slot — `identity` (number with copy, one status, one attention flag, a summary sentence, the document `chain`), `nextStep` (the only home of the primary action, plus its automatic `sideEffects` `{ label, state: done | pending | failed, link? }`; pinned to the bottom on a phone), `ledger` (columns declared per document type with a `priority`; columns that don't fit move into each row's second line, so it never scrolls sideways; editable mode via `onCellChange` on `editable` columns), `facts` (typed, locale-formatted, each with an optional Change link) and `history` (collapsed). Header `actions` take the typed model without `primary` (≤ 2 secondaries inline, the rest in ⋯). `locks` (slot) and `lock` (fact / ledger column) render a reason plus a way-out link. Helpers `fitColumns`, `parseFigure`. Contract: `docs/archetypes/transaction-document.md`; ADR-0014; scaffold with `design-baseline new-page transaction-document <Name>`.
+- **Added:** label keys `copyId`, `idCopied`, `documentChain`, `nextStep`, `runningAlongside`, `sideEffectDone`, `sideEffectPending`, `sideEffectFailed`, `ledger`, `ledgerItem`, `facts`, `history`, `locked` (`BaselineLabels`, En + De).
+- **Gallery:** `check:viewports` runs all three transaction-document demo documents at the triad and the sweep widths, asserting no sideways ledger scroll, the long title in full, and the pinned phone primary.
+- **Consumer:** none required. brickshop-manager can rebuild `/orders/:id`, the offer pages and the purchase-order page on `TransactionDocumentShell`. A custom `BaselineLabels` object must add the new keys.
+- **Breaking:** no, unless you build a full `BaselineLabels` object by hand (add the keys above).
+
 ## v0.32.0
 
 - **Added:** `design-baseline/testing/devices` exports `laptop14Window` (1133 x 739, scale 2, a real 14-inch MacBook Chrome window) and `widthSweep` (1024 / 1133 / 1280 at height 739). Invariant-only real-window widths, not delivery devices: `devices` and `playwrightProjects` still hold exactly `desk27`, `laptop14`, `phone`. `check:viewports` runs the page invariants for every `kind: page` archetype at each sweep width (no screenshots), with its own per-page-and-width `SWEEP_GAPS` map (docs/STYLE.md "The device triad").
