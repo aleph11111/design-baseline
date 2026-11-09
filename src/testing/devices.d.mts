@@ -8,5 +8,7 @@ export type DeviceName = "desk27" | "laptop14" | "phone";
 export declare const desk27: Device;
 export declare const laptop14: Device;
 export declare const phone: Device;
+export declare const laptop14Window: Device;
+export declare const widthSweep: ReadonlyArray<Device>;
 export declare const devices: Readonly<Record<DeviceName, Device>>;
 export declare const playwrightProjects: ReadonlyArray<{ readonly name: DeviceName; readonly use: Device }>;

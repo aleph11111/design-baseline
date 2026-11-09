@@ -28,7 +28,7 @@
  */
 
 import * as React from "react";
-import { FileText, MoreHorizontal, PanelLeft, Rows3 } from "lucide-react";
+import { FileText, PanelLeft, Rows3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PageFrame } from "@/components/layout";
 import { Button } from "@/components/ui/button";
@@ -252,21 +252,19 @@ export function DetailOverviewDemo(): React.ReactElement {
               <Badge variant="warning">Packing</Badge>
             </>
           }
-          actions={
-            <>
-              <Button variant="outline">
-                Invoice
-              </Button>
-              <Button
-                variant="ghost"
-                className="px-2"
-                aria-label="More actions"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-              <Button>Mark as shipped</Button>
-            </>
-          }
+          actions={{
+            // A real order header's nine verbs (check:viewports' width sweep
+            // exercises the header row in a ~780px column at 1133 wide).
+            primary: { label: "Mark as shipped" },
+            secondary: [
+              { label: "Create invoice" },
+              { label: "Print packing slip" },
+              { label: "Email customer" },
+              { label: "Edit order" },
+              { label: "Delete order", destructive: true },
+            ],
+            menu: [{ label: "Duplicate" }, { label: "Refund" }, { label: "Archive" }],
+          }}
           summary={
             <>
               {/* Revenue & profit at a glance — MetricList with a disclosure */}

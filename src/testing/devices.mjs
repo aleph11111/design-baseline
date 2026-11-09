@@ -29,6 +29,21 @@ export const phone = Object.freeze({
 
 export const devices = Object.freeze({ desk27, laptop14, phone });
 
+// Real-window widths, checked for layout invariants only — not delivery
+// devices, no pixel baselines, not in `devices` / `playwrightProjects`.
+
+/** A real 14-inch MacBook Chrome window (browser chrome + side panel). */
+export const laptop14Window = Object.freeze({
+  viewport: Object.freeze({ width: 1133, height: 739 }),
+  deviceScaleFactor: 2,
+  isMobile: false,
+  hasTouch: false,
+});
+
+/** The fragile 1024-1512 band where `sm` / `lg` viewport breakpoints switch (1512 is `laptop14`). */
+const atWidth = (width) => Object.freeze({ ...laptop14Window, viewport: Object.freeze({ width, height: 739 }) });
+export const widthSweep = Object.freeze([atWidth(1024), laptop14Window, atWidth(1280)]);
+
 /** Spread into a Playwright config: `projects: playwrightProjects`. */
 export const playwrightProjects = Object.freeze(
   Object.entries(devices).map(([name, use]) => Object.freeze({ name, use })),
