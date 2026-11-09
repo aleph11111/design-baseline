@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 // through the package's own export, as a consumer imports it
-import { devices, playwrightProjects, type DeviceName } from "design-baseline/testing/devices";
+import { devices, laptop14Window, playwrightProjects, widthSweep, type DeviceName } from "design-baseline/testing/devices";
 
 describe("device triad", () => {
   it("pins the three devices (STYLE.md 'The device triad')", () => {
@@ -15,5 +15,12 @@ describe("device triad", () => {
     const names: DeviceName[] = playwrightProjects.map((p) => p.name);
     expect(names).toEqual(["desk27", "laptop14", "phone"]);
     for (const p of playwrightProjects) expect(p.use).toBe(devices[p.name]);
+  });
+
+  it("pins the real-window sweep outside the triad", () => {
+    const win = { deviceScaleFactor: 2, isMobile: false, hasTouch: false };
+    expect(laptop14Window).toEqual({ viewport: { width: 1133, height: 739 }, ...win });
+    expect(widthSweep).toEqual([1024, 1133, 1280].map((width) => ({ viewport: { width, height: 739 }, ...win })));
+    expect(Object.keys(devices)).toEqual(["desk27", "laptop14", "phone"]);
   });
 });

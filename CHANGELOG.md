@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.32.0
+
+- **Added:** `design-baseline/testing/devices` exports `laptop14Window` (1133 x 739, scale 2, a real 14-inch MacBook Chrome window) and `widthSweep` (1024 / 1133 / 1280 at height 739). Invariant-only real-window widths, not delivery devices: `devices` and `playwrightProjects` still hold exactly `desk27`, `laptop14`, `phone`. `check:viewports` runs the page invariants for every `kind: page` archetype at each sweep width (no screenshots), with its own per-page-and-width `SWEEP_GAPS` map (docs/STYLE.md "The device triad").
+- **Gallery:** the detail-overview demo header uses typed actions (nine verbs incl. a destructive Delete order), so the sweep exercises a crowded header row at 1133 wide. Its triad pixel baselines changed accordingly.
+- **Consumer:** optional — a consumer's Playwright suite may call `assertPageInvariants(page, device)` at `widthSweep` too. No change needed.
+- **Breaking:** no.
+
 ## v0.31.0
 
 - **Added:** typed page-header actions on `PageFrame` (so every page shell): `actions={{ primary, secondary, menu, renderLink }}` with `HeaderAction = { label, onSelect?, href?, icon?, disabled?, destructive? }`. One shared renderer behind all three `PageFrame` paths (default `PageHeader`, nested `NestedPageHeading`, host-titled row) enforces the existing PLACEMENT.md rule: at most 1 primary + 2 secondary buttons inline, the rest behind one `⋯` menu (`RowActionsMenu` with a header trigger, label `headerActions` "More actions" / "Weitere Aktionen"), and a `destructive` action only inside that menu. `StructureBuilderShell` merges its History / Save into the typed form. `design-baseline/layout` exports `HeaderAction`, `HeaderActionItem`, `HeaderActions`, `isHeaderActions`, `MAX_SECONDARY_ACTIONS`. Living demo: "9 typed actions" in the `PageFrame` gallery entry.

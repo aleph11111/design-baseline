@@ -28,7 +28,7 @@
  */
 
 import * as React from "react";
-import { FileText, MoreHorizontal, PanelLeft, Rows3 } from "lucide-react";
+import { FileText, PanelLeft, Rows3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PageFrame } from "@/components/layout";
 import { Button } from "@/components/ui/button";
@@ -252,21 +252,23 @@ export function DetailOverviewDemo(): React.ReactElement {
               <Badge variant="warning">Packing</Badge>
             </>
           }
-          actions={
-            <>
-              <Button variant="outline">
-                Invoice
-              </Button>
-              <Button
-                variant="ghost"
-                className="px-2"
-                aria-label="More actions"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-              <Button>Mark as shipped</Button>
-            </>
-          }
+          actions={{
+            // A real order header's nine verbs. Inline: Create invoice, Print
+            // packing slip, Mark as shipped + the ⋯ menu (~494px). In the
+            // ~780px column at check:viewports' 1133 sweep width that exceeds
+            // HeadingRow's 60% actions cap, so the actions wrap to a second
+            // line beside the title (measured 2026-11-09: wraps at 1024/1133,
+            // one row from 1280) — the sweep checks the squeeze stays fixed.
+            primary: { label: "Mark as shipped" },
+            secondary: [
+              { label: "Create invoice" },
+              { label: "Print packing slip" },
+              { label: "Email customer" },
+              { label: "Edit order" },
+              { label: "Delete order", destructive: true },
+            ],
+            menu: [{ label: "Duplicate" }, { label: "Refund" }, { label: "Archive" }],
+          }}
           summary={
             <>
               {/* Revenue & profit at a glance — MetricList with a disclosure */}

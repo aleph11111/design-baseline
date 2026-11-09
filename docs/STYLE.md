@@ -710,6 +710,19 @@ real Chrome and asserts what needs no image baseline:
 - the desktop toolbar band is one row ("Toolbar field labels", desktop cap);
 - on `phone` the toolbar's filter fields live in the filter sheet, the navigation is a `BottomNav` or the sidebar sheet, and tap targets are at least 44px (a control's own box, its wrapping `<label>`, or its `TOUCH_TARGET_CLASS` hit area — "App touch density"; a link inside running text is exempt), and a tap 1px inside each edge of a target reaches that target, not a neighbour's hit area.
 
+**Real-window widths.** A real 14-inch MacBook Chrome window (browser chrome,
+a side panel) is about 1133 x 739 CSS px, and `AppShell` then leaves a content
+column near 780px — inside the 1024-1512 band where viewport breakpoints (`sm`,
+`lg`) switch and no triad device lands. The same export carries
+`laptop14Window` (1133 x 739, scale 2) and `widthSweep` (1024, 1133, 1280 at
+height 739, same flags). They are **not delivery devices**: they stay out of
+`devices` and `playwrightProjects`, get no pixel baselines and no contact-sheet
+entry. `check:viewports` runs the invariants above (no column check) for every
+`kind: "page"` archetype at each sweep width (the full-bleed marker check
+included). A sweep finding with a ticket sits
+in the script's own `SWEEP_GAPS`, keyed `<slug>@<width>:<code>`, so it never
+downgrades that code at the triad.
+
 Each run writes a contact sheet, `viewport-report/index.html` (gitignored), with
 every page at the three devices side by side, failures framed red. An invariant
 that fails donor-wide for a ticketed reason sits in the script's `KNOWN_GAPS`

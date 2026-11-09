@@ -1,6 +1,7 @@
 // Real-browser check of every `kind: page` archetype at the device triad
 // (desk27 / laptop14 / phone, src/testing/devices.mjs; docs/STYLE.md "The
-// device triad"). Asserts layout invariants that need no image baseline, keeps
+// device triad"), plus every page at the real laptop-window widthSweep
+// (invariants only). Asserts layout invariants that need no image baseline, keeps
 // AppShell's wide-desk column steps (ADR-0007 amendment 2026-09-29; this
 // absorbed check-desk-width.mjs), and writes a contact sheet of every page at
 // the three devices for operator review.
@@ -10,7 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
-import { devices } from "../src/testing/devices.mjs";
+import { devices, widthSweep } from "../src/testing/devices.mjs";
 import { checkPageInvariants } from "../src/testing/invariants.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -40,6 +41,11 @@ const STEPS = [
 // contact sheet, as a warning naming its ticket; delete the entry when the
 // ticket ships so the invariant fails again.
 const KNOWN_GAPS = {};
+// Sweep findings with a ticket, keyed `<slug>@<width>:<code>` → ticket slug.
+// Per page and width, so a sweep gap never downgrades a code at the triad.
+// Empty on purpose: the first sweep run (2026-11-09, 51/51 ok) found no
+// finding at any width — toolbarRows at 1024 included.
+const SWEEP_GAPS = {};
 
 const server = http.createServer((req, res) => {
   const p = path.join(DIST, req.url === "/" ? "index.html" : decodeURIComponent(req.url.split("?")[0]));
@@ -53,7 +59,7 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch({ executablePath: CHROME });
 const failures = [];
-const total = PAGES.length * Object.keys(devices).length + STEPS.length + 1 + 3 * Object.keys(devices).length; // + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench
+const total = PAGES.length * (Object.keys(devices).length + widthSweep.length) + STEPS.length + 1 + 3 * Object.keys(devices).length; // + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench
 let n = 0;
 const report = (label, { failures: bad, knownGaps: warn }) => {
   n++;
@@ -62,7 +68,7 @@ const report = (label, { failures: bad, knownGaps: warn }) => {
   if (bad.length) failures.push(label);
 };
 const fail = (message) => ({ failures: [message], knownGaps: [] });
-console.log(`viewports check: ${PAGES.length} pages x ${Object.keys(devices).length} devices + ${STEPS.length} column steps against ${DIST} (Chrome: ${CHROME})`);
+console.log(`viewports check: ${PAGES.length} pages x (${Object.keys(devices).length} devices + ${widthSweep.length} sweep widths ${widthSweep.map((d) => d.viewport.width).join("/")}) + ${STEPS.length} column steps against ${DIST} (Chrome: ${CHROME})`);
 
 const open = async (slug, device) => {
   const ctx = await browser.newContext(device);
@@ -89,6 +95,27 @@ for (const slug of PAGES) {
       await page.screenshot({ path: path.join(OUT, file), type: "jpeg", quality: 70, scale: "css" });
       shots.push({ slug, name, file, problems: [...result.failures, ...result.knownGaps] });
       report(label, result);
+    } catch (e) {
+      report(label, fail(e.message.split("\n")[0]));
+    } finally {
+      await ctx?.close();
+    }
+  }
+}
+
+// Real laptop-window widths (widthSweep, 1133 = laptop14Window): invariants
+// only — no column check, no screenshot, no contact-sheet entry.
+for (const slug of PAGES) {
+  for (const device of widthSweep) {
+    const w = device.viewport.width;
+    const label = `${slug} @ sweep ${w}`;
+    let ctx;
+    try {
+      let page;
+      ({ ctx, page } = await open(slug, device));
+      const prefix = `${slug}@${w}:`;
+      const gaps = Object.fromEntries(Object.entries(SWEEP_GAPS).filter(([k]) => k.startsWith(prefix)).map(([k, t]) => [k.slice(prefix.length), t]));
+      report(label, await checkPageInvariants(page, device, { knownGaps: gaps, fullBleed: FULL_BLEED.includes(slug) }));
     } catch (e) {
       report(label, fail(e.message.split("\n")[0]));
     } finally {

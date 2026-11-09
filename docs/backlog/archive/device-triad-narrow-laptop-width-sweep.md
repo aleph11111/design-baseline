@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-11-07
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "new export plus a sweep over every kind:page archetype; real layout defects may surface and need triage against the sweep's gaps map"
