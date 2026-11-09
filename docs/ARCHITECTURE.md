@@ -1,6 +1,6 @@
 # Architecture
 
-This is an initial architecture map for the design-baseline donor, drafted from a survey of the repo (not exhaustive — flagged where uncertain). See `docs/archetypes/README.md` and `docs/PLUGIN-CONTRACT.md` for the primary-source detail this summarizes.
+See `docs/archetypes/README.md` and `docs/PLUGIN-CONTRACT.md` for the primary-source detail this summarizes.
 
 ## 1. What this repo is, and isn't
 
@@ -125,30 +125,9 @@ Each page-kind archetype covers **12 layers** (route config → page shell → h
 
 ## 6. Promotion flow (source project → donor)
 
-```
-Source project (e.g. brickshop-manager)
-  Phase 1 Scope lock → Phase 2 Audit → Phase 3 Spec (locked, versioned) → Phase 4 Migration (≥1 page live)
-                                    │
-                                    ▼
-                     /promote-archetype <slug> [--update] [--source <path>]
-                       1. Maturity gate check (spec status=locked or governing ADR; version ≥ v1;
-                          --force-promote required, and must be explicitly added to the skill, to override)
-                       2. De-source-ification (strip domain types/routes/brand, generic names)
-                       3. Layer-by-layer review (12 or 15 questions, accept/edit/reject each)
-                       4. Sandbox second-consumer demo, domain-far nouns, types written first
-                       5. Write donor files: contract, primitives, demo, MANIFEST entry
-                                    │
-                                    ▼
-                     docs/archetypes/<slug>.md + src/components/archetypes/<slug>/
-                     + src/examples/<slug>-demo.tsx + MANIFEST.json entry
-                                    │
-                                    ▼
-                     Consumers: install the package, import design-baseline/archetypes/<slug>
-```
+Flow, gates and outputs are owned by the `/promote-archetype` command (the fleet's `commands/promote-archetype.md`); it writes `docs/archetypes/<slug>.md`, the primitives, the demo and the MANIFEST entry through a `/feat` worktree.
 
 `--update` diffs each layer between an advanced source spec and the current baseline, triaging each difference as generic-improvement (propagate), project-specific (stays in source), or spec-correction (propagate), then bumps versions and the MANIFEST.
-
-**Known gap (see the skill's own Notes):** `promote-archetype.md` was written when the donor was an unversioned directory; it still writes docs/MANIFEST directly rather than inside a `/feat` worktree, which the `block-main-checkout-tracked-write` hook will now reject on the primary checkout. The skill has not yet been rewired for this — flagged as a TODO in the skill file itself, not yet resolved.
 
 ## 7. Downstream consumption
 
@@ -162,4 +141,4 @@ The rubric in `docs/STYLE.md` ("The fleet audit rubric") defines a read-only, pe
 
 ## 9. Open questions / uncertainty
 
-- ADRs live under `docs/adr/` (index at `docs/adr/INDEX.md`; 0001–0007 as of 2026-10-01). [ADR 0001](adr/0001-grandfather-authored-report-calendar.md) grandfathers the baseline-authored `report`/`calendar` archetypes and serves as the "governing ADR" alternative the promotion maturity gate references; the rest cover the methodology docs (0002), the zero-dep adherence and Axis-C scanners (0003, 0005), appearance locality (0004), per-leaf `"use client"` (0006), and the fleet house look (0007).
+- ADRs live under `docs/adr/` (index at `docs/adr/INDEX.md`). [ADR 0001](adr/0001-grandfather-authored-report-calendar.md) grandfathers the baseline-authored `report`/`calendar` archetypes and serves as the "governing ADR" alternative the promotion maturity gate references; the rest cover the methodology docs (0002), the zero-dep adherence and Axis-C scanners (0003, 0005), appearance locality (0004), per-leaf `"use client"` (0006), and the fleet house look (0007).
