@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: 2026-11-09
-status: ready
+status: done
 value: normal
 gate:
   score: 5
