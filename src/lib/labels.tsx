@@ -70,6 +70,8 @@ export type BaselineLabels = {
   months: readonly string[];
   // Tables / lists
   rowActions: string;
+  /** `sr-only` label of the page header's `⋯` overflow-menu trigger. */
+  headerActions: string;
   selectAll: string;
   selectRow: string;
   selectRowNamed: (name: string | number) => string;
@@ -167,6 +169,7 @@ export const labelsEn: BaselineLabels = {
     "July", "August", "September", "October", "November", "December",
   ],
   rowActions: "Row actions",
+  headerActions: "More actions",
   selectAll: "Select all rows",
   selectRow: "Select row",
   selectRowNamed: (name) => `Select row: ${name}`,
@@ -261,6 +264,7 @@ export const labelsDe: BaselineLabels = {
     "Juli", "August", "September", "Oktober", "November", "Dezember",
   ],
   rowActions: "Zeilenaktionen",
+  headerActions: "Weitere Aktionen",
   selectAll: "Alle Zeilen auswählen",
   selectRow: "Zeile auswählen",
   selectRowNamed: (name) => `Zeile auswählen: ${name}`,

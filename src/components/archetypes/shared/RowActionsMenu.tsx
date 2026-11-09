@@ -20,7 +20,10 @@ import { useLabels } from "../../../lib/labels";
  */
 export type RowAction<Row> = {
   label: string | ((row: Row) => string);
-  onSelect: (row: Row) => void;
+  /** Fires on select. An item carries `onSelect`, `href`, or both. */
+  onSelect?: (row: Row) => void;
+  /** Navigate on select — rendered as a link through `renderLink`. */
+  href?: string;
   icon?: React.ComponentType<{ className?: string }>;
   destructive?: boolean;
   /** Disable the item (e.g. no permission, not applicable to this row). */
@@ -44,7 +47,6 @@ export type RowActionItem<Row> =
   | RowActionLabel;
 
 export type RowActionsMenuProps<Row> = {
-  row: Row;
   actions: RowActionItem<Row>[];
   /** Accessible label for the trigger. */
   triggerLabel?: string;
@@ -55,7 +57,25 @@ export type RowActionsMenuProps<Row> = {
    * row can currently accept an action at all.
    */
   triggerDisabled?: boolean;
-};
+  /**
+   * Renders an `href` item's link, to wire a framework router's `<Link>`
+   * without leaking the dependency into the baseline (the `renderBackLink`
+   * pattern). Must return one element that forwards props and ref (the menu
+   * item merges onto it). Defaults to a plain `<a>`.
+   */
+  renderLink?: (href: string, children: React.ReactNode) => React.ReactElement;
+} & ([Row] extends [void] ? { row?: Row } : { row: Row });
+
+/**
+ * Where the menu renders: a table row (the default) or a page header, which
+ * gets an outline trigger at header-button height. Derived from location —
+ * the header renderer sets it — never a call-site prop (ADR-0004).
+ */
+export const RowActionsTriggerContext = React.createContext<"row" | "header">("row");
+
+const defaultRenderLink = (href: string, children: React.ReactNode) => (
+  <a href={href}>{children}</a>
+);
 
 function isSeparator<Row>(item: RowActionItem<Row>): item is RowActionSeparator {
   return "separator" in item;
@@ -77,18 +97,26 @@ function isHeading<Row>(item: RowActionItem<Row>): item is RowActionLabel {
  * shape is representable without hand-rolling the `DropdownMenu`. A flat
  * `RowAction<Row>[]` still works unchanged.
  */
-export function RowActionsMenu<Row>({
-  row,
-  actions,
-  triggerLabel: triggerLabelProp,
-  triggerDisabled,
-}: RowActionsMenuProps<Row>): React.ReactElement {
+export function RowActionsMenu<Row>(props: RowActionsMenuProps<Row>): React.ReactElement {
+  const {
+    actions,
+    triggerLabel: triggerLabelProp,
+    triggerDisabled,
+    renderLink = defaultRenderLink,
+  } = props;
+  const row = (props as { row: Row }).row;
   const L = useLabels();
-  const triggerLabel = triggerLabelProp ?? L.rowActions;
+  const header = React.useContext(RowActionsTriggerContext) === "header";
+  const triggerLabel = triggerLabelProp ?? (header ? L.headerActions : L.rowActions);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8" disabled={triggerDisabled}>
+        <Button
+          variant={header ? "outline" : "ghost"}
+          size="icon"
+          className={header ? undefined : "h-8 w-8"}
+          disabled={triggerDisabled}
+        >
           <MoreHorizontal className="h-4 w-4" />
           <span className="sr-only">{triggerLabel}</span>
         </Button>
@@ -102,21 +130,27 @@ export function RowActionsMenu<Row>({
             return <DropdownMenuLabel key={`head-${i}`}>{item.label}</DropdownMenuLabel>;
           }
           const Icon = item.icon;
+          const content = (
+            <>
+              {Icon && <Icon className="mr-2 h-4 w-4" />}
+              {typeof item.label === "function" ? item.label(row) : item.label}
+            </>
+          );
+          const disabled =
+            typeof item.disabled === "function" ? item.disabled(row) : item.disabled;
           return (
             <DropdownMenuItem
               key={`act-${i}`}
-              disabled={
-                typeof item.disabled === "function" ? item.disabled(row) : item.disabled
-              }
-              onSelect={() => item.onSelect(row)}
+              disabled={disabled}
+              asChild={item.href != null && !disabled}
+              onSelect={() => item.onSelect?.(row)}
               className={
                 item.destructive
                   ? "text-status-danger-fg focus:text-status-danger-fg"
                   : undefined
               }
             >
-              {Icon && <Icon className="mr-2 h-4 w-4" />}
-              {typeof item.label === "function" ? item.label(row) : item.label}
+              {item.href != null && !disabled ? renderLink(item.href, content) : content}
             </DropdownMenuItem>
           );
         })}

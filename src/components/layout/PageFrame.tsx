@@ -26,6 +26,7 @@ import {
 } from "../ui/dropdown-menu";
 import { cn } from "../../lib/utils";
 import { useLabels } from "../../lib/labels";
+import { isHeaderActions, renderHeaderActions, type HeaderActions } from "./HeaderActions";
 
 /**
  * True inside a `PageFrame`. A `PageFrame` rendered inside another (a tabbed
@@ -34,6 +35,14 @@ import { useLabels } from "../../lib/labels";
  * renders, never a prop (ADR-0008 §1).
  */
 const PageFrameContext = React.createContext(false);
+
+/**
+ * @deprecated The rendered-node form of `PageFrame` `actions`: renders
+ * unchanged for one minor and bypasses the action hierarchy. Pass the typed
+ * `HeaderActions` form instead. Removal: backlog ticket
+ * `remove-pageframe-flat-actions-node-form`.
+ */
+export type LegacyHeaderActions = React.ReactNode;
 
 export type PageFrameProps = {
   /** The page title — passed once. Renders as the `PageHeader` `<h1>`
@@ -52,10 +61,17 @@ export type PageFrameProps = {
   renderBackLink?: PageHeaderProps["renderBackLink"];
   /**
    * Header actions — verbs on the whole page or document: the one primary
-   * action (create included), export, print. At most one primary and two
-   * secondary buttons; collapse the rest into a `⋯` menu.
+   * action (create included), export, print. Pass the typed form
+   * `{ primary, secondary, menu }`; the frame enforces the hierarchy on every
+   * path (default, nested, host-titled): at most one primary and two
+   * secondary buttons inline, the rest behind one `⋯` menu, and any
+   * `destructive` action only inside that menu. Page-header actions only —
+   * form/dialog footers keep Delete at their left edge (PLACEMENT.md).
+   *
+   * Rendered nodes (`<Button>`s) still render unchanged for one minor but
+   * bypass the hierarchy — see `LegacyHeaderActions`. Move to the typed form.
    */
-  actions?: React.ReactNode;
+  actions?: HeaderActions | LegacyHeaderActions;
   /**
    * The frame's toolbar band, left side — everything that **scopes** the body:
    * search, filters, scoping selectors, tabs. Keep these controls **controlled**
@@ -135,7 +151,7 @@ export function PageFrame({
   backHref,
   backLabel,
   renderBackLink,
-  actions,
+  actions: actionsProp,
   toolbar,
   viewSwitch,
   filterCount,
@@ -150,6 +166,7 @@ export function PageFrame({
 }: PageFrameProps): React.ReactElement {
   const L = useLabels();
   const viewOptionsLabel = viewOptionsLabelProp ?? L.view;
+  const actions = isHeaderActions(actionsProp) ? renderHeaderActions(actionsProp) : actionsProp;
   const nested = React.useContext(PageFrameContext);
   const hostTitled = React.useContext(HeadingHostContext);
   const isMobile = useIsMobile();

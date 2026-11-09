@@ -817,6 +817,26 @@ function PageFrameDemo() {
           {rows}
         </PageFrame>
       </Variant>
+      <Variant label="9 typed actions (incl. a destructive Delete Order) — 1 primary + 2 secondary inline, the rest and Delete behind ⋯">
+        <PageFrame
+          title="SO-2026-00053"
+          subtitle="Sales order · Acme Corp"
+          actions={{
+            primary: { label: "Ship" },
+            secondary: [
+              { label: "Edit" },
+              { label: "Print" },
+              { label: "Export" },
+              { label: "Invoice" },
+              { label: "Email" },
+              { label: "Delete Order", destructive: true },
+            ],
+            menu: [{ label: "Duplicate" }, { label: "Archive" }],
+          }}
+        >
+          {rows}
+        </PageFrame>
+      </Variant>
       <Variant label="toolbar wrapped in the app's own flex div — in the mobile filter sheet the three selects still stack one per row">
         <PageFrame
           title="Buchungen"

@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-11-07
-status: ready
+status: done
 value: normal
 depends_on: [heading-row-actions-squeeze-title-container-query]
 model: opus
