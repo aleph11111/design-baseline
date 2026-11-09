@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-07
-status: ready
+status: done
 value: high
 depends_on: [device-triad-narrow-laptop-width-sweep]
 model: opus
@@ -76,3 +76,13 @@ Operator decisions (2026-11-07, revised 2026-11-08 in the "Transaction documents
 - [ADR-0011](/docs/adr/0011-analytics-dashboard-edit-mode.md) — a variant of an existing archetype versus a new one
 - [ADR-0012](/docs/adr/0012-structure-builder-page-archetype.md) — precedent for a new `kind: page` archetype
 - [ADR-0001](/docs/adr/0001-grandfather-authored-report-calendar.md) — baseline never originates archetypes
+
+## Resolution (2026-11-09)
+
+Shipped as the new `kind: page` archetype **transaction-document (Td)** — ADR-0014, contract `docs/archetypes/transaction-document.md`, export `design-baseline/archetypes/transaction-document` (`TransactionDocumentShell`, `fitColumns`, `parseFigure`), demo `src/examples/transaction-document-demo.tsx`, template `templates/transaction-document.tsx`, MANIFEST `Td` 1.0 (`promoted_from: brickshop-manager`), package v0.33.0.
+
+- Five slots placed by the shell, no content slot — `TransactionDocumentShell.test.tsx` ("places identity, nextStep, ledger, facts and history").
+- One primary, only in nextStep; 9-action header shows 0 primary, 2 secondary, rest in ⋯ — same test file; a stray header primary is demoted (tested).
+- Per-type ledger columns; offer editable, sales order locked with reason + way-out — tested in the demo test.
+- `npm run check:viewports` 138/138: all three variants at desk27 / laptop14 / phone and sweep 1024 / 1133 / 1280, asserting no sideways ledger scroll, the long title in full, and the pinned phone primary while scrolled.
+- brickshop-manager adoption (`/orders/:id`, offers, purchase orders) is consumer work.

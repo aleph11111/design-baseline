@@ -58,8 +58,10 @@ const base = `http://localhost:${server.address().port}/#/a/`;
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch({ executablePath: CHROME });
+// transaction-document's three demo documents (demo radio label → contact-sheet slug).
+const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"]];
 const failures = [];
-const total = PAGES.length * (Object.keys(devices).length + widthSweep.length) + STEPS.length + 1 + 3 * Object.keys(devices).length; // + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench
+const total = PAGES.length * (Object.keys(devices).length + widthSweep.length) + STEPS.length + 1 + 3 * Object.keys(devices).length + TD_VARIANTS.length * (Object.keys(devices).length + widthSweep.length); // + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench + transaction-document variants
 let n = 0;
 const report = (label, { failures: bad, knownGaps: warn }) => {
   n++;
@@ -288,11 +290,60 @@ for (const [name, device] of Object.entries(devices)) {
   }
 }
 
+// transaction-document (contract "Acceptance gate"): each of the three demo
+// documents at the triad and the sweep widths — the ledger never scrolls
+// sideways, the long title shows in full, and on phone the nextStep primary
+// stays in the viewport while the page scrolls.
+for (const [radio, shot] of TD_VARIANTS) {
+  for (const [name, device] of [...Object.entries(devices), ...widthSweep.map((d) => [`sweep ${d.viewport.width}`, d])]) {
+    const label = `transaction-document ${radio} @ ${name}`;
+    let ctx;
+    try {
+      let page;
+      ({ ctx, page } = await open("transaction-document", device));
+      await page.getByRole("radio", { name: radio }).click();
+      await page.waitForTimeout(300); // ledger ResizeObserver settles
+      const triad = name in devices;
+      const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: triad ? COLUMN[name] : undefined, fullBleed: false });
+      const bad = [...result.failures];
+      const wide = await page.$$eval('[data-slot="td-ledger"], [data-slot="td-ledger"] *', (els) =>
+        els.filter((el) => ["auto", "scroll"].includes(getComputedStyle(el).overflowX) && el.scrollWidth > el.clientWidth + 1).map((el) => `<${el.tagName.toLowerCase()}> ${el.scrollWidth}>${el.clientWidth}`));
+      for (const w of wide) bad.push(`ledger: scrolls sideways ${w}`);
+      const title = await page.$eval(".db-content-column h1", (h) => {
+        const s = getComputedStyle(h);
+        return { cut: h.scrollWidth > h.clientWidth + 1 || h.scrollHeight > h.clientHeight + 1, ellipsis: s.textOverflow === "ellipsis" || s.webkitLineClamp !== "none" };
+      });
+      if (title.cut || title.ellipsis) bad.push("title: the long title is cut instead of shown in full");
+      if (name === "phone") {
+        const bar = page.locator('[data-slot="td-next-step-bar"] [data-slot="td-primary"]');
+        // scroll the middle of the page into view, whichever box scrolls
+        await page.$eval('[data-slot="td-facts"]', (el) => el.scrollIntoView({ block: "center" }));
+        await page.waitForTimeout(300);
+        const box = await bar.boundingBox();
+        const H = device.viewport.height;
+        if (!box) bad.push("phone: no pinned nextStep primary");
+        else if (box.y < H / 2 || box.y + box.height > H + 1) bad.push(`phone: nextStep primary at ${Math.round(box.y)}..${Math.round(box.y + box.height)}px, want pinned to the bottom of ${H}px`);
+        await page.$eval(".db-content-column h1", (el) => el.scrollIntoView());
+      }
+      if (triad) {
+        const file = `${shot}--${name}.jpg`;
+        await page.screenshot({ path: path.join(OUT, file), type: "jpeg", quality: 70, scale: "css", fullPage: true });
+        shots.push({ slug: shot, name, file, problems: [...bad, ...result.knownGaps] });
+      }
+      report(label, { failures: bad, knownGaps: result.knownGaps });
+    } catch (e) {
+      report(label, fail(e.message.split("\n")[0]));
+    } finally {
+      await ctx?.close();
+    }
+  }
+}
+
 await browser.close();
 server.close();
 
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-const rows = [...PAGES, "analytics-dashboard-edit", "matrix-grid-inspector", "matrix-grid-workbench"].map((slug) => {
+const rows = [...PAGES, "analytics-dashboard-edit", "matrix-grid-inspector", "matrix-grid-workbench", ...TD_VARIANTS.map(([, shot]) => shot)].map((slug) => {
   const cells = Object.keys(devices).map((name) => {
     const s = shots.find((x) => x.slug === slug && x.name === name);
     if (!s) return `<figure class="bad"><figcaption>${name}: not rendered</figcaption></figure>`;

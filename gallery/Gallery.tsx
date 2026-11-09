@@ -20,6 +20,7 @@ import {
   ListTree,
   MessageSquareWarning,
   Printer,
+  Receipt,
   Settings,
   TextCursorInput,
   UploadCloud,
@@ -68,6 +69,7 @@ const ICON_BY_SLUG: Record<string, LucideIcon> = {
   "raw-combobox": TextSearch,
   "print-statement": Printer,
   "structure-builder": ListTree,
+  "transaction-document": Receipt,
 };
 
 function toNavItem(a: ArchetypeEntry): NavItem {

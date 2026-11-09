@@ -102,6 +102,20 @@ export type BaselineLabels = {
   coverageComplete: string;
   coverageUnplaced: (count: number) => string;
   coverageDuplicates: (count: number) => string;
+  // Transaction document
+  copyId: (id: string) => string;
+  idCopied: string;
+  documentChain: string;
+  nextStep: string;
+  runningAlongside: string;
+  sideEffectDone: string;
+  sideEffectPending: string;
+  sideEffectFailed: string;
+  ledger: string;
+  ledgerItem: string;
+  facts: string;
+  history: string;
+  locked: string;
   // Wizard / progress
   commitImport: string;
   importing: string;
@@ -198,6 +212,19 @@ export const labelsEn: BaselineLabels = {
   coverageComplete: "Everything is placed",
   coverageUnplaced: (count) => `${count} not placed`,
   coverageDuplicates: (count) => `${count} placed twice`,
+  copyId: (id) => `Copy ${id}`,
+  idCopied: "Copied",
+  documentChain: "Related documents",
+  nextStep: "Next step",
+  runningAlongside: "Running alongside",
+  sideEffectDone: "done",
+  sideEffectPending: "pending",
+  sideEffectFailed: "failed",
+  ledger: "Lines",
+  ledgerItem: "Item",
+  facts: "Details",
+  history: "History",
+  locked: "Locked",
   commitImport: "Commit import",
   importing: "Importing…",
   completed: "completed",
@@ -293,6 +320,19 @@ export const labelsDe: BaselineLabels = {
   coverageComplete: "Alles ist zugeordnet",
   coverageUnplaced: (count) => `${count} nicht zugeordnet`,
   coverageDuplicates: (count) => `${count} doppelt zugeordnet`,
+  copyId: (id) => `${id} kopieren`,
+  idCopied: "Kopiert",
+  documentChain: "Zugehörige Belege",
+  nextStep: "Nächster Schritt",
+  runningAlongside: "Läuft automatisch mit",
+  sideEffectDone: "erledigt",
+  sideEffectPending: "ausstehend",
+  sideEffectFailed: "fehlgeschlagen",
+  ledger: "Positionen",
+  ledgerItem: "Artikel",
+  facts: "Angaben",
+  history: "Verlauf",
+  locked: "Gesperrt",
   commitImport: "Import abschließen",
   importing: "Wird importiert…",
   completed: "abgeschlossen",

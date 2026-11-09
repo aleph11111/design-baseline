@@ -65,6 +65,11 @@ describe("new-page templates", () => {
       error: "route-owned (contract Layer 7)",
       empty: "a missing entity is the route's notFound() (contract Layer 7)",
     },
+    "transaction-document": {
+      loading: "route-owned (contract Structure, States)",
+      error: "route-owned (contract Structure, States)",
+      empty: "a missing document is the route's notFound() (contract Structure, States)",
+    },
     "matrix-grid": {
       loading: "route-owned (README Layer 7: M delegates it)",
       error: "route-owned (README Layer 7: M delegates it)",

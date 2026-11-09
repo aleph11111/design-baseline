@@ -1,7 +1,7 @@
 ---
 slug: choosing-a-surface
 kind: methodology
-version: 2.4
+version: 2.5
 status: locked
 governs: [A, B, C, J, K, D3, F2, M]
 ---
@@ -195,6 +195,7 @@ across all of them.
 | Present a formal, itemized, printable document | **report (R)** | line items + totals, meant to be read / exported / printed | it's an interactive, editable set → **A** / **M**; it's a wide multi-page statement for print-to-PDF → **Pr** |
 | Print a wide financial statement to PDF | **print-statement (Pr)** | a print-only route with no app chrome; multi-column tables over several A4 pages, scope fixed by the route | it's one bounded invoice-shaped document → **R**; the user still re-scopes it with filters → **F** |
 | Build or edit a hierarchical structure from a pool of items | **structure-builder (Sb)** | an editable line tree (reorder, re-parent) beside a palette of items to place, a coverage check, versions and a template list with New / clone | the structure is only read → **F** / **R**; the rows are flat and edited one by one → **D2** / **A** |
+| Show one sales order, offer or purchase order and its next step | **transaction-document (Td)** | a document with a money table, a state machine and one next action; related documents form a chain (lead › offer › purchase order) | it's a record with free sections and no money table → **C**; it's a finished document to read or print → **R** / **Pr** |
 | Triage a time-ordered stream of events | **feed-inbox (H)** | scannable events / notifications, read-or-act | entries are anchored to dates you navigate → **calendar** |
 | Place time-anchored entries on a grid | **calendar** | day / week / month position carries meaning | order matters but the date does not → **H** |
 | Administer many records of one config kind | **settings-table (D2)** | CRUD over a lookup / config table (create/edit via **J**) | it's a handful of grouped options → **D3** / **F2** |
@@ -275,6 +276,11 @@ Template:
 ---
 
 ## Revision log
+
+- **2.5** (2026-11-09) — Part 2 adds **transaction-document (Td)**: a sales
+  order, offer or purchase order — five typed slots, one home per fact, the
+  primary action only in the next-step panel. Pick it over C when the record
+  is a document with a money table and a next step.
 
 - **2.4** (2026-11-05) — Part 2 adds **structure-builder (Sb)**: the editor
   for a hierarchical structure (a report's line tree) built from a palette of
