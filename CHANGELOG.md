@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.34.0
+
+- **Added:** `FeedbackButton` in `design-baseline/layout`: a floating button opening a keyboard-operable dialog (textarea, Ctrl/Cmd+Enter submits, pending and error states, closes only on success). It hands a typed `FeedbackPayload` (`text`, `appName`, `version`, `route`, `userId`, `userRole`, `userAgent`, `consoleErrors`, `timestamp`) to the app-supplied async `onSubmit`; it never sends mail itself. Also exported: pure `formatFeedbackMail(payload)` → `{ subject, body }` (subject `[feedback] <app>: <first line>`, free text first, then a labelled context block) and `installConsoleErrorBuffer()` (idempotent; keeps the last 10 `console.error` messages). No screenshot and no `html2canvas` in v1. Gallery entry: `FeedbackButton`.
+- **Consumer:** optional. Call `installConsoleErrorBuffer()` once at startup, mount `<FeedbackButton … onSubmit={…} />`, and send `formatFeedbackMail(payload)` to the intake mailbox from the backend.
+- **Breaking:** no.
+
 ## v0.33.0
 
 - **Added:** archetype `Td` (`transaction-document`, page kind), exported from `design-baseline/archetypes/transaction-document`. `TransactionDocumentShell` is the page for a sales order, offer or purchase order: five typed slots placed by the shell and no free content slot — `identity` (number with copy, one status, one attention flag, a summary sentence, the document `chain`), `nextStep` (the only home of the primary action, plus its automatic `sideEffects` `{ label, state: done | pending | failed, link? }`; pinned to the bottom on a phone), `ledger` (columns declared per document type with a `priority`; columns that don't fit move into each row's second line, so it never scrolls sideways; editable mode via `onCellChange` on `editable` columns), `facts` (typed, locale-formatted, each with an optional Change link) and `history` (collapsed). Header `actions` take the typed model without `primary` (≤ 2 secondaries inline, the rest in ⋯). `locks` (slot) and `lock` (fact / ledger column) render a reason plus a way-out link. Helpers `fitColumns`, `parseFigure`. Contract: `docs/archetypes/transaction-document.md`; ADR-0014; scaffold with `design-baseline new-page transaction-document <Name>`.

@@ -42,3 +42,13 @@ export { BottomNav, type BottomNavItem } from "./BottomNav";
 export { isNavPathActive } from "./navMatch";
 export { ThemeToggle, type ThemeToggleProps, type ThemeToggleLabels } from "./ThemeToggle";
 export { SurfaceHeaderBar, type SurfaceHeaderBarProps } from "./SurfaceHeaderBar";
+export {
+  FeedbackButton,
+  type FeedbackButtonProps,
+  type FeedbackButtonLabels,
+} from "./FeedbackButton";
+export {
+  formatFeedbackMail,
+  installConsoleErrorBuffer,
+  type FeedbackPayload,
+} from "./feedback";

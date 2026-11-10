@@ -8,6 +8,8 @@ import * as React from "react";
 import { Bell, Box, FileQuestion, Inbox, LogIn, Plus, Settings, ShieldX, User } from "lucide-react";
 import {
   AuthCard,
+  FeedbackButton,
+  formatFeedbackMail,
   MetricList,
   MetricRow,
   NestedPageHeading,
@@ -1120,6 +1122,31 @@ function AppHeaderPhoneDemo(): React.ReactElement {
   );
 }
 
+function FeedbackButtonDemo() {
+  const [mail, setMail] = React.useState<{ subject: string; body: string } | null>(null);
+  return (
+    <div className="relative min-h-64 space-y-3">
+      <p className="text-sm text-muted-foreground">
+        Click the floating button, write something, press Send (or Ctrl/Cmd+Enter). The demo's fake
+        transport shows the mail an app would send.
+      </p>
+      <FeedbackButton
+        appName="Demo app"
+        version="0.0.0-demo"
+        userId="u-123"
+        userRole="admin"
+        className="absolute bottom-0 right-0 h-11 w-11 rounded-full shadow-lg"
+        onSubmit={async (payload) => setMail(formatFeedbackMail(payload))}
+      />
+      {mail && (
+        <pre className="whitespace-pre-wrap rounded-md border bg-muted p-3 text-xs">
+          {`Subject: ${mail.subject}\n\n${mail.body}`}
+        </pre>
+      )}
+    </div>
+  );
+}
+
 export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "button-sizes", displayName: "Button sizes", Demo: ButtonSizesDemo },
   { slug: "page-frame", displayName: "PageFrame", Demo: PageFrameDemo },
@@ -1131,6 +1158,7 @@ export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "stat-tiles", displayName: "StatTileRow / StatTile", Demo: StatTilesDemo },
   { slug: "progress-tracker", displayName: "ProgressTracker", Demo: ProgressTrackerDemo },
   { slug: "metric-list", displayName: "MetricList / MetricRow", Demo: MetricListDemo },
+  { slug: "feedback-button", displayName: "FeedbackButton", Demo: FeedbackButtonDemo },
   { slug: "auth-card", displayName: "AuthCard", Demo: AuthCardDemo },
   { slug: "segmented-control", displayName: "SegmentedControl", Demo: SegmentedControlDemo },
   { slug: "toggle-field", displayName: "ToggleField", Demo: ToggleFieldDemo },
