@@ -1,16 +1,20 @@
 ---
 area: archetypes
 opened: '2026-11-10'
-status: needs-enrichment
+status: ready
+gate:
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-11-10T14:31:14.931Z'
 value: high
 model: opus
-model_reason: "design is the deliverable — grid-variant vs widget-kind tradeoff under ADR-0004 rule 12"
-gate:
-  score: 4
-  passed: [title, context, what-to-do, acceptance, related]
-  failed:
-    - open_question: "grid-variant vs paired-period widget fork auto-resolved to Recommended default — confirm before /feat"
-  graded_at: 2026-11-10T00:00:00Z
+model_reason: design is the deliverable — grid-variant vs widget-kind tradeoff under ADR-0004 rule 12
 ---
 
 # Archetype gap: analytics-dashboard paired month and YTD KPI tiles
@@ -37,8 +41,6 @@ gate:
 - [ADR-0004](/docs/adr/0004-appearance-locality-derived-vs-inherited.md) — appearance locality: fixed in the component unless derived
 - [ADR-0011](/docs/adr/0011-analytics-dashboard-edit-mode.md) — edit mode shares the grid and span keying rule
 
-## Open question
+## Decision (2026-11-10, operator delegated)
 
-Two ways to fix it; the first was asserted as the default:
-- (b) Paired-period widget kind (Recommended): the data shape (a metric with month + YTD) keys the widget, which satisfies rule 12 and leaves the grid's fixed columns alone.
-- (a) A 2-column `DashboardGrid` variant keyed by a derivable rule: needs a rule that picks 2 columns from the widgets' content, and a mixed grid (pairs plus ordinary widgets) has no such rule.
+(b) Paired-period widget kind. The data shape (one metric for two periods, month + YTD) keys the widget and its span (full width), so ADR-0004 rule 12 holds and `DashboardGrid` keeps its fixed columns. (a) is rejected: no derivable rule picks a 2-column grid when pairs and ordinary widgets share a page.
