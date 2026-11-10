@@ -87,6 +87,7 @@ what the widget *is* by this exhaustive rule (derived, not inherited — ADR-000
   first on the one-column layout). Being one cell, the pair never splits across
   grid rows, and full width makes two pairs two rows. The archetype's
   **period-pair** primitive fixes this width itself, so it takes no `span`.
+  Its Layer 7 states replace both figures inside the same cell.
 - **wide** — a **comparison / breakdown** widget whose body is multi-series or
   multi-category and becomes unreadable at one column: a conversion funnel, a
   stacked composition, a ranked bar list.

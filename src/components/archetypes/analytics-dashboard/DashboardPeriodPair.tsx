@@ -17,6 +17,12 @@ export type DashboardPeriodPairProps = {
   month: DashboardPeriodFigure;
   /** The year-to-date figure — always right (or second, when stacked). */
   ytd: DashboardPeriodFigure;
+  /**
+   * The widget's non-loaded state plane (contract Layer 7): a loading skeleton,
+   * the empty message or the error message with retry. Given, it replaces both
+   * figures inside the same cell; omit it once the figures are loaded.
+   */
+  state?: React.ReactNode;
   /** Edit mode (ADR-0011), as on `DashboardWidget`. */
   edit?: DashboardWidgetEdit;
   className?: string;
@@ -37,6 +43,7 @@ export function DashboardPeriodPair({
   actions,
   month,
   ytd,
+  state,
   edit,
   className,
 }: DashboardPeriodPairProps): React.ReactElement {
@@ -49,11 +56,14 @@ export function DashboardPeriodPair({
       edit={edit}
       className={className}
     >
-      {/* Cancel the cell's body gutter: each StatTile owns its own px-5 / py-4. */}
-      <div className="-mx-5 -mt-3 -mb-4 grid grid-cols-1 divide-y divide-border sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-        <StatTile {...month} />
-        <StatTile {...ytd} />
-      </div>
+      {state ?? (
+        // Cancel the cell's body gutter (SectionCard chromeless: px-5, title
+        // mb-3, section py-4): each StatTile owns its own px-5 / py-4.
+        <div className="-mx-5 -mt-3 -mb-4 grid grid-cols-1 divide-y divide-border sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+          <StatTile {...month} />
+          <StatTile {...ytd} />
+        </div>
+      )}
     </DashboardWidget>
   );
 }

@@ -168,7 +168,7 @@ function ChartPalette({ dark = false }: { dark?: boolean }): React.ReactElement 
 // Layer 7, the per-widget planes are page-composed inside the widget body via
 // the canonical StateView + a skeleton, not a primitive-owned prop.
 
-type WidgetKey = "revenue" | "channel" | "categories" | "funnel" | "figure";
+type WidgetKey = "revenue" | "channel" | "categories" | "funnel" | "figure" | "profit";
 type WidgetPlane = "loaded" | "loading" | "empty" | "error";
 type WidgetMode = "Loaded" | "Loading" | "Mixed";
 
@@ -180,6 +180,7 @@ const MIXED_PLANES: Record<WidgetKey, WidgetPlane> = {
   categories: "error",
   funnel: "loaded",
   figure: "loaded",
+  profit: "error",
 };
 
 function widgetPlane(key: WidgetKey, mode: WidgetMode): WidgetPlane {
@@ -241,7 +242,7 @@ type Tile = {
 
 const INITIAL_TILES: Tile[] = [
   { id: "gross", title: "Gross revenue", kind: "pair", body: "figure", pair: { month: "€58.9k", ytd: "€612k" } },
-  { id: "margin", title: "Gross profit", kind: "pair", body: "figure", pair: { month: "€21.3k", ytd: "€224k" } },
+  { id: "margin", title: "Gross profit", kind: "pair", body: "profit", pair: { month: "€21.3k", ytd: "€224k" } },
   { id: "revenue", title: "Revenue over time", kind: "trend", body: "revenue", description: "Trailing 12 months, net of refunds" },
   { id: "channel", title: "Orders by channel", kind: "figure", body: "channel" },
   { id: "categories", title: "Top categories", kind: "figure", body: "categories" },
@@ -491,6 +492,13 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
                   title={tile.title}
                   month={{ label: "Month", value: tile.pair?.month ?? "—", hint: "October" }}
                   ytd={{ label: "YTD", value: tile.pair?.ytd ?? "—", hint: "Jan – Oct" }}
+                  state={
+                    widgetPlane(tile.body, widgetMode) === "loaded" ? undefined : (
+                      <WidgetBody plane={widgetPlane(tile.body, widgetMode)} onRetry={retry}>
+                        {null}
+                      </WidgetBody>
+                    )
+                  }
                   edit={edit}
                 />
               ) : (

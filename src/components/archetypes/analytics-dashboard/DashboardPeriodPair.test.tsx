@@ -27,6 +27,20 @@ describe("DashboardPeriodPair — paired-period widget kind (contract 4.3)", () 
     expect(split.className).toContain("sm:grid-cols-2");
   });
 
+  it("renders a state plane in place of both figures", () => {
+    render(
+      <DashboardPeriodPair
+        title="Revenue"
+        month={{ label: "Month", value: "1" }}
+        ytd={{ label: "YTD", value: "10" }}
+        state={<p>Failed to load.</p>}
+      />,
+    );
+    expect(screen.getByText("Failed to load.")).toBeTruthy();
+    expect(screen.queryByText("Month")).toBeNull();
+    expect(screen.queryByText("YTD")).toBeNull();
+  });
+
   it("leaves the grid's fixed column count alone", () => {
     const { container } = render(
       <DashboardGrid>
