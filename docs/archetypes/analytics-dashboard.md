@@ -2,7 +2,7 @@
 key: G
 slug: analytics-dashboard
 kind: page
-version: 4.2
+version: 4.3
 promoted_from: fleet-audit-2026-06-13 (brickshop-manager, my-finance-app, hk-crm, mistra)
 promoted_at: 2026-06-14
 source_spec_version: 1.3
@@ -82,11 +82,21 @@ what the widget *is* by this exhaustive rule (derived, not inherited — ADR-000
 - **full width** — the page's single **primary trend** widget: the one
   time-series the whole dashboard is read against. At most one per page; a
   dashboard with no such series has none.
+- **full width** — a **paired-period** widget: one metric's month figure and
+  its year-to-date figure in one cell, month left, YTD right (stacked month
+  first on the one-column layout). Being one cell, the pair never splits across
+  grid rows, and full width makes two pairs two rows. The archetype's
+  **period-pair** primitive fixes this width itself, so it takes no `span`.
+  Its Layer 7 states replace both figures inside the same cell.
 - **wide** — a **comparison / breakdown** widget whose body is multi-series or
   multi-category and becomes unreadable at one column: a conversion funnel, a
   stacked composition, a ranked bar list.
 - **one column** — every other widget: a single figure, a short ranked list, a
   small table, a sparkline.
+
+Two separate one-column widgets for a month and a YTD figure are forbidden: the
+fixed column count wraps them so a pair can land split across two rows — use the
+paired-period widget.
 
 A widget that "looks cramped" is not grounds to widen it — either it matches one
 of the two wider kinds above, or its body is too dense for a widget and belongs on
@@ -173,12 +183,17 @@ can't see a metric; hide the "Edit layout" toggle from a role that can't edit.
 - [ ] Filter/date-range controls sit in `toolbar`, not scattered per widget.
 - [ ] Number formatting (currency, %, deltas) is consistent and tabular.
 - [ ] `span` follows Layer 6's widget span keying rule (primary trend full width ·
-      comparison/breakdown wide · everything else one column) — not a free choice,
+      comparison/breakdown wide · paired-period full width · everything else
+      one column) — not a free choice,
       and no widget inherits a width it did not state.
 
 ---
 
 ## Version log
+
+- **4.3** — paired-period widget kind: one metric's month and YTD figures in
+  one full-width cell (the period-pair primitive), added to the Layer 6 span
+  keying rule. The grid's column count is unchanged.
 
 - **4.2** (ADR-0011) — edit mode: inline rename, add / configure (consumer
   dialog) / remove / keyboard-operable reorder of widgets, and the assignment

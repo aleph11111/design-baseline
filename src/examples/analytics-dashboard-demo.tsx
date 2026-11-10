@@ -20,6 +20,9 @@
  * remove controls (keyboard-operable; drag-and-drop on top), opens a tile
  * config dialog that sets what a tile *is* (its span is derived from that),
  * and shows the assignment checklist after the grid.
+ *
+ * Paired periods: "Gross revenue" and "Gross profit" are <DashboardPeriodPair>s —
+ * one cell each, month left and YTD right, so a pair never splits across rows.
  */
 
 import * as React from "react";
@@ -28,6 +31,7 @@ import { Check, Download, LayoutGrid, Plus, Share2 } from "lucide-react";
 import {
   DashboardAssignmentList,
   DashboardGrid,
+  DashboardPeriodPair,
   DashboardShell,
   DashboardTitleEditor,
   DashboardWidget,
@@ -164,7 +168,7 @@ function ChartPalette({ dark = false }: { dark?: boolean }): React.ReactElement 
 // Layer 7, the per-widget planes are page-composed inside the widget body via
 // the canonical StateView + a skeleton, not a primitive-owned prop.
 
-type WidgetKey = "revenue" | "channel" | "categories" | "funnel" | "figure";
+type WidgetKey = "revenue" | "channel" | "categories" | "funnel" | "figure" | "profit";
 type WidgetPlane = "loaded" | "loading" | "empty" | "error";
 type WidgetMode = "Loaded" | "Loading" | "Mixed";
 
@@ -176,6 +180,7 @@ const MIXED_PLANES: Record<WidgetKey, WidgetPlane> = {
   categories: "error",
   funnel: "loaded",
   figure: "loaded",
+  profit: "error",
 };
 
 function widgetPlane(key: WidgetKey, mode: WidgetMode): WidgetPlane {
@@ -215,17 +220,29 @@ function WidgetBody({
 
 // What a tile *is* decides its span (contract Layer 6 keying rule) — the config
 // dialog picks the kind, never a width.
-type TileKind = "trend" | "breakdown" | "figure";
-const SPAN: Record<TileKind, 1 | 2 | 3> = { trend: 3, breakdown: 2, figure: 1 };
+// A "pair" tile renders as <DashboardPeriodPair>, which fixes its own (full) width.
+type TileKind = "pair" | "trend" | "breakdown" | "figure";
+const SPAN: Record<Exclude<TileKind, "pair">, 1 | 2 | 3> = { trend: 3, breakdown: 2, figure: 1 };
 const KIND_OPTIONS = [
+  { value: "pair", label: "Month + YTD pair (full width)" },
   { value: "trend", label: "Primary trend (full width)" },
   { value: "breakdown", label: "Comparison / breakdown (wide)" },
   { value: "figure", label: "Figure or short list (one column)" },
 ];
 
-type Tile = { id: string; title: string; kind: TileKind; body: WidgetKey; description?: string };
+type Tile = {
+  id: string;
+  title: string;
+  kind: TileKind;
+  body: WidgetKey;
+  description?: string;
+  /** Month and YTD values of a "pair" tile. */
+  pair?: { month: string; ytd: string };
+};
 
 const INITIAL_TILES: Tile[] = [
+  { id: "gross", title: "Gross revenue", kind: "pair", body: "figure", pair: { month: "€58.9k", ytd: "€612k" } },
+  { id: "margin", title: "Gross profit", kind: "pair", body: "profit", pair: { month: "€21.3k", ytd: "€224k" } },
   { id: "revenue", title: "Revenue over time", kind: "trend", body: "revenue", description: "Trailing 12 months, net of refunds" },
   { id: "channel", title: "Orders by channel", kind: "figure", body: "channel" },
   { id: "categories", title: "Top categories", kind: "figure", body: "categories" },
@@ -357,8 +374,8 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
           Widgets degrade independently — <strong>Widget states</strong> shows
           the loading/empty/error planes (per docs Layer 7). Widget width is not a
           control: each widget&apos;s <code>span</code> follows the contract&apos;s
-          widget-span keying rule (primary trend full width · breakdown wide ·
-          everything else one column). <strong>Edit layout</strong> shows the
+          widget-span keying rule (month + YTD pair full width · primary trend
+          full width · breakdown wide · everything else one column). <strong>Edit layout</strong> shows the
           edit mode (ADR-0011).
         </p>
         <div className="flex flex-wrap items-center gap-3">
@@ -458,30 +475,46 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
           />
         ) : (
           <DashboardGrid>
-            {tiles.map((tile, index) => (
-              <DashboardWidget
-                key={tile.id}
-                title={tile.title}
-                description={tile.description}
-                span={SPAN[tile.kind]}
-                edit={
-                  editing
-                    ? {
-                        name: tile.title,
-                        index,
-                        count: tiles.length,
-                        onMove: move,
-                        onConfigure: () => setConfiguring(tile),
-                        onRemove: () => setTiles((ts) => ts.filter((t) => t.id !== tile.id)),
-                      }
-                    : undefined
-                }
-              >
-                <WidgetBody plane={widgetPlane(tile.body, widgetMode)} onRetry={retry}>
-                  <TileChart body={tile.body} trend={k.trend} />
-                </WidgetBody>
-              </DashboardWidget>
-            ))}
+            {tiles.map((tile, index) => {
+              const edit = editing
+                ? {
+                    name: tile.title,
+                    index,
+                    count: tiles.length,
+                    onMove: move,
+                    onConfigure: () => setConfiguring(tile),
+                    onRemove: () => setTiles((ts) => ts.filter((t) => t.id !== tile.id)),
+                  }
+                : undefined;
+              return tile.kind === "pair" ? (
+                <DashboardPeriodPair
+                  key={tile.id}
+                  title={tile.title}
+                  month={{ label: "Month", value: tile.pair?.month ?? "—", hint: "October" }}
+                  ytd={{ label: "YTD", value: tile.pair?.ytd ?? "—", hint: "Jan – Oct" }}
+                  state={
+                    widgetPlane(tile.body, widgetMode) === "loaded" ? undefined : (
+                      <WidgetBody plane={widgetPlane(tile.body, widgetMode)} onRetry={retry}>
+                        {null}
+                      </WidgetBody>
+                    )
+                  }
+                  edit={edit}
+                />
+              ) : (
+                <DashboardWidget
+                  key={tile.id}
+                  title={tile.title}
+                  description={tile.description}
+                  span={SPAN[tile.kind]}
+                  edit={edit}
+                >
+                  <WidgetBody plane={widgetPlane(tile.body, widgetMode)} onRetry={retry}>
+                    <TileChart body={tile.body} trend={k.trend} />
+                  </WidgetBody>
+                </DashboardWidget>
+              );
+            })}
           </DashboardGrid>
         )}
 

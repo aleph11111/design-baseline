@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.35.0
+
+- **Added:** `DashboardPeriodPair` (analytics-dashboard contract v4.3, MANIFEST 4.5), exported from `design-baseline/archetypes/analytics-dashboard`, with types `DashboardPeriodPairProps` and `DashboardPeriodFigure`. One widget holds a metric's month and year-to-date figures (`title`, `month`, `ytd` as `StatTile` label / value / hint; optional `description`, `actions`, `edit`, and `state` — the Layer 7 loading / empty / error plane that replaces both figures in the same cell): month left, YTD right, stacked month first on the one-column layout. It takes no `span`: the Layer 6 keying rule fixes the paired-period kind at full width, so a pair never splits across grid rows and two pairs are two rows. `DashboardGrid` keeps its fixed 1 / 2 / 3 columns. Living demo: two pairs at the top of the analytics-dashboard gallery entry, plus a "Month + YTD pair" kind in its tile config dialog.
+- **Consumer:** controlling-app `/workspace/dashboard` replaces each month + YTD pair of one-column widgets with one `DashboardPeriodPair`.
+- **Breaking:** no.
+
 ## v0.34.0
 
 - **Added:** `FeedbackButton` in `design-baseline/layout`: a floating button opening a keyboard-operable dialog (textarea, Ctrl/Cmd+Enter submits, pending and error states, closes only on success). It hands a typed `FeedbackPayload` (`text`, `appName`, `version`, `route`, `userId`, `userRole`, `userAgent`, `consoleErrors`, `timestamp`) to the app-supplied async `onSubmit`; it never sends mail itself. Also exported: pure `formatFeedbackMail(payload)` → `{ subject, body }` (subject `[feedback] <app>: <first line>`, free text first, then a labelled context block) and `installConsoleErrorBuffer()` (idempotent; keeps the last 10 `console.error` messages). No screenshot and no `html2canvas` in v1. Gallery entry: `FeedbackButton`.
