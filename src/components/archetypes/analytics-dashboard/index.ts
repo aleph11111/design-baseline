@@ -1,6 +1,11 @@
 "use client";
 export { DashboardGrid, type DashboardGridProps } from "./DashboardGrid";
 export { DashboardWidget, type DashboardWidgetProps, type DashboardWidgetEdit } from "./DashboardWidget";
+export {
+  DashboardPeriodPair,
+  type DashboardPeriodPairProps,
+  type DashboardPeriodFigure,
+} from "./DashboardPeriodPair";
 export { DashboardShell, type DashboardShellProps } from "./DashboardShell";
 export { DashboardTitleEditor, type DashboardTitleEditorProps } from "./DashboardTitleEditor";
 export {
