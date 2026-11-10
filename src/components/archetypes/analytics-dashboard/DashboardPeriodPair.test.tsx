@@ -19,7 +19,7 @@ describe("DashboardPeriodPair — paired-period widget kind (contract 4.3)", () 
       expect(cell.className).toContain("sm:col-span-2");
       expect(cell.className).toContain("lg:col-span-3");
     }
-    const [month, ytd] = screen.getAllByText(/^(Month|YTD)$/).slice(0, 2);
+    const [month, ytd] = screen.getAllByText(/^(Month|YTD)$/) as [HTMLElement, HTMLElement];
     expect(month.textContent).toBe("Month");
     expect(ytd.textContent).toBe("YTD");
     const split = month.parentElement!.parentElement!;
