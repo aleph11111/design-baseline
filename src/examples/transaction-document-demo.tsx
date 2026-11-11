@@ -4,7 +4,8 @@
  * Three documents through one shell, switched by the demo control above it:
  * a sales order (nine actions, a long title, a ledger locked to BrickLink), an
  * offer in valuation (editable "Our offer" column, the offer's own columns)
- * and a purchase order. Each declares its own ledger columns; the shell
+ * and a purchase order (editable Cost with one cell locked to the accepted
+ * offer, lines added and removed inside the ledger). Each declares its own ledger columns; the shell
  * places every slot. Demo-only — not shipped in the package.
  */
 import * as React from "react";
@@ -174,23 +175,32 @@ function useOffer(): TransactionDocumentShellProps {
 // --- Purchase order ----------------------------------------------------------
 
 const PO_COLUMNS: LedgerColumn[] = [
-  { key: "cost", label: "Cost", kind: "currency", priority: 1 },
+  { key: "cost", label: "Cost", kind: "currency", priority: 1, editable: true },
   { key: "market", label: "Expected market value", kind: "currency", priority: 2 },
   { key: "margin", label: "Expected margin", kind: "percent", priority: 3 },
 ];
-const poLine = (id: string, label: string, detail: string, cost: number, market: number): LedgerRow => ({
+const poLine = (id: string, label: string, detail: string, cost: number | null, market: number | null): LedgerRow => ({
   id,
   label,
   detail,
-  values: { cost, market, margin: ((market - cost) / market) * 100 },
+  values: { cost, market, margin: cost != null && market ? ((market - cost) / market) * 100 : null },
 });
-const PO_ROWS = [
+const PO_SEED: LedgerRow[] = [
   poLine("a", "Ninjago City", "70620-1 · used", 195, 289),
   poLine("b", "Ghostbusters Firehouse", "75827-1 · used, no box", 225, 312),
-  poLine("c", "Assembly Square", "10255-1 · new", 180, 248),
+  {
+    ...poLine("c", "Assembly Square", "10255-1 · new", 180, 248),
+    // One cell locked, not the column: this price was agreed in the accepted offer.
+    locks: { cost: { reason: "Price agreed in the accepted offer.", wayOut: { label: "Open offer AN-2026-0077", href: "#" } } },
+    removable: false,
+    actions: [{ label: "Open in catalog", href: "#" }],
+  },
 ];
 
-function purchaseOrder(): TransactionDocumentShellProps {
+function usePurchaseOrder(): TransactionDocumentShellProps {
+  const [rows, setRows] = React.useState(PO_SEED);
+  const [added, setAdded] = React.useState(0);
+  const PO_ROWS = rows.map((r) => ({ ...r, ...poLine(r.id, r.label, r.detail ?? "", r.values.cost ?? null, r.values.market ?? null) }));
   return {
     title: "Purchase from Jana Petersen",
     backHref: "#",
@@ -212,7 +222,19 @@ function purchaseOrder(): TransactionDocumentShellProps {
         { label: "Stock lots created on receipt", state: "failed", link: { label: "Retry", onSelect: noop } },
       ],
     },
-    ledger: { columns: PO_COLUMNS, rows: PO_ROWS, totals: [poLine("total", "Total", "", sum(PO_ROWS, "cost"), sum(PO_ROWS, "market"))] },
+    ledger: {
+      columns: PO_COLUMNS,
+      rows: PO_ROWS,
+      totals: [poLine("total", "Total", "", sum(PO_ROWS, "cost"), sum(PO_ROWS, "market"))],
+      onCellChange: (rowId, key, value) =>
+        setRows((rs) => rs.map((r) => (r.id === rowId ? { ...r, values: { ...r.values, [key]: value } } : r))),
+      addRowLabel: "Add cost",
+      onAddRow: () => {
+        setAdded((n) => n + 1);
+        setRows((rs) => [...rs, poLine(`extra-${added + 1}`, "Extra cost", "postage, cleaning", 0, null)]);
+      },
+      onRemoveRow: (rowId) => setRows((rs) => rs.filter((r) => r.id !== rowId)),
+    },
     facts: [
       { label: "Seller", value: "Jana Petersen" },
       { label: "Accepted", value: new Date("2026-11-07T11:02:00"), kind: "date" },
@@ -226,7 +248,8 @@ function purchaseOrder(): TransactionDocumentShellProps {
 export function TransactionDocumentDemo() {
   const [variant, setVariant] = React.useState<Variant>("order");
   const offer = useOffer();
-  const props = variant === "order" ? salesOrder() : variant === "offer" ? offer : purchaseOrder();
+  const purchase = usePurchaseOrder();
+  const props = variant === "order" ? salesOrder() : variant === "offer" ? offer : purchase;
   return (
     <div className="space-y-5">
       {/* Demo control, not page chrome: switches between the three consumers. */}

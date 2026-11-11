@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-10
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "ledger API shape is the deliverable: row-level lock grammar, add/remove slots and per-row actions extend a shipped archetype contract"

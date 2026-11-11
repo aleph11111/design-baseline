@@ -64,6 +64,7 @@ describe("TransactionDocumentShell — the demo", () => {
       "Cost",
       "Expected market value",
       "Expected margin",
+      "Row actions",
     ]);
     expect(slot("td-side-effects").querySelectorAll("[data-state=failed]")).toHaveLength(1);
   });
@@ -124,6 +125,64 @@ describe("TransactionDocumentShell — rules", () => {
     expect(screen.queryByRole("link", { name: "Change" })).toBeNull();
     expect(screen.getByText("Label printed")).toBeTruthy();
     expect(screen.getByText("12,50 €")).toBeTruthy();
+  });
+});
+
+describe("TransactionDocumentShell — row locks, add and remove", () => {
+  const cols: LedgerColumn[] = [{ key: "cost", label: "Cost", kind: "currency", priority: 1, editable: true }];
+  const rows = [
+    { id: "item", label: "Set", values: { cost: 10 }, locks: { cost: { reason: "Cost comes from the stock lot.", wayOut: { label: "Open lot", href: "#" } } }, removable: false },
+    { id: "fee", label: "Fee", values: { cost: 5 } },
+  ];
+
+  it("a row lock makes one cell read-only with its reason; other rows stay editable", () => {
+    const onCellChange = vi.fn();
+    render(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onCellChange }} />);
+    expect(screen.queryByRole("textbox", { name: "Cost Set" })).toBeNull();
+    const note = screen.getByText(/Cost comes from the stock lot/).closest("[data-slot=td-lock]") as HTMLElement;
+    expect(note.textContent).toContain("Cost:");
+    expect(within(note).getByRole("link", { name: "Open lot" })).toBeTruthy();
+    const fee = screen.getByRole("textbox", { name: "Cost Fee" });
+    fireEvent.change(fee, { target: { value: "7" } });
+    fireEvent.keyDown(fee, { key: "Enter" });
+    expect(onCellChange).toHaveBeenCalledWith("fee", "cost", 7);
+    expect(onCellChange).toHaveBeenCalledTimes(1);
+  });
+
+  it("adds and removes lines inside the ledger; removable:false keeps a line", () => {
+    const onAddRow = vi.fn();
+    const onRemoveRow = vi.fn();
+    render(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onAddRow, addRowLabel: "Add cost", onRemoveRow }} />);
+    fireEvent.click(within(slot("td-ledger")).getByRole("button", { name: "Add cost" }));
+    expect(onAddRow).toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "Remove Set" })).toBeNull();
+    fireEvent.click(within(slot("td-ledger")).getByRole("button", { name: "Remove Fee" }));
+    expect(onRemoveRow).toHaveBeenCalledWith("fee");
+  });
+
+  it("a locked ledger hides add and remove", () => {
+    render(
+      <TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onAddRow: () => {}, onRemoveRow: () => {} }} locks={{ ledger: { reason: "Synced" } }} />,
+    );
+    expect(within(slot("td-ledger")).queryAllByRole("button")).toHaveLength(0);
+  });
+
+  it("without locks, onAddRow or onRemoveRow the ledger renders unchanged", () => {
+    render(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows: [{ id: "x", label: "X", values: { cost: 1 } }] }} />);
+    expect(within(slot("td-ledger")).queryAllByRole("button")).toHaveLength(0);
+    expect(within(slot("td-ledger")).getAllByRole("columnheader").map((h) => h.textContent)).toEqual(["Item", "Cost"]);
+    expect(slot("td-lock")).toBeNull();
+  });
+
+  it("the purchase-order demo locks one cost cell and adds/removes lines", () => {
+    render(<TransactionDocumentDemo />);
+    variant("Purchase order");
+    expect(screen.queryByRole("textbox", { name: "Cost Assembly Square" })).toBeNull();
+    expect(screen.getByRole("textbox", { name: "Cost Ninjago City" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Add cost" }));
+    expect(screen.getByRole("textbox", { name: "Cost Extra cost" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Remove Extra cost" }));
+    expect(screen.queryByRole("textbox", { name: "Cost Extra cost" })).toBeNull();
   });
 });
 

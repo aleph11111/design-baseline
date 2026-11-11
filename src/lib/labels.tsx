@@ -113,6 +113,7 @@ export type BaselineLabels = {
   sideEffectFailed: string;
   ledger: string;
   ledgerItem: string;
+  addLine: string;
   facts: string;
   history: string;
   locked: string;
@@ -222,6 +223,7 @@ export const labelsEn: BaselineLabels = {
   sideEffectFailed: "failed",
   ledger: "Lines",
   ledgerItem: "Item",
+  addLine: "Add line",
   facts: "Details",
   history: "History",
   locked: "Locked",
@@ -330,6 +332,7 @@ export const labelsDe: BaselineLabels = {
   sideEffectFailed: "fehlgeschlagen",
   ledger: "Positionen",
   ledgerItem: "Artikel",
+  addLine: "Position hinzufügen",
   facts: "Angaben",
   history: "Verlauf",
   locked: "Gesperrt",

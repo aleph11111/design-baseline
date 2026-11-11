@@ -53,6 +53,12 @@ export type TransactionLedger = {
   totals?: LedgerRow[];
   /** Editable mode: `editable` columns become inputs, committing through here. */
   onCellChange?: (rowId: string, columnKey: string, value: number | null) => void;
+  /** Add a line from inside the ledger (never from the header menu). */
+  onAddRow?: () => void;
+  /** The add control's label ("Add cost"); default "Add line". */
+  addRowLabel?: string;
+  /** Remove a line from inside the ledger; rows opt out with `removable: false`. */
+  onRemoveRow?: (rowId: string) => void;
 };
 
 /** One typed fact. `kind` picks the formatting; default `text`. */
@@ -188,6 +194,9 @@ export function TransactionDocumentShell({
               rows={ledger.rows}
               totals={ledger.totals}
               onCellChange={ledger.onCellChange}
+              onAddRow={ledger.onAddRow}
+              addRowLabel={ledger.addRowLabel}
+              onRemoveRow={ledger.onRemoveRow}
               locked={!!locks.ledger}
               locale={locale}
             />

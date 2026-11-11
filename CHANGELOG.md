@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.37.0
+
+- **Added:** transaction-document ledger cell locks and in-ledger add/remove (contract v1.1, MANIFEST 1.1). `LedgerRow.locks?: Record<columnKey, Lock>` closes one line's cell in an editable column — read-only value plus a `LockNote` naming the column, its reason and way out — while other lines stay editable. `TransactionLedger.onAddRow` (+ optional `addRowLabel`, default "Add line") renders the ledger's own add control; `onRemoveRow(rowId)` adds a remove control per line (`LedgerRow.removable: false` opts a line out). `LedgerRow.actions?: LinkAction[]` renders per-line links. A locked ledger shows neither add nor remove. Demo: the purchase order has editable Cost with one cell locked to the accepted offer and add/remove lines.
+- **Added:** label key `addLine` (`BaselineLabels`, En + De).
+- **Consumer:** brickshop-manager `/orders/:id` can lock item-line Cost cells with `locks: { cost: … }` and move Add cost / delete-line out of the header menu into `onAddRow` / `onRemoveRow`.
+- **Breaking:** no, unless you build a full `BaselineLabels` object by hand (add `addLine`).
+
 ## v0.36.0
 
 - **Added:** `DashboardPeriodPair` halves (`month` / `ytd`) accept `{ label, body, actions? }` (types `DashboardPeriodBody`, `DashboardPeriodHalf`) besides the figure form: the label is a sub-heading, `body` a chart, `actions` an edit button beside it. Contract v4.4, MANIFEST 4.6.
