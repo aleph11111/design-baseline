@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-11
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "API shape is the deliverable: ledger result row, nextStep tone and identity progress extend a shipped archetype contract, plus a layout decision (bounded column; section cards deferred to the surface ADR)"
