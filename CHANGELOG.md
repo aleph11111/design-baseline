@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.38.0
+
+- **Added:** transaction-document mockup fidelity (contract v1.2, MANIFEST 1.2). The shell bounds its content column (`max-w-4xl`) so ledger amounts stay beside their labels on wide screens. `TransactionLedger.result?: LedgerResult` (`{ label, value, kind, detail? }`, toned by its sign) renders one emphasized result line after the totals. `TransactionNextStep.tone?: TransactionNextStepTone` (`default | warning | danger | success`, contract-keyed to the state; omitted = the unchanged neutral panel) tones the panel; `_adherence.json` excludes it from `archetype-appearance-noun-prop` citing that keying rule. `TransactionIdentity.progress?: TransactionProgressStep[]` (`{ label, state: "done" | "current" | "pending" }`) renders one quiet ordered progress line under the summary, current step bold. Demo: the sales order declares Charged · Cost only, a Profit result line, a warning next step and a progress line.
+- **Added:** label key `documentProgress` (`BaselineLabels`, En + De).
+- **Not adopted:** the mockup's one-card-per-section — sections stay inside the frame's one raised surface (ADR-0008 §3, no card-in-card).
+- **Consumer:** brickshop-manager `/orders/:id` drops its per-line Profit/Margin columns for `ledger.result`, sets `nextStep.tone: "warning"` for stuck shipments, and passes `identity.progress`.
+- **Breaking:** no, unless you build a full `BaselineLabels` object by hand (add `documentProgress`). The Td page column is now bounded.
+
 ## v0.37.0
 
 - **Added:** transaction-document ledger cell locks and in-ledger add/remove (contract v1.1, MANIFEST 1.1). `LedgerRow.locks?: Record<columnKey, Lock>` closes one line's cell in an editable column — read-only value plus a `LockNote` naming the column, its reason and way out — while other lines stay editable. `TransactionLedger.onAddRow` (+ optional `addRowLabel`, default "Add line") renders the ledger's own add control; `onRemoveRow(rowId)` adds a remove control per line (`LedgerRow.removable: false` opts a line out). `LedgerRow.actions?: LinkAction[]` renders per-line links. A locked ledger shows neither add nor remove. Demo: the purchase order has editable Cost with one cell locked to the accepted offer and add/remove lines.

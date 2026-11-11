@@ -106,6 +106,7 @@ export type BaselineLabels = {
   copyId: (id: string) => string;
   idCopied: string;
   documentChain: string;
+  documentProgress: string;
   nextStep: string;
   runningAlongside: string;
   sideEffectDone: string;
@@ -216,6 +217,7 @@ export const labelsEn: BaselineLabels = {
   copyId: (id) => `Copy ${id}`,
   idCopied: "Copied",
   documentChain: "Related documents",
+  documentProgress: "Progress",
   nextStep: "Next step",
   runningAlongside: "Running alongside",
   sideEffectDone: "done",
@@ -325,6 +327,7 @@ export const labelsDe: BaselineLabels = {
   copyId: (id) => `${id} kopieren`,
   idCopied: "Kopiert",
   documentChain: "Zugehörige Belege",
+  documentProgress: "Fortschritt",
   nextStep: "Nächster Schritt",
   runningAlongside: "Läuft automatisch mit",
   sideEffectDone: "erledigt",

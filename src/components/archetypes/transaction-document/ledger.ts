@@ -2,10 +2,12 @@ import { formatFigure, type FigureKind } from "../../../lib/format";
 
 /**
  * One money column of the ledger, declared per document type (a sales order
- * declares Charged · Cost · Profit · Margin; an offer Their ask · Market · Max ·
+ * declares Charged · Cost; an offer Their ask · Market · Max ·
  * Our offer · Profit). `priority` orders which columns stay inline when the
  * ledger narrows: 1 is kept longest, higher numbers move first into each row's
  * second line. The column order on screen is the declaration order.
+ * Per-line Profit/Margin columns are optional: a sales order shows the result
+ * once, as the ledger's `result` line.
  */
 export type LedgerColumn = {
   key: string;
@@ -35,6 +37,19 @@ export type LedgerRow = {
   removable?: boolean;
   /** This line's own actions (Open lot, Split), rendered with the line. */
   actions?: LinkAction[];
+};
+
+/**
+ * The ledger's result line, after the totals: one labelled figure across the
+ * amount columns, with a sub-line (a sales order's Profit "39,99 €" with
+ * "22,7 % margin · target 20 %"). Its tone follows the sign: a profit is
+ * positive, a loss negative — nothing for the call site to choose.
+ */
+export type LedgerResult = {
+  label: string;
+  value: number;
+  kind: FigureKind;
+  detail?: string;
 };
 
 /** A way out of a lock, or any link the shell renders: a route or a handler. */

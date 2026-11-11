@@ -29,7 +29,7 @@ describe("TransactionDocumentShell — the demo", () => {
     const primaries = all.filter(isPrimary);
     expect(primaries).toHaveLength(1);
     expect(slot("td-next-step").contains(primaries[0]!)).toBe(true);
-    expect(primaries[0]!.textContent).toBe("Mark as shipped");
+    expect(primaries[0]!.textContent).toBe("Refresh tracking");
     const inHeader = headerButtons();
     expect(inHeader.filter(isPrimary)).toHaveLength(0);
     expect(inHeader.map((b) => b.textContent || b.getAttribute("aria-label"))).toEqual(
@@ -41,7 +41,14 @@ describe("TransactionDocumentShell — the demo", () => {
   it("declares ledger columns per document type; the sales order is locked, the offer editable", () => {
     render(<TransactionDocumentDemo />);
     const heads = () => within(slot("td-ledger")).getAllByRole("columnheader").map((h) => h.textContent);
-    expect(heads()).toEqual(["Item", "Charged", "Cost", "Profit", "Margin"]);
+    expect(heads()).toEqual(["Item", "Charged", "Cost"]);
+    // Total, then the one Profit result line with its sub-line; no em-dash column
+    const result = slot("td-ledger-result");
+    expect(result.getAttribute("data-tone")).toBe("positive");
+    expect(within(result).getByText("Profit")).toBeTruthy();
+    expect(result.textContent).toMatch(/293,91\s€/);
+    expect(result.textContent).toMatch(/25,9\s%\smargin · target 20 %/);
+    expect(slot("td-ledger").querySelector("table")!.textContent).not.toContain("—");
     expect(within(slot("td-ledger")).queryAllByRole("textbox")).toHaveLength(0);
     const lock = within(slot("td-ledger")).getByText(/Lines come from BrickLink/);
     expect(within(lock.closest("[data-slot=td-lock]") as HTMLElement).getByRole("link", { name: "Open in BrickLink" })).toBeTruthy();
@@ -125,6 +132,46 @@ describe("TransactionDocumentShell — rules", () => {
     expect(screen.queryByRole("link", { name: "Change" })).toBeNull();
     expect(screen.getByText("Label printed")).toBeTruthy();
     expect(screen.getByText("12,50 €")).toBeTruthy();
+  });
+});
+
+describe("TransactionDocumentShell — mockup fidelity", () => {
+  it("bounds the content column", () => {
+    const { container } = render(<TransactionDocumentShell {...base} />);
+    expect((container.firstElementChild as HTMLElement).className).toMatch(/\bmax-w-4xl\b/);
+  });
+
+  it("nextStep.tone warning renders the warning surface; omitted renders the neutral panel", () => {
+    render(<TransactionDocumentShell {...base} nextStep={{ ...base.nextStep, tone: "warning" }} />);
+    expect(slot("td-next-step").getAttribute("data-tone")).toBe("warning");
+    expect(slot("td-next-step").className).toMatch(/\bbg-status-warning-bg\b/);
+    cleanup();
+    render(<TransactionDocumentShell {...base} />);
+    expect(slot("td-next-step").getAttribute("data-tone")).toBe("default");
+    expect(slot("td-next-step").className).toMatch(/bg-muted\/30/);
+  });
+
+  it("identity.progress renders an ordered list, current step bold; omitted renders nothing", () => {
+    render(
+      <TransactionDocumentShell
+        {...base}
+        identity={{ ...base.identity, progress: [{ label: "Paid", state: "done" }, { label: "Packed", state: "current" }, { label: "Delivered", state: "pending" }] }}
+      />,
+    );
+    const list = screen.getByRole("list", { name: "Progress" });
+    expect(list.tagName).toBe("OL");
+    const current = list.querySelector("[aria-current=step]") as HTMLElement;
+    expect(current.textContent).toContain("Packed");
+    expect(current.className).toMatch(/\bfont-semibold\b/);
+    expect(list.textContent).toContain("Paid (done)");
+    cleanup();
+    render(<TransactionDocumentShell {...base} />);
+    expect(slot("td-progress")).toBeNull();
+  });
+
+  it("a negative result is toned negative (derived from the sign)", () => {
+    render(<TransactionDocumentShell {...base} ledger={{ ...base.ledger, result: { label: "Loss", value: -5, kind: "currency" } }} />);
+    expect(slot("td-ledger-result").getAttribute("data-tone")).toBe("negative");
   });
 });
 

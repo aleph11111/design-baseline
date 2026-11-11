@@ -10,7 +10,7 @@ import { useIsMobile } from "../../../hooks/use-mobile";
 import { formatFigure, type FigureKind } from "../../../lib/format";
 import { useLabels } from "../../../lib/labels";
 import { cn } from "../../../lib/utils";
-import type { LedgerColumn, LedgerRow, LinkAction, Lock } from "./ledger";
+import type { LedgerColumn, LedgerResult, LedgerRow, LinkAction, Lock } from "./ledger";
 import { LedgerTable } from "./LedgerTable";
 import { ActionLink, DocumentId, LockNote, RenderLinkContext, type RenderLink } from "./parts";
 
@@ -30,10 +30,26 @@ export type TransactionIdentity = {
    * existing document, one without is a step that doesn't exist yet.
    */
   chain?: { label: string; href?: string; onSelect?: () => void; current?: boolean }[];
+  /**
+   * Where the document stands in its own lifecycle, as one quiet ordered line
+   * under the summary (Placed · Paid · Packed · Label created · Carrier scan ·
+   * Delivered). Exactly one step should be `current`.
+   */
+  progress?: TransactionProgressStep[];
 };
+
+/** One lifecycle step of `identity.progress`. */
+export type TransactionProgressStep = { label: string; state: "done" | "current" | "pending" };
 
 /** An automatic side effect of the current state ("invoice created on payment"). */
 export type SideEffect = { label: string; state: "done" | "pending" | "failed"; link?: LinkAction };
+
+/**
+ * The next-step panel's surface, keyed to the state (contract "Next step"):
+ * a routine step → `default`; a problem the user must resolve → `warning`;
+ * a failed or blocked state → `danger`; the document is complete → `success`.
+ */
+export type TransactionNextStepTone = "default" | "warning" | "danger" | "success";
 
 /** The state-keyed next-step panel — the only home of the primary action. */
 export type TransactionNextStep = {
@@ -42,6 +58,12 @@ export type TransactionNextStep = {
   description?: React.ReactNode;
   /** The document's one primary action. */
   primary?: HeaderAction;
+  /**
+   * The panel's surface, keyed to the state (see `TransactionNextStepTone`).
+   * On `warning` / `danger` the title states the problem ("No carrier scan 8
+   * days after the label was created"). Omitted → `default`, the routine step.
+   */
+  tone?: TransactionNextStepTone;
   /** The automatic side effects running alongside this state. */
   sideEffects?: SideEffect[];
 };
@@ -51,6 +73,8 @@ export type TransactionLedger = {
   columns: LedgerColumn[];
   rows: LedgerRow[];
   totals?: LedgerRow[];
+  /** The one result line after the totals (a sales order's Profit with its margin). */
+  result?: LedgerResult;
   /** Editable mode: `editable` columns become inputs, committing through here. */
   onCellChange?: (rowId: string, columnKey: string, value: number | null) => void;
   /** Add a line from inside the ledger (never from the header menu). */
@@ -95,6 +119,16 @@ export type TransactionDocumentShellProps = Pick<PageFrameProps, "title" | "back
 
 const NONE = "—";
 
+/** The bounded content column: header and surface stop here on wide screens. */
+const COLUMN = "max-w-4xl";
+
+const NEXT_STEP_TONE = {
+  default: "bg-muted/30",
+  warning: "bg-status-warning-bg text-status-warning-fg",
+  danger: "bg-status-danger-bg text-status-danger-fg",
+  success: "bg-status-success-bg text-status-success-fg",
+} as const;
+
 /**
  * TransactionDocumentShell — the transaction-document (Td) page
  * (docs/archetypes/transaction-document.md): a sales order, offer or purchase
@@ -122,6 +156,8 @@ export function TransactionDocumentShell({
   const link = React.useContext(RenderLinkContext);
   const id = React.useId();
   const primary = locks.nextStep ? undefined : nextStep.primary;
+  const tone = nextStep.tone ?? "default";
+  const toned = tone !== "default";
   // The header never renders a primary: a stray one (the type forbids it, an
   // untyped caller may still pass it) is demoted to the first secondary.
   const header = actions as HeaderActions | undefined;
@@ -137,9 +173,10 @@ export function TransactionDocumentShell({
     </>
   );
   const subtitle =
-    identity.summary || identity.chain?.length ? (
+    identity.summary || identity.chain?.length || identity.progress?.length ? (
       <div className="space-y-1 text-sm">
         {identity.summary ? <p data-slot="td-summary">{identity.summary}</p> : null}
+        {identity.progress?.length ? <Progress steps={identity.progress} /> : null}
         {identity.chain?.length ? (
           <nav aria-label={L.documentChain} data-slot="td-chain">
             <ol className="flex flex-wrap items-center gap-x-1.5">
@@ -173,14 +210,20 @@ export function TransactionDocumentShell({
         badges={badges}
         subtitle={subtitle}
         actions={headerActions}
+        className={COLUMN}
       >
         <div data-slot="td-body" className="divide-y divide-border">
-          <section data-slot="td-next-step" aria-labelledby={`${id}-next`} className="space-y-3 bg-muted/30 p-4 md:p-5">
+          <section
+            data-slot="td-next-step"
+            aria-labelledby={`${id}-next`}
+            data-tone={tone}
+            className={cn("space-y-3 p-4 md:p-5", NEXT_STEP_TONE[tone])}
+          >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0 space-y-1">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{L.nextStep}</p>
+                <p className={cn("text-xs font-medium uppercase tracking-wide", !toned && "text-muted-foreground")}>{L.nextStep}</p>
                 <h2 id={`${id}-next`} className="text-base font-semibold">{nextStep.title}</h2>
-                {nextStep.description ? <div className="text-sm text-muted-foreground">{nextStep.description}</div> : null}
+                {nextStep.description ? <div className={cn("text-sm", !toned && "text-muted-foreground")}>{nextStep.description}</div> : null}
               </div>
               {!isMobile ? primaryButton : null}
             </div>
@@ -193,6 +236,7 @@ export function TransactionDocumentShell({
               columns={ledger.columns}
               rows={ledger.rows}
               totals={ledger.totals}
+              result={ledger.result}
               onCellChange={ledger.onCellChange}
               onAddRow={ledger.onAddRow}
               addRowLabel={ledger.addRowLabel}
@@ -253,6 +297,30 @@ function Slot({ name, title, lock, children }: { name: string; title: string; lo
       {lock ? <LockNote lock={lock} /> : null}
       {children}
     </section>
+  );
+}
+
+const PROGRESS_MARK = { done: "●", current: "●", pending: "○" } as const;
+const PROGRESS_TONE = { done: "text-success", current: "text-primary", pending: "text-muted-foreground/60" } as const;
+
+function Progress({ steps }: { steps: TransactionProgressStep[] }) {
+  const L = useLabels();
+  const stateLabel = { done: L.sideEffectDone, pending: L.sideEffectPending };
+  return (
+    <ol aria-label={L.documentProgress} data-slot="td-progress" className="flex flex-wrap gap-x-4 gap-y-1 pt-0.5 text-xs">
+      {steps.map((s) => (
+        <li
+          key={s.label}
+          data-state={s.state}
+          aria-current={s.state === "current" ? "step" : undefined}
+          className={s.state === "current" ? "font-semibold text-foreground" : undefined}
+        >
+          <span aria-hidden className={cn("mr-1", PROGRESS_TONE[s.state])}>{PROGRESS_MARK[s.state]}</span>
+          {s.label}
+          {s.state !== "current" ? <span className="sr-only"> ({stateLabel[s.state]})</span> : null}
+        </li>
+      ))}
+    </ol>
   );
 }
 

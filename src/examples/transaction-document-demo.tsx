@@ -2,7 +2,8 @@
  * transaction-document (Td) — sandbox demo.
  *
  * Three documents through one shell, switched by the demo control above it:
- * a sales order (nine actions, a long title, a ledger locked to BrickLink), an
+ * a sales order (nine actions, a long title, a ledger locked to BrickLink, a
+ * warning next step, a progress line and a Profit result line), an
  * offer in valuation (editable "Our offer" column, the offer's own columns)
  * and a purchase order (editable Cost with one cell locked to the accepted
  * offer, lines added and removed inside the ledger). Each declares its own ledger columns; the shell
@@ -11,6 +12,7 @@
 import * as React from "react";
 import { Copy, FileDown, Mail, Printer, RotateCcw, Truck, Undo2, XCircle, Gift, Send, PackageCheck } from "lucide-react";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { formatFigure } from "@/lib/format";
 import {
   TransactionDocumentShell,
   type LedgerColumn,
@@ -41,14 +43,12 @@ const sum = (rows: LedgerRow[], key: string) => rows.reduce((t, r) => t + (r.val
 const ORDER_COLUMNS: LedgerColumn[] = [
   { key: "charged", label: "Charged", kind: "currency", priority: 1 },
   { key: "cost", label: "Cost", kind: "currency", priority: 2 },
-  { key: "profit", label: "Profit", kind: "currency", priority: 3 },
-  { key: "margin", label: "Margin", kind: "percent", priority: 4 },
 ];
 const orderLine = (id: string, label: string, detail: string, charged: number, cost: number): LedgerRow => ({
   id,
   label,
   detail,
-  values: { charged, cost, profit: charged - cost, margin: ((charged - cost) / charged) * 100 },
+  values: { charged, cost },
 });
 const ORDER_ROWS = [
   orderLine("1", "Millennium Falcon (UCS)", "75192-1 · used, complete", 689, 512.4),
@@ -56,6 +56,8 @@ const ORDER_ROWS = [
   orderLine("3", "Shipping DHL Paket", "fee", 14.9, 9.49),
 ];
 const orderTotal = orderLine("total", "Total", "", sum(ORDER_ROWS, "charged"), sum(ORDER_ROWS, "cost"));
+const orderProfit = sum(ORDER_ROWS, "charged") - sum(ORDER_ROWS, "cost");
+const orderMargin = formatFigure((orderProfit / sum(ORDER_ROWS, "charged")) * 100, "percent", { locale: "de-DE" });
 
 function salesOrder(): TransactionDocumentShellProps {
   return {
@@ -64,10 +66,18 @@ function salesOrder(): TransactionDocumentShellProps {
     backLabel: "Orders",
     identity: {
       id: "SO-2026-0412",
-      status: "Paid",
+      status: "Shipped",
       attention: "Address unverified",
       summary: "BrickLink order from Bricks & Co.: two sets plus shipping.",
       chain: [{ label: "BrickLink order 2981734", href: "#" }, { label: "Sales order", current: true }, { label: "Invoice RE-2026-0388", href: "#" }],
+      progress: [
+        { label: "Placed 3 Nov", state: "done" },
+        { label: "Paid 4 Nov", state: "done" },
+        { label: "Packed 4 Nov", state: "done" },
+        { label: "Label created 4 Nov", state: "current" },
+        { label: "Carrier scan", state: "pending" },
+        { label: "Delivered", state: "pending" },
+      ],
     },
     actions: {
       secondary: [
@@ -84,16 +94,22 @@ function salesOrder(): TransactionDocumentShellProps {
       ],
     },
     nextStep: {
-      title: "Ship the order",
-      description: "Pack 2 sets, print the DHL label and hand the parcel over.",
-      primary: { label: "Mark as shipped", icon: Truck, onSelect: noop },
+      tone: "warning",
+      title: "No carrier scan 8 days after the label was created",
+      description: "DHL Paket 2 kg · 358086789302 · tracking last checked: never. Either the parcel was never handed over, or tracking is not being polled.",
+      primary: { label: "Refresh tracking", icon: Truck, onSelect: noop },
       sideEffects: [
         { label: "Invoice RE-2026-0388 created on payment", state: "done", link: { label: "Open", href: "#" } },
-        { label: "BrickLink status set to Shipped on ship", state: "pending" },
+        { label: "BrickLink status set to Shipped on carrier scan", state: "pending" },
         { label: "Tracking email to the customer", state: "pending" },
       ],
     },
-    ledger: { columns: ORDER_COLUMNS, rows: ORDER_ROWS, totals: [orderTotal] },
+    ledger: {
+      columns: ORDER_COLUMNS,
+      rows: ORDER_ROWS,
+      totals: [orderTotal],
+      result: { label: "Profit", value: orderProfit, kind: "currency", detail: `${orderMargin} margin · target 20 %` },
+    },
     locks: { ledger: { reason: "Lines come from BrickLink — change them there.", wayOut: { label: "Open in BrickLink", href: "#" } } },
     facts: [
       { label: "Customer", value: "Bricks & Co. Trading GmbH", change: { label: "Change", href: "#" } },

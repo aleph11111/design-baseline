@@ -424,7 +424,7 @@
       "slug": "transaction-document",
       "displayName": "Transaction document",
       "kind": "page",
-      "version": "1.1",
+      "version": "1.2",
       "promoted_from": "brickshop-manager",
       "promoted_at": "2026-11-09",
       "source_spec_version": "n/a (no source spec — fleet-synthesis promotion from brickshop-manager's /orders/:id page and the transaction-documents mockup; ADR-0014)",
