@@ -33,7 +33,8 @@ export type TransactionIdentity = {
   /**
    * Where the document stands in its own lifecycle, as one quiet ordered line
    * under the summary (Placed · Paid · Packed · Label created · Carrier scan ·
-   * Delivered). Exactly one step should be `current`.
+   * Delivered). Exactly one step should be `current`. A step names the stage
+   * only — its date lives in facts or history (one home per fact).
    */
   progress?: TransactionProgressStep[];
 };

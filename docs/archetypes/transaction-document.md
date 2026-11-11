@@ -52,7 +52,9 @@ order (Lead › Valuation › Offer › Purchase order): the current document ma
 as current, an existing document as a link, a step that doesn't exist yet as
 plain text. Optionally, the document's own **progress**: one quiet ordered
 line of lifecycle steps (Placed · Paid · Packed · Label created · Carrier scan
-· Delivered), each done, current or pending, the current step emphasized.
+· Delivered), each done, current or pending, the current step emphasized. A step names
+the stage only: its date lives once, in the facts or the history, never
+again in the progress line.
 
 **2 — Next step.** A panel keyed to the document's current state: what happens
 next, in one heading and an optional line, and the document's **one primary

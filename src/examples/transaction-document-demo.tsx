@@ -71,10 +71,11 @@ function salesOrder(): TransactionDocumentShellProps {
       summary: "BrickLink order from Bricks & Co.: two sets plus shipping.",
       chain: [{ label: "BrickLink order 2981734", href: "#" }, { label: "Sales order", current: true }, { label: "Invoice RE-2026-0388", href: "#" }],
       progress: [
-        { label: "Placed 3 Nov", state: "done" },
-        { label: "Paid 4 Nov", state: "done" },
-        { label: "Packed 4 Nov", state: "done" },
-        { label: "Label created 4 Nov", state: "current" },
+        // Bare stages: each date lives once, in facts or history (one home per fact).
+        { label: "Placed", state: "done" },
+        { label: "Paid", state: "done" },
+        { label: "Packed", state: "done" },
+        { label: "Label created", state: "current" },
         { label: "Carrier scan", state: "pending" },
         { label: "Delivered", state: "pending" },
       ],
