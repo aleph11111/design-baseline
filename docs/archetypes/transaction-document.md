@@ -2,7 +2,7 @@
 key: Td
 slug: transaction-document
 kind: page
-version: 1.0
+version: 1.1
 promoted_from: brickshop-manager
 promoted_at: 2026-11-09
 source_spec_version: n/a (no source spec — fleet-synthesis promotion from brickshop-manager's /orders/:id page and the transaction-documents mockup; ADR-0014)
@@ -74,6 +74,13 @@ declared editable are inputs (the offer's *Our offer*), committing on leave or
 Enter; an invalid entry stays marked until fixed or abandoned. Totals sit under
 the lines.
 
+**Lines are added and removed in the ledger** — never from the header menu or
+by clearing a cell. When the consumer supports it, the ledger carries its own
+add control (labelled for what it adds, e.g. *Add cost*) and a remove control
+on each line; a line that can't be dropped (an item line) opts out of removal.
+A line may also carry its **own actions** (open its stock lot), rendered with
+the line. A locked ledger shows neither add nor remove.
+
 **4 — Facts.** An auto-fitting grid of typed, locale-formatted values
 (customer, dates, payment, address, channel). Each fact may carry its own
 **Change** link.
@@ -93,14 +100,17 @@ demoted to a secondary.
 
 ## Locks
 
-Any slot (next step, ledger, facts) or single field (a fact, a ledger column)
-can be **locked**: it can't change on this page, for a stated **reason**, with
+Any slot (next step, ledger, facts) or single field (a fact, a ledger column,
+one ledger cell) can be **locked**: it can't change on this page, for a stated **reason**, with
 a **way out** — the link to where it *can* change ("Lines come from BrickLink —
 change them there"; "Address locked — create a replacement label"). The
 consumer supplies the locks, because they depend on status and sales channel;
 the shell renders every lock the same way. A locked ledger is read-only; a
 locked fact shows its lock instead of its Change link; a locked next step
-shows its lock instead of the primary action.
+shows its lock instead of the primary action. A **cell lock** closes one line's
+cell in an editable column (an item's cost taken from its stock lot) while the
+other lines stay editable: the cell shows its value read-only and the line
+shows the lock, naming the column, with its reason and way out.
 
 ---
 
@@ -165,7 +175,10 @@ shows its lock instead of the primary action.
       inline.
 - [ ] **Ledger columns declared for the document type**, with priorities.
 - [ ] **Every non-editable field that a user would expect to edit is a lock**
-      with a reason and a way out.
+      with a reason and a way out — down to a single ledger cell; never an
+      input that rejects the edit.
+- [ ] **Lines are added and removed inside the ledger**, not from the header
+      menu and not by clearing a cell.
 - [ ] **[spine] S1–S6**.
 
 **SHOULD** (yellow, not red)
@@ -180,3 +193,6 @@ shows its lock instead of the primary action.
 - **1.0** (2026-11-09) — initial contract: five slots, one home per fact, side
   effects in the next step, locks, per-type ledger columns with an editable
   mode; fleet-synthesis promotion from brickshop-manager; ADR-0014.
+- **1.1** (2026-11-11) — cell locks (one line's cell in an editable column);
+  lines added and removed inside the ledger, per-line actions; new REQUIRED
+  box for add/remove in the ledger.

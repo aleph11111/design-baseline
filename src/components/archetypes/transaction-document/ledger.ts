@@ -25,6 +25,16 @@ export type LedgerRow = {
   /** Compact second identifier under the label (a set number, a SKU). */
   detail?: string;
   values: Record<string, number | null | undefined>;
+  /**
+   * Cell locks, keyed by column `key`: this row's cell in that column can't be
+   * edited, for a stated reason (a cost taken from the stock lot). Same `Lock`
+   * and treatment as `LedgerColumn.lock`, scoped to one cell.
+   */
+  locks?: Record<string, Lock>;
+  /** With the ledger's `onRemoveRow`: `false` keeps this line (an item line that can't be dropped). */
+  removable?: boolean;
+  /** This line's own actions (Open lot, Split), rendered with the line. */
+  actions?: LinkAction[];
 };
 
 /** A way out of a lock, or any link the shell renders: a route or a handler. */

@@ -1,11 +1,13 @@
 "use client";
 import * as React from "react";
+import { Plus, Trash2 } from "lucide-react";
+import { Button } from "../../ui/button";
 import { CellInput } from "../../ui/cell-input";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "../../ui/table";
 import { formatFigure } from "../../../lib/format";
 import { useLabels } from "../../../lib/labels";
 import { fitColumns, parseFigure, type LedgerColumn, type LedgerRow } from "./ledger";
-import { LockNote } from "./parts";
+import { ActionLink, LockNote } from "./parts";
 
 export type LedgerTableProps = {
   columns: LedgerColumn[];
@@ -16,8 +18,17 @@ export type LedgerTableProps = {
   onCellChange?: (rowId: string, columnKey: string, value: number | null) => void;
   /** The whole ledger is locked: read-only, with the reason. */
   locked?: boolean;
+  /** Add a line: renders the ledger's own add control (hidden while locked). */
+  onAddRow?: () => void;
+  /** The add control's label; default "Add line". */
+  addRowLabel?: string;
+  /** Remove a line: each row (unless `removable: false`) gets a remove control. */
+  onRemoveRow?: (rowId: string) => void;
   locale: string;
 };
+
+/** Width of the trailing remove column, in px (`w-14`: a 44px touch target plus padding). */
+const REMOVE_COL = 56;
 
 /** Width of the ledger's own box; Infinity until measured (and in jsdom). */
 function useWidth(ref: React.RefObject<HTMLElement | null>): number {
@@ -39,11 +50,24 @@ function useWidth(ref: React.RefObject<HTMLElement | null>): number {
  * so the ledger never scrolls sideways: on a phone a line is its label and
  * first-priority amount, then the remaining columns underneath.
  */
-export function LedgerTable({ columns, rows, totals = [], onCellChange, locked = false, locale }: LedgerTableProps): React.ReactElement {
+export function LedgerTable({
+  columns,
+  rows,
+  totals = [],
+  onCellChange,
+  locked = false,
+  onAddRow,
+  addRowLabel,
+  onRemoveRow,
+  locale,
+}: LedgerTableProps): React.ReactElement {
   const L = useLabels();
   const ref = React.useRef<HTMLDivElement>(null);
-  const { inline, overflow } = fitColumns(columns, useWidth(ref));
-  const canEdit = (c: LedgerColumn) => !locked && !!onCellChange && !!c.editable && !c.lock;
+  const removing = !locked && !!onRemoveRow;
+  const { inline, overflow } = fitColumns(columns, useWidth(ref) - (removing ? REMOVE_COL : 0));
+  // A column is editable unless the ledger or the column is locked; a row lock then closes one cell.
+  const columnEditable = (c: LedgerColumn) => !locked && !!onCellChange && !!c.editable && !c.lock;
+  const canEdit = (c: LedgerColumn, row: LedgerRow) => columnEditable(c) && !row.locks?.[c.key];
 
   const value = (row: LedgerRow, c: LedgerColumn, editable: boolean) =>
     editable ? (
@@ -63,12 +87,24 @@ export function LedgerTable({ columns, rows, totals = [], onCellChange, locked =
       <TableCell className="min-w-0 align-top whitespace-normal">
         <div className="break-words">{row.label}</div>
         {row.detail ? <div className="text-xs text-muted-foreground">{row.detail}</div> : null}
+        {total
+          ? null
+          : columns
+              .filter((c) => row.locks?.[c.key] && columnEditable(c))
+              .map((c) => <LockNote key={c.key} lock={row.locks![c.key]!} field={c.label} />)}
+        {!total && row.actions?.length ? (
+          <div data-slot="td-ledger-row-actions" className="mt-1 flex flex-wrap gap-x-3 text-sm">
+            {row.actions.map((a) => (
+              <ActionLink key={a.label} action={a} />
+            ))}
+          </div>
+        ) : null}
         {overflow.length > 0 ? (
           <dl data-slot="td-ledger-more" className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
             {overflow.map((c) => (
               <div key={c.key} className="flex items-center gap-1">
                 <dt>{c.label}</dt>
-                <dd className="tabular-nums text-foreground">{value(row, c, !total && canEdit(c))}</dd>
+                <dd className="tabular-nums text-foreground">{value(row, c, !total && canEdit(c, row))}</dd>
               </div>
             ))}
           </dl>
@@ -76,9 +112,24 @@ export function LedgerTable({ columns, rows, totals = [], onCellChange, locked =
       </TableCell>
       {inline.map((c) => (
         <TableCell key={c.key} className="align-top text-right tabular-nums">
-          {value(row, c, !total && canEdit(c))}
+          {value(row, c, !total && canEdit(c, row))}
         </TableCell>
       ))}
+      {removing ? (
+        <TableCell className="px-1 align-top text-right">
+          {!total && row.removable !== false ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              aria-label={L.removeNamed(row.label)}
+              onClick={() => onRemoveRow!(row.id)}
+            >
+              <Trash2 aria-hidden />
+            </Button>
+          ) : null}
+        </TableCell>
+      ) : null}
     </TableRow>
   );
 
@@ -97,11 +148,22 @@ export function LedgerTable({ columns, rows, totals = [], onCellChange, locked =
                 {c.label}
               </TableHead>
             ))}
+            {removing ? (
+              <TableHead className="w-14">
+                <span className="sr-only">{L.rowActions}</span>
+              </TableHead>
+            ) : null}
           </TableRow>
         </TableHeader>
         <TableBody>{rows.map((r) => line(r, false))}</TableBody>
         {totals.length > 0 ? <TableFooter>{totals.map((r) => line(r, true))}</TableFooter> : null}
       </Table>
+      {onAddRow && !locked ? (
+        <Button type="button" variant="ghost" size="sm" data-slot="td-ledger-add" className="mt-2" onClick={onAddRow}>
+          <Plus aria-hidden />
+          {addRowLabel ?? L.addLine}
+        </Button>
+      ) : null}
     </div>
   );
 }
