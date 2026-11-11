@@ -2,7 +2,7 @@
 key: G
 slug: analytics-dashboard
 kind: page
-version: 4.3
+version: 4.4
 promoted_from: fleet-audit-2026-06-13 (brickshop-manager, my-finance-app, hk-crm, mistra)
 promoted_at: 2026-06-14
 source_spec_version: 1.3
@@ -87,7 +87,9 @@ what the widget *is* by this exhaustive rule (derived, not inherited — ADR-000
   first on the one-column layout). Being one cell, the pair never splits across
   grid rows, and full width makes two pairs two rows. The archetype's
   **period-pair** primitive fixes this width itself, so it takes no `span`.
-  Its Layer 7 states replace both figures inside the same cell.
+  Its Layer 7 states replace both figures inside the same cell. Each half is
+  either a figure or a free-form body (a chart) with its own sub-heading and an
+  optional per-half actions slot (edit button).
 - **wide** — a **comparison / breakdown** widget whose body is multi-series or
   multi-category and becomes unreadable at one column: a conversion funnel, a
   stacked composition, a ranked bar list.
@@ -190,6 +192,9 @@ can't see a metric; hide the "Edit layout" toggle from a role that can't edit.
 ---
 
 ## Version log
+
+- **4.4** — each half of the period-pair widget may carry a chart body (label,
+  body, optional actions) instead of a figure. Figure form unchanged.
 
 - **4.3** — paired-period widget kind: one metric's month and YTD figures in
   one full-width cell (the period-pair primitive), added to the Layer 6 span

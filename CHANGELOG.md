@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.36.0
+
+- **Added:** `DashboardPeriodPair` halves (`month` / `ytd`) accept `{ label, body, actions? }` (types `DashboardPeriodBody`, `DashboardPeriodHalf`) besides the figure form: the label is a sub-heading, `body` a chart, `actions` an edit button beside it. Contract v4.4, MANIFEST 4.6.
+- **Consumer:** controlling-app `/workspace/dashboard` renders each KPI's month + YTD chart tiles as one `DashboardPeriodPair` with chart-body halves.
+- **Breaking:** no. The figure form renders as in v0.35.0.
+
 ## v0.35.0
 
 - **Added:** `DashboardPeriodPair` (analytics-dashboard contract v4.3, MANIFEST 4.5), exported from `design-baseline/archetypes/analytics-dashboard`, with types `DashboardPeriodPairProps` and `DashboardPeriodFigure`. One widget holds a metric's month and year-to-date figures (`title`, `month`, `ytd` as `StatTile` label / value / hint; optional `description`, `actions`, `edit`, and `state` — the Layer 7 loading / empty / error plane that replaces both figures in the same cell): month left, YTD right, stacked month first on the one-column layout. It takes no `span`: the Layer 6 keying rule fixes the paired-period kind at full width, so a pair never splits across grid rows and two pairs are two rows. `DashboardGrid` keeps its fixed 1 / 2 / 3 columns. Living demo: two pairs at the top of the analytics-dashboard gallery entry, plus a "Month + YTD pair" kind in its tile config dialog.

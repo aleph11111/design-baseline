@@ -50,4 +50,28 @@ describe("DashboardPeriodPair — paired-period widget kind (contract 4.3)", () 
     const grid = container.querySelector(".grid") as HTMLElement;
     expect(grid.className).toContain("lg:grid-cols-3");
   });
+
+  it("takes { label, body, actions } halves: sub-headings, bodies, month before YTD, actions on one half only", () => {
+    const { container } = render(
+      <DashboardGrid>
+        <DashboardPeriodPair
+          title="EBITDA"
+          month={{ label: "Monat", body: <p>month chart</p>, actions: <button>Edit month</button> }}
+          ytd={{ label: "YTD", body: <p>ytd chart</p> }}
+        />
+        <DashboardPeriodPair title="EBIT" month={{ label: "Monat", body: <p>m2</p> }} ytd={{ label: "YTD", body: <p>y2</p> }} />
+      </DashboardGrid>,
+    );
+    const heads = screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent);
+    expect(heads.slice(0, 2)).toEqual(["Monat", "YTD"]);
+    const month = screen.getByText("month chart");
+    const ytd = screen.getByText("ytd chart");
+    expect(month.compareDocumentPosition(ytd) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const edit = screen.getByRole("button", { name: "Edit month" });
+    expect(edit.parentElement!.textContent).toContain("Monat");
+    expect(ytd.parentElement!.textContent).not.toContain("Edit month");
+    const cells = container.querySelectorAll("section");
+    expect(cells).toHaveLength(2);
+    for (const cell of cells) expect(cell.className).toContain("lg:col-span-3");
+  });
 });

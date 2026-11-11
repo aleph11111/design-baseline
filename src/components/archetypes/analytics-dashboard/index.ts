@@ -5,6 +5,8 @@ export {
   DashboardPeriodPair,
   type DashboardPeriodPairProps,
   type DashboardPeriodFigure,
+  type DashboardPeriodBody,
+  type DashboardPeriodHalf,
 } from "./DashboardPeriodPair";
 export { DashboardShell, type DashboardShellProps } from "./DashboardShell";
 export { DashboardTitleEditor, type DashboardTitleEditorProps } from "./DashboardTitleEditor";
