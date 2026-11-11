@@ -23,11 +23,12 @@
  *
  * Paired periods: "Gross revenue" and "Gross profit" are <DashboardPeriodPair>s —
  * one cell each, month left and YTD right, so a pair never splits across rows.
+ * "EBITDA" and "EBIT" are chart-body pairs (`{ label, body, actions }` halves).
  */
 
 import * as React from "react";
 import { StatTile, StatTileRow } from "@/components/layout";
-import { Check, Download, LayoutGrid, Plus, Share2 } from "lucide-react";
+import { Check, Download, LayoutGrid, Pencil, Plus, Share2 } from "lucide-react";
 import {
   DashboardAssignmentList,
   DashboardGrid,
@@ -89,6 +90,19 @@ function Sparkline({ values }: { values: number[] }) {
         vectorEffect="non-scaling-stroke"
       />
     </svg>
+  );
+}
+
+// Chart body of a pair half: actual / prior year / budget.
+function PairBars({ values }: { values: number[] }) {
+  return <Bars data={["Actual", "Prior year", "Budget"].map((label, i) => ({ label, value: values[i] ?? 0 }))} />;
+}
+
+function PairEdit({ name }: { name: string }) {
+  return (
+    <Button type="button" variant="ghost" size="icon-sm" aria-label={`Edit ${name}`}>
+      <Pencil />
+    </Button>
   );
 }
 
@@ -238,11 +252,15 @@ type Tile = {
   description?: string;
   /** Month and YTD values of a "pair" tile. */
   pair?: { month: string; ytd: string };
+  /** Chart-body pair: actual / prior year / budget bars per half instead of figures. */
+  bars?: { month: number[]; ytd: number[] };
 };
 
 const INITIAL_TILES: Tile[] = [
   { id: "gross", title: "Gross revenue", kind: "pair", body: "figure", pair: { month: "€58.9k", ytd: "€612k" } },
   { id: "margin", title: "Gross profit", kind: "pair", body: "profit", pair: { month: "€21.3k", ytd: "€224k" } },
+  { id: "ebitda", title: "EBITDA", kind: "pair", body: "figure", bars: { month: [12, 10, 11], ytd: [118, 104, 112] } },
+  { id: "ebit", title: "EBIT", kind: "pair", body: "figure", bars: { month: [9, 8, 9.5], ytd: [92, 85, 90] } },
   { id: "revenue", title: "Revenue over time", kind: "trend", body: "revenue", description: "Trailing 12 months, net of refunds" },
   { id: "channel", title: "Orders by channel", kind: "figure", body: "channel" },
   { id: "categories", title: "Top categories", kind: "figure", body: "categories" },
@@ -490,8 +508,16 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
                 <DashboardPeriodPair
                   key={tile.id}
                   title={tile.title}
-                  month={{ label: "Month", value: tile.pair?.month ?? "—", hint: "October" }}
-                  ytd={{ label: "YTD", value: tile.pair?.ytd ?? "—", hint: "Jan – Oct" }}
+                  month={
+                    tile.bars
+                      ? { label: "Month", body: <PairBars values={tile.bars.month} />, actions: <PairEdit name={`${tile.title} month`} /> }
+                      : { label: "Month", value: tile.pair?.month ?? "—", hint: "October" }
+                  }
+                  ytd={
+                    tile.bars
+                      ? { label: "YTD", body: <PairBars values={tile.bars.ytd} />, actions: <PairEdit name={`${tile.title} YTD`} /> }
+                      : { label: "YTD", value: tile.pair?.ytd ?? "—", hint: "Jan – Oct" }
+                  }
                   state={
                     widgetPlane(tile.body, widgetMode) === "loaded" ? undefined : (
                       <WidgetBody plane={widgetPlane(tile.body, widgetMode)} onRetry={retry}>
