@@ -308,9 +308,9 @@ function Progress({ steps }: { steps: TransactionProgressStep[] }) {
   const stateLabel = { done: L.sideEffectDone, pending: L.sideEffectPending };
   return (
     <ol aria-label={L.documentProgress} data-slot="td-progress" className="flex flex-wrap gap-x-4 gap-y-1 pt-0.5 text-xs">
-      {steps.map((s) => (
+      {steps.map((s, i) => (
         <li
-          key={s.label}
+          key={i} // positional: two steps may share a label (a re-pack)
           data-state={s.state}
           aria-current={s.state === "current" ? "step" : undefined}
           className={s.state === "current" ? "font-semibold text-foreground" : undefined}
