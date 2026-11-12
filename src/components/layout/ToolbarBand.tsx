@@ -316,13 +316,18 @@ function MobileBand({
         {count != null && (
           <span className="ml-auto shrink-0 text-sm text-muted-foreground">{count}</span>
         )}
-        {trailing != null && <div className="ml-auto flex shrink-0 items-center gap-2">{trailing}</div>}
         {viewOptions && (
           <ViewOptionsMenu label={viewOptionsLabel} iconOnly>
             {viewOptions}
           </ViewOptionsMenu>
         )}
       </div>
+      {trailing != null && (
+        // Shell actions (bulk, add) get their own wrapping line: they can be wider than the phone.
+        <div data-band-trailing="" className="flex flex-wrap items-center justify-end gap-2">
+          {trailing}
+        </div>
+      )}
     </div>
   );
 }

@@ -552,6 +552,8 @@ describe("SettingsTableBody — phone toolbar band", () => {
     expect(band.hasAttribute("data-toolbar-band")).toBe(true);
     expect(screen.getByRole("button", { name: /^Filter/ })).toBeTruthy();
     expect(screen.queryByLabelText("Search")).toBeNull();
-    expect(screen.getByRole("button", { name: /Add supplier/ })).toBeTruthy();
+    const add = screen.getByRole("button", { name: /Add supplier/ });
+    // Actions sit on their own wrapping line, so a wide bulk+add cluster cannot overflow the phone.
+    expect((add.closest("[data-band-trailing]") as HTMLElement).className).toContain("flex-wrap");
   });
 });
