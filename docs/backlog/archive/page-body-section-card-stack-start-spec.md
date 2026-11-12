@@ -2,7 +2,7 @@
 area: roadmap
 kind: ops
 opened: '2026-11-11'
-status: ready
+status: done
 gate:
   score: 5
   passed:
