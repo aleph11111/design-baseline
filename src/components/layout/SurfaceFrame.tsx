@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import type { ClassValue } from "clsx";
-import { RaisedSurfaceContext } from "./surface";
+import { RaisedSurfaceContext, useRaisedChrome } from "./surface";
 import { BandChrome, ToolbarLeadContext } from "./ToolbarBand";
 import { cn } from "../../lib/utils";
 
@@ -55,7 +55,7 @@ export function SurfaceFrame({
   className,
   ref,
 }: SurfaceFrameProps): React.ReactElement {
-  const nested = React.useContext(RaisedSurfaceContext);
+  const chrome = useRaisedChrome();
   // First card of a stack body: the page's band is this frame's first band.
   const lead = React.useContext(ToolbarLeadContext);
   const band = toolbar ?? lead;
@@ -76,7 +76,7 @@ export function SurfaceFrame({
         // (sr-only labels), so its overflow clips them instead of them
         // widening the page.
         "relative rounded-lg",
-        !nested && "border bg-surface-raised",
+        chrome,
         overflow === "auto" ? "overflow-x-auto" : "overflow-clip",
         className,
       )}

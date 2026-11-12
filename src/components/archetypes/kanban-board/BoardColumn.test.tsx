@@ -15,6 +15,18 @@ describe("BoardColumn", () => {
     expect(ref.current).toBeInstanceOf(HTMLElement);
   });
 
+  it("is an unbordered sunken grouping region, not a raised card", () => {
+    const { container } = render(<BoardColumn title="To do" />);
+    const cls = (container.firstChild as HTMLElement).className;
+    expect(cls).toContain("bg-surface-sunken");
+    expect(cls).not.toMatch(/\bborder\b|bg-surface-raised/);
+  });
+
+  it("keeps the dashed empty drop zone", () => {
+    render(<BoardColumn title="To do" empty emptyContent="Drop here" />);
+    expect(screen.getByTestId("board-column-empty").className).toContain("border-dashed");
+  });
+
   it("renders the title and count in the header", () => {
     render(<BoardColumn title="To do" count={2} />);
     expect(screen.getByText("To do")).toBeTruthy();

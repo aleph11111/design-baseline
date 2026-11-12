@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { RaisedSurfaceContext } from "./surface";
+import { RaisedSurfaceContext, useRaisedChrome } from "./surface";
 import { cn } from "../../lib/utils";
 
 const SM_COLS_MAP: Record<2 | 3 | 4, string> = {
@@ -48,13 +48,13 @@ export function StatTileRow({
 
   // Raised surface: a hairline border on the canvas; nested in another raised
   // surface it drops border and fill (ADR-0015).
-  const nested = React.useContext(RaisedSurfaceContext);
+  const chrome = useRaisedChrome();
 
   return (
     <div
       className={cn(
         "overflow-hidden rounded-lg text-card-foreground",
-        !nested && "border bg-surface-raised",
+        chrome,
         "grid grid-cols-1 divide-y divide-border sm:divide-x sm:divide-y-0",
         SM_COLS_MAP[columns],
         className,

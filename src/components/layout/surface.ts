@@ -9,6 +9,15 @@ import * as React from "react";
 export const RaisedSurfaceContext = React.createContext(false);
 
 /**
+ * The raised-surface chrome (ADR-0015 rules 1–2): hairline `border` and the
+ * `surface-raised` fill on the canvas; `undefined` nested in another raised
+ * surface (no card-in-card). The radius stays with each caller.
+ */
+export function useRaisedChrome(): string | undefined {
+  return React.useContext(RaisedSurfaceContext) ? undefined : "border bg-surface-raised";
+}
+
+/**
  * Marker class on the root of a full-bleed archetype shell (`matrix-grid`,
  * `list-with-detail`, `kanban-board`, `calendar`, `statement-with-filters` — the closed set of ADR-0007
  * §1). `AppShell`'s content column drops its max width when it contains one,

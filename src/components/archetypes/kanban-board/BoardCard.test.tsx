@@ -15,6 +15,14 @@ describe("BoardCard", () => {
     expect(ref.current).toBeInstanceOf(HTMLElement);
   });
 
+  it("is a raised card on the canvas: border, raised fill, rounded-lg", () => {
+    const { container } = render(<BoardCard>Card</BoardCard>);
+    const cls = (container.firstChild as HTMLElement).className;
+    expect(cls).toMatch(/\bborder\b/);
+    expect(cls).toContain("bg-surface-raised");
+    expect(cls).toContain("rounded-lg");
+  });
+
   it("spreads the consumer's DnD attributes onto the root", () => {
     const { container } = render(<BoardCard draggable />);
     expect((container.firstChild as HTMLElement)?.getAttribute("draggable")).toBe(
