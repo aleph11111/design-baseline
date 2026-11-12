@@ -6,7 +6,7 @@ import { CellInput } from "../../ui/cell-input";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "../../ui/table";
 import { formatFigure } from "../../../lib/format";
 import { useLabels } from "../../../lib/labels";
-import { fitColumns, parseFigure, type LedgerColumn, type LedgerRow } from "./ledger";
+import { fitColumns, parseFigure, type LedgerColumn, type LedgerResult, type LedgerRow } from "./ledger";
 import { ActionLink, LockNote } from "./parts";
 
 export type LedgerTableProps = {
@@ -14,6 +14,8 @@ export type LedgerTableProps = {
   rows: LedgerRow[];
   /** Total line(s) under the rows, e.g. one "Total". */
   totals?: LedgerRow[];
+  /** The result line after the totals (a sales order's Profit). */
+  result?: LedgerResult;
   /** Editable mode: set to make `editable` columns inputs (unless locked). */
   onCellChange?: (rowId: string, columnKey: string, value: number | null) => void;
   /** The whole ledger is locked: read-only, with the reason. */
@@ -54,6 +56,7 @@ export function LedgerTable({
   columns,
   rows,
   totals = [],
+  result,
   onCellChange,
   locked = false,
   onAddRow,
@@ -156,7 +159,12 @@ export function LedgerTable({
           </TableRow>
         </TableHeader>
         <TableBody>{rows.map((r) => line(r, false))}</TableBody>
-        {totals.length > 0 ? <TableFooter>{totals.map((r) => line(r, true))}</TableFooter> : null}
+        {totals.length > 0 || result ? (
+          <TableFooter>
+            {totals.map((r) => line(r, true))}
+            {result ? <ResultLine result={result} span={inline.length + (removing ? 1 : 0)} locale={locale} /> : null}
+          </TableFooter>
+        ) : null}
       </Table>
       {onAddRow && !locked ? (
         <Button type="button" variant="ghost" size="sm" data-slot="td-ledger-add" className="mt-2" onClick={onAddRow}>
@@ -165,6 +173,30 @@ export function LedgerTable({
         </Button>
       ) : null}
     </div>
+  );
+}
+
+const RESULT_TONE = {
+  positive: "bg-status-success-bg hover:bg-status-success-bg text-status-success-fg",
+  negative: "bg-status-danger-bg hover:bg-status-danger-bg text-status-danger-fg",
+} as const;
+
+/** The ledger's one result line: label, then the figure and its sub-line across the amount columns. */
+function ResultLine({ result, span, locale }: { result: LedgerResult; span: number; locale: string }) {
+  const tone = result.value < 0 ? "negative" : "positive";
+  return (
+    <TableRow data-slot="td-ledger-result" data-tone={tone} className={RESULT_TONE[tone]}>
+      {/* One cell across the row: the figure never squeezes into one fixed amount column (phone). */}
+      <TableCell colSpan={span + 1} className="whitespace-normal">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <span className="font-semibold">{result.label}</span>
+          <span className="ml-auto text-right">
+            <span className="text-lg font-bold tabular-nums whitespace-nowrap">{formatFigure(result.value, result.kind, { locale })}</span>
+            {result.detail ? <span className="ml-2.5 text-sm">{result.detail}</span> : null}
+          </span>
+        </div>
+      </TableCell>
+    </TableRow>
   );
 }
 

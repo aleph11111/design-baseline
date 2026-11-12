@@ -7,6 +7,8 @@ export type {
   TransactionLedger,
   TransactionFact,
   SideEffect,
+  TransactionProgressStep,
+  TransactionNextStepTone,
 } from "./TransactionDocumentShell";
 export { fitColumns, parseFigure } from "./ledger";
-export type { LedgerColumn, LedgerRow, LinkAction, Lock } from "./ledger";
+export type { LedgerColumn, LedgerResult, LedgerRow, LinkAction, Lock } from "./ledger";

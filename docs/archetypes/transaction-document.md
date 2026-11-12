@@ -2,7 +2,7 @@
 key: Td
 slug: transaction-document
 kind: page
-version: 1.1
+version: 1.2
 promoted_from: brickshop-manager
 promoted_at: 2026-11-09
 source_spec_version: n/a (no source spec — fleet-synthesis promotion from brickshop-manager's /orders/:id page and the transaction-documents mockup; ADR-0014)
@@ -50,11 +50,22 @@ and **at most one attention flag**. Under it: **one sentence** saying what the
 document is, and the optional **document chain** — the related documents in
 order (Lead › Valuation › Offer › Purchase order): the current document marked
 as current, an existing document as a link, a step that doesn't exist yet as
-plain text.
+plain text. Optionally, the document's own **progress**: one quiet ordered
+line of lifecycle steps (Placed · Paid · Packed · Label created · Carrier scan
+· Delivered), each done, current or pending, the current step emphasized. A step names
+the stage only: its date lives once, in the facts or the history, never
+again in the progress line.
 
 **2 — Next step.** A panel keyed to the document's current state: what happens
 next, in one heading and an optional line, and the document's **one primary
-action**. It is the **only** place a primary action renders. Under it, the
+action**. It is the **only** place a primary action renders. The panel has a
+**tone**, keyed to the state — exhaustively: a routine step → *default*
+(also the answer when no tone is given); a problem the user must resolve,
+still recoverable (a parcel with no carrier scan) → *warning*; a failed or
+blocked state (payment failed, order stuck) → *danger*; the document is
+complete, nothing left to do → *success*. On warning and danger the heading
+states the problem ("No carrier scan 8 days after the label was created"),
+not the routine step. Under it, the
 **automatic side effects** of this state ("running alongside"): a declared list
 of `{ label, state: done | pending | failed, link? }` — the invoice created on
 payment, the marketplace updated on ship. They live here, not in a sixth slot,
@@ -65,14 +76,18 @@ type**, each with a **priority**:
 
 | Document | Columns |
 |---|---|
-| Sales order | Charged · Cost · Profit · Margin |
+| Sales order | Charged · Cost (then a Profit result line) |
 | Offer | Their ask · Market · Max · Our offer · Profit |
 | Purchase order | Cost · Expected market value · Expected margin |
 
 A **read-only** and an **editable** mode: in the editable mode the columns
 declared editable are inputs (the offer's *Our offer*), committing on leave or
 Enter; an invalid entry stays marked until fixed or abandoned. Totals sit under
-the lines.
+the lines. After the totals, an optional **result line** states the document's
+outcome once — a label, one emphasized figure and a sub-line (Profit "39,99 €
+· 22,7 % margin · target 20 %"), toned by its sign: positive for a profit, negative for a loss. A figure that is
+only meaningful for the whole document (profit, margin) is the result line,
+never a per-line column of empty cells.
 
 **Lines are added and removed in the ledger** — never from the header menu or
 by clearing a cell. When the consumer supports it, the ledger carries its own
@@ -116,6 +131,10 @@ shows the lock, naming the column, with its reason and way out.
 
 ## Responsive behaviour
 
+- **The content column is bounded.** On a wide screen the header and the
+  document stop at a readable width, so a line's amounts stay next to its
+  label instead of drifting to the far edge. Sections stay inside the page's
+  one surface (ADR-0008), divided by hairlines — not one card each.
 - **The ledger never scrolls sideways.** Columns stay inline by priority while
   they fit; a column that doesn't fit moves into a **second line inside each
   row**, labelled. On a phone a line reads as its label and first-priority
@@ -131,7 +150,9 @@ shows the lock, naming the column, with its reason and way out.
 - **Figures** — every amount renders in the canonical tabular figure style,
   right-aligned, formatted for the page's locale.
 - **Status tones** — the status uses the neutral status role, the attention
-  flag the warning role; side effects use success (done), muted (pending) and
+  flag the warning role; the next-step panel's tone and the result line use
+  the matching status surfaces; progress marks use success (done), primary
+  (current) and muted (pending), each step's state spelled out for screen readers; side effects use success (done), muted (pending) and
   destructive (failed), each with its state spelled out for screen readers.
 - **Tokens only** — no literal colours.
 
@@ -196,3 +217,6 @@ shows the lock, naming the column, with its reason and way out.
 - **1.1** (2026-11-11) — cell locks (one line's cell in an editable column);
   lines added and removed inside the ledger, per-line actions; new REQUIRED
   box for add/remove in the ledger.
+- **1.2** (2026-11-11) — mockup fidelity: bounded content column; ledger
+  result line after the totals (the sales order's per-line Profit/Margin
+  columns retire into it); next-step tone; identity progress line.
