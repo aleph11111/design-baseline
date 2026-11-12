@@ -14,7 +14,9 @@ tickets:
   - page-body-section-card-stack-primitive
 phases:
   - name: p1
-    title: Rule and primitive — ADR-0015, bordered raised-surface chrome, PageFrame stack mode, call-site lint
+    title: >-
+      Rule and primitive — ADR-0015, bordered raised-surface chrome, PageFrame stack mode, call-site
+      lint
     tickets:
       - page-body-section-card-stack-adr-0015
       - page-body-section-card-stack-primitive
