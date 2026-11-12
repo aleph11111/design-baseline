@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.41.0
+
+- **Changed:** `BoardShell` renders a `PageFrame` stack body (kanban-board contract v3.5, MANIFEST 3.5, ADR-0015): the toolbar band sits on a band-only first card (an empty `SurfaceFrame`, rendered only when the band has content); the lane row (`data-slot="board-lanes"`) follows on the canvas and keeps its own horizontal scroller and the full-bleed marker.
+- **Changed:** `BoardCard` is the raised card — `rounded-lg`, hairline border and `surface-raised` fill on the canvas (was `rounded-md border bg-card`); nested in another raised surface it drops both. `BoardColumn` lanes move from the canvas tone to `bg-surface-sunken`, still unbordered. Refs, prop spreading and the dashed empty drop zone are unchanged.
+- **Added:** `useRaisedChrome()` in `layout/surface.ts` — the one raised-surface chrome string (border + fill unless nested); `SurfaceFrame`, `StatTileRow` and `BoardCard` read it.
+- **Consumer:** none required.
+- **Breaking:** no (visual change only).
+
 ## v0.40.0
 
 - **Changed:** `TransactionDocumentShell` renders a `PageFrame` stack body (contract v1.3, MANIFEST 1.3, ADR-0015): next step, ledger, facts and history are each their own bordered `SectionCard` on the canvas (`data-slot`s unchanged); the next-step card keeps its tone fill as the toned callout. The phone's sticky primary bar stays in the stack body, outside every card.

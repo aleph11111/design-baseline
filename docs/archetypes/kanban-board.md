@@ -2,7 +2,7 @@
 key: P
 slug: kanban-board
 kind: page
-version: 3.1
+version: 3.5
 promoted_from: fleet-audit-2026-06-13 (pmo, hk-crm)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -11,6 +11,12 @@ status: locked
 
 # Archetype P — kanban-board
 
+> **v3.5 (2026-11-12) — section-card stack (ADR-0015).** The board body is a
+> stack on the canvas: the toolbar band sits on a band-only first card, then
+> the lane row follows on the canvas, outside any card. Each board card is
+> the raised, bordered card; a lane is an unbordered grouping region in the
+> sunken tone. Visual change only; no prop change.
+>
 > **v3.1 (2026-11-05) — back link to the parent page (Layer 3).** A board
 > can sit under a parent route: the board shell now takes the shared
 > back-link props — `backHref` / `backLabel`, with `renderBackLink`
@@ -58,12 +64,18 @@ The page title is required and passed once to the board shell. Slots:
   injecting the router link. Never a bespoke leading control beside the
   title.
 
-A board is always framed; there is no untitled or unframed form.
+The board body is a **stack** (ADR-0015): when the band has content (toolbar,
+view switch, count or view options), it renders alone on a band-only first
+card; the lane row follows on the canvas. There is no untitled form.
 
 ## Layer 5/6 — The board
-The board shell of board-column primitives of board-card primitives. A column is
-a lane inside the page's one surface, never a card of its own; its title is a
-section-level label. Columns show a count and an optional per-column add-card
+The board shell of board-column primitives of board-card primitives. The
+**card is the raised object**: each board card carries the raised-surface
+chrome on the canvas (border, raised fill, card radius). A **lane is a
+grouping region**, not a card: the sunken tone, no border, no raised fill —
+so the cards inside it stay raised (a raised lane would strip their border,
+ADR-0015 rule 2). Its title is a section-level label. The lane row scrolls
+horizontally in its own scroller; the page does not. Columns show a count and an optional per-column add-card
 affordance; cards show a title + a couple of compact meta
 chips — a status-badge primitive for the label, an avatar primitive for the
 assignee. Keep cards scannable — push detail into a crud-dialog (J) or a detail
@@ -120,6 +132,9 @@ view; a read-only viewer gets the board without drag handles.
 ---
 
 ## Version log
+- **3.5** — ADR-0015 section-card stack: band-only first card for the
+  toolbar band; lane row on the canvas; board cards raised and bordered;
+  lanes in the sunken tone, unbordered. Visual change only.
 - **3.1** — Layer 3: the board shell takes the shared back-link props
   (`backHref` / `backLabel`, and `renderBackLink` injecting the router link)
   so a board page under a parent keeps its back link. Additive; no breaking

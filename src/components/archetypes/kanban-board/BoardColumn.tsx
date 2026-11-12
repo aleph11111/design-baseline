@@ -24,8 +24,9 @@ export type BoardColumnProps = React.HTMLAttributes<HTMLDivElement> & {
 };
 
 /**
- * BoardColumn — one column in a `<BoardShell>`: a recessed lane (canvas tone,
- * no border — never a card inside the page's one raised surface, ADR-0008 §3)
+ * BoardColumn — one column in a `<BoardShell>`: an unbordered grouping region
+ * on the canvas (sunken tone, no border, no raised fill — the cards are the
+ * raised objects, so the lane provides no `RaisedSurfaceContext`, ADR-0015)
  * with an overline `h3` header (title + count + actions) over a vertical stack
  * of `<BoardCard>`s. Drag-agnostic: the outer
  * div forwards its ref and spreads `...rest`, so the consumer attaches its DnD
@@ -46,7 +47,7 @@ export function BoardColumn({
     <div
       ref={ref}
       className={cn(
-        "flex w-72 shrink-0 flex-col rounded-lg bg-surface-canvas",
+        "flex w-72 shrink-0 flex-col rounded-lg bg-surface-sunken",
         className,
       )}
       {...rest}
