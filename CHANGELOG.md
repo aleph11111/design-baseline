@@ -14,6 +14,12 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 - **Consumer:** none required.
 - **Breaking:** no (visual change only).
 
+## v0.44.0
+
+- **Changed:** `GroupedListShell` renders a `PageFrame` stack body (contract v4.5, MANIFEST 4.5, ADR-0015): each `GroupedListSection` is its own bordered, rounded card on the canvas with a stack gap between (the `space-y-8` wrapper is gone), the toolbar band rides on the first card, and the loading / empty / error planes render inside one card (`data-slot="grouped-list-state"`).
+- **Consumer:** none required.
+- **Breaking:** no (visual change only).
+
 ## v0.42.0
 
 - **Changed:** `DashboardShell` renders a `PageFrame` stack body (contract v4.7, MANIFEST 4.7, ADR-0015): a band-only first card holds the filters when any band slot is set, the KPI row is one raised card, and each `DashboardWidget` is its own bordered, rounded `SectionCard`. `DashboardGrid` is a gapped grid (`gap-4 md:gap-5`, same column breakpoints) with no hairline cell rules. Edit mode (move/configure/remove, drag and drop) is unchanged; the drop target shows a ring instead of a fill.

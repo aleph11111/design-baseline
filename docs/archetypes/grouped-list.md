@@ -2,7 +2,7 @@
 key: K
 slug: grouped-list
 kind: page
-version: 4.1
+version: 4.5
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.6
@@ -90,11 +90,11 @@ The `toolbar` slot holds everything that **scopes** the rows across every sectio
 ## Layer 5 — Content wrapper
 
 **Required:**
-- **The grouped-list shell** — the archetype's page shell. It owns the page's one surface, the separation between sections, and the page-level empty / loading / error planes (rendered when `isEmpty` is true and not loading or erroring).
+- **The grouped-list shell** — the archetype's page shell. It owns the stack of section cards on the canvas, the gap between them, and the page-level empty / loading / error planes (rendered when `isEmpty` is true and not loading or erroring).
 - One section per group, plus an optional trailing section for ungrouped rows. Sections are passed as children of the grouped-list shell.
 
 **Required per section:**
-- Each group is a **section inside the page's surface**, never a card of its own: the group title is a section heading with a row-count badge, over the group's table. The heading is bound to its content as one block. The section composes this automatically; consumers pass `title` + rows.
+- Each group is **its own card** on the canvas (ADR-0015): the group title is a section heading with a row-count badge, over the group's table. A canvas gap separates the cards, and the toolbar band rides on the first. The heading is bound to its content as one block. The section composes this automatically; consumers pass `title` + rows.
 - Inner table — the list-with-detail body (A's table contract), without a page frame of its own.
 
 **Allowed variation:**
@@ -106,7 +106,7 @@ The `toolbar` slot holds everything that **scopes** the rows across every sectio
 - A per-section toggle for the row-count badge. The count is part of the section signature and is derived from the group's own row count.
 - Section chrome styled per page.
 - Page-level `max-width` on the grouped content region. Full-width.
-- Wrapping the grouped-list shell, or a section, in an additional card (nested chrome).
+- Wrapping the grouped-list shell, or a section, in an additional card (nested chrome). Loading, empty and error planes render inside one card, never bare on the canvas.
 
 ---
 
@@ -267,8 +267,8 @@ When a target project applies this archetype, it wires the generic primitives to
 
 **REQUIRED**
 
-- [ ] **One section per group** (heading + count over the group's table) inside
-      the page's one surface — **no** card per group, no hand-rolled section markup.
+- [ ] **One section per group** (heading + count over the group's table) as
+      its own card on the canvas — no hand-rolled section markup.
 - [ ] **Page-level toolbar only** (the shell's `toolbar` slot), not per-section
       toolbars. The Add action is the shell's `actions` (Layer 3) regardless of
       whether a toolbar is rendered — never a hand-placed button.
@@ -279,6 +279,9 @@ When a target project applies this archetype, it wires the generic primitives to
 ---
 
 ## Version log
+- **4.5** — ADR-0015 section-card stack: each group is its own raised card with
+  a canvas gap between; the toolbar band rides on the first card; the page-level
+  loading / empty / error planes render inside one card. Visual change only.
 - **4.1** — Layer 3: the page header takes the shared back-link props
   (`backHref` / `backLabel`, and `renderBackLink` injecting the router link)
   so a grouped-list page under a parent keeps its back link. Additive; no

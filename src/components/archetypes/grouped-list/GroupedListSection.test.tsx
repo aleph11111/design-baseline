@@ -27,15 +27,20 @@ const columns: ListColumn<Row>[] = [
 ];
 
 describe("GroupedListSection inside the page frame", () => {
-  it("groups flatten to heading-separated sections — one raised surface, no card-in-card", () => {
+  it("each group is its own bordered, rounded card in a stack body (ADR-0015)", () => {
     const { container, getByText } = render(
       <GroupedListShell title="People">
         <GroupedListSection title="Group A" rows={rows} columns={columns} getRowId={(r) => r.id} />
         <GroupedListSection title="Group B" rows={rows} columns={columns} getRowId={(r) => r.id} />
       </GroupedListShell>,
     );
-    expect(container.querySelectorAll(".bg-surface-raised")).toHaveLength(1);
-    expect(container.querySelectorAll("section")).toHaveLength(2);
+    expect(container.querySelector("[data-page-body='stack']")).not.toBeNull();
+    const cards = container.querySelectorAll("[data-page-body='stack'] > section");
+    expect(cards).toHaveLength(2);
+    cards.forEach((c) => {
+      expect(c.className).toMatch(/\bborder\b/);
+      expect(c.className).toContain("rounded-lg");
+    });
     expect(getByText("Group A")).toBeTruthy();
     expect(getByText("Group B")).toBeTruthy();
     // The section body is the frameless list — no page header, no second h1.
