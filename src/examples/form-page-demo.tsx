@@ -16,9 +16,9 @@
  *     column layout (the "Body layout" toggle switches columns; `width`
  *     derives per the contract's keying rule, and a compact 4-field form
  *     derives the `sm` step).
- *   - One page frame (ADR-0008): the title (with a back link) renders once
- *     as the page header above the form's one raised surface; save/cancel
- *     stay in the footer — the header carries no actions.
+ *   - One page header + a stack of cards (ADR-0015): the title (with a back
+ *     link) renders once above one raised card per field group; save/cancel
+ *     stay in the footer outside every card — the header carries no actions.
  *
  * NOTE: This demo uses window.confirm for the discard-confirmation dialog.
  * Real consumers should use shadcn <AlertDialog> for an accessible UX. The
@@ -512,21 +512,22 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
   let body: React.ReactNode;
   if (layout === "sm-narrow") {
     // Narrow 4-field form (title / cuisine / serves / tag) in one column —
-    // the keying rule's `sm` step. No SectionCards: a 3-group floor is not
-    // reached, so the body stays flat (form-page Layer 5).
+    // the keying rule's `sm` step. Below the 3-group floor: one untitled card.
     body = (
-      <div className="space-y-4">
-        {fields.title}
-        {fields.cuisine}
-        {fields.serves}
-        {fields.tag}
-      </div>
+      <SectionCard>
+        <div className="space-y-4">
+          {fields.title}
+          {fields.cuisine}
+          {fields.serves}
+          {fields.tag}
+        </div>
+      </SectionCard>
     );
   } else if (layout === "md-1col") {
     // All ten fields, standard single-column entity form — the keying
     // rule's `md` step. 3+ logical groups → SectionCards (form-page Layer 5).
     body = (
-      <div className="space-y-5">
+      <>
         <SectionCard title="Basics">
           <div className="space-y-4">
             {fields.title}
@@ -549,31 +550,33 @@ function RecipeForm(props: RecipeFormProps): React.ReactElement {
             {fields.notes}
           </div>
         </SectionCard>
-      </div>
+      </>
     );
   } else {
     // 2-column or 3-column field grid — the keying rule's `lg` / `xl` steps.
     // Paired fields keep adjacent ordering per row; the last field of an
     // odd group fills its row alone.
     body = (
-      <div className={`grid grid-cols-1 gap-4 ${gridCols}`}>
-        {fields.title}
-        {fields.cuisine}
-        {fields.serves}
-        {fields.difficulty}
-        {fields.prepMinutes}
-        {fields.cookMinutes}
-        {fields.ingredients}
-        {fields.tag}
-        {fields.visibility}
-        {fields.notes}
-      </div>
+      <SectionCard>
+        <div className={`grid grid-cols-1 gap-4 ${gridCols}`}>
+          {fields.title}
+          {fields.cuisine}
+          {fields.serves}
+          {fields.difficulty}
+          {fields.prepMinutes}
+          {fields.cookMinutes}
+          {fields.ingredients}
+          {fields.tag}
+          {fields.visibility}
+          {fields.notes}
+        </div>
+      </SectionCard>
     );
   }
 
   const formBody = (
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={form.handleSubmit(onSubmit)}>
           {body}
 
           {/* Form-level (root) error. The canonical treatment for a form or

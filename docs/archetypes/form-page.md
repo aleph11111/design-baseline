@@ -2,7 +2,7 @@
 key: B
 slug: form-page
 kind: page
-version: 3.1
+version: 3.3
 promoted_from: hk-crm
 promoted_at: 2026-05-24
 source_spec_version: 1.7
@@ -11,6 +11,11 @@ status: locked
 
 # Archetype B — Form Page
 
+> **v3.3 (2026-11-12) — section-card stack (ADR-0015).** Each field group is its
+> own raised card on the canvas, a flat form is one untitled card, and the shell
+> owns the gap between cards; the actions footer sits outside every card.
+> Ships in manifest 3.3.
+>
 > **v3.0 (2026-10-03) — one page frame (ADR-0008).** The form page is always
 > framed: the shell takes the page header directly — `title` (required),
 > `subtitle`, `icon`, `backHref` / `backLabel` / `renderBackLink` — and renders
@@ -87,7 +92,7 @@ B is **not** the right choice for:
       - `"lg"` — a **wider single-column form** (longer field labels / description slots that read too cramped at `md` width), **or** a form body laid out as a **two-column field grid** — the paired-short-field shape (firstName + lastName, city + zip) that collapses to single-column on narrow viewports.
       - `"xl"` — a **wide multi-column layout**: a form body using a **3+ column field grid**, or **multiple two-column sections** stacked (each section a two-column grid, several of them) such that the combined body no longer reads at `lg` width.
     - The key reads **field count / column layout → step**, one direction only. The column layout is a *consequence* of the step the rule assigns, never an independent permission to widen.
-  - The **page header** (Layer 3) above the form's **one raised surface**, which holds the form body with the canonical vertical rhythm.
+  - The **page header** (Layer 3) above a **stack of cards** on the canvas (ADR-0015): one raised card per field group, with a gap between. The commit actions sit below the cards, outside every card.
   - **No page inset** — the app shell's main region supplies it; the shell adds none (re-insetting here would double-inset).
 - A **render-error boundary** (or framework equivalent) wraps the page content at the page-component level.
 
@@ -98,7 +103,8 @@ B is **not** the right choice for:
 **Forbidden:**
 
 - Inline hand-rolled max-width/inset wrappers. Always use the form-page shell.
-- A second raised surface — a card wrapped around the form body. The shell's frame is the page's one raised surface.
+- A card wrapped around the field-group cards or around the actions footer, or a card nested inside a field-group card. One card per field group (or one untitled card when there are fewer than 3 groups); cards never nest.
+- Field groups or bare fields floating on the canvas with no card.
 - Centering the form horizontally on the page when the project's layout already left-aligns content. The shell respects whatever alignment the surrounding app shell imposes.
 - Multiple `<form>` elements on a single form page. One page, one form.
 
@@ -141,7 +147,7 @@ Form pages do not have a toolbar layer. This layer number is reserved to keep pa
 
 **Allowed variation:**
 
-- **Section grouping** — when the form has 3+ logical groups (e.g. "Contact info" / "Address" / "Preferences"), wrap each group in the shared **section-card** (with a `title`) so the group heading is bound to its fields as one titled block — inside the frame it renders as a section, never a card of its own — the same titled-section shape used by detail-overview (the **detail-section** primitive) and grouped-list groups. The fields render in the card's padded (non-`flush`) body. Do not float a bare heading above an unbounded `<div>` of fields, and do not hand-roll the card/heading chrome. Forms with fewer than 3 groups stay flat (no card/section-card surface) — a single bounded section adds chrome without earning it.
+- **Section grouping** — when the form has 3+ logical groups (e.g. "Contact info" / "Address" / "Preferences"), wrap each group in the shared **section-card** (with a `title`) so the group heading is bound to its fields as one titled block, each group its own raised card on the canvas — the same titled-section shape used by detail-overview (the **detail-section** primitive) and grouped-list groups. The fields render in the card's padded (non-`flush`) body. Do not float a bare heading above an unbounded `<div>` of fields, and do not hand-roll the card/heading chrome. Forms with fewer than 3 groups put all fields in one untitled section-card — the page body is always cards, never fields on the bare canvas.
 - **Two-column field grids** — a two-column grid for paired short fields (firstName + lastName, city + zip). Collapse to single-column on narrow viewports.
 
 **Forbidden:**
@@ -455,8 +461,8 @@ When a target project applies this archetype, it wires the generic primitives to
       in the header.
 - [ ] **One form-page-shell column.** No hand-rolled max-width/inset wrapper;
       no horizontal centering when the app left-aligns content.
-- [ ] **One title, one surface.** The title renders once, as the page header;
-      no titled card or second raised surface around the form body.
+- [ ] **One title, one card per field group.** The title renders once, as the page header;
+      no titled card repeating it, no card around the field-group cards or the actions footer, and no nested cards.
 - [ ] **Fields are atoms** — form-field primitives/labelled atoms with standard error text,
       not raw `<input>`/`<select>` or bespoke label markup.
 - [ ] **One destructive confirm path** for discard/delete (dialog), not an inline raw button.

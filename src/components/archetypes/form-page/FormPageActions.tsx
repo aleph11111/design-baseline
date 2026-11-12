@@ -124,14 +124,14 @@ export function FormPageActions({
   return (
     <ActionFooterBar
       // Bleed = the surface padding, published by the surface as --form-inset
-      // (0 when unset, e.g. classic column) so the bar spans the surface exactly.
+      // (unset on the stack canvas: no bleed, 0.75rem side padding like Td's next-step bar).
       // Sticky-on-mobile is unconditional: form-page.md L11 states the
       // primitive "handles this automatically" (:284) and L359 states it as the
       // primitive's behaviour, not a per-form choice — so there is no flag to
       // contradict the contract with.
       className={cn(
         "pt-2",
-        "sticky bottom-0 -mx-[var(--form-inset,0px)] border-t bg-background/95 px-[var(--form-inset,0px)] py-3 backdrop-blur supports-[backdrop-filter]:bg-background/75 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none",
+        "sticky bottom-0 -mx-[var(--form-inset,0px)] border-t bg-background/95 px-[var(--form-inset,0.75rem)] py-3 backdrop-blur supports-[backdrop-filter]:bg-background/75 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none",
         className,
       )}
       primaryLabel={primaryLabel}

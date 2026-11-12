@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.46.0
+
+- **Changed:** `FormPageShell` renders a `PageFrame` stack body (contract v3.3, MANIFEST 3.3, ADR-0015): each field-group `SectionCard` is its own bordered, rounded card on the canvas, and the shell no longer wraps the children in a padded inset div. `FormPageActions` stays outside every card (sticky on the phone).
+- **Consumer:** a form with fewer than 3 groups, or a field grid, must wrap its fields in one untitled `SectionCard` (bare fields would sit on the canvas); the shell owns the gap between cards, so the `<form>` needs no spacing class (drop a `space-y-*` to avoid doubling it). The `<form>` must be a direct child of the shell (a wrapper `<div>` loses the card gap). `FormPageActions`' mobile bar now defaults to 0.75rem side padding when no `--form-inset` is published (was 0); surfaces that publish it (`FORM_INSET_CLASS`) are unchanged.
+- **Breaking:** no for API; visual change — groups render as separate cards, and bare fields sit on the canvas until wrapped.
+
 ## v0.45.0
 
 - **Changed:** `GroupedListShell` renders a `PageFrame` stack body (contract v4.5, MANIFEST 4.5, ADR-0015): each `GroupedListSection` is its own bordered, rounded card on the canvas with a stack gap between (the `space-y-8` wrapper is gone), the toolbar band rides on the first card, and the loading / empty / error planes render inside one card (`data-slot="grouped-list-state"`).
