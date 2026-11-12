@@ -50,10 +50,10 @@ export type SettingsSectionProps = {
 
 /**
  * SettingsSectionsShell — the settings-sections (D3) archetype shell. Renders
- * through `PageFrame` (ADR-0008): the page header (title once, page verbs in
- * `actions`) above the page's one raised surface, whose body is a stack of
- * independent `<SettingsSection>`s divided by hairlines. Each section flattens
- * inside the surface (no card-in-card) and owns its own title and save.
+ * through `PageFrame` (ADR-0008) as a section-card stack (ADR-0015): the page
+ * header (title once, page verbs in `actions`) above one raised card per
+ * independent `<SettingsSection>`, a canvas gap between them. Each section owns
+ * its own title and save.
  *
  * Wraps everything in an `<ErrorBoundary>`; adds no page inset (the app
  * shell's main region owns it).
@@ -64,10 +64,8 @@ export function SettingsSectionsShell({
 }: SettingsSectionsShellProps): React.ReactElement {
   return (
     <ErrorBoundary>
-      <PageFrame {...header}>
-        <div data-slot="settings-sections" className="divide-y">
-          {children}
-        </div>
+      <PageFrame {...header} body="stack">
+        {children}
       </PageFrame>
     </ErrorBoundary>
   );
@@ -77,7 +75,7 @@ SettingsSectionsShell.displayName = "SettingsSectionsShell";
 
 /**
  * SettingsSection — one independent settings group: a titled `SectionCard`
- * (flattened inside the shell's surface) with the section's own save at its
+ * (its own raised card on the canvas) with the section's own save at its
  * foot, right-aligned.
  */
 export function SettingsSection({
