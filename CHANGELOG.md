@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.40.0
+
+- **Changed:** `TransactionDocumentShell` renders a `PageFrame` stack body (contract v1.3, MANIFEST 1.3, ADR-0015): next step, ledger, facts and history are each their own bordered `SectionCard` on the canvas (`data-slot`s unchanged); the next-step card keeps its tone fill as the toned callout. The phone's sticky primary bar stays in the stack body, outside every card.
+- **Changed:** the Td page width has one bound. The shell's local `max-w-4xl` is gone; its root carries the derived marker `DOCUMENT_COLUMN_CLASS` (`db-document-column`, `layout/surface.ts`, dropped when nested), and `AppShell`'s content column bounds itself to the new `--db-document-max: 896px` token when it holds one — the wide-desk steps no longer apply (ADR-0015 amendment to ADR-0007 §1).
+- **Added:** `SectionCard` passes extra HTML attributes (`data-*`, `aria-*`, `id`) to its `<section>`.
+- **Consumer:** none required.
+- **Breaking:** no (visual change only).
+
 ## v0.39.0
 
 - **Changed:** every un-nested raised surface — `SurfaceFrame` (so every `PageFrame` page), `SectionCard` (default and `muted` tone) and `StatTileRow` — now carries a hairline `border` on the canvas; a raised surface nested in another drops both border and fill, including a nested `muted` `SectionCard` (ADR-0015, superseding ADR-0007 §3).

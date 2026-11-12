@@ -56,7 +56,7 @@ export type SectionCardProps = {
   chrome?: boolean;
   children: React.ReactNode;
   className?: string;
-};
+} & Omit<React.HTMLAttributes<HTMLElement>, "title" | "children" | "className">;
 
 // ---------------------------------------------------------------------------
 // Component
@@ -88,6 +88,7 @@ export function SectionCard({
   chrome = true,
   children,
   className,
+  ...rest
 }: SectionCardProps): React.ReactElement {
   const nested = React.useContext(RaisedSurfaceContext);
   // First card of a stack body: the page's band rides above the title bar.
@@ -112,7 +113,7 @@ export function SectionCard({
   // keeps each divider floating in whitespace.
   if (!chrome) {
     return (
-      <section className={cn("py-4", className)}>
+      <section {...rest} className={cn("py-4", className)}>
         {leadBand}
         {hasBar && <div className="mb-3 px-5">{bar}</div>}
         {content}
@@ -124,6 +125,7 @@ export function SectionCard({
   // surface it drops border and fill (no card-in-card, ADR-0015).
   return (
     <section
+      {...rest}
       className={cn(
         // relative: contain absolute descendants (sr-only) so the clip holds.
         "relative overflow-hidden rounded-lg",

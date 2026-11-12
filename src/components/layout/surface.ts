@@ -27,3 +27,18 @@ export const FULL_BLEED_CLASS = "db-full-bleed";
 export function useFullBleedClass(): string | undefined {
   return React.useContext(RaisedSurfaceContext) ? undefined : FULL_BLEED_CLASS;
 }
+
+/**
+ * Marker class on the root of a document-column archetype shell
+ * (`transaction-document`). `AppShell`'s content column bounds itself to
+ * `--db-document-max` (no wide-desk steps) when it contains one — one width
+ * bound, owned by `AppShell` tokens, derived from the archetype (ADR-0015
+ * amending ADR-0007 §1).
+ */
+export const DOCUMENT_COLUMN_CLASS = "db-document-column";
+
+/** `DOCUMENT_COLUMN_CLASS` as the page's own surface; `undefined` when nested
+ *  in another raised surface (mirrors `useFullBleedClass`). */
+export function useDocumentColumnClass(): string | undefined {
+  return React.useContext(RaisedSurfaceContext) ? undefined : DOCUMENT_COLUMN_CLASS;
+}

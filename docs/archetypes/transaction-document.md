@@ -40,8 +40,10 @@ detail-overview, and its provenance.
 
 ## Structure
 
-Five typed slots, each placed by the shell through the one page frame
-(ADR-0008). There is **no free content slot**: a fact that fits none of the
+Five typed slots, each placed by the shell (ADR-0008). The header carries
+the identity; the body is a **stack of section cards** on the canvas, one card
+each for the next step, the ledger, the facts and (when present) the history
+(ADR-0015). There is **no free content slot**: a fact that fits none of the
 five is not on this page.
 
 **1 — Identity (the header).** The title once, never cut (it wraps). Beside
@@ -56,7 +58,7 @@ line of lifecycle steps (Placed · Paid · Packed · Label created · Carrier sc
 the stage only: its date lives once, in the facts or the history, never
 again in the progress line.
 
-**2 — Next step.** A panel keyed to the document's current state: what happens
+**2 — Next step.** The first card, the page's **toned callout**, keyed to the document's current state: what happens
 next, in one heading and an optional line, and the document's **one primary
 action**. It is the **only** place a primary action renders. The panel has a
 **tone**, keyed to the state — exhaustively: a routine step → *default*
@@ -131,16 +133,20 @@ shows the lock, naming the column, with its reason and way out.
 
 ## Responsive behaviour
 
-- **The content column is bounded.** On a wide screen the header and the
-  document stop at a readable width, so a line's amounts stay next to its
-  label instead of drifting to the far edge. Sections stay inside the page's
-  one surface (ADR-0008), divided by hairlines — not one card each.
+- **The page sits in the document column.** On a wide screen the header and
+  the cards stop at a readable width, so a line's amounts stay next to its
+  label instead of drifting to the far edge. The width is the app's document
+  column — one bound, which the wide-desk steps never widen (ADR-0015).
+- **One card per section.** Next step, ledger, facts and history are each
+  their own bordered card on the canvas with a gap between; the next-step card
+  carries its tone fill as the callout, keeping the hairline border.
 - **The ledger never scrolls sideways.** Columns stay inline by priority while
   they fit; a column that doesn't fit moves into a **second line inside each
   row**, labelled. On a phone a line reads as its label and first-priority
   amount, then the remaining columns underneath.
 - **The phone pins the primary action** to the bottom of the screen while the
-  page scrolls; on wider screens it sits in the next-step panel.
+  page scrolls, outside every card; on wider screens it sits in the next-step
+  card.
 - The long title wraps in full at every width.
 
 ---
@@ -220,3 +226,6 @@ shows the lock, naming the column, with its reason and way out.
 - **1.2** (2026-11-11) — mockup fidelity: bounded content column; ledger
   result line after the totals (the sales order's per-line Profit/Margin
   columns retire into it); next-step tone; identity progress line.
+- **1.3** (2026-11-12) — section-card stack (ADR-0015): one card per section,
+  the next-step card as the toned callout, the page in the document column
+  (one width bound, no wide-desk steps).

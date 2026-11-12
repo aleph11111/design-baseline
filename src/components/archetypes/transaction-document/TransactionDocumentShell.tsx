@@ -5,6 +5,8 @@ import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../../ui/collapsible";
 import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
+import { SectionCard } from "../../layout/SectionCard";
+import { useDocumentColumnClass } from "../../layout/surface";
 import type { HeaderAction, HeaderActions } from "../../layout/HeaderActions";
 import { useIsMobile } from "../../../hooks/use-mobile";
 import { formatFigure, type FigureKind } from "../../../lib/format";
@@ -120,9 +122,6 @@ export type TransactionDocumentShellProps = Pick<PageFrameProps, "title" | "back
 
 const NONE = "—";
 
-/** The bounded content column: header and surface stop here on wide screens. */
-const COLUMN = "max-w-4xl";
-
 const NEXT_STEP_TONE = {
   default: "bg-muted/30",
   warning: "bg-status-warning-bg text-status-warning-fg",
@@ -156,6 +155,7 @@ export function TransactionDocumentShell({
   const isMobile = useIsMobile();
   const link = React.useContext(RenderLinkContext);
   const id = React.useId();
+  const documentColumn = useDocumentColumnClass();
   const primary = locks.nextStep ? undefined : nextStep.primary;
   const tone = nextStep.tone ?? "default";
   const toned = tone !== "default";
@@ -211,15 +211,16 @@ export function TransactionDocumentShell({
         badges={badges}
         subtitle={subtitle}
         actions={headerActions}
-        className={COLUMN}
+        className={documentColumn}
+        body="stack"
       >
-        <div data-slot="td-body" className="divide-y divide-border">
-          <section
-            data-slot="td-next-step"
-            aria-labelledby={`${id}-next`}
-            data-tone={tone}
-            className={cn("space-y-3 p-4 md:p-5", NEXT_STEP_TONE[tone])}
-          >
+        <SectionCard
+          data-slot="td-next-step"
+          aria-labelledby={`${id}-next`}
+          data-tone={tone}
+          className={NEXT_STEP_TONE[tone]}
+        >
+          <div className="space-y-3">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0 space-y-1">
                 <p className={cn("text-xs font-medium uppercase tracking-wide", !toned && "text-muted-foreground")}>{L.nextStep}</p>
@@ -230,41 +231,43 @@ export function TransactionDocumentShell({
             </div>
             {locks.nextStep ? <LockNote lock={locks.nextStep} /> : null}
             {nextStep.sideEffects?.length ? <SideEffects items={nextStep.sideEffects} /> : null}
-          </section>
+          </div>
+        </SectionCard>
 
-          <Slot name="td-ledger" title={L.ledger} lock={locks.ledger}>
-            <LedgerTable
-              columns={ledger.columns}
-              rows={ledger.rows}
-              totals={ledger.totals}
-              result={ledger.result}
-              onCellChange={ledger.onCellChange}
-              onAddRow={ledger.onAddRow}
-              addRowLabel={ledger.addRowLabel}
-              onRemoveRow={ledger.onRemoveRow}
-              locked={!!locks.ledger}
-              locale={locale}
-            />
-          </Slot>
+        <Slot name="td-ledger" title={L.ledger} lock={locks.ledger}>
+          <LedgerTable
+            columns={ledger.columns}
+            rows={ledger.rows}
+            totals={ledger.totals}
+            result={ledger.result}
+            onCellChange={ledger.onCellChange}
+            onAddRow={ledger.onAddRow}
+            addRowLabel={ledger.addRowLabel}
+            onRemoveRow={ledger.onRemoveRow}
+            locked={!!locks.ledger}
+            locale={locale}
+          />
+        </Slot>
 
-          <Slot name="td-facts" title={L.facts} lock={locks.facts}>
-            <dl className="grid grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] gap-x-6 gap-y-4">
-              {facts.map((f) => (
-                <div key={f.label} data-slot="td-fact" className="min-w-0">
-                  <dt className="text-xs text-muted-foreground">{f.label}</dt>
-                  <dd className="break-words text-sm">{formatFact(f, locale)}</dd>
-                  {f.lock ? (
-                    <dd className="mt-1"><LockNote lock={f.lock} /></dd>
-                  ) : f.change && !locks.facts ? (
-                    <dd className="mt-1 text-sm"><ActionLink action={f.change} /></dd>
-                  ) : null}
-                </div>
-              ))}
-            </dl>
-          </Slot>
+        <Slot name="td-facts" title={L.facts} lock={locks.facts}>
+          <dl className="grid grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] gap-x-6 gap-y-4">
+            {facts.map((f) => (
+              <div key={f.label} data-slot="td-fact" className="min-w-0">
+                <dt className="text-xs text-muted-foreground">{f.label}</dt>
+                <dd className="break-words text-sm">{formatFact(f, locale)}</dd>
+                {f.lock ? (
+                  <dd className="mt-1"><LockNote lock={f.lock} /></dd>
+                ) : f.change && !locks.facts ? (
+                  <dd className="mt-1 text-sm"><ActionLink action={f.change} /></dd>
+                ) : null}
+              </div>
+            ))}
+          </dl>
+        </Slot>
 
-          {history ? (
-            <Collapsible data-slot="td-history" className="p-4 md:p-5">
+        {history ? (
+          <SectionCard data-slot="td-history">
+            <Collapsible>
               <h2 className="text-sm font-semibold">
                 <CollapsibleTrigger className="group flex w-full items-center justify-between text-left">
                   {L.history}
@@ -273,16 +276,17 @@ export function TransactionDocumentShell({
               </h2>
               <CollapsibleContent className="pt-3">{history}</CollapsibleContent>
             </Collapsible>
-          ) : null}
+          </SectionCard>
+        ) : null}
 
-          {isMobile && primaryButton ? (
-            // Phone: the primary action stays pinned to the bottom while the page
-            // scrolls (sticky inside the body, FormPageActions precedent).
-            <div data-slot="td-next-step-bar" className="sticky bottom-0 z-10 border-t bg-background/95 p-3 backdrop-blur [&>*]:w-full">
-              {primaryButton}
-            </div>
-          ) : null}
-        </div>
+        {isMobile && primaryButton ? (
+          // Phone: the primary action stays pinned to the bottom while the page
+          // scrolls (sticky inside the stack body, outside every card;
+          // FormPageActions precedent).
+          <div data-slot="td-next-step-bar" className="sticky bottom-0 z-10 border-t bg-background/95 p-3 backdrop-blur [&>*]:w-full">
+            {primaryButton}
+          </div>
+        ) : null}
       </PageFrame>
     </RenderLinkContext.Provider>
   );
@@ -290,14 +294,15 @@ export function TransactionDocumentShell({
 
 TransactionDocumentShell.displayName = "TransactionDocumentShell";
 
+/** One titled section card; the lock note leads its body. */
 function Slot({ name, title, lock, children }: { name: string; title: string; lock?: Lock; children: React.ReactNode }) {
-  const id = React.useId();
   return (
-    <section data-slot={name} aria-labelledby={id} className="min-w-0 space-y-3 p-4 md:p-5">
-      <h2 id={id} className="text-sm font-semibold">{title}</h2>
-      {lock ? <LockNote lock={lock} /> : null}
-      {children}
-    </section>
+    <SectionCard data-slot={name} title={title} className="min-w-0">
+      <div className="space-y-3">
+        {lock ? <LockNote lock={lock} /> : null}
+        {children}
+      </div>
+    </SectionCard>
   );
 }
 
