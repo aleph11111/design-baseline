@@ -1,3 +1,7 @@
+---
+ticket: page-body-section-card-stack
+---
+
 # Page body as a stack of raised section cards — design spec
 
 - **Roadmap:** [`page-body-section-card-stack`](../../backlog/page-body-section-card-stack.md)
