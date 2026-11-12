@@ -86,9 +86,9 @@ export function DashboardPeriodPair({
       className={className}
     >
       {state ?? (
-        // Cancel the cell's body gutter (SectionCard chromeless: px-5, title
-        // mb-3, section py-4): each StatTile owns its own px-5 / py-4.
-        <div className="-mx-5 -mt-3 -mb-4 grid grid-cols-1 divide-y divide-border sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+        // Cancel the card's body gutter (SectionCard body px-5 py-4): each
+        // StatTile owns its own px-5 / py-4.
+        <div className="-mx-5 -my-4 grid grid-cols-1 divide-y divide-border sm:grid-cols-2 sm:divide-x sm:divide-y-0">
           <Half half={month} />
           <Half half={ytd} />
         </div>

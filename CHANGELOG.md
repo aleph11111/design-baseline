@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.42.0
+
+- **Changed:** `DashboardShell` renders a `PageFrame` stack body (contract v4.7, MANIFEST 4.7, ADR-0015): a band-only first card holds the filters when any band slot is set, the KPI row is one raised card, and each `DashboardWidget` is its own bordered, rounded `SectionCard`. `DashboardGrid` is a gapped grid (`gap-4 md:gap-5`, same column breakpoints) with no hairline cell rules. Edit mode (move/configure/remove, drag and drop) is unchanged; the drop target shows a ring instead of a fill.
+- **Consumer:** none required.
+- **Breaking:** no (visual change only).
+
 ## v0.41.0
 
 - **Changed:** `BoardShell` renders a `PageFrame` stack body (kanban-board contract v3.5, MANIFEST 3.5, ADR-0015): the toolbar band sits on a band-only first card (an empty `SurfaceFrame`, rendered only when the band has content); the lane row (`data-slot="board-lanes"`) follows on the canvas and keeps its own horizontal scroller and the full-bleed marker.

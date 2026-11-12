@@ -75,7 +75,7 @@ const SPAN_MAP: Record<1 | 2 | 3, string> = {
 };
 
 export type DashboardWidgetProps = {
-  /** Widget heading, rendered as the cell's overline (via SectionCard). */
+  /** Widget heading, rendered in the card's title bar (via SectionCard). */
   title: React.ReactNode;
   /** Optional right-aligned controls beside the heading (a small range toggle, a menu). */
   actions?: React.ReactNode;
@@ -100,7 +100,7 @@ export type DashboardWidgetProps = {
   span: 1 | 2 | 3;
   /**
    * The widget body — a chart (consumer brings the chart library; the baseline
-   * ships none), a number, a small table. Padded by the cell.
+   * ships none), a number, a small table. Padded by the card.
    */
   children: React.ReactNode;
   /**
@@ -113,13 +113,12 @@ export type DashboardWidgetProps = {
 };
 
 /**
- * DashboardWidget — one cell in a `<DashboardGrid>`: a chromeless
- * `<SectionCard>` (overline heading + padded body, no card — the dashboard
- * frame is the page's one surface, ADR-0008 §3) ruled by hairlines on its
- * right and bottom edge, plus a grid column `span`. The body is chart-agnostic:
- * the archetype owns the frame, not the chart.
+ * DashboardWidget — one card in a `<DashboardGrid>`: a chromed `<SectionCard>`
+ * (overline heading + padded body, a bordered rounded card on the canvas,
+ * ADR-0015) plus a grid column `span`. The body is chart-agnostic: the
+ * archetype owns the card, not the chart.
  *
- * `span` carries no default — a backwards-compatible default is what disqualified
+`span` carries no default — a backwards-compatible default is what disqualified
  * it under RULES.md hard rule 10 (ADR-0004); it stays a per-call-site prop only
  * because the contract keys it exhaustively to the widget's kind.
  */
@@ -147,10 +146,7 @@ export function DashboardWidget({
           actions
         )
       }
-      chrome={false}
-      className={
-        edit ? "h-full" : cn("border-r border-b border-border", SPAN_MAP[span], className)
-      }
+      className={edit ? "h-full" : cn("h-full", SPAN_MAP[span], className)}
     >
       {children}
     </SectionCard>
@@ -180,8 +176,8 @@ export function DashboardWidget({
         if (Number.isInteger(from) && from !== edit.index) edit.onMove(from, edit.index);
       }}
       className={cn(
-        "cursor-grab border-r border-b border-border",
-        dropTarget && "bg-muted/40",
+        "cursor-grab rounded-lg",
+        dropTarget && "ring-2 ring-ring/40",
         SPAN_MAP[span],
         className,
       )}
