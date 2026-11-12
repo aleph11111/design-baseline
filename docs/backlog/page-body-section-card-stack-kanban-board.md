@@ -2,15 +2,23 @@
 area: archetypes
 opened: '2026-11-12'
 status: ready
+gate:
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-11-12T00:00:00Z'
 value: high
 spec: docs/superpowers/plans/2026-11-12-page-body-section-card-stack-design.md
 model: opus
-model_reason: "lane/card surface inversion on a full-bleed horizontally scrolling shell; drag-and-drop refs must keep working"
-gate:
-  score: 5
-  passed: [title, context, what_to_do, acceptance, related]
-  failed: []
-  graded_at: '2026-11-12T00:00:00Z'
+model_reason: >-
+  lane/card surface inversion on a full-bleed horizontally scrolling shell; drag-and-drop refs must
+  keep working
+roadmap: page-body-section-card-stack
 ---
 
 # Move the kanban-board shell onto the section-card stack with raised cards in canvas lanes
