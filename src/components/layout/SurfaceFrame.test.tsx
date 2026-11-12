@@ -22,9 +22,20 @@ describe("SurfaceFrame — canonical bounded surface", () => {
       expect(frame.className).toContain(cls);
     }
     expect(frame.className).not.toContain("shadow-sm");
-    // Tone, not a border, separates the raised frame from the canvas (ADR-0007 §3).
-    expect(frame.className).not.toMatch(/\bborder\b/);
+    // A hairline border separates the raised frame from the canvas (ADR-0015).
+    expect(frame.className).toMatch(/\bborder\b/);
     expect(frame.className).not.toContain("text-card-foreground");
+  });
+
+  it("drops border and fill when nested in another raised surface", () => {
+    const { container } = render(
+      <SurfaceFrame>
+        <SurfaceFrame>inner</SurfaceFrame>
+      </SurfaceFrame>,
+    );
+    const inner = container.firstElementChild?.firstElementChild as HTMLElement;
+    expect(inner.className).not.toMatch(/\bborder\b/);
+    expect(inner.className).not.toContain("bg-surface-raised");
   });
 
   it("is untitled: no header bar, just the body (ADR-0008)", () => {

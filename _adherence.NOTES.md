@@ -375,6 +375,16 @@ The first run's `warn` hits are recorded as
 with a known length (16 archetypes flagged on first run) rather than a prediction. As each archetype
 closes its class, flip its rules to `severity: error` — the ratchet above does the rest.
 
+### The body-shape rule — `pageframe-body-call-site` (ADR-0015)
+
+`PageFrame`'s `body` (`"frame"` | `"stack"`) is chosen by the archetype shell, never a page. The type
+already keeps it out of `PageShellFrameProps`; this `error` rule closes the remaining path, a direct
+`<PageFrame body=…>` anywhere outside `src/components/archetypes/**` and `src/components/layout/**`.
+JSX opening tags span lines, so the rule sets `wholeFile: true`: its `pattern` runs over the whole file
+text and the hit is reported at the tag's start line. Ceiling: `[^>]*?` stops at the first `>`, so an
+attribute before `body=` holding an arrow function (`=>`) hides it — a false negative, never a false hit.
+Consumers are covered separately: the page-shape rule already bans importing `PageFrame` in a page.
+
 ## Candidate rules — still awaiting custom tooling
 
 These need AST-aware analysis a line scan can't express; they live in human review (gate 4)

@@ -2,7 +2,7 @@
 import * as React from "react";
 import type { ClassValue } from "clsx";
 import { RaisedSurfaceContext } from "./surface";
-import { BandChrome } from "./ToolbarBand";
+import { BandChrome, ToolbarLeadContext } from "./ToolbarBand";
 import { cn } from "../../lib/utils";
 
 export type SurfaceFrameProps = {
@@ -35,9 +35,8 @@ export type SurfaceFrameProps = {
 
 /**
  * SurfaceFrame — the canonical bounded surface `PageFrame` mounts (ADR-0008:
- * untitled — the page title lives in `PageHeader`, never on the frame): a flat `overflow-clip rounded-lg bg-surface-raised` card (House
- * style B — no shadow, no border: tone separates it from the canvas, ADR-0007
- * §3) with the ruled `BandChrome` toolbar band as its one slot.
+ * untitled — the page title lives in `PageHeader`, never on the frame): a flat `overflow-clip rounded-lg border bg-surface-raised` card (no
+ * shadow; a hairline border on the canvas, none when nested — ADR-0015) with the ruled `BandChrome` toolbar band as its one slot.
  *
  * This is the shell-level peer of `<SectionCard>` (the section-level bounded
  * surface): one frame, one owner of the chrome string — the four
@@ -57,15 +56,18 @@ export function SurfaceFrame({
   ref,
 }: SurfaceFrameProps): React.ReactElement {
   const nested = React.useContext(RaisedSurfaceContext);
+  // First card of a stack body: the page's band is this frame's first band.
+  const lead = React.useContext(ToolbarLeadContext);
+  const band = toolbar ?? lead;
   const body = (
-    <>
-      {toolbar != null && <BandChrome>{toolbar}</BandChrome>}
+    <ToolbarLeadContext.Provider value={null}>
+      {band != null && <BandChrome>{band}</BandChrome>}
       {children}
-    </>
+    </ToolbarLeadContext.Provider>
   );
 
-  // Raised surface: tone, not a border, separates it from the canvas; nested
-  // in another raised surface it drops the fill too (ADR-0007 §3).
+  // Raised surface: a hairline border on the canvas; nested in another raised
+  // surface it drops border and fill (ADR-0015).
   return (
     <div
       ref={ref}
@@ -74,7 +76,7 @@ export function SurfaceFrame({
         // (sr-only labels), so its overflow clips them instead of them
         // widening the page.
         "relative rounded-lg",
-        !nested && "bg-surface-raised",
+        !nested && "border bg-surface-raised",
         overflow === "auto" ? "overflow-x-auto" : "overflow-clip",
         className,
       )}

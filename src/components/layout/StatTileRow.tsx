@@ -46,15 +46,15 @@ export function StatTileRow({
     4,
   ) as 2 | 3 | 4;
 
-  // Raised surface: no outer border (tone separates it from the canvas); nested
-  // in another raised surface it drops the fill too (ADR-0007 §3).
+  // Raised surface: a hairline border on the canvas; nested in another raised
+  // surface it drops border and fill (ADR-0015).
   const nested = React.useContext(RaisedSurfaceContext);
 
   return (
     <div
       className={cn(
         "overflow-hidden rounded-lg text-card-foreground",
-        !nested && "bg-surface-raised",
+        !nested && "border bg-surface-raised",
         "grid grid-cols-1 divide-y divide-border sm:divide-x sm:divide-y-0",
         SM_COLS_MAP[columns],
         className,

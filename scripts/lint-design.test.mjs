@@ -1591,3 +1591,50 @@ describe("the `pageShell` rule — a page renders one kind:page archetype shell,
     }
   });
 });
+
+describe("pageframe-body-call-site (ADR-0015: the body shape belongs to the archetype shell)", () => {
+  // The donor's own rule, read from `_adherence.json`, so the test pins the shipped config.
+  const rule = JSON.parse(readFileSync(join(root, "_adherence.json"), "utf8")).rules.find(
+    (r) => r.id === "pageframe-body-call-site",
+  );
+  // Multi-line opening tag: `body=` sits lines below `<PageFrame` — the `wholeFile` case.
+  const usage = '<PageFrame\n  title="Order"\n  body="stack"\n>\n  x\n</PageFrame>;\n';
+
+  function scan(files) {
+    const dir = mkdtempSync(join(tmpdir(), "lint-design-pageframe-body-"));
+    try {
+      for (const [rel, text] of Object.entries(files)) {
+        mkdirSync(join(dir, rel, ".."), { recursive: true });
+        writeFileSync(join(dir, rel), text);
+      }
+      writeFileSync(join(dir, "_adherence.json"), JSON.stringify({ targets: ["src"], rules: [rule] }));
+      try {
+        return { status: 0, stdout: execFileSync("node", [join(root, script)], { cwd: dir, encoding: "utf8" }) };
+      } catch (err) {
+        return { status: err.status, stdout: err.stdout ?? "" };
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
+  it("is an error at a page call site, reported at the tag's line", () => {
+    const { status, stdout } = scan({ "src/app/orders/page.tsx": usage });
+    expect(status).toBe(1);
+    expect(stdout).toContain("src/app/orders/page.tsx:1:1  error  pageframe-body-call-site");
+  });
+
+  it("is silent inside an archetype shell and the layout layer", () => {
+    const { status, stdout } = scan({
+      "src/components/archetypes/foo/FooShell.tsx": usage,
+      "src/components/layout/PageFrame.test.tsx": usage,
+    });
+    expect(status).toBe(0);
+    expect(stdout).not.toContain("pageframe-body-call-site");
+  });
+
+  it("does not fire on a PageFrame without body=", () => {
+    const { status } = scan({ "src/app/page.tsx": '<PageFrame title="x">\n  <Foo body="y" />\n</PageFrame>;\n' });
+    expect(status).toBe(0);
+  });
+});
