@@ -34,8 +34,11 @@ describe("SettingsSectionsShell — section-card stack (ADR-0008, ADR-0015)", ()
     // Section-card stack: one bordered, rounded card per section, no hairline wrapper.
     const stack = container.querySelector('[data-page-body="stack"]') as HTMLElement;
     expect(stack).not.toBeNull();
-    expect(stack.children).toHaveLength(2);
-    for (const card of Array.from(stack.children)) {
+    // The slot hook is kept on a display:contents wrapper; its children are the cards.
+    const slot = stack.querySelector('[data-slot="settings-sections"]') as HTMLElement;
+    expect(slot.className).toBe("contents");
+    expect(slot.children).toHaveLength(2);
+    for (const card of Array.from(slot.children)) {
       expect(card.className).toMatch(/(^|\s)border(\s|$)/);
       expect(card.className).toContain("rounded-lg");
     }

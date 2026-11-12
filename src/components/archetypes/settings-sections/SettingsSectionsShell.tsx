@@ -65,7 +65,11 @@ export function SettingsSectionsShell({
   return (
     <ErrorBoundary>
       <PageFrame {...header} body="stack">
-        {children}
+        {/* `contents`: no box of its own, so the sections stay the stack's flex items
+            (gap, cards) while existing `[data-slot="settings-sections"]` selectors keep working. */}
+        <div data-slot="settings-sections" className="contents">
+          {children}
+        </div>
       </PageFrame>
     </ErrorBoundary>
   );

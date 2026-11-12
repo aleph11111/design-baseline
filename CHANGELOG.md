@@ -4,7 +4,7 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 ## v0.43.0
 
-- **Changed:** `SettingsSectionsShell` renders a `PageFrame` stack body (settings-sections contract v1.1, MANIFEST 1.1, ADR-0015): each `SettingsSection` is its own bordered, rounded card on the canvas with a gap between; the `divide-y` wrapper and its `data-slot="settings-sections"` hook are gone (select `[data-page-body="stack"]`).
+- **Changed:** `SettingsSectionsShell` renders a `PageFrame` stack body (settings-sections contract v1.1, MANIFEST 1.1, ADR-0015): each `SettingsSection` is its own bordered, rounded card on the canvas with a gap between; the `divide-y` wrapper is gone and `data-slot="settings-sections"` is kept on a `display: contents` wrapper inside the stack body, so existing selectors keep working.
 - **Consumer:** none required.
 - **Breaking:** no (visual change only).
 
