@@ -20,12 +20,6 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 - **Consumer:** none required.
 - **Breaking:** no (visual change only).
 
-## v0.43.0
-
-- **Changed:** `SettingsSectionsShell` renders a `PageFrame` stack body (settings-sections contract v1.1, MANIFEST 1.1, ADR-0015): each `SettingsSection` is its own bordered, rounded card on the canvas with a gap between; the `divide-y` wrapper is gone and `data-slot="settings-sections"` is kept on a `display: contents` wrapper inside the stack body, so existing selectors keep working.
-- **Consumer:** none required.
-- **Breaking:** no (visual change only).
-
 ## v0.42.0
 
 - **Changed:** `DashboardShell` renders a `PageFrame` stack body (contract v4.7, MANIFEST 4.7, ADR-0015): a band-only first card holds the filters when any band slot is set, the KPI row is one raised card, and each `DashboardWidget` is its own bordered, rounded `SectionCard`. `DashboardGrid` is a gapped grid (`gap-4 md:gap-5`, same column breakpoints) with no hairline cell rules. Edit mode (move/configure/remove, drag and drop) is unchanged; the drop target shows a ring instead of a fill.
