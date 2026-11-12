@@ -517,3 +517,43 @@ describe("SettingsTableBody — flush placement", () => {
     expect(band.parentElement?.className).toContain("-mt-5");
   });
 });
+
+describe("SettingsTableBody — phone toolbar band", () => {
+  const realMatchMedia = window.matchMedia;
+  const realWidth = window.innerWidth;
+  afterEach(() => {
+    window.matchMedia = realMatchMedia;
+    Object.defineProperty(window, "innerWidth", { configurable: true, writable: true, value: realWidth });
+  });
+
+  it("collapses the toolbar into the Filter sheet like a PageFrame page, keeping the add action", () => {
+    Object.defineProperty(window, "innerWidth", { configurable: true, writable: true, value: 390 });
+    window.matchMedia = ((query: string) => ({
+      matches: true,
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    })) as unknown as typeof window.matchMedia;
+    const { container } = render(
+      <SettingsTableBody
+        rows={makeRows(2)}
+        columns={columns}
+        getRowId={(r) => r.id}
+        toolbar={<input aria-label="Search" />}
+        onAddNew={() => {}}
+        addNewLabel="Add supplier"
+      />,
+    );
+    const band = container.querySelector('[data-slot="settings-table-band"]') as HTMLElement;
+    expect(band.hasAttribute("data-toolbar-band")).toBe(true);
+    expect(screen.getByRole("button", { name: /^Filter/ })).toBeTruthy();
+    expect(screen.queryByLabelText("Search")).toBeNull();
+    const add = screen.getByRole("button", { name: /Add supplier/ });
+    // Actions sit on their own wrapping line, so a wide bulk+add cluster cannot overflow the phone.
+    expect((add.closest("[data-band-trailing]") as HTMLElement).className).toContain("flex-wrap");
+  });
+});

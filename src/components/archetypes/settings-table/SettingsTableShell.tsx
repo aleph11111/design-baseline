@@ -22,6 +22,7 @@ import {
   type TableColumn,
 } from "../shared";
 import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
+import { BandChrome, ToolbarBand } from "../../layout/ToolbarBand";
 import { cn } from "../../../lib/utils";
 import { useLabels, type BaselineLabels } from "../../../lib/labels";
 import { logger } from "../../../utils/logger";
@@ -615,10 +616,9 @@ export function SettingsTableBody<Row>({
     </Table>
   ) : null;
 
-  // Flush control band (the frame's band, minus the frame). The chrome string is the same
-  // ruled band the page frame owns (`border-b px-4 py-3`); the inner layout mirrors the
-  // frame's band (flex row, wrapped, count in the muted treatment) because a tab has no page
-  // header to hold these controls. The table's scroll region sits BELOW the band so the band
+  // Flush control band (the frame's band, minus the frame). Rendered with the same
+  // `ToolbarBand` the page frame uses (one chrome owner, filter sheet below `md`) because a
+  // tab has no page header to hold these controls. The table's scroll region sits BELOW the band so the band
   // stays in view while the table scrolls.
   const countLabel = resolveCountLabel({
     L,
@@ -655,20 +655,20 @@ export function SettingsTableBody<Row>({
   // wrapper has no siblings, so the bleed lands exactly on the surface edge.
   const bleed = flushEnabled ? "-mx-5" : "";
   const band = bandEnabled && hasBandControls ? (
-    <div data-slot="settings-table-band" className={cn("border-b px-4 py-3", bleed)}>
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <div className="flex min-w-0 flex-wrap items-center gap-2">{toolbar}</div>
-        {(onAddNew != null || bulkNode.show || countLabel != null) && (
-          <div className="ml-auto flex shrink-0 items-center gap-3">
-            {countLabel != null && (
-              <span className="text-sm text-muted-foreground">{countLabel}</span>
-            )}
-            {bulkNode.show && bulkNode.node}
-            {onAddNew != null && <SettingsTableAddButton onAddNew={onAddNew} label={addNewLabel} />}
-          </div>
-        )}
-      </div>
-    </div>
+    <BandChrome slot="settings-table-band" className={bleed}>
+      <ToolbarBand
+        toolbar={toolbar}
+        count={countLabel}
+        trailing={
+          (bulkNode.show || onAddNew != null) && (
+            <>
+              {bulkNode.show && bulkNode.node}
+              {onAddNew != null && <SettingsTableAddButton onAddNew={onAddNew} label={addNewLabel} />}
+            </>
+          )
+        }
+      />
+    </BandChrome>
   ) : null;
 
   return (
