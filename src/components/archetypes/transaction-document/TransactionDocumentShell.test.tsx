@@ -164,6 +164,8 @@ describe("TransactionDocumentShell — mockup fidelity", () => {
     const cards = [...body().children] as HTMLElement[];
     expect(cards.map((c) => c.getAttribute("data-slot"))).toEqual(["td-next-step", "td-ledger", "td-facts", "td-history"]);
     for (const c of cards) expect(c.className).toMatch(/\bborder\b.*\brounded-lg\b|\brounded-lg\b.*\bborder\b/);
+    // titled cards keep their region names
+    expect(screen.getByRole("region", { name: "Lines" })).toBe(slot("td-ledger"));
   });
 
   it("nextStep.tone warning renders the warning surface; omitted renders the neutral panel", () => {

@@ -6,7 +6,8 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 - **Changed:** `TransactionDocumentShell` renders a `PageFrame` stack body (contract v1.3, MANIFEST 1.3, ADR-0015): next step, ledger, facts and history are each their own bordered `SectionCard` on the canvas (`data-slot`s unchanged); the next-step card keeps its tone fill as the toned callout. The phone's sticky primary bar stays in the stack body, outside every card.
 - **Changed:** the Td page width has one bound. The shell's local `max-w-4xl` is gone; its root carries the derived marker `DOCUMENT_COLUMN_CLASS` (`db-document-column`, `layout/surface.ts`, dropped when nested), and `AppShell`'s content column bounds itself to the new `--db-document-max: 896px` token when it holds one — the wide-desk steps no longer apply (ADR-0015 amendment to ADR-0007 §1).
-- **Added:** `SectionCard` passes extra HTML attributes (`data-*`, `aria-*`, `id`) to its `<section>`.
+- **Added:** `SectionCard` passes `id`, `aria-*` and `data-*` attributes to its `<section>` (identity hooks only; no `style` or handlers).
+- **Changed:** the `tapOverlap` page invariant (`design-baseline/testing/invariants`) no longer counts a pinned (sticky/fixed) bar covering scrolled, non-pinned content as a neighbour's overhang — for every page, not only Td.
 - **Consumer:** none required.
 - **Breaking:** no (visual change only).
 

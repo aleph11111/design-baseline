@@ -297,7 +297,7 @@ TransactionDocumentShell.displayName = "TransactionDocumentShell";
 /** One titled section card; the lock note leads its body. */
 function Slot({ name, title, lock, children }: { name: string; title: string; lock?: Lock; children: React.ReactNode }) {
   return (
-    <SectionCard data-slot={name} title={title} className="min-w-0">
+    <SectionCard data-slot={name} title={title} aria-label={title} className="min-w-0">
       <div className="space-y-3">
         {lock ? <LockNote lock={lock} /> : null}
         {children}

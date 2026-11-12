@@ -56,7 +56,11 @@ export type SectionCardProps = {
   chrome?: boolean;
   children: React.ReactNode;
   className?: string;
-} & Omit<React.HTMLAttributes<HTMLElement>, "title" | "children" | "className">;
+} & Pick<React.HTMLAttributes<HTMLElement>, "id"> &
+  React.AriaAttributes & {
+    /** Identity hooks only (`data-slot`, `data-tone`) — never appearance. */
+    [data: `data-${string}`]: string | undefined;
+  };
 
 // ---------------------------------------------------------------------------
 // Component
