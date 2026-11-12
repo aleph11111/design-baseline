@@ -36,6 +36,8 @@ Pick it over its neighbours (see `docs/CHOOSING-A-SURFACE.md`):
 
 ---
 
+**Body shape: one frame.** The page body is one frame, not a stack of section cards (ADR-0015): it is a paper page, one sheet by definition.
+
 ## Structure
 
 A print statement is mounted on a route **outside the app shell** — no

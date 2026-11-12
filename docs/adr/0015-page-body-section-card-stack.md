@@ -33,3 +33,28 @@ Keeps today's borderless single frame and borders only the stack cards. Rejected
 ## Amendment to ADR 0007 §1 — the document column (2026-11-12)
 
 The transaction-document slice had two width bounds: its own `max-w-4xl` inside `AppShell`'s stepped content column. It now has one. A document-column archetype shell (today only `transaction-document`) carries a derived marker on its root, the sibling of the full-bleed marker, and `AppShell`'s content column bounds itself to a `--db-document-max` token (896px) when it holds one. The wide-desk steps restyle only `--db-content-max`, so they never widen the document column. As with full-bleed, the marker is derived from the archetype (ADR 0004), never a call-site prop, and it is dropped when the shell is nested in another raised surface. The width has one owner: `AppShell`'s tokens.
+
+## Body shape per archetype (2026-11-12)
+
+Every `kind: page` archetype in `MANIFEST.json`, once. `frame` archetypes record the keep-single-frame decision in their contract.
+
+| Archetype | Body | Why |
+|---|---|---|
+| `transaction-document` | stack | titled sections |
+| `analytics-dashboard` | stack | titled sections |
+| `kanban-board` | stack | titled sections |
+| `form-page` | stack | titled sections |
+| `grouped-list` | stack | titled sections |
+| `settings-sections` | stack | titled sections |
+| `detail-overview` | stack | titled sections |
+| `list-with-detail` | frame | full-bleed, table-first (ADR-0007 §1) |
+| `matrix-grid` | frame | full-bleed, table-first (ADR-0007 §1) |
+| `statement-with-filters` | frame | full-bleed, table-first (ADR-0007 §1) |
+| `calendar` | frame | full-bleed, table-first (ADR-0007 §1) |
+| `settings-table` | frame | one table |
+| `feed-inbox` | frame | one inbox list, split reading pane at `@3xl` |
+| `tabbed-settings` | frame | tab host; child pages choose their own archetype |
+| `import-wizard` | frame | one step at a time |
+| `report` | frame | one read-through document |
+| `print-statement` | frame | a paper page |
+| `structure-builder` | frame | one workbench |

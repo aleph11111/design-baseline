@@ -40,6 +40,8 @@ distinctions from a domain hub (F1) are:
 
 ---
 
+**Body shape: one frame.** The page body is one frame, not a stack of section cards (ADR-0015): it is a tab host: each child page chooses its own archetype and so its own body shape.
+
 ## The twelve-layer spec
 
 ### Layer 1 — Route config

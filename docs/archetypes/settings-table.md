@@ -138,6 +138,8 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
 
 ---
 
+**Body shape: one frame.** The page body is one frame, not a stack of section cards (ADR-0015): its body is one table, not a list of titled sections.
+
 ## Layer 1 — Route config
 
 **Required:**

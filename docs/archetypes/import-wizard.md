@@ -27,6 +27,8 @@ my-finance-app — rule-of-2).
 A dedicated route (e.g. `/imports/new`, `/transactions/import`). Lazy + suspense.
 Often paired with an **import history** list (see Layer 4).
 
+**Body shape: one frame.** The page body is one frame, not a stack of section cards (ADR-0015): it shows one step at a time, so there are no sibling sections to separate.
+
 ## Layer 2 — Page shell
 The project's top-level app shell (its main region supplies the page inset; the
 page adds none). A render-error boundary wraps content; a failed step surfaces

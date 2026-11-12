@@ -50,6 +50,8 @@ read-only ledger report" donor gap recorded in that fleet's archetype page-map
 
 > **Binding.** The baseline binding for this archetype is the shipped, typed export — import `design-baseline/archetypes/statement-with-filters`; the prop surface is the API and the sandbox demo (`src/examples/statement-with-filters-demo.tsx`) is the gallery reference.
 
+**Body shape: one frame.** The page body is one frame, not a stack of section cards (ADR-0015): a full-bleed, table-first page whose body is one bounded statement table.
+
 ## Structure
 
 One page, built through the one page frame (ADR-0008); the page supplies
