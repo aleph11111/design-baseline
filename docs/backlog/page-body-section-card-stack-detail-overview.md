@@ -2,15 +2,23 @@
 area: archetypes
 opened: '2026-11-12'
 status: ready
+gate:
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-11-12T00:00:00Z'
 value: normal
 spec: docs/superpowers/plans/2026-11-12-page-body-section-card-stack-design.md
 model: opus
-model_reason: "three layouts (rail, vertical, width presets) and a sticky rail; the stack has to keep the rail sticking and the layout decision table intact"
-gate:
-  score: 5
-  passed: [title, context, what_to_do, acceptance, related]
-  failed: []
-  graded_at: '2026-11-12T00:00:00Z'
+model_reason: >-
+  three layouts (rail, vertical, width presets) and a sticky rail; the stack has to keep the rail
+  sticking and the layout decision table intact
+roadmap: page-body-section-card-stack
 ---
 
 # Move the detail-overview shell onto the section-card stack with sections and rail as cards
