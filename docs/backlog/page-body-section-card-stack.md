@@ -3,9 +3,42 @@ area: archetypes
 kind: roadmap
 opened: '2026-11-11'
 status: active
+spec: docs/superpowers/plans/2026-11-12-page-body-section-card-stack-design.md
 scope:
   - page-body-section-card-*
-tickets: []
+stories:
+  - section-cards-on-canvas
+  - section-card-stack-choice-lives-in-shell
+tickets:
+  - page-body-section-card-stack-adr-0015
+  - page-body-section-card-stack-primitive
+phases:
+  - name: p1
+    title: Rule and primitive — ADR-0015, bordered raised-surface chrome, PageFrame stack mode, call-site lint
+    tickets:
+      - page-body-section-card-stack-adr-0015
+      - page-body-section-card-stack-primitive
+    spec_anchor: '### Phase 1 — Rule and primitive'
+  - name: p2
+    title: transaction-document slice — one card per section, one column bound
+    tickets: []
+    open: true
+    spec_anchor: '### Phase 2 — transaction-document slice'
+  - name: p3
+    title: Weak-separation slices — analytics-dashboard, kanban-board
+    tickets: []
+    open: true
+    spec_anchor: '### Phase 3 — Weak-separation slices'
+  - name: p4
+    title: Remaining kind:page archetypes — stack slice or recorded keep-frame decision
+    tickets: []
+    open: true
+    spec_anchor: '### Phase 4 — Remaining archetypes'
+  - name: p5
+    title: Consumer migration tickets
+    tickets: []
+    open: true
+    spec_anchor: '### Phase 5 — Consumer migration'
 ---
 
 # Page body as a stack of raised section cards (supersedes ADR-0008 §3 and ADR-0007 §3)
