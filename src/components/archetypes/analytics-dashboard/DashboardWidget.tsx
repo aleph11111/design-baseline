@@ -118,7 +118,7 @@ export type DashboardWidgetProps = {
  * ADR-0015) plus a grid column `span`. The body is chart-agnostic: the
  * archetype owns the card, not the chart.
  *
-`span` carries no default — a backwards-compatible default is what disqualified
+ * `span` carries no default — a backwards-compatible default is what disqualified
  * it under RULES.md hard rule 10 (ADR-0004); it stays a per-call-site prop only
  * because the contract keys it exhaustively to the widget's kind.
  */

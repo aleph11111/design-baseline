@@ -134,4 +134,30 @@ describe("analytics-dashboard edit mode (ADR-0011)", () => {
     expect(onToggle).toHaveBeenCalledWith("a");
     expect((screen.getByRole("checkbox", { name: /South/ }) as HTMLButtonElement).disabled).toBe(true);
   });
+
+  it("edit-mode widgets are cards on a gapped grid; the drop target shows a ring", () => {
+    const { container } = render(
+      <DashboardGrid>
+        <DashboardWidget title="Alpha" span={1} edit={edit("Alpha", 0)}>a</DashboardWidget>
+        <DashboardWidget title="Beta" span={1} edit={edit("Beta", 1)}>b</DashboardWidget>
+      </DashboardGrid>,
+    );
+    expect(container.firstElementChild!.className).toMatch(/gap-4.*md:gap-5/);
+    expect(container.innerHTML).not.toMatch(/-mr-px|-mb-px|border-r/);
+    for (const section of container.querySelectorAll("section")) {
+      expect(section.className).toMatch(/(^|\s)border(\s|$)/);
+      expect(section.className).toContain("rounded-lg");
+    }
+    const wrapper = container.querySelector('[data-slot="dashboard-widget-edit"]') as HTMLElement;
+    const dataTransfer = { types: ["application/x-dashboard-widget"], getData: () => "1", setData: vi.fn() };
+    fireEvent.dragOver(wrapper, { dataTransfer });
+    expect(wrapper.className).toContain("ring-2");
+  });
+
+  it("assignment list is a raised card", () => {
+    const { container } = render(<DashboardAssignmentList title="Shops" onToggle={vi.fn()} targets={[]} />);
+    const section = container.querySelector("section")!;
+    expect(section.className).toMatch(/(^|\s)border(\s|$)/);
+    expect(section.className).toContain("rounded-lg");
+  });
 });
