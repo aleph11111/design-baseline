@@ -2,16 +2,26 @@
 area: archetypes
 opened: '2026-11-12'
 status: ready
-value: high
-spec: docs/superpowers/plans/2026-11-12-page-body-section-card-stack-design.md
-depends_on: [page-body-section-card-stack-adr-0015, code-health-toolbar-band-extract-from-pageframe]
-model: opus
-model_reason: "fleet-wide chrome change plus a new PageFrame mode and context; touches every baseline and the shared band"
 gate:
   score: 5
-  passed: [title, context, what_to_do, acceptance, related]
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
   failed: []
   graded_at: '2026-11-12T00:00:00Z'
+value: high
+spec: docs/superpowers/plans/2026-11-12-page-body-section-card-stack-design.md
+depends_on:
+  - page-body-section-card-stack-adr-0015
+  - code-health-toolbar-band-extract-from-pageframe
+model: opus
+model_reason: >-
+  fleet-wide chrome change plus a new PageFrame mode and context; touches every baseline and the
+  shared band
+roadmap: page-body-section-card-stack
 ---
 
 # Add the bordered raised-surface chrome and PageFrame stack body mode
