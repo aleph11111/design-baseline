@@ -90,7 +90,7 @@ The `toolbar` slot holds everything that **scopes** the rows across every sectio
 ## Layer 5 — Content wrapper
 
 **Required:**
-- **The grouped-list shell** — the archetype's page shell. It owns the stack of section cards on the canvas, the gap between them, and the page-level empty / loading / error planes (rendered when `isEmpty` is true and not loading or erroring).
+- **The grouped-list shell** — the archetype's page shell. It owns the stack of section cards on the canvas, the gap between them, and the page-level empty / loading / error planes, which render inside one card, never bare on the canvas (rendered when `isEmpty` is true and not loading or erroring).
 - One section per group, plus an optional trailing section for ungrouped rows. Sections are passed as children of the grouped-list shell.
 
 **Required per section:**
@@ -106,7 +106,7 @@ The `toolbar` slot holds everything that **scopes** the rows across every sectio
 - A per-section toggle for the row-count badge. The count is part of the section signature and is derived from the group's own row count.
 - Section chrome styled per page.
 - Page-level `max-width` on the grouped content region. Full-width.
-- Wrapping the grouped-list shell, or a section, in an additional card (nested chrome). Loading, empty and error planes render inside one card, never bare on the canvas.
+- Wrapping the grouped-list shell, or a section, in an additional card (nested chrome).
 
 ---
 

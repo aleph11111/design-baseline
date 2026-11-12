@@ -27,6 +27,15 @@ describe("GroupedListShell — page frame (ADR-0008)", () => {
     expect(card.contains(screen.getByRole("textbox", { name: "Search" }))).toBe(true);
   });
 
+  it("keeps the toolbar band when every child renders nothing", () => {
+    render(
+      <GroupedListShell title="Products" toolbar={<input aria-label="Search" />}>
+        {[null, false]}
+      </GroupedListShell>,
+    );
+    expect(screen.getByRole("textbox", { name: "Search" })).toBeTruthy();
+  });
+
   it("renders the empty state inside one bordered card", () => {
     const { container } = render(<GroupedListShell title="Products" isEmpty emptyMessage="Nothing here" />);
     const cards = container.querySelectorAll("[data-page-body='stack'] > section");
