@@ -33,6 +33,14 @@ export const MAX_INLINE_FIELDS = 4;
 /** `cond && <X />` yields `false`: an absent slot, not an empty band. */
 export const has = (slot: React.ReactNode): boolean => slot != null && slot !== false;
 
+/**
+ * The page's toolbar band, handed to the first card of a `PageFrame`
+ * `body="stack"` (ADR-0015). Only the first child sees it; the first
+ * `SurfaceFrame` / `SectionCard` under it renders it as its first ruled band
+ * and clears it for its own descendants.
+ */
+export const ToolbarLeadContext = React.createContext<React.ReactNode>(null);
+
 /** The ruled band chrome — the one owner of the ruled band chrome string. */
 export function BandChrome({
   children,

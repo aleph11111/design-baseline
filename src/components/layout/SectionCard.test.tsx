@@ -14,7 +14,7 @@ function sectionOf(container: HTMLElement): HTMLElement {
 }
 
 describe("SectionCard — chrome=true (default)", () => {
-  it("renders the raised, rounded card surface without a border", () => {
+  it("renders the raised, rounded card surface with a hairline border (ADR-0015)", () => {
     const { container } = render(
       <SectionCard title="Details">
         <p>body</p>
@@ -23,11 +23,11 @@ describe("SectionCard — chrome=true (default)", () => {
 
     const section = sectionOf(container);
     expect(section.className).toContain("rounded-lg");
-    expect(section.className).not.toMatch(/\bborder\b/);
+    expect(section.className).toMatch(/\bborder\b/);
     expect(section.className).toContain("bg-surface-raised");
   });
 
-  it("drops its fill when nested in another raised surface (no card-in-card)", () => {
+  it("drops border and fill when nested in another raised surface (no card-in-card)", () => {
     const { container } = render(
       <SectionCard title="Outer">
         <SectionCard title="Inner">
@@ -79,7 +79,21 @@ describe("SectionCard — chrome=true (default)", () => {
 
     const section = sectionOf(container);
     expect(section.className).toContain("bg-muted/40");
+    expect(section.className).toMatch(/\bborder\b/);
     expect(section.className).not.toContain("bg-card");
+  });
+
+  it("a nested muted section drops border and fill too", () => {
+    const { container } = render(
+      <SectionCard title="Outer">
+        <SectionCard title="Inner" tone="muted">
+          <p>body</p>
+        </SectionCard>
+      </SectionCard>,
+    );
+    const inner = container.querySelectorAll("section")[1] as HTMLElement;
+    expect(inner.className).not.toMatch(/\bborder\b/);
+    expect(inner.className).not.toContain("bg-muted/40");
   });
 });
 

@@ -3,8 +3,8 @@ import * as React from "react";
 
 /**
  * True inside a raised surface (`SurfaceFrame`, `SectionCard`, `StatTileRow`).
- * A raised surface nested in another drops its own border and fill: surfaces
- * separate by tone, and a card-in-card has no tone step left (ADR-0007 §3).
+ * Un-nested, a raised surface carries a hairline border on the canvas; nested
+ * in another it drops both border and fill — no card-in-card (ADR-0015).
  */
 export const RaisedSurfaceContext = React.createContext(false);
 

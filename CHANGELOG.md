@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.39.0
+
+- **Changed:** every un-nested raised surface — `SurfaceFrame` (so every `PageFrame` page), `SectionCard` (default and `muted` tone) and `StatTileRow` — now carries a hairline `border` on the canvas; a raised surface nested in another drops both border and fill, including a nested `muted` `SectionCard` (ADR-0015, superseding ADR-0007 §3).
+- **Added:** `PageFrame` `body?: "frame" | "stack"` (default `"frame"`). `"stack"` renders the `PageHeader`, then each child as its own raised card in a gap column, with the toolbar band on the first card (`ToolbarLeadContext`; `SectionCard` / `SurfaceFrame` render it above their title bar). Omitted from `PageShellFrameProps`: the archetype shell chooses it. No shell uses it yet.
+- **Added:** `_adherence.json` rule `pageframe-body-call-site` (error) — `body=` on `<PageFrame>` outside `src/components/archetypes/**` and `src/components/layout/**` — and the scanner's `wholeFile: true` pattern mode for multi-line JSX tags.
+- **Consumer:** none required; pages render a hairline border around their surface after updating.
+- **Breaking:** no (visual change only).
+
 ## v0.38.1
 
 - **Changed:** the toolbar band moves out of `PageFrame` into one internal `ToolbarBand` (+ `BandChrome`), used by `PageFrame`, `SurfaceFrame` and `SettingsTableBody`. `MAX_INLINE_FIELDS` is still exported from `PageFrame`.

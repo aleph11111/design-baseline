@@ -4,7 +4,7 @@ import type { ClassValue } from "clsx";
 import { PageHeader, type PageHeaderProps } from "./PageHeader";
 import { NestedPageHeading } from "./NestedPageHeading";
 import { SurfaceFrame } from "./SurfaceFrame";
-import { BandChrome, ToolbarBand, has, type FilterLabels } from "./ToolbarBand";
+import { BandChrome, ToolbarBand, ToolbarLeadContext, has, type FilterLabels } from "./ToolbarBand";
 import { HeadingHostContext } from "../ui/heading-host";
 import { RaisedSurfaceContext } from "./surface";
 import { cn } from "../../lib/utils";
@@ -92,8 +92,17 @@ export type PageFrameProps = {
   viewOptions?: React.ReactNode;
   /** Label of the view-options trigger. */
   viewOptionsLabel?: string;
-  /** The body — rendered inside the page's one raised surface. */
+  /** The body — rendered inside the page's one raised surface, or, with
+   *  `body="stack"`, one raised card per child. */
   children: React.ReactNode;
+  /**
+   * Body shape (ADR-0015). `"frame"` (default): one raised surface holds the
+   * band and the body. `"stack"`: each child is its own raised card on the
+   * canvas, and the toolbar band rides on the first card. Chosen by the
+   * archetype shell, never a page call site — not in `PageShellFrameProps`.
+   * Ignored when the `PageFrame` is nested or host-titled.
+   */
+  body?: "frame" | "stack";
   /** Structural classes on the page root (width presets, the full-bleed
    *  marker). Never appearance (ADR-0004). */
   className?: ClassValue;
@@ -107,7 +116,7 @@ export type PageFrameProps = {
  */
 export type PageShellFrameProps = Omit<
   PageFrameProps,
-  "children" | "className" | "icon" | "backHref" | "backLabel" | "renderBackLink"
+  "children" | "className" | "body" | "icon" | "backHref" | "backLabel" | "renderBackLink"
 >;
 
 /**
@@ -145,6 +154,7 @@ export function PageFrame({
   viewOptionsLabel,
   children,
   className,
+  body = "frame",
 }: PageFrameProps): React.ReactElement {
   const actions = isHeaderActions(actionsProp) ? renderHeaderActions(actionsProp) : actionsProp;
   const nested = React.useContext(PageFrameContext);
@@ -212,15 +222,32 @@ export function PageFrame({
         actions={actions}
       />
       <PageFrameContext.Provider value={true}>
-        <SurfaceFrame toolbar={band}>
-          {children}
-        </SurfaceFrame>
+        {body === "stack" ? (
+          <RaisedSurfaceContext.Provider value={false}>
+            <div data-page-body="stack" className="flex flex-col gap-4 md:gap-5">{stackChildren(children, band)}</div>
+          </RaisedSurfaceContext.Provider>
+        ) : (
+          <SurfaceFrame toolbar={band}>
+            {children}
+          </SurfaceFrame>
+        )}
       </PageFrameContext.Provider>
     </div>
   );
 }
 
 PageFrame.displayName = "PageFrame";
+
+/** The stack body's children, with the toolbar band handed to the first only. */
+function stackChildren(children: React.ReactNode, band: React.ReactNode): React.ReactNode {
+  const [first, ...rest] = React.Children.toArray(children);
+  return (
+    <>
+      <ToolbarLeadContext.Provider value={band}>{first}</ToolbarLeadContext.Provider>
+      {rest}
+    </>
+  );
+}
 
 /** Re-exported for tests and consumers; defined with the band that applies it. */
 export { MAX_INLINE_FIELDS } from "./ToolbarBand";

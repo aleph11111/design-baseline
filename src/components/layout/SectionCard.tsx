@@ -2,6 +2,7 @@
 import * as React from "react";
 import { SectionHeading } from "./SectionHeading";
 import { RaisedSurfaceContext } from "./surface";
+import { BandChrome, ToolbarLeadContext } from "./ToolbarBand";
 import { HeadingHostContext } from "../ui/heading-host";
 import { cn } from "../../lib/utils";
 
@@ -89,16 +90,19 @@ export function SectionCard({
   className,
 }: SectionCardProps): React.ReactElement {
   const nested = React.useContext(RaisedSurfaceContext);
+  // First card of a stack body: the page's band rides above the title bar.
+  const lead = React.useContext(ToolbarLeadContext);
+  const leadBand = lead != null && <BandChrome>{lead}</BandChrome>;
   const hasBar = title !== undefined;
   const bar = (
     <SectionHeading title={title} description={description} actions={actions} />
   );
   // A titled section owns its region's heading: a shell inside draws none.
   const body = flush ? children : <div className={chrome ? "px-5 py-4" : "px-5"}>{children}</div>;
-  const content = hasBar ? (
-    <HeadingHostContext.Provider value={true}>{body}</HeadingHostContext.Provider>
-  ) : (
-    body
+  const content = (
+    <ToolbarLeadContext.Provider value={null}>
+      {hasBar ? <HeadingHostContext.Provider value={true}>{body}</HeadingHostContext.Provider> : body}
+    </ToolbarLeadContext.Provider>
   );
 
   // Chromeless (embedded in an already-bounded surface, e.g. the unified rail):
@@ -109,26 +113,27 @@ export function SectionCard({
   if (!chrome) {
     return (
       <section className={cn("py-4", className)}>
+        {leadBand}
         {hasBar && <div className="mb-3 px-5">{bar}</div>}
         {content}
       </section>
     );
   }
 
-  // Raised surface on the canvas: separated by tone, no border. Nested in
-  // another raised surface it drops the fill too (no card-in-card, ADR-0007 §3).
+  // Raised surface on the canvas: a hairline border. Nested in another raised
+  // surface it drops border and fill (no card-in-card, ADR-0015).
   return (
     <section
       className={cn(
         // relative: contain absolute descendants (sr-only) so the clip holds.
         "relative overflow-hidden rounded-lg",
-        tone === "muted"
-          ? "bg-muted/40"
-          : !nested && "bg-surface-raised text-card-foreground",
+        !nested && "border",
+        !nested && (tone === "muted" ? "bg-muted/40" : "bg-surface-raised text-card-foreground"),
         className,
       )}
     >
       <RaisedSurfaceContext.Provider value={true}>
+        {leadBand}
         {hasBar && (
           <div className="border-b border-border px-5 py-3">{bar}</div>
         )}

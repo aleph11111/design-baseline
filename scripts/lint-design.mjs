@@ -83,6 +83,10 @@
 // error once it no longer violates or is no longer a scanned page file — so the list can only
 // shrink as pages are fixed.
 //
+// A `pattern` rule with `wholeFile: true` matches against the whole file text instead of
+// line by line, so it can see a multi-line JSX opening tag (`<PageFrame` on one line,
+// `body=` three lines down). The hit is reported at the match's start line.
+//
 // Usage:  node scripts/lint-design.mjs [--json] [--ci-threshold <n>]
 // Config: ADHERENCE_CONFIG=path overrides the default `_adherence.json`.
 //
@@ -486,6 +490,7 @@ function compileRules(rules, targets, pageShells) {
       toolbarTabs: Boolean(rule.toolbarTabs),
       toolbarSwitch: Boolean(rule.toolbarSwitch),
       handRolledCombobox: Boolean(rule.handRolledCombobox),
+      wholeFile: Boolean(rule.wholeFile),
       pageShell: rule.pageShell ? pageShells : null,
       grandfathered: rule.grandfathered ?? [],
       includes,
@@ -505,7 +510,7 @@ function scanFile(fileRel, text, compiled) {
   // The union-type-alias pre-pass: harvested once per file, and only when some rule asks for
   // it (`{{unionAliases}}`), so a config without such a rule pays nothing.
   const aliases = compiled.some((c) => c.aliasSource) ? harvestUnionAliases(text) : [];
-  for (const { re: compiledRe, aliasSource, label, severity, message, slots, toolbarTabs, toolbarSwitch, handRolledCombobox, pageShell, grandfathered, includes, excludes } of compiled) {
+  for (const { re: compiledRe, aliasSource, label, severity, message, slots, toolbarTabs, toolbarSwitch, handRolledCombobox, wholeFile, pageShell, grandfathered, includes, excludes } of compiled) {
     // No `include` (or a rule whose `include` list is empty) matches every walked file;
     // with one or more `include` globs the rule applies only when ANY of them matches.
     // The scope globs are matched by `path.matchesGlob` (stdlib since v22) — `**` spans
@@ -555,6 +560,14 @@ function scanFile(fileRel, text, compiled) {
     if (aliasSource && !aliases.length) continue;
     const re = aliasSource ? new RegExp(aliasSource.replaceAll(ALIAS_TOKEN, aliases.join('|')), 'g') : compiledRe;
     re.lastIndex = 0; // the `g` flag makes `matchAll` index-sensitive — don't leak state
+    if (wholeFile) {
+      for (const m of text.matchAll(re)) {
+        const before = text.slice(0, m.index);
+        const line = before.split('\n').length;
+        violations.push({ file: fileRel, line, col: m.index - before.lastIndexOf('\n'), rule: label, severity, message });
+      }
+      continue;
+    }
     lines.forEach((line, i) => {
       for (const m of line.matchAll(re)) {
         violations.push({

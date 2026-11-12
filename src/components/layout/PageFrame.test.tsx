@@ -303,6 +303,84 @@ describe("PageFrame — mobile filter sheet (below md)", () => {
   });
 });
 
+describe("PageFrame — stack body (ADR-0015)", () => {
+  function setViewport(width: number) {
+    Object.defineProperty(window, "innerWidth", { configurable: true, writable: true, value: width });
+    window.matchMedia = ((query: string) => ({
+      matches: width < 768,
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    })) as unknown as typeof window.matchMedia;
+  }
+  afterEach(() => setViewport(1024));
+
+  function renderStack() {
+    return render(
+      <PageFrame
+        title="Order 4711"
+        body="stack"
+        toolbar={<NativeField label="Suche" value="" onChange={() => {}} />}
+        count="3 lines"
+      >
+        <SectionCard title="Lines">lines</SectionCard>
+        <SectionCard title="Totals">totals</SectionCard>
+      </PageFrame>,
+    );
+  }
+
+  it("renders the page header, then a gap container of bordered cards with no frame around them", () => {
+    const { container } = renderStack();
+    expect(screen.getByRole("heading", { level: 1, name: "Order 4711" })).toBeTruthy();
+    const stack = container.querySelector("[data-page-body=stack]") as HTMLElement;
+    expect(stack.className).toContain("md:gap-5");
+    // No SurfaceFrame: the cards are the stack's direct children, each un-nested.
+    expect(stack.closest(".bg-surface-raised")).toBeNull();
+    const cards = Array.from(stack.children) as HTMLElement[];
+    expect(cards).toHaveLength(2);
+    for (const card of cards) {
+      expect(card.tagName).toBe("SECTION");
+      expect(card.className).toMatch(/\bborder\b/);
+      expect(card.className).toContain("bg-surface-raised");
+    }
+  });
+
+  it("renders the toolbar band in the first card only, above its title bar", () => {
+    const { container } = renderStack();
+    const bands = container.querySelectorAll("[data-toolbar-band]");
+    expect(bands).toHaveLength(1);
+    const [first, second] = Array.from(container.querySelectorAll("section")) as [HTMLElement, HTMLElement];
+    expect(first.firstElementChild?.hasAttribute("data-toolbar-band")).toBe(true);
+    expect(within(first).getByText("3 lines")).toBeTruthy();
+    expect(second.querySelector("[data-toolbar-band]")).toBeNull();
+  });
+
+  it("opens the mobile filter sheet from the first card's band", () => {
+    setViewport(430);
+    renderStack();
+    expect(screen.queryByRole("textbox", { name: "Suche" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /Filter/ }));
+    expect(screen.getByRole("dialog")).toBeTruthy();
+    expect(screen.getByRole("textbox", { name: "Suche" })).toBeTruthy();
+  });
+
+  it("is ignored when nested: the sub-page joins the parent's surface", () => {
+    const { container } = render(
+      <PageFrame title="Order">
+        <PageFrame title="Lines" body="stack">
+          <SectionCard title="A">a</SectionCard>
+        </PageFrame>
+      </PageFrame>,
+    );
+    expect(container.querySelector("[data-page-body]")).toBeNull();
+    expect(screen.getByRole("heading", { level: 2, name: "Lines" })).toBeTruthy();
+  });
+});
+
 describe("PageFrame — desktop toolbar cap", () => {
   const field = (n: number) => <button key={n}>field{n}</button>;
   const realMatchMedia = window.matchMedia;
