@@ -5,6 +5,7 @@ import { TooltipProvider } from "../ui/tooltip";
 import { SectionCard } from "./SectionCard";
 import { FULL_BLEED_CLASS } from "./surface";
 import { DetailOverviewShell } from "../archetypes/detail-overview/DetailOverviewShell";
+import { DetailSection } from "../archetypes/detail-overview/DetailSection";
 import { ListWithDetailShell, type ListColumn } from "../archetypes/list-with-detail/ListWithDetailShell";
 import { CalendarShell } from "../archetypes/calendar/CalendarShell";
 import { BoardShell } from "../archetypes/kanban-board/BoardShell";
@@ -54,7 +55,8 @@ describe("full-bleed marker is scoped to the page's own surface", () => {
 
       const inDetail = render(
         <TooltipProvider>
-          <DetailOverviewShell title="Record" summary={<div />} content={shell()} />
+          {/* Stack body (ADR-0015): content sits in its section card, per contract. */}
+          <DetailOverviewShell title="Record" summary={<div />} content={<DetailSection title="Embedded">{shell()}</DetailSection>} />
         </TooltipProvider>,
       );
       expect(bleeds(inDetail.container)).toBe(false);
