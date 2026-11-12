@@ -5,7 +5,7 @@ status: ready
 value: normal
 model: sonnet
 model_reason: "one spawnSync arg list in bin/design-baseline-playwright.mjs; proposal names the exact flags, no design left open"
-depends_on: [playwright-bin-linux-root-owned-output]
+depends_on: [playwright-bin-linux-root-owned-output, backlog-coherence-code-health-8e8dac]
 gate:
   score: 5
   passed: [title, context, what_to_do, acceptance, related]
@@ -40,3 +40,4 @@ gate:
 - [[device-triad-screenshot-baselines]]
 - [[screenshots-ci-job-failure-artifacts]]
 - [docs/PACKAGE.md](/docs/PACKAGE.md) — documents the bin's mounts and volumes
+- [[backlog-coherence-code-health-8e8dac]] — must ship first: it duplicates `playwright-bin-docker-args-passthrough`; the coherence ticket decides which card survives

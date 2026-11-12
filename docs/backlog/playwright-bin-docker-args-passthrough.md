@@ -3,7 +3,7 @@ area: tooling
 opened: '2026-10-30'
 status: ready
 value: normal
-depends_on: [playwright-bin-linux-root-owned-output]
+depends_on: [playwright-bin-linux-root-owned-output, backlog-coherence-code-health-8e8dac]
 model: sonnet
 model_reason: "one env var spliced into the docker run arg list in bin/design-baseline-playwright.mjs plus a PACKAGE.md paragraph; cause and fix established by the report"
 gate:
@@ -36,3 +36,4 @@ gate:
 - [[playwright-bin-linux-root-owned-output]] — must ship first: it edits the same `docker run` arg list in `bin/design-baseline-playwright.mjs`, so building both in parallel means a merge conflict and a second pass
 - [[device-triad-screenshot-baselines]]
 - [[screenshots-ci-job-failure-artifacts]]
+- [[backlog-coherence-code-health-8e8dac]] — must ship first: `playwright-bin-compose-consumer-support` duplicates it; the coherence ticket decides which card survives
