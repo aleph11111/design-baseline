@@ -115,9 +115,14 @@ function measure({ mobile, column, fullBleed, tap }) {
         const [cx, cy] = [(x0 + x1) / 2, (y0 + y1) / 2];
         for (const [x, y] of [[x0 + 1, cy], [x1 - 1, cy], [cx, y0 + 1], [cx, y1 - 1]]) {
           const other = document.elementFromPoint(x, y)?.closest(TARGETS);
-          // a pinned bar (sticky/fixed) over scrolled content occludes it; it
-          // is not a neighbour's overhang
-          if (other && pinned(other) && !pinned(el)) continue;
+          // a pinned bar (sticky/fixed) over content the page can still scroll
+          // clear of it occludes, it does not steal: exempt only when the
+          // remaining scroll lifts the target's bottom above the bar's top
+          if (other && pinned(other) && !pinned(el)) {
+            const need = b.bottom - other.getBoundingClientRect().top;
+            const room = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
+            if (room >= need) continue;
+          }
           if (other && other !== el && !el.contains(other) && !other.contains(el)) {
             stolen.push(`${describe(el)} edge tap reaches ${describe(other)}`);
             break;
