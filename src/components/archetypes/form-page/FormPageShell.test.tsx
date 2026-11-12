@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
+import { SectionCard } from "../../layout/SectionCard";
+import { FormPageActions } from "./FormPageActions";
 import { FormPageShell, type FormPageShellProps } from "./FormPageShell";
 
 afterEach(() => {
@@ -22,22 +24,33 @@ describe("FormPageShell — one page frame (ADR-0008)", () => {
     expect(screen.getByText("Draft")).toBeTruthy();
   });
 
-  it("puts the children in a padded body on the page's one raised surface", () => {
+  it("renders a stack body: one bordered, rounded card per field group, actions outside every card", () => {
     const { container } = render(
       <FormPageShell title="New order">
-        <p>form body</p>
+        <form>
+          <SectionCard title="Basics"><p>basics</p></SectionCard>
+          <SectionCard title="Details"><p>details</p></SectionCard>
+          <FormPageActions mode="create" primaryLabel="Create" />
+        </form>
       </FormPageShell>,
     );
 
-    const frames = container.querySelectorAll(".bg-surface-raised");
-    expect(frames).toHaveLength(1);
-    const body = screen.getByText("form body").parentElement as HTMLElement;
-    expect(frames[0]!.contains(body)).toBe(true);
-    expect(body.className).toContain("p-[var(--form-inset)]");
-    expect(body.className).toContain("[--form-inset:1.25rem]");
-    expect(body.className).toContain("space-y-5");
-    // the title stays above the surface, never on it
-    expect(frames[0]!.textContent).not.toContain("New order");
+    const stack = container.querySelector('[data-page-body="stack"]') as HTMLElement;
+    expect(stack).toBeTruthy();
+    const cards = Array.from(stack.querySelectorAll("section"));
+    expect(cards).toHaveLength(2);
+    for (const c of cards) {
+      expect(c.className).toMatch(/(^|\s)border(\s|$)/);
+      expect(c.className).toContain("rounded-lg");
+    }
+    // the shell owns the gap: the form is `display: contents` in a gapped column
+    const column = stack.firstElementChild as HTMLElement;
+    expect(column.className).toContain("gap-4");
+    expect(column.className).toContain("md:gap-5");
+    expect(column.className).toContain("[&>form]:contents");
+    const create = screen.getByRole("button", { name: "Create" });
+    expect(cards.some((c) => c.contains(create))).toBe(false);
+    expect(stack.contains(create)).toBe(true);
   });
 });
 

@@ -1,6 +1,5 @@
 import * as React from "react";
 import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
-import { cn } from "../../../lib/utils";
 
 // ---------------------------------------------------------------------------
 // Width variant map
@@ -14,7 +13,7 @@ const WIDTH_MAP: Record<"sm" | "md" | "lg" | "xl", string> = {
 };
 
 /**
- * Padding class for a padded form surface (the shell's frame body). It publishes the padding as `--form-inset` so the
+ * Padding class for a padded form surface hosted outside the shell (a Card, a dialog body). It publishes the padding as `--form-inset` so the
  * sticky mobile `<FormPageActions>` bar bleeds by exactly that amount and
  * spans the surface edge to edge. A surface without it gets a 0 bleed.
  */
@@ -56,14 +55,15 @@ export type FormPageShellProps = FormPageTitleProps & {
 /**
  * FormPageShell — the outermost container for every B (form-page) archetype
  * instance. Renders through `PageFrame` (ADR-0008): the page header (title
- * once, optional subtitle / icon / back link) above the form's one raised
- * surface, the whole page held to the `width` preset. Nested `SectionCard`s
- * flatten inside the frame; the commit actions stay in `<FormPageActions>`
- * at the form's foot.
+ * once, optional subtitle / icon / back link) above a stack of raised cards
+ * on the canvas (ADR-0015), the whole page held to the `width` preset. Each
+ * field group is its own `SectionCard` (a flat form wraps its fields in one
+ * untitled card); the commit actions stay in `<FormPageActions>` at the
+ * form's foot, outside every card.
  *
  *   <FormPageShell title="New Task" backHref="/tasks">
- *     <form className="space-y-4" onSubmit={…}>
- *       …fields…
+ *     <form onSubmit={…}>
+ *       <SectionCard title="Basics">…fields…</SectionCard>
  *       <FormPageActions … />
  *     </form>
  *   </FormPageShell>
@@ -74,8 +74,11 @@ export function FormPageShell({
   ...header
 }: FormPageShellProps): React.ReactElement {
   return (
-    <PageFrame {...header} className={WIDTH_MAP[width]}>
-      <div className={cn("space-y-5", FORM_INSET_CLASS)}>{children}</div>
+    <PageFrame {...header} className={WIDTH_MAP[width]} body="stack">
+      {/* The shell owns the card rhythm (ADR-0015 rule 3): the form's children
+          become stack items via `contents`, so the stack gap applies between
+          cards and the actions bar whatever classes the form carries. */}
+      <div className="flex flex-col gap-4 md:gap-5 [&>form]:contents">{children}</div>
     </PageFrame>
   );
 }

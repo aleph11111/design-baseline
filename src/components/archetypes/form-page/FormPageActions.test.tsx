@@ -168,7 +168,7 @@ describe("FormPageActions — sticky bleed follows the surface inset", () => {
     const { container } = render(<FormPageActions mode="create" primaryLabel="Create" />);
     const cls = (container.firstElementChild as HTMLElement).className;
     expect(cls).toContain("-mx-[var(--form-inset,0px)]");
-    expect(cls).toContain("px-[var(--form-inset,0px)]");
+    expect(cls).toContain("px-[var(--form-inset,0.75rem)]");
     expect(cls).not.toContain("-mx-6");
   });
 });
