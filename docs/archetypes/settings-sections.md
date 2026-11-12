@@ -2,7 +2,7 @@
 key: D3
 slug: settings-sections
 kind: page
-version: 1.0
+version: 1.1
 promoted_from: brickshop-manager
 promoted_at: 2026-10-19
 source_spec_version: n/a (no source spec — distilled from brickshop-manager's card-stack settings pages)
@@ -53,8 +53,8 @@ Pick it over its neighbours (see `docs/CHOOSING-A-SURFACE.md`):
 ### Layer 2 — Page shell
 
 **Required (via the settings-sections shell):**
-- One page frame: the page header, then the page's one raised surface holding
-  the sections, stacked and divided by hairlines.
+- One page frame: the page header, then a stack of cards on the canvas, one
+  card per section, with a gap between them (ADR-0015).
 - A **render-error boundary** wraps all page content (provided by the shell).
 - No outer **page inset** on the page component — the app shell (or the
   surrounding settings layout) supplies it.
@@ -62,7 +62,7 @@ Pick it over its neighbours (see `docs/CHOOSING-A-SURFACE.md`):
 **Forbidden:**
 - A page header rendered by the page itself above the shell — the shell
   renders the only one (the adoption scan's `page-header-above-shell`).
-- A second raised surface — a card per section, or a card around the stack.
+- A card around the stack, or a card nested inside a section's card.
 
 ### Layer 3 — Page header
 
@@ -199,3 +199,6 @@ settings table (D2).
   its own page header. No source spec existed; the shape is distilled from
   those pages. One page frame (ADR-0008), page verbs in `actions`, each section
   titled once and saving itself.
+- **v1.1 (2026-11-12):** Section-card stack (ADR-0015): each section is its own
+  raised card on the canvas with a gap between, replacing the one surface with
+  hairline-divided sections.

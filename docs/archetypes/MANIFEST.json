@@ -382,7 +382,7 @@
       "slug": "settings-sections",
       "displayName": "Settings sections",
       "kind": "page",
-      "version": "1.0",
+      "version": "1.1",
       "promoted_from": "brickshop-manager",
       "promoted_at": "2026-10-19",
       "source_spec_version": "n/a (no source spec — distilled from brickshop-manager's card-stack settings pages)",

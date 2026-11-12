@@ -8,7 +8,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("SettingsSectionsShell — one page frame (ADR-0008)", () => {
+describe("SettingsSectionsShell — section-card stack (ADR-0008, ADR-0015)", () => {
   it("renders one page title, the page verbs in the header, and each section title once", () => {
     const onSave = vi.fn();
     const { container } = render(
@@ -29,10 +29,20 @@ describe("SettingsSectionsShell — one page frame (ADR-0008)", () => {
 
     // The page verb sits in the page header, not in the surface.
     const refresh = screen.getByRole("button", { name: "Refresh" });
-    expect(container.querySelector('[data-slot="settings-sections"]')!.contains(refresh)).toBe(false);
+    expect(container.querySelector('[data-page-body="stack"]')!.contains(refresh)).toBe(false);
 
-    // One raised surface: the sections flatten inside it (no card-in-card).
-    expect(container.querySelectorAll(".bg-surface-raised")).toHaveLength(1);
+    // Section-card stack: one bordered, rounded card per section, no hairline wrapper.
+    const stack = container.querySelector('[data-page-body="stack"]') as HTMLElement;
+    expect(stack).not.toBeNull();
+    // The slot hook is kept on a display:contents wrapper; its children are the cards.
+    const slot = stack.querySelector('[data-slot="settings-sections"]') as HTMLElement;
+    expect(slot.className).toBe("contents");
+    expect(slot.children).toHaveLength(2);
+    for (const card of Array.from(slot.children)) {
+      expect(card.className).toMatch(/(^|\s)border(\s|$)/);
+      expect(card.className).toContain("rounded-lg");
+    }
+    expect(container.innerHTML).not.toContain("divide-y");
 
     // Save is per section: only the section that saves has a button, and it saves that section.
     expect(screen.getAllByRole("button", { name: "Save" })).toHaveLength(1);
