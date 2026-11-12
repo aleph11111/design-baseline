@@ -1,6 +1,6 @@
 # 0007 — The fleet house look: donor-fixed roles vs brand-overridable roles
 
-- **Status:** Accepted
+- **Status:** Accepted (§3 superseded by [ADR 0015](0015-page-body-section-card-stack.md))
 - **Date:** 2026-09-27
 - **Extends:** [ADR 0004](0004-appearance-locality-derived-vs-inherited.md) (appearance locality) — this ADR fills the *token* and *fixed in the component* tiers with an actual look.
 

@@ -245,8 +245,8 @@ domain `Intl.DateTimeFormat` at the call site is the shape the demos model.
 
 ### Surfaces
 
-Three elevation steps in a fixed order, **separated by tone, not borders**
-(ADR-0007 §3):
+Three elevation steps in a fixed order, separated by tone; a raised surface on
+the canvas also carries a hairline border (ADR-0015, superseding ADR-0007 §3):
 
 | Step | Utility | Where | Light | Dark |
 |------|---------|-------|-------|------|
@@ -256,13 +256,14 @@ Three elevation steps in a fixed order, **separated by tone, not borders**
 
 The steps are `color-mix` values the layer derives from the brand's `--background`
 / `--foreground` (`--db-surface-*`, fixed per theme), so the order holds under any
-palette. A raised surface on the canvas carries **no border**; a raised surface
+palette. Every raised surface directly on the canvas carries the **hairline
+border** and the fixed radius; a raised surface
 nested inside another raised surface carries **neither border nor fill**
 (`RaisedSurfaceContext`, `layout/surface.ts` — no card-in-card). Internal rules
 (title bars, toolbar bands, hairline dividers) stay. Shadow (`shadow-sm`) is
 reserved for overlays: modals and popovers.
 
-**One page frame.** A page is its `PageHeader` title over one untitled raised surface — `PageFrame`, owned there; where every control goes is its slot table (ADR-0008, `docs/PLACEMENT.md`). There is no on-surface page title and no header fill: the display-step `h1` is the page's one focal point (ADR-0007 §2).
+**One page frame.** A page is its `PageHeader` title over its body — one untitled raised surface, or a stack of raised section cards on the canvas when the archetype's shell picks that shape (ADR-0015; never a call-site choice) — `PageFrame`, owned there; where every control goes is its slot table (ADR-0008, `docs/PLACEMENT.md`). There is no on-surface page title and no header fill: the display-step `h1` is the page's one focal point (ADR-0007 §2).
 
 A full-frame shell types its frame slots as `PageShellFrameProps` (every `PageFrame` slot but the body, root class, and back-link/icon chrome — an `Omit`, so a new slot reaches every shell) and forwards every one, best as one `...frame` rest spread: destructuring one beside `...rest` and forwarding only `...rest` drops it silently, and the adherence lint's `archetype-swallowed-pageframe-slot` rule (`_adherence.NOTES.md`) fails it.
 
@@ -502,7 +503,7 @@ inline-cell control is no longer a carve-out — that's now the `CellSelect` mol
 This is the same discipline as the page frame (one inset owner) and headings (one
 `PageHeader`): consistency by construction. The bounded surface has one owner
 too — `<SurfaceFrame>` (`layout/SurfaceFrame`): the flat `rounded-lg bg-surface-raised`
-frame (House style B — no shadow, no border) `PageFrame` mounts for every page; the four
+frame (House style B — no shadow, hairline border, ADR-0015) `PageFrame` mounts for every page; the four
 independent spellings the copy used to allow (`shadow-sm` in one shell,
 `overflow-x-auto` in another) are its named modes, not separate frames. A reviewer's test in the gallery: two
 tables, two fields, or two of any molecule above, in *different* archetypes must be

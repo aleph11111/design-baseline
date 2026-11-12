@@ -1,6 +1,6 @@
 # 0008 — One page frame, slot-owned placement
 
-- **Status:** Accepted
+- **Status:** Accepted (§3 superseded by [ADR 0015](0015-page-body-section-card-stack.md))
 - **Date:** 2026-10-03
 - **Supersedes:** the "header on the surface" half of the Plex Ledger board form (2026-06-23) and ADR 0007's header-fill contract (`STYLE.md` "Header fill"). **Extends:** [ADR 0004](0004-appearance-locality-derived-vs-inherited.md) (a placement choice is appearance; the page author never makes it) and [ADR 0007](0007-fleet-house-look-fixed-vs-brand-roles.md) §2–§3 (the `PageHeader` display step is the page's one focal point; no card-in-card).
 - **Evidence:** [docs/audits/2026-10-03-page-frame-contradictions.md](../audits/2026-10-03-page-frame-contradictions.md)
