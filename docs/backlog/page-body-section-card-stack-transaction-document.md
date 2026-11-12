@@ -2,15 +2,23 @@
 area: archetypes
 opened: '2026-11-12'
 status: ready
+gate:
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-11-12T00:00:00Z'
 value: high
 spec: docs/superpowers/plans/2026-11-12-page-body-section-card-stack-design.md
 model: opus
-model_reason: "first real stack consumer plus a new AppShell column marker; sets the pattern every later slice copies"
-gate:
-  score: 5
-  passed: [title, context, what_to_do, acceptance, related]
-  failed: []
-  graded_at: '2026-11-12T00:00:00Z'
+model_reason: >-
+  first real stack consumer plus a new AppShell column marker; sets the pattern every later slice
+  copies
+roadmap: page-body-section-card-stack
 ---
 
 # Move the transaction-document shell onto the section-card stack with one column bound

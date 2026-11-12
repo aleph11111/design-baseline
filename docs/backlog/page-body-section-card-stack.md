@@ -12,6 +12,7 @@ stories:
 tickets:
   - page-body-section-card-stack-adr-0015
   - page-body-section-card-stack-primitive
+  - page-body-section-card-stack-transaction-document
 phases:
   - name: p1
     title: >-
@@ -23,7 +24,8 @@ phases:
     spec_anchor: '### Phase 1 — Rule and primitive'
   - name: p2
     title: transaction-document slice — one card per section, one column bound
-    tickets: []
+    tickets:
+      - page-body-section-card-stack-transaction-document
     open: true
     spec_anchor: '### Phase 2 — transaction-document slice'
   - name: p3
