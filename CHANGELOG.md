@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.38.1
+
+- **Changed:** the toolbar band moves out of `PageFrame` into one internal `ToolbarBand` (+ `BandChrome`), used by `PageFrame`, `SurfaceFrame` and `SettingsTableBody`. `MAX_INLINE_FIELDS` is still exported from `PageFrame`.
+- **Fixed:** a `SettingsTableBody` toolbar now collapses into the Filter sheet below `md` and past four inline fields, like every `PageFrame` page, instead of wrapping.
+- **Consumer:** none.
+- **Breaking:** no.
+
 ## v0.38.0
 
 - **Added:** transaction-document mockup fidelity (contract v1.2, MANIFEST 1.2). The shell bounds its content column (`max-w-4xl`) so ledger amounts stay beside their labels on wide screens. `TransactionLedger.result?: LedgerResult` (`{ label, value, kind, detail? }`, toned by its sign) renders one emphasized result line after the totals. `TransactionNextStep.tone?: TransactionNextStepTone` (`default | warning | danger | success`, contract-keyed to the state; omitted = the unchanged neutral panel) tones the panel; `_adherence.json` excludes it from `archetype-appearance-noun-prop` citing that keying rule. `TransactionIdentity.progress?: TransactionProgressStep[]` (`{ label, state: "done" | "current" | "pending" }`) renders one quiet ordered progress line under the summary, current step bold. Demo: the sales order declares Charged · Cost only, a Profit result line, a warning next step and a progress line.

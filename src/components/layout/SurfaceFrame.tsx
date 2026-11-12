@@ -2,13 +2,14 @@
 import * as React from "react";
 import type { ClassValue } from "clsx";
 import { RaisedSurfaceContext } from "./surface";
+import { BandChrome } from "./ToolbarBand";
 import { cn } from "../../lib/utils";
 
 export type SurfaceFrameProps = {
   children: React.ReactNode;
   /**
-   * Ruled toolbar band — the frame's first band, rendered as
-   * `border-b px-4 py-3` (the frame owns the band's chrome). Pass `null` for
+   * Ruled toolbar band — the frame's first band, rendered in
+   * `BandChrome` (the frame owns the band's chrome). Pass `null` for
    * "no toolbar" to skip the band. The shell composes the band's INNER layout
    * (flex rows, gap) — the frame does not prescribe it.
    */
@@ -36,7 +37,7 @@ export type SurfaceFrameProps = {
  * SurfaceFrame — the canonical bounded surface `PageFrame` mounts (ADR-0008:
  * untitled — the page title lives in `PageHeader`, never on the frame): a flat `overflow-clip rounded-lg bg-surface-raised` card (House
  * style B — no shadow, no border: tone separates it from the canvas, ADR-0007
- * §3) with the ruled `border-b px-4 py-3` toolbar band as its one slot.
+ * §3) with the ruled `BandChrome` toolbar band as its one slot.
  *
  * This is the shell-level peer of `<SectionCard>` (the section-level bounded
  * surface): one frame, one owner of the chrome string — the four
@@ -58,7 +59,7 @@ export function SurfaceFrame({
   const nested = React.useContext(RaisedSurfaceContext);
   const body = (
     <>
-      {toolbar != null && <div data-toolbar-band="" className="border-b px-4 py-3">{toolbar}</div>}
+      {toolbar != null && <BandChrome>{toolbar}</BandChrome>}
       {children}
     </>
   );
