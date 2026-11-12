@@ -9,11 +9,11 @@
  * its own recharts/nivo/etc. components into the <DashboardWidget> bodies. The
  * archetype owns the frame (KPI row + widget grid + filter bar), not the charts.
  *
- * One page frame (ADR-0008): the title + Export/Share `actions` on the canvas;
- * the period + channel filters in the frame's `toolbar`; then the KPI row
- * (<StatTileRow>/<StatTile>) and the widget grid (<DashboardGrid> of
- * <DashboardWidget>s) as hairline-divided cells of the one surface — no
- * card-in-card, no mat.
+ * One page frame (ADR-0008) with a section-card stack body (ADR-0015): the
+ * title + Export/Share `actions` on the canvas; the period + channel filters in
+ * the frame's `toolbar` (a band-only first card); then the KPI row
+ * (<StatTileRow>/<StatTile>) as one card and the widget grid (<DashboardGrid>
+ * of <DashboardWidget>s) as one card per widget.
  *
  * Edit mode (ADR-0011): "Edit layout" swaps the header for an inline title
  * editor + "Add tile" / "Done", gives every widget its move / configure /
@@ -22,7 +22,7 @@
  * and shows the assignment checklist after the grid.
  *
  * Paired periods: "Gross revenue" and "Gross profit" are <DashboardPeriodPair>s —
- * one cell each, month left and YTD right, so a pair never splits across rows.
+ * one card each, month left and YTD right, so a pair never splits across rows.
  * "EBITDA" and "EBIT" are chart-body pairs (`{ label, body, actions }` halves).
  */
 

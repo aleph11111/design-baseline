@@ -27,7 +27,7 @@ export type DashboardAssignmentListProps = {
 
 /**
  * DashboardAssignmentList — who an analytics-dashboard layout applies to, in
- * edit mode (ADR-0011): a titled cell after the widget grid, one checkbox per
+ * edit mode (ADR-0011): a titled card after the widget grid, one checkbox per
  * target, each saving on its own with a per-row pending state. Render it as a
  * direct child of `DashboardShell`, after the `DashboardGrid`.
  */
@@ -39,7 +39,7 @@ export function DashboardAssignmentList({
 }: DashboardAssignmentListProps): React.ReactElement {
   const t = useLabels();
   return (
-    <SectionCard title={title} chrome={false}>
+    <SectionCard title={title}>
       {targets.length === 0 ? (
         <p className="text-sm text-muted-foreground">{empty ?? t.empty}</p>
       ) : (

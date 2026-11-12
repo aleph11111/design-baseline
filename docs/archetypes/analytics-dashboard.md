@@ -2,7 +2,7 @@
 key: G
 slug: analytics-dashboard
 kind: page
-version: 4.4
+version: 4.7
 promoted_from: fleet-audit-2026-06-13 (brickshop-manager, my-finance-app, hk-crm, mistra)
 promoted_at: 2026-06-14
 source_spec_version: 1.3
@@ -66,13 +66,15 @@ can disagree with its own content.
 
 ## Layer 6 — Widget grid
 The archetype's **widget-grid** primitive containing the **widget** primitive
-for each widget. The dashboard is one surface: the KPI row and the widgets are
-cells of it, never cards inside it (no card-in-card, no mat around them). Each widget: a short title, optional in-bar control (a range
+for each widget. The dashboard body is a **stack of cards** on the canvas
+(ADR-0015): when filters are set they sit on a band-only first card, then the
+KPI row is one card and each widget is its own card, with a gap between. Cards
+never nest (a raised surface inside a card drops border and fill). Each widget: a short title, optional in-bar control (a range
 toggle), and a body that is a chart, a number, or a small ranked list/table. The
 grid's own column count is **fixed by the archetype**, not chosen per page: it
 collapses to one column on narrow viewports, two at the mid breakpoint, and three
 at the wide breakpoint. **Forbidden:** a hand-rolled grid of cards — use the
-**widget** primitive so widgets share one cell treatment; embedding an
+**widget** primitive so widgets share one card treatment; embedding an
 interactive data *table* that belongs to list-with-detail (A) — link out instead.
 
 **Widget span keying rule.** How wide a widget sits in the grid is selected from
@@ -126,7 +128,7 @@ same frame, same grid, same span keying rule, same per-widget states.
   derived by the Layer 6 span keying rule, so the dialog offers no width
   control.
 - **Assignment** — who the layout applies to (assets, teams, sites) is the
-  archetype's **assignment list**: a titled cell after the widget grid, one
+  archetype's **assignment list**: a titled card after the widget grid, one
   checkbox per target, each saving on its own with a per-row pending state.
 - **Widget body** — still the consumer's: a live chart (live dashboard) or a
   summary of the tile's configuration (template editor).
@@ -169,8 +171,8 @@ can't see a metric; hide the "Edit layout" toggle from a role that can't edit.
 - [ ] **KPI row via the stat-tile / KPI-tile primitives** — headline metrics in
       the canonical tiles (tabular figures), **not** hand-built metric cards.
       *Wrapper tell:* a grid of bespoke stat cards next to/instead of the tile row.
-- [ ] **Charts in titled widgets** via the widget primitive — cells of the one
-      dashboard surface, no card-in-card; one chart lib/token palette, no
+- [ ] **Charts in titled widgets** via the widget primitive — one card per
+      widget on the canvas, no card-in-card; one chart lib/token palette, no
       literal series colors.
 - [ ] **Loading/empty/error per widget** use canonical states, not per-chart spinners.
 - [ ] **Single inset; no nested page padding** around the widget grid. **[spine] S1–S6.**
@@ -193,6 +195,9 @@ can't see a metric; hide the "Edit layout" toggle from a role that can't edit.
 
 ## Version log
 
+- **4.7** (2026-11-12) — section-card stack (ADR-0015): a band-only first card
+  holds the filters, the KPI row is one card, and each widget is its own card
+  on a gapped grid — no hairline-divided cells. Edit mode is unchanged.
 - **4.4** — each half of the period-pair widget may carry a chart body (label,
   body, optional actions) instead of a figure. Figure form unchanged.
 

@@ -40,12 +40,32 @@ describe("DashboardShell — one page frame (ADR-0008)", () => {
     expect(band.contains(screen.getByText("Export"))).toBe(false);
   });
 
-  it("is one raised surface: KPI row and widgets are cells, never cards", () => {
+  it("is a section-card stack: band-only first card, KPI card, one card per widget", () => {
     const { container } = renderDashboard();
-    expect(container.querySelectorAll(".bg-surface-raised")).toHaveLength(1);
-    for (const widget of container.querySelectorAll("section")) {
-      expect(widget.className).not.toMatch(/(^|\s)(bg-|rounded)/);
-      expect(widget.className).toContain("border-r");
+    const stack = container.querySelector('[data-page-body="stack"]') as HTMLElement;
+    expect(stack).not.toBeNull();
+    const cards = Array.from(stack.children) as HTMLElement[];
+    // band-only first card (filters), KPI row, grid of widgets
+    expect(cards[0]!.textContent).toBe("Period");
+    expect(cards[0]!.className).toContain("border");
+    expect(cards[1]!.textContent).toContain("Revenue");
+    for (const widget of stack.querySelectorAll("section")) {
+      expect(widget.className).toMatch(/(^|\s)border(\s|$)/);
+      expect(widget.className).toContain("rounded-lg");
     }
+    expect(stack.querySelectorAll("section")).toHaveLength(2);
+  });
+
+  it("no band-only card without a toolbar, and no divided cell grid remains", () => {
+    const { container } = render(
+      <DashboardShell title="T">
+        <DashboardGrid>
+          <DashboardWidget title="Trend" span={3}>chart</DashboardWidget>
+        </DashboardGrid>
+      </DashboardShell>,
+    );
+    const stack = container.querySelector('[data-page-body="stack"]') as HTMLElement;
+    expect(stack.children).toHaveLength(1);
+    expect(container.innerHTML).not.toMatch(/-mr-px|border-r|divide-y/);
   });
 });
