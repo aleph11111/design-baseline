@@ -2,15 +2,21 @@
 area: archetypes
 opened: '2026-11-12'
 status: ready
+gate:
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-11-12T00:00:00Z'
 value: normal
 spec: docs/superpowers/plans/2026-11-12-page-body-section-card-stack-design.md
 model: sonnet
-model_reason: "docs-only: record a decided keep-frame line in eleven archetype contracts"
-gate:
-  score: 5
-  passed: [title, context, what_to_do, acceptance, related]
-  failed: []
-  graded_at: '2026-11-12T00:00:00Z'
+model_reason: 'docs-only: record a decided keep-frame line in eleven archetype contracts'
+roadmap: page-body-section-card-stack
 ---
 
 # Record the keep-single-frame decision in the eleven archetype contracts that do not stack
