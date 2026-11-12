@@ -13,6 +13,7 @@ tickets:
   - page-body-section-card-stack-adr-0015
   - page-body-section-card-stack-primitive
   - page-body-section-card-stack-transaction-document
+  - page-body-section-card-stack-analytics-dashboard
 phases:
   - name: p1
     title: >-
@@ -30,7 +31,8 @@ phases:
     spec_anchor: '### Phase 2 — transaction-document slice'
   - name: p3
     title: Weak-separation slices — analytics-dashboard, kanban-board
-    tickets: []
+    tickets:
+      - page-body-section-card-stack-analytics-dashboard
     open: true
     spec_anchor: '### Phase 3 — Weak-separation slices'
   - name: p4

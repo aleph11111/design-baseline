@@ -2,15 +2,21 @@
 area: archetypes
 opened: '2026-11-12'
 status: ready
+gate:
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-11-12T00:00:00Z'
 value: high
 spec: docs/superpowers/plans/2026-11-12-page-body-section-card-stack-design.md
 model: sonnet
-model_reason: "follows the transaction-document slice's pattern; the stack primitive and chrome already exist"
-gate:
-  score: 5
-  passed: [title, context, what_to_do, acceptance, related]
-  failed: []
-  graded_at: '2026-11-12T00:00:00Z'
+model_reason: follows the transaction-document slice's pattern; the stack primitive and chrome already exist
+roadmap: page-body-section-card-stack
 ---
 
 # Move the analytics-dashboard shell onto the section-card stack with one card per widget
