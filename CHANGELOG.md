@@ -5,7 +5,7 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 ## v0.38.1
 
 - **Changed:** the toolbar band moves out of `PageFrame` into one internal `ToolbarBand` (+ `BandChrome`), used by `PageFrame`, `SurfaceFrame` and `SettingsTableBody`. `MAX_INLINE_FIELDS` is still exported from `PageFrame`.
-- **Fixed:** a `SettingsTableBody` toolbar now collapses into the Filter sheet below `md` and past four inline fields, like every `PageFrame` page, instead of wrapping.
+- **Fixed:** a `SettingsTableBody` toolbar now collapses into the Filter sheet below `md` and past four inline fields, like every `PageFrame` page, instead of wrapping; on desktop the tab band no longer wraps, it scrolls sideways and moves fields past four into the sheet.
 - **Consumer:** none.
 - **Breaking:** no.
 

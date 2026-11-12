@@ -33,7 +33,7 @@ export const MAX_INLINE_FIELDS = 4;
 /** `cond && <X />` yields `false`: an absent slot, not an empty band. */
 export const has = (slot: React.ReactNode): boolean => slot != null && slot !== false;
 
-/** The ruled band chrome — the only spelling of `border-b px-4 py-3`. */
+/** The ruled band chrome — the one owner of the ruled band chrome string. */
 export function BandChrome({
   children,
   className,

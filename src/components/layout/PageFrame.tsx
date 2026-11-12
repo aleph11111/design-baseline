@@ -220,5 +220,7 @@ export function PageFrame({
   );
 }
 
+PageFrame.displayName = "PageFrame";
+
 /** Re-exported for tests and consumers; defined with the band that applies it. */
 export { MAX_INLINE_FIELDS } from "./ToolbarBand";
