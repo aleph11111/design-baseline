@@ -38,7 +38,7 @@ never reviewed again. **`AppShell` is the single owner of the app frame** — si
 header, and the content desk (`bg-surface-canvas p-4 md:p-12 xl:p-14`,
 holding a centred 1180px column that steps to 1440/1680px on a wide desk). Archetype shells are *framed surfaces* designed to sit
 on that specific desk: the canvas is one tone step below the raised frame, so the frame
-reads by tone with no border (docs/STYLE.md "Surfaces").
+reads by tone, with a hairline border (ADR-0015; docs/STYLE.md "Surfaces").
 
 A hand-rolled `<main>` with its own padding and background is red, not yellow. The known
 failure mode (scar origin: hk-crm, 2026-07): `p-8 bg-slate-50` — double the inset on a
@@ -58,7 +58,7 @@ Every page archetype shell renders through `PageFrame` ([ADR-0008](./adr/0008-on
 
 ```
 PageHeader   Title · subtitle · badges                          [actions]
-┌ one untitled raised surface ─────────────────────────────────────────┐
+┌ one untitled raised surface (or a stack of cards) ───────────────────┐
 │ toolbar: search · filters · selectors          count · [View ▾]       │
 ├───────────────────────────────────────────────────────────────────────┤
 │ body                                                                  │
