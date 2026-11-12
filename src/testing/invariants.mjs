@@ -107,10 +107,17 @@ function measure({ mobile, column, fullBleed, tap }) {
         const ar = a.getBoundingClientRect();
         [x0, y0, x1, y1] = [Math.max(x0, ar.left), Math.max(y0, ar.top), Math.min(x1, ar.right), Math.min(y1, ar.bottom)];
       }
+      const pinned = (n) => {
+        for (let a = n; a && a !== document.body; a = a.parentElement) if (["sticky", "fixed"].includes(getComputedStyle(a).position)) return true;
+        return false;
+      };
       if (x1 - x0 > 2 && y1 - y0 > 2) {
         const [cx, cy] = [(x0 + x1) / 2, (y0 + y1) / 2];
         for (const [x, y] of [[x0 + 1, cy], [x1 - 1, cy], [cx, y0 + 1], [cx, y1 - 1]]) {
           const other = document.elementFromPoint(x, y)?.closest(TARGETS);
+          // a pinned bar (sticky/fixed) over scrolled content occludes it; it
+          // is not a neighbour's overhang
+          if (other && pinned(other) && !pinned(el)) continue;
           if (other && other !== el && !el.contains(other) && !other.contains(el)) {
             stolen.push(`${describe(el)} edge tap reaches ${describe(other)}`);
             break;
