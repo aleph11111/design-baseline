@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-11-12'
-status: ready
+status: done
 value: normal
 spec: docs/superpowers/plans/2026-11-12-page-body-section-card-stack-design.md
 model: opus
