@@ -2,15 +2,21 @@
 area: archetypes
 opened: '2026-11-12'
 status: ready
+gate:
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-11-12T00:00:00Z'
 value: high
 spec: docs/superpowers/plans/2026-11-12-page-body-section-card-stack-design.md
 model: sonnet
-model_reason: "decision already made in the spec; the work is writing the ADR and rewording three docs"
-gate:
-  score: 5
-  passed: [title, context, what_to_do, acceptance, related]
-  failed: []
-  graded_at: '2026-11-12T00:00:00Z'
+model_reason: decision already made in the spec; the work is writing the ADR and rewording three docs
+roadmap: page-body-section-card-stack
 ---
 
 # Write ADR-0015 for the section-card stack and supersede ADR-0008 §3 and ADR-0007 §3
