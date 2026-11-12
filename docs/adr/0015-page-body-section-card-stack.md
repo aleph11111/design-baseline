@@ -29,3 +29,7 @@ Keeps today's borderless single frame and borders only the stack cards. Rejected
 - `docs/STYLE.md`, `docs/PLACEMENT.md` and `docs/audit-signals.json` stop restating "one raised surface" and "tone, not border".
 - Archetypes switch to a stack one slice at a time. Each `kind: page` archetype gets a slice ticket or a recorded keep-single-frame decision in its contract.
 - Out of scope: shadows beyond the hairline, the tone percentages of the surface ladder, `PageHeader` and slot placement.
+
+## Amendment to ADR 0007 §1 — the document column (2026-11-12)
+
+The transaction-document slice had two width bounds: its own `max-w-4xl` inside `AppShell`'s stepped content column. It now has one. A document-column archetype shell (today only `transaction-document`) carries a derived marker on its root, the sibling of the full-bleed marker, and `AppShell`'s content column bounds itself to a `--db-document-max` token (896px) when it holds one. The wide-desk steps restyle only `--db-content-max`, so they never widen the document column. As with full-bleed, the marker is derived from the archetype (ADR 0004), never a call-site prop, and it is dropped when the shell is nested in another raised surface. The width has one owner: `AppShell`'s tokens.

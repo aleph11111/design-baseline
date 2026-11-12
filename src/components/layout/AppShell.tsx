@@ -73,11 +73,13 @@ export function AppShell({
                 A full-bleed archetype shell carries FULL_BLEED_CLASS (layout/
                 surface.ts), which lifts the column's max width (ADR-0007 §1);
                 only as the page's own surface, never nested in another one
-                (`useFullBleedClass`). The column widens in steps on a wide
+                (`useFullBleedClass`). A document-column shell carries
+                DOCUMENT_COLUMN_CLASS, which bounds the column to
+                --db-document-max with no wide-desk steps (ADR-0015). The column widens in steps on a wide
                 desk: `db-desk` is the container the layer's steps query.
                 See docs/STYLE.md "Spacing & rhythm". */}
             <main className="@container/db-desk flex-1 bg-surface-canvas p-4 md:p-12 xl:p-14">
-              <div className="db-content-column mx-auto w-full max-w-(--db-content-max) has-[.db-full-bleed]:max-w-none">
+              <div className="db-content-column mx-auto w-full max-w-(--db-content-max) has-[.db-full-bleed]:max-w-none has-[.db-document-column]:max-w-(--db-document-max)">
                 {children}
               </div>
             </main>

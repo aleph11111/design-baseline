@@ -31,6 +31,10 @@ const COLUMN = { laptop14: 1144, desk27: 1680 };
 // rhythm"). Pinned by name: a shell that loses its marker would otherwise pass
 // as a plain column.
 const FULL_BLEED = ["matrix-grid", "list-with-detail", "kanban-board", "calendar", "statement-with-filters"];
+// Document-column archetypes (ADR-0015): the column holds at --db-document-max
+// on every desktop device — the wide-desk steps never widen it.
+const DOCUMENT_COLUMN = ["transaction-document"];
+const columnFor = (slug, name) => (DOCUMENT_COLUMN.includes(slug) && name in COLUMN ? 896 : COLUMN[name]);
 // The steps between the triad's two desktop widths, measured on form-page.
 const STEPS = [
   { label: "1903 (1920 minus scrollbar)", width: 1903, want: 1440 },
@@ -92,7 +96,7 @@ for (const slug of PAGES) {
     try {
       let page;
       ({ ctx, page } = await open(slug, device));
-      const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: COLUMN[name], fullBleed: FULL_BLEED.includes(slug) });
+      const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: columnFor(slug, name), fullBleed: FULL_BLEED.includes(slug) });
       const file = `${slug}--${name}.jpg`;
       await page.screenshot({ path: path.join(OUT, file), type: "jpeg", quality: 70, scale: "css" });
       shots.push({ slug, name, file, problems: [...result.failures, ...result.knownGaps] });
@@ -304,7 +308,7 @@ for (const [radio, shot] of TD_VARIANTS) {
       await page.getByRole("radio", { name: radio }).click();
       await page.waitForTimeout(300); // ledger ResizeObserver settles
       const triad = name in devices;
-      const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: triad ? COLUMN[name] : undefined, fullBleed: false });
+      const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: triad ? columnFor("transaction-document", name) : undefined, fullBleed: false });
       const bad = [...result.failures];
       const wide = await page.$$eval('[data-slot="td-ledger"], [data-slot="td-ledger"] *', (els) =>
         els.filter((el) => ["auto", "scroll"].includes(getComputedStyle(el).overflowX) && el.scrollWidth > el.clientWidth + 1).map((el) => `<${el.tagName.toLowerCase()}> ${el.scrollWidth}>${el.clientWidth}`));

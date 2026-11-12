@@ -181,6 +181,8 @@
    deficiency (the check is recorded in docs/STYLE.md). */
 :root {
   --db-content-max: 1180px;
+  /* The document column (ADR-0015): no wide-desk steps. */
+  --db-document-max: 896px;
   --db-surface-sunken: color-mix(in oklab, hsl(var(--background)), hsl(var(--foreground)) 6%);
   --db-surface-canvas: color-mix(in oklab, hsl(var(--background)), hsl(var(--foreground)) 3%);
   --db-surface-raised: hsl(var(--background));

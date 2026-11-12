@@ -29,6 +29,14 @@ function renderShell(extra?: { toaster?: boolean }) {
 }
 
 describe("AppShell content column", () => {
+  // A document-column shell bounds the column to its own token, which the
+  // wide-desk steps (they restyle --db-content-max) never touch.
+  it("bounds the column to --db-document-max when it holds the document marker", () => {
+    const { container } = renderShell();
+    const column = container.querySelector(".db-content-column")!;
+    expect(column.className).toContain("has-[.db-document-column]:max-w-(--db-document-max)");
+  });
+
   it("lets the column shrink (min-w-0) so wide content can't widen the page", () => {
     const { container } = renderShell();
     const column = container.querySelector("main")!.parentElement!;

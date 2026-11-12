@@ -4,13 +4,20 @@ import { TransactionDocumentDemo } from "../../../examples/transaction-document-
 import { TransactionDocumentShell, type TransactionDocumentShellProps } from "./TransactionDocumentShell";
 import { fitColumns, parseFigure, type LedgerColumn } from "./ledger";
 
-afterEach(cleanup);
+const mobile = vi.hoisted(() => ({ on: false }));
+vi.mock("../../../hooks/use-mobile", () => ({ useIsMobile: () => mobile.on }));
+
+afterEach(() => {
+  cleanup();
+  mobile.on = false;
+});
 
 const slot = (name: string) => document.querySelector(`[data-slot="${name}"]`) as HTMLElement;
+const body = () => document.querySelector('[data-page-body="stack"]') as HTMLElement;
 const isPrimary = (el: Element) => /\bbg-primary\b/.test(el.className);
 // header actions: every button outside the surface body, the id's copy button and the demo control
 const headerButtons = () =>
-  screen.getAllByRole("button").filter((b) => !slot("td-body").contains(b) && !slot("td-id").contains(b));
+  screen.getAllByRole("button").filter((b) => !body().contains(b) && !slot("td-id").contains(b));
 const variant = (name: string) => fireEvent.click(screen.getByRole("radio", { name }));
 
 describe("TransactionDocumentShell — the demo", () => {
@@ -136,9 +143,29 @@ describe("TransactionDocumentShell — rules", () => {
 });
 
 describe("TransactionDocumentShell — mockup fidelity", () => {
-  it("bounds the content column", () => {
+  it("marks the document column; AppShell owns the one width bound", () => {
     const { container } = render(<TransactionDocumentShell {...base} />);
-    expect((container.firstElementChild as HTMLElement).className).toMatch(/\bmax-w-4xl\b/);
+    const root = container.firstElementChild as HTMLElement;
+    expect(root.className).toMatch(/\bdb-document-column\b/);
+    expect(root.className).not.toMatch(/\bmax-w-/);
+  });
+
+  it("phone: the sticky primary bar sits in the stack body, outside every card", () => {
+    mobile.on = true;
+    render(<TransactionDocumentShell {...base} />);
+    const bar = slot("td-next-step-bar");
+    expect(bar.parentElement).toBe(body());
+    expect(bar.className).toMatch(/\bsticky\b/);
+    expect(bar.closest("section")).toBeNull();
+  });
+
+  it("renders a stack body: one bordered card per slot, history included", () => {
+    render(<TransactionDocumentShell {...base} history={<p>Placed</p>} />);
+    const cards = [...body().children] as HTMLElement[];
+    expect(cards.map((c) => c.getAttribute("data-slot"))).toEqual(["td-next-step", "td-ledger", "td-facts", "td-history"]);
+    for (const c of cards) expect(c.className.split(" ")).toEqual(expect.arrayContaining(["border", "rounded-lg"]));
+    // titled cards keep their region names
+    expect(screen.getByRole("region", { name: "Lines" })).toBe(slot("td-ledger"));
   });
 
   it("nextStep.tone warning renders the warning surface; omitted renders the neutral panel", () => {

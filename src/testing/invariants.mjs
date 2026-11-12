@@ -107,10 +107,27 @@ function measure({ mobile, column, fullBleed, tap }) {
         const ar = a.getBoundingClientRect();
         [x0, y0, x1, y1] = [Math.max(x0, ar.left), Math.max(y0, ar.top), Math.min(x1, ar.right), Math.min(y1, ar.bottom)];
       }
+      // the nearest sticky/fixed ancestor-or-self, if any
+      const pinned = (n) => {
+        for (let a = n; a && a !== document.body; a = a.parentElement) if (["sticky", "fixed"].includes(getComputedStyle(a).position)) return a;
+        return null;
+      };
       if (x1 - x0 > 2 && y1 - y0 > 2) {
         const [cx, cy] = [(x0 + x1) / 2, (y0 + y1) / 2];
         for (const [x, y] of [[x0 + 1, cy], [x1 - 1, cy], [cx, y0 + 1], [cx, y1 - 1]]) {
           const other = document.elementFromPoint(x, y)?.closest(TARGETS);
+          // A BOTTOM-pinned bar (sticky/fixed, `bottom` set, below the target's
+          // top) over content the page can still scroll clear of it occludes, it
+          // does not steal: exempt only when the remaining scroll lifts the
+          // target's bottom above the bar's top. A top-pinned bar, or a target
+          // covered at every scroll position, still fails.
+          const pin = other && !pinned(el) ? pinned(other) : null;
+          const ot = other?.getBoundingClientRect().top;
+          if (pin && getComputedStyle(pin).bottom !== "auto" && ot > b.top) {
+            const need = b.bottom - ot;
+            const room = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
+            if (room >= need) continue;
+          }
           if (other && other !== el && !el.contains(other) && !other.contains(el)) {
             stolen.push(`${describe(el)} edge tap reaches ${describe(other)}`);
             break;
