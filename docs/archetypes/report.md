@@ -17,6 +17,8 @@ R is **read-first**: the document is the content. Document verbs (export, send) 
 
 ---
 
+**Body shape: one frame.** The page body is one frame, not a stack of section cards (ADR-0015): its body is one read-through document.
+
 ## Structure
 
 A report is one page with one title and one bounded document. The page supplies two things, in document order.

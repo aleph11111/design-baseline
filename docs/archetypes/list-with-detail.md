@@ -128,6 +128,8 @@ A **list-with-detail** page shows a table of domain entities (items, users, orde
 
 ---
 
+**Body shape: one frame.** The page body is one frame, not a stack of section cards (ADR-0015): a full-bleed, table-first page whose body is one bounded table.
+
 ## Layer 1 — Route config
 
 **Required:**

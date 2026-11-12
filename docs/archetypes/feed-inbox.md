@@ -75,6 +75,8 @@ There is no further form. A consumer who wants a feed inside a popover / sheet
 reaches for the body export, never a page shell inside a drawer — that would
 put a page title and a raised page surface inside the overlay (see Layer 3).
 
+**Body shape: one frame.** The page body is one frame, not a stack of section cards (ADR-0015): its body is one inbox list (with a split reading pane at the wide container step), not a list of titled sections.
+
 ## Layer 2 — Page shell
 The project's top-level app shell plus a narrow content column (a feed reads as
 one column, not full width). A render-error boundary around content.

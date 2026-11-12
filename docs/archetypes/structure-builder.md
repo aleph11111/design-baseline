@@ -37,6 +37,8 @@ F, and its provenance.
 
 ---
 
+**Body shape: one frame.** The page body is one frame, not a stack of section cards (ADR-0015): its body is one workbench.
+
 ## Structure
 
 The page renders through the one page frame (ADR-0008), slot by slot:

@@ -36,6 +36,8 @@ densifies.
 
 ---
 
+**Body shape: one frame.** The page body is one frame, not a stack of section cards (ADR-0015): a full-bleed, table-first page whose body is one bounded calendar grid.
+
 ## Layer 1 — Route config
 
 **Required:**
