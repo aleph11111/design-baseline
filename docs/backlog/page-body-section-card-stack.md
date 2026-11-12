@@ -14,6 +14,7 @@ tickets:
   - page-body-section-card-stack-primitive
   - page-body-section-card-stack-transaction-document
   - page-body-section-card-stack-analytics-dashboard
+  - page-body-section-card-stack-grouped-list
 phases:
   - name: p1
     title: >-
@@ -37,7 +38,8 @@ phases:
     spec_anchor: '### Phase 3 — Weak-separation slices'
   - name: p4
     title: Remaining kind:page archetypes — stack slice or recorded keep-frame decision
-    tickets: []
+    tickets:
+      - page-body-section-card-stack-grouped-list
     open: true
     spec_anchor: '### Phase 4 — Remaining archetypes'
   - name: p5
