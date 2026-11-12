@@ -2,6 +2,7 @@ import * as React from "react";
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import { PageFrame } from "../../layout/PageFrame";
+import { DetailSection } from "./DetailSection";
 import {
   DetailOverviewShell,
   UnifiedSurfaceContext,
@@ -26,19 +27,85 @@ const slots = {
   references: <div>references-slot</div>,
 };
 
-describe("DetailOverviewShell — container model is single (unified)", () => {
-  it("always renders one bounded outer frame", () => {
-    const { container } = render(<DetailOverviewShell {...slots} />);
+const sectioned = {
+  title: "Order #1042",
+  summary: (
+    <>
+      <DetailSection title="Details">summary-a</DetailSection>
+      <DetailSection title="Customer">summary-b</DetailSection>
+    </>
+  ),
+  content: (
+    <>
+      <DetailSection title="Lines">content-a</DetailSection>
+      <DetailSection title="Notes">content-b</DetailSection>
+    </>
+  ),
+  references: <DetailSection title="Documents">refs</DetailSection>,
+};
 
-    // the single container model: one raised surface holds everything
-    const frames = container.querySelectorAll(".bg-surface-raised");
-    expect(frames).toHaveLength(1);
-    const frame = frames[0] as HTMLElement;
-    expect(frame.className).toContain("rounded-lg");
-    // every slot still renders inside that single frame
-    expect(frame.textContent).toContain("summary-slot");
-    expect(frame.textContent).toContain("content-slot");
-    expect(frame.textContent).toContain("references-slot");
+/** The `<section>` a DetailSection rendered, found by its body text. */
+function sectionOf(container: HTMLElement, text: string): HTMLElement {
+  const el = Array.from(container.querySelectorAll("section")).find((s) => s.textContent?.includes(text));
+  if (!el) throw new Error(`no section holding ${text}`);
+  return el as HTMLElement;
+}
+
+describe("DetailOverviewShell — section-card stack (ADR-0015)", () => {
+  it.each(["vertical", "rail"] as const)("%s: renders a stack body, one bordered card per main section", (layout) => {
+    const { container } = render(<DetailOverviewShell {...sectioned} layout={layout} />);
+    const stack = container.querySelector('[data-page-body="stack"]');
+    expect(stack).not.toBeNull();
+    for (const text of ["content-a", "content-b"]) {
+      const card = sectionOf(container, text);
+      expect(card.className).toMatch(/(^|\s)border(\s|$)/);
+      expect(card.className).toContain("rounded-lg");
+    }
+  });
+
+  it("vertical: summary is one card of chromeless sections; references is a card in the main column", () => {
+    const { container } = render(<DetailOverviewShell {...sectioned} />);
+    const stack = container.querySelector('[data-page-body="stack"]') as HTMLElement;
+    const band = container.querySelector('[data-slot="detail-summary"]') as HTMLElement;
+    expect(band.parentElement).toBe(stack);
+    expect(band.className).toMatch(/(^|\s)border(\s|$)/);
+    expect(band.className).toContain("rounded-lg");
+    for (const text of ["summary-a", "summary-b"]) {
+      expect(sectionOf(container, text).className).not.toMatch(/(^|\s)border(\s|$)/);
+    }
+    // every slot is a direct stack item, so the canvas gap separates the cards
+    expect(sectionOf(container, "content-a").parentElement).toBe(stack);
+    expect(sectionOf(container, "refs").parentElement).toBe(stack);
+    expect(sectionOf(container, "refs").className).toMatch(/(^|\s)border(\s|$)/);
+  });
+
+  it("rail: the rail is one card (at lg) whose inner sections carry no border", () => {
+    const { container } = render(<DetailOverviewShell {...sectioned} layout="rail" />);
+    const rail = container.querySelector('[data-slot="detail-rail"]') as HTMLElement;
+    expect(rail.className).toContain("lg:border");
+    expect(rail.className).toContain("lg:rounded-lg");
+    expect(rail.className).toContain("lg:bg-surface-raised");
+    for (const text of ["summary-a", "summary-b", "refs"]) {
+      const section = sectionOf(container, text);
+      expect(rail.contains(section)).toBe(true);
+      expect(section.className).not.toMatch(/(^|\s)border(\s|$)/);
+    }
+    // below lg the rail dissolves and each slot is its own card
+    for (const slot of Array.from(rail.children) as HTMLElement[]) {
+      expect(slot.className).toContain("max-lg:border");
+      expect(slot.className).toContain("max-lg:rounded-lg");
+    }
+  });
+
+  it("nested under a parent frame: no cards of its own (the flat look)", () => {
+    const { container } = render(
+      <PageFrame title="Customer">
+        <DetailOverviewShell {...sectioned} layout="rail" />
+      </PageFrame>,
+    );
+    const rail = container.querySelector('[data-slot="detail-rail"]') as HTMLElement;
+    expect(rail.className).not.toContain("lg:rounded-lg");
+    expect(sectionOf(container, "content-a").className).not.toMatch(/(^|\s)border(\s|$)/);
   });
 
   it("uses the two-column rail grid only for layout=rail", () => {
@@ -167,8 +234,8 @@ describe("DetailOverviewShell — one header path (PageFrame, ADR-0008)", () => 
     expect(getByRole("heading", { level: 1 }).textContent).toBe("Order #1042");
     expect(getAllByText("Order #1042")).toHaveLength(1);
     expect(container.querySelector('[data-slot="surface-header"]')).toBeNull();
-    // header data renders above the surface, not on it
-    const frame = container.querySelector(".bg-surface-raised") as HTMLElement;
+    // header data renders above the body, not in it
+    const frame = container.querySelector('[data-page-body="stack"]') as HTMLElement;
     for (const text of ["Parent entity", "badge", "action", "Orders"]) {
       expect(container.textContent).toContain(text);
       expect(frame.textContent).not.toContain(text);
@@ -345,14 +412,14 @@ expect(closedPropGuard).toBe(true);
 expect(statsDataGuard).toBe(true);
 
 describe("DetailOverviewShell — empty body slots", () => {
-  it("vertical: summary-only renders no bordered body strip", () => {
+  it("vertical: summary-only renders the summary card alone", () => {
     const { container } = render(
       <DetailOverviewShell title="T" summary={<div>summary-slot</div>} />,
     );
-    expect(container.querySelector(".border-t.border-border\\/60.py-5")).toBeNull();
+    expect(container.querySelector('[data-page-body="stack"]')!.children).toHaveLength(1);
     cleanup();
     const filled = render(<DetailOverviewShell title="T" summary={<div>s</div>} content={<div>c</div>} />);
-    expect(filled.container.querySelector(".border-t.border-border\\/60.py-5")).not.toBeNull();
+    expect(filled.container.querySelector('[data-page-body="stack"]')!.children).toHaveLength(2);
   });
 
   it("rail: summary/references-only renders no main column or grid", () => {
@@ -393,7 +460,6 @@ describe("DetailOverviewShell — body inset", () => {
         <DetailOverviewShell title="T" layout={layout} summary={<div>s</div>} content={<div>content-slot</div>} />,
       );
       const body = getByText("content-slot").parentElement as HTMLElement;
-      expect(body.className).toContain("py-5");
       expect(horizontalPadding(body.className)).toEqual([]);
     },
   );

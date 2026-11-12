@@ -7,11 +7,11 @@
  * the line items carry real thumbnails.
  *
  * Exercises the full rail vocabulary (mirroring the order reference mockup):
- *   - DetailOverviewShell `layout="rail"` — one bounded, unified frame:
- *     sticky, chromeless, inset-divided rail beside a flattened-carded main
- *     column. Toggle Layout / Width.
+ *   - DetailOverviewShell `layout="rail"` — a stack of section cards: one
+ *     sticky rail card of chromeless, inset-divided sections beside a main
+ *     column of one card per section. Toggle Layout / Width.
  *   - The page header via the shell's `title`/`subtitle`/`badges`/`actions`/
- *     `backHref` props, rendered once above the frame (ADR-0008) — status
+ *     `backHref` props, rendered once above the body (ADR-0008) — status
  *     lives ONCE, inline next to the title (the gate's "one home for status").
  *   - Nested: the same shell under a parent page frame titles itself as the
  *     nested heading and joins the parent's surface — derived, no prop.
@@ -178,7 +178,7 @@ export function DetailOverviewDemo(): React.ReactElement {
           The canonical money-dense record page. Status lives once, inline in the
           header (`badges` data prop); the rail pins figures + identity; the main
           column stacks activity, line items with thumbnails, and the financial
-          breakdown. One bounded container model — the unified frame. Toggle{" "}
+          breakdown. One card per section; the identity sections share one card. Toggle{" "}
           <strong>Layout</strong> (rail keeps the sticky identity rail) and{" "}
           <strong>Width</strong> (Width only bounds the <em>vertical</em> layout —
           the rail is sticky-full and ignores it). <strong>Rail</strong> → Long

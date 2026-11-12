@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 4.3
+version: 4.4
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.6
@@ -11,6 +11,16 @@ status: locked
 
 # Archetype C — Detail Overview
 
+> **v4.4 (2026-11-12) — a stack of section cards (ADR-0015).** The body is no
+> longer one raised frame: each main-column section (and the stat-tile row) is
+> its own bordered card on the canvas, with a gap between them. The identity
+> sections stay chromeless and hairline-divided, held by **one** card — the
+> rail in `layout="rail"` (still sticky), the summary band in
+> `layout="vertical"`. Below the wide breakpoint the rail's summary and
+> references are each one card in the vertical order. Nested under a parent
+> frame the body keeps its flat look. Layouts, widths and the decision table
+> are unchanged. Ships in manifest 4.7. No API change.
+>
 > **v4.3 (2026-11-05) — provenance, contested and missing values on a
 > key/value row.** A row may say where its value came from (a compact source
 > chip; the full provenance on demand), that sources disagree (a conflict
@@ -292,27 +302,32 @@ what keeps the rail variant *the same archetype* rather than a fork.
 - Stat strip / metric readout keep their single-column-to-multi-column
   responsive ramp.
 
-### Container model — one frame
+### Container model — a stack of section cards
 
-The record renders on the page's **one raised surface** (ADR-0008 §3) holding
-rail + main, with the page header above it — there is no second container
-model to choose between. The cohesion comes from the *frame*, not from
-stripping every section:
+Below the page header the record is a **stack of section cards** on the
+canvas (ADR-0015), placed by the shell — there is no second container model to
+choose between:
 
-- the **rail** (aside) renders *chromeless* — flush, hairline-divided,
-  lightly tinted. Its detail sections keep their padding so the hairline
-  floats in whitespace (an internal shell detail, not part of the API).
-- the **main** column keeps its detail sections and stat-tile row as panels
-  with their title bars; nested in the frame they never become cards of their
-  own.
-- the **main** body adds no horizontal inset of its own: the sections, figures
-  and rows inside it carry the one gutter, so main-column content aligns with
-  the rail's and the summary band's (v4.2). A body inset on top of the
-  sections' gutter doubles it — the "double inset" drift.
+- each **main** section — every `content` section, the stat-tile row, and (in
+  vertical) the `references` sections — is its own bordered card with its
+  title bar, with a gap between cards.
+- the **identity** sections are held by **one card**: the rail (aside) in
+  `layout="rail"`, the summary band in `layout="vertical"`. Inside it the
+  sections render *chromeless* — flush, hairline-divided — and keep their
+  padding so the hairline floats in whitespace (an internal shell detail, not
+  part of the API). The rail card keeps sticking while the main column
+  scrolls. Below the wide breakpoint the rail's `summary` and `references`
+  are one card each, in the vertical order.
+- the **main** column adds no horizontal inset of its own: the sections,
+  figures and rows inside each card carry the one gutter (v4.2). A body inset
+  on top of the sections' gutter doubles it — the "double inset" drift.
+- **nested** under a parent frame (see Layer 3), the body joins the parent's
+  surface and draws no cards of its own.
 
-The acceptance gate's **"One outer frame, not a card scatter"** REQUIRED box
-scores this: a page is a wrapper adoption if it is loose cards on the bare
-page background with no frame, *or* if the rail is carded instead of flush.
+The acceptance gate's **"Shell-owned cards, not a card scatter"** REQUIRED box
+scores this: a page is a wrapper adoption if it hand-rolls its own cards
+around or between sections, *or* if the identity sections are each carded
+instead of chromeless inside the one rail / summary card.
 
 ### API
 
@@ -463,8 +478,8 @@ Mix per section as the domain needs; the slot order and section chrome are uncha
 **Forbidden:**
 - Passing sections as free-form children of the shell (the v2.0 API has no
   `children` prop — this no longer compiles).
-- A second raised surface: a hand-rolled card around the page or around a
-  section — the shell's frame is the page's one raised surface.
+- A hand-rolled card around the page or around a section — the shell draws
+  every card (one per main section, one for the rail / summary band).
 - Hand-rolled flex/grid containers at the shell level. The shell owns its
   layout: a vertical stack (`layout="vertical"`) or the Command Rail
   (`layout="rail"`). Consumers never add their own page-level columns — the only
@@ -747,8 +762,8 @@ domain:
 5. **Inline error fallback UI.** Use `error.tsx`.
 6. **Fixed multi-column layout without a responsive ramp.** Always collapse to
    one column on narrow viewports.
-7. **A second raised surface.** No hand-rolled card around the body or a
-   section; the shell's frame is the page's one raised surface.
+7. **A hand-rolled card.** No card around the body or a section; the shell
+   draws every card of the stack.
 8. **Embedded settings-table (archetype D2).** A page-level settings shape does
    not belong inside a detail-overview. Promote that surface to its own route
    or modal.
@@ -821,19 +836,18 @@ domain:
 - [ ] **Shell owns the inset.** The page adds no outer padding of its own; the
       shell owns the section stack (and, in vertical layout, the contained
       measure it renders by default — see Layer 2). The top-level app shell's
-      main region is the sole inset owner. Inside the frame there is one
-      horizontal gutter per column — the sections' own; the main body adds
-      none on top (v4.2). *Fails when:* main-column content sits one gutter
-      further in than the rail's or the summary band's.
-- [ ] **One outer frame, not a card scatter.** Every detail-overview page has
-      exactly one title (the page header, above the frame) and one raised
-      surface (the frame) holding summary + main — and, in `layout="rail"`,
-      the rail. The **rail** is a flush, hairline-divided strip (chromeless
-      sections, padding kept); the **main** keeps its detail sections as
-      panels **inside** the frame. *Fails when:* the page is loose card
-      surfaces floating on the bare page background with no outer frame (the
-      "scatter" drift), the record is titled twice (header + a titled card),
-      OR the rail is carded instead of flush.
+      main region is the sole inset owner. Inside each card there is one
+      horizontal gutter — the sections' own; the main column adds none on top
+      (v4.2). *Fails when:* main-column content sits one gutter further in
+      than the rail's or the summary band's.
+- [ ] **Shell-owned cards, not a card scatter.** Every detail-overview page has
+      exactly one title (the page header, above the body) and a body of
+      shell-drawn cards: one per main section, and one rail / summary card
+      holding the identity sections. The identity sections inside that card
+      are flush and hairline-divided (chromeless, padding kept). *Fails when:*
+      the page hand-rolls cards around or between sections, the record is
+      titled twice (header + a titled card), OR the identity sections are
+      each carded instead of chromeless inside the one rail / summary card.
 
 ### REQUIRED — slot order & roles
 

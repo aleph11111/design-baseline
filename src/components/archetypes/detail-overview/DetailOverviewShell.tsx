@@ -4,6 +4,7 @@ import { cn } from "../../../lib/utils";
 import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
 import { StatTile } from "../../layout/StatTile";
 import { StatTileRow } from "../../layout/StatTileRow";
+import { RaisedSurfaceContext } from "../../layout/surface";
 
 const WIDTH_MAP: Record<"none" | "md" | "lg" | "xl", string> = {
   none: "",
@@ -86,11 +87,11 @@ export type DetailOverviewShellProps = DetailOverviewTitleProps & {
 /**
  * DetailOverviewShell — the C (detail-overview) archetype container.
  *
- * Renders through `PageFrame` (ADR-0008): the record's header on the canvas,
- * then the page's one raised surface holding (rail layout) a chromeless,
- * hairline-divided, tinted identity rail beside the main column, or (vertical)
- * the summary band above it. Sections inside the frame flatten automatically
- * (no card-in-card). The shell exposes `layout` (keyed to entity density) and
+ * Renders through `PageFrame` (ADR-0008) with a stack body (ADR-0015): the
+ * record's header on the canvas, then one raised card per main-column section
+ * and, beside them (rail layout) or above them (vertical), one card holding
+ * the chromeless, hairline-divided identity sections. Nested in a parent
+ * frame, the body keeps the flat look (no cards of its own). The shell exposes `layout` (keyed to entity density) and
  * `width` (keyed to wide tables) as its only structure props, plus the header
  * data, typed `stats`, and ReactNode slots for the composed master-data /
  * transactional / reference sections.
@@ -115,13 +116,51 @@ export function DetailOverviewShell({
       </StatTileRow>
     ) : null;
 
-  // Rail section dividers: an INSET hairline between sibling sections (a faint
-  // pseudo-element aligned to the 20px content gutter), NOT a full-bleed
-  // `divide-y` rule striking edge-to-edge across the rail. `*+*` targets every
-  // section after the first; `inset-x-5` matches the sections' px-5 content.
-  const railDividers =
-    "[&>*+*]:relative [&>*+*]:before:absolute [&>*+*]:before:inset-x-5 " +
-    "[&>*+*]:before:top-0 [&>*+*]:before:h-px [&>*+*]:before:bg-border/60";
+  return (
+    <PageFrame {...header} className={layout !== "rail" && WIDTH_MAP[width]} body="stack">
+      <DetailOverviewBody
+        layout={layout}
+        summary={summary}
+        statStrip={statStrip}
+        content={content}
+        references={references}
+      />
+    </PageFrame>
+  );
+}
+
+// Rail section dividers: an INSET hairline between sibling sections (a faint
+// pseudo-element aligned to the 20px content gutter), NOT a full-bleed
+// `divide-y` rule striking edge-to-edge across the rail. `*+*` targets every
+// section after the first; `inset-x-5` matches the sections' px-5 content.
+const railDividers =
+  "[&>*+*]:relative [&>*+*]:before:absolute [&>*+*]:before:inset-x-5 " +
+  "[&>*+*]:before:top-0 [&>*+*]:before:h-px [&>*+*]:before:bg-border/60";
+
+/** The stack body's gap between cards (mirrors `PageFrame`'s stack). */
+const STACK_GAP = "gap-4 md:gap-5";
+
+/**
+ * The record body. Rendered inside `PageFrame`, so `RaisedSurfaceContext`
+ * says where it landed: `false` on the stack canvas (ADR-0015) — each main
+ * section is its own card and the rail / summary is one card of chromeless
+ * sections; `true` nested in a parent frame or a titled host — the old flat
+ * look (tinted band, hairline rules, no cards of its own).
+ */
+function DetailOverviewBody({
+  layout,
+  summary,
+  statStrip,
+  content,
+  references,
+}: {
+  layout: "vertical" | "rail";
+  summary: React.ReactNode;
+  statStrip: React.ReactNode;
+  content: React.ReactNode;
+  references: React.ReactNode;
+}): React.ReactElement {
+  const flat = React.useContext(RaisedSurfaceContext);
 
   // Publish the rail's own height as --db-rail-h so its sticky `top` can clamp
   // to `100dvh - height`: a rail taller than the viewport scrolls with the
@@ -140,85 +179,114 @@ export function DetailOverviewShell({
     return () => observer.disconnect();
   }, [layout]);
 
-  const rail = (
-    <UnifiedSurfaceContext.Provider value={true}>
-      {/* Slot children render DIRECTLY into the rail container so a
-          multi-section `summary` gets an inset hairline between sections. */}
-      <div
-        ref={railRef}
-        className={cn(
-          // Below lg the rail div dissolves (`contents`) so summary and
-          // references become flex items of the body and references can sort
-          // after main (contract order: header, summary, stats, content,
-          // references) with one mount per slot.
-          "bg-muted/20 max-lg:contents lg:border-r lg:border-border/60 lg:sticky lg:self-start",
-          "lg:top-[min(var(--db-sticky-top,0px),calc(100dvh_-_var(--db-rail-h,0px)))]",
-          railDividers,
-        )}
-      >
-        {summary && (
-          <div className={cn("max-lg:bg-muted/20", railDividers)}>{summary}</div>
-        )}
-        {references && (
-          <div className={cn("max-lg:order-last max-lg:bg-muted/20", railDividers)}>
-            {references}
-          </div>
-        )}
-      </div>
-    </UnifiedSurfaceContext.Provider>
-  );
-
   // An empty body slot set renders no container — no ruled blank strip.
   const hasMain = Boolean(statStrip || content);
-  const hasVerticalBody = hasMain || Boolean(references);
   // Body wrappers pad vertically only: sections, stat tiles and key-value rows
   // each own their `px-5` gutter, so a horizontal pad here doubled the inset
   // and set the main column 20px in from the summary band (and, on a phone,
   // 40px in from the page title).
 
-  const main = hasMain && (
-    <div
-      className={cn(
-        "border-t border-border/60 py-5 lg:border-t-0 space-y-4",
-      )}
-    >
-      {statStrip && <div>{statStrip}</div>}
-      {content}
-    </div>
-  );
-
-  const body =
-    layout === "rail" ? (
+  if (layout === "rail") {
+    // Below lg the rail div dissolves (`contents`) so summary and references
+    // become items of the body and references can sort after main (contract
+    // order: header, summary, stats, content, references) with one mount per
+    // slot. On the canvas the rail is one card at lg, and each of its two
+    // slots is its own card below lg.
+    const slotCard = flat
+      ? "max-lg:bg-muted/20"
+      : "max-lg:overflow-clip max-lg:rounded-lg max-lg:border max-lg:bg-surface-raised";
+    const rail = (
+      <UnifiedSurfaceContext.Provider value={true}>
+        <RaisedSurfaceContext.Provider value={true}>
+          {/* Slot children render DIRECTLY into the rail container so a
+              multi-section `summary` gets an inset hairline between sections. */}
+          <div
+            ref={railRef}
+            data-slot="detail-rail"
+            className={cn(
+              "max-lg:contents lg:sticky lg:self-start",
+              "lg:top-[min(var(--db-sticky-top,0px),calc(100dvh_-_var(--db-rail-h,0px)))]",
+              flat
+                ? "bg-muted/20 lg:border-r lg:border-border/60"
+                : "lg:overflow-clip lg:rounded-lg lg:border lg:bg-surface-raised",
+              railDividers,
+            )}
+          >
+            {summary && <div className={cn(slotCard, railDividers)}>{summary}</div>}
+            {references && (
+              <div className={cn("max-lg:order-last", slotCard, railDividers)}>{references}</div>
+            )}
+          </div>
+        </RaisedSurfaceContext.Provider>
+      </UnifiedSurfaceContext.Provider>
+    );
+    const main = hasMain && (
+      <div
+        data-slot="detail-main"
+        className={cn(
+          "min-w-0",
+          flat ? "border-t border-border/60 py-5 lg:border-t-0 space-y-4" : cn("flex flex-col", STACK_GAP),
+        )}
+      >
+        {statStrip && <div>{statStrip}</div>}
+        {content}
+      </div>
+    );
+    return (
       <div
         className={cn(
           "max-lg:flex max-lg:flex-col",
+          !flat && STACK_GAP,
           hasMain && "lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start",
         )}
       >
         {rail}
         {main}
       </div>
-    ) : (
-      // vertical: the identity rail holds `summary` only (chromeless);
-      // references falls into the MAIN column, carded (no chrome suppression).
-      <div>
-        <UnifiedSurfaceContext.Provider value={true}>
-          <div className={cn("bg-muted/20", railDividers)}>{summary}</div>
-        </UnifiedSurfaceContext.Provider>
-        {hasVerticalBody && (
-          <div className="border-t border-border/60 py-5 space-y-4">
-            {statStrip && <div>{statStrip}</div>}
-            {content}
-            {references && <div>{references}</div>}
-          </div>
-        )}
-      </div>
     );
+  }
 
+  // vertical: `summary` is the identity band (chromeless sections; one card on
+  // the canvas); references falls into the MAIN column, carded.
+  const summaryBand = (summary || flat) && (
+    <UnifiedSurfaceContext.Provider value={true}>
+      <RaisedSurfaceContext.Provider value={true}>
+        <div
+          data-slot="detail-summary"
+          className={cn(
+            flat ? "bg-muted/20" : "overflow-clip rounded-lg border bg-surface-raised",
+            railDividers,
+          )}
+        >
+          {summary}
+        </div>
+      </RaisedSurfaceContext.Provider>
+    </UnifiedSurfaceContext.Provider>
+  );
+  const hasVerticalBody = hasMain || Boolean(references);
+  if (!flat) {
+    // Stack canvas: every slot is a direct item of the stack (a fragment adds
+    // no box), so each section card sits on the canvas with the stack's gap.
+    return (
+      <>
+        {summaryBand}
+        {statStrip}
+        {content}
+        {references}
+      </>
+    );
+  }
   return (
-    <PageFrame {...header} className={layout !== "rail" && WIDTH_MAP[width]}>
-      {body}
-    </PageFrame>
+    <div>
+      {summaryBand}
+      {hasVerticalBody && (
+        <div className="border-t border-border/60 py-5 space-y-4">
+          {statStrip && <div>{statStrip}</div>}
+          {content}
+          {references && <div>{references}</div>}
+        </div>
+      )}
+    </div>
   );
 }
 

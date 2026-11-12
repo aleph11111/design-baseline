@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.44.0
+
+- **Changed:** `DetailOverviewShell` renders a `PageFrame` stack body (contract v4.4, MANIFEST 4.7, ADR-0015): each main-column `DetailSection` and the stat-tile row is its own bordered, rounded card on the canvas with the stack's gap. The identity sections stay chromeless and hairline-divided inside one card — the sticky rail (`layout="rail"`, one card at `lg`; below `lg` the summary and references are one card each, references still last) or the summary band (`layout="vertical"`). `width` presets and the rail's sticky clamp are unchanged. Nested under a parent `PageFrame` the body keeps the flat look.
+- **Consumer:** none required.
+- **Breaking:** no (visual change only).
+
 ## v0.43.0
 
 - **Changed:** `SettingsSectionsShell` renders a `PageFrame` stack body (settings-sections contract v1.1, MANIFEST 1.1, ADR-0015): each `SettingsSection` is its own bordered, rounded card on the canvas with a gap between; the `divide-y` wrapper is gone and `data-slot="settings-sections"` is kept on a `display: contents` wrapper inside the stack body, so existing selectors keep working.
