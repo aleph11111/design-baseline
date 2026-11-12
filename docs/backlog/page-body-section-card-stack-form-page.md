@@ -2,15 +2,21 @@
 area: archetypes
 opened: '2026-11-12'
 status: ready
+gate:
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-11-12T00:00:00Z'
 value: normal
 spec: docs/superpowers/plans/2026-11-12-page-body-section-card-stack-design.md
 model: sonnet
-model_reason: "follows the shipped transaction-document and analytics-dashboard slice pattern"
-gate:
-  score: 5
-  passed: [title, context, what_to_do, acceptance, related]
-  failed: []
-  graded_at: '2026-11-12T00:00:00Z'
+model_reason: follows the shipped transaction-document and analytics-dashboard slice pattern
+roadmap: page-body-section-card-stack
 ---
 
 # Move the form-page shell onto the section-card stack with one card per field group
