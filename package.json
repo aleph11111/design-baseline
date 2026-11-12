@@ -1,10 +1,6 @@
 {
   "name": "design-baseline",
-<<<<<<< HEAD
   "version": "0.46.0",
-=======
-  "version": "0.46.0",
->>>>>>> 983293e (feat(form-page): section-card stack, one card per field group (v0.46.0, ADR-0015))
   "private": true,
   "engines": {
     "node": ">=22"
