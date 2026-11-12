@@ -126,7 +126,7 @@ export function GroupedListDemo() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="max-w-prose text-sm text-muted-foreground">
-          Sections group rows by taxonomy inside the page's one surface, each a
+          Sections group rows by taxonomy into one card each, a
           heading over its table, sharing one column config. Toggle <strong>State</strong> to
           see the shell's loading/error planes, and <strong>Toolbar</strong> for the
           header-only shape — the Add action stays in the header either way.

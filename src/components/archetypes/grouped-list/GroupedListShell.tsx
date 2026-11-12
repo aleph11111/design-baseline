@@ -1,6 +1,8 @@
 "use client";
 import * as React from "react";
 import { ListStateView, resolveListState, type ListStateLabels } from "../shared";
+import { SurfaceFrame } from "../../layout/SurfaceFrame";
+import { SectionCard } from "../../layout/SectionCard";
 import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
 
 // The shared renderer's own labels type — one owner of the key set, so the
@@ -36,10 +38,9 @@ export type GroupedListShellProps = Pick<
 
 /**
  * Page-level wrapper for an Archetype K (grouped-list) page (ADR-0008): the
- * page title on the canvas, then one raised surface — toolbar band, then the
- * `<GroupedListSection>` children stacked inside it, each flattened to a
- * heading over its table (no card-in-card). Handles the page-level loading,
- * empty, and error planes.
+ * page title on the canvas, then a section-card stack (ADR-0015): one raised
+ * card per `<GroupedListSection>`, the toolbar band on the first. Handles the
+ * page-level loading, empty, and error planes inside one card.
  *
  * The inner table chrome is delegated to the list-with-detail body inside each
  * `<GroupedListSection>`; this component does not render any table itself.
@@ -58,17 +59,23 @@ export function GroupedListShell({
   const showSections = listState === "content";
 
   return (
-    <PageFrame {...frame}>
-      <ListStateView
-        phase={listState}
-        error={error}
-        onRetry={onRetry}
-        labels={labels}
-        emptyMessage={emptyMessage}
-      />
-
-      {/* Group separation (STYLE.md vertical rhythm): space-y-8 between groups. */}
-      {showSections && <div className="space-y-8">{children}</div>}
+    <PageFrame {...frame} body="stack">
+      {/* Each group is its own raised card; the stack gap separates them (ADR-0015). */}
+      {showSections ? (
+        // No groups at all: the band still needs a card to ride on (ADR-0015 rule 5).
+        React.Children.toArray(children).length > 0 ? children : <SurfaceFrame>{null}</SurfaceFrame>
+      ) : (
+        // Loading / empty / error: one bounded card, so the page never has a bare body.
+        <SectionCard data-slot="grouped-list-state">
+          <ListStateView
+            phase={listState}
+            error={error}
+            onRetry={onRetry}
+            labels={labels}
+            emptyMessage={emptyMessage}
+          />
+        </SectionCard>
+      )}
     </PageFrame>
   );
 }

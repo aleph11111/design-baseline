@@ -43,9 +43,8 @@ export type GroupedListSectionProps<Row> = {
 /**
  * One group within a grouped-list page: a `<SectionCard>` whose ruled overline
  * title bar (with a row-count badge) sits over the group's table, rendered
- * flush. Inside the page's one surface the section card flattens (no fill —
- * RaisedSurfaceContext), so groups read as heading-separated sections, never
- * cards in a card (ADR-0008 §3). Multiple sections share the same `Row` type.
+ * flush. The shell's stack body puts it directly on the canvas, so it is an
+ * un-nested raised card carrying the border (ADR-0015). Multiple sections share the same `Row` type.
  */
 export function GroupedListSection<Row>({
   title,
