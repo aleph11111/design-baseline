@@ -359,6 +359,26 @@ describe("PageFrame — stack body (ADR-0015)", () => {
     expect(second.querySelector("[data-toolbar-band]")).toBeNull();
   });
 
+  it("keeps the toolbar band as a band-only card when no child renders", () => {
+    const { container } = render(
+      <PageFrame title="T" body="stack" toolbar={<NativeField label="Suche" value="x" onChange={() => {}} />}>
+        {null}
+        {false}
+      </PageFrame>,
+    );
+    expect(screen.getByRole("textbox", { name: "Suche" })).toBeTruthy();
+    expect(container.querySelectorAll("[data-toolbar-band]")).toHaveLength(1);
+  });
+
+  it("renders no card when the stack has neither toolbar nor children", () => {
+    const { container } = render(
+      <PageFrame title="T" body="stack">
+        {null}
+      </PageFrame>,
+    );
+    expect((container.querySelector("[data-page-body=stack]") as HTMLElement).children).toHaveLength(0);
+  });
+
   it("opens the mobile filter sheet from the first card's band", () => {
     setViewport(430);
     renderStack();
