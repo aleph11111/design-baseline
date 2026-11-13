@@ -1,7 +1,6 @@
 "use client";
 import * as React from "react";
 import { ListStateView, resolveListState, type ListStateLabels } from "../shared";
-import { SurfaceFrame } from "../../layout/SurfaceFrame";
 import { SectionCard } from "../../layout/SectionCard";
 import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
 
@@ -62,8 +61,7 @@ export function GroupedListShell({
     <PageFrame {...frame} body="stack">
       {/* Each group is its own raised card; the stack gap separates them (ADR-0015). */}
       {showSections ? (
-        // No groups at all: the band still needs a card to ride on (ADR-0015 rule 5).
-        React.Children.toArray(children).length > 0 ? children : <SurfaceFrame>{null}</SurfaceFrame>
+        children
       ) : (
         // Loading / empty / error: one bounded card, so the page never has a bare body.
         <SectionCard data-slot="grouped-list-state">

@@ -241,6 +241,8 @@ PageFrame.displayName = "PageFrame";
 /** The stack body's children, with the toolbar band handed to the first only. */
 function stackChildren(children: React.ReactNode, band: React.ReactNode): React.ReactNode {
   const [first, ...rest] = React.Children.toArray(children);
+  // No renderable child (every group hidden by a search): the band still needs a card.
+  if (first === undefined) return band != null ? <SurfaceFrame toolbar={band}>{null}</SurfaceFrame> : null;
   return (
     <>
       <ToolbarLeadContext.Provider value={band}>{first}</ToolbarLeadContext.Provider>

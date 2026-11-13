@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-11-12'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "cause established at one shared function (stackChildren in PageFrame); one guard plus a test"
