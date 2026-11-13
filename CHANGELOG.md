@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.46.1
+
+- **Changed:** `PageFrame` `body="stack"` keeps the toolbar band (search, filters, mobile filter sheet) as a band-only card when no child renders (e.g. every group hidden by an active search); it used to drop the band, so the search could not be cleared. `GroupedListShell`'s per-shell guard for this is removed.
+- **Consumer:** none required.
+- **Breaking:** no.
+
 ## v0.46.0
 
 - **Changed:** `FormPageShell` renders a `PageFrame` stack body (contract v3.3, MANIFEST 3.3, ADR-0015): each field-group `SectionCard` is its own bordered, rounded card on the canvas, and the shell no longer wraps the children in a padded inset div. `FormPageActions` stays outside every card (sticky on the phone).
