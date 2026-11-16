@@ -34,7 +34,10 @@ const script = [
 // invoking user or every file the container writes is root-owned. The named volumes
 // are created root-owned, so chown them once per run first; HOME=/tmp gives npm a
 // writable home, with the cache volume at /tmp/.npm.
-const linux = process.platform === "linux";
+// Rootless Docker already maps container uid 0 to the host user, so --user would map to a
+// subordinate uid: skip the mapping and the chown there. A failed probe falls through to rootful.
+const rootless = process.platform === "linux" && (spawnSync("docker", ["info", "-f", "{{.SecurityOptions}}"], { encoding: "utf8" }).stdout ?? "").includes("rootless");
+const linux = process.platform === "linux" && !rootless;
 const cacheDir = linux ? "/tmp/.npm" : "/root/.npm";
 const nmVol = `design-baseline-nm-${id}`;
 const cacheVol = "design-baseline-npm-cache";
