@@ -28,19 +28,19 @@ phases:
     title: transaction-document slice — one card per section, one column bound
     tickets:
       - page-body-section-card-stack-transaction-document
-    open: true
+    open: false
     spec_anchor: '### Phase 2 — transaction-document slice'
   - name: p3
     title: Weak-separation slices — analytics-dashboard, kanban-board
     tickets:
       - page-body-section-card-stack-analytics-dashboard
-    open: true
+    open: false
     spec_anchor: '### Phase 3 — Weak-separation slices'
   - name: p4
     title: Remaining kind:page archetypes — stack slice or recorded keep-frame decision
     tickets:
       - page-body-section-card-stack-keep-frame-decisions
-    open: true
+    open: false
     spec_anchor: '### Phase 4 — Remaining archetypes'
   - name: p5
     title: Consumer migration tickets
@@ -66,12 +66,13 @@ This is a fleet-wide visual change: every page shell, all screenshot baselines (
 
 ## What to do
 
-- [ ] Write the new ADR (next number in `docs/adr/INDEX.md`): supersede ADR-0008 §3 and ADR-0007 §3, keep ADR-0008 §1, §2, §4; define the section-card stack (gap, hairline border, fixed radius, toolbar band on the first card); state that the choice is per archetype in the shell, never per call site; update both superseded ADRs' status lines and the index.
-- [ ] Add the shell primitive in `src/components/layout/` (`SurfaceFrame.tsx` / `SectionCard.tsx` / `surface.ts`) so an archetype shell opts in once and `RaisedSurfaceContext` nesting rules follow the new ADR, with component tests.
-- [ ] Decompose into one slice ticket per `kind: page` archetype (list-with-detail, form-page, detail-overview, settings-table, grouped-list, matrix-grid, tabbed-settings, analytics-dashboard, import-wizard, feed-inbox, kanban-board, report, statement-with-filters, calendar, settings-sections, print-statement, structure-builder, transaction-document), each deciding stack-or-single-frame for that archetype, updating its contract, demo, tests, screenshot baselines and MANIFEST version.
-- [ ] Order the slices: `transaction-document` first (the mockup consumer), then the archetypes ADR-0008 flagged as separating too weakly (analytics-dashboard widgets, kanban-board lanes).
-- [ ] Reconsider the `transaction-document` local column bound against `AppShell`'s 1180px column and its wide-desk steps (ADR-0007 §1) as part of the `transaction-document` slice, ending in one bound, not two.
-- [ ] Update `docs/STYLE.md`, `docs/PLACEMENT.md` and `docs/audit-signals.json` where they restate the one-raised-surface rule, and file one consumer migration ticket per consumer through the dashboard capture API.
+- [x] Write the new ADR (next number in `docs/adr/INDEX.md`): supersede ADR-0008 §3 and ADR-0007 §3, keep ADR-0008 §1, §2, §4; define the section-card stack (gap, hairline border, fixed radius, toolbar band on the first card); state that the choice is per archetype in the shell, never per call site; update both superseded ADRs' status lines and the index.
+- [x] Add the shell primitive in `src/components/layout/` (`SurfaceFrame.tsx` / `SectionCard.tsx` / `surface.ts`) so an archetype shell opts in once and `RaisedSurfaceContext` nesting rules follow the new ADR, with component tests.
+- [x] Decompose into one slice ticket per `kind: page` archetype (list-with-detail, form-page, detail-overview, settings-table, grouped-list, matrix-grid, tabbed-settings, analytics-dashboard, import-wizard, feed-inbox, kanban-board, report, statement-with-filters, calendar, settings-sections, print-statement, structure-builder, transaction-document), each deciding stack-or-single-frame for that archetype, updating its contract, demo, tests, screenshot baselines and MANIFEST version.
+- [x] Order the slices: `transaction-document` first (the mockup consumer), then the archetypes ADR-0008 flagged as separating too weakly (analytics-dashboard widgets, kanban-board lanes).
+- [x] Reconsider the `transaction-document` local column bound against `AppShell`'s 1180px column and its wide-desk steps (ADR-0007 §1) as part of the `transaction-document` slice, ending in one bound, not two.
+- [x] Update `docs/STYLE.md`, `docs/PLACEMENT.md` and `docs/audit-signals.json` where they restate the one-raised-surface rule (done in [[page-body-section-card-stack-adr-0015]]).
+- [ ] File one consumer migration ticket per consumer through the dashboard capture API (phase p5 — the only open phase; p1–p4 slice tickets are all archived as of 2026-11-16).
 
 ## Acceptance
 

@@ -43,9 +43,11 @@ Consumer: controlling-app `frontend/src/app/workspace/import/page.tsx` (route `/
 - [[import-wizard-demo-done-state-frame]] — `done` state renders in the same frame
 - [ADR-0008](/docs/adr/0008-one-page-frame-slot-owned-placement.md) — one page frame, slot-owned placement
 
-## Open question
+## Decisions
 
-Two forks, resolved to the recommended default for filing; confirm before `/feat`.
+Both forks confirmed by the operator on 2026-11-16 (backlog-coherence ticket `backlog-coherence-archetype-gap-1d960f`):
 
-1. **Per-step buttons.** The consumer's step bodies own their own buttons, but the contract forbids per-step "save" buttons and puts Back/Next/Commit in the footer. Recommended: keep the footer contract and have the consumer move step actions into it (no footer-less mode). Alternative: add a footer-less variant where steps own navigation. Only one consumer wants this, which is below the rule-of-2 bar the other promotions used.
-2. **History view hosting.** With the strip in `WizardShell`'s `viewSwitch`, the "Verlauf" view must render the history (a list-with-detail shell) on the same route. Recommended: the page renders `WizardShell` for "Neuer Import" and `ListWithDetailShell` for "Verlauf", each passing the same `viewSwitch` node. Alternative: two routes, each shell with its own link-based switch.
+1. **Per-step buttons — keep the footer contract.** The consumer moves its step actions into the Back/Next/Commit footer; no footer-less variant. Only one consumer wants step-owned navigation, which is below the rule-of-2 bar the other promotions used.
+2. **History view hosting — one route, two shells.** The page renders `WizardShell` for "Neuer Import" and `ListWithDetailShell` for "Verlauf", each passing the same `viewSwitch` node. No second route.
+
+Sequencing: [[wizard-panel-embeddable-frame]] also bumps `package.json`, `CHANGELOG.md` and the import-wizard spec/MANIFEST version (3.6) — re-read all three at `/feat`, whichever of the two lands second rebases onto the other's version.
