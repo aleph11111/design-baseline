@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-11-12'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "design decided by operator 2026-11-16 (BoardColumn context reset); one-line provider + ADR sentence + test + demo"
