@@ -1,7 +1,7 @@
 ---
 area: story-coverage
 opened: '2026-11-12'
-status: blocked
+status: done
 gate:
   score: 5
   passed:
@@ -12,7 +12,6 @@ gate:
     - related
   failed: []
   graded_at: '2026-11-12T13:33:23.295Z'
-blocked_reason: 'operator decides: write the story or approve the deletion'
 ---
 
 # Surface page:* in gallery/Gallery.tsx serves no story — write the story or delete it
@@ -39,3 +38,7 @@ No `docs/stories/` entry lists them. Whether they are wanted is the operator's c
 ## Related
 
 - [gallery/Gallery.tsx](/gallery/Gallery.tsx)
+
+## Resolution (2026-11-16)
+
+Operator kept the route (Option A in [[backlog-coherence-invariants-duplicate-fa3091]]). Story `docs/stories/gallery-unknown-route-lands-on-overview.md` now lists `page:*`. Correction: no test pins the catch-all — no gallery test, `scripts/check-*.mjs` or `tests/screenshots.spec.mjs` visits an unknown route — so the `tested-unwanted` label was wrong.
