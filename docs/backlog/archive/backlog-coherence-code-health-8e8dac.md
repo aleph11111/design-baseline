@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-11-12'
-status: needs-enrichment
+status: done
 gate:
   score: 4
   passed:
@@ -169,3 +169,15 @@ Code evidence: src/components/archetypes/transaction-document/TransactionDocumen
 - Whether the Td demo already passes a duplicateFact check, and whether the MANIFEST 1.2 and v0.38.0 targets for fidelity are still right, were not verified.
 - Fleet consumer configs (_adherence.json) behind the lint-design card's 'no behaviour change' claim were not re-checked.
 - The refused-link cards (detail-overview-rail-switch-container-query, remove-pageframe-flat-actions-node-form, invariants-page-title-collapse, layout-invariants-nested-overflow) were not read.
+
+## Resolution (2026-11-16)
+
+Re-verified against origin/main 48546f0 before acting; half the cluster had moved on since the 2026-11-12 run.
+
+- **Decision 1 — docker args: Option A.** One `DESIGN_BASELINE_PLAYWRIGHT_DOCKER_ARGS` plus an always-on `--add-host host.docker.internal:host-gateway`; network, `-e` and `-v` are PACKAGE.md examples. `playwright-bin-docker-args-passthrough` rewritten as survivor (all carry-over items folded in, controlling-app repro in context, stale `depends_on` dropped, now `depends_on: playwright-bin-rootless-docker-user-mapping`). `playwright-bin-compose-consumer-support` moved to `discarded/`.
+- **Decision 2 — Td column bound: moot.** `transaction-document-mockup-fidelity` is archived and the roadmap's transaction-document slice shipped one column bound (#739, v0.40.0, ADR-0015).
+- **Conflict (fidelity per-section cards):** resolved — `page-body-section-card-stack` lines on the fidelity ticket rewritten to reflect what shipped.
+- `code-health-toolbar-band-extract-from-pageframe`: already shipped (#733); no ordering edit needed.
+- `code-health-lint-design-rule-kind-dispatch`: numbers refreshed (704 lines, sentinel at line 462, 10 `continue` in `scanFile`).
+- `invariants-duplicate-fact-check`: `depends_on` now `[invariants-overflow-blind-under-mobile-emulation, layout-invariants-nested-overflow]`; stale "once Td exists" wording replaced by the shipped demo; line ref 163.
+- `code-health-settings-table-shell-prop-reforwarding`, `invariants-overflow-blind-under-mobile-emulation`, `playwright-bin-rootless-docker-user-mapping`: kept unchanged.
