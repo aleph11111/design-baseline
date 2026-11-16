@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-11-06
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "scoped fix in one helper with an established cause and a known repro"
