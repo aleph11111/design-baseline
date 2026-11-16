@@ -2,6 +2,7 @@
 import * as React from "react";
 import { cn } from "../../../lib/utils";
 import { OVERLINE_CLASS } from "../../layout/overline";
+import { RaisedSurfaceContext } from "../../layout/surface";
 
 export type BoardColumnProps = React.HTMLAttributes<HTMLDivElement> & {
   /** Column heading (e.g. "To do"). Rendered as the overline signature. */
@@ -26,7 +27,9 @@ export type BoardColumnProps = React.HTMLAttributes<HTMLDivElement> & {
 /**
  * BoardColumn — one column in a `<BoardShell>`: an unbordered grouping region
  * on the canvas (sunken tone, no border, no raised fill — the cards are the
- * raised objects, so the lane provides no `RaisedSurfaceContext`, ADR-0015)
+ * raised objects; the sunken lane starts a fresh surface — it resets
+ * `RaisedSurfaceContext` to false, so its cards keep their chrome even when the
+ * board is nested in another raised surface, ADR-0015 rule 2)
  * with an overline `h3` header (title + count + actions) over a vertical stack
  * of `<BoardCard>`s. Drag-agnostic: the outer
  * div forwards its ref and spreads `...rest`, so the consumer attaches its DnD
@@ -67,7 +70,9 @@ export function BoardColumn({
           {emptyContent}
         </div>
       ) : (
-        <div className="flex flex-1 flex-col gap-2 p-2">{children}</div>
+        <div className="flex flex-1 flex-col gap-2 p-2">
+          <RaisedSurfaceContext.Provider value={false}>{children}</RaisedSurfaceContext.Provider>
+        </div>
       )}
     </div>
   );

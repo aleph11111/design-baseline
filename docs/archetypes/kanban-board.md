@@ -2,7 +2,7 @@
 key: P
 slug: kanban-board
 kind: page
-version: 3.5
+version: 3.6
 promoted_from: fleet-audit-2026-06-13 (pmo, hk-crm)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -11,6 +11,11 @@ status: locked
 
 # Archetype P — kanban-board
 
+> **v3.6 (2026-11-16) — nested boards keep raised cards (ADR-0015 rule 2).**
+> A lane starts a fresh surface, so its cards keep their raised chrome even
+> when the whole board is nested in another raised surface (a tab, a titled
+> section, a dialog). Visual fix only; no prop change.
+>
 > **v3.5 (2026-11-12) — section-card stack (ADR-0015).** The board body is a
 > stack on the canvas: the toolbar band sits on a band-only first card, then
 > the lane row follows on the canvas, outside any card. Each board card is
@@ -74,7 +79,8 @@ The board shell of board-column primitives of board-card primitives. The
 chrome on the canvas (border, raised fill, card radius). A **lane is a
 grouping region**, not a card: the sunken tone, no border, no raised fill —
 so the cards inside it stay raised (a raised lane would strip their border,
-ADR-0015 rule 2). Its title is a section-level label. The lane row scrolls
+ADR-0015 rule 2). The lane starts a fresh surface: its cards stay raised even
+when the board itself is nested in another raised surface. Its title is a section-level label. The lane row scrolls
 horizontally in its own scroller; the page does not. Columns show a count and an optional per-column add-card
 affordance; cards show a title + a couple of compact meta
 chips — a status-badge primitive for the label, an avatar primitive for the
@@ -132,6 +138,9 @@ view; a read-only viewer gets the board without drag handles.
 ---
 
 ## Version log
+- **3.6** — ADR-0015 rule 2 amendment: a lane starts a fresh surface, so
+  board cards keep their raised chrome when the board is nested in another
+  raised surface. Visual fix only.
 - **3.5** — ADR-0015 section-card stack: band-only first card for the
   toolbar band; lane row on the canvas; board cards raised and bordered;
   lanes in the sunken tone, unbordered. Visual change only.
