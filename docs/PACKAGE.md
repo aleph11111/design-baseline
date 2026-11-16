@@ -399,8 +399,8 @@ a consumer takes the image, the device projects and the runner from the package:
    - compose network — `DESIGN_BASELINE_PLAYWRIGHT_DOCKER_ARGS='--network <project>_default'`;
      the tests reach `frontend:3000` / `backend:8000` by service name, no host hop.
    - env pass-through — `DESIGN_BASELINE_PLAYWRIGHT_DOCKER_ARGS='-e VISUAL_BASE_URL -e VISUAL_SEED'`.
-   - extra repo-root mount — `DESIGN_BASELINE_PLAYWRIGHT_DOCKER_ARGS='-v $PWD/../_adherence.json:/work/_adherence.json:ro'`
-     (the shell expands `$PWD` when you set it).
+   - extra repo-root mount — `DESIGN_BASELINE_PLAYWRIGHT_DOCKER_ARGS="-v $PWD/../_adherence.json:/work/_adherence.json:ro"`
+     (double quotes, so your shell expands `$PWD`; the bin itself expands nothing).
 
    Limit: whitespace splitting cannot carry a path or value containing spaces.
 5. In CI, run the job in `container: image: <PLAYWRIGHT_IMAGE>`; the donor's
