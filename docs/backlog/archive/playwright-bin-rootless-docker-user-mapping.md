@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-11-04'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "one detection branch in bin/design-baseline-playwright.mjs; cause established (rootless userns maps container uid 0 to the host user)"
