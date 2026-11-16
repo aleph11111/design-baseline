@@ -2,7 +2,7 @@
 key: W
 slug: import-wizard
 kind: page
-version: 2.2
+version: 2.3
 promoted_from: fleet-audit-2026-06-13 (controlling-app, my-finance-app)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -73,6 +73,13 @@ data; the shell renders chrome and emits navigation intents. Canonical stages:
   skip it for a destructive/bulk import.
 - **Commit** — a summary + the single terminal action.
 
+**Non-page hosts.** Where the wizard lives in a dialog, drawer or tab body
+rather than on its own route, it uses the embeddable frame **`WizardPanel`**:
+the same stepper and Back / Next·Commit footer with no page frame and no
+heading (the host owns the title). On the first step an optional exit action
+replaces the disabled Back. The page shell composes the panel, so the footer
+behaves identically in both forms.
+
 **Forbidden:** more than ~5 steps (split the job); a commit with no preceding
 Verify step; per-step "save" buttons (only Back/Next/Commit drive the flow).
 
@@ -126,3 +133,5 @@ without import rights sees history (read-only) but not the wizard.
   instead of the consumer swapping the shell out.
 - **2.2** — dialog / drawer host: the overlay's title is the one heading; the
   wizard renders no page heading or second surface inside it (ADR-0008).
+- **2.3** — `WizardPanel`: the embeddable frame (stepper + step body + footer, no
+  page frame, no heading) for dialog / tab-body hosts; the page shell composes it.
