@@ -1,15 +1,35 @@
 ---
 area: archetypes
+opened: '2026-11-16'
+status: ready
+gate:
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-11-16T15:27:24.019Z'
+value: normal
+model: opus
+model_reason: >-
+  layout and API-shape decisions on a shipped archetype (side-effect presentation, progress dates vs
+  one-home-per-fact, fact groups) plus a viewport-fold acceptance
+---
+
+---
+area: archetypes
 opened: 2026-11-16
-status: needs-enrichment
+status: ready
 value: normal
 model: opus
 model_reason: "layout and API-shape decisions on a shipped archetype (side-effect presentation, progress dates vs one-home-per-fact, fact groups) plus a viewport-fold acceptance"
 gate:
-  score: 4
+  score: 5
   passed: [title, context, what-to-do, acceptance, related]
-  failed:
-    - open_question: "unresolved ## Open question caps readiness at 4"
+  failed: []
   graded_at: 2026-11-16T00:00:00Z
 ---
 
@@ -28,10 +48,10 @@ gate:
 ## What to do
 
 - [ ] Put `nextStep.primary` and the secondary actions in one right-aligned flex-wrap row beside the title and description, stacking below them on narrow widths (V2 layout, gap 1).
-- [ ] Present `nextStep.sideEffects` as one compact inline line (icon plus label per effect, wrapping) instead of one row per effect, keeping `done` / `pending` / `failed` state and `link` visible (gap 2; see Open question).
+- [ ] Present `nextStep.sideEffects` as one compact inline line (icon plus label per effect, wrapping) instead of one row per effect, keeping `done` / `pending` / `failed` state and `link` visible (gap 2; operator decision 2026-11-16: inline line, not a "N done" fold).
 - [ ] Tighten the header: remove the top gap above the back link, set the h1 to 24px, and place the breadcrumb directly under the app header (gap 3).
-- [ ] Add an optional date to `TransactionProgressStep` and render it after the label, omitted when absent so existing documents render unchanged (gap 4; see Open question).
-- [ ] Add a fact-group shape to `TransactionFact` so the shell renders grouped blocks with sublines (gap 5; see Open question), keeping the ungrouped shape working.
+- [ ] Add an optional date to `TransactionProgressStep` and render it after the label, omitted when absent so existing documents render unchanged (gap 4; operator decision 2026-11-16: optional `date` per step, amending the `identity.progress` JSDoc and the contract, which today say a step names the stage only).
+- [ ] Add a fact-group shape to `TransactionFact` so the shell renders grouped blocks with sublines (gap 5; operator decision 2026-11-16: optional group `{ title, items, subline }` alongside the flat fact, non-breaking), keeping the ungrouped shape working.
 - [ ] Update `src/examples/transaction-document-demo.tsx` so the sales-order demo carries a 4-side-effect next step, update `docs/archetypes/transaction-document.md` by role (no Tailwind classes, per `docs/RULES.md` rules 2–3), bump the version in the contract and `docs/archetypes/MANIFEST.json`, and refresh baselines with `npm run screenshots:update`.
 
 ## Acceptance
@@ -48,11 +68,3 @@ gate:
 - [[transaction-document-ledger-row-media]] — open sibling touching the same demo, contract and MANIFEST version; no ordering needed, but the second to land rebases the version bump
 - [[transaction-document-ledger-row-lock-add-remove]] — archived sibling in the same shell
 - [ADR-0014](/docs/adr/0014-transaction-document-page-archetype.md) — Transaction documents are their own `kind: page` archetype
-
-## Open question
-
-Three forks, each resolved to its recommended default above; confirm before `/feat`:
-
-1. **Side effects (gap 2):** (Recommended) one compact inline line of icon + label per effect. Alternative: fold `done` effects into a "N done" summary and list only pending/failed.
-2. **Progress dates (gap 4):** the current `identity.progress` JSDoc says a step names the stage only and its date lives in facts or history ("one home per fact"). (Recommended) add an optional `date` per step and amend that JSDoc and the contract, since V2 shows the date inline. Alternative: keep one-home-per-fact and render the date from history by key.
-3. **Facts (gap 5):** (Recommended) an optional group shape (`{ title, items, subline }`) alongside the flat fact, so existing consumers are untouched. Alternative: replace the flat shape with groups only (breaking).
