@@ -187,14 +187,14 @@ function DetailOverviewBody({
   // 40px in from the page title).
 
   if (layout === "rail") {
-    // Below lg the rail div dissolves (`contents`) so summary and references
+    // Below @4xl (container width) the rail div dissolves (`contents`) so summary and references
     // become items of the body and references can sort after main (contract
     // order: header, summary, stats, content, references) with one mount per
-    // slot. On the canvas the rail is one card at lg, and each of its two
-    // slots is its own card below lg.
+    // slot. On the canvas the rail is one card at @4xl, and each of its two
+    // slots is its own card below @4xl.
     const slotCard = flat
-      ? "max-lg:bg-muted/20"
-      : "max-lg:overflow-clip max-lg:rounded-lg max-lg:border max-lg:bg-surface-raised";
+      ? "@max-4xl:bg-muted/20"
+      : "@max-4xl:overflow-clip @max-4xl:rounded-lg @max-4xl:border @max-4xl:bg-surface-raised";
     const rail = (
       <UnifiedSurfaceContext.Provider value={true}>
         <RaisedSurfaceContext.Provider value={true}>
@@ -204,17 +204,17 @@ function DetailOverviewBody({
             ref={railRef}
             data-slot="detail-rail"
             className={cn(
-              "max-lg:contents lg:sticky lg:self-start",
-              "lg:top-[min(var(--db-sticky-top,0px),calc(100dvh_-_var(--db-rail-h,0px)))]",
+              "@max-4xl:contents @4xl:sticky @4xl:self-start",
+              "@4xl:top-[min(var(--db-sticky-top,0px),calc(100dvh_-_var(--db-rail-h,0px)))]",
               flat
-                ? "bg-muted/20 lg:border-r lg:border-border/60"
-                : "lg:overflow-clip lg:rounded-lg lg:border lg:bg-surface-raised",
+                ? "bg-muted/20 @4xl:border-r @4xl:border-border/60"
+                : "@4xl:overflow-clip @4xl:rounded-lg @4xl:border @4xl:bg-surface-raised",
               railDividers,
             )}
           >
             {summary && <div className={cn(slotCard, railDividers)}>{summary}</div>}
             {references && (
-              <div className={cn("max-lg:order-last", slotCard, railDividers)}>{references}</div>
+              <div className={cn("@max-4xl:order-last", slotCard, railDividers)}>{references}</div>
             )}
           </div>
         </RaisedSurfaceContext.Provider>
@@ -225,7 +225,7 @@ function DetailOverviewBody({
         data-slot="detail-main"
         className={cn(
           "min-w-0",
-          flat ? "border-t border-border/60 py-5 lg:border-t-0 space-y-4" : cn("flex flex-col", STACK_GAP),
+          flat ? "border-t border-border/60 py-5 @4xl:border-t-0 space-y-4" : cn("flex flex-col", STACK_GAP),
         )}
       >
         {statStrip && <div>{statStrip}</div>}
@@ -233,15 +233,17 @@ function DetailOverviewBody({
       </div>
     );
     return (
+      <div className="@container">
       <div
         className={cn(
-          "max-lg:flex max-lg:flex-col",
+          "@max-4xl:flex @max-4xl:flex-col",
           !flat && STACK_GAP,
-          hasMain && "lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start",
+          hasMain && "@4xl:grid @4xl:grid-cols-[300px_minmax(0,1fr)] @4xl:items-start",
         )}
       >
         {rail}
         {main}
+      </div>
       </div>
     );
   }

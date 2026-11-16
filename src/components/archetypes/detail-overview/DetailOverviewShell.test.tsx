@@ -79,22 +79,28 @@ describe("DetailOverviewShell — section-card stack (ADR-0015)", () => {
     expect(sectionOf(container, "refs").className).toMatch(/(^|\s)border(\s|$)/);
   });
 
-  it("rail: the rail is one card (at lg) whose inner sections carry no border", () => {
+  it("rail: the rail is one card (at @4xl) whose inner sections carry no border", () => {
     const { container } = render(<DetailOverviewShell {...sectioned} layout="rail" />);
     const rail = container.querySelector('[data-slot="detail-rail"]') as HTMLElement;
-    expect(rail.className).toContain("lg:border");
-    expect(rail.className).toContain("lg:rounded-lg");
-    expect(rail.className).toContain("lg:bg-surface-raised");
+    expect(rail.className).toContain("@4xl:border");
+    expect(rail.className).toContain("@4xl:rounded-lg");
+    expect(rail.className).toContain("@4xl:bg-surface-raised");
     for (const text of ["summary-a", "summary-b", "refs"]) {
       const section = sectionOf(container, text);
       expect(rail.contains(section)).toBe(true);
       expect(section.className).not.toMatch(/(^|\s)border(\s|$)/);
     }
-    // below lg the rail dissolves and each slot is its own card
+    // below @4xl the rail dissolves and each slot is its own card
     for (const slot of Array.from(rail.children) as HTMLElement[]) {
-      expect(slot.className).toContain("max-lg:border");
-      expect(slot.className).toContain("max-lg:rounded-lg");
+      expect(slot.className).toContain("@max-4xl:border");
+      expect(slot.className).toContain("@max-4xl:rounded-lg");
     }
+  });
+
+  it("rail: root is a @container so the rail keys on content width, not viewport", () => {
+    const { container } = render(<DetailOverviewShell {...sectioned} layout="rail" />);
+    const rail = container.querySelector('[data-slot="detail-rail"]') as HTMLElement;
+    expect((rail.parentElement?.parentElement as HTMLElement).className).toContain("@container");
   });
 
   it("nested under a parent frame: no cards of its own (the flat look)", () => {
@@ -104,12 +110,12 @@ describe("DetailOverviewShell — section-card stack (ADR-0015)", () => {
       </PageFrame>,
     );
     const rail = container.querySelector('[data-slot="detail-rail"]') as HTMLElement;
-    expect(rail.className).not.toContain("lg:rounded-lg");
+    expect(rail.className).not.toContain("@4xl:rounded-lg");
     expect(sectionOf(container, "content-a").className).not.toMatch(/(^|\s)border(\s|$)/);
   });
 
   it("uses the two-column rail grid only for layout=rail", () => {
-    const railGrid = "lg:grid-cols-[300px_minmax(0,1fr)]";
+    const railGrid = "@4xl:grid-cols-[300px_minmax(0,1fr)]";
 
     const rail = render(<DetailOverviewShell {...slots} layout="rail" />);
     expect(rail.container.querySelector(`[class*="${railGrid}"]`)).not.toBeNull();
@@ -121,7 +127,7 @@ describe("DetailOverviewShell — section-card stack (ADR-0015)", () => {
     ).toBeNull();
   });
 
-  it("rail layout: references sorts after main below lg (narrow order), one mount per slot", () => {
+  it("rail layout: references sorts after main below @4xl (narrow order), one mount per slot", () => {
     const { container, getAllByText } = render(
       <DetailOverviewShell
         {...slots}
@@ -129,19 +135,19 @@ describe("DetailOverviewShell — section-card stack (ADR-0015)", () => {
         stats={[{ label: "s", value: "v" }]}
       />,
     );
-    const rail = container.querySelector('[class*="lg:sticky"]') as HTMLElement;
-    // the rail dissolves below lg so its children join the body's flex flow
-    expect(rail.className).toContain("max-lg:contents");
+    const rail = container.querySelector('[class*="@4xl:sticky"]') as HTMLElement;
+    // the rail dissolves below @4xl so its children join the body's flex flow
+    expect(rail.className).toContain("@max-4xl:contents");
     // narrow-only flex column: at lg+ the body stays a grid (or a block), so
-    // the rail's `lg:self-start` never shrink-wraps it horizontally
-    expect((rail.parentElement as HTMLElement).className).toContain("max-lg:flex-col");
+    // the rail's `@4xl:self-start` never shrink-wraps it horizontally
+    expect((rail.parentElement as HTMLElement).className).toContain("@max-4xl:flex-col");
     expect((rail.parentElement as HTMLElement).className).not.toMatch(/(^|\s)flex(\s|$)/);
     const summary = getAllByText("summary-slot")[0]!.parentElement as HTMLElement;
     const refs = getAllByText("references-slot")[0]!.parentElement as HTMLElement;
     expect(getAllByText("summary-slot")).toHaveLength(1);
     expect(getAllByText("references-slot")).toHaveLength(1);
-    expect(summary.className).not.toContain("max-lg:order-last");
-    expect(refs.className).toContain("max-lg:order-last");
+    expect(summary.className).not.toContain("@max-4xl:order-last");
+    expect(refs.className).toContain("@max-4xl:order-last");
     // wide order unchanged: rail holds summary then references
     expect(Array.from(rail.children)).toEqual([summary, refs]);
     // no main (summary/references only): still no lg-wide flex column
@@ -149,12 +155,12 @@ describe("DetailOverviewShell — section-card stack (ADR-0015)", () => {
     const bare = render(
       <DetailOverviewShell title="T" layout="rail" summary={<div>s</div>} references={<div>r</div>} />,
     );
-    const bareRail = bare.container.querySelector('[class*="lg:sticky"]') as HTMLElement;
+    const bareRail = bare.container.querySelector('[class*="@4xl:sticky"]') as HTMLElement;
     expect(bareRail.parentElement!.className).not.toMatch(/(^|\s)flex(\s|$)/);
     // vertical keeps references last in main, no order utilities
     cleanup();
     const v = render(<DetailOverviewShell {...slots} layout="vertical" />);
-    expect(v.container.querySelector('[class*="max-lg:order-last"]')).toBeNull();
+    expect(v.container.querySelector('[class*="@max-4xl:order-last"]')).toBeNull();
   });
 
   it("clamps the rail's sticky top by its published height so a tall rail's foot stays reachable", () => {
@@ -167,12 +173,12 @@ describe("DetailOverviewShell — section-card stack (ADR-0015)", () => {
     } as unknown as typeof ResizeObserver;
     try {
       const { container } = render(<DetailOverviewShell {...slots} layout="rail" />);
-      const rail = container.querySelector('[class*="lg:sticky"]') as HTMLElement;
+      const rail = container.querySelector('[class*="@4xl:sticky"]') as HTMLElement;
       // jsdom has no layout, so the measured height is 0 — the wiring is what's under test.
       expect(rail.style.getPropertyValue("--db-rail-h")).toBe("0px");
       expect(observed[0]).toBe(rail);
       expect(rail.className).toContain(
-        "lg:top-[min(var(--db-sticky-top,0px),calc(100dvh_-_var(--db-rail-h,0px)))]",
+        "@4xl:top-[min(var(--db-sticky-top,0px),calc(100dvh_-_var(--db-rail-h,0px)))]",
       );
       // no inner scroll box: the page scrolls, never the rail
       expect(rail.className).not.toMatch(/overflow-(y-)?(auto|scroll)|max-h-/);
@@ -432,7 +438,7 @@ describe("DetailOverviewShell — empty body slots", () => {
       />,
     );
     expect(container.querySelector(".py-5")).toBeNull();
-    expect(container.querySelector('[class*="lg:grid-cols-"]')).toBeNull();
+    expect(container.querySelector('[class*="@4xl:grid-cols-"]')).toBeNull();
   });
 });
 

@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.48.1
+
+- **Fixed:** `DetailOverviewShell` rail layout switches on its own container width (`@container`, `@4xl` = 896px) instead of the viewport `lg`, so inside `AppShell` (sidebar eats 256px) a ~780px column stacks instead of squeezing the main column next to the 300px rail. Class change only, no new prop.
+- **Consumer:** none required.
+- **Breaking:** no; visual change between ~1024px and ~1150px viewports (stacked instead of rail).
+
 ## v0.48.0
 
 - **Added:** grouped-list work-queue variant (contract 4.6, MANIFEST 4.6): `WorkQueueViewSwitch` (Open · Completed · All with counts, for the shell's `viewSwitch`), `WorkQueueGroups` (one card per non-empty workflow step with a toned count and one bulk action; empty steps collapse into one pipeline line; 44px open / 38px archive single-line rows) and `WaitingAgeCell` (age toned by warning/danger thresholds). New shared `WorkflowStep` / `WorkflowTone` types, exported from `grouped-list` and `transaction-document`; `TransactionNextStepTone` is now an alias of `WorkflowTone` (same union), and `TransactionDocumentShell`'s `nextStep` takes an optional `step: WorkflowStep` that supplies the panel tone and the default title (contract 1.5, MANIFEST 1.6); a step-keyed `nextStep` rejects its own `tone` at type level.
