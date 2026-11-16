@@ -43,4 +43,9 @@ gate:
 
 ## Outcome
 
-Shipped: `DetailOverviewShell` rail on `@container`/`@4xl` (v0.48.1), gallery demo "780px column" toggle, `npm run check:viewports` 141/141 green. Audit result: `StatTileRow` was trialled as a pure swap but needs a wrapper element (moves consumer `className`), so it is NOT a pure class swap. `StatTileRow`, `KeyValueRow` (rail-width, not viewport), `CardGridBody`, `DashboardGrid`, `StructureBuilderShell`, `SettingsTableShell`, `SectionNav` are covered by the filed follow-up (dashboard inbox `b99fc51f-3b1c-4456-bc3d-d3c789e9c590`, graded to a backlog ticket by `/ticket`).
+Shipped: `DetailOverviewShell` rail on `@container`/`@4xl` (v0.48.1), gallery demo "780px column" toggle, `npm run check:viewports` 141/141 green.
+
+Audit verdicts (one filed follow-up, landed via batch PR #778 as `docs/backlog/viewport-breakpoints-container-query-audit.md`, listing each primitive with its verdict):
+- `StatTileRow`: not a pure swap. Needs a `@container` wrapper that forwards `className`; trialled and reverted in PR #777.
+- `KeyValueRow`: keys on viewport but lives in the fixed 300px rail, so stack-vs-row needs a decision.
+- `CardGridBody`, `DashboardGrid`, `StructureBuilderShell`, `SettingsTableShell`, `SectionNav`: root grids, each needs a wrapper, so not pure class swaps.
