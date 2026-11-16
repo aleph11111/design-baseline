@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-11-16'
-status: needs-enrichment
+status: done
 gate:
   score: 4
   passed:
@@ -124,3 +124,13 @@ _none_
 - Did not confirm that transaction-document-demo.tsx exists; I inferred it from the recent commit log.
 - Did not read neighbour cards outside the cluster (export-page-invariants, transaction-document-ledger-row-lock-add-remove, transaction-document-mockup-fidelity).
 - Did not check any ADR text; none was cited that bears on these cards.
+
+## Resolution (2026-11-16)
+
+Re-verified against origin/main a401d8f before acting.
+
+- **Open question — gallery catch-all: Option A.** Kept the route; story `docs/stories/gallery-unknown-route-lands-on-overview.md` names `page:*`. The story card's "a test pins it" claim was false: no gallery test, `scripts/check-*.mjs` or `tests/screenshots.spec.mjs` visits an unknown route.
+- `layout-invariants-nested-overflow`: added `depends_on: [invariants-overflow-blind-under-mobile-emulation]`; body unchanged.
+- `invariants-page-title-collapse`: added `depends_on: [layout-invariants-nested-overflow]`; body unchanged.
+- `invariants-duplicate-fact-check`: already done by #768 (both `depends_on` set, stale "once the demo exists" wording gone); no edit.
+- `invariants-overflow-blind-under-mobile-emulation`, `transaction-document-ledger-row-media`: kept unchanged. The ledger-media card's own open question is out of scope here.
