@@ -11,6 +11,13 @@ import * as React from "react";
 import { UploadCloud, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -26,6 +33,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  WizardPanel,
   WizardShell,
   type WizardStep,
 } from "@/components/archetypes/import-wizard";
@@ -90,6 +98,7 @@ export function ImportWizardDemo(): React.ReactElement {
   return (
     /* One page frame (ADR-0008): the title is the page heading above the
        frame; Back/Next/Commit stay in the wizard footer. */
+    <>
     <WizardShell
       title="Import transactions"
       subtitle="CSV · Checking account"
@@ -195,5 +204,41 @@ export function ImportWizardDemo(): React.ReactElement {
         </div>
       )}
     </WizardShell>
+      <div className="mt-4">
+        <ImportWizardDialogDemo />
+      </div>
+    </>
+  );
+}
+
+/** WizardPanel in a Dialog: the overlay title is the one heading; no PageFrame. */
+function ImportWizardDialogDemo(): React.ReactElement {
+  const [open, setOpen] = React.useState(false);
+  const [step, setStep] = React.useState(0);
+  const close = () => {
+    setOpen(false);
+    setStep(0);
+  };
+  return (
+    <Dialog open={open} onOpenChange={(o) => (o ? setOpen(true) : close())}>
+      <DialogTrigger asChild>
+        <Button variant="outline">Import in a dialog</Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-xl">
+        <DialogTitle>Import transactions</DialogTitle>
+        <DialogDescription>WizardPanel hosted in a Dialog.</DialogDescription>
+        <WizardPanel
+          steps={STEPS}
+          current={step}
+          onFirstBack={close}
+          firstBackLabel="Cancel"
+          onBack={() => setStep((s) => Math.max(0, s - 1))}
+          onNext={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}
+          onCommit={close}
+        >
+          <p className="text-sm text-muted-foreground">Step: {STEPS[step].label}</p>
+        </WizardPanel>
+      </DialogContent>
+    </Dialog>
   );
 }

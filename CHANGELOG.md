@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.49.0
+
+- **Added:** `WizardPanel` (import-wizard contract 2.3, MANIFEST 3.7): the embeddable wizard frame — stepper, step body and Back / Next·Commit footer with no `PageFrame` and no title, for Dialog and tab-body hosts. Props: `steps`, `current`, `onBack`, `onNext`, `onCommit`, `canProceed`, `busy` (spinner + disabled footer), `nextLabel`, `commitLabel`, `backLabel`, `busyLabel`, `firstBackLabel` + `onFirstBack` (outline exit button on the first step), `stateLabels`, `className`. `WizardShell` now composes it (public props unchanged); its busy commit button now shows a spinner. Dialog-hosted demo added to the gallery.
+- **Consumer:** controlling-app swaps its local `WizardShell` for `WizardPanel` as a rename and deletes the local copy.
+- **Breaking:** no.
+
 ## v0.48.1
 
 - **Fixed:** `DetailOverviewShell` rail layout switches on its own container width (`@container`, `@4xl` = 896px) instead of the viewport `lg`, so inside `AppShell` (sidebar eats 256px) a ~780px column stacks instead of squeezing the main column next to the 300px rail. Class change only, no new prop.

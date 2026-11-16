@@ -1,10 +1,9 @@
 "use client";
 import * as React from "react";
-import { Button } from "../../ui/button";
 import { SectionCard } from "../../layout/SectionCard";
 import { PageFrame, type PageFrameProps } from "../../layout/PageFrame";
-import { WizardStepper, type WizardStep, type WizardStepperProps } from "./WizardStepper";
-import { useLabels } from "../../../lib/labels";
+import { type WizardStep, type WizardStepperProps } from "./WizardStepper";
+import { WizardPanel } from "./WizardPanel";
 
 export type WizardShellProps = {
   /** Ordered steps (e.g. Upload → Map → Verify → Commit). */
@@ -59,10 +58,10 @@ export function WizardShell({
   onCommit,
   canProceed = true,
   busy = false,
-  nextLabel: nextLabelProp,
-  commitLabel: commitLabelProp,
-  backLabel: backLabelProp,
-  busyLabel: busyLabelProp,
+  nextLabel,
+  commitLabel,
+  backLabel,
+  busyLabel,
   stepStateLabels,
   done,
   children,
@@ -70,13 +69,6 @@ export function WizardShell({
   subtitle,
   badges,
 }: WizardShellProps): React.ReactElement {
-  const L = useLabels();
-  const busyLabel = busyLabelProp ?? L.importing;
-  const backLabel = backLabelProp ?? L.back;
-  const commitLabel = commitLabelProp ?? L.commitImport;
-  const nextLabel = nextLabelProp ?? L.next;
-  const isLast = current >= steps.length - 1;
-  const isFirst = current <= 0;
   const stepLabel = steps[current]?.label;
 
   if (done != null) {
@@ -89,26 +81,23 @@ export function WizardShell({
 
   return (
     <PageFrame title={title} subtitle={subtitle} badges={badges}>
-      <div className="space-y-5 p-5">
-        <WizardStepper steps={steps} current={current} stateLabels={stepStateLabels} />
-
+      <WizardPanel
+        className="p-5"
+        steps={steps}
+        current={current}
+        onBack={onBack}
+        onNext={onNext}
+        onCommit={onCommit}
+        canProceed={canProceed}
+        busy={busy}
+        nextLabel={nextLabel}
+        commitLabel={commitLabel}
+        backLabel={backLabel}
+        busyLabel={busyLabel}
+        stateLabels={stepStateLabels}
+      >
         <SectionCard title={stepLabel}>{children}</SectionCard>
-
-        <div className="flex items-center justify-between gap-2">
-          <Button variant="outline" onClick={onBack} disabled={isFirst || busy}>
-            {backLabel}
-          </Button>
-          {isLast ? (
-            <Button onClick={onCommit} disabled={!canProceed || busy}>
-              {busy ? busyLabel : commitLabel}
-            </Button>
-          ) : (
-            <Button onClick={onNext} disabled={!canProceed || busy}>
-              {nextLabel}
-            </Button>
-          )}
-        </div>
-      </div>
+      </WizardPanel>
     </PageFrame>
   );
 }
