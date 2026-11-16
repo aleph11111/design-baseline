@@ -10,7 +10,7 @@
  * places every slot. Demo-only — not shipped in the package.
  */
 import * as React from "react";
-import { Copy, FileDown, Mail, Printer, RotateCcw, Truck, Undo2, XCircle, Gift, Send, PackageCheck } from "lucide-react";
+import { Copy, FileDown, Mail, Printer, RotateCcw, Tag, Truck, Undo2, XCircle, Gift, Send, PackageCheck } from "lucide-react";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { formatFigure } from "@/lib/format";
 import {
@@ -71,11 +71,11 @@ function salesOrder(): TransactionDocumentShellProps {
       summary: "BrickLink order from Bricks & Co.: two sets plus shipping.",
       chain: [{ label: "BrickLink order 2981734", href: "#" }, { label: "Sales order", current: true }, { label: "Invoice RE-2026-0388", href: "#" }],
       progress: [
-        // Bare stages: each date lives once, in facts or history (one home per fact).
-        { label: "Placed", state: "done" },
-        { label: "Paid", state: "done" },
-        { label: "Packed", state: "done" },
-        { label: "Label created", state: "current" },
+        // A step's date lives here once — the facts don't repeat it.
+        { label: "Placed", state: "done", date: new Date("2026-11-03T10:12:00") },
+        { label: "Paid", state: "done", date: new Date("2026-11-04T09:41:00") },
+        { label: "Packed", state: "done", date: new Date("2026-11-04T14:20:00") },
+        { label: "Label created", state: "current", date: new Date("2026-11-05T16:25:00") },
         { label: "Carrier scan", state: "pending" },
         { label: "Delivered", state: "pending" },
       ],
@@ -99,8 +99,10 @@ function salesOrder(): TransactionDocumentShellProps {
       title: "No carrier scan 8 days after the label was created",
       description: "DHL Paket 2 kg · 358086789302 · tracking last checked: never. Either the parcel was never handed over, or tracking is not being polled.",
       primary: { label: "Refresh tracking", icon: Truck, onSelect: noop },
+      secondary: [{ label: "Replacement label", icon: Tag, onSelect: noop }],
       sideEffects: [
         { label: "Invoice RE-2026-0388 created on payment", state: "done", link: { label: "Open", href: "#" } },
+        { label: "Stock lots booked out on packing", state: "done" },
         { label: "BrickLink status set to Shipped on carrier scan", state: "pending" },
         { label: "Tracking email to the customer", state: "pending" },
       ],
@@ -112,17 +114,17 @@ function salesOrder(): TransactionDocumentShellProps {
       result: { label: "Profit", value: orderProfit, kind: "currency", detail: `${orderMargin} margin · target 20 %` },
     },
     locks: { ledger: { reason: "Lines come from BrickLink — change them there.", wayOut: { label: "Open in BrickLink", href: "#" } } },
+    // Three grouped blocks (Ship to · Payment · Documents); the order and
+    // payment dates live in the progress line, not here.
     facts: [
-      { label: "Customer", value: "Bricks & Co. Trading GmbH", change: { label: "Change", href: "#" } },
-      { label: "Ordered", value: new Date("2026-11-03T10:12:00"), kind: "date" },
-      { label: "Payment", value: "PayPal · 4 Nov 2026" },
       {
-        label: "Shipping address",
-        value: "Speicherstadt 12, 20457 Hamburg, DE",
+        title: "Ship to",
+        items: ["Bricks & Co. Trading GmbH", "Speicherstadt 12, 20457 Hamburg, DE"],
+        subline: "orders@bricks-co.example · BrickLink",
         lock: { reason: "Address locked — the label is printed.", wayOut: { label: "Create a replacement label", onSelect: noop } },
       },
-      { label: "Sets", value: 2, kind: "count" },
-      { label: "Sales channel", value: "BrickLink" },
+      { title: "Payment", items: ["PayPal, EUR"], subline: "received in full" },
+      { title: "Documents", items: [<a key="inv" href="#" className="text-primary hover:underline">RE-2026-0388.pdf</a>], subline: "created on payment" },
     ],
     history: (
       <HistoryList

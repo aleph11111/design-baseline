@@ -35,14 +35,20 @@ export type TransactionIdentity = {
   /**
    * Where the document stands in its own lifecycle, as one quiet ordered line
    * under the summary (Placed · Paid · Packed · Label created · Carrier scan ·
-   * Delivered). Exactly one step should be `current`. A step names the stage
-   * only — its date lives in facts or history (one home per fact).
+   * Delivered). Exactly one step should be `current`. A step may carry the
+   * date it was reached ("Placed 30.10."); that date is then its one home —
+   * not repeated in facts.
    */
   progress?: TransactionProgressStep[];
 };
 
 /** One lifecycle step of `identity.progress`. */
-export type TransactionProgressStep = { label: string; state: "done" | "current" | "pending" };
+export type TransactionProgressStep = {
+  label: string;
+  state: "done" | "current" | "pending";
+  /** When the step was reached; rendered after the label (a `Date` as day.month in the page locale). Omitted → no date. */
+  date?: Date | string;
+};
 
 /** An automatic side effect of the current state ("invoice created on payment"). */
 export type SideEffect = { label: string; state: "done" | "pending" | "failed"; link?: LinkAction };
@@ -61,6 +67,9 @@ export type TransactionNextStep = {
   description?: React.ReactNode;
   /** The document's one primary action. */
   primary?: HeaderAction;
+  /** At most two state-specific secondary actions beside the primary
+   *  ("Replacement label"); they wrap below the text on narrow widths. */
+  secondary?: HeaderAction[];
   /**
    * The panel's surface, keyed to the state (see `TransactionNextStepTone`).
    * On `warning` / `danger` the title states the problem ("No carrier scan 8
@@ -99,6 +108,20 @@ export type TransactionFact = {
   lock?: Lock;
 };
 
+/**
+ * Several related facts read as one block (Ship to: name, address, then a
+ * quiet sub-line with the email). Sits beside flat facts in `facts`.
+ */
+export type TransactionFactGroup = {
+  title: string;
+  /** The block's lines, one per entry. */
+  items: React.ReactNode[];
+  /** One quiet line under the items. */
+  subline?: React.ReactNode;
+  change?: LinkAction;
+  lock?: Lock;
+};
+
 export type TransactionDocumentShellProps = Pick<PageFrameProps, "title" | "backHref" | "backLabel" | "renderBackLink"> & {
   /**
    * Header actions: no primary (the primary action lives in `nextStep`), at
@@ -108,7 +131,7 @@ export type TransactionDocumentShellProps = Pick<PageFrameProps, "title" | "back
   identity: TransactionIdentity;
   nextStep: TransactionNextStep;
   ledger: TransactionLedger;
-  facts: TransactionFact[];
+  facts: (TransactionFact | TransactionFactGroup)[];
   /** The document's history; collapsed by default. */
   history?: React.ReactNode;
   /** Slot locks: why the slot can't change here, and the way out. */
@@ -157,6 +180,7 @@ export function TransactionDocumentShell({
   const id = React.useId();
   const documentColumn = useDocumentColumnClass();
   const primary = locks.nextStep ? undefined : nextStep.primary;
+  const secondary = locks.nextStep ? [] : (nextStep.secondary ?? []).slice(0, 2); // contract: at most two
   const tone = nextStep.tone ?? "default";
   const toned = tone !== "default";
   // The header never renders a primary: a stray one (the type forbids it, an
@@ -177,7 +201,7 @@ export function TransactionDocumentShell({
     identity.summary || identity.chain?.length || identity.progress?.length ? (
       <div className="space-y-1 text-sm">
         {identity.summary ? <p data-slot="td-summary">{identity.summary}</p> : null}
-        {identity.progress?.length ? <Progress steps={identity.progress} /> : null}
+        {identity.progress?.length ? <Progress steps={identity.progress} locale={locale} /> : null}
         {identity.chain?.length ? (
           <nav aria-label={L.documentChain} data-slot="td-chain">
             <ol className="flex flex-wrap items-center gap-x-1.5">
@@ -213,6 +237,7 @@ export function TransactionDocumentShell({
         actions={headerActions}
         className={documentColumn}
         body="stack"
+        titleStep="document"
       >
         <SectionCard
           data-slot="td-next-step"
@@ -221,16 +246,25 @@ export function TransactionDocumentShell({
           className={NEXT_STEP_TONE[tone]}
         >
           <div className="space-y-3">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0 space-y-1">
-                <p className={cn("text-xs font-medium uppercase tracking-wide", !toned && "text-muted-foreground")}>{L.nextStep}</p>
-                <h2 id={`${id}-next`} className="text-base font-semibold">{nextStep.title}</h2>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+              <div className="min-w-0 flex-[1_1_22rem] space-y-1">
+                <h2 id={`${id}-next`} className="text-base font-semibold">
+                  <span className="sr-only">{L.nextStep}: </span>
+                  {nextStep.title}
+                </h2>
                 {nextStep.description ? <div className={cn("text-sm", !toned && "text-muted-foreground")}>{nextStep.description}</div> : null}
               </div>
-              {!isMobile ? primaryButton : null}
+              {(!isMobile && primaryButton) || secondary.length ? (
+                <div data-slot="td-next-step-actions" className="flex flex-wrap gap-2">
+                  {!isMobile ? primaryButton : null}
+                  {secondary.map((a) => (
+                    <ActionButton key={a.label} action={a} renderLink={renderLink ?? link} variant="outline" slot="td-secondary" />
+                  ))}
+                </div>
+              ) : null}
             </div>
             {locks.nextStep ? <LockNote lock={locks.nextStep} /> : null}
-            {nextStep.sideEffects?.length ? <SideEffects items={nextStep.sideEffects} /> : null}
+            {nextStep.sideEffects?.length ? <SideEffects items={nextStep.sideEffects} toned={toned} /> : null}
           </div>
         </SectionCard>
 
@@ -252,9 +286,21 @@ export function TransactionDocumentShell({
         <Slot name="td-facts" title={L.facts} lock={locks.facts}>
           <dl className="grid grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] gap-x-6 gap-y-4">
             {facts.map((f) => (
-              <div key={f.label} data-slot="td-fact" className="min-w-0">
-                <dt className="text-xs text-muted-foreground">{f.label}</dt>
-                <dd className="break-words text-sm">{formatFact(f, locale)}</dd>
+              <div key={"title" in f ? f.title : f.label} data-slot={"title" in f ? "td-fact-group" : "td-fact"} className="min-w-0">
+                {"title" in f ? (
+                  <>
+                    <dt className="text-xs text-muted-foreground">{f.title}</dt>
+                    {f.items.map((item, i) => (
+                      <dd key={i} className="break-words text-sm">{item}</dd>
+                    ))}
+                    {f.subline ? <dd className="break-words text-sm text-muted-foreground">{f.subline}</dd> : null}
+                  </>
+                ) : (
+                  <>
+                    <dt className="text-xs text-muted-foreground">{f.label}</dt>
+                    <dd className="break-words text-sm">{formatFact(f, locale)}</dd>
+                  </>
+                )}
                 {f.lock ? (
                   <dd className="mt-1"><LockNote lock={f.lock} /></dd>
                 ) : f.change && !locks.facts ? (
@@ -309,7 +355,7 @@ function Slot({ name, title, lock, children }: { name: string; title: string; lo
 const PROGRESS_MARK = { done: "●", current: "●", pending: "○" } as const;
 const PROGRESS_TONE = { done: "text-success", current: "text-primary", pending: "text-muted-foreground/60" } as const;
 
-function Progress({ steps }: { steps: TransactionProgressStep[] }) {
+function Progress({ steps, locale }: { steps: TransactionProgressStep[]; locale: string }) {
   const L = useLabels();
   const stateLabel = { done: L.sideEffectDone, pending: L.sideEffectPending };
   return (
@@ -323,6 +369,7 @@ function Progress({ steps }: { steps: TransactionProgressStep[] }) {
         >
           <span aria-hidden className={cn("mr-1", PROGRESS_TONE[s.state])}>{PROGRESS_MARK[s.state]}</span>
           {s.label}
+          {s.date ? <span data-slot="td-progress-date"> {formatStepDate(s.date, locale)}</span> : null}
           {s.state !== "current" ? <span className="sr-only"> ({stateLabel[s.state]})</span> : null}
         </li>
       ))}
@@ -331,6 +378,20 @@ function Progress({ steps }: { steps: TransactionProgressStep[] }) {
 }
 
 function PrimaryButton({ action, renderLink }: { action: HeaderAction; renderLink: RenderLink }) {
+  return <ActionButton action={action} renderLink={renderLink} slot="td-primary" />;
+}
+
+function ActionButton({
+  action,
+  renderLink,
+  slot,
+  variant,
+}: {
+  action: HeaderAction;
+  renderLink: RenderLink;
+  slot: string;
+  variant?: "outline";
+}) {
   const Icon = action.icon;
   const content = (
     <>
@@ -339,11 +400,11 @@ function PrimaryButton({ action, renderLink }: { action: HeaderAction; renderLin
     </>
   );
   return action.href != null && !action.disabled ? (
-    <Button asChild data-slot="td-primary" onClick={action.onSelect}>
+    <Button asChild variant={variant} data-slot={slot} onClick={action.onSelect}>
       {renderLink(action.href, content)}
     </Button>
   ) : (
-    <Button type="button" data-slot="td-primary" disabled={action.disabled} onClick={action.onSelect}>
+    <Button type="button" variant={variant} data-slot={slot} disabled={action.disabled} onClick={action.onSelect}>
       {content}
     </Button>
   );
@@ -352,18 +413,18 @@ function PrimaryButton({ action, renderLink }: { action: HeaderAction; renderLin
 const SIDE_EFFECT_ICON = { done: CircleCheck, pending: Clock, failed: CircleAlert } as const;
 const SIDE_EFFECT_TONE = { done: "text-success", pending: "text-muted-foreground", failed: "text-destructive" } as const;
 
-function SideEffects({ items }: { items: SideEffect[] }) {
+function SideEffects({ items, toned }: { items: SideEffect[]; toned: boolean }) {
   const L = useLabels();
   const stateLabel = { done: L.sideEffectDone, pending: L.sideEffectPending, failed: L.sideEffectFailed };
   return (
-    <div data-slot="td-side-effects" className="space-y-1.5">
-      <p className="text-xs text-muted-foreground">{L.runningAlongside}</p>
-      <ul className="space-y-1">
+    <div data-slot="td-side-effects" className="text-xs leading-5">
+      <span className={cn("mr-4", !toned && "text-muted-foreground")}>{L.runningAlongside}:</span>
+      <ul className="inline">
         {items.map((s) => {
           const Icon = SIDE_EFFECT_ICON[s.state];
           return (
-            <li key={s.label} data-state={s.state} className="flex items-start gap-1.5 text-sm">
-              <Icon aria-hidden className={cn("mt-0.5 size-4 shrink-0", SIDE_EFFECT_TONE[s.state])} />
+            <li key={s.label} data-state={s.state} className="mr-4 inline-flex items-baseline gap-1">
+              <Icon aria-hidden className={cn("size-3.5 shrink-0 self-center", SIDE_EFFECT_TONE[s.state])} />
               <span>
                 {s.label}
                 <span className="sr-only"> ({stateLabel[s.state]})</span>
@@ -380,6 +441,10 @@ function SideEffects({ items }: { items: SideEffect[] }) {
       </ul>
     </div>
   );
+}
+
+function formatStepDate(d: Date | string, locale: string): string {
+  return d instanceof Date ? new Intl.DateTimeFormat(locale, { day: "2-digit", month: "2-digit" }).format(d) : d;
 }
 
 function formatFact(f: TransactionFact, locale: string): string {

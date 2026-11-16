@@ -6,6 +6,7 @@ export type {
   TransactionNextStep,
   TransactionLedger,
   TransactionFact,
+  TransactionFactGroup,
   SideEffect,
   TransactionProgressStep,
   TransactionNextStepTone,

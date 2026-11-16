@@ -2,7 +2,7 @@
 key: Td
 slug: transaction-document
 kind: page
-version: 1.2
+version: 1.4
 promoted_from: brickshop-manager
 promoted_at: 2026-11-09
 source_spec_version: n/a (no source spec — fleet-synthesis promotion from brickshop-manager's /orders/:id page and the transaction-documents mockup; ADR-0014)
@@ -46,7 +46,9 @@ each for the next step, the ledger, the facts and (when present) the history
 (ADR-0015). There is **no free content slot**: a fact that fits none of the
 five is not on this page.
 
-**1 — Identity (the header).** The title once, never cut (it wraps). Beside
+**1 — Identity (the header).** A short header: its title is set one step
+below the display step and the body follows closely, so the next step and the
+ledger reach the first screen. The title once, never cut (it wraps). Beside
 it: the **document number** (never wraps, with a copy action), **one status**
 and **at most one attention flag**. Under it: **one sentence** saying what the
 document is, and the optional **document chain** — the related documents in
@@ -54,13 +56,17 @@ order (Lead › Valuation › Offer › Purchase order): the current document ma
 as current, an existing document as a link, a step that doesn't exist yet as
 plain text. Optionally, the document's own **progress**: one quiet ordered
 line of lifecycle steps (Placed · Paid · Packed · Label created · Carrier scan
-· Delivered), each done, current or pending, the current step emphasized. A step names
-the stage only: its date lives once, in the facts or the history, never
-again in the progress line.
+· Delivered), each done, current or pending, the current step emphasized. A step
+may carry the date it was reached, shown after its name ("Placed 30.10."); a
+step without a date shows its name only. A date shown on a step is that date's
+one home — the facts don't repeat it.
 
 **2 — Next step.** The first card, the page's **toned callout**, keyed to the document's current state: what happens
 next, in one heading and an optional line, and the document's **one primary
-action**. It is the **only** place a primary action renders. The panel has a
+action**, optionally joined by **at most two secondary actions** of this state
+(a replacement label beside *Refresh tracking*). The heading and line sit on
+the left, the actions on the right of the same row; on a narrow width the
+actions wrap below the text. It is the **only** place a primary action renders. The panel has a
 **tone**, keyed to the state — exhaustively: a routine step → *default*
 (also the answer when no tone is given); a problem the user must resolve,
 still recoverable (a parcel with no carrier scan) → *warning*; a failed or
@@ -70,7 +76,9 @@ states the problem ("No carrier scan 8 days after the label was created"),
 not the routine step. Under it, the
 **automatic side effects** of this state ("running alongside"): a declared list
 of `{ label, state: done | pending | failed, link? }` — the invoice created on
-payment, the marketplace updated on ship. They live here, not in a sixth slot,
+payment, the marketplace updated on ship — shown as **one compact line** after
+a quiet lead-in: an icon and label per effect, wrapping, each with its state
+and link, never one row per effect. They live here, not in a sixth slot,
 because they belong to the current state.
 
 **3 — Ledger.** The one money table. Its **columns are declared per document
@@ -99,8 +107,12 @@ A line may also carry its **own actions** (open its stock lot), rendered with
 the line. A locked ledger shows neither add nor remove.
 
 **4 — Facts.** An auto-fitting grid of typed, locale-formatted values
-(customer, dates, payment, address, channel). Each fact may carry its own
-**Change** link.
+(customer, dates, payment, address, channel). Related facts may form a
+**group** instead: one block with a title, its lines and one quiet sub-line
+(Ship to: name, address, then the email; Payment: method, then when it was
+received; Documents: the invoice, then when it was created). Flat facts and
+groups sit in the same grid; a document without groups renders as before.
+Each fact or group may carry its own **Change** link or lock.
 
 **5 — History.** The document's event log, **collapsed by default**.
 
@@ -229,3 +241,8 @@ shows the lock, naming the column, with its reason and way out.
 - **1.3** (2026-11-12) — section-card stack (ADR-0015): one card per section,
   the next-step card as the toned callout, the page in the document column
   (one width bound, no wide-desk steps).
+- **1.4** (2026-11-16) — compact header and next step (operator mockup V2):
+  the header title one step below the display step, a tighter gap to the
+  body; the next step's actions share the heading's row (with up to
+  two secondary actions) and wrap below it on narrow widths; side effects as
+  one inline line; optional per-step progress dates; fact groups.

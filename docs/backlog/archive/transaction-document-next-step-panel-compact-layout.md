@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: '2026-11-16'
-status: ready
+status: done
 gate:
   score: 5
   passed:

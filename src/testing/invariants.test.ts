@@ -47,14 +47,15 @@ describe("page invariants", () => {
     // jsdom has no layout: stub the geometry the probe reads. Wrappers say
     // overflow:visible so the probe is not clipped to their (zero) rects.
     const rect = (top: number, h: number) => ({ top, bottom: top + h, left: 0, right: 390, width: 390, height: h, x: 0, y: top, toJSON() {} }) as DOMRect;
-    const run = async (pin: string, barTop: number, room: number) => {
+    const run = async (pin: string, barTop: number, room: number, targetTop = 700, barH = 60, targetH = 60) => {
       document.body.innerHTML =
-        `<div class="db-content-column" style="overflow:visible"><nav style="position:fixed"></nav><button id="t">Target</button><div style="overflow:visible;${pin}"><button id="bar">Bar</button></div></div>`;
+        `<div class="db-content-column" style="overflow:visible"><nav style="position:fixed"></nav><button id="t">Target</button><div id="pin" style="overflow:visible;${pin}"><button id="bar">Bar</button></div></div>`;
       const t = document.getElementById("t")!, bar = document.getElementById("bar")!;
-      t.getBoundingClientRect = () => rect(700, 60);
+      t.getBoundingClientRect = () => rect(targetTop, targetH);
       bar.getBoundingClientRect = () => rect(barTop, 60);
+      document.getElementById("pin")!.getBoundingClientRect = () => rect(barTop, barH);
       document.querySelector("nav")!.getBoundingClientRect = () => rect(0, 0);
-      document.elementFromPoint = (_x: number, y: number) => (y >= barTop && y <= barTop + 60 ? bar : t);
+      document.elementFromPoint = (_x: number, y: number) => (y >= barTop && y <= barTop + barH ? bar : t);
       Object.defineProperty(document.documentElement, "scrollHeight", { configurable: true, value: 844 + room });
       Object.defineProperty(window, "innerHeight", { configurable: true, value: 844 });
       const { failures } = await checkPageInvariants({ evaluate: async (fn, a) => (fn as (a: unknown) => unknown)(a) as never }, devices.phone);
@@ -65,5 +66,8 @@ describe("page invariants", () => {
     expect(await run("position:fixed;bottom:0", 740, 0)).toHaveLength(1); // (b) bottom nav on a non-scrolling page
     expect(await run("position:sticky;top:0", 740, 200)).toHaveLength(1); // (a) top-pinned sticky header over a button
     expect(await run(bottomBar, 660, 200)).toHaveLength(1); // a bar above the target's top
+    expect(await run(bottomBar, 775, 200, 789, 69, 44)).toEqual([]); // target wholly under the bar, scrollable clear
+    expect(await run(bottomBar, 775, 0, 789, 69, 44)).toHaveLength(1); // ...but not on a page that cannot scroll
+    expect(await run(bottomBar, 775, 200, 810, 69, 44)).toEqual([]); // visible part under the bar, rest below the viewport
   });
 });
