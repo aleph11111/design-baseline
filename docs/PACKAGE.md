@@ -392,6 +392,17 @@ a consumer takes the image, the device projects and the runner from the package:
    `node_modules` on a named volume (`npm ci` when `package-lock.json` changes).
    On a Linux host it runs as your uid:gid (`HOME=/tmp`, npm cache volume at
    `/tmp/.npm`, volumes chowned per run) so nothing it writes is root-owned.
+   The bin always passes `--add-host host.docker.internal:host-gateway`, so that
+   name resolves on a Linux engine too (a no-op on Docker Desktop). To add any
+   other `docker run` args, set `DESIGN_BASELINE_PLAYWRIGHT_DOCKER_ARGS`; it is
+   split on whitespace and spliced in before the image name:
+   - compose network — `DESIGN_BASELINE_PLAYWRIGHT_DOCKER_ARGS='--network <project>_default'`;
+     the tests reach `frontend:3000` / `backend:8000` by service name, no host hop.
+   - env pass-through — `DESIGN_BASELINE_PLAYWRIGHT_DOCKER_ARGS='-e VISUAL_BASE_URL -e VISUAL_SEED'`.
+   - extra repo-root mount — `DESIGN_BASELINE_PLAYWRIGHT_DOCKER_ARGS='-v $PWD/../_adherence.json:/work/_adherence.json:ro'`
+     (the shell expands `$PWD` when you set it).
+
+   Limit: whitespace splitting cannot carry a path or value containing spaces.
 5. In CI, run the job in `container: image: <PLAYWRIGHT_IMAGE>`; the donor's
    `.github/workflows/check.yml` `screenshots` job is the reference.
 
