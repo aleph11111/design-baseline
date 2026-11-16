@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-07
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "variant shape is the deliverable: group-keying contract, collapsed-pipeline rule and shared state model with transaction-document are design decisions"
