@@ -3,6 +3,7 @@ area: tooling
 opened: 2026-11-09
 status: ready
 value: normal
+depends_on: [layout-invariants-nested-overflow]
 model: sonnet
 model_reason: "one new measure in an existing invariant helper, cause and shape established; pattern matches the other checks in invariants.mjs"
 gate:

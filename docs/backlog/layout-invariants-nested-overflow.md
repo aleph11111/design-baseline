@@ -3,6 +3,7 @@ area: tooling
 opened: 2026-11-07
 status: ready
 value: high
+depends_on: [invariants-overflow-blind-under-mobile-emulation]
 gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
