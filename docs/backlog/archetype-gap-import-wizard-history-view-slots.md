@@ -1,16 +1,15 @@
 ---
 area: archetypes
 opened: 2026-11-04
-status: needs-enrichment
+status: ready
 model: opus
 model_reason: "design is the deliverable — how one page hosts wizard and history under a single kind:page shell, and whether the contract's no-per-step-buttons rule bends"
 value: normal
 gate:
-  score: 4
+  score: 5
   passed: [title, context, what_to_do, acceptance, related]
-  failed:
-    - open_question: "unresolved Open question caps the score at 4"
-  graded_at: 2026-11-04T00:00:00Z
+  failed: []
+  graded_at: 2026-11-16T18:06:11Z
 ---
 
 # Archetype gap: import-wizard shell has no viewSwitch or viewOptions slot for history toggle

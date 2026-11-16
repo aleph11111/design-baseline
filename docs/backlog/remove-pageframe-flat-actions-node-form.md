@@ -9,7 +9,7 @@ gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
   failed: []
-  graded_at: 2026-11-08T00:00:00Z
+  graded_at: 2026-11-16T18:06:11Z
 ---
 
 # Remove deprecated flat ReactNode PageFrame actions form

@@ -9,7 +9,7 @@ gate:
   score: 5
   passed: [title, context, what_to_do, acceptance, related]
   failed: []
-  graded_at: 2026-11-16T00:00:00Z
+  graded_at: 2026-11-16T18:06:11Z
 ---
 
 # Add embeddable import-wizard frame WizardPanel without PageFrame
