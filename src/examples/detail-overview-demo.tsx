@@ -165,6 +165,9 @@ export function DetailOverviewDemo(): React.ReactElement {
   const o = ORDER;
   const [layout, setLayout] = React.useState<"vertical" | "rail">("rail");
   const [width, setWidth] = React.useState<"none" | "md" | "lg" | "xl">("md");
+  // A ~780px column: what AppShell leaves at a 1133px viewport. The rail must
+  // stack here (container query), not squeeze the main column.
+  const [column, setColumn] = React.useState<"full" | "narrow">("full");
   const [railLength, setRailLength] = React.useState<"standard" | "long">("standard");
   const [editingNote, setEditingNote] = React.useState(false);
   const [note, setNote] = React.useState(ORDER.note);
@@ -207,6 +210,15 @@ export function DetailOverviewDemo(): React.ReactElement {
             ]}
           />
           <SegmentedControl
+            aria-label="Detail-overview column"
+            value={column}
+            onValueChange={setColumn}
+            options={[
+              { value: "full", label: "Full column" },
+              { value: "narrow", label: "780px column" },
+            ]}
+          />
+          <SegmentedControl
             aria-label="Detail-overview rail length"
             value={railLength}
             onValueChange={setRailLength}
@@ -233,6 +245,7 @@ export function DetailOverviewDemo(): React.ReactElement {
           } as React.CSSProperties
         }
       >
+        <div style={column === "narrow" ? { maxWidth: 780 } : undefined}>
         <DetailOverviewShell
           layout={layout}
           width={width}
@@ -479,6 +492,7 @@ export function DetailOverviewDemo(): React.ReactElement {
             </DetailSection>
           }
         />
+        </div>
       </div>
 
       {/* Nested — the shell under a parent page frame (an entity tab under a

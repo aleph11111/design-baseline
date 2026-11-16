@@ -150,7 +150,7 @@ describe("DetailOverviewShell — section-card stack (ADR-0015)", () => {
     expect(refs.className).toContain("@max-4xl:order-last");
     // wide order unchanged: rail holds summary then references
     expect(Array.from(rail.children)).toEqual([summary, refs]);
-    // no main (summary/references only): still no lg-wide flex column
+    // no main (summary/references only): still no @4xl-wide flex column
     cleanup();
     const bare = render(
       <DetailOverviewShell title="T" layout="rail" summary={<div>s</div>} references={<div>r</div>} />,
@@ -278,7 +278,7 @@ describe("DetailOverviewShell — stats as StatItem[]", () => {
     // The strip is a grid that collapses to columns matching the data length.
     const tileRow = container.querySelector(".grid") as HTMLElement;
     expect(tileRow).not.toBeNull();
-    expect(tileRow.className).toContain("sm:grid-cols-3");
+    expect(tileRow.className).toContain("@xl:grid-cols-3");
     // every cell renders; the hint lands too
     expect(getByText("Revenue")).toBeTruthy();
     expect(getByText("€120")).toBeTruthy();
@@ -298,7 +298,7 @@ describe("DetailOverviewShell — stats as StatItem[]", () => {
       />,
     );
     expect((four.container.querySelector(".grid") as HTMLElement).className).toContain(
-      "sm:grid-cols-4",
+      "@xl:grid-cols-4",
     );
     cleanup();
 
@@ -306,7 +306,7 @@ describe("DetailOverviewShell — stats as StatItem[]", () => {
       <DetailOverviewShell title="T" stats={[{ label: "a", value: "1" }]} />,
     );
     expect((one.container.querySelector(".grid") as HTMLElement).className).toContain(
-      "sm:grid-cols-2",
+      "@xl:grid-cols-2",
     );
   });
 

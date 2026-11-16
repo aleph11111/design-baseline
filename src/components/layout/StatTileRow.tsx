@@ -4,9 +4,9 @@ import { RaisedSurfaceContext, useRaisedChrome } from "./surface";
 import { cn } from "../../lib/utils";
 
 const SM_COLS_MAP: Record<2 | 3 | 4, string> = {
-  2: "sm:grid-cols-2",
-  3: "sm:grid-cols-3",
-  4: "sm:grid-cols-4",
+  2: "@xl:grid-cols-2",
+  3: "@xl:grid-cols-3",
+  4: "@xl:grid-cols-4",
 };
 
 export type StatTileRowProps = {
@@ -51,16 +51,18 @@ export function StatTileRow({
   const chrome = useRaisedChrome();
 
   return (
+    <div className="@container">
     <div
       className={cn(
         "overflow-hidden rounded-lg text-card-foreground",
         chrome,
-        "grid grid-cols-1 divide-y divide-border sm:divide-x sm:divide-y-0",
+        "grid grid-cols-1 divide-y divide-border @xl:divide-x @xl:divide-y-0",
         SM_COLS_MAP[columns],
         className,
       )}
     >
       <RaisedSurfaceContext.Provider value={true}>{children}</RaisedSurfaceContext.Provider>
+    </div>
     </div>
   );
 }
