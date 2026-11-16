@@ -62,7 +62,7 @@ Two accepted ADRs forbid this today:
 
 Decision (operator): write a new ADR that supersedes ADR-0008 §3 and ADR-0007 §3 only. ADR-0008 §1 (one `PageHeader` title), §2 (slot-owned placement) and §4 stay. The new rule: a page body may be a stack of raised section cards on the canvas (gap, hairline border, fixed radius). Which archetypes do so is keyed **per archetype inside the shell**, never per call site (per [ADR-0004](/docs/adr/0004-appearance-locality-derived-vs-inherited.md)). The toolbar band stays on the first card. Where the new rule touches ADR-0007 §1 (content column, 1180px with the two wide-desk steps), reconsider the transaction-document local column bound against `AppShell`'s column; the Td shell's bounded column is the case that prompted it.
 
-This is a fleet-wide visual change: every page shell, all screenshot baselines (`tests/screenshots/`), the viewport checks, and every consumer. Hence a roadmap with one slice per archetype. `transaction-document` is the first consumer; its open ticket [[transaction-document-mockup-fidelity]] already asks for one card per section.
+This is a fleet-wide visual change: every page shell, all screenshot baselines (`tests/screenshots/`), the viewport checks, and every consumer. Hence a roadmap with one slice per archetype. `transaction-document` was the first consumer (slice shipped in #739, v0.40.0, with one document column bound); [[transaction-document-mockup-fidelity]] shipped separately and kept per-section cards out of its own scope.
 
 ## What to do
 
@@ -83,7 +83,7 @@ This is a fleet-wide visual change: every page shell, all screenshot baselines (
 
 ## Related
 
-- [[transaction-document-mockup-fidelity]] — first consumer; its "one card per section" gap and the column-bound question depend on this roadmap's primitive and ADR. It carries no `depends_on` because a roadmap is never dispatchable; sequence it after the primitive slice.
+- [[transaction-document-mockup-fidelity]] — shipped (archived); the column-bound question it raised is settled by the transaction-document slice's single bound (#739, ADR-0015).
 - [[transaction-document-ledger-row-lock-add-remove]] — shipped neighbour on the same shell
 - [[archetype-convergence]] — prior fleet-wide archetype roadmap, same slice-per-archetype shape
 - [[house-look-adr]] — the ADR-0007 work this partly supersedes
