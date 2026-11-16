@@ -7,7 +7,7 @@ gate:
   score: 5
   passed: [title, context, what_to_do, acceptance, related]
   failed: []
-  graded_at: 2026-11-04T00:00:00Z
+  graded_at: '2026-11-16T12:45:03Z'
 ---
 
 # Replace lint-design's five rule-kind boolean flags with one dispatch table

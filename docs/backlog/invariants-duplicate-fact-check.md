@@ -10,7 +10,7 @@ gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
   failed: []
-  graded_at: 2026-11-07T00:00:00Z
+  graded_at: '2026-11-16T12:45:03Z'
 ---
 
 # Page invariants miss duplicate money facts in main
