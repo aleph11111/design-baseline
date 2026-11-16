@@ -6,7 +6,7 @@
 //   npx design-baseline-playwright npx playwright test --update-snapshots
 // The container gets its own Linux node_modules on a named volume (the host's
 // are built for macOS), reinstalled with `npm ci` only when package-lock.json
-// changes.
+// changes. DESIGN_BASELINE_PLAYWRIGHT_DOCKER_ARGS adds extra `docker run` args (docs/PACKAGE.md).
 // ponytail: npm projects only; add a lockfile switch when a pnpm/yarn consumer adopts it.
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync } from "node:fs";
@@ -69,6 +69,10 @@ const r = spawnSync(
     "-v", `${cacheVol}:${cacheDir}`,
     "-w", "/work",
     "-e", "CI",
+    // Linux engines don't resolve host.docker.internal on their own (Docker Desktop does; no-op there).
+    "--add-host", "host.docker.internal:host-gateway",
+    // ponytail: whitespace split, so no arg can contain a space; add shell-style quoting if a consumer needs it.
+    ...(process.env.DESIGN_BASELINE_PLAYWRIGHT_DOCKER_ARGS ?? "").split(/\s+/).filter(Boolean),
     PLAYWRIGHT_IMAGE,
     "sh", "-c", script,
   ],

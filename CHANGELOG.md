@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.49.1
+
+- **Added:** `design-baseline-playwright` always passes `--add-host host.docker.internal:host-gateway` (resolves the name on a Linux engine; no-op on Docker Desktop) and splices `DESIGN_BASELINE_PLAYWRIGHT_DOCKER_ARGS` (whitespace-split `docker run` args: `--network`, `-e`, `-v`) before the image name. Documented in `docs/PACKAGE.md` Gate 3 setup.
+- **Consumer:** none required; compose-served consumers can drop their `uname`-based host switch.
+- **Breaking:** no.
+
 ## v0.49.0
 
 - **Added:** `WizardPanel` (import-wizard contract 2.3, MANIFEST 3.7): the embeddable wizard frame — stepper, step body and Back / Next·Commit footer with no `PageFrame` and no title, for Dialog and tab-body hosts. Props: `steps`, `current`, `onBack`, `onNext`, `onCommit`, `canProceed`, `busy` (spinner + disabled footer), `nextLabel`, `commitLabel`, `backLabel`, `busyLabel`, `firstBackLabel` + `onFirstBack` (outline exit button on the first step), `stateLabels`, `className`. `WizardShell` now composes it (public props unchanged); its busy commit button now shows a spinner. Dialog-hosted demo added to the gallery.
