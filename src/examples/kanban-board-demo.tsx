@@ -15,6 +15,7 @@ import { IconAvatar } from "@/components/ui/icon-avatar";
 import { SearchInput } from "@/components/ui/search-input";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SectionCard } from "@/components/layout/SectionCard";
 import {
   BoardShell,
   BoardColumn,
@@ -224,6 +225,26 @@ export function KanbanBoardDemo(): React.ReactElement {
           );
         })}
       </BoardShell>
+
+      {/* Nested — the board as a tab inside a larger raised surface (here a
+          titled section). Each lane starts a fresh surface, so its cards keep
+          their border and raised fill instead of melting into the lane
+          (ADR-0015 rule 2) — derived, no prop. */}
+      <SectionCard title="Nested — board inside a titled section">
+        <BoardShell title="Sprint 14">
+          {COLUMNS.slice(0, 2).map((col) => (
+            <BoardColumn key={col.key} title={col.title}>
+              {SEED.filter((c) => c.column === col.key)
+                .slice(0, 2)
+                .map((c) => (
+                  <BoardCard key={c.id}>
+                    <div className="font-medium text-foreground">{c.title}</div>
+                  </BoardCard>
+                ))}
+            </BoardColumn>
+          ))}
+        </BoardShell>
+      </SectionCard>
     </div>
   );
 }

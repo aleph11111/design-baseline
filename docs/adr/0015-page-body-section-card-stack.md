@@ -13,7 +13,7 @@ Every baseline page is one pale frame with hairline-divided strips inside it. Th
 ## Decision
 
 1. **One raised-surface chrome.** Every raised surface directly on the canvas carries the raised fill, a hairline border (the `--border` role) and the fixed radius. This holds for the single page frame, every stack card, section cards and stat-tile rows. There is one chrome, not a stack-only variant. A single-frame page reads as a one-card stack.
-2. **No card-in-card still holds.** A raised surface nested in another raised surface drops both its border and its fill. The nested-surface context stays the one signal.
+2. **No card-in-card still holds.** A raised surface nested in another raised surface drops both its border and its fill. The nested-surface context stays the one signal. A sunken region starts a fresh surface: it resets the context, so a raised object on it (a board card in its lane) keeps its chrome even when the whole region is nested in a raised surface — that is not card-in-card (amended 2026-11-16).
 3. **Two body shapes.** A page body is either **one frame** (today's shape, now bordered) or a **stack** of raised cards on the canvas with a fixed vertical gap.
 4. **The shape is chosen per archetype, inside the shell, never at a call site** (ADR 0004). A shell picks its shape once and does not expose the choice as a prop. The adherence lint fails a call-site opt-in.
 5. **The toolbar band sits on the first card.** In a stack, the toolbar band (scoping controls, count, view options, and the mobile filter sheet) renders as the top ruled band of the first card. A shell whose first child is not a card renders a band-only first card.
