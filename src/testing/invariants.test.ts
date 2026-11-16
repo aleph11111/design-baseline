@@ -37,8 +37,13 @@ describe("page invariants", () => {
     set(window, "innerWidth", 418);
     set(document.documentElement, "scrollWidth", 418);
     const run = () => assertPageInvariants({ evaluate: async (fn, a) => (fn as (a: unknown) => unknown)(a) as never }, devices.phone);
-    await expect(run()).rejects.toThrow(/overflow: layout viewport grew to 418px past the 390px[\s\S]*overflow: page scrolls sideways, scrollWidth 418px > 390px/);
-    set(window, "innerWidth", 1024);
+    try {
+      await expect(run()).rejects.toThrow(/overflow: layout viewport grew to 418px past the 390px[\s\S]*overflow: page scrolls sideways, scrollWidth 418px > 390px/);
+    } finally {
+      // drop the own properties so jsdom's prototype getters come back for later tests
+      delete (window as { innerWidth?: number }).innerWidth;
+      delete (document.documentElement as { scrollWidth?: number }).scrollWidth;
+    }
   });
 
   it("phoneNav: AuthCard page is exempt from no-navigation, an app page is not", async () => {
