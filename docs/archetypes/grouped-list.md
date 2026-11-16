@@ -264,7 +264,7 @@ When a target project applies this archetype, it wires the generic primitives to
 
 Use the work-queue variant when the rows are documents moving through a workflow (orders, invoices, offers, purchase orders) and the user's question is **what has to happen next**, not "browse by category". The groups are keyed by workflow step (To pay › To pick › To pack › Shipped › Delivered), not by taxonomy. Every layer above applies unless this section overrides it.
 
-**One step model.** The steps are one typed list — key, label, attention tone, and phase (`open` = the work queue, `completed` = the archive) — declared once by the consumer and shared with the transaction-document page: a list group's tone and the detail page's next-step tone are the same type, so a step never reads differently on the list and on the document.
+**One step model.** The steps are one typed list — key, label, attention tone, and phase (`open` = the work queue, `completed` = the archive) — declared once by the consumer and shared with the transaction-document page: the document's next step is keyed to the same step and reads its tone and default heading from it, so a step never reads differently on the list and on the document.
 
 **Required:**
 - **View switch** — exactly three views, **Open · Completed · All**, each showing its row count, in the page's view-switch slot. Open shows the `open`-phase steps; Completed the `completed`-phase steps; All every step.

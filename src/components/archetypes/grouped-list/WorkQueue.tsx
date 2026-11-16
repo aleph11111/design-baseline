@@ -108,7 +108,7 @@ export function WorkQueueGroups<Row>({ groups, density, ...table }: WorkQueueGro
             <span className="flex items-center gap-2">
               <Badge variant={BADGE[tone]} className="tabular-nums">{g.rows.length}</Badge>
               {g.bulkAction ? (
-                <Button size="sm" variant="outline" className="-my-1.5 h-7 text-xs" onClick={g.bulkAction.onSelect}>
+                <Button size="sm" variant="outline" className={cn("-my-1.5 h-7 text-xs", touchTarget)} onClick={g.bulkAction.onSelect}>
                   {g.bulkAction.label}
                 </Button>
               ) : null}

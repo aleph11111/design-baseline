@@ -181,13 +181,24 @@ describe("TransactionDocumentShell — mockup fidelity", () => {
   });
 
   it("nextStep.tone warning renders the warning surface; omitted renders the neutral panel", () => {
-    render(<TransactionDocumentShell {...base} nextStep={{ ...base.nextStep, tone: "warning" }} />);
+    render(<TransactionDocumentShell {...base} nextStep={{ title: "Do it", tone: "warning" }} />);
     expect(slot("td-next-step").getAttribute("data-tone")).toBe("warning");
     expect(slot("td-next-step").className).toMatch(/\bbg-status-warning-bg\b/);
     cleanup();
     render(<TransactionDocumentShell {...base} />);
     expect(slot("td-next-step").getAttribute("data-tone")).toBe("default");
     expect(slot("td-next-step").className).toMatch(/bg-muted\/30/);
+  });
+
+  it("nextStep.step supplies the tone and default title — the same WorkflowStep a work-queue group reads", () => {
+    const step = { key: "shipped", label: "Shipped, no delivery scan", tone: "danger" as const, phase: "open" as const };
+    render(<TransactionDocumentShell {...base} nextStep={{ step }} />);
+    expect(slot("td-next-step").getAttribute("data-tone")).toBe("danger");
+    expect(screen.getByRole("heading", { level: 2, name: "Shipped, no delivery scan" })).toBeTruthy();
+    cleanup();
+    render(<TransactionDocumentShell {...base} nextStep={{ step, title: "Chase the carrier" }} />);
+    expect(slot("td-next-step").getAttribute("data-tone")).toBe("danger");
+    expect(screen.getByRole("heading", { level: 2, name: "Chase the carrier" })).toBeTruthy();
   });
 
   it("identity.progress renders an ordered list, current step bold; omitted renders nothing", () => {

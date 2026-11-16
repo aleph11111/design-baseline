@@ -14,7 +14,7 @@ import { useLabels } from "../../../lib/labels";
 import { cn } from "../../../lib/utils";
 import type { LedgerColumn, LedgerResult, LedgerRow, LinkAction, Lock } from "./ledger";
 import { LedgerTable } from "./LedgerTable";
-import type { WorkflowTone } from "../shared/workflowStep";
+import type { WorkflowStep, WorkflowTone } from "../shared/workflowStep";
 import { ActionLink, DocumentId, LockNote, RenderLinkContext, type RenderLink } from "./parts";
 
 /** The document's identity: who it is and where it stands. */
@@ -65,23 +65,39 @@ export type TransactionNextStepTone = WorkflowTone;
 
 /** The state-keyed next-step panel — the only home of the primary action. */
 export type TransactionNextStep = {
-  /** What happens next, for the current state ("Ship the order"). */
-  title: string;
   description?: React.ReactNode;
   /** The document's one primary action. */
   primary?: HeaderAction;
   /** At most two state-specific secondary actions beside the primary
    *  ("Replacement label"); they wrap below the text on narrow widths. */
   secondary?: HeaderAction[];
-  /**
-   * The panel's surface, keyed to the state (see `TransactionNextStepTone`).
-   * On `warning` / `danger` the title states the problem ("No carrier scan 8
-   * days after the label was created"). Omitted → `default`, the routine step.
-   */
-  tone?: TransactionNextStepTone;
   /** The automatic side effects running alongside this state. */
   sideEffects?: SideEffect[];
-};
+} & (
+  | {
+      /**
+       * The document's current workflow step — the same `WorkflowStep` its
+       * work-queue list groups by. The panel's tone is the step's tone and the
+       * title defaults to the step's label, so list group and next step never
+       * drift. A panel keyed to a step takes no tone of its own.
+       */
+      step: WorkflowStep;
+      /** What happens next ("Ship the order"); default: the step's label. */
+      title?: string;
+      tone?: never;
+    }
+  | {
+      step?: undefined;
+      /** What happens next, for the current state ("Ship the order"). */
+      title: string;
+      /**
+       * The panel's surface, keyed to the state (see `TransactionNextStepTone`).
+       * On `warning` / `danger` the title states the problem ("No carrier scan 8
+       * days after the label was created"). Omitted → `default`, the routine step.
+       */
+      tone?: TransactionNextStepTone;
+    }
+);
 
 /** The one money table. Columns are declared per document type. */
 export type TransactionLedger = {
@@ -184,7 +200,8 @@ export function TransactionDocumentShell({
   const documentColumn = useDocumentColumnClass();
   const primary = locks.nextStep ? undefined : nextStep.primary;
   const secondary = locks.nextStep ? [] : (nextStep.secondary ?? []).slice(0, 2); // contract: at most two
-  const tone = nextStep.tone ?? "default";
+  const tone = (nextStep.step ? nextStep.step.tone : nextStep.tone) ?? "default";
+  const nextTitle = nextStep.title ?? nextStep.step?.label;
   const toned = tone !== "default";
   // The header never renders a primary: a stray one (the type forbids it, an
   // untyped caller may still pass it) is demoted to the first secondary.
@@ -253,7 +270,7 @@ export function TransactionDocumentShell({
               <div className="min-w-0 flex-[1_1_22rem] space-y-1">
                 <h2 id={`${id}-next`} className="text-base font-semibold">
                   <span className="sr-only">{L.nextStep}: </span>
-                  {nextStep.title}
+                  {nextTitle}
                 </h2>
                 {nextStep.description ? <div className={cn("text-sm", !toned && "text-muted-foreground")}>{nextStep.description}</div> : null}
               </div>

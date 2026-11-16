@@ -366,12 +366,12 @@ for (const [name, device] of Object.entries(devices)) {
     await expectRows("Open", 44);
     const file = `grouped-list-work-queue--${name}.jpg`;
     await page.screenshot({ path: path.join(OUT, file), type: "jpeg", quality: 70, scale: "css", fullPage: true });
-    shots.push({ slug: "grouped-list-work-queue", name, file, problems: [...bad, ...result.knownGaps] });
     for (const view of ["Completed", "All"]) {
       await page.getByRole("radio", { name: new RegExp(`^${view} `) }).click();
       await page.waitForTimeout(200);
       await expectRows(view, 38);
     }
+    shots.push({ slug: "grouped-list-work-queue", name, file, problems: [...bad, ...result.knownGaps] });
     report(label, { failures: bad, knownGaps: result.knownGaps });
   } catch (e) {
     report(label, fail(e.message.split("\n")[0]));

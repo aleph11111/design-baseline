@@ -1,8 +1,9 @@
 /**
  * The one workflow-state model a work queue and a transaction document share
- * (grouped-list work-queue variant, transaction-document `nextStep`): the
- * list's groups and the detail page's next-step panel read the same step, so
- * the step label and its attention tone never drift between the two pages.
+ * (grouped-list work-queue variant, transaction-document `nextStep.step`):
+ * the list groups by it and the detail page's next-step panel takes it as
+ * `nextStep.step`, reading its tone (and, by default, its label) from it — so
+ * a status declared once in the consumer reads the same on both pages.
  */
 
 /**

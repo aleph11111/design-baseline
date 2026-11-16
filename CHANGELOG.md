@@ -4,7 +4,7 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 ## v0.48.0
 
-- **Added:** grouped-list work-queue variant (contract 4.6, MANIFEST 4.6): `WorkQueueViewSwitch` (Open · Completed · All with counts, for the shell's `viewSwitch`), `WorkQueueGroups` (one card per non-empty workflow step with a toned count and one bulk action; empty steps collapse into one pipeline line; 44px open / 38px archive single-line rows) and `WaitingAgeCell` (age toned by warning/danger thresholds). New shared `WorkflowStep` / `WorkflowTone` types, exported from `grouped-list` and `transaction-document`; `TransactionNextStepTone` is now an alias of `WorkflowTone` (same union).
+- **Added:** grouped-list work-queue variant (contract 4.6, MANIFEST 4.6): `WorkQueueViewSwitch` (Open · Completed · All with counts, for the shell's `viewSwitch`), `WorkQueueGroups` (one card per non-empty workflow step with a toned count and one bulk action; empty steps collapse into one pipeline line; 44px open / 38px archive single-line rows) and `WaitingAgeCell` (age toned by warning/danger thresholds). New shared `WorkflowStep` / `WorkflowTone` types, exported from `grouped-list` and `transaction-document`; `TransactionNextStepTone` is now an alias of `WorkflowTone` (same union), and `TransactionDocumentShell`'s `nextStep` takes an optional `step: WorkflowStep` that supplies the panel tone and the default title (contract 1.5, MANIFEST 1.6); a step-keyed `nextStep` rejects its own `tone` at type level.
 - **Consumer:** none required. Work-queue pages (orders, invoices) adopt the variant instead of hand-rolling status tabs.
 - **Breaking:** no.
 
