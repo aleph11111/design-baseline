@@ -180,7 +180,7 @@ export function TransactionDocumentShell({
   const id = React.useId();
   const documentColumn = useDocumentColumnClass();
   const primary = locks.nextStep ? undefined : nextStep.primary;
-  const secondary = locks.nextStep ? [] : (nextStep.secondary ?? []);
+  const secondary = locks.nextStep ? [] : (nextStep.secondary ?? []).slice(0, 2); // contract: at most two
   const tone = nextStep.tone ?? "default";
   const toned = tone !== "default";
   // The header never renders a primary: a stray one (the type forbids it, an
@@ -419,7 +419,7 @@ function SideEffects({ items, toned }: { items: SideEffect[]; toned: boolean }) 
   return (
     <div data-slot="td-side-effects" className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs">
       <p className={cn(!toned && "text-muted-foreground")}>{L.runningAlongside}:</p>
-      <ul className="contents">
+      <ul className="flex flex-wrap gap-x-4 gap-y-1">
         {items.map((s) => {
           const Icon = SIDE_EFFECT_ICON[s.state];
           return (

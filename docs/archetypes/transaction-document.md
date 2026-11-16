@@ -2,7 +2,7 @@
 key: Td
 slug: transaction-document
 kind: page
-version: 1.5
+version: 1.4
 promoted_from: brickshop-manager
 promoted_at: 2026-11-09
 source_spec_version: n/a (no source spec — fleet-synthesis promotion from brickshop-manager's /orders/:id page and the transaction-documents mockup; ADR-0014)
@@ -241,9 +241,7 @@ shows the lock, naming the column, with its reason and way out.
 - **1.3** (2026-11-12) — section-card stack (ADR-0015): one card per section,
   the next-step card as the toned callout, the page in the document column
   (one width bound, no wide-desk steps).
-- **1.4** (2026-11-16) — the document number shows once when the title is the
-  number (copy action only).
-- **1.5** (2026-11-16) — compact header and next step (operator mockup V2):
+- **1.4** (2026-11-16) — compact header and next step (operator mockup V2):
   the header title one step below the display step, a tighter gap to the
   body; the next step's actions share the heading's row (with up to
   two secondary actions) and wrap below it on narrow widths; side effects as

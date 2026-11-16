@@ -228,6 +228,10 @@ describe("TransactionDocumentShell — mockup fidelity", () => {
     expect(within(row).getByRole("button", { name: "Replacement label" })).toBeTruthy();
     expect(row.className).toMatch(/\bflex-wrap\b/);
     cleanup();
+    const three = ["A", "B", "C"].map((label) => ({ label, onSelect: () => {} }));
+    render(<TransactionDocumentShell {...base} nextStep={{ ...base.nextStep, secondary: three }} />);
+    expect(slot("td-next-step-actions").querySelectorAll('[data-slot="td-secondary"]')).toHaveLength(2);
+    cleanup();
     render(<TransactionDocumentShell {...base} nextStep={nextStep} locks={{ nextStep: { reason: "No" } }} />);
     expect(slot("td-next-step-actions")).toBeNull();
   });
