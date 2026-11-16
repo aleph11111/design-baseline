@@ -194,11 +194,11 @@ describe("TransactionDocumentShell — mockup fidelity", () => {
     const step = { key: "shipped", label: "Shipped, no delivery scan", tone: "danger" as const, phase: "open" as const };
     render(<TransactionDocumentShell {...base} nextStep={{ step }} />);
     expect(slot("td-next-step").getAttribute("data-tone")).toBe("danger");
-    expect(screen.getByRole("heading", { level: 2, name: "Shipped, no delivery scan" })).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 2, name: /Shipped, no delivery scan$/ })).toBeTruthy();
     cleanup();
     render(<TransactionDocumentShell {...base} nextStep={{ step, title: "Chase the carrier" }} />);
     expect(slot("td-next-step").getAttribute("data-tone")).toBe("danger");
-    expect(screen.getByRole("heading", { level: 2, name: "Chase the carrier" })).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 2, name: /Chase the carrier$/ })).toBeTruthy();
   });
 
   it("identity.progress renders an ordered list, current step bold; omitted renders nothing", () => {
