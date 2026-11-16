@@ -168,7 +168,7 @@ export function TransactionDocumentShell({
 
   const badges = (
     <>
-      <DocumentId id={identity.id} />
+      <DocumentId id={identity.id} textless={title === identity.id} />
       <Badge variant="secondary">{identity.status}</Badge>
       {identity.attention ? <Badge variant="warning">{identity.attention}</Badge> : null}
     </>

@@ -54,8 +54,8 @@ export function LockNote({ lock, field }: { lock: Lock; field?: string }): React
   );
 }
 
-/** The document id: never wraps, with a copy button. */
-export function DocumentId({ id }: { id: string }): React.ReactElement {
+/** The document id: never wraps, with a copy button. `textless`: copy button only, for a title that already shows the id. */
+export function DocumentId({ id, textless }: { id: string; textless?: boolean }): React.ReactElement {
   const L = useLabels();
   const [copied, setCopied] = React.useState(false);
   React.useEffect(() => {
@@ -65,7 +65,7 @@ export function DocumentId({ id }: { id: string }): React.ReactElement {
   }, [copied]);
   return (
     <span data-slot="td-id" className="inline-flex items-center gap-1 whitespace-nowrap font-mono text-sm text-muted-foreground">
-      {id}
+      {textless ? null : id}
       <Button
         type="button"
         variant="ghost"
