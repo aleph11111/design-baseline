@@ -25,7 +25,7 @@ export async function serveDir(dir) {
   const root = path.resolve(dir);
   const server = http.createServer((req, res) => {
     const p = path.join(root, req.url === "/" ? "index.html" : decodeURIComponent(req.url.split("?")[0]));
-    if (!p.startsWith(root) || !fs.existsSync(p) || !fs.statSync(p).isFile()) return res.writeHead(404).end();
+    if (!p.startsWith(root + path.sep) || !fs.existsSync(p) || !fs.statSync(p).isFile()) return res.writeHead(404).end();
     res.writeHead(200, { "content-type": MIME[path.extname(p)] ?? "application/octet-stream" }).end(fs.readFileSync(p));
   });
   await new Promise((r) => server.listen(0, r));
