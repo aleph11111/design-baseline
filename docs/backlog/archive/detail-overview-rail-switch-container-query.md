@@ -40,3 +40,7 @@ gate:
 - [[appshell-db-desk-width-steps-browser-check]] — precedent for the `@container/db-desk` pattern and its real-browser check
 - [ADR-0004](/docs/adr/0004-appearance-locality-derived-vs-inherited.md) — fixed in the component, no appearance prop
 - [ADR-0008](/docs/adr/0008-one-page-frame-slot-owned-placement.md) — shell/frame placement
+
+## Outcome
+
+Shipped: `DetailOverviewShell` rail on `@container`/`@4xl` (v0.48.1), gallery demo "780px column" toggle, `npm run check:viewports` 141/141 green. Audit result: `StatTileRow` was trialled as a pure swap but needs a wrapper element (moves consumer `className`), so it is NOT a pure class swap. `StatTileRow`, `KeyValueRow` (rail-width, not viewport), `CardGridBody`, `DashboardGrid`, `StructureBuilderShell`, `SettingsTableShell`, `SectionNav` are covered by the filed follow-up (dashboard inbox `b99fc51f-3b1c-4456-bc3d-d3c789e9c590`, graded to a backlog ticket by `/ticket`).

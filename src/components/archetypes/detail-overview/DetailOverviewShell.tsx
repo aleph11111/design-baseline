@@ -234,16 +234,16 @@ function DetailOverviewBody({
     );
     return (
       <div className="@container">
-      <div
-        className={cn(
-          "@max-4xl:flex @max-4xl:flex-col",
-          !flat && STACK_GAP,
-          hasMain && "@4xl:grid @4xl:grid-cols-[300px_minmax(0,1fr)] @4xl:items-start",
-        )}
-      >
-        {rail}
-        {main}
-      </div>
+        <div
+          className={cn(
+            "@max-4xl:flex @max-4xl:flex-col",
+            !flat && STACK_GAP,
+            hasMain && "@4xl:grid @4xl:grid-cols-[300px_minmax(0,1fr)] @4xl:items-start",
+          )}
+        >
+          {rail}
+          {main}
+        </div>
       </div>
     );
   }

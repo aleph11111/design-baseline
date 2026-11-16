@@ -100,7 +100,7 @@ describe("DetailOverviewShell — section-card stack (ADR-0015)", () => {
   it("rail: root is a @container so the rail keys on content width, not viewport", () => {
     const { container } = render(<DetailOverviewShell {...sectioned} layout="rail" />);
     const rail = container.querySelector('[data-slot="detail-rail"]') as HTMLElement;
-    expect((rail.parentElement?.parentElement as HTMLElement).className).toContain("@container");
+    expect(rail.closest(".\\@container")).not.toBeNull();
   });
 
   it("nested under a parent frame: no cards of its own (the flat look)", () => {
@@ -278,7 +278,7 @@ describe("DetailOverviewShell — stats as StatItem[]", () => {
     // The strip is a grid that collapses to columns matching the data length.
     const tileRow = container.querySelector(".grid") as HTMLElement;
     expect(tileRow).not.toBeNull();
-    expect(tileRow.className).toContain("@xl:grid-cols-3");
+    expect(tileRow.className).toContain("sm:grid-cols-3");
     // every cell renders; the hint lands too
     expect(getByText("Revenue")).toBeTruthy();
     expect(getByText("€120")).toBeTruthy();
@@ -298,7 +298,7 @@ describe("DetailOverviewShell — stats as StatItem[]", () => {
       />,
     );
     expect((four.container.querySelector(".grid") as HTMLElement).className).toContain(
-      "@xl:grid-cols-4",
+      "sm:grid-cols-4",
     );
     cleanup();
 
@@ -306,7 +306,7 @@ describe("DetailOverviewShell — stats as StatItem[]", () => {
       <DetailOverviewShell title="T" stats={[{ label: "a", value: "1" }]} />,
     );
     expect((one.container.querySelector(".grid") as HTMLElement).className).toContain(
-      "@xl:grid-cols-2",
+      "sm:grid-cols-2",
     );
   });
 
