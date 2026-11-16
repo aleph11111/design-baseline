@@ -2,7 +2,7 @@
 key: K
 slug: grouped-list
 kind: page
-version: 4.5
+version: 4.6
 promoted_from: hk-crm
 promoted_at: 2026-05-22
 source_spec_version: 1.6
@@ -10,6 +10,13 @@ status: locked
 ---
 
 # Archetype K — Grouped list
+
+> **v4.6 (2026-11-16) — work-queue variant.** Groups can be keyed by
+> **workflow step** (what has to happen next) instead of a browsing taxonomy:
+> a view switch with counts, one card per non-empty step with a toned count
+> and one bulk action, empty steps collapsed into one pipeline line, a
+> waiting-age cell with thresholds, and bounded single-line row density. See
+> "Work-queue variant" below. Additive; taxonomy-grouped pages are unchanged.
 
 > **v4.1 (2026-11-05) — back link to the parent page (Layer 3).** A
 > grouped-list page can sit under a parent route: the page header now takes
@@ -253,6 +260,32 @@ When a target project applies this archetype, it wires the generic primitives to
 
 ---
 
+## Work-queue variant
+
+Use the work-queue variant when the rows are documents moving through a workflow (orders, invoices, offers, purchase orders) and the user's question is **what has to happen next**, not "browse by category". The groups are keyed by workflow step (To pay › To pick › To pack › Shipped › Delivered), not by taxonomy. Every layer above applies unless this section overrides it.
+
+**One step model.** The steps are one typed list — key, label, attention tone, and phase (`open` = the work queue, `completed` = the archive) — declared once by the consumer and shared with the transaction-document page: a list group's tone and the detail page's next-step tone are the same type, so a step never reads differently on the list and on the document.
+
+**Required:**
+- **View switch** — exactly three views, **Open · Completed · All**, each showing its row count, in the page's view-switch slot. Open shows the `open`-phase steps; Completed the `completed`-phase steps; All every step.
+- **No always-empty status tabs.** The view switch is the only tab row. Steps are groups, never tabs; a tab or chip for a status that cannot hold rows in the current view is forbidden.
+- **Groups keyed by step**, in step order, each its own card whose heading carries the step label, the row count in the step's **attention tone**, and **at most one bulk action** acting on the group's rows.
+- **Collapsed pipeline line.** When the view has more than one step, one quiet line lists every step in step order with its count; a non-empty step links to its group. An empty step appears **only** in that line, never as an empty section. The consumer passes every step of the view, empty ones included — the primitive collapses them (this replaces Layer 8's "drop empty groups" for this variant).
+- **Waiting-age cell** — on Open, how long the row has waited in its step, toned by consumer-declared thresholds (at or past the warning threshold → warning; at or past the danger threshold → danger).
+- **Bounded density** — single-line rows of a fixed height: **44px** in Open (the work), **38px** in the archive views (Completed, All). Cells do not wrap.
+
+**Allowed variation:**
+- A one-line group description ("Oldest 34 days").
+- Different columns per view (Open carries the waiting age; the archive carries the completion date). Within one view, all groups share one column set (Layer 6).
+
+**Forbidden:**
+- Per-status tabs or zero-count status chips beside the view switch.
+- More than one bulk action per group, or a bulk action in the page toolbar.
+- Rendering an empty step as a section.
+- Hand-rolled waiting-age tones; the thresholds are the cell's input.
+
+---
+
 ## Acceptance gate
 
 > **Axis-C (adoption-quality) checklist** — the canonical list a page adopting this
@@ -274,11 +307,19 @@ When a target project applies this archetype, it wires the generic primitives to
       whether a toolbar is rendered — never a hand-placed button.
 - [ ] **No empty sections rendered** — groups pre-filtered on the data layer.
 - [ ] **No detail panel inside a section** — detail goes to a route.
+- [ ] **Work-queue variant only:** Open · Completed · All view switch with
+      counts and no other status tabs; empty steps only in the pipeline line;
+      one bulk action per group at most; 44px / 38px single-line rows.
 - [ ] **[spine] S1–S6** (inherits A's table contract unchanged).
 
 ---
 
 ## Version log
+- **4.6** — Work-queue variant: step-keyed groups with a toned count and one
+  bulk action, Open / Completed / All view switch with counts, empty steps
+  collapsed into one pipeline line, waiting-age cell with thresholds, 44px /
+  38px single-line rows; the step model is shared with transaction-document's
+  next-step tone. Additive.
 - **4.5** — ADR-0015 section-card stack: each group is its own raised card with
   a canvas gap between; the toolbar band rides on the first card; the page-level
   loading / empty / error planes render inside one card. Visual change only.

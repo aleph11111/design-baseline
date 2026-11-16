@@ -14,6 +14,7 @@ import { useLabels } from "../../../lib/labels";
 import { cn } from "../../../lib/utils";
 import type { LedgerColumn, LedgerResult, LedgerRow, LinkAction, Lock } from "./ledger";
 import { LedgerTable } from "./LedgerTable";
+import type { WorkflowTone } from "../shared/workflowStep";
 import { ActionLink, DocumentId, LockNote, RenderLinkContext, type RenderLink } from "./parts";
 
 /** The document's identity: who it is and where it stands. */
@@ -57,8 +58,10 @@ export type SideEffect = { label: string; state: "done" | "pending" | "failed"; 
  * The next-step panel's surface, keyed to the state (contract "Next step"):
  * a routine step → `default`; a problem the user must resolve → `warning`;
  * a failed or blocked state → `danger`; the document is complete → `success`.
+ * The same type as a work-queue group's tone (`WorkflowStep.tone`), so the
+ * list group and the document's next step read one step model.
  */
-export type TransactionNextStepTone = "default" | "warning" | "danger" | "success";
+export type TransactionNextStepTone = WorkflowTone;
 
 /** The state-keyed next-step panel — the only home of the primary action. */
 export type TransactionNextStep = {

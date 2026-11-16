@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.48.0
+
+- **Added:** grouped-list work-queue variant (contract 4.6, MANIFEST 4.6): `WorkQueueViewSwitch` (Open · Completed · All with counts, for the shell's `viewSwitch`), `WorkQueueGroups` (one card per non-empty workflow step with a toned count and one bulk action; empty steps collapse into one pipeline line; 44px open / 38px archive single-line rows) and `WaitingAgeCell` (age toned by warning/danger thresholds). New shared `WorkflowStep` / `WorkflowTone` types, exported from `grouped-list` and `transaction-document`; `TransactionNextStepTone` is now an alias of `WorkflowTone` (same union).
+- **Consumer:** none required. Work-queue pages (orders, invoices) adopt the variant instead of hand-rolling status tabs.
+- **Breaking:** no.
+
 ## v0.47.0
 
 - **Added:** transaction-document compact header and next step (contract v1.4, MANIFEST 1.5; operator mockup V2). `TransactionNextStep.secondary?: HeaderAction[]` (at most two) renders outline buttons beside the primary (extras beyond two are dropped) in one right-aligned, wrapping row next to the title and description (hidden with the primary under a `locks.nextStep`). `sideEffects` render as one inline wrapping line (icon + label + link per effect, state kept). `TransactionProgressStep.date?: Date | string` renders after the label ("Placed 30.10."; a `Date` as day.month in the page locale). `facts` also accepts `TransactionFactGroup` (`{ title, items, subline?, change?, lock? }`) beside flat facts. The header uses the new `PageFrame`/`PageHeader` `titleStep="document"` (shell-only, not in `PageShellFrameProps`): 24px h1, tighter header-to-body gap. The next-step "Next step" eyebrow is now screen-reader-only (prefixed to the heading).
