@@ -68,5 +68,6 @@ describe("page invariants", () => {
     expect(await run(bottomBar, 660, 200)).toHaveLength(1); // a bar above the target's top
     expect(await run(bottomBar, 775, 200, 789, 69, 44)).toEqual([]); // target wholly under the bar, scrollable clear
     expect(await run(bottomBar, 775, 0, 789, 69, 44)).toHaveLength(1); // ...but not on a page that cannot scroll
+    expect(await run(bottomBar, 775, 200, 810, 69, 44)).toEqual([]); // visible part under the bar, rest below the viewport
   });
 });

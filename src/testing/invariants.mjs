@@ -120,12 +120,12 @@ function measure({ mobile, column, fullBleed, tap }) {
           // page can still scroll clear of it occludes, it does not steal:
           // exempt only when the remaining scroll lifts the target's bottom
           // above the bar's top. The bar must start below the target's top or
-          // cover the target wholly; a bar whose lower edge leaves the target's
+          // cover the target's visible part (clipped to the viewport) wholly; a bar whose lower edge leaves the target's
           // bottom showing, a top-pinned bar (`bottom: auto`), or a target
           // covered at every scroll position still fails.
           const pin = other && !pinned(el) ? pinned(other) : null;
           const pr = pin?.getBoundingClientRect();
-          if (pin && getComputedStyle(pin).bottom !== "auto" && (pr.top > b.top || pr.bottom >= b.bottom)) {
+          if (pin && getComputedStyle(pin).bottom !== "auto" && (pr.top > b.top || pr.bottom >= y1)) {
             const need = b.bottom - pr.top;
             const room = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
             if (room >= need) continue;

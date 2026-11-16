@@ -417,13 +417,13 @@ function SideEffects({ items, toned }: { items: SideEffect[]; toned: boolean }) 
   const L = useLabels();
   const stateLabel = { done: L.sideEffectDone, pending: L.sideEffectPending, failed: L.sideEffectFailed };
   return (
-    <div data-slot="td-side-effects" className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs">
-      <p className={cn(!toned && "text-muted-foreground")}>{L.runningAlongside}:</p>
-      <ul className="flex flex-wrap gap-x-4 gap-y-1">
+    <div data-slot="td-side-effects" className="text-xs leading-5">
+      <span className={cn("mr-4", !toned && "text-muted-foreground")}>{L.runningAlongside}:</span>
+      <ul className="inline">
         {items.map((s) => {
           const Icon = SIDE_EFFECT_ICON[s.state];
           return (
-            <li key={s.label} data-state={s.state} className="inline-flex items-baseline gap-1">
+            <li key={s.label} data-state={s.state} className="mr-4 inline-flex items-baseline gap-1">
               <Icon aria-hidden className={cn("size-3.5 shrink-0 self-center", SIDE_EFFECT_TONE[s.state])} />
               <span>
                 {s.label}

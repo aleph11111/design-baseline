@@ -244,7 +244,7 @@ describe("TransactionDocumentShell — mockup fidelity", () => {
       />,
     );
     const line = slot("td-side-effects");
-    expect(line.className).toMatch(/\bflex-wrap\b/);
+    expect(line.querySelector("ul")!.className).toMatch(/\binline\b/);
     expect(line.querySelectorAll("li")).toHaveLength(3);
     expect(line.textContent).toContain("C (failed)");
     expect(within(line).getByRole("link", { name: "Open" })).toBeTruthy();
