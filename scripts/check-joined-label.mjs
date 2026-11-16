@@ -27,13 +27,16 @@ console.log(`joined-label check: ${total} widths against ${DIST} (Chrome: ${CHRO
 
 // Per joined control (select trigger, segmented radiogroup, native field row): label
 // text truncated, value (the last non-icon child: select value / last segment / input
-// cell) whole and inside the control root. In the 430px sheet only, an <input>'s box is exempt from
-// the root test: the NativeField value column floors at the input's intrinsic width
-// (grid minmax(max-content,1fr)), 258px, which overflows the sheet by 8px on Linux Chrome — a component
-// defect filed in the ticket inbox ("NativeField in a joined toolbar band overflows the 430px filter
-// sheet"); drop the `exemptInputBox` argument once fixed. Inputs keep the full test at 1440/1024/900. The 1440px run is the revert-sensitive one:
+// cell) whole and inside the control root. Known gap, bounded: in the 430px sheet an <input>'s box
+// may overshoot the root by INPUT_SHEET_SLACK px (measured 8px on Linux Chrome; the NativeField value
+// column floors at the input's intrinsic width, grid minmax(max-content,1fr)). Any overshoot beyond
+// that still fails, and the run prints a warning while the gap is open. Tracked as inbox thought
+// 920c4ddb-0fb7-46eb-9049-288d41b0cb4d ("NativeField in a joined toolbar band overflows the 430px
+// filter sheet"); delete INPUT_SHEET_SLACK when the component is fixed. The 1440px run is the revert-sensitive one:
 // the sheet at 430px pins its own label column, so it only guards the fixed 130px.
-const measure = (root, exemptInputBox) =>
+const INPUT_SHEET_SLACK = 8;
+console.log(`WARN known gap: 430px sheet inputs may overshoot their control by up to ${INPUT_SHEET_SLACK}px (inbox thought 920c4ddb-0fb7-46eb-9049-288d41b0cb4d)`);
+const measure = (root, inputSlack) =>
   [...root.querySelectorAll("[data-joined-label]")].map((label) => {
     const trigger = label.parentElement;
     const cell = [...trigger.children].filter((c) => c !== label && c.tagName.toLowerCase() !== "svg").pop();
@@ -52,7 +55,7 @@ const measure = (root, exemptInputBox) =>
       stubbed: label.getBoundingClientRect().width < Math.min(text.scrollWidth + parseFloat(getComputedStyle(label).paddingLeft) + parseFloat(getComputedStyle(label).paddingRight) + parseFloat(getComputedStyle(label).borderRightWidth), 128) - 1,
       labelW: Math.round(label.getBoundingClientRect().width),
       labelTruncated: text.scrollWidth > text.clientWidth,
-      valueWhole: parts.every((p) => p.scrollWidth <= p.clientWidth + 1 && p.scrollHeight <= p.clientHeight + 1 && ((exemptInputBox && p.tagName === "INPUT") || p.getBoundingClientRect().right <= t.right + 1)),
+      valueWhole: parts.every((p) => p.scrollWidth <= p.clientWidth + 1 && p.scrollHeight <= p.clientHeight + 1 && p.getBoundingClientRect().right <= t.right + 1 + (p.tagName === "INPUT" ? inputSlack : 0)),
     };
   });
 
@@ -68,7 +71,7 @@ const run = async (width, openSheet, allowFloor = false, testid = "crowded-band"
       await page.waitForSelector('[role="dialog"] [data-joined-label]', { timeout: 5000 });
     }
     const all = await page.evaluate(
-      `(${measure})(document.querySelector(${JSON.stringify(openSheet ? '[role="dialog"]' : `[data-testid="${testid}"]`)}), ${openSheet})`,
+      `(${measure})(document.querySelector(${JSON.stringify(openSheet ? '[role="dialog"]' : `[data-testid="${testid}"]`)}), ${openSheet ? INPUT_SHEET_SLACK : 0})`,
     );
 
     // crowded-band: select, select, segmented control, native field (+ custom flex consumer outside the sheet)
