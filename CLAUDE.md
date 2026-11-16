@@ -57,6 +57,8 @@ npm run gallery:view              # gallery:build + preview on :5173
 npm run check:viewports           # gallery:build + real-Chrome check of every kind:page archetype at the device triad (desk27/laptop14/phone; layout invariants + desk-width column steps) + contact sheet at viewport-report/index.html; runs in CI
 npm run screenshots               # pixel baselines (tests/screenshots/) compared inside the pinned Playwright docker image; prints the report path; runs in CI
 npm run screenshots:update        # regenerate the baselines after an intended visual change (same image; review the PNG diff)
+npm run check:app-header-phone    # gallery:build + real-Chrome check that AppHeader cannot widen the page at 1024/430/360px; runs in CI (after check:viewports, reusing its build)
+npm run check:joined-label        # gallery:build + real-Chrome check that joined toolbar labels yield before values truncate; runs in CI (same)
 npm run check:detail-sheet        # dev gallery build + real-Chrome check of list-with-detail's content-sized overlay (ADR-0010; local Chrome, not in CI)
 ```
 

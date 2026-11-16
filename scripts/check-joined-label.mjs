@@ -5,25 +5,16 @@
 // templates from SelectTrigger, SegmentedControl or NativeField fails the 1440px/900px runs.
 // The custom flex consumer row guards JOINED_LABEL_CLASS's own floor: a label narrower than
 // min(text, 8rem) (a `max-w-24` cap, a `min-w-0` + shrink regression) fails the stub assertion.
-import http from "node:http";
-import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright-core";
+import { CHROME, serveDir, launchChrome } from "./lib/serve-gallery.mjs";
 
 const DIST = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../gallery-dist");
-const CHROME = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".json": "application/json" };
 
-const server = http.createServer((req, res) => {
-  const p = path.join(DIST, req.url === "/" ? "index.html" : decodeURIComponent(req.url.split("?")[0]));
-  if (!p.startsWith(DIST) || !fs.existsSync(p) || !fs.statSync(p).isFile()) return res.writeHead(404).end();
-  res.writeHead(200, { "content-type": MIME[path.extname(p)] ?? "application/octet-stream" }).end(fs.readFileSync(p));
-});
-await new Promise((r) => server.listen(0, r));
-const url = `http://localhost:${server.address().port}/#/l/page-frame`;
+const gallery = await serveDir(DIST);
+const url = `${gallery.url}/#/l/page-frame`;
 
-const browser = await chromium.launch({ executablePath: CHROME });
+const browser = await launchChrome();
 const failures = [];
 let n = 0;
 const total = 8;
@@ -129,6 +120,6 @@ try {
 }
 
 await browser.close();
-server.close();
+gallery.close();
 console.log(failures.length ? `FAILED: ${failures.length}/${total}` : `PASSED: ${total}/${total}`);
 process.exit(failures.length ? 1 : 0);

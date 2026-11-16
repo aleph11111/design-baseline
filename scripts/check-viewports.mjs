@@ -6,21 +6,16 @@
 // absorbed check-desk-width.mjs), and writes a contact sheet of every page at
 // the three devices for operator review.
 // Run: npm run check:viewports  (builds gallery-dist first, uses local Chrome).
-import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright-core";
+import { CHROME, serveDir, launchChrome } from "./lib/serve-gallery.mjs";
 import { devices, widthSweep } from "../src/testing/devices.mjs";
 import { checkPageInvariants } from "../src/testing/invariants.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = path.join(ROOT, "gallery-dist");
 const OUT = path.join(ROOT, "viewport-report");
-const CHROME =
-  process.env.CHROME_PATH ??
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".json": "application/json" };
 const PAGES = JSON.parse(fs.readFileSync(path.join(ROOT, "docs/archetypes/MANIFEST.json"), "utf8"))
   .archetypes.filter((a) => a.kind === "page")
   .map((a) => a.slug);
@@ -51,17 +46,12 @@ const KNOWN_GAPS = {};
 // finding at any width — toolbarRows at 1024 included.
 const SWEEP_GAPS = {};
 
-const server = http.createServer((req, res) => {
-  const p = path.join(DIST, req.url === "/" ? "index.html" : decodeURIComponent(req.url.split("?")[0]));
-  if (!p.startsWith(DIST) || !fs.existsSync(p) || !fs.statSync(p).isFile()) return res.writeHead(404).end();
-  res.writeHead(200, { "content-type": MIME[path.extname(p)] ?? "application/octet-stream" }).end(fs.readFileSync(p));
-});
-await new Promise((r) => server.listen(0, r));
-const base = `http://localhost:${server.address().port}/#/a/`;
+const gallery = await serveDir(DIST);
+const base = `${gallery.url}/#/a/`;
 
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
-const browser = await chromium.launch({ executablePath: CHROME });
+const browser = await launchChrome();
 // transaction-document's three demo documents (demo radio label → contact-sheet slug).
 const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"]];
 const failures = [];
@@ -381,7 +371,7 @@ for (const [name, device] of Object.entries(devices)) {
 }
 
 await browser.close();
-server.close();
+gallery.close();
 
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const rows = [...PAGES, "analytics-dashboard-edit", "matrix-grid-inspector", "matrix-grid-workbench", ...TD_VARIANTS.map(([, shot]) => shot), "grouped-list-work-queue"].map((slug) => {
