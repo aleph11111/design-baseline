@@ -7,14 +7,14 @@ gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
   failed: []
-  graded_at: 2026-11-04T12:00:00Z
+  graded_at: 2026-11-16T18:06:11Z
 ---
 
 # Stop SettingsTableShell re-destructuring and re-forwarding every body prop by name
 
 ## Context
 
-`src/components/archetypes/settings-table/SettingsTableShell.tsx` grew 438 → 832 lines in a month (filed by the 2026-11-04 code-health ritual). `SettingsTableShell` (line 725) destructures 23 named props, then forwards 19 of them one by one to `<SettingsTableBody>` (lines ~791–822); `SettingsTableBody` (line 420) destructures the same list again. Its props type is `SettingsTableShellProps = Omit<PageShellFrameProps,'count'> & Omit<SettingsTableBodyProps,'band'|'flush'>` (line 241), so every new body prop has to be added in three places: the type, the body destructure, and the shell destructure plus forward. If the forward is missing, the prop is silently dropped on the page form only — `tsc` does not flag it, because the prop is still in the type. That is the bug class the lint rule `swallowedSlots` (`findSwallowedSlots`, `scripts/lint-design.mjs`) had to be written for, and it only watches `PageFrame` slots, not body props. There is also double work: the shell computes `computeBulkSelection`, `resolveCountLabel` and `resolveBulkActions`, then the body recomputes all three on every render even with `band={false}`, where `countLabel`/`bulkNode` are discarded.
+`src/components/archetypes/settings-table/SettingsTableShell.tsx` grew 438 → 832 lines in a month (filed by the 2026-11-04 code-health ritual). `SettingsTableShell` (line 725) destructures 23 named props, then forwards 19 of them one by one to `<SettingsTableBody>` (lines ~799–827); `SettingsTableBody` (line 421) destructures the same list again. Its props type is `SettingsTableShellProps = Omit<PageShellFrameProps,'count'> & Omit<SettingsTableBodyProps,'band'|'flush'>` (line 242; line numbers re-verified on origin/main a401d8f, 2026-11-16 — `PageShellFrameProps` still omits `body`, so ADR-0015's stack mode does not change this split), so every new body prop has to be added in three places: the type, the body destructure, and the shell destructure plus forward. If the forward is missing, the prop is silently dropped on the page form only — `tsc` does not flag it, because the prop is still in the type. That is the bug class the lint rule `swallowedSlots` (`findSwallowedSlots`, `scripts/lint-design.mjs`) had to be written for, and it only watches `PageFrame` slots, not body props. There is also double work: the shell computes `computeBulkSelection`, `resolveCountLabel` and `resolveBulkActions`, then the body recomputes all three on every render even with `band={false}`, where `countLabel`/`bulkNode` are discarded.
 
 ## What to do
 

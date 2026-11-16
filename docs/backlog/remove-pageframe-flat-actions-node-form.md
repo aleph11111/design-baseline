@@ -3,14 +3,13 @@ area: layout
 opened: 2026-11-08
 status: ready
 value: low
-depends_on: [page-header-action-hierarchy-overflow-menu]
 model: sonnet
 model_reason: "mechanical narrowing of a prop type along an established deprecation path; cause and edit sites are named"
 gate:
   score: 5
   passed: [title, context, what-to-do, acceptance, related]
   failed: []
-  graded_at: 2026-11-08T00:00:00Z
+  graded_at: 2026-11-16T18:06:11Z
 ---
 
 # Remove deprecated flat ReactNode PageFrame actions form
@@ -37,6 +36,6 @@ gate:
 
 ## Related
 
-- [[page-header-action-hierarchy-overflow-menu]] — must ship first: it introduces the typed form and the deprecation this ticket removes
+- [[page-header-action-hierarchy-overflow-menu]] — shipped (archived): introduced the typed form and the deprecation this ticket removes
 - [ADR-0008](/docs/adr/0008-one-page-frame-slot-owned-placement.md) — one PageFrame, slot-owned placement
 - [PLACEMENT.md](/docs/PLACEMENT.md) — page-frame slot table

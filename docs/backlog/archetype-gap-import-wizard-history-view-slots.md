@@ -1,16 +1,15 @@
 ---
 area: archetypes
 opened: 2026-11-04
-status: needs-enrichment
+status: ready
 model: opus
 model_reason: "design is the deliverable — how one page hosts wizard and history under a single kind:page shell, and whether the contract's no-per-step-buttons rule bends"
 value: normal
 gate:
-  score: 4
+  score: 5
   passed: [title, context, what_to_do, acceptance, related]
-  failed:
-    - open_question: "unresolved Open question caps the score at 4"
-  graded_at: 2026-11-04T00:00:00Z
+  failed: []
+  graded_at: 2026-11-16T18:06:11Z
 ---
 
 # Archetype gap: import-wizard shell has no viewSwitch or viewOptions slot for history toggle
@@ -43,9 +42,11 @@ Consumer: controlling-app `frontend/src/app/workspace/import/page.tsx` (route `/
 - [[import-wizard-demo-done-state-frame]] — `done` state renders in the same frame
 - [ADR-0008](/docs/adr/0008-one-page-frame-slot-owned-placement.md) — one page frame, slot-owned placement
 
-## Open question
+## Decisions
 
-Two forks, resolved to the recommended default for filing; confirm before `/feat`.
+Both forks confirmed by the operator on 2026-11-16 (backlog-coherence ticket `backlog-coherence-archetype-gap-1d960f`):
 
-1. **Per-step buttons.** The consumer's step bodies own their own buttons, but the contract forbids per-step "save" buttons and puts Back/Next/Commit in the footer. Recommended: keep the footer contract and have the consumer move step actions into it (no footer-less mode). Alternative: add a footer-less variant where steps own navigation. Only one consumer wants this, which is below the rule-of-2 bar the other promotions used.
-2. **History view hosting.** With the strip in `WizardShell`'s `viewSwitch`, the "Verlauf" view must render the history (a list-with-detail shell) on the same route. Recommended: the page renders `WizardShell` for "Neuer Import" and `ListWithDetailShell` for "Verlauf", each passing the same `viewSwitch` node. Alternative: two routes, each shell with its own link-based switch.
+1. **Per-step buttons — keep the footer contract.** The consumer moves its step actions into the Back/Next/Commit footer; no footer-less variant. Only one consumer wants step-owned navigation, which is below the rule-of-2 bar the other promotions used.
+2. **History view hosting — one route, two shells.** The page renders `WizardShell` for "Neuer Import" and `ListWithDetailShell` for "Verlauf", each passing the same `viewSwitch` node. No second route.
+
+Sequencing: [[wizard-panel-embeddable-frame]] also bumps `package.json`, `CHANGELOG.md` and the import-wizard spec/MANIFEST version (3.6) — re-read all three at `/feat`, whichever of the two lands second rebases onto the other's version.
