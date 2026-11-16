@@ -65,7 +65,7 @@ const browser = await chromium.launch({ executablePath: CHROME });
 // transaction-document's three demo documents (demo radio label → contact-sheet slug).
 const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"]];
 const failures = [];
-const total = PAGES.length * (Object.keys(devices).length + widthSweep.length) + STEPS.length + 1 + 3 * Object.keys(devices).length + TD_VARIANTS.length * (Object.keys(devices).length + widthSweep.length); // + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench + transaction-document variants
+const total = PAGES.length * (Object.keys(devices).length + widthSweep.length) + STEPS.length + 1 + 3 * Object.keys(devices).length + TD_VARIANTS.length * (Object.keys(devices).length + widthSweep.length) + Object.keys(devices).length; // + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench + transaction-document variants + grouped-list work queue
 let n = 0;
 const report = (label, { failures: bad, knownGaps: warn }) => {
   n++;
@@ -343,11 +343,48 @@ for (const [radio, shot] of TD_VARIANTS) {
   }
 }
 
+// grouped-list work-queue variant (contract "Work-queue variant"): at the
+// triad, Open rows measure 44px and archive (Completed / All) rows 38px —
+// single line, so a wrapped cell would show as a taller row.
+for (const [name, device] of Object.entries(devices)) {
+  const label = `grouped-list work queue @ ${name}`;
+  let ctx;
+  try {
+    let page;
+    ({ ctx, page } = await open("grouped-list", device));
+    await page.getByRole("radio", { name: "Work queue" }).click();
+    await page.waitForSelector('[data-slot="work-queue-pipeline"]');
+    const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: columnFor("grouped-list", name), fullBleed: false });
+    const bad = [...result.failures];
+    const heights = () => page.$$eval('[data-slot="work-queue-group"] tbody tr', (trs) => trs.map((tr) => Math.round(tr.getBoundingClientRect().height)));
+    const expectRows = async (view, want) => {
+      const got = await heights();
+      if (got.length === 0) bad.push(`${view}: no rows`);
+      const off = got.filter((h) => h !== want);
+      if (off.length) bad.push(`${view}: rows ${[...new Set(off)].join("/")}px, want ${want}px`);
+    };
+    await expectRows("Open", 44);
+    const file = `grouped-list-work-queue--${name}.jpg`;
+    await page.screenshot({ path: path.join(OUT, file), type: "jpeg", quality: 70, scale: "css", fullPage: true });
+    for (const view of ["Completed", "All"]) {
+      await page.getByRole("radio", { name: new RegExp(`^${view} `) }).click();
+      await page.waitForTimeout(200);
+      await expectRows(view, 38);
+    }
+    shots.push({ slug: "grouped-list-work-queue", name, file, problems: [...bad, ...result.knownGaps] });
+    report(label, { failures: bad, knownGaps: result.knownGaps });
+  } catch (e) {
+    report(label, fail(e.message.split("\n")[0]));
+  } finally {
+    await ctx?.close();
+  }
+}
+
 await browser.close();
 server.close();
 
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-const rows = [...PAGES, "analytics-dashboard-edit", "matrix-grid-inspector", "matrix-grid-workbench", ...TD_VARIANTS.map(([, shot]) => shot)].map((slug) => {
+const rows = [...PAGES, "analytics-dashboard-edit", "matrix-grid-inspector", "matrix-grid-workbench", ...TD_VARIANTS.map(([, shot]) => shot), "grouped-list-work-queue"].map((slug) => {
   const cells = Object.keys(devices).map((name) => {
     const s = shots.find((x) => x.slug === slug && x.name === name);
     if (!s) return `<figure class="bad"><figcaption>${name}: not rendered</figcaption></figure>`;

@@ -2,7 +2,7 @@
 key: Td
 slug: transaction-document
 kind: page
-version: 1.4
+version: 1.5
 promoted_from: brickshop-manager
 promoted_at: 2026-11-09
 source_spec_version: n/a (no source spec — fleet-synthesis promotion from brickshop-manager's /orders/:id page and the transaction-documents mockup; ADR-0014)
@@ -73,7 +73,11 @@ still recoverable (a parcel with no carrier scan) → *warning*; a failed or
 blocked state (payment failed, order stuck) → *danger*; the document is
 complete, nothing left to do → *success*. On warning and danger the heading
 states the problem ("No carrier scan 8 days after the label was created"),
-not the routine step. Under it, the
+not the routine step. When the document belongs to a work queue, the panel
+is keyed to the document's **workflow step** — the same typed step the list
+page groups by (grouped-list "Work-queue variant"): its tone is the step's
+tone and its heading defaults to the step's label, so a status reads the same
+on the list and on the document. A step-keyed panel takes no tone of its own. Under it, the
 **automatic side effects** of this state ("running alongside"): a declared list
 of `{ label, state: done | pending | failed, link? }` — the invoice created on
 payment, the marketplace updated on ship — shown as **one compact line** after
@@ -246,3 +250,6 @@ shows the lock, naming the column, with its reason and way out.
   body; the next step's actions share the heading's row (with up to
   two secondary actions) and wrap below it on narrow widths; side effects as
   one inline line; optional per-step progress dates; fact groups.
+- **1.5** (2026-11-16) — the next step can be keyed to the document's workflow
+  step (the grouped-list work-queue step model): tone and default heading come
+  from the step. Additive.

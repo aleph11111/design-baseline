@@ -45,3 +45,5 @@ export {
   type FieldHintProps,
   type FieldErrorProps,
 } from "./fieldFrame";
+
+export type { WorkflowStep, WorkflowTone } from "./workflowStep";

@@ -3,6 +3,12 @@ import { Plus } from "lucide-react";
 import {
   GroupedListShell,
   GroupedListSection,
+  WaitingAgeCell,
+  WorkQueueGroups,
+  WorkQueueViewSwitch,
+  type WorkQueueGroup,
+  type WorkQueueView,
+  type WorkflowStep,
 } from "@/components/archetypes/grouped-list";
 import {
   ListWithDetailToolbar,
@@ -85,7 +91,29 @@ const TOOLBAR_MODES = ["full", "header-only"] as const;
 // Page component
 // ---------------------------------------------------------------------------
 
+const VARIANTS = ["taxonomy", "work-queue"] as const;
+
 export function GroupedListDemo() {
+  // Variant switch: taxonomy groups (the default) or the work-queue variant
+  // (groups keyed by workflow step).
+  const [variant, setVariant] = useState<(typeof VARIANTS)[number]>("taxonomy");
+  return (
+    <div className="space-y-5">
+      <SegmentedControl
+        value={variant}
+        onValueChange={(v) => setVariant(v as (typeof VARIANTS)[number])}
+        options={[
+          { value: "taxonomy", label: "Taxonomy" },
+          { value: "work-queue", label: "Work queue" },
+        ]}
+        aria-label="Variant"
+      />
+      {variant === "taxonomy" ? <TaxonomyDemo /> : <WorkQueueDemo />}
+    </div>
+  );
+}
+
+function TaxonomyDemo() {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // State plane: exercises the shell's loading/error StateView, driven by
@@ -224,5 +252,123 @@ export function GroupedListDemo() {
         )}
       </GroupedListShell>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Work-queue variant — a print shop's orders, grouped by what has to happen
+// next. The step list is the one state model a transaction-document detail
+// page would read for its `nextStep` tone too.
+// ---------------------------------------------------------------------------
+
+type StepKey = "pay" | "print" | "pack" | "shipped" | "delivered";
+
+const STEPS: WorkflowStep<StepKey>[] = [
+  { key: "pay", label: "To pay", phase: "open", tone: "warning" },
+  { key: "print", label: "To print", phase: "open" },
+  { key: "pack", label: "To pack", phase: "open" },
+  { key: "shipped", label: "Shipped, no delivery scan", phase: "open", tone: "warning" },
+  { key: "delivered", label: "Delivered", phase: "completed", tone: "success" },
+];
+
+type PrintOrder = { id: string; customer: string; country: string; amount: string; step: StepKey; waitingDays: number; since: string };
+
+const ORDERS: PrintOrder[] = [
+  { id: "PO-2026-0146", customer: "Sofia Rossi", country: "IT", amount: "550,99 €", step: "shipped", waitingDays: 34, since: "04.10." },
+  { id: "PO-2026-0149", customer: "Tom Berger", country: "DE", amount: "609,49 €", step: "shipped", waitingDays: 21, since: "17.10." },
+  { id: "PO-2026-0150", customer: "Jan de Vries", country: "NL", amount: "216,49 €", step: "shipped", waitingDays: 9, since: "24.10." },
+  { id: "PO-2026-0152", customer: "Piotr Nowak", country: "AT", amount: "322,49 €", step: "shipped", waitingDays: 2, since: "31.10." },
+  { id: "PO-2026-0154", customer: "Lena Fischer", country: "DE", amount: "347,49 €", step: "pack", waitingDays: 1, since: "01.11." },
+  { id: "PO-2026-0155", customer: "Max Mustermann", country: "DE", amount: "176,19 €", step: "pack", waitingDays: 8, since: "25.10." },
+  ...["Eleni Papadaki", "Gábor Kiss", "Daan Jansen", "Olena Koval", "Anna Petrova", "Luc Martin", "Bram Peeters"].map(
+    (customer, i): PrintOrder => ({
+      id: `PO-2026-01${String(45 - i).padStart(2, "0")}`,
+      customer,
+      country: "EU",
+      amount: `${120 + i * 37},49 €`,
+      step: "delivered",
+      waitingDays: 0,
+      since: `${String(28 - i * 3).padStart(2, "0")}.10.2026`,
+    }),
+  ),
+];
+
+const order: ListColumn<PrintOrder> = { key: "id", header: "Order", cell: (o) => o.id, isIdentifier: true };
+const customer: ListColumn<PrintOrder> = {
+  key: "customer",
+  header: "Customer",
+  cell: (o) => (
+    <>
+      {o.customer} <span className="text-xs text-muted-foreground">· {o.country}</span>
+    </>
+  ),
+};
+const amount: ListColumn<PrintOrder> = { key: "amount", header: "Amount", cell: (o) => <span className="tabular-nums">{o.amount}</span>, align: "right" };
+
+// Open: the waiting age is the column that matters (warning at 7 days, danger at 14).
+const OPEN_COLUMNS = [order, customer, amount, {
+  key: "waiting",
+  header: "Waiting",
+  cell: (o: PrintOrder) => <WaitingAgeCell days={o.waitingDays} thresholds={{ warning: 7, danger: 14 }} since={`since ${o.since}`} />,
+}];
+// Archive views: the completion date replaces the age.
+const ARCHIVE_COLUMNS = [order, { key: "done", header: "Completed", cell: (o: PrintOrder) => o.since }, customer, amount];
+
+function WorkQueueDemo() {
+  const [view, setView] = useState<WorkQueueView>("open");
+  const [search, setSearch] = useState("");
+
+  const { groups, counts } = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    const matches = (o: PrintOrder) => needle === "" || `${o.id} ${o.customer}`.toLowerCase().includes(needle);
+    const phase = (key: StepKey) => STEPS.find((s) => s.key === key)!.phase;
+    const counts = {
+      open: ORDERS.filter((o) => phase(o.step) === "open" && matches(o)).length,
+      completed: ORDERS.filter((o) => phase(o.step) === "completed" && matches(o)).length,
+      all: ORDERS.filter(matches).length,
+    };
+    // Partition upstream (contract Layer 8): every step of the view, in step
+    // order, empty ones included — the primitive collapses those.
+    const groups: WorkQueueGroup<PrintOrder>[] = STEPS.filter((s) => view === "all" || s.phase === view).map((step) => {
+      const rows = ORDERS.filter((o) => o.step === step.key && matches(o)).sort((a, b) => b.waitingDays - a.waitingDays);
+      return {
+        step,
+        rows,
+        description: step.key === "shipped" && view === "open" && rows.length ? `Oldest ${rows[0]!.waitingDays} days. Tracking is only checked by hand.` : undefined,
+        bulkAction:
+          view !== "open" || rows.length === 0
+            ? undefined
+            : step.key === "shipped"
+              ? { label: `Refresh tracking for ${rows.length}`, onSelect: () => {} }
+              : step.key === "pack"
+                ? { label: `Print labels for ${rows.length}`, onSelect: () => {} }
+                : undefined,
+      };
+    });
+    return { groups, counts };
+  }, [view, search]);
+
+  return (
+    <GroupedListShell
+      title="Print orders"
+      actions={
+        <Button>
+          <Plus className="mr-1 h-4 w-4" />
+          New order
+        </Button>
+      }
+      viewSwitch={<WorkQueueViewSwitch value={view} onValueChange={setView} counts={counts} />}
+      toolbar={<ListWithDetailToolbar searchValue={search} onSearchChange={setSearch} searchPlaceholder="Order no., customer…" />}
+      isEmpty={counts[view] === 0}
+      emptyMessage="No orders match your search."
+    >
+      <WorkQueueGroups<PrintOrder>
+        groups={groups}
+        density={view === "open" ? "open" : "archive"}
+        columns={view === "open" ? OPEN_COLUMNS : ARCHIVE_COLUMNS}
+        getRowId={(o) => o.id}
+        onRowSelect={() => {}}
+      />
+    </GroupedListShell>
   );
 }

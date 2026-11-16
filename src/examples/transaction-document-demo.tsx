@@ -18,6 +18,7 @@ import {
   type LedgerColumn,
   type LedgerRow,
   type TransactionDocumentShellProps,
+  type WorkflowStep,
 } from "@/components/archetypes/transaction-document";
 
 type Variant = "order" | "offer" | "purchase";
@@ -39,6 +40,9 @@ function HistoryList({ items }: { items: [string, string][] }) {
 const sum = (rows: LedgerRow[], key: string) => rows.reduce((t, r) => t + (r.values[key] ?? 0), 0);
 
 // --- Sales order ------------------------------------------------------------
+
+/** The order's current workflow step (the work queue's "Shipped" group). */
+const SHIPPED_STEP: WorkflowStep = { key: "shipped", label: "Shipped, no delivery scan", phase: "open", tone: "warning" };
 
 const ORDER_COLUMNS: LedgerColumn[] = [
   { key: "charged", label: "Charged", kind: "currency", priority: 1 },
@@ -95,7 +99,9 @@ function salesOrder(): TransactionDocumentShellProps {
       ],
     },
     nextStep: {
-      tone: "warning",
+      // Keyed to the order's workflow step — the same WorkflowStep the
+      // grouped-list work queue groups orders by, so tone and step match.
+      step: SHIPPED_STEP,
       title: "No carrier scan 8 days after the label was created",
       description: "DHL Paket 2 kg · 358086789302 · tracking last checked: never. Either the parcel was never handed over, or tracking is not being polled.",
       primary: { label: "Refresh tracking", icon: Truck, onSelect: noop },

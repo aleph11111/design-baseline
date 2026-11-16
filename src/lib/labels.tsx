@@ -118,6 +118,13 @@ export type BaselineLabels = {
   facts: string;
   history: string;
   locked: string;
+  // Work queue (grouped-list work-queue variant)
+  workQueueOpen: string;
+  workQueueCompleted: string;
+  workQueueAll: string;
+  workQueueView: string;
+  workQueuePipeline: string;
+  waitingDays: (days: number) => string;
   // Wizard / progress
   commitImport: string;
   importing: string;
@@ -228,6 +235,12 @@ export const labelsEn: BaselineLabels = {
   addLine: "Add line",
   facts: "Details",
   history: "History",
+  workQueueOpen: "Open",
+  workQueueCompleted: "Completed",
+  workQueueAll: "All",
+  workQueueView: "View",
+  workQueuePipeline: "Pipeline",
+  waitingDays: (days) => `${days} d`,
   locked: "Locked",
   commitImport: "Commit import",
   importing: "Importing…",
@@ -338,6 +351,12 @@ export const labelsDe: BaselineLabels = {
   addLine: "Position hinzufügen",
   facts: "Angaben",
   history: "Verlauf",
+  workQueueOpen: "Offen",
+  workQueueCompleted: "Erledigt",
+  workQueueAll: "Alle",
+  workQueueView: "Ansicht",
+  workQueuePipeline: "Ablauf",
+  waitingDays: (days) => `${days} T`,
   locked: "Gesperrt",
   commitImport: "Import abschließen",
   importing: "Wird importiert…",

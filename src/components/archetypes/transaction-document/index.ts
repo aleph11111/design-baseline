@@ -11,5 +11,6 @@ export type {
   TransactionProgressStep,
   TransactionNextStepTone,
 } from "./TransactionDocumentShell";
+export type { WorkflowStep, WorkflowTone } from "../shared/workflowStep";
 export { fitColumns, parseFigure } from "./ledger";
 export type { LedgerColumn, LedgerResult, LedgerRow, LinkAction, Lock } from "./ledger";
