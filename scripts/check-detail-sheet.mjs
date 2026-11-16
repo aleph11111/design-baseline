@@ -3,27 +3,16 @@
 // class hooks and a stubbed overflow; this measures a development build of the
 // gallery (development, so the dev-only overflow warning is live).
 // Run: npm run check:detail-sheet  (builds gallery-dist-dev first, uses local Chrome).
-import http from "node:http";
-import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright-core";
+import { CHROME, serveDir, launchChrome } from "./lib/serve-gallery.mjs";
 
 const DIST = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../gallery-dist-dev");
-const CHROME =
-  process.env.CHROME_PATH ??
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".json": "application/json" };
 
-const server = http.createServer((req, res) => {
-  const p = path.join(DIST, req.url === "/" ? "index.html" : decodeURIComponent(req.url.split("?")[0]));
-  if (!p.startsWith(DIST) || !fs.existsSync(p) || !fs.statSync(p).isFile()) return res.writeHead(404).end();
-  res.writeHead(200, { "content-type": MIME[path.extname(p)] ?? "application/octet-stream" }).end(fs.readFileSync(p));
-});
-await new Promise((r) => server.listen(0, r));
-const url = `http://localhost:${server.address().port}/#/a/list-with-detail`;
+const gallery = await serveDir(DIST);
+const url = `${gallery.url}/#/a/list-with-detail`;
 
-const browser = await chromium.launch({ executablePath: CHROME });
+const browser = await launchChrome();
 const failures = [];
 let n = 0;
 const CASES = [
@@ -86,6 +75,6 @@ for (const c of CASES) {
 }
 
 await browser.close();
-server.close();
+gallery.close();
 console.log(failures.length ? `FAILED: ${failures.length}/${total}` : `PASSED: ${total}/${total}`);
 process.exit(failures.length ? 1 : 0);

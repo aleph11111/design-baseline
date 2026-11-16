@@ -34,6 +34,13 @@ jobs:
       - run: npm run check:viewports
         env:
           CHROME_PATH: /usr/bin/google-chrome
+      # layout guards over the same gallery-dist (no second build)
+      - run: node scripts/check-app-header-phone.mjs
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+      - run: node scripts/check-joined-label.mjs
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
 
   # Pixel baselines (tests/screenshots/), compared inside the same pinned image
   # `npm run screenshots` uses locally — PLAYWRIGHT_IMAGE in src/testing/docker.mjs
