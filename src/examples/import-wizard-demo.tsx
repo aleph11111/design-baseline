@@ -236,7 +236,7 @@ function ImportWizardDialogDemo(): React.ReactElement {
           onNext={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}
           onCommit={close}
         >
-          <p className="text-sm text-muted-foreground">Step: {STEPS[step].label}</p>
+          <p className="text-sm text-muted-foreground">Step: {STEPS[step]?.label}</p>
         </WizardPanel>
       </DialogContent>
     </Dialog>
