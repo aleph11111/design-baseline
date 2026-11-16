@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-16
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "scoped fix at one shared render point with a clear cause and acceptance"

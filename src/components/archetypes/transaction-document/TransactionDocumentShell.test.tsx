@@ -93,6 +93,18 @@ const base: TransactionDocumentShellProps = {
 };
 
 describe("TransactionDocumentShell — rules", () => {
+  it("title equal to identity.id shows the number once and keeps the copy button", () => {
+    render(<TransactionDocumentShell {...base} title="X-1" />);
+    expect(document.body.textContent?.match(/X-1/g)).toHaveLength(1);
+    expect(slot("td-id").textContent).toBe("");
+    expect(slot("td-id").querySelector("button")).toBeTruthy();
+  });
+
+  it("title different from identity.id still shows the id chip text", () => {
+    render(<TransactionDocumentShell {...base} />);
+    expect(slot("td-id").textContent).toContain("X-1");
+  });
+
   it("marks only the current chain entry as current", () => {
     render(<TransactionDocumentDemo />);
     variant("Offer");

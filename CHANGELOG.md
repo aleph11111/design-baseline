@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.46.3
+
+- **Fixed:** `TransactionDocumentShell` shows the document number once: when `title` equals `identity.id`, the header `td-id` chip renders the copy button only (no repeated number text). A differing title is unchanged (MANIFEST 1.4).
+- **Consumer:** none required.
+- **Breaking:** no.
+
 ## v0.46.2
 
 - **Fixed:** `BoardCard`s keep their border and raised fill when the board is nested in another raised surface (a titled `SectionCard`, a dialog/drawer, a parent `PageFrame`). `BoardColumn` now resets the nested-surface context for its cards: a sunken lane starts a fresh surface (ADR-0015 rule 2 amendment; kanban-board contract v3.6, MANIFEST 3.6). Top-level boards are unchanged.
