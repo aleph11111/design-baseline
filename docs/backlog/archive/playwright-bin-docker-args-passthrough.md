@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-10-30'
-status: ready
+status: done
 value: normal
 depends_on: [playwright-bin-rootless-docker-user-mapping]
 model: sonnet
