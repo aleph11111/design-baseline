@@ -208,6 +208,65 @@ describe("TransactionDocumentShell — mockup fidelity", () => {
     expect(slot("td-progress")).toBeNull();
   });
 
+  it("a progress step carries an optional date after its label; no date renders none", () => {
+    render(
+      <TransactionDocumentShell
+        {...base}
+        identity={{ ...base.identity, progress: [{ label: "Placed", state: "done", date: new Date(2026, 9, 30) }, { label: "Paid", state: "current" }] }}
+      />,
+    );
+    const list = screen.getByRole("list", { name: "Progress" });
+    expect(list.querySelector("li")!.textContent).toContain("Placed 30.10.");
+    expect(list.querySelectorAll('[data-slot="td-progress-date"]')).toHaveLength(1);
+  });
+
+  it("primary and secondary next-step actions share one row; a locked next step hides both", () => {
+    const nextStep = { ...base.nextStep, secondary: [{ label: "Replacement label", onSelect: () => {} }] };
+    render(<TransactionDocumentShell {...base} nextStep={nextStep} />);
+    const row = slot("td-next-step-actions");
+    expect(within(row).getByRole("button", { name: "Go" })).toBeTruthy();
+    expect(within(row).getByRole("button", { name: "Replacement label" })).toBeTruthy();
+    expect(row.className).toMatch(/\bflex-wrap\b/);
+    cleanup();
+    render(<TransactionDocumentShell {...base} nextStep={nextStep} locks={{ nextStep: { reason: "No" } }} />);
+    expect(slot("td-next-step-actions")).toBeNull();
+  });
+
+  it("side effects render as one inline line, each state kept", () => {
+    render(
+      <TransactionDocumentShell
+        {...base}
+        nextStep={{ ...base.nextStep, sideEffects: [{ label: "A", state: "done", link: { label: "Open", href: "#" } }, { label: "B", state: "pending" }, { label: "C", state: "failed" }] }}
+      />,
+    );
+    const line = slot("td-side-effects");
+    expect(line.className).toMatch(/\bflex-wrap\b/);
+    expect(line.querySelectorAll("li")).toHaveLength(3);
+    expect(line.textContent).toContain("C (failed)");
+    expect(within(line).getByRole("link", { name: "Open" })).toBeTruthy();
+  });
+
+  it("a fact group renders its title, items and subline beside flat facts; flat facts render unchanged", () => {
+    render(
+      <TransactionDocumentShell
+        {...base}
+        facts={[
+          { label: "Seller", value: "Jana" },
+          { title: "Ship to", items: ["Max", "Street 1"], subline: "max@example.com", change: { label: "Change", href: "#" } },
+        ]}
+      />,
+    );
+    expect(slot("td-fact").textContent).toBe("SellerJana");
+    const group = slot("td-fact-group");
+    expect(group.querySelector("dt")!.textContent).toBe("Ship to");
+    expect([...group.querySelectorAll("dd")].map((d) => d.textContent)).toEqual(["Max", "Street 1", "max@example.com", "Change"]);
+  });
+
+  it("the header uses the document title step (24px h1)", () => {
+    render(<TransactionDocumentShell {...base} />);
+    expect(screen.getByRole("heading", { level: 1 }).className).toMatch(/\btext-2xl\b/);
+  });
+
   it("a negative result is toned negative (derived from the sign)", () => {
     render(<TransactionDocumentShell {...base} ledger={{ ...base.ledger, result: { label: "Loss", value: -5, kind: "currency" } }} />);
     expect(slot("td-ledger-result").getAttribute("data-tone")).toBe("negative");

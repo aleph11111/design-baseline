@@ -10,6 +10,10 @@ import { useTouchTarget } from "../ui/toolbar-band";
 // Public types
 // ---------------------------------------------------------------------------
 
+/** The h1's type step: `"display"` (ADR-0007 §2, every page) or `"document"`
+ *  (one step smaller, for a document page whose header must stay short). */
+export type PageTitleStep = "display" | "document";
+
 export type PageHeaderProps = {
   /**
    * Page title. Always present. Rendered as an `<h1>` at the canonical
@@ -64,6 +68,9 @@ export type PageHeaderProps = {
    * plain `<a>`.
    */
   renderBackLink?: (href: string, label: string) => React.ReactNode;
+  /** The title's type step; `"document"` = 24px. Set by `PageFrame` for the
+   *  shell that asks for it (transaction-document), never by a page. */
+  titleStep?: PageTitleStep;
   className?: string;
 };
 
@@ -99,6 +106,7 @@ export function PageHeader({
   backHref,
   backLabel: backLabelProp,
   renderBackLink,
+  titleStep = "display",
   className,
 }: PageHeaderProps): React.ReactElement {
   const L = useLabels();
@@ -121,7 +129,7 @@ export function PageHeader({
   return (
     <HeadingRow
       heading={
-        <h1 className="text-display-title font-semibold leading-tight tracking-tight text-foreground">
+        <h1 className={`${titleStep === "document" ? "text-2xl" : "text-display-title"} font-semibold leading-tight tracking-tight text-foreground`}>
           {title}
         </h1>
       }

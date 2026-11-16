@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.47.0
+
+- **Added:** transaction-document compact header and next step (contract v1.5, MANIFEST 1.5; operator mockup V2). `TransactionNextStep.secondary?: HeaderAction[]` (at most two) renders outline buttons beside the primary in one right-aligned, wrapping row next to the title and description (hidden with the primary under a `locks.nextStep`). `sideEffects` render as one inline wrapping line (icon + label + link per effect, state kept). `TransactionProgressStep.date?: Date | string` renders after the label ("Placed 30.10."; a `Date` as day.month in the page locale). `facts` also accepts `TransactionFactGroup` (`{ title, items, subline?, change?, lock? }`) beside flat facts. The header uses the new `PageFrame`/`PageHeader` `titleStep="document"` (shell-only, not in `PageShellFrameProps`): 24px h1, tighter header-to-body gap. The next-step "Next step" eyebrow is now screen-reader-only (prefixed to the heading).
+- **Consumer:** none required; optional: move state actions into `nextStep.secondary`, step dates into `progress[].date` (and drop them from facts), related facts into groups.
+- **Breaking:** no for API; visual change — transaction-document pages render a shorter header and next-step panel.
+
 ## v0.46.3
 
 - **Fixed:** `TransactionDocumentShell` shows the document number once: when `title` equals `identity.id`, the header `td-id` chip renders the copy button only (no repeated number text). A differing title is unchanged (MANIFEST 1.4).

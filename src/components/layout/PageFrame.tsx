@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import type { ClassValue } from "clsx";
-import { PageHeader, type PageHeaderProps } from "./PageHeader";
+import { PageHeader, type PageHeaderProps, type PageTitleStep } from "./PageHeader";
 import { NestedPageHeading } from "./NestedPageHeading";
 import { SurfaceFrame } from "./SurfaceFrame";
 import { BandChrome, ToolbarBand, ToolbarLeadContext, has, type FilterLabels } from "./ToolbarBand";
@@ -103,6 +103,14 @@ export type PageFrameProps = {
    * Ignored when the `PageFrame` is nested or host-titled.
    */
   body?: "frame" | "stack";
+  /**
+   * The header's title step. `"display"` (default): the display-step h1 under
+   * the page inset. `"document"`: a document page's short header — the h1 one
+   * step smaller and a tighter gap to the body (transaction-document). Chosen by the archetype shell, never a
+   * page call site — not in `PageShellFrameProps`. Ignored when nested or
+   * host-titled.
+   */
+  titleStep?: PageTitleStep;
   /** Structural classes on the page root (width presets, the full-bleed
    *  marker). Never appearance (ADR-0004). */
   className?: ClassValue;
@@ -116,7 +124,7 @@ export type PageFrameProps = {
  */
 export type PageShellFrameProps = Omit<
   PageFrameProps,
-  "children" | "className" | "body" | "icon" | "backHref" | "backLabel" | "renderBackLink"
+  "children" | "className" | "body" | "titleStep" | "icon" | "backHref" | "backLabel" | "renderBackLink"
 >;
 
 /**
@@ -155,6 +163,7 @@ export function PageFrame({
   children,
   className,
   body = "frame",
+  titleStep = "display",
 }: PageFrameProps): React.ReactElement {
   const actions = isHeaderActions(actionsProp) ? renderHeaderActions(actionsProp) : actionsProp;
   const nested = React.useContext(PageFrameContext);
@@ -210,8 +219,14 @@ export function PageFrame({
   }
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div
+      className={cn(
+        titleStep === "document" ? "space-y-4" : "space-y-6",
+        className,
+      )}
+    >
       <PageHeader
+        titleStep={titleStep}
         title={title}
         subtitle={subtitle}
         badges={badges}

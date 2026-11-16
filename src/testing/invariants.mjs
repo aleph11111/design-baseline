@@ -116,15 +116,17 @@ function measure({ mobile, column, fullBleed, tap }) {
         const [cx, cy] = [(x0 + x1) / 2, (y0 + y1) / 2];
         for (const [x, y] of [[x0 + 1, cy], [x1 - 1, cy], [cx, y0 + 1], [cx, y1 - 1]]) {
           const other = document.elementFromPoint(x, y)?.closest(TARGETS);
-          // A BOTTOM-pinned bar (sticky/fixed, `bottom` set, below the target's
-          // top) over content the page can still scroll clear of it occludes, it
-          // does not steal: exempt only when the remaining scroll lifts the
-          // target's bottom above the bar's top. A top-pinned bar, or a target
-          // covered at every scroll position, still fails.
+          // A BOTTOM-pinned bar (sticky/fixed, `bottom` set) over content the
+          // page can still scroll clear of it occludes, it does not steal:
+          // exempt only when the remaining scroll lifts the target's bottom
+          // above the bar's top. The bar must start below the target's top or
+          // cover the target wholly; a bar whose lower edge leaves the target's
+          // bottom showing, a top-pinned bar (`bottom: auto`), or a target
+          // covered at every scroll position still fails.
           const pin = other && !pinned(el) ? pinned(other) : null;
-          const ot = other?.getBoundingClientRect().top;
-          if (pin && getComputedStyle(pin).bottom !== "auto" && ot > b.top) {
-            const need = b.bottom - ot;
+          const pr = pin?.getBoundingClientRect();
+          if (pin && getComputedStyle(pin).bottom !== "auto" && (pr.top > b.top || pr.bottom >= b.bottom)) {
+            const need = b.bottom - pr.top;
             const room = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
             if (room >= need) continue;
           }
