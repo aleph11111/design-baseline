@@ -32,6 +32,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import {
+  ListWithDetailShell,
+  type ListColumn,
+} from "@/components/archetypes/list-with-detail";
 import {
   WizardPanel,
   WizardShell,
@@ -54,7 +60,21 @@ const PREVIEW = [
   { date: "2026-06-03", description: "Rail pass", amount: "-89.00", category: "Transport" },
 ];
 
+/** Past runs — the History view is its own list-with-detail (A) shell. */
+type ImportRun = { id: string; at: string; source: string; total: string; rows: number };
+
+const HISTORY: ImportRun[] = [
+  { id: "run-3", at: "2026-06-03", source: "transactions.csv", total: "2,846.80", rows: 126 },
+  { id: "run-2", at: "2026-05-02", source: "may.csv", total: "1,912.45", rows: 98 },
+  { id: "run-1", at: "2026-04-01", source: "april.csv", total: "2,104.10", rows: 112 },
+];
+
+/** Display-only: drop the cents when decimals are hidden. */
+const amount = (v: string, decimals: boolean) => (decimals ? v : v.replace(/\.\d+$/, ""));
+
 export function ImportWizardDemo(): React.ReactElement {
+  const [view, setView] = React.useState("new");
+  const [decimals, setDecimals] = React.useState(true);
   const [step, setStep] = React.useState(0);
   const [uploaded, setUploaded] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
@@ -95,12 +115,55 @@ export function ImportWizardDemo(): React.ReactElement {
     </div>
   ) : undefined;
 
+  /* One route, two shells: "New import" renders WizardShell, "History" a
+     ListWithDetailShell — both pass the same viewSwitch + viewOptions, so the
+     strip and the View menu stay put across the toggle and the done state. */
+  const frame = {
+    title: "Import transactions",
+    viewSwitch: (
+      <SegmentedControl
+        aria-label="Import view"
+        value={view}
+        onValueChange={setView}
+        options={[
+          { value: "new", label: "New import" },
+          { value: "history", label: "History" },
+        ]}
+      />
+    ),
+    viewOptions: (
+      <DropdownMenuCheckboxItem checked={decimals} onCheckedChange={(v) => setDecimals(v === true)}>
+        Show decimals
+      </DropdownMenuCheckboxItem>
+    ),
+  };
+
+  const historyColumns: ListColumn<ImportRun>[] = [
+    { key: "at", header: "Imported", cell: (r) => <span className="tabular-nums">{r.at}</span>, isIdentifier: true },
+    { key: "source", header: "Source", cell: (r) => r.source },
+    { key: "rows", header: "Rows", cell: (r) => <span className="tabular-nums">{r.rows}</span>, align: "right" },
+    {
+      key: "total",
+      header: "Total",
+      cell: (r) => <span className="tabular-nums">{amount(r.total, decimals)}</span>,
+      align: "right",
+    },
+  ];
+
   return (
     /* One page frame (ADR-0008): the title is the page heading above the
        frame; Back/Next/Commit stay in the wizard footer. */
     <>
+    {view === "history" ? (
+      <ListWithDetailShell<ImportRun>
+        {...frame}
+        columns={historyColumns}
+        rows={HISTORY}
+        getRowId={(r) => r.id}
+      />
+    ) : (
     <WizardShell
-      title="Import transactions"
+      {...frame}
       subtitle="CSV · Checking account"
       steps={STEPS}
       current={step}
@@ -182,7 +245,7 @@ export function ImportWizardDemo(): React.ReactElement {
                 <TableRow key={i}>
                   <TableCell className="tabular-nums">{r.date}</TableCell>
                   <TableCell>{r.description}</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.amount}</TableCell>
+                  <TableCell className="text-right tabular-nums">{amount(r.amount, decimals)}</TableCell>
                   <TableCell>{r.category}</TableCell>
                 </TableRow>
               ))}
@@ -204,6 +267,7 @@ export function ImportWizardDemo(): React.ReactElement {
         </div>
       )}
     </WizardShell>
+    )}
       <div className="mt-4">
         <ImportWizardDialogDemo />
       </div>

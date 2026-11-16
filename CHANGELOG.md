@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.50.0
+
+- **Added:** `WizardShell` takes `viewSwitch`, `viewOptions` and `viewOptionsLabel` (import-wizard contract 2.4, MANIFEST 3.8) and forwards them to `PageFrame` in both the stepper and the `done` state. The history toggle ("New import" / "History") goes in `viewSwitch`; display-only toggles (decimals) in `viewOptions`. Demo shows one route hosting `WizardShell` and `ListWithDetailShell` behind the same switch.
+- **Consumer:** controlling-app `/workspace/import` moves its tab strip into `viewSwitch` and its decimals checkbox into `viewOptions`, and drops its direct `PageFrame`.
+- **Breaking:** no.
+
 ## v0.49.1
 
 - **Added:** `design-baseline-playwright` always passes `--add-host host.docker.internal:host-gateway` (resolves the name on a Linux engine; no-op on Docker Desktop) and splices `DESIGN_BASELINE_PLAYWRIGHT_DOCKER_ARGS` (whitespace-split `docker run` args: `--network`, `-e`, `-v`) before the image name. Documented in `docs/PACKAGE.md` Gate 3 setup.

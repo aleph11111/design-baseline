@@ -2,7 +2,7 @@
 key: W
 slug: import-wizard
 kind: page
-version: 2.3
+version: 2.4
 promoted_from: fleet-audit-2026-06-13 (controlling-app, my-finance-app)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -39,7 +39,9 @@ inline, never loses earlier steps' state.
 title; there is no other title. `subtitle` carries a one-line source name
 (e.g. "CSV · Checking account"); `badges` carry read-only status. The wizard
 takes **no `actions`**: its only verbs are the flow's own Back / Next / Commit,
-which are commit actions and live in the footer.
+which are commit actions and live in the footer. The band above the body takes
+the two view slots: `viewSwitch` for the history toggle (Layer 4) and
+`viewOptions` for display-only toggles (decimals) — both stay in the done state.
 
 Hosted in a dialog or drawer (a sanctioned variation), the overlay's own title is
 the one heading: the wizard draws no page heading and no second surface there,
@@ -49,8 +51,11 @@ description.
 ## Layer 4 — Toolbar / history toggle
 An import wizard usually lives beside an **import history** (past runs: when, who,
 counts, status). Model the history as a list-with-detail (A) and toggle between
-"New import" (the wizard) and "History" — a tab strip or two routes. The
-history is its own archetype, not part of W; W is the new-import flow.
+"New import" (the wizard) and "History". On one route, render two shells — the
+wizard shell for "New import", the list-with-detail shell for "History" — and
+pass the same toggle node to both as `viewSwitch`, so the strip never moves.
+Two routes are equally valid. The history is its own archetype, not part of W;
+W is the new-import flow.
 
 ## Layer 5 — The step flow
 The wizard shell, given an ordered `steps` array, opens the **body** with the
@@ -135,3 +140,6 @@ without import rights sees history (read-only) but not the wizard.
   wizard renders no page heading or second surface inside it (ADR-0008).
 - **2.3** — `WizardPanel`: the embeddable frame (stepper + step body + footer, no
   page frame, no heading) for dialog / tab-body hosts; the page shell composes it.
+- **2.4** — view slots: the page shell takes `viewSwitch` (the "New import" /
+  "History" toggle) and `viewOptions` / `viewOptionsLabel` (display-only
+  toggles), rendered in the stepper and the done state.
