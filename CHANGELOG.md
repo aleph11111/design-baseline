@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.53.1
+
+- **Fixed:** `checkPageInvariants` / `assertPageInvariants` measure against `device.viewport.width` instead of `window.innerWidth`, and report `overflow:` when the layout viewport has grown past it. Under mobile emulation the viewport grows to fit overflowing content, so real phone overflow (and `clipped:` edges) passed silently. `device` must now carry `viewport` (every `devices.*` triad entry does).
+- **Consumer:** none if you pass a `devices.*` entry; expect previously hidden phone overflow to start failing.
+- **Breaking:** no for API; stricter check.
+
 ## v0.53.0
 
 - **Changed:** `transaction-document` (contract v1.7): with `ledger.compactRowLocks`, a locked cell's lock icon now sits inline left of its figure (one line per row, not stacked above it), and a column lock (`LedgerColumn.lock`) moves from a note row above the table into the ledger card's title line as a lock icon with a popover (reason and way out; keyboard and touch reachable, sr-only reason). Default rendering is unchanged. `LedgerTable` gains `columnLocksInHeader` (the shell sets it with `compactRowLocks`; a standalone ledger keeps its notes).
