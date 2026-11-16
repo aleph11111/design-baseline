@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-07
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "scoped class change keyed to an existing container-query pattern (AppShell, FeedShell); cause established"
