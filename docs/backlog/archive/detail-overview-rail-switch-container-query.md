@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-07
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "scoped class change keyed to an existing container-query pattern (AppShell, FeedShell); cause established"
@@ -40,3 +40,12 @@ gate:
 - [[appshell-db-desk-width-steps-browser-check]] — precedent for the `@container/db-desk` pattern and its real-browser check
 - [ADR-0004](/docs/adr/0004-appearance-locality-derived-vs-inherited.md) — fixed in the component, no appearance prop
 - [ADR-0008](/docs/adr/0008-one-page-frame-slot-owned-placement.md) — shell/frame placement
+
+## Outcome
+
+Shipped: `DetailOverviewShell` rail on `@container`/`@4xl` (v0.48.1), gallery demo "780px column" toggle, `npm run check:viewports` 141/141 green.
+
+Audit verdicts (one filed follow-up, landed via batch PR #778 as `docs/backlog/viewport-breakpoints-container-query-audit.md`, listing each primitive with its verdict):
+- `StatTileRow`: not a pure swap. Needs a `@container` wrapper that forwards `className`; trialled and reverted in PR #777.
+- `KeyValueRow`: keys on viewport but lives in the fixed 300px rail, so stack-vs-row needs a decision.
+- `CardGridBody`, `DashboardGrid`, `StructureBuilderShell`, `SettingsTableShell`, `SectionNav`: root grids, each needs a wrapper, so not pure class swaps.
