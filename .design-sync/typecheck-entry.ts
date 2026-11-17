@@ -55,6 +55,7 @@ export * from "@/components/ui/tabs";
 export * from "@/components/ui/textarea";
 export * from "@/components/ui/toggle-field";
 export * from "@/components/ui/toolbar-band";
+export * from "@/components/ui/toolbar-band.test";
 export * from "@/components/ui/tooltip";
 export * from "@/components/layout";
 export * from "@/components/archetypes/analytics-dashboard";
