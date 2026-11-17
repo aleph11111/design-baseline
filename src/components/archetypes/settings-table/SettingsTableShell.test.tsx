@@ -557,3 +557,18 @@ describe("SettingsTableBody — phone toolbar band", () => {
     expect((add.closest("[data-band-trailing]") as HTMLElement).className).toContain("flex-wrap");
   });
 });
+
+describe("SettingsTableShell body prop pass-through", () => {
+  it("delivers a body prop (emptyMessage) to the body with no per-prop forward", () => {
+    render(
+      <SettingsTableShell
+        title="T"
+        rows={[]}
+        columns={columns}
+        getRowId={(row) => row.id}
+        emptyMessage="Nothing here yet"
+      />,
+    );
+    expect(screen.getByText("Nothing here yet")).toBeTruthy();
+  });
+});

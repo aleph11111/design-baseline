@@ -21,7 +21,7 @@ import {
   type RowAction,
   type TableColumn,
 } from "../shared";
-import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
+import { PageFrame, splitShellFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
 import { BandChrome, ToolbarBand } from "../../layout/ToolbarBand";
 import { cn } from "../../../lib/utils";
 import { useLabels, type BaselineLabels } from "../../../lib/labels";
@@ -241,6 +241,12 @@ export type SettingsTableBodyProps<Row> = {
  */
 export type SettingsTableShellProps<Row> = Omit<PageShellFrameProps, "count"> &
   Omit<SettingsTableBodyProps<Row>, "band" | "flush">;
+
+// A key in both the frame and body props would be routed to the frame only; `toolbar` is the one
+// intentional overlap (the body's own band, off on a standalone page). Any other overlap fails here.
+type _FrameBodyOverlap = Extract<keyof PageShellFrameProps, keyof SettingsTableBodyProps<unknown>>;
+const _noUnroutedOverlap: [_FrameBodyOverlap] extends ["toolbar"] ? true : never = true;
+void _noUnroutedOverlap;
 
 // ---------------------------------------------------------------------------
 // Shared, frameless derivation
@@ -620,25 +626,22 @@ export function SettingsTableBody<Row>({
   // `ToolbarBand` the page frame uses (one chrome owner, filter sheet below `md`) because a
   // tab has no page header to hold these controls. The table's scroll region sits BELOW the band so the band
   // stays in view while the table scrolls.
-  const countLabel = resolveCountLabel({
-    L,
-    rows,
-    selection,
-    rowLabel,
-    labels,
-    bulkActions,
-    onBulkDelete,
-  });
-  const bulkNode = resolveBulkActions({
-    L,
-    selection,
-    rows,
-    getRowId,
-    labels,
-    bulkActions,
-    onBulkDelete,
-    onBulkSelectChange,
-  });
+  // Skipped when the band is off: the frame (shell) owns those, the body would discard them.
+  const countLabel = bandEnabled
+    ? resolveCountLabel({ L, rows, selection, rowLabel, labels, bulkActions, onBulkDelete })
+    : undefined;
+  const bulkNode = bandEnabled
+    ? resolveBulkActions({
+        L,
+        selection,
+        rows,
+        getRowId,
+        labels,
+        bulkActions,
+        onBulkDelete,
+        onBulkSelectChange,
+      })
+    : { show: false, node: null };
   const hasBandControls =
     Boolean(toolbar) ||
     onAddNew != null ||
@@ -722,32 +725,10 @@ SettingsTableBody.displayName = "SettingsTableBody";
  * chrome past the edge). `SettingsTableShell` renders a page frame with a `title`, so in a
  * nested frame it is a second nested heading repeating the tab label.
  */
-export function SettingsTableShell<Row>({
-  actions,
-  rows,
-  columns,
-  getRowId,
-  getRowLabel,
-  onRowEdit,
-  onAddNew,
-  addNewLabel: addNewLabelProp,
-  toolbar,
-  rowLabel,
-  bulkActions,
-  onBulkDelete,
-  editPane,
-  rowActions,
-  isLoading,
-  error,
-  onRetry,
-  emptyMessage,
-  isFiltered,
-  labels,
-  bulkSelectable,
-  selectedIds = [],
-  onBulkSelectChange,
-  ...frame
-}: SettingsTableShellProps<Row>): React.ReactElement {
+export function SettingsTableShell<Row>(props: SettingsTableShellProps<Row>): React.ReactElement {
+  const { actions, rows, getRowId, onAddNew, addNewLabel: addNewLabelProp, rowLabel, bulkActions, onBulkDelete, labels, bulkSelectable, selectedIds = [], onBulkSelectChange } = props;
+  // One split, no per-prop forward: frame slots go to `PageFrame`, every other prop to the body.
+  const { frame, body } = splitShellFrameProps(props);
   const L = useLabels();
   const addNewLabel = addNewLabelProp ?? L.addNew;
   const hasBulk = bulkSelectable === true;
@@ -758,15 +739,7 @@ export function SettingsTableShell<Row>({
 
   // Frame's count slot (ADR-0008 slot map): "{n} selected" in bulk mode, else "{n} {rowLabel}" —
   // the same derivation the body's band caption uses.
-  const count = resolveCountLabel({
-    L,
-    rows,
-    selection,
-    rowLabel,
-    labels,
-    bulkActions,
-    onBulkDelete,
-  });
+  const count = resolveCountLabel({ L, rows, selection, rowLabel, labels, bulkActions, onBulkDelete });
 
   const bulkNode = resolveBulkActions({
     L,
@@ -790,41 +763,12 @@ export function SettingsTableShell<Row>({
     ) : undefined;
 
   return (
-    <PageFrame
-      {...frame}
-      toolbar={toolbar}
-      actions={mergedActions}
-      count={count}
-    >
-      <SettingsTableBody
-        rows={rows}
-        columns={columns}
-        getRowId={getRowId}
-        getRowLabel={getRowLabel}
-        onRowEdit={onRowEdit}
-        onAddNew={onAddNew}
-        addNewLabel={addNewLabel}
-        // The frame above owns the page's toolbar/count/bulk-write actions; the
-        // body's own band is suppressed so the page has exactly one band. `onAddNew`
-        // still drives the body's empty-state CTA (and, in the body used directly,
-        // the band's create button). The `editPane` slot flows through to the
-        // body's split-pane wrapper (Layer 5). The surface this body renders
-        // inside never pads it, so there is no horizontal inset to bleed from —
-        // the explicit `false` keeps the standalone page's edges unpadded.
-        band={false}
-        flush={false}
-        editPane={editPane}
-        rowActions={rowActions}
-        isLoading={isLoading}
-        error={error}
-        onRetry={onRetry}
-        emptyMessage={emptyMessage}
-        isFiltered={isFiltered}
-        labels={labels}
-        bulkSelectable={bulkSelectable}
-        selectedIds={selectedIds}
-        onBulkSelectChange={onBulkSelectChange}
-      />
+    <PageFrame {...frame} title={props.title} actions={mergedActions} count={count}>
+      {/* The frame owns the page's toolbar/count/bulk-write actions; the body's own band is
+          suppressed so the page has exactly one band. `onAddNew` still drives the body's
+          empty-state CTA. The frame surface never pads its body, so `flush={false}` keeps the
+          standalone page's edges unpadded. */}
+      <SettingsTableBody {...(body as SettingsTableBodyProps<Row>)} band={false} flush={false} />
     </PageFrame>
   );
 }

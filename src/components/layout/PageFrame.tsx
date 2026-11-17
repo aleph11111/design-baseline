@@ -128,6 +128,39 @@ export type PageShellFrameProps = Omit<
 >;
 
 /**
+ * Runtime key set of `PageShellFrameProps`. `Record<keyof …, true>` makes it exhaustive: a new
+ * frame slot without a key here fails typecheck. A shell splits its props with
+ * `splitShellFrameProps` so body props reach the body without a per-prop forward.
+ */
+export const PAGE_SHELL_FRAME_KEYS = {
+  title: true,
+  subtitle: true,
+  badges: true,
+  actions: true,
+  toolbar: true,
+  viewSwitch: true,
+  filterCount: true,
+  filterSummary: true,
+  onResetFilters: true,
+  filterLabels: true,
+  count: true,
+  viewOptions: true,
+  viewOptionsLabel: true,
+} satisfies Record<keyof PageShellFrameProps, true>;
+
+/** Split `props` into the frame-slot props and everything else (the body's props). */
+export function splitShellFrameProps<P extends object>(
+  props: P,
+): { frame: Pick<P, Extract<keyof P, keyof PageShellFrameProps>>; body: Omit<P, keyof PageShellFrameProps> } {
+  const frame: Record<string, unknown> = {};
+  const body: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(props)) {
+    (k in PAGE_SHELL_FRAME_KEYS ? frame : body)[k] = v;
+  }
+  return { frame, body } as never;
+}
+
+/**
  * PageFrame — the one way a page is built (ADR-0008): the `PageHeader` on the
  * canvas, then one untitled raised surface whose first band is the toolbar,
  * then the body. Every page archetype shell renders through it, so the title

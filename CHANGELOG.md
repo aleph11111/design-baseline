@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.50.1
+
+- **Changed:** `SettingsTableShell` splits its props with the new `PAGE_SHELL_FRAME_KEYS` / `splitShellFrameProps` (exported from `layout/PageFrame`) and spreads the rest into `SettingsTableBody`, so a new body prop reaches the body with no shell edit. `SettingsTableBody` skips its count/bulk derivation when `band={false}`. No prop or behaviour change.
+- **Consumer:** none.
+- **Breaking:** no.
+
 ## v0.50.0
 
 - **Added:** `WizardShell` takes `viewSwitch`, `viewOptions` and `viewOptionsLabel` (import-wizard contract 2.4, MANIFEST 3.8) and forwards them to `PageFrame` in both the stepper and the `done` state. The history toggle ("New import" / "History") goes in `viewSwitch`; display-only toggles (decimals) in `viewOptions`. Demo shows one route hosting `WizardShell` and `ListWithDetailShell` behind the same switch.
