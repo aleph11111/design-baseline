@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-08
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "cause established at one site (early return in MatrixGridShell); follows the v0.30.0 column pattern"

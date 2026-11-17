@@ -296,6 +296,25 @@ describe("MatrixGridShell page frame (ADR-0008)", () => {
   });
 });
 
+describe("MatrixGridShell empty state with workbench slots", () => {
+  it("renders emptyState, then body, then dock", () => {
+    render(
+      <MatrixGridShell
+        title="Plan"
+        columns={columns}
+        rows={[]}
+        emptyState={<p>No rows</p>}
+        body={<p>Config</p>}
+        dock={<p>Summary</p>}
+      />,
+    );
+    const order = ["No rows", "Config", "Summary"].map((t) => screen.getByText(t));
+    expect(order[0]!.compareDocumentPosition(order[1]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(order[1]!.compareDocumentPosition(order[2]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(document.querySelector('[data-slot="matrix-scroll"]')).toBeNull();
+  });
+});
+
 describe("MatrixGridShell horizontal scroll", () => {
   it("scrolls only the table: the header band stays outside the scroll box", () => {
     const { container } = render(

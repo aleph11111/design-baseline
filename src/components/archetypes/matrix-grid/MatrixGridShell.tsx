@@ -168,11 +168,9 @@ export function MatrixGridShell<Cell>({
   // toolbar band stays full-width and in view, the sticky first column pins
   // against the inner box, and `relative` keeps absolutely positioned
   // descendants (sr-only labels) inside the clip.
-  if (emptyState !== undefined && emptyState !== null) {
-    return <PageFrame {...frameProps}>{emptyState}</PageFrame>;
-  }
+  const empty = emptyState !== undefined && emptyState !== null;
 
-  const grid = (
+  const grid = empty ? emptyState : (
       <div data-slot="matrix-scroll" className="relative min-w-0 flex-1 overflow-x-auto">
         <table className="text-[13px] border-collapse">
           <MatrixGridHead columns={columns} rowHeaderLabel={rowHeaderLabel} />
@@ -254,7 +252,8 @@ export function MatrixGridShell<Cell>({
       </div>
     );
 
-  if (!inspector) return <PageFrame {...frameProps}>{column}</PageFrame>;
+  // The empty state replaces the grid only: body and dock stay (ADR-0013); no inspector without a grid.
+  if (!inspector || empty) return <PageFrame {...frameProps}>{column}</PageFrame>;
 
   // One stable wrapper whether the inspector is open or closed: swapping the
   // grid's parent would remount the table (scroll position and focus lost).

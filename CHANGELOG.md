@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.50.5
+
+- **Fixed:** `MatrixGridShell` with `emptyState` no longer drops the `body` and `dock` workbench slots; the empty state replaces the grid only, and `body` then `dock` render below it (`matrix-grid` contract v3.9). Without `body` / `dock` the empty-state DOM is unchanged.
+- **Consumer:** none. controlling-app `workspace/planung` with no plan lines now keeps its config panel.
+- **Breaking:** no.
+
 ## v0.50.4
 
 - **Changed:** `AppShell`'s `<main>` drops its top padding to 16px (`has-[.db-document-column]:pt-4`) on pages that carry `DOCUMENT_COLUMN_CLASS` (transaction-document), so the breadcrumb sits 16px under the app header at every width. Horizontal and bottom insets, and every other archetype, are unchanged.
