@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.50.8
+
+- **Fixed:** `ComboboxField` groups options with an in-place push instead of re-spreading the bucket per option (O(n²) per group on every `onSearch` result). Group and option order unchanged.
+- **Consumer:** none.
+- **Breaking:** no.
+
 ## v0.50.7
 
 - **Fixed:** `structure-builder` keyboard palette placement no longer drops focus to `<body>`: contract v1.1 specifies focus moves to the next palette item's place action (previous if last; the placed tree line when the palette empties). `StructureTree` rows now carry `data-node-id`; demo and `templates/structure-builder.tsx` follow the rule.
