@@ -1,7 +1,7 @@
 ---
 area: docs
 opened: 2026-11-06
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "scoped prose rewrite of two known lines; cause established, no design left open"
