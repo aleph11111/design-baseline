@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.50.3
+
+- **Fixed:** `JoinedLabelText` sets `title` to its text when the label is a string, so a joined toolbar label ellipsized at the `max-w-32` cap (SelectTrigger, SegmentedControl, ToggleField, NativeField) shows its full text on hover. ReactNode labels get no `title`.
+- **Consumer:** none.
+- **Breaking:** no.
+
 ## v0.50.2
 
 - **Fixed:** `DialogContent` spaces a direct `<form>` child with `grid gap-4` (`[&>form]:grid [&>form]:gap-4`), so a header / input / footer inside the form no longer sit flush. `usePrompt` drops its now-redundant `grid gap-4` on the form.
