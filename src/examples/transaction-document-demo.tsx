@@ -254,6 +254,7 @@ function usePurchaseOrder(): TransactionDocumentShellProps {
       onCellChange: (rowId, key, value) =>
         setRows((rs) => rs.map((r) => (r.id === rowId ? { ...r, values: { ...r.values, [key]: value } } : r))),
       addRowLabel: "Add cost",
+      compactRowLocks: true, // the locked cell keeps its lock icon; reason and way out open from it
       onAddRow: () => {
         setAdded((n) => n + 1);
         setRows((rs) => [...rs, poLine(`extra-${added + 1}`, "Extra cost", "postage, cleaning", 0, null)]);

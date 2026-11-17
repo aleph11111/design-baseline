@@ -309,6 +309,20 @@ describe("TransactionDocumentShell — row locks, add and remove", () => {
     expect(onCellChange).toHaveBeenCalledTimes(1);
   });
 
+  it("compactRowLocks: lock icon in the cell, reason and way out in a popover, still read-only", async () => {
+    const onCellChange = vi.fn();
+    render(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onCellChange, compactRowLocks: true }} />);
+    expect(slot("td-lock")).toBeNull();
+    expect(screen.queryByRole("textbox", { name: "Cost Set" })).toBeNull();
+    const trigger = screen.getByRole("button", { name: /Locked: Cost: Cost comes from the stock lot/ });
+    expect(screen.queryByRole("link", { name: "Open lot" })).toBeNull();
+    fireEvent.click(trigger);
+    expect(await screen.findByRole("link", { name: "Open lot" })).toBeTruthy();
+    expect(onCellChange).not.toHaveBeenCalled();
+    // the unlocked row is unaffected
+    expect(screen.getByRole("textbox", { name: "Cost Fee" })).toBeTruthy();
+  });
+
   it("adds and removes lines inside the ledger; removable:false keeps a line", () => {
     const onAddRow = vi.fn();
     const onRemoveRow = vi.fn();

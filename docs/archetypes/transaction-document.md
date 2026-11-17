@@ -2,7 +2,7 @@
 key: Td
 slug: transaction-document
 kind: page
-version: 1.5
+version: 1.6
 promoted_from: brickshop-manager
 promoted_at: 2026-11-09
 source_spec_version: n/a (no source spec — fleet-synthesis promotion from brickshop-manager's /orders/:id page and the transaction-documents mockup; ADR-0014)
@@ -143,7 +143,11 @@ locked fact shows its lock instead of its Change link; a locked next step
 shows its lock instead of the primary action. A **cell lock** closes one line's
 cell in an editable column (an item's cost taken from its stock lot) while the
 other lines stay editable: the cell shows its value read-only and the line
-shows the lock, naming the column, with its reason and way out.
+shows the lock, naming the column, with its reason and way out. A document
+whose ledger must stay short may show cell locks **compactly**: a lock mark
+beside the locked figure, with the reason and way out opened from it (reachable
+by keyboard and touch, the reason also read aloud without opening); the default
+keeps the full sentence under the line.
 
 ---
 
@@ -253,3 +257,6 @@ shows the lock, naming the column, with its reason and way out.
 - **1.5** (2026-11-16) — the next step can be keyed to the document's workflow
   step (the grouped-list work-queue step model): tone and default heading come
   from the step. Additive.
+- **1.6** (2026-11-17) — compact cell locks: a ledger may show a row's cell
+  lock as a mark beside the figure, reason and way out opened from it.
+  Additive; the default is unchanged.

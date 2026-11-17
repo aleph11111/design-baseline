@@ -114,6 +114,8 @@ export type TransactionLedger = {
   addRowLabel?: string;
   /** Remove a line from inside the ledger; rows opt out with `removable: false`. */
   onRemoveRow?: (rowId: string) => void;
+  /** Row cell locks show as a lock icon in the cell (reason and way out in a popover) instead of a sentence under the line; default off. */
+  compactRowLocks?: boolean;
 };
 
 /** One typed fact. `kind` picks the formatting; default `text`. */
@@ -298,6 +300,7 @@ export function TransactionDocumentShell({
             onAddRow={ledger.onAddRow}
             addRowLabel={ledger.addRowLabel}
             onRemoveRow={ledger.onRemoveRow}
+            compactRowLocks={ledger.compactRowLocks}
             locked={!!locks.ledger}
             locale={locale}
           />

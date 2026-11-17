@@ -303,6 +303,16 @@ for (const [radio, shot] of TD_VARIANTS) {
       const wide = await page.$$eval('[data-slot="td-ledger"], [data-slot="td-ledger"] *', (els) =>
         els.filter((el) => ["auto", "scroll"].includes(getComputedStyle(el).overflowX) && el.scrollWidth > el.clientWidth + 1).map((el) => `<${el.tagName.toLowerCase()}> ${el.scrollWidth}>${el.clientWidth}`));
       for (const w of wide) bad.push(`ledger: scrolls sideways ${w}`);
+      // compact row locks: the purchase order's locked cost cell is an icon in the cell, no sentence under the line
+      // (the sentence is ~25px per locked line, the reason the ledger Total sat below the laptop14 fold)
+      if (radio === "Purchase order") {
+        const sentences = await page.locator('[data-slot="td-ledger"] [data-slot="td-lock"]').count();
+        if (sentences) bad.push(`ledger: ${sentences} lock sentence(s) under lines, want compact lock icons`);
+        if (name === "laptop14") {
+          const bottom = await page.$eval('[data-slot="td-ledger"] tfoot', (el) => Math.round(el.getBoundingClientRect().bottom + window.scrollY));
+          console.log(`  purchase order ledger Total bottom @ laptop14: ${bottom}px (fold 739px)`);
+        }
+      }
       const title = await page.$eval(".db-content-column h1", (h) => {
         const s = getComputedStyle(h);
         return { cut: h.scrollWidth > h.clientWidth + 1 || h.scrollHeight > h.clientHeight + 1, ellipsis: s.textOverflow === "ellipsis" || s.webkitLineClamp !== "none" };
