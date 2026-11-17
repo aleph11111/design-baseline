@@ -1,7 +1,7 @@
 ---
 area: a11y
 opened: 2026-11-05
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "scoped contract line plus matching focus handling in demo and template, clear acceptance"
