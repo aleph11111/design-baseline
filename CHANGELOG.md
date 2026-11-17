@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.50.2
+
+- **Fixed:** `DialogContent` spaces a direct `<form>` child with `grid gap-4` (`[&>form]:grid [&>form]:gap-4`), so a header / input / footer inside the form no longer sit flush. `usePrompt` drops its now-redundant `grid gap-4` on the form.
+- **Consumer:** controlling-app drops the manual `mt-4` on the Input at `dashboard-templates/page.tsx:156` (else 32px above the input); a direct form child using `space-y-*` would get doubled spacing.
+- **Breaking:** no.
+
 ## v0.50.1
 
 - **Changed:** `SettingsTableShell` splits its props with the new `PAGE_SHELL_FRAME_KEYS` / `splitShellFrameProps` (exported from `layout/PageFrame`) and spreads the rest into `SettingsTableBody`, so a new body prop reaches the body with no shell edit. `SettingsTableBody` skips its count/bulk derivation when `band={false}`. No prop or behaviour change.
