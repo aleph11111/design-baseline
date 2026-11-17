@@ -1,7 +1,7 @@
 ---
 area: code-health
 opened: 2026-11-04
-status: ready
+status: done
 value: normal
 gate:
   score: 5
