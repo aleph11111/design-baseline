@@ -1,7 +1,24 @@
 ---
 area: archetypes
 opened: '2026-11-16'
-status: needs-enrichment
+status: ready
+gate:
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-11-17T09:25:35.002Z'
+value: normal
+---
+
+---
+area: archetypes
+opened: '2026-11-16'
+status: ready
 value: normal
 gate:
   score: 4
@@ -40,6 +57,6 @@ Mechanism is already in place: `<main>`'s column wrapper switches on `has-[.db-d
 - [ADR-0015](/docs/adr/0015-page-body-section-card-stack.md) — document column, section-card stack
 - [docs/STYLE.md](/docs/STYLE.md) — "Spacing & rhythm"
 
-## Open question
+## Decisions
 
-Scope of the top inset. Defaulted to document-column pages only (smallest blast radius, no fleet baseline churn). Alternatives: (B) fleet-wide `pt-4 md:pt-4` on every page — consistent with V2 everywhere but changes every consumer's pixel baselines and needs operator sign-off; (C) a shell prop/context so a page opts in — more API for one consumer. Confirm A vs B before `/feat`.
+- 2026-11-17: scope A (document-column pages only) chosen by the orchestrator under the operator's standing "decide and present" rule: smallest blast radius, no fleet baseline churn; B (fleet-wide) needs its own sign-off ticket if wanted later.
