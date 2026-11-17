@@ -2,7 +2,7 @@
 key: M
 slug: matrix-grid
 kind: page
-version: 3.8
+version: 3.9
 promoted_from: hk-crm (inspector slot: controlling-app planset LinePanel + planung InspektorDrawer; body/dock slots: controlling-app workspace/planung, fleet synthesis)
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -128,6 +128,7 @@ so they sit outside the scroller. The mapping is exhaustive:
 - **Workbench satellites (v3.8)** — a planning workbench keeps its one editable matrix and adds the content that reads from it, through two optional shell slots (with neither, the shell renders unchanged):
   - `body` — rendered below the grid in the same column: a configuration panel, and **read-only preview matrices** as nested matrix-grid shells (no cell click, no inspector; each draws its own nested heading and owns its own sideways scroll). Several may stack.
   - `dock` — a summary region rendered last, after `body` (e.g. the plan result).
+  When the grid shows its `emptyState`, `body` and `dock` stay visible below it (a plan with no lines still needs its config panel).
   With the inspector open, grid, `body` and `dock` share the narrowed column beside the docked panel, so all stay visible and nothing scrolls the page sideways. History stays a header `actions` entry; a view switch that picks which body shows stays in `toolbar`; page-level dialogs stay siblings.
 - A page-level flex container that lets the shell shrink and scroll rather than enforce its intrinsic width is allowed when the page composes the matrix with a fixed-width sibling (e.g. a permanent filter rail).
 
@@ -373,6 +374,9 @@ When a target project applies this archetype, it wires the generic primitive to 
 ---
 
 ## Version log
+
+- **3.9** — `emptyState` replaces only the grid: `body` and `dock` still render
+  below it (Layer 5 "Workbench satellites"). Fixes a drop in v3.8. Additive.
 
 - **3.8** (ADR-0013) — `body` and `dock` slots (Layer 5 "Workbench satellites"):
   content around the one editable grid — config panel and read-only preview
