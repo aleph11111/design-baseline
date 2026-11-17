@@ -52,36 +52,32 @@
 // and no module graph, which keeps the scanner the zero-dep, no-type-resolution heuristic
 // ADR-0003 requires. A file declaring no union alias is skipped by such a rule.
 //
-// A rule may instead carry `swallowedSlots` (an array of prop names) in place of a
-// `pattern`/`tag`: the file-level swallowed-slot check (`findSwallowedSlots`). It fires on a
-// name destructured from a function's props that its own function never forwards — the
-// shell that destructures `toolbar` beside `...rest` and forwards only `...rest` to
-// `PageFrame`, which `tsc` does not flag. Only files that mention `PageFrame` are checked.
-//
-// A rule may carry `toolbarTabs: true` instead: the file-level check `findToolbarTabs` flags
-// `Tabs` / `TabsList` / `SegmentedControl` inside a `toolbar={…}` attribute (use `viewSwitch`).
-// An `// adherence-ok: page-tabs-in-toolbar — <reason>` comment on the attribute's line or the line
-// above opts a body-scoping tab group out; the reason is required.
-// `toolbarSwitch: true` is the same check for a bare `Switch` (use `ToggleField`), opt-out id
-// `bare-switch-in-toolbar`.
-//
-// A rule may carry `handRolledCombobox: true` instead: the file-level check
-// `findHandRolledCombobox` flags a searchable picker built from local state — an open flag,
-// a search-query state, an options array `.filter(`ed by that query, and the popup's own
-// keyboard (`ArrowDown`) or outside-click (`mousedown`) handling — the shape `ComboboxField`
-// (`design-baseline/archetypes/raw-combobox`) owns. Opt-out id `hand-rolled-combobox`.
-//
-// A rule may carry `pageShell: true` instead: the page-shape check `findPageShellIssues`
-// (RULES.md hard rule 12, one page shell). Every file the rule's `include` (the consumer's page glob, e.g.
-// `src/app/**/page.tsx`) matches must import a `kind: "page"` archetype shell — from
-// `design-baseline/archetypes/<slug>` or the `@/components/archetypes/<slug>` alias — and must
-// not import `PageFrame` directly. The slug list is read from the installed MANIFEST (see
-// `loadPageShells`), never hardcoded. The one waiver is an `archetype-gap: <ticket-slug>` comment
-// citing a design-baseline archetype-gap ticket;
-// an agent never writes it; only the operator ships a waived page, by merging it by hand. `grandfathered` (array of repo-root-relative
-// paths) is the shrink-only ratchet: a listed file is not flagged while it violates, and is an
-// error once it no longer violates or is no longer a scanned page file — so the list can only
-// shrink as pages are fixed.
+// A rule may carry ONE file-level check key in place of `pattern`/`tag` (first key in
+// `FILE_CHECKS` order wins; a rule with none of pattern/tag/check key fails to compile):
+//   swallowedSlots: [names]  — `findSwallowedSlots`: a prop destructured but never forwarded to
+//                              `PageFrame` (only files that mention `PageFrame` are checked).
+//   toolbarTabs: true        — `findToolbarTabs`: `Tabs`/`TabsList`/`SegmentedControl` in a
+//                              `toolbar={…}` attribute (use `viewSwitch`). Opt-out comment
+//                              `// adherence-ok: page-tabs-in-toolbar — <reason>` on the
+//                              attribute's line or the line above; the reason is required.
+//   toolbarSwitch: true      — same check for a bare `Switch` (use `ToggleField`);
+//                              opt-out id `bare-switch-in-toolbar`.
+//   handRolledCombobox: true — `findHandRolledCombobox`: a searchable picker built from local
+//                              state (open flag, query state, `.filter(`ed options, own
+//                              `ArrowDown`/`mousedown` handling) — `ComboboxField`
+//                              (`design-baseline/archetypes/raw-combobox`) owns that.
+//                              Opt-out id `hand-rolled-combobox`.
+//   pageShell: true          — `findPageShellIssues` (RULES.md hard rule 12, one page shell).
+//                              Every file the rule's `include` matches must import a
+//                              `kind: "page"` archetype shell (`design-baseline/archetypes/<slug>`
+//                              or `@/components/archetypes/<slug>`; slugs read from the installed
+//                              MANIFEST, see `loadPageShells`) and must not import `PageFrame`
+//                              directly. The one waiver is an `archetype-gap: <ticket-slug>`
+//                              comment citing a design-baseline archetype-gap ticket; an agent
+//                              never writes it. `grandfathered` (repo-root-relative paths) is the
+//                              shrink-only ratchet: a listed file is not flagged while it
+//                              violates, and is an error once it no longer violates or is no
+//                              longer a scanned page file.
 //
 // A `pattern` rule with `wholeFile: true` matches against the whole file text instead of
 // line by line, so it can see a multi-line JSX opening tag (`<PageFrame` on one line,
@@ -408,12 +404,32 @@ function findPageShellIssues(text, pageShells) {
   return hits;
 }
 
+// File-level checks, keyed by the rule field that selects them. `(text, rule, fileRel)` returns
+// `[{ line, col, message }]`; `rule` is the config rule plus `pageShells`. Adding a check =
+// one entry here plus its `find*` function. Key order is the precedence when a rule sets two.
+const toolbarCheck = (tag, optOut) => (text, rule) =>
+  findToolbarTabs(text, ...(tag ? [tag, optOut] : [])).map(({ tag: t, line, col }) => ({ line, col, message: `\`<${t}>\` inside \`toolbar\`. ${rule.message}` }));
+const FILE_CHECKS = {
+  swallowedSlots: (text, rule) =>
+    findSwallowedSlots(text, rule.swallowedSlots).map(({ slot, line, col }) => ({ line, col, message: `\`${slot}\` is destructured but never forwarded to PageFrame. ${rule.message}` })),
+  toolbarTabs: toolbarCheck(),
+  pageShell: (text, rule, fileRel) => {
+    const issues = findPageShellIssues(text, rule.pageShells);
+    if ((rule.grandfathered ?? []).includes(fileRel)) {
+      return issues.length ? [] : [{ line: 1, col: 1, message: `grandfathered page now renders a page shell — remove it from \`grandfathered\` (the list only shrinks). ${rule.message}` }];
+    }
+    return issues.map(({ line, col, problem }) => ({ line, col, message: `Page ${problem}. ${PAGE_SHELL_HINT} ${rule.message}` }));
+  },
+  handRolledCombobox: (text, rule) => findHandRolledCombobox(text).map(({ line, col }) => ({ line, col, message: rule.message })),
+  toolbarSwitch: toolbarCheck('Switch', 'bare-switch-in-toolbar'),
+};
+
 // The ratchet's other half: a `grandfathered` entry that is not a scanned, in-scope page file
 // (renamed, deleted, typo, outside the glob) must leave the list too, or it sits there unread.
 // `fileRels` is every walked file. Returns violations in `scanFile`'s shape.
 function staleGrandfathered(compiled, fileRels) {
   return compiled
-    .filter((c) => c.pageShell)
+    .filter((c) => c.checkKey === 'pageShell')
     .flatMap(({ label, severity, includes, excludes, grandfathered }) =>
       grandfathered
         .filter(
@@ -459,16 +475,24 @@ function compileRules(rules, targets, pageShells) {
           `(node_modules/design-baseline/docs/archetypes/MANIFEST.json) or set the rule's \`manifest\` path.`,
       );
     }
-    const source = rule.swallowedSlots || rule.toolbarTabs || rule.toolbarSwitch || rule.handRolledCombobox || rule.pageShell ? '(?!)' : (rule.pattern ?? `<${rule.tag}(?=[\\s/>]|$)`);
+    const checkKey = Object.keys(FILE_CHECKS).find((k) => rule[k]);
+    if (!checkKey && rule.pattern === undefined && !rule.tag) {
+      throw new CompileError(
+        `lint:design — rule ${rule.id}: needs a \`pattern\`, a \`tag\`, or one of the file-check keys ${Object.keys(FILE_CHECKS).join(', ')}.`,
+      );
+    }
+    const source = checkKey ? null : (rule.pattern ?? `<${rule.tag}(?=[\\s/>]|$)`);
     // A `{{unionAliases}}` pattern cannot be compiled once — its alternation is per-file — so
     // it is carried as `aliasSource` and compiled in `scanFile`. Validate it here anyway (with
     // a stand-in name) so a bad pattern still fails at compile time, like every other rule.
-    const aliasSource = source.includes(ALIAS_TOKEN) ? source : null;
-    let re;
-    try {
-      re = new RegExp(aliasSource ? aliasSource.replaceAll(ALIAS_TOKEN, 'A') : source, 'g');
-    } catch (err) {
-      throw new CompileError(`lint:design — rule ${rule.id}: bad pattern /${source}/: ${err.message}`);
+    const aliasSource = source?.includes(ALIAS_TOKEN) ? source : null;
+    let re = null;
+    if (source) {
+      try {
+        re = new RegExp(aliasSource ? aliasSource.replaceAll(ALIAS_TOKEN, 'A') : source, 'g');
+      } catch (err) {
+        throw new CompileError(`lint:design — rule ${rule.id}: bad pattern /${source}/: ${err.message}`);
+      }
     }
     const includes = compileGlobs(rule, 'include');
     if (targets && includes.length && !includes.some((glob) => includeReachableUnder(glob, targets))) {
@@ -486,12 +510,9 @@ function compileRules(rules, targets, pageShells) {
       label: rule.tag ? `<${rule.tag}>` : rule.id,
       severity: rule.severity === 'error' ? 'error' : 'warn',
       message: rule.message,
-      slots: rule.swallowedSlots ?? null,
-      toolbarTabs: Boolean(rule.toolbarTabs),
-      toolbarSwitch: Boolean(rule.toolbarSwitch),
-      handRolledCombobox: Boolean(rule.handRolledCombobox),
+      checkKey,
+      check: checkKey ? (text, fileRel) => FILE_CHECKS[checkKey](text, { ...rule, pageShells }, fileRel) : null,
       wholeFile: Boolean(rule.wholeFile),
-      pageShell: rule.pageShell ? pageShells : null,
       grandfathered: rule.grandfathered ?? [],
       includes,
       excludes: compileGlobs(rule, 'exclude'),
@@ -510,7 +531,7 @@ function scanFile(fileRel, text, compiled) {
   // The union-type-alias pre-pass: harvested once per file, and only when some rule asks for
   // it (`{{unionAliases}}`), so a config without such a rule pays nothing.
   const aliases = compiled.some((c) => c.aliasSource) ? harvestUnionAliases(text) : [];
-  for (const { re: compiledRe, aliasSource, label, severity, message, slots, toolbarTabs, toolbarSwitch, handRolledCombobox, wholeFile, pageShell, grandfathered, includes, excludes } of compiled) {
+  for (const { re: compiledRe, aliasSource, label, severity, message, check, wholeFile, includes, excludes } of compiled) {
     // No `include` (or a rule whose `include` list is empty) matches every walked file;
     // with one or more `include` globs the rule applies only when ANY of them matches.
     // The scope globs are matched by `path.matchesGlob` (stdlib since v22) — `**` spans
@@ -518,68 +539,25 @@ function scanFile(fileRel, text, compiled) {
     // a literal.
     if (includes.length && !includes.some((inc) => matchesGlob(fileRel, inc))) continue;
     if (excludes.some((ex) => matchesGlob(fileRel, ex))) continue; // excluded closed archetype
-    if (slots) {
-      for (const { slot, line, col } of findSwallowedSlots(text, slots)) {
-        violations.push({ file: fileRel, line, col, rule: label, severity, message: `\`${slot}\` is destructured but never forwarded to PageFrame. ${message}` });
-      }
-      continue;
-    }
-    if (toolbarTabs) {
-      for (const { tag, line, col } of findToolbarTabs(text)) {
-        violations.push({ file: fileRel, line, col, rule: label, severity, message: `\`<${tag}>\` inside \`toolbar\`. ${message}` });
-      }
-      continue;
-    }
-    if (pageShell) {
-      const issues = findPageShellIssues(text, pageShell);
-      if (grandfathered.includes(fileRel)) {
-        if (!issues.length) {
-          violations.push({ file: fileRel, line: 1, col: 1, rule: label, severity, message: `grandfathered page now renders a page shell — remove it from \`grandfathered\` (the list only shrinks). ${message}` });
-        }
-        continue;
-      }
-      for (const { line, col, problem } of issues) {
-        violations.push({ file: fileRel, line, col, rule: label, severity, message: `Page ${problem}. ${PAGE_SHELL_HINT} ${message}` });
-      }
-      continue;
-    }
-    if (handRolledCombobox) {
-      for (const { line, col } of findHandRolledCombobox(text)) {
-        violations.push({ file: fileRel, line, col, rule: label, severity, message });
-      }
-      continue;
-    }
-    if (toolbarSwitch) {
-      for (const { tag, line, col } of findToolbarTabs(text, 'Switch', 'bare-switch-in-toolbar')) {
-        violations.push({ file: fileRel, line, col, rule: label, severity, message: `\`<${tag}>\` inside \`toolbar\`. ${message}` });
-      }
-      continue;
-    }
     // A `{{unionAliases}}` rule is compiled here, against THIS file's harvested alias names.
     // No union alias in the file means the rule can match nothing — skip it.
     if (aliasSource && !aliases.length) continue;
-    const re = aliasSource ? new RegExp(aliasSource.replaceAll(ALIAS_TOKEN, aliases.join('|')), 'g') : compiledRe;
-    re.lastIndex = 0; // the `g` flag makes `matchAll` index-sensitive — don't leak state
-    if (wholeFile) {
-      for (const m of text.matchAll(re)) {
-        const before = text.slice(0, m.index);
-        const line = before.split('\n').length;
-        violations.push({ file: fileRel, line, col: m.index - before.lastIndexOf('\n'), rule: label, severity, message });
-      }
-      continue;
+    let hits;
+    if (check) {
+      hits = check(text, fileRel);
+    } else {
+      const re = aliasSource ? new RegExp(aliasSource.replaceAll(ALIAS_TOKEN, aliases.join('|')), 'g') : compiledRe;
+      re.lastIndex = 0; // the `g` flag makes `matchAll` index-sensitive — don't leak state
+      hits = wholeFile
+        ? [...text.matchAll(re)].map((m) => {
+            const before = text.slice(0, m.index);
+            return { line: before.split('\n').length, col: m.index - before.lastIndexOf('\n') };
+          })
+        : lines.flatMap((l, i) => [...l.matchAll(re)].map((m) => ({ line: i + 1, col: m.index + 1 })));
     }
-    lines.forEach((line, i) => {
-      for (const m of line.matchAll(re)) {
-        violations.push({
-          file: fileRel,
-          line: i + 1,
-          col: m.index + 1,
-          rule: label,
-          severity,
-          message,
-        });
-      }
-    });
+    for (const { line, col, message: msg = message } of hits) {
+      violations.push({ file: fileRel, line, col, rule: label, severity, message: msg });
+    }
   }
   return violations;
 }
