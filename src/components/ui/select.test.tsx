@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { Select, SelectTrigger, SelectValue } from "./select";
-import { ControlDensityProvider, hasWidthClass } from "./toolbar-band";
+import { ControlDensityProvider, JoinedLabelText, hasWidthClass } from "./toolbar-band";
 
 afterEach(() => {
   cleanup();
@@ -140,5 +140,21 @@ describe("SelectTrigger under touch density", () => {
   });
   it("keeps sm at h-8 without touch", () => {
     expect(classSet(renderTrigger({ size: "sm" }))).toContain("h-8");
+  });
+});
+
+describe("JoinedLabelText", () => {
+  it("sets title to the text for string children", () => {
+    render(<JoinedLabelText>Konsolidierungsgruppe</JoinedLabelText>);
+    expect(screen.getByText("Konsolidierungsgruppe").getAttribute("title")).toBe("Konsolidierungsgruppe");
+  });
+
+  it("sets no title for ReactNode children", () => {
+    render(
+      <JoinedLabelText>
+        <b>Scenario</b>
+      </JoinedLabelText>,
+    );
+    expect(screen.getByText("Scenario").parentElement?.hasAttribute("title")).toBe(false);
   });
 });
