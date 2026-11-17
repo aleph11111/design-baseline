@@ -1,7 +1,7 @@
 ---
 area: code-health
 opened: '2026-11-04'
-status: ready
+status: done
 value: low
 model: sonnet
 model_reason: one-line in-place push replacing a spread inside an existing loop; cause and fix fully established
