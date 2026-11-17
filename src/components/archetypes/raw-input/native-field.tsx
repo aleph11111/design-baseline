@@ -283,7 +283,13 @@ export function NativeField({
           }
         >
           {fieldLabel}
-          <div className={fixedBox ? "min-w-0 grow" : undefined}>{control}</div>
+          {/* min-w-0 so the value cell's automatic minimum does not re-floor the track
+              at the input's intrinsic width; the filter sheet's 130px + minmax(0,1fr)
+              re-scope (FilterSheet, `[&_div.grid:has([data-joined-label])]`) then shrinks
+              a number input below its 258px intrinsic width. `minmax(max-content,1fr)`
+              stays in the band, where the value must keep its own width (the band
+              scrolls instead of clipping it). */}
+          <div className={fixedBox ? "min-w-0 grow" : "min-w-0"}>{control}</div>
         </div>
       ) : (
         <>

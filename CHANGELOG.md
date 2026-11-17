@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.50.6
+
+- **Fixed:** a joined `NativeField` in the mobile `PageFrame` filter sheet no longer overflows its control — the sheet's existing re-scope (the one that already fixed the `SelectTrigger` `button` and `SegmentedControl` `radiogroup` rows) now also re-scopes the `NativeField` grid row's track to `130px + minmax(0,1fr)`, and the value cell carries `min-w-0` so a number input can shrink below its 258px intrinsic width. In the toolbar band itself the value column still floors at `max-content` (the band scrolls, it does not clip the value), so a content-sized band is unchanged.
+- **Consumer:** none; only the filter sheet's number inputs shrink to fit. No prop or behaviour change.
+- **Breaking:** no.
+
 ## v0.50.5
 
 - **Fixed:** `MatrixGridShell` with `emptyState` no longer drops the `body` and `dock` workbench slots; the empty state replaces the grid only, and `body` then `dock` render below it (`matrix-grid` contract v3.9). Without `body` / `dock` the empty-state DOM is unchanged.

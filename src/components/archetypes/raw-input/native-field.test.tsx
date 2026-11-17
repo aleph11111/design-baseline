@@ -204,10 +204,14 @@ describe("NativeField in a PageFrame toolbar band", () => {
     expect(row.className).not.toContain("max-content");
   });
 
-  it("a content-sized field floors its input column at the control's own width", () => {
+  it("a content-sized field keeps its max-content floor but floors the value cell at 0", () => {
     inBand(<NativeField label="Wochen" type="number" value={12} onChange={() => {}} />);
     const row = (screen.getByText("Wochen").closest("label") as HTMLElement).parentElement as HTMLElement;
+    // The value track still floors at max-content in the band (the band scrolls,
+    // it does not clip the value); what changes is the value cell's own minimum.
     expect(row.className).toContain("minmax(max-content,1fr)");
+    const valueCell = row.lastElementChild as HTMLElement;
+    expect(valueCell.className).toContain("min-w-0");
   });
 
   it("keeps range stacked, which has no box to join", () => {
