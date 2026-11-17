@@ -146,7 +146,11 @@ export function ComboboxField({
 
   const groups = React.useMemo(() => {
     const map = new Map<string | undefined, ComboboxOption[]>();
-    for (const opt of options) map.set(opt.group, [...(map.get(opt.group) ?? []), opt]);
+    for (const opt of options) {
+      const bucket = map.get(opt.group);
+      if (bucket) bucket.push(opt);
+      else map.set(opt.group, [opt]);
+    }
     return [...map];
   }, [options]);
 
