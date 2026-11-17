@@ -143,6 +143,11 @@ describe("compileRules (no targets context)", () => {
     expect(exc).toEqual([]);
   });
 
+  it("throws a `CompileError` naming the rule when it has no pattern, tag or check key", () => {
+    expect(() => compileRules([{ id: "disarmed-rule", severity: "error", message: "m" }])).toThrow(/disarmed-rule/);
+    expect(() => compileRules([{ id: "disarmed-rule", severity: "error", message: "m" }])).toThrow(CompileError);
+  });
+
   it("throws a `CompileError` on a bad `pattern` — the compiler never exits", () => {
     // The pre-fix code called `return process.exit(2)` from inside `.map()`,
     // making the compiler impure and the control flow only visible from the CLI.
