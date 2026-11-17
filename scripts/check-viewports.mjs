@@ -308,6 +308,9 @@ for (const [radio, shot] of TD_VARIANTS) {
         return { cut: h.scrollWidth > h.clientWidth + 1 || h.scrollHeight > h.clientHeight + 1, ellipsis: s.textOverflow === "ellipsis" || s.webkitLineClamp !== "none" };
       });
       if (title.cut || title.ellipsis) bad.push("title: the long title is cut instead of shown in full");
+      // <main> top inset is 16px on document-column pages at every width (AppShell has-[.db-document-column]:pt-4)
+      const pt = await page.$eval("main", (m) => getComputedStyle(m).paddingTop);
+      if (pt !== "16px") bad.push(`document column: <main> top inset ${pt}, want 16px`);
       if (name === "phone") {
         const bar = page.locator('[data-slot="td-next-step-bar"] [data-slot="td-primary"]');
         // scroll the middle of the page into view, whichever box scrolls
