@@ -5,7 +5,7 @@
 
 ## Context
 
-The load-bearing invariant of this donor is **"baseline never originates archetypes"** (`docs/RULES.md` Rule 1): every archetype must trace back to a `promoted_from` source project that built and used the shape first, so the baseline only ever generalizes *proven* shapes. Twelve of the fourteen MANIFEST entries satisfy this — each carries a `promoted_from` (a single source project, or a `fleet-audit-*` multi-source promotion).
+The load-bearing invariant of this donor is **"baseline never originates archetypes"** (`docs/RULES.md` Rule 1): every archetype must trace back to a `promoted_from` source project that built and used the shape first, so the baseline only ever generalizes *proven* shapes. Twelve of the fourteen MANIFEST entries satisfy this — each carries a `promoted_from` (a single source project, or a `fleet-audit-*` multi-source promotion). *(Later clarified in `docs/RULES.md` Rule 1: the gap path is baseline-first — the evidence is the named consumer shapes, not a consumer-side migration finishing first. The decision below is unchanged.)*
 
 Two entries do not. `report` (key `R`) and `calendar` (key `Cal`) carry `authored: "2026-06-23"` with **no `promoted_from`**. Their origin is recorded in commit `e0c50ea` ("Add two new archetypes from the Plex Ledger Gallery board: report + calendar"): they were drafted directly in the donor from the **Plex Ledger gallery mockup board** — the donor's own House Style B design surface (`docs/STYLE.md` §B), *not* a consuming project. The commit is explicit: *"authored, not promoted; single-mockup origin, so they enter as v1.0 baseline-authored archetypes."*
 
