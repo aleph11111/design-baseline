@@ -191,7 +191,7 @@ export function LedgerTable({
 function CompactLock({ lock, field, figure }: { lock: Lock; field: string; figure: string }): React.ReactElement {
   const L = useLabels();
   return (
-    <span data-slot="td-lock-compact" className="inline-flex items-center justify-end gap-1">
+    <span data-slot="td-lock-compact" className="flex flex-wrap items-center justify-end gap-x-1">
       <Popover>
         <PopoverTrigger
           type="button"

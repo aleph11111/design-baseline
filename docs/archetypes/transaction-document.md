@@ -108,7 +108,8 @@ by clearing a cell. When the consumer supports it, the ledger carries its own
 add control (labelled for what it adds, e.g. *Add cost*) and a remove control
 on each line; a line that can't be dropped (an item line) opts out of removal.
 A line may also carry its **own actions** (open its stock lot), rendered with
-the line. A locked ledger shows neither add nor remove.
+the line. A locked ledger shows neither add nor remove. A line's cell lock may show
+compactly beside its figure to keep the ledger short (see Locks).
 
 **4 — Facts.** An auto-fitting grid of typed, locale-formatted values
 (customer, dates, payment, address, channel). Related facts may form a

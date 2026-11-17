@@ -53,7 +53,7 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await launchChrome();
 // transaction-document's three demo documents (demo radio label → contact-sheet slug).
-const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"]];
+const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"], ["Compact locks", "transaction-document-compact"]];
 const failures = [];
 const total = PAGES.length * (Object.keys(devices).length + widthSweep.length) + STEPS.length + 1 + 3 * Object.keys(devices).length + TD_VARIANTS.length * (Object.keys(devices).length + widthSweep.length) + Object.keys(devices).length; // + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench + transaction-document variants + grouped-list work queue
 let n = 0;
@@ -303,14 +303,14 @@ for (const [radio, shot] of TD_VARIANTS) {
       const wide = await page.$$eval('[data-slot="td-ledger"], [data-slot="td-ledger"] *', (els) =>
         els.filter((el) => ["auto", "scroll"].includes(getComputedStyle(el).overflowX) && el.scrollWidth > el.clientWidth + 1).map((el) => `<${el.tagName.toLowerCase()}> ${el.scrollWidth}>${el.clientWidth}`));
       for (const w of wide) bad.push(`ledger: scrolls sideways ${w}`);
-      // compact row locks: the purchase order's locked cost cell is an icon in the cell, no sentence under the line
-      // (the sentence is ~25px per locked line, the reason the ledger Total sat below the laptop14 fold)
-      if (radio === "Purchase order") {
+      // compact row locks: icons in the locked cells, no sentences, and the 2-item ledger's Total above the laptop14 fold
+      if (radio === "Compact locks") {
         const sentences = await page.locator('[data-slot="td-ledger"] [data-slot="td-lock"]').count();
         if (sentences) bad.push(`ledger: ${sentences} lock sentence(s) under lines, want compact lock icons`);
         if (name === "laptop14") {
           const bottom = await page.$eval('[data-slot="td-ledger"] tfoot', (el) => Math.round(el.getBoundingClientRect().bottom + window.scrollY));
-          console.log(`  purchase order ledger Total bottom @ laptop14: ${bottom}px (fold 739px)`);
+          console.log(`  compact locks ledger Total bottom @ laptop14: ${bottom}px (fold 739px)`);
+          if (bottom > 739) bad.push(`ledger: Total ends at ${bottom}px, below the 739px laptop14 fold`);
         }
       }
       const title = await page.$eval(".db-content-column h1", (h) => {
