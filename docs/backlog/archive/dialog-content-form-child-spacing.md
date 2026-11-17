@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: 2026-11-13
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: one-class change in a primitive plus a render test; cause established
