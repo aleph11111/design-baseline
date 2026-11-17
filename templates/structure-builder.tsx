@@ -1,6 +1,6 @@
 // Scaffolded by `design-baseline new-page structure-builder __Name__`.
 // Contract: node_modules/design-baseline/docs/archetypes/structure-builder.md
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   STRUCTURE_PALETTE_TYPE,
@@ -48,8 +48,25 @@ export function __Name__Page() {
     if (item) setEdited(insertNode(lines, { id: item.id, label: item.label }, parentId, index));
   };
 
+  // Placing unmounts the focused place button; hand focus to the next palette item
+  // (the previous if last), or to the placed line when the palette is now empty.
+  const paletteRef = useRef<HTMLUListElement>(null);
+  const treeRef = useRef<HTMLDivElement>(null);
+  const focusAfter = useRef<{ palette?: string; line?: string } | null>(null);
+  useLayoutEffect(() => {
+    const f = focusAfter.current;
+    if (!f) return;
+    focusAfter.current = null;
+    const root = f.palette ? paletteRef.current : treeRef.current;
+    const attr = f.palette ? "data-place-id" : "data-node-id";
+    root?.querySelector<HTMLElement>(`[${attr}="${f.palette ?? f.line}"]`)?.focus();
+  }, [edited]);
+
   // Keyboard placement: into the selected line when it holds children, else right after it.
   const placeAtSelection = (id: string) => {
+    const i = palette.findIndex((p) => p.id === id);
+    const next = palette[i + 1] ?? palette[i - 1];
+    focusAfter.current = next ? { palette: next.id } : { line: id };
     const sel = selectedId ? findNode(lines, selectedId) : undefined;
     const pos = sel ? findPosition(lines, sel.id) : undefined;
     if (sel?.children) place(id, sel.id, sel.children.length);
@@ -73,7 +90,7 @@ export function __Name__Page() {
       paletteTitle="Unplaced"
       coverage={{ unplaced: palette.length }}
       palette={
-        <ul>
+        <ul ref={paletteRef}>
           {palette.map((item) => (
             <li
               key={item.id}
@@ -81,7 +98,7 @@ export function __Name__Page() {
               onDragStart={(e) => e.dataTransfer.setData(STRUCTURE_PALETTE_TYPE, item.id)}
             >
               {item.label}
-              <Button type="button" variant="ghost" size="sm" aria-label={`Place ${item.label}`} onClick={() => placeAtSelection(item.id)}>
+              <Button type="button" variant="ghost" size="sm" data-place-id={item.id} aria-label={`Place ${item.label}`} onClick={() => placeAtSelection(item.id)}>
                 Place
               </Button>
             </li>
@@ -89,6 +106,7 @@ export function __Name__Page() {
         </ul>
       }
     >
+      <div ref={treeRef}>
       <StructureTree
         nodes={lines}
         label="__Name__"
@@ -99,6 +117,7 @@ export function __Name__Page() {
         onMove={(id, parentId, index) => setEdited(moveNode(lines, id, parentId, index))}
         onPlace={place}
       />
+      </div>
     </StructureBuilderShell>
   );
 }

@@ -2,7 +2,7 @@
 key: Sb
 slug: structure-builder
 kind: page
-version: 1.0
+version: 1.1
 promoted_from: controlling-app
 promoted_at: 2026-11-05
 source_spec_version: n/a (no source spec — distilled from controlling-app's pnl-builder page, docs/patterns/frontend-structure-builder.md and ADR-0027)
@@ -90,7 +90,9 @@ History, Clone and Save actions are not offered.
   assistive tech. A short hint under the tree names the keys.
 - **Palette placement by keyboard:** every palette item carries a *place*
   action that inserts it at the selected line — into it when it can hold
-  children, otherwise right after it.
+  children, otherwise right after it. After a placement, focus moves to the
+  next palette item's place action (the previous one if it was the last); when
+  the palette becomes empty, focus moves to the placed tree line.
 
 **Pointer.** Lines drag onto other lines: the top of a row drops before it,
 the bottom after it, the middle of a row that can hold children drops inside.
@@ -173,3 +175,5 @@ own subtree is refused.
 - **1.0** (2026-11-05) — initial contract, distilled from controlling-app's
   `workspace/pnl-builder` (ADR-0027 persistence variants) for the planned
   balance-sheet builder; ADR-0012.
+- **1.1** (2026-11-17) — palette placement by keyboard specifies where focus goes
+  afterwards (next palette item, else previous, else the placed tree line).

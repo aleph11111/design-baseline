@@ -410,7 +410,7 @@
       "slug": "structure-builder",
       "displayName": "Structure builder",
       "kind": "page",
-      "version": "1.0",
+      "version": "1.1",
       "promoted_from": "controlling-app",
       "promoted_at": "2026-11-05",
       "source_spec_version": "n/a (no source spec — distilled from controlling-app's pnl-builder page, docs/patterns/frontend-structure-builder.md and ADR-0027)",

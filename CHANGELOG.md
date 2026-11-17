@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.50.7
+
+- **Fixed:** `structure-builder` keyboard palette placement no longer drops focus to `<body>`: contract v1.1 specifies focus moves to the next palette item's place action (previous if last; the placed tree line when the palette empties). `StructureTree` rows now carry `data-node-id`; demo and `templates/structure-builder.tsx` follow the rule.
+- **Consumer:** pages scaffolded from the old template can copy its `focusAfter` effect.
+- **Breaking:** no.
+
 ## v0.50.6
 
 - **Fixed:** a joined `NativeField` in the mobile `PageFrame` filter sheet no longer overflows its control — the sheet's existing re-scope (the one that already fixed the `SelectTrigger` `button` and `SegmentedControl` `radiogroup` rows) now also re-scopes the `NativeField` grid row's track to `130px + minmax(0,1fr)`, and the value cell carries `min-w-0` so a number input can shrink below its 258px intrinsic width. In the toolbar band itself the value column still floors at `max-content` (the band scrolls, it does not clip the value), so a content-sized band is unchanged.

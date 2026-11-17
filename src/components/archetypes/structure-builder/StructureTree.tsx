@@ -155,6 +155,7 @@ export function StructureTree<N extends StructureNode>({
             else items.current.delete(node.id);
           }}
           role="treeitem"
+          data-node-id={node.id}
           aria-level={depth + 1}
           aria-selected={selectedId === node.id}
           aria-expanded={kids && kids.length > 0 ? true : undefined}
