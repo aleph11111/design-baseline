@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-04
-status: ready
+status: done
 model: opus
 model_reason: "design is the deliverable — how one page hosts wizard and history under a single kind:page shell, and whether the contract's no-per-step-buttons rule bends"
 value: normal

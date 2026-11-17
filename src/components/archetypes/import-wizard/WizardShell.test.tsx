@@ -113,6 +113,28 @@ describe("WizardShell done state", () => {
   });
 });
 
+describe("WizardShell view slots (history toggle + View menu)", () => {
+  const slots = {
+    viewSwitch: <div role="tablist" aria-label="Import view">New import · History</div>,
+    viewOptions: <div>Show decimals</div>,
+    viewOptionsLabel: "Display",
+  };
+
+  it("renders viewSwitch and the View menu in the stepper state", () => {
+    renderShell({ ...slots });
+    expect(screen.getByRole("tablist", { name: "Import view" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Display" })).toBeTruthy();
+    expect(next()).toBeTruthy();
+  });
+
+  it("keeps viewSwitch and the View menu in the done state", () => {
+    renderShell({ ...slots, done: <p>All imported</p> });
+    expect(screen.getByRole("tablist", { name: "Import view" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Display" })).toBeTruthy();
+    expect(screen.getByText("All imported")).toBeTruthy();
+  });
+});
+
 describe("WizardShell hosted in a Dialog (ADR-0008: dialogs are not pages)", () => {
   it("leaves the DialogTitle as the one heading — no page h1, title not repeated", () => {
     render(

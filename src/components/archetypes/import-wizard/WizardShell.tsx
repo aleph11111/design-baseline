@@ -35,7 +35,10 @@ export type WizardShellProps = {
   done?: React.ReactNode;
   /** The current step's body. */
   children: React.ReactNode;
-} & Pick<PageFrameProps, "title" | "subtitle" | "badges">;
+} & Pick<
+  PageFrameProps,
+  "title" | "subtitle" | "badges" | "viewSwitch" | "viewOptions" | "viewOptionsLabel"
+>;
 
 /**
  * WizardShell — the import-wizard (W) archetype shell: a step indicator, the
@@ -48,7 +51,8 @@ export type WizardShellProps = {
  * stepper opens the body (it is read-only progress, not a scoping control, so
  * it is not toolbar content); the step's titled `SectionCard` flattens inside
  * the frame. Navigation actions stay in the footer — the shell takes no
- * `actions`.
+ * `actions`. A history toggle ("New import" / "History") goes in `viewSwitch`,
+ * display-only toggles in `viewOptions`; both persist in the `done` state.
  */
 export function WizardShell({
   steps,
@@ -68,19 +72,23 @@ export function WizardShell({
   title,
   subtitle,
   badges,
+  viewSwitch,
+  viewOptions,
+  viewOptionsLabel,
 }: WizardShellProps): React.ReactElement {
   const stepLabel = steps[current]?.label;
+  const frame = { title, subtitle, badges, viewSwitch, viewOptions, viewOptionsLabel };
 
   if (done != null) {
     return (
-      <PageFrame title={title} subtitle={subtitle} badges={badges}>
+      <PageFrame {...frame}>
         <div className="p-5">{done}</div>
       </PageFrame>
     );
   }
 
   return (
-    <PageFrame title={title} subtitle={subtitle} badges={badges}>
+    <PageFrame {...frame}>
       <WizardPanel
         className="p-5"
         steps={steps}
