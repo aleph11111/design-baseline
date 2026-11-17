@@ -90,7 +90,9 @@ History, Clone and Save actions are not offered.
   assistive tech. A short hint under the tree names the keys.
 - **Palette placement by keyboard:** every palette item carries a *place*
   action that inserts it at the selected line — into it when it can hold
-  children, otherwise right after it.
+  children, otherwise right after it. After a placement, focus moves to the
+  next palette item's place action (the previous one if it was the last); when
+  the palette becomes empty, focus moves to the placed tree line.
 
 **Pointer.** Lines drag onto other lines: the top of a row drops before it,
 the bottom after it, the middle of a row that can hold children drops inside.

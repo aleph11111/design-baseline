@@ -105,6 +105,27 @@ export function StructureBuilderDemo(): React.ReactElement {
     return last ? { parentId: last.id, index: last.children?.length ?? 0 } : { parentId: null, index: 0 };
   };
 
+  // Keyboard placement unmounts the focused place button; hand focus on after the commit.
+  const paletteRef = React.useRef<HTMLUListElement>(null);
+  const treeRef = React.useRef<HTMLDivElement>(null);
+  const focusAfter = React.useRef<{ palette?: string; line?: string } | null>(null);
+  React.useLayoutEffect(() => {
+    const f = focusAfter.current;
+    if (!f) return;
+    focusAfter.current = null;
+    const root = f.palette ? paletteRef.current : treeRef.current;
+    const attr = f.palette ? "data-place-id" : "data-node-id";
+    root?.querySelector<HTMLElement>(`[${attr}="${f.palette ?? f.line}"]`)?.focus();
+  }, [lines]);
+
+  const placeByKeyboard = (id: string) => {
+    const i = unplaced.findIndex((l) => l.id === id);
+    const next = unplaced[i + 1] ?? unplaced[i - 1];
+    focusAfter.current = next ? { palette: next.id } : { line: id };
+    const to = placeTarget();
+    place(id, to.parentId, to.index);
+  };
+
   const place = (id: string, parentId: string | null, index: number) =>
     edit((t) => insertNode(t, lessonLine(id), parentId, index));
 
@@ -163,7 +184,7 @@ export function StructureBuilderDemo(): React.ReactElement {
         unplaced.length === 0 ? (
           <p className="text-sm text-muted-foreground">Every lesson is in the syllabus.</p>
         ) : (
-          <ul className="space-y-1">
+          <ul ref={paletteRef} className="space-y-1">
             {unplaced.map((l) => (
               <li
                 key={l.id}
@@ -178,10 +199,8 @@ export function StructureBuilderDemo(): React.ReactElement {
                   variant="ghost"
                   size="icon"
                   aria-label={L.structurePlace(l.title)}
-                  onClick={() => {
-                    const to = placeTarget();
-                    place(l.id, to.parentId, to.index);
-                  }}
+                  data-place-id={l.id}
+                  onClick={() => placeByKeyboard(l.id)}
                 >
                   <Plus aria-hidden />
                 </Button>
@@ -191,6 +210,7 @@ export function StructureBuilderDemo(): React.ReactElement {
         )
       }
     >
+      <div ref={treeRef}>
       <StructureTree
         nodes={lines}
         label="Syllabus"
@@ -212,6 +232,7 @@ export function StructureBuilderDemo(): React.ReactElement {
           </>
         )}
       />
+      </div>
     </StructureBuilderShell>
   );
 }
