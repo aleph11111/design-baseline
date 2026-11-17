@@ -75,10 +75,10 @@ export function AppShell({
                 only as the page's own surface, never nested in another one
                 (`useFullBleedClass`). A document-column shell carries
                 DOCUMENT_COLUMN_CLASS, which bounds the column to
-                --db-document-max with no wide-desk steps (ADR-0015). The column widens in steps on a wide
+                --db-document-max with no wide-desk steps (ADR-0015) and drops <main>'s top inset to 16px (pt-4) at every width. The column widens in steps on a wide
                 desk: `db-desk` is the container the layer's steps query.
                 See docs/STYLE.md "Spacing & rhythm". */}
-            <main className="@container/db-desk flex-1 bg-surface-canvas p-4 md:p-12 xl:p-14">
+            <main className="@container/db-desk flex-1 bg-surface-canvas p-4 md:p-12 xl:p-14 has-[.db-document-column]:pt-4">
               <div className="db-content-column mx-auto w-full max-w-(--db-content-max) has-[.db-full-bleed]:max-w-none has-[.db-document-column]:max-w-(--db-document-max)">
                 {children}
               </div>
