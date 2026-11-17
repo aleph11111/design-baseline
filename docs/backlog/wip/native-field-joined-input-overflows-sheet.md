@@ -34,3 +34,13 @@ A joined `NativeField` (`src/components/archetypes/raw-input/native-field.tsx:28
 - [[joined-label-shrinks-before-value]]
 - [[joined-label-floor-too-small]]
 - [[pageframe-mobile-filter-sheet]]
+
+## Note — implemented mechanism (2026-11-17)
+
+What to do's literal mechanism (value column floor `0`, input `w-full min-w-0` on the
+component's non-`fixedBox` branch) regresses the band runs: `1fr` in an auto-width grid
+resolves to 0, so the input collapses (probe: 1440px band, input width 236 → 26). The
+shipped fix instead adds `min-w-0` to the value cell (track stays `max-content` in the
+band) and extends the `FilterSheet` class-list re-scope — which already covers the select
+`button` trigger and the `radiogroup` — with the NativeField `div` grid row
+(`[&_div.grid:has([data-joined-label])]:grid-cols-[130px_minmax(0,1fr)]!`).
