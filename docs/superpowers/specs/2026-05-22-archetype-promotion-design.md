@@ -281,7 +281,7 @@ No active drift-scanning daemon. Surfacing is opportunistic.
 
 **Reverse direction.** A third project (controlling-app, a new app) can be a promotion source via `--source <path>`. Real cross-project rule-of-2 starts existing the moment two projects independently shipped the same archetype shape — that's the natural moment for the most rigorous baseline version.
 
-**Baseline never originates.** If you find yourself wanting to design an archetype directly in baseline without a real project consuming it, that's the signal you're working in the wrong repo — go build it in a real project first, then promote.
+**Baseline never invents.** If you find yourself wanting to design an archetype in baseline without real consumer shapes behind it, that's the signal you're working in the wrong repo. With evidenced consumer shapes, the gap ticket ships baseline-first and the consumer builds on the export (no consumer stopgap to mature; see `docs/RULES.md` rule 1).
 
 ## First-ship contents
 
