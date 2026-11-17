@@ -2,7 +2,7 @@
 key: Sb
 slug: structure-builder
 kind: page
-version: 1.0
+version: 1.1
 promoted_from: controlling-app
 promoted_at: 2026-11-05
 source_spec_version: n/a (no source spec — distilled from controlling-app's pnl-builder page, docs/patterns/frontend-structure-builder.md and ADR-0027)
@@ -175,3 +175,5 @@ own subtree is refused.
 - **1.0** (2026-11-05) — initial contract, distilled from controlling-app's
   `workspace/pnl-builder` (ADR-0027 persistence variants) for the planned
   balance-sheet builder; ADR-0012.
+- **1.1** (2026-11-17) — palette placement by keyboard specifies where focus goes
+  afterwards (next palette item, else previous, else the placed tree line).
