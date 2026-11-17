@@ -12,6 +12,7 @@
 import * as React from "react";
 import { Copy, FileDown, Mail, Printer, RotateCcw, Tag, Truck, Undo2, XCircle, Gift, Send, PackageCheck } from "lucide-react";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Switch } from "@/components/ui/switch";
 import { formatFigure } from "@/lib/format";
 import {
   TransactionDocumentShell,
@@ -21,7 +22,7 @@ import {
   type WorkflowStep,
 } from "@/components/archetypes/transaction-document";
 
-type Variant = "order" | "offer" | "purchase" | "compact" | "full";
+type Variant = "order" | "offer" | "purchase" | "compact";
 const noop = () => {};
 
 function HistoryList({ items }: { items: [string, string][] }) {
@@ -301,10 +302,11 @@ export function TransactionDocumentDemo() {
   const [variant, setVariant] = React.useState<Variant>("order");
   const offer = useOffer();
   const purchase = usePurchaseOrder();
-  const props = variant === "order" ? salesOrder() : variant === "offer" ? offer : variant === "compact" ? compactLocks(true) : variant === "full" ? compactLocks(false) : purchase;
+  const [compact, setCompact] = React.useState(true);
+  const props = variant === "order" ? salesOrder() : variant === "offer" ? offer : variant === "compact" ? compactLocks(compact) : purchase;
   return (
     <div className="space-y-5">
-      {/* Demo control, not page chrome: switches between the consumers and the two lock treatments. */}
+      {/* Demo control, not page chrome: switches between the three consumers and the compact-locks case. */}
       <SegmentedControl
         value={variant}
         onValueChange={(v) => setVariant(v as Variant)}
@@ -312,11 +314,16 @@ export function TransactionDocumentDemo() {
           { value: "order", label: "Sales order" },
           { value: "offer", label: "Offer" },
           { value: "purchase", label: "Purchase order" },
-          { value: "compact", label: "Compact" },
-          { value: "full", label: "Full" },
+          { value: "compact", label: "Compact locks" },
         ]}
         aria-label="Document type"
       />
+      {variant === "compact" ? (
+        <label className="flex items-center gap-2 text-sm">
+          <Switch checked={compact} onCheckedChange={setCompact} aria-label="Compact locks" />
+          Compact row locks (off: the default sentence under each line)
+        </label>
+      ) : null}
       <TransactionDocumentShell key={variant} {...props} />
     </div>
   );

@@ -314,7 +314,7 @@ describe("TransactionDocumentShell — row locks, add and remove", () => {
     render(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onCellChange, compactRowLocks: true }} />);
     expect(slot("td-lock")).toBeNull();
     expect(screen.queryByRole("textbox", { name: "Cost Set" })).toBeNull();
-    const trigger = screen.getByRole("button", { name: /Locked: Cost: Cost comes from the stock lot/ });
+    const trigger = screen.getByRole("button", { name: /Locked: Cost Set: Cost comes from the stock lot/ });
     expect(screen.queryByRole("link", { name: "Open lot" })).toBeNull();
     expect(trigger.tagName).toBe("BUTTON"); // a native button: Enter and Space open it
     trigger.focus();

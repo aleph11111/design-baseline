@@ -53,7 +53,7 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await launchChrome();
 // transaction-document's three demo documents (demo radio label → contact-sheet slug).
-const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"], ["Full", "transaction-document-full"], ["Compact", "transaction-document-compact"]];
+const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"], ["Compact locks", "transaction-document-compact"]];
 const failures = [];
 const total = PAGES.length * (Object.keys(devices).length + widthSweep.length) + STEPS.length + 1 + 3 * Object.keys(devices).length + TD_VARIANTS.length * (Object.keys(devices).length + widthSweep.length) + Object.keys(devices).length; // + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench + transaction-document variants + grouped-list work queue
 let n = 0;
@@ -288,7 +288,6 @@ for (const [name, device] of Object.entries(devices)) {
 // documents at the triad and the sweep widths — the ledger never scrolls
 // sideways, the long title shows in full, and on phone the nextStep primary
 // stays in the viewport while the page scrolls.
-let fullLocksBottom = Infinity;
 for (const [radio, shot] of TD_VARIANTS) {
   for (const [name, device] of [...Object.entries(devices), ...widthSweep.map((d) => [`sweep ${d.viewport.width}`, d])]) {
     const label = `transaction-document ${radio} @ ${name}`;
@@ -296,8 +295,7 @@ for (const [radio, shot] of TD_VARIANTS) {
     try {
       let page;
       ({ ctx, page } = await open("transaction-document", device));
-      // DOM click: the five-option demo control overflows a phone width, where a pointer click times out
-      await page.getByRole("radio", { name: radio, exact: true }).evaluate((el) => el.click());
+      await page.getByRole("radio", { name: radio }).click();
       await page.waitForTimeout(300); // ledger ResizeObserver settles
       const triad = name in devices;
       const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: triad ? columnFor("transaction-document", name) : undefined, fullBleed: false });
@@ -306,19 +304,21 @@ for (const [radio, shot] of TD_VARIANTS) {
         els.filter((el) => ["auto", "scroll"].includes(getComputedStyle(el).overflowX) && el.scrollWidth > el.clientWidth + 1).map((el) => `<${el.tagName.toLowerCase()}> ${el.scrollWidth}>${el.clientWidth}`));
       for (const w of wide) bad.push(`ledger: scrolls sideways ${w}`);
       // compact row locks vs the default sentences on the same 2-line document: the compact Total ends above the
-      // laptop14 fold and higher than the full one (the sentences saved)
-      if (radio === "Compact" || radio === "Full") {
-        const sentences = await page.locator('[data-slot="td-ledger"] [data-slot="td-lock"]').count();
-        if (radio === "Compact" && sentences) bad.push(`ledger: ${sentences} lock sentence(s) under lines, want compact lock icons`);
-        if (radio === "Full" && sentences !== 2) bad.push(`ledger: ${sentences} lock sentence(s), want the default 2`);
+      // laptop14 fold and at least 20px higher than with the switch off (the sentences saved)
+      if (radio === "Compact locks") {
+        const lockSentences = () => page.locator('[data-slot="td-ledger"] [data-slot="td-lock"]').count();
+        const totalBottom = () => page.$eval('[data-slot="td-ledger"] tfoot', (el) => Math.round(el.getBoundingClientRect().bottom + window.scrollY));
+        if (await lockSentences()) bad.push("ledger: lock sentences under lines, want compact lock icons");
         if (name === "laptop14") {
-          const bottom = await page.$eval('[data-slot="td-ledger"] tfoot', (el) => Math.round(el.getBoundingClientRect().bottom + window.scrollY));
-          console.log(`  ${radio} ledger Total bottom @ laptop14: ${bottom}px (fold 739px)`);
-          if (radio === "Full") fullLocksBottom = bottom;
-          else {
-            if (bottom > 739) bad.push(`ledger: Total ends at ${bottom}px, below the 739px laptop14 fold`);
-            if (bottom > fullLocksBottom - 20) bad.push(`ledger: compact Total ${bottom}px saves under 20px against the full ${fullLocksBottom}px`);
-          }
+          const compactBottom = await totalBottom();
+          await page.getByRole("switch", { name: "Compact locks" }).click();
+          await page.waitForTimeout(300);
+          const fullBottom = await totalBottom();
+          if ((await lockSentences()) !== 2) bad.push("ledger: switch off should show the default 2 lock sentences");
+          console.log(`  compact locks Total bottom @ laptop14: ${compactBottom}px, full sentences ${fullBottom}px (fold 739px)`);
+          if (compactBottom > 739) bad.push(`ledger: Total ends at ${compactBottom}px, below the 739px laptop14 fold`);
+          if (compactBottom > fullBottom - 20) bad.push(`ledger: compact Total ${compactBottom}px saves under 20px against the full ${fullBottom}px`);
+          await page.getByRole("switch", { name: "Compact locks" }).click();
         }
       }
       const title = await page.$eval(".db-content-column h1", (h) => {

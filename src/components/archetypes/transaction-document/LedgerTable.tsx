@@ -82,7 +82,7 @@ export function LedgerTable({
 
   const value = (row: LedgerRow, c: LedgerColumn, editable: boolean, total: boolean) => {
     const lock = compactRowLocks && !total && columnEditable(c) ? row.locks?.[c.key] : undefined;
-    if (lock) return <CompactLock lock={lock} field={c.label} figure={formatFigure(row.values[c.key], c.kind, { locale })} />;
+    if (lock) return <CompactLock lock={lock} field={`${c.label} ${row.label}`} figure={formatFigure(row.values[c.key], c.kind, { locale })} />;
     return editable ? (
       <FigureInput
         value={row.values[c.key] ?? null}
