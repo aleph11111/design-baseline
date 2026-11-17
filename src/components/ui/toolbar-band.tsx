@@ -137,7 +137,7 @@ export const JOINED_LABEL_CLASS =
 
 /** The label's text, ellipsized — `text-overflow` is inert on the label's own flex container. */
 export function JoinedLabelText({ children }: { children: React.ReactNode }): React.ReactElement {
-  return <span className="truncate">{children}</span>;
+  return <span className="truncate" title={typeof children === "string" ? children : undefined}>{children}</span>;
 }
 
 /**
