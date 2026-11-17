@@ -316,8 +316,13 @@ describe("TransactionDocumentShell — row locks, add and remove", () => {
     expect(screen.queryByRole("textbox", { name: "Cost Set" })).toBeNull();
     const trigger = screen.getByRole("button", { name: /Locked: Cost: Cost comes from the stock lot/ });
     expect(screen.queryByRole("link", { name: "Open lot" })).toBeNull();
-    fireEvent.click(trigger);
-    expect(await screen.findByRole("link", { name: "Open lot" })).toBeTruthy();
+    expect(trigger.tagName).toBe("BUTTON"); // a native button: Enter and Space open it
+    trigger.focus();
+    fireEvent.click(trigger); // what Enter/Space on a focused button dispatches
+    const wayOut = await screen.findByRole("link", { name: "Open lot" });
+    wayOut.focus();
+    expect(wayOut.tabIndex).toBeGreaterThanOrEqual(0);
+    expect(document.activeElement).toBe(wayOut); // reachable by keyboard
     expect(onCellChange).not.toHaveBeenCalled();
     // the unlocked row is unaffected
     expect(screen.getByRole("textbox", { name: "Cost Fee" })).toBeTruthy();
