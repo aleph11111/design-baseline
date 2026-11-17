@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-11-16
-status: ready
+status: done
 value: normal
 blocked_on_branch: feat/code-health-browser-check-scripts-shared-server
 gate:
