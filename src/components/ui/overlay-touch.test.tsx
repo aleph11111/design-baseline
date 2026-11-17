@@ -43,3 +43,18 @@ describe("overlay close under touch density", () => {
     expect(getByText("1").className).toContain("h-9 w-9");
   });
 });
+
+describe("DialogContent form child spacing", () => {
+  it("carries grid gap-4 for a direct <form> child", () => {
+    render(
+      <Dialog open>
+        <DialogContent>
+          <form><DialogTitle>t</DialogTitle><DialogDescription>d</DialogDescription></form>
+        </DialogContent>
+      </Dialog>
+    );
+    const cls = screen.getByRole("dialog").className;
+    expect(cls).toContain("[&>form]:grid");
+    expect(cls).toContain("[&>form]:gap-4");
+  });
+});

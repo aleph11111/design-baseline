@@ -82,7 +82,6 @@ export function usePrompt(): UsePrompt {
     <Dialog open={options !== null} onOpenChange={(open) => { if (!open) settle(null); }}>
       <DialogContent>
         <form
-          className="grid gap-4"
           onSubmit={(e) => {
             e.preventDefault();
             if (!blocked) settle(trimmed);
