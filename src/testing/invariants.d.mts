@@ -29,11 +29,11 @@ export interface EvaluatingPage {
 export declare const TAP_TARGET_MIN: number;
 export declare function checkPageInvariants(
   page: EvaluatingPage,
-  device: Pick<Device, "isMobile">,
+  device: Pick<Device, "isMobile" | "viewport">,
   options?: InvariantOptions,
 ): Promise<{ failures: string[]; knownGaps: string[] }>;
 export declare function assertPageInvariants(
   page: EvaluatingPage,
-  device: Pick<Device, "isMobile">,
+  device: Pick<Device, "isMobile" | "viewport">,
   options?: InvariantOptions,
 ): Promise<string[]>;

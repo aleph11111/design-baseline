@@ -30,6 +30,22 @@ describe("page invariants", () => {
     ).rejects.toThrow(/overflow: x/);
   });
 
+  it("overflow: a layout viewport grown past the phone width (mobile emulation) fails; scrollWidth is measured against the device width", async () => {
+    // Emulation grows innerWidth to fit a 418px element, so scrollWidth == innerWidth: only the device width exposes it.
+    document.body.innerHTML = "<main></main>";
+    const set = (o: object, k: string, v: number) => Object.defineProperty(o, k, { configurable: true, value: v });
+    set(window, "innerWidth", 418);
+    set(document.documentElement, "scrollWidth", 418);
+    const run = () => assertPageInvariants({ evaluate: async (fn, a) => (fn as (a: unknown) => unknown)(a) as never }, devices.phone);
+    try {
+      await expect(run()).rejects.toThrow(/overflow: layout viewport grew to 418px past the 390px[\s\S]*overflow: page scrolls sideways, scrollWidth 418px > 390px/);
+    } finally {
+      // drop the own properties so jsdom's prototype getters come back for later tests
+      delete (window as { innerWidth?: number }).innerWidth;
+      delete (document.documentElement as { scrollWidth?: number }).scrollWidth;
+    }
+  });
+
   it("phoneNav: AuthCard page is exempt from no-navigation, an app page is not", async () => {
     // jsdom has no layout, so `visible` is false everywhere: this exercises only the marker branch.
     const run = (html: string) => {

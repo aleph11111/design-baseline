@@ -638,7 +638,7 @@ function PhonePreview(): React.ReactElement | null {
       <iframe
         title="Phone preview"
         src={`${base}${window.location.hash || "#/a/form-page"}`}
-        className="h-[560px] w-[375px] rounded-lg border bg-background"
+        className="h-[560px] w-[375px] max-w-full rounded-lg border bg-background"
       />
     </div>
   );

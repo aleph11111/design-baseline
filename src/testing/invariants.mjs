@@ -11,9 +11,11 @@
 export const TAP_TARGET_MIN = 44;
 
 // Runs in the page. Returns one "<code>: <message>" string per breach.
-function measure({ mobile, column, fullBleed, tap }) {
+function measure({ mobile, column, fullBleed, tap, vw }) {
   const problems = [];
-  const W = window.innerWidth;
+  // The device width, not window.innerWidth: mobile emulation grows the layout
+  // viewport to fit overflowing content, so innerWidth would hide the overflow.
+  const W = vw;
   const visible = (el) => {
     const r = el.getBoundingClientRect();
     if (r.width === 0 || r.height === 0) return false;
@@ -25,6 +27,7 @@ function measure({ mobile, column, fullBleed, tap }) {
     return `<${el.tagName.toLowerCase()}${label ? ` "${label}"` : ""}>`;
   };
 
+  if (window.innerWidth > W) problems.push(`overflow: layout viewport grew to ${window.innerWidth}px past the ${W}px device width`);
   const sw = document.documentElement.scrollWidth;
   if (sw > W) problems.push(`overflow: page scrolls sideways, scrollWidth ${sw}px > ${W}px`);
 
@@ -158,12 +161,12 @@ function measure({ mobile, column, fullBleed, tap }) {
 
 /**
  * Measures the page as it is now. `device` is a triad device (its `isMobile`
- * picks the phone checks). `options.knownGaps` maps a problem code to the
+ * picks the phone checks, its `viewport.width` is the width measured against). `options.knownGaps` maps a problem code to the
  * ticket slug that will fix it; those problems come back in `knownGaps`, not
  * `failures`. `column` / `fullBleed` are AppShell column checks, skipped when absent.
  */
 export async function checkPageInvariants(page, device, { knownGaps = {}, column, fullBleed } = {}) {
-  const problems = await page.evaluate(measure, { mobile: !!device.isMobile, column, fullBleed, tap: TAP_TARGET_MIN });
+  const problems = await page.evaluate(measure, { mobile: !!device.isMobile, column, fullBleed, tap: TAP_TARGET_MIN, vw: device.viewport.width });
   const result = { failures: [], knownGaps: [] };
   for (const p of problems) {
     const ticket = knownGaps[p.slice(0, p.indexOf(":"))];
