@@ -439,6 +439,72 @@
       "promotedAt": "2026-11-05",
       "axisB": "on-token (composes the existing widget cells)",
       "notes": "Promoted 2026-11-05 from archetype-gap ticket archetype-gap-editable-tile-layout as an extension of G, not a new archetype (ADR-0011). Rule of 2 met by two controlling-app pages of the same shape: admin/dashboard-templates/[id] (template editor, grandfathered under page-requires-archetype-shell) and workspace/dashboard (live dashboard whose layout unlocks into the same editor). Both use @dnd-kit pointer+keyboard sorting and the same TileConfigDialog; the donor edit mode replaces the sortable list with move buttons (keyboard) plus native drag-and-drop."
+    },
+    {
+      "id": "kanban-card-meta",
+      "pattern": "Kanban card meta row: ID, date range, priority",
+      "axisA": "promote",
+      "donorTarget": "kanban-board card slot: meta (id, date range, priority)",
+      "projects": [],
+      "count": 0,
+      "status": "watch",
+      "axisB": "n/a until promoted",
+      "notes": "Prior art, not evidence: https://refero.design/pages/ccd45807-fab1-4351-b660-6b02c06fce97, https://refero.design/pages/5486b733-d24d-445c-90f3-8be2bc01e599. Needs rule-of-2 from the kanban-board owners (pmo, hk-crm; MANIFEST promoted_from) before it is built. Watch only: Refero links are prior art, not evidence (docs/RULES.md rule 1); nothing built."
+    },
+    {
+      "id": "feed-inbox-excerpt-quick-actions",
+      "pattern": "Feed/inbox item excerpt plus hover/quick actions",
+      "axisA": "promote",
+      "donorTarget": "feed-inbox item slots: excerpt + quick actions",
+      "projects": [],
+      "count": 0,
+      "status": "watch",
+      "axisB": "n/a until promoted",
+      "notes": "Prior art, not evidence: https://refero.design/pages/96bb67df-fa31-4920-afc2-eab99f9d51c1. Needs rule-of-2 from the feed-inbox owners (brickshop-manager, hk-crm; MANIFEST promoted_from) before it is built. Watch only: Refero links are prior art, not evidence (docs/RULES.md rule 1); nothing built."
+    },
+    {
+      "id": "report-title-status-amount-due",
+      "pattern": "Report title-row status badge plus amount due",
+      "axisA": "promote",
+      "donorTarget": "report title-row slot: status badge + amount due",
+      "projects": [],
+      "count": 0,
+      "status": "watch",
+      "axisB": "n/a until promoted",
+      "notes": "Prior art, not evidence: https://refero.design/pages/b176825e-b144-431f-aa4f-8dcf47104c65. `report` is baseline-authored (no promoted_from), so the shape must come from a fleet consumer with report-style pages: my-finance-app and a second consumer, both hand-rolling it, before it is built. Watch only: Refero links are prior art, not evidence (docs/RULES.md rule 1); nothing built."
+    },
+    {
+      "id": "stattile-delta-breakdown-proportion-bar",
+      "pattern": "StatTile KPI delta vs prior period plus breakdown inline proportion bar",
+      "axisA": "promote",
+      "donorTarget": "analytics-dashboard StatTile delta + breakdown proportion bar",
+      "projects": [],
+      "count": 0,
+      "status": "watch",
+      "axisB": "n/a until promoted",
+      "notes": "Prior art, not evidence: https://refero.design/pages/217e2393-6e1d-45cb-a592-6b84dee0e2ec. Needs rule-of-2 from the analytics-dashboard owners (brickshop-manager, my-finance-app, hk-crm, mistra; MANIFEST promoted_from) before it is built. Watch only: Refero links are prior art, not evidence (docs/RULES.md rule 1); nothing built."
+    },
+    {
+      "id": "detail-overview-rail-typed-values-groups",
+      "pattern": "Detail rail typed values (links, chips, avatars) plus collapsible groups",
+      "axisA": "promote",
+      "donorTarget": "detail-overview rail: typed value kinds + collapsible groups",
+      "projects": [],
+      "count": 0,
+      "status": "watch",
+      "axisB": "n/a until promoted",
+      "notes": "Prior art, not evidence: https://refero.design/pages/dc6815b4-b871-4434-b336-eec3f08dec4c. detail-overview promoted from hk-crm; needs hk-crm plus a second consumer (e.g. controlling-app) showing the shape before it is built. Watch only: Refero links are prior art, not evidence (docs/RULES.md rule 1); nothing built."
+    },
+    {
+      "id": "import-wizard-results-duplicates-steps",
+      "pattern": "Import wizard results-with-row-errors step and duplicates-handling step",
+      "axisA": "promote",
+      "donorTarget": "import-wizard steps: results (row errors) + duplicates",
+      "projects": [],
+      "count": 0,
+      "status": "watch",
+      "axisB": "n/a until promoted",
+      "notes": "Prior art, not evidence: Intercom CSV User Import https://refero.design/flows/671 (results screen https://refero.design/pages/27a17a87-0d85-475d-8636-d8660b5eacc6); Calendly Import Contacts from CSV https://refero.design/flows/14038 (duplicates https://refero.design/pages/ea264e50-94d7-4741-bbbb-424b9fb3565c, validation error https://refero.design/pages/ab664628-83b6-4584-bfa8-00f24bae17e3). Needs rule-of-2 from the import-wizard owners (controlling-app, my-finance-app; MANIFEST promoted_from) before it is built. Watch only: Refero links are prior art, not evidence (docs/RULES.md rule 1); nothing built."
     }
   ],
   "sanctioned": [
