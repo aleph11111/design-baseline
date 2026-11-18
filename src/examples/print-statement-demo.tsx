@@ -61,7 +61,7 @@ function CashStatementTable() {
     <table className="w-full text-xs">
       <thead>
         <tr className="border-b border-foreground">
-          <th className={cn(COL_HEADER_CLASS, "min-w-48 px-2 py-1.5 text-left")}>Position</th>
+          <th className={cn(COL_HEADER_CLASS, "sticky left-0 min-w-48 bg-background px-2 py-1.5 text-left")}>Position</th>
           {MONTHS.map((m) => (
             <th key={m} className={cn(COL_HEADER_CLASS, "whitespace-nowrap px-2 py-1.5 text-right")}>
               {m}
@@ -79,7 +79,7 @@ function CashStatementTable() {
               key={line.id}
               className={cn("border-b border-border", line.total && "font-semibold")}
             >
-              <td className={cn("whitespace-nowrap px-2 py-1", line.indent && "pl-6")}>{line.label}</td>
+              <td className={cn("sticky left-0 whitespace-nowrap bg-background px-2 py-1", line.indent && "pl-6")}>{line.label}</td>
               {[...values, year].map((v, i) => (
                 <td key={i} className="whitespace-nowrap px-2 py-1 text-right tabular-nums">
                   {money(v)}

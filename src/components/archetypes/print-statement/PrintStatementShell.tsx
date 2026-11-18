@@ -51,6 +51,42 @@ export type PrintStatementShellProps = {
   autoPrint?: boolean;
 };
 
+/** Horizontal scroller that shows a right-edge fade while more content lies to
+ *  the right — overlay scrollbars hide the overflow otherwise. Screen-only. */
+function ScrollCue({ children }: { children: React.ReactNode }): React.ReactElement {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [more, setMore] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => setMore(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    // Absent in jsdom (consumer tests): the cue just stays off there.
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(update);
+    ro?.observe(el);
+    if (ro) Array.from(el.children).forEach((c) => ro.observe(c));
+    return () => {
+      el.removeEventListener("scroll", update);
+      ro?.disconnect();
+    };
+  }, [children]);
+  return (
+    <div className="relative">
+      <div ref={ref} className="overflow-x-auto print:overflow-visible">
+        {children}
+      </div>
+      {more ? (
+        <div
+          data-slot="print-statement-scroll-cue"
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background to-transparent print:hidden"
+        />
+      ) : null}
+    </div>
+  );
+}
+
 /**
  * PrintStatementShell — the print-only statement page
  * (docs/archetypes/print-statement.md). Renders no app chrome: a screen-only
@@ -128,7 +164,7 @@ export function PrintStatementShell({
           {subtitle ? <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p> : null}
           {meta ? <p className="mt-0.5 text-xs text-muted-foreground">{meta}</p> : null}
         </header>
-        <div className="overflow-x-auto print:overflow-visible">{children}</div>
+        <ScrollCue>{children}</ScrollCue>
       </div>
     </div>
   );
