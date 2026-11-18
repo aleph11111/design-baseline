@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: '2026-11-18'
-status: ready
+status: done
 value: normal
 gate:
   score: 5
