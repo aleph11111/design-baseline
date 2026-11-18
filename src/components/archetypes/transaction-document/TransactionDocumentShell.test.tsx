@@ -265,14 +265,14 @@ describe("TransactionDocumentShell — mockup fidelity", () => {
     render(
       <TransactionDocumentShell
         {...base}
-        nextStep={{ ...base.nextStep, tone: "warning", sideEffects: [{ label: "C", state: "failed" }] }}
+        nextStep={{ title: "Next", tone: "warning", sideEffects: [{ label: "C", state: "failed" }] }}
       />,
     );
     const line = slot("td-side-effects");
     expect(line.parentElement!.className).toMatch(/\bmin-w-0\b/);
     expect(line.textContent).toContain("C (failed)");
     cleanup();
-    render(<TransactionDocumentShell {...base} nextStep={{ ...base.nextStep, tone: "warning", sideEffects: [{ label: "C", state: "failed" }, { label: "D", state: "pending" }] }} />);
+    render(<TransactionDocumentShell {...base} nextStep={{ title: "Next", tone: "warning", sideEffects: [{ label: "C", state: "failed" }, { label: "D", state: "pending" }] }} />);
     expect(slot("td-side-effects").parentElement!.className).not.toMatch(/\bmin-w-0\b/);
   });
 
