@@ -4,7 +4,7 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 ## v0.55.0
 
-- **Changed:** `transaction-document`: in a toned (warning/error) next-step panel (any ledger mode; default tone is unchanged) whose side effects are all failed, they render under the description inside the panel's text column instead of a separate "Running alongside" block (every failed effect stays visible); and, only with `ledger.compactRowLocks`, the ledger header row is `h-7` (was `h-9`) and the ledger card's top padding above it shrinks by 12px. Non-compact ledgers are unchanged.
+- **Changed:** `transaction-document`: in a toned (warning/error) next-step panel (any ledger mode; default tone is unchanged) whose side effects are all failed, they render under the description inside the panel's text column instead of a separate "Running alongside" block (every failed effect stays visible); and, only with `ledger.compactRowLocks`, the ledger header row is `h-7` (was `h-9`) and the ledger card's top padding above it shrinks by 12px (unless the ledger itself is locked, which keeps its note above the table). Non-compact ledgers are unchanged.
 - **Consumer:** none; re-baseline screenshots of toned documents and compact-lock ledgers.
 - **Breaking:** no.
 
