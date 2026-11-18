@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-18
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "three additive opt-in layout changes on one shipped archetype, each following an existing pattern (CompactLock, LockNote, Slot header); design resolved by the ticket"
