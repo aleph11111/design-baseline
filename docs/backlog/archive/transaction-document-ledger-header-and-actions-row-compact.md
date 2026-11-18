@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-18
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "two scoped class-level layout changes on shipped primitives, each following an existing pattern (compactRowLocks opt-in, HeadingRow container-query classes); acceptance is a measured number"

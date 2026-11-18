@@ -4,6 +4,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { Button } from "../../ui/button";
 import { CellInput } from "../../ui/cell-input";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "../../ui/table";
+import { cn } from "../../../lib/utils";
 import { formatFigure } from "../../../lib/format";
 import { useLabels } from "../../../lib/labels";
 import { fitColumns, parseFigure, type LedgerColumn, type LedgerResult, type LedgerRow, type Lock } from "./ledger";
@@ -153,6 +154,7 @@ export function LedgerTable({
     </TableRow>
   );
 
+  const headCls = compactRowLocks ? "h-9" : undefined;
   const fieldLocks = columnLocksInHeader ? [] : lockedColumns(columns, !!onCellChange, locked);
   return (
     <div ref={ref} data-slot="td-ledger-table" className="min-w-0">
@@ -162,14 +164,14 @@ export function LedgerTable({
       <Table className="table-fixed">
         <TableHeader>
           <TableRow>
-            <TableHead>{L.ledgerItem}</TableHead>
+            <TableHead className={headCls}>{L.ledgerItem}</TableHead>
             {inline.map((c) => (
-              <TableHead key={c.key} className="w-28 text-right">
+              <TableHead key={c.key} className={cn("w-28 text-right", headCls)}>
                 {c.label}
               </TableHead>
             ))}
             {removing ? (
-              <TableHead className="w-14">
+              <TableHead className={cn("w-14", headCls)}>
                 <span className="sr-only">{L.rowActions}</span>
               </TableHead>
             ) : null}
