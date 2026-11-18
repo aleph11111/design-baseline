@@ -11,7 +11,7 @@ gate:
     - acceptance
     - related
   failed: []
-  graded_at: '2026-11-18T19:21:50.610Z'
+  graded_at: '2026-11-18T19:30:06Z'
 value: normal
 model: sonnet
 model_reason: >-
@@ -51,3 +51,4 @@ Operator-delegated decision (2026-11-18): ship the shell-level scroll cue only, 
 - [[archetype-gap-print-statement-document]] — origin of the print-statement archetype and its shell contract
 - [[table-column-hide-below-tier]] — related narrow-width table column handling
 - [[refactor-figure-table-grid-report-statement]] — shared figure-table grid used by report and statement bodies
+- [[layout-invariants-nested-overflow]] — open; its `nestedOverflow` check will flag this shell's `overflow-x-auto` body wrapper unless it carries `data-scroll-region`, so whichever ships second marks the wrapper
