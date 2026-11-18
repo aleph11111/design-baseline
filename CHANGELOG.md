@@ -4,7 +4,8 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 ## v0.55.0
 
-- **Changed:** `transaction-document`: in a toned (warning/error) next-step panel (any ledger mode; default tone is unchanged) whose side effects are all failed, they render under the description inside the panel's text column instead of a separate "Running alongside" block (every failed effect stays visible); and, only with `ledger.compactRowLocks`, the ledger header row is `h-7` (was `h-9`) and the ledger card's top padding above it shrinks by 12px (unless the ledger itself is locked, which keeps its note above the table). Non-compact ledgers are unchanged.
+- **Changed:** `transaction-document`: in a toned (warning/error) next-step panel (any ledger mode; default tone is unchanged) whose side effects are all failed, they render under the description inside the panel's text column instead of a separate "Running alongside" block (every failed effect stays visible; the row uses `leading-4`); and, only with `ledger.compactRowLocks`, the ledger header row is `h-6` (was `h-9`) and the ledger card's top padding above it shrinks by 12px (unless the ledger itself is locked, which keeps its note above the table). Non-compact ledgers are unchanged.
+- **Measured:** brickshop-manager `/orders/:id (shipped, no carrier scan)` at `laptop14Window` (1133x739): ledger Total row bottom 774px on v0.54.0, 748px with the first cut (h-7, pt-0.5), at or under 739px (visual check passes with the known-failing entry removed) with this release.
 - **Consumer:** none; re-baseline screenshots of toned documents and compact-lock ledgers.
 - **Breaking:** no.
 

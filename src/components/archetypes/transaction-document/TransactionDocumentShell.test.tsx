@@ -310,6 +310,19 @@ describe("TransactionDocumentShell — row locks, add and remove", () => {
     { id: "fee", label: "Fee", values: { cost: 5 } },
   ];
 
+  it("compactRowLocks pulls the ledger body up 12px, except under a ledger lock note; default is unchanged", () => {
+    const body = () => slot("td-ledger").querySelector("[data-slot=td-ledger-table]")!.parentElement!;
+    const ledger = { columns: cols, rows };
+    render(<TransactionDocumentShell {...base} ledger={ledger} />);
+    expect(body().className).not.toContain("-mt-3");
+    cleanup();
+    render(<TransactionDocumentShell {...base} ledger={{ ...ledger, compactRowLocks: true }} />);
+    expect(body().className).toContain("-mt-3");
+    cleanup();
+    render(<TransactionDocumentShell {...base} ledger={{ ...ledger, compactRowLocks: true }} locks={{ ledger: { reason: "Closed" } }} />);
+    expect(body().className).not.toContain("-mt-3");
+  });
+
   it("a row lock makes one cell read-only with its reason; other rows stay editable", () => {
     const onCellChange = vi.fn();
     render(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onCellChange }} />);
@@ -328,9 +341,9 @@ describe("TransactionDocumentShell — row locks, add and remove", () => {
     const { container, rerender } = render(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onCellChange: vi.fn() }} />);
     const th = () => container.querySelector("[data-slot=td-ledger-table] thead th") as HTMLElement;
     expect(th().className).toContain("h-12");
-    expect(th().className).not.toContain("h-7");
+    expect(th().className).not.toContain("h-6");
     rerender(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onCellChange: vi.fn(), compactRowLocks: true }} />);
-    expect(th().className).toContain("h-7");
+    expect(th().className).toContain("h-6");
     expect(th().className).not.toContain("h-12");
   });
 

@@ -455,7 +455,7 @@ function SideEffects({ items, toned, inline = false }: { items: SideEffect[]; to
   const L = useLabels();
   const stateLabel = { done: L.sideEffectDone, pending: L.sideEffectPending, failed: L.sideEffectFailed };
   return (
-    <div data-slot="td-side-effects" className={cn("text-xs leading-5", inline && "pt-0.5")}>
+    <div data-slot="td-side-effects" className={cn("text-xs", inline ? "leading-4" : "leading-5")}>
       <span className={cn("mr-4", !toned && "text-muted-foreground")}>{L.runningAlongside}:</span>
       <ul className="inline">
         {items.map((s) => {
