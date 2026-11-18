@@ -50,7 +50,19 @@ step belongs to the close-out, not "someday".
 
 ## Watch (confirmed in a 2nd/3rd project on the next re-audit before promoting)
 
-No **watch** rows. *Retired 2026-10-16* after a re-check against every consumer's
+Refero prior art (2026-11-18 visual audit) — a slot ships only from evidenced consumer
+shapes (RULES.md rule 1); Refero links are prior art, not evidence. Nothing is built.
+
+| Pattern | Axis A | Donor target | Projects | Status |
+|---|---|---|---|---|
+| Kanban card meta (ID, date range, priority) | promote | `kanban-board` card meta slot | none yet — needs pmo / hk-crm | **watch** |
+| Feed/inbox item excerpt + hover/quick actions | promote | `feed-inbox` excerpt + quick actions | none yet — needs brickshop-manager / hk-crm | **watch** |
+| Report title-row status badge + amount due | promote | `report` title-row slot | none yet — needs my-finance-app + one more | **watch** |
+| StatTile KPI delta vs prior period + breakdown inline proportion bar | promote | `analytics-dashboard` StatTile delta + breakdown bar | none yet — needs two of brickshop-manager / my-finance-app / hk-crm / mistra | **watch** |
+| Detail rail typed values (links, chips, avatars) + collapsible groups | promote | `detail-overview` rail value kinds + groups | none yet — needs hk-crm + a second consumer | **watch** |
+| Import wizard results-with-row-errors + duplicates steps | promote | `import-wizard` results + duplicates steps | none yet — needs controlling-app / my-finance-app | **watch** |
+
+*Retired 2026-10-16* (earlier watch rows) after a re-check against every consumer's
 `origin/main` — none had tripped rule-of-2 in four months:
 - **Filter bar** (pill row + "all", labeled filter caption) — hk-crm retired its
   `PillBar` / `LabeledFilter` onto DS primitives (hk-crm #258); no consumer carries it.
