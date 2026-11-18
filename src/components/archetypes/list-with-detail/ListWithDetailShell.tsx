@@ -366,18 +366,10 @@ export function ListWithDetailBody<Row>(
           {detailTitle !== undefined ? (
             // The shared bar chrome (padding + neutral fill) with the Radix
             // SheetTitle as its title element. The built-in Sheet close button
-            // (absolute, top-4 right-4) floats over the bar's right edge, so
-            // the actions row clears it (structural, not appearance).
-            <SurfaceHeaderBar
-              actionsClassName="pr-8"
-              // The title column fills the bar (its content is contained below).
-              className="[&>:first-child]:flex-1"
-              actions={
-                detailActions ? (
-                  <div className="flex shrink-0 items-center gap-2">{detailActions}</div>
-                ) : undefined
-              }
-            >
+            // (absolute, top-4 right-4; touch: right-1, 44px) floats over the
+            // bar's right edge, so the bar's right padding clears it — for the
+            // title too when the actions wrap beneath it (structural).
+            <SurfaceHeaderBar className="pr-13" actions={detailActions}>
               {/* SheetTitle so Radix Dialog gets an accessible name (aria-labelledby).
                   SheetDescription is screen-reader-only fallback so Content never
                   renders without a description — matching the J archetype fix. */}

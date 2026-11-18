@@ -42,7 +42,31 @@ describe("SurfaceHeaderBar — the one dialog/drawer header bar", () => {
     const bar = container.querySelector('[data-slot="surface-header"]')!;
     // title in the left (min-w-0) block, actions in the right row
     expect(bar.querySelector(".min-w-0")?.textContent).toContain("title");
-    expect(bar.querySelector(".flex.shrink-0")?.textContent).toContain("act");
+    expect(bar.lastElementChild?.textContent).toContain("act");
+  });
+
+  it("wraps the actions beneath the title instead of squeezing it (any action count)", () => {
+    for (const n of [0, 1, 2, 3, 4]) {
+      const actions = Array.from({ length: n }, (_, i) => (
+        <button key={i} type="button">Action number {i}</button>
+      ));
+      const { container } = render(
+        <SurfaceHeaderBar actions={n ? actions : undefined}>
+          <h2>A rather long title of about thirty characters</h2>
+        </SurfaceHeaderBar>,
+      );
+      const bar = container.querySelector('[data-slot="surface-header"]') as HTMLElement;
+      // the bar wraps, so an actions row that does not fit beside the title
+      // drops onto its own line instead of taking the title's width
+      expect(bar.className).toContain("flex-wrap");
+      // the title block grows and keeps a usable basis before the row wraps
+      const titleBlock = bar.firstElementChild as HTMLElement;
+      expect(titleBlock.className).toMatch(/\bflex-1\b/);
+      expect(titleBlock.className).toMatch(/\bbasis-/);
+      // nothing in the bar refuses to shrink beside the title
+      expect(bar.querySelector(".shrink-0")).toBeNull();
+      cleanup();
+    }
   });
 
   it("omits the actions row entirely when no actions are given", () => {

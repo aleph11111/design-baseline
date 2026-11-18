@@ -156,9 +156,43 @@ describe("ListWithDetailShell", () => {
     // one fixed neutral treatment — no accent fill, no inversion (ADR-0008)
     expect(bar.className).toContain("bg-surface-raised");
     expect(bar.className).not.toContain("bg-primary");
-    // the actions row clears the Sheet's built-in close button (structural)
-    const actionsRow = bar.querySelector(".pr-8") as HTMLElement;
-    expect(actionsRow.textContent).toContain("Edit");
+    // the bar clears the Sheet's built-in close button on every row, so the
+    // title clears it too when the actions wrap beneath it (structural)
+    expect(bar.className).toContain("pr-13");
+    expect(bar.textContent).toContain("Edit");
+  });
+
+  it("the detail title is never squeezed by detailActions (N = 0..4)", () => {
+    const title = "Maximilian Mustermann-Schulze";
+    for (const n of [0, 1, 2, 3, 4]) {
+      const actions = Array.from({ length: n }, (_, i) => (
+        <button key={i} type="button">Zum Portal einladen {i}</button>
+      ));
+      render(
+        <ListWithDetailShell title="T"
+          rows={rows}
+          columns={columns}
+          getRowId={(row) => row.id}
+          selectedRowId="1"
+          detail={<div>Details</div>}
+          detailTitle={title}
+          detailActions={n ? actions : undefined}
+        />,
+      );
+      const sheetTitle = screen.getByRole("heading", { name: title });
+      const bar = sheetTitle.closest('[data-slot="surface-header"]') as HTMLElement;
+      // the actions wrap beneath the title rather than collapsing it
+      expect(bar.className).toContain("flex-wrap");
+      // no actions wrapper refuses to shrink (the old shrink-0 squeeze)
+      expect(bar.querySelector(".shrink-0")).toBeNull();
+      // the title keeps a usable basis and still never widens the sheet
+      const titleBlock = bar.firstElementChild as HTMLElement;
+      expect(titleBlock.contains(sheetTitle)).toBe(true);
+      expect(titleBlock.className).toMatch(/\bbasis-/);
+      expect(titleBlock.querySelector('[class*="contain:inline-size"]')).not.toBeNull();
+      expect(sheetTitle.className).toContain("truncate");
+      cleanup();
+    }
   });
 
   it("desktop: the detail never renders in-flow beside the list — a row click opens the Sheet", () => {

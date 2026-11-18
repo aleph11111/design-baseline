@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.55.2
+
+- **Fixed:** the dialog/drawer header bar (`SurfaceHeaderBar`, used by the `list-with-detail` detail sheet and `CrudDialogHeader`) no longer squeezes its title to zero width next to several actions. The bar wraps, and the title block keeps a 12rem basis: actions that do not fit beside it move onto a row beneath the title. With one short action and a short title the header looks as before. A long title still truncates and never widens the sheet (ADR-0010 rule 3, amended).
+- **Changed:** the `list-with-detail` sheet's close-button clearance moved from the actions row to the bar's right padding (`pr-13`), so the title clears the close button when the actions wrap. `ListWithDetailShell` no longer wraps `detailActions` in its own `shrink-0` div, and `CrudDialogHeader`'s actions group no longer has `shrink-0`.
+- **Consumer:** none required; bump `design-baseline`. behandlungskompass can move its patient-detail actions back into `detailActions` (ticket `patient-detail-sheet-name-hidden`). Re-baseline screenshots of detail sheets or crud dialogs with several header actions.
+- **Breaking:** no.
+
 ## v0.55.1
 
 - **Fixed:** `transaction-document` with `ledger.compactRowLocks`: the 12px ledger-body pull-up (`sm:-mt-3`) and the `h-6` header row (`h-9 sm:h-6`) from v0.55.0 now apply from the `sm` breakpoint only. On a phone the shorter page put a ledger lock button under the next-step panel's action buttons (a tap overlap in brickshop-manager's phone visual check). Laptop widths are unchanged.
