@@ -27,7 +27,7 @@
  */
 
 import * as React from "react";
-import { SettingsTableShell } from "@/components/archetypes/settings-table";
+import { SettingsTableShell, useEditPaneNarrow } from "@/components/archetypes/settings-table";
 import type { SettingsColumn, RowAction } from "@/components/archetypes/settings-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -236,21 +236,10 @@ export function SettingsTableDemo() {
   // (below 896px, the shell's own `@4xl` breakpoint) decides which surface is live; both
   // bind to the same selection state, so pane and dialog always edit the
   // same row.
-  // The pane keys on the shell's CONTAINER (`@4xl`, 896px), so the dialog
-  // fallback must follow the same container width, not a viewport media query:
-  // in a ~780px AppShell column on a wide viewport the pane is hidden and
-  // a viewport check would never open the dialog.
+  // The pane keys on the shell's CONTAINER, so the dialog fallback follows the
+  // same width via the shipped hook, never a viewport check (`useIsMobile`).
   const seriesRef = React.useRef<HTMLDivElement>(null);
-  const [narrow, setNarrow] = React.useState(false);
-  React.useEffect(() => {
-    // observe the shell's own @container (the element the pane queries), not the wrapper around it:
-    // the body sits inside the frame's padding, so the wrapper is wider than the pane's container
-    const el = seriesRef.current?.querySelector<HTMLElement>('[data-slot="settings-table-body"]');
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(([e]) => setNarrow((e?.contentRect.width ?? Infinity) < 896));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
+  const narrow = useEditPaneNarrow(seriesRef);
   const mobileDialogOpen = narrow && editingSeries !== null;
 
   // Row click (the D2 click contract) selects the row the pane edits —

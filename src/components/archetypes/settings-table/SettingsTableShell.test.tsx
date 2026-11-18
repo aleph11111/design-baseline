@@ -591,3 +591,13 @@ describe("SettingsTableShell — container-keyed column tiers", () => {
     expect(container.querySelector('[data-slot="settings-table-body"]')!.className).toContain("@container");
   });
 });
+
+describe("useEditPaneNarrow", () => {
+  it("is false without a ResizeObserver or a shell body (no flash of the dialog)", async () => {
+    const { renderHook } = await import("@testing-library/react");
+    const { useEditPaneNarrow, SETTINGS_TABLE_EDIT_PANE_MIN_WIDTH } = await import("./useEditPaneNarrow");
+    const { result } = renderHook(() => useEditPaneNarrow({ current: document.createElement("div") }));
+    expect(result.current).toBe(false);
+    expect(SETTINGS_TABLE_EDIT_PANE_MIN_WIDTH).toBe(896);
+  });
+});
