@@ -1,7 +1,14 @@
 "use client";
 import * as React from "react";
 import { cn } from "../../lib/utils";
-import { OVERLINE_CLASS } from "./overline";
+import { CARD_TITLE_CLASS, SECTION_HEADING_CLASS } from "./overline";
+
+/**
+ * Set by `SectionCard` around its title: the heading then renders on the card
+ * title rung (13px) instead of the bare section-heading rung (15px). Internal —
+ * not re-exported from the layout barrel; the rung is placement, never a prop.
+ */
+export const SectionHeadingInCardContext = React.createContext(false);
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -9,8 +16,9 @@ import { OVERLINE_CLASS } from "./overline";
 
 export type SectionHeadingProps = {
   /**
-   * Section label. Rendered as an `<h2>` overline via `OVERLINE_CLASS`
-   * — the baseline's canonical section-title signature. Use a short noun
+   * Section label. Rendered as an `<h2>` in sentence case — 15px semibold
+   * foreground bare (`SECTION_HEADING_CLASS`), 13px inside a `SectionCard`
+   * (`CARD_TITLE_CLASS`), ADR-0016. Use a short noun
    * phrase ("Details", "Recent plays", "Contact info").
    */
   title: React.ReactNode;
@@ -36,19 +44,20 @@ export type SectionHeadingProps = {
  * SectionHeading — the canonical section-title signature shared across
  * archetypes.
  *
- * This is the single source of the "ledger" overline heading: a quiet,
- * uppercase, tracked `<h2>` that names a sub-section of a page. It is the
+ * This is the single source of the section heading: a sentence-case,
+ * semibold, foreground `<h2>` that names a sub-section of a page (ADR-0016
+ * retired the uppercase overline). It is the
  * sectional counterpart to `<PageHeader>` — iterating the section-title look
  * baseline-wide is one edit here.
  *
  * It renders only the heading row (title + optional description + optional
  * actions); surrounding chrome is the consumer's. `<DetailSection>` wraps it
- * in a ruled `border-b` bar; grouped-list and form-page render it bare above
- * their content blocks. Do NOT hand-roll the overline class string — compose
+ * as its card title (via `SectionCard`); grouped-list and form-page render it bare above
+ * their content blocks. Do NOT hand-roll the heading class string — compose
  * this primitive so the signature stays uniform.
  *
  * Layout:
- *   [TITLE (overline)]                                      [actions (optional)]
+ *   [Title (sentence case)]                                    [actions (optional)]
  *   [description (optional, normal-case)]
  */
 export function SectionHeading({
@@ -57,14 +66,15 @@ export function SectionHeading({
   actions,
   className,
 }: SectionHeadingProps): React.ReactElement {
+  const inCard = React.useContext(SectionHeadingInCardContext);
   return (
     <div
       className={cn("flex items-start justify-between gap-3", className)}
     >
       <div className="min-w-0">
-        <h2 className={OVERLINE_CLASS}>{title}</h2>
+        <h2 className={inCard ? CARD_TITLE_CLASS : SECTION_HEADING_CLASS}>{title}</h2>
         {description && (
-          <p className="mt-0.5 text-sm font-normal normal-case tracking-normal text-muted-foreground">
+          <p className="mt-0.5 text-sm text-muted-foreground">
             {description}
           </p>
         )}

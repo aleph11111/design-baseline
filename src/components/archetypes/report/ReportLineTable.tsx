@@ -40,7 +40,7 @@ export type ReportLineTableProps = {
  * ReportLineTable — the hairline-divided line-item table inside a report body.
  *
  * Thin wrapper over the shared figure-table (`FigureTable`): the report owns
- * its fixed four-column grid and the 9.5px column-header overlines so every
+ * its fixed four-column grid and the column-header labels so every
  * report (invoice, quote, statement) shares one table signature. Rows are
  * `<ReportLineRow>`; the header row is rendered automatically from `columns`.
  */

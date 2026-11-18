@@ -115,3 +115,6 @@ A 12-month statement (label column, twelve periods, a total) needs about 1280px 
 - **The page inset does not change.** Trimming 56px to 48px would gain 16px and move every page; lifting the column cap gains ~170px on this archetype alone.
 - **Uncapped, like the other four.** On a very wide desk a statement stretches to the desk edge; its own table decides column width and the surface scrolls internally if it ever has to.
 
+## Amendment 2026-11-18 — the overline is retired
+
+[ADR 0016](0016-quiet-sentence-case-type-hierarchy.md) amends §2's "overlines stay tight" clause. The uppercase, tracked overline is retired. Below the 30px page title the scale is now a quiet sentence-case ladder: section heading 15px semibold foreground > card title 13px semibold foreground (inside the card's padding, no ruled band) > body 13px, with 12px medium muted labels. The display steps themselves (30px title, 34px stat) are unchanged.

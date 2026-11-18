@@ -36,6 +36,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { IconAvatar } from "@/components/ui/icon-avatar";
 import { formatFigure } from "@/lib/format";
+import { cn } from "@/lib/utils";
+import { COL_HEADER_CLASS, OVERLINE_CLASS } from "@/components/layout/overline";
 import {
   DetailOverviewShell,
   DetailSection,
@@ -363,7 +365,7 @@ export function DetailOverviewDemo(): React.ReactElement {
                 title="Line items"
                 actions={<Badge variant="secondary">{o.lineItems.length}</Badge>}
               >
-                <div className="grid grid-cols-[1fr_2.5rem_5rem_5.5rem] gap-x-3 border-b border-border pb-2 text-[10px] font-semibold uppercase tracking-[0.09em] text-muted-foreground">
+                <div className={cn("grid grid-cols-[1fr_2.5rem_5rem_5.5rem] gap-x-3 border-b border-border pb-2", COL_HEADER_CLASS)}>
                   <div>Item</div>
                   <div className="text-center">Qty</div>
                   <div className="text-right">Unit</div>
@@ -403,7 +405,7 @@ export function DetailOverviewDemo(): React.ReactElement {
                   ))}
                 </div>
                 <div className="mt-2 flex items-center justify-between border-t-2 border-border pt-3">
-                  <span className="text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground">
+                  <span className={OVERLINE_CLASS}>
                     Items subtotal
                   </span>
                   <span className="text-sm tabular-nums text-foreground">

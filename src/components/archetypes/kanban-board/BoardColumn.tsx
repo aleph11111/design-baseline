@@ -5,7 +5,7 @@ import { OVERLINE_CLASS } from "../../layout/overline";
 import { RaisedSurfaceContext } from "../../layout/surface";
 
 export type BoardColumnProps = React.HTMLAttributes<HTMLDivElement> & {
-  /** Column heading (e.g. "To do"). Rendered as the overline signature. */
+  /** Column heading (e.g. "To do"). Rendered on the label rung (`OVERLINE_CLASS`, sentence case). */
   title: React.ReactNode;
   /** Optional card count shown next to the title. */
   count?: number;
@@ -30,7 +30,7 @@ export type BoardColumnProps = React.HTMLAttributes<HTMLDivElement> & {
  * raised objects; the sunken lane starts a fresh surface — it resets
  * `RaisedSurfaceContext` to false, so its cards keep their chrome even when the
  * board is nested in another raised surface, ADR-0015 rule 2)
- * with an overline `h3` header (title + count + actions) over a vertical stack
+ * with a label-rung `h3` header (title + count + actions) over a vertical stack
  * of `<BoardCard>`s. Drag-agnostic: the outer
  * div forwards its ref and spreads `...rest`, so the consumer attaches its DnD
  * droppable (`ref`, `onDragOver`/`onDrop`, dnd-kit listeners) here.

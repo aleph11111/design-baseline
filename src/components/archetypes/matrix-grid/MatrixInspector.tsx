@@ -80,7 +80,7 @@ export function MatrixInspectorDock({ title, description, footer, children, ...n
       }}
       className="sticky top-4 flex max-h-[calc(100svh-2rem)] w-[480px] max-w-[50%] shrink-0 flex-col overflow-x-hidden rounded-lg border bg-background shadow-sm"
     >
-      <header className="flex items-start gap-2 border-b px-5 py-3">
+      <header className="flex items-start gap-2 px-5 pb-1 pt-4">
         <div className="min-w-0 flex-1 space-y-0.5">
           <h2 className="truncate text-base font-semibold text-foreground">{title}</h2>
           {description && <p className="text-sm text-muted-foreground">{description}</p>}

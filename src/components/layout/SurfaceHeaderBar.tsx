@@ -24,8 +24,8 @@ export type SurfaceHeaderBarProps = {
 /**
  * SurfaceHeaderBar — the ONE header bar of a dialog or drawer (crud-dialog,
  * the list-with-detail detail drawer / mobile sheet): canonical padding
- * (`px-5 py-4`), one fixed neutral treatment (raised fill + hairline
- * `border-b`, normal foreground text), and the title-block /
+ * (`px-5 py-4`), one fixed neutral treatment (raised fill, no ruled band —
+ * ADR-0016 — normal foreground text), and the title-block /
  * right-aligned-actions flex layout. Actions that do not fit beside the
  * title's 12rem basis wrap onto a row beneath it; the title is never squeezed. Pages never mount it — a page is titled
  * by `PageFrame`'s `PageHeader` (ADR-0008). No fill axis, no context read: a
@@ -41,7 +41,7 @@ export function SurfaceHeaderBar({
     <div
       data-slot="surface-header"
       className={cn(
-        "flex flex-wrap items-start justify-between gap-x-5 gap-y-3 border-b bg-surface-raised px-5 py-4",
+        "flex flex-wrap items-start justify-between gap-x-5 gap-y-3 bg-surface-raised px-5 py-4",
         className,
       )}
     >

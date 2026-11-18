@@ -2,7 +2,7 @@
 key: O
 slug: overline-typed
 kind: component
-version: 2.0
+version: 2.1
 promoted_from: fleet synthesis (mistra, hk-crm, my-finance-app, dashboard)
 promoted_at: 2026-07-24
 source_spec_version: n/a (fleet synthesis — no single source spec)
@@ -11,7 +11,7 @@ status: locked
 
 # Archetype O — overline-typed (Typed overline)
 
-A **typed overline**: the small, uppercase, letter-spaced "eyebrow / kicker" label that
+A **typed overline**: the small, muted, sentence-case "eyebrow / kicker" label that
 sits above a heading or section title, on one shared base signature whose color — like
 its size, weight, tracking, and case — is fixed in the molecule (L7, v2 retired the
 per-call-site tone set this name was promoted with). The sectional companion to a heading — a molecule reused
@@ -36,7 +36,7 @@ derive, and keeps the base signature plus two documented channels instead.)
 
 - **Use** for a short label rendered **above** a heading, section title, card, or nav
   group — a kicker/eyebrow that names the entity class, section, or status ("Season 3",
-  "Details", "Now playing"). It is the one-stop assembly for the uppercase-label
+  "Details", "Now playing"). It is the one-stop assembly for the label
   signature, including where the label's color must change on an accent-filled surface.
 - **Do not use** for the heading itself (that is the page/section-title role — the
   overline sits *above* it), for body prose or a normal-case clarifier line (that reads
@@ -78,10 +78,10 @@ rendered by the caller (no placeholder, no loading state).
 
 ### L6 — Mobile affordance
 Fluid — the label reflows with its container; no separate mobile component. The signature
-(size, tracking, case) is identical across breakpoints.
+(size, weight, case) is identical across breakpoints.
 
 ### L7 — Theming
-Rides one shared **base signature** — uppercase, letter-spaced, small, weighted, **muted** —
+Rides one shared **base signature** — small, medium-weight, sentence case, **muted** (ADR-0016 retired the uppercase, letter-spaced look) —
 that is the single source of the label look, including its color; it must not be re-typed
 per site. A bespoke size/weight/tracking string is accidental drift, not variation.
 
@@ -137,5 +137,5 @@ Pure render — no effects, no timers, no state. Cost is constant per label.
   of information a reader needs (e.g. a status must also be legible from its text, not
   just its color; the one-off-class channel recolors emphasis only, so a status label
   recolors to a brand color but never to a status color by implication).
-- Case is a **visual** transform; the accessible text is the original, un-uppercased
-  string the caller passes.
+- The label renders the caller's string as passed (sentence case, no visual case
+  transform), so the accessible text and the visible text are the same.

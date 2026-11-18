@@ -204,7 +204,7 @@ export function AppSidebar({
             >
               <SidebarGroup>
                 <SidebarGroupLabel asChild>
-                  <CollapsibleTrigger className={cn(OVERLINE_CLASS, "flex w-full select-none items-center justify-between transition-colors hover:text-foreground")}>
+                  <CollapsibleTrigger className={cn(OVERLINE_CLASS, "group/label flex w-full select-none items-center justify-between transition-colors hover:text-foreground")}>
                     <span
                       className={cn(
                         hasActiveChild &&
@@ -213,7 +213,8 @@ export function AppSidebar({
                     >
                       {group.label}
                     </span>
-                    <ChevronRight className="h-3.5 w-3.5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    {/* Quiet label (ADR-0016): the chevron shows on hover / keyboard focus only. */}
+                    <ChevronRight className="h-3.5 w-3.5 opacity-0 transition-[opacity,transform] duration-200 group-hover/label:opacity-100 group-focus-visible/label:opacity-100 group-data-[state=open]/collapsible:rotate-90" />
                   </CollapsibleTrigger>
                 </SidebarGroupLabel>
                 <CollapsibleContent>

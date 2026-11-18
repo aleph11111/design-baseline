@@ -44,7 +44,7 @@ export type CalendarEvent = {
 export type CalendarDay = {
   /** Stable key, unique within the week (e.g. ISO date). */
   id: string;
-  /** Short day-of-week overline (e.g. "Mo", "Tu"). */
+  /** Short day-of-week label (e.g. "Mo", "Tu"). */
   dow: React.ReactNode;
   /** Pre-formatted day number (mono, e.g. "22"). */
   date: React.ReactNode;
@@ -99,7 +99,7 @@ const TONE_CLASS: Record<CalendarEventTone, ToneClasses> = {
  * rendered through `PageFrame` (ADR-0008): `title` is the page heading,
  * `toolbar` holds the period/view navigation (‹ · Today · › · the period
  * label), `actions` the one primary create action. Row 1 is the day headers
- * (dow overline + mono day number, today's cell tinted); row 2 is the day
+ * (dow label + mono day number, today's cell tinted); row 2 is the day
  * columns, each stacking event chips (left accent bar + faint tint, mono time +
  * semibold title).
  *

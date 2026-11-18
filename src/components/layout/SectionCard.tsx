@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { SectionHeading } from "./SectionHeading";
+import { SectionHeading, SectionHeadingInCardContext } from "./SectionHeading";
 import { RaisedSurfaceContext } from "./surface";
 import { BandChrome, ToolbarLeadContext } from "./ToolbarBand";
 import { HeadingHostContext } from "../ui/heading-host";
@@ -12,8 +12,9 @@ import { cn } from "../../lib/utils";
 
 export type SectionCardProps = {
   /**
-   * Section title. Rendered in the ruled title bar via `<SectionHeading>` (the
-   * canonical overline). Omit for a bounded surface with no header bar.
+   * Section title. Rendered inside the card's padding via `<SectionHeading>`
+   * on the card-title rung (13px semibold sentence case, no ruled band —
+   * ADR-0016). Omit for a bounded surface with no title.
    */
   title?: React.ReactNode;
   /**
@@ -47,7 +48,7 @@ export type SectionCardProps = {
    * Card chrome.
    * - `true` (default): the bounded card — `rounded-lg border` + tone surface.
    * - `false`: chromeless — drop the border/rounding/background/shadow and keep
-   *   only the ruled title bar + body padding. Used when the section renders
+   *   only the title + body padding. Used when the section renders
    *   inside an already-bounded surface that owns separation via hairline
    *   dividers (e.g. a `<DetailOverviewShell>`'s rail). Gutters (`px-5 py-*`)
    *   are preserved so the framed rail keeps consistent padding; only the
@@ -69,8 +70,9 @@ export type SectionCardProps = {
 /**
  * SectionCard — the canonical titled bounded section.
  *
- * A bounded card with an optional ruled overline title bar (built from
- * `<SectionHeading>`) and a flush-or-padded body, graded by `tone`. This is
+ * A bounded card with an optional title inside its padding (built from
+ * `<SectionHeading>` on the card-title rung, no ruled band — ADR-0016) and a
+ * flush-or-padded body, graded by `tone`. This is
  * the single source of the "titled section" look: a heading is bound to its
  * content as one block, never floating above a detached card.
  *
@@ -100,10 +102,16 @@ export function SectionCard({
   const leadBand = lead != null && <BandChrome>{lead}</BandChrome>;
   const hasBar = title !== undefined;
   const bar = (
-    <SectionHeading title={title} description={description} actions={actions} />
+    <SectionHeadingInCardContext.Provider value={true}>
+      <SectionHeading title={title} description={description} actions={actions} />
+    </SectionHeadingInCardContext.Provider>
   );
   // A titled section owns its region's heading: a shell inside draws none.
-  const body = flush ? children : <div className={chrome ? "px-5 py-4" : "px-5"}>{children}</div>;
+  // Under an in-padding title the body drops its top padding: the title's
+  // `pb-3` is the gap, so title and content read as one block (ADR-0016).
+  const body = flush ? children : (
+    <div className={chrome ? (hasBar ? "px-5 pb-4" : "px-5 py-4") : "px-5"}>{children}</div>
+  );
   const content = (
     <ToolbarLeadContext.Provider value={null}>
       {hasBar ? <HeadingHostContext.Provider value={true}>{body}</HeadingHostContext.Provider> : body}
@@ -111,8 +119,7 @@ export function SectionCard({
   );
 
   // Chromeless (embedded in an already-bounded surface, e.g. the unified rail):
-  // no card, and the title is a plain overline — NOT a bordered title bar — so
-  // the section reads as "overline over content" in one gutter, separated from
+  // no card, and the title sits over the content in one gutter, separated from
   // its neighbours only by the host surface's hairline dividers. Symmetric `py-4`
   // keeps each divider floating in whitespace.
   if (!chrome) {
@@ -141,7 +148,7 @@ export function SectionCard({
       <RaisedSurfaceContext.Provider value={true}>
         {leadBand}
         {hasBar && (
-          <div className="border-b border-border px-5 py-3">{bar}</div>
+          <div className="px-5 pb-3 pt-4">{bar}</div>
         )}
         {content}
       </RaisedSurfaceContext.Provider>

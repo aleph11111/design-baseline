@@ -1,21 +1,35 @@
 /**
- * The baseline's canonical overline class — a quiet, uppercase, tracked, muted
- * label. This is the single source of the section/label signature: SectionHeading,
- * StatTile, BoardColumn, and the sidebar/nav group labels all compose it so the
- * uppercase-label look never drifts (e.g. tracking was previously split between
- * `0.08em` here and `tracking-wider`/`0.05em` in the nav).
+ * The baseline's quiet type rungs below the page title (ADR-0016, which
+ * retired the uppercase overline). Every rung is sentence case — no shared
+ * label renders uppercase or letter-spaced. Top to bottom:
  *
- * Compose with `cn(OVERLINE_CLASS, "…extra…")` — never re-type the string.
+ *   page title 30px (`PageHeader`, ADR-0007 §2)
+ *   > section heading 15px semibold foreground   — `SECTION_HEADING_CLASS`
+ *   > card title 13px semibold foreground        — `CARD_TITLE_CLASS`
+ *   > body 13px
+ *   label 12px medium muted                      — `OVERLINE_CLASS` / `COL_HEADER_CLASS`
+ *
+ * Compose with `cn(X_CLASS, "…extra…")` — never re-type the strings.
  */
-export const OVERLINE_CLASS =
-  "text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground";
+
+/** A bare section heading (`SectionHeading` outside a card): 15px semibold, foreground. */
+export const SECTION_HEADING_CLASS = "text-[15px] font-semibold leading-snug text-foreground";
+
+/** A card's title, inside the card's padding with no ruled band (`SectionCard`): 13px semibold, foreground. */
+export const CARD_TITLE_CLASS = "text-[13px] font-semibold leading-snug text-foreground";
 
 /**
- * The smaller table/ruler-column-header rung of the overline scale (9.5px) —
- * the `text-` size is the only thing that differs from `OVERLINE_CLASS`,
- * weight/tracking/case/color stay shared so the two rungs can't drift apart.
- * Owners of the figure-table and calendar column signatures (shared
- * `FigureTable`, `CalendarShell`) compose it; never re-type the string.
+ * The label rung — sidebar/nav group labels, `StatTile` labels, kanban column
+ * titles, the typed `<Overline>`: 12px medium muted sentence case. The name is
+ * kept from the retired uppercase overline so consumer imports keep resolving;
+ * the look is ADR-0016's.
  */
-export const COL_HEADER_CLASS =
-  "text-[9.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground";
+export const OVERLINE_CLASS = "text-xs font-medium text-muted-foreground";
+
+/**
+ * Table / ruler column headers (shared `FigureTable`, `CalendarShell`,
+ * statement tables). Since ADR-0016 the same 12px medium muted sentence-case
+ * rung as `OVERLINE_CLASS` — kept as its own name so column-header owners keep
+ * one import and the two can diverge again in one edit.
+ */
+export const COL_HEADER_CLASS = OVERLINE_CLASS;

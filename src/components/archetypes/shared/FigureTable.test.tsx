@@ -20,7 +20,7 @@ afterEach(() => {
 function headerRow(container: HTMLElement): HTMLElement | null {
   return (
     Array.from(container.querySelectorAll("div")).find(
-      (el) => typeof el.className === "string" && el.className.includes("text-[9.5px]"),
+      (el) => typeof el.className === "string" && el.className.includes(COL_HEADER_CLASS) && el.className.includes("border-b"),
     ) ?? null
   );
 }
@@ -56,7 +56,7 @@ describe("FigureTable — shared figure-table signature", () => {
     );
 
     for (const container of [r, s]) {
-      // The 9.5px overline scale is composed once (COL_HEADER_CLASS) and
+      // The column-header label rung is composed once (COL_HEADER_CLASS) and
       // never re-typed: header carries it plus the bottom hairline + py-2.
       const header = headerRow(container);
       expect(header).not.toBeNull();

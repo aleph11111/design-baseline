@@ -20,3 +20,4 @@ Architecture Decision Records for design-baseline. One file per decision:
 | [0013](0013-matrix-grid-workbench-body-dock.md) | A planning workbench is matrix-grid with `body` and `dock` slots, not a new archetype | Accepted |
 | [0014](0014-transaction-document-page-archetype.md) | Transaction documents are their own `kind: page` archetype (transaction-document, Td) | Accepted |
 | [0015](0015-page-body-section-card-stack.md) | The page body is one frame or a stack of raised section cards; one bordered chrome on every raised surface | Accepted |
+| [0016](0016-quiet-sentence-case-type-hierarchy.md) | Retire the uppercase overline for a quiet sentence-case hierarchy (amends ADR 0007 §2) | Accepted |

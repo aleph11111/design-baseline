@@ -13,7 +13,7 @@ import { useLabels } from "../../lib/labels";
  * titled groups).
  */
 export interface SectionNavGroup {
-  /** Optional uppercase group heading rendered above the items. */
+  /** Optional group label (the muted label rung, sentence case) rendered above the items. */
   label?: string;
   /** Links in this group, in render order. Reuses the baseline `NavItem` shape. */
   items: NavItem[];

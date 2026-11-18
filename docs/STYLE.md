@@ -146,7 +146,7 @@ The baseline uses Tailwind's 4 px scale. A handful of values carry consistent *m
 | Token | Used for |
 |-------|----------|
 | `px-4 py-3` | Card toolbar strip (the bordered control band atop a table card) |
-| `px-5 py-3` | Section title bar (`<DetailSection>` ruled overline bar) |
+| `px-5 pt-4 pb-3` | Card title inside the card padding (`<SectionCard>` / `<DetailSection>`, no ruled band, ADR-0016); the body under it is `px-5 pb-4` |
 | `px-5 py-4` | Section content (non-flush `<DetailSection>`), stat tile |
 | `px-5 py-2.5` | Ruled list row (`<KeyValueRow>`) |
 | `px-6 py-4` | Dialog body (`<CrudDialogBody>`) |
@@ -208,7 +208,7 @@ stays each app's `--primary` override (the baseline default is a deep blue,
 `222 70% 42%` / dark `222 80% 68%`); its *placement* is fixed (ADR-0007 §4).
 
 **Ledger type scale.** House style B runs a tight scale — every step ~1–2px below
-a conventional UI: overlines `text-[10.5px]`, ledger
+a conventional UI: labels `text-xs` (12px medium muted, sentence case), ledger
 body (`KeyValueRow`/`MetricRow`/embedded tables) `text-[13px]`, headline figures
 `text-base` (16px). Numbers stay tabular; prose/notes keep `text-sm` for readability.
 This density is part of the Ledger voice — apply the same step-down to new
@@ -242,7 +242,16 @@ domain `Intl.DateTimeFormat` at the call site is the shape the demos model.
 |-------|-------|----------|
 | Page title (`h1`) | `text-display-title font-semibold tracking-tight` (30px, ADR-0007 §2) | `PageHeader` |
 | Nested page title (`h2`) | `text-base font-medium leading-tight tracking-tight` | `NestedPageHeading` |
-| Section title (`h2`) | `text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground` ("ledger overline") | `SectionHeading` |
+| Section heading (`h2`, bare) | `text-[15px] font-semibold leading-snug text-foreground` (`SECTION_HEADING_CLASS`) | `SectionHeading` |
+| Card title (`h2` in a card) | `text-[13px] font-semibold leading-snug text-foreground` (`CARD_TITLE_CLASS`), inside the card padding, no ruled band | `SectionCard` → `SectionHeading` |
+| Label (sidebar/nav groups, stat labels, column headers, `<Overline>`) | `text-xs font-medium text-muted-foreground` (`OVERLINE_CLASS` / `COL_HEADER_CLASS`) | `Sidebar`, `StatTile`, `FigureTable`, … |
+
+**Sentence case throughout (ADR-0016).** No shared heading or label renders
+`uppercase` or letter-spaced; the uppercase overline is retired. Placement picks the
+heading rung — a `SectionHeading` inside a `SectionCard` is the card title, bare it is
+the section heading — never a prop. The sidebar group chevron shows on hover/focus only.
+Callouts: the `warning` `Alert` is border-only — the status colour on the border and
+the icon, foreground text, no tinted fill.
 
 ### Surfaces
 
@@ -261,7 +270,9 @@ palette. Every raised surface directly on the canvas carries the **hairline
 border** and the fixed radius; a raised surface
 nested inside another raised surface carries **neither border nor fill**
 (`RaisedSurfaceContext`, `layout/surface.ts` — no card-in-card). Internal rules
-(title bars, toolbar bands, hairline dividers) stay. Shadow (`shadow-sm`) is
+(toolbar bands, hairline dividers) stay; a card's title sits inside its padding with
+no ruled band under it, and dialog/drawer header bars carry no `border-b` either
+(ADR-0016). Shadow (`shadow-sm`) is
 reserved for overlays: modals and popovers.
 
 **One page frame.** A page is its `PageHeader` title over its body — one untitled raised surface, or a stack of raised section cards on the canvas when the archetype's shell picks that shape (ADR-0015; never a call-site choice) — `PageFrame`, owned there; where every control goes is its slot table (ADR-0008, `docs/PLACEMENT.md`). There is no on-surface page title and no header fill: the display-step `h1` is the page's one focal point (ADR-0007 §2).
@@ -310,8 +321,8 @@ Archetypes are optional — projects that don't want the page-shape vocabulary c
 | `PageHeader`  | Canonical **page** title block (distinct from the app `AppHeader`): title + optional subtitle / icon / actions / back-link. The single source of page-title typography — `text-display-title font-semibold tracking-tight` (the display step, ADR-0007 §2). Pages get it through `PageFrame` (the shells), never beside a shell. Router-agnostic via `renderBackLink`. A `badges` slot renders read-only status `<Badge>`s inline next to the title (the detail-overview "one home for status"). |
 | `NestedPageHeading` | Canonical **nested page** title — the middle rung of the heading ladder, between `PageHeader` (the `<h1>` page title) and `SectionHeading` (the overline sub-section label). Renders an `<h2>` at a single fixed scale (`text-base font-medium leading-tight tracking-tight`) with **no size/weight/variant prop** — the type scale is fixed in the component, per the appearance-locality rule (ADR 0004). Use when a parent route layout owns the `<h1>` (a tabbed sub-route like `/:resource/[id]/:section`) and the page below it still needs a title of its own (e.g. "Devices", "History", "Members"). Prop shape matches the `PageHeader` family — `title` + optional `subtitle` / `badges` / `actions` — so the three ladder rungs read as one family. |
 | `PageFrame` | The **one page frame** (ADR-0008): `PageHeader` + one untitled `SurfaceFrame` whose first band holds `toolbar` / `count` / `viewOptions`. Every page archetype shell renders through it; nested inside another `PageFrame` it titles itself with `NestedPageHeading` and joins the parent surface. |
-| `SectionHeading` | Canonical **section** title — the "ledger" overline `<h2>` (`text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted-foreground`, i.e. `OVERLINE_CLASS`) + optional description / actions. The single source of sub-section title typography. Usually consumed via `SectionCard` (below); use it directly only for a bare heading with no bounding card. |
-| `SectionCard` | Canonical **titled bounded section** — a card with an optional ruled `SectionHeading` title bar (+ description / actions slot) and a flush-or-padded body, graded by `tone`. The single source of the "heading bound to its content as one block" shape. Composed by `DetailSection` (detail-overview), grouped-list groups, and form-page field groups. A section heading should never float as plain text above a detached card — wrap the block in `SectionCard`. `chrome={false}` renders it chromeless (title bar + padding, no border/shadow) for embedding inside an already-bounded surface (e.g. the detail-overview shell's rail). |
+| `SectionHeading` | Canonical **section** title — a sentence-case `<h2>`: 15px semibold foreground bare (`SECTION_HEADING_CLASS`), 13px inside a `SectionCard` (`CARD_TITLE_CLASS`, ADR-0016) + optional description / actions. The single source of sub-section title typography. Usually consumed via `SectionCard` (below); use it directly only for a bare heading with no bounding card. |
+| `SectionCard` | Canonical **titled bounded section** — a card with an optional `SectionHeading` card title inside its padding, no ruled band (+ description / actions slot; ADR-0016) and a flush-or-padded body, graded by `tone`. The single source of the "heading bound to its content as one block" shape. Composed by `DetailSection` (detail-overview), grouped-list groups, and form-page field groups. A section heading should never float as plain text above a detached card — wrap the block in `SectionCard`. `chrome={false}` renders it chromeless (title + padding, no border/shadow) for embedding inside an already-bounded surface (e.g. the detail-overview shell's rail). |
 | `StatTileRow` / `StatTile` | Canonical **KPI / aggregate strip** — one bounded surface with hairline-divided cells (`StatTile`: overline label + `text-display-stat tabular-nums` value + an optional context line — a comparison, period, or delta, ADR-0007 §6). Shared across archetypes: detail-overview's `stats` slot and the analytics-dashboard KPI row. (Re-exported from `@/components/archetypes/detail-overview` for back-compat.) |
 | `ProgressTracker` | Canonical **horizontal lifecycle / pipeline stepper** — an ordered set of stages with one `current` marker and `done`/`pending` states (dot + connector per stage). Token-pure (`--primary` for done/current, `border`/`muted` for pending) so it re-skins with the fleet. Promoted rule-of-2 (order lifecycle + deal pipeline); used in the detail-overview `content` slot. Labels wrap inside their column; set `lang` on the tracker or an ancestor, else `hyphens-auto` does nothing. |
 | `MetricList` / `MetricRow` | Canonical **compact "figures at a glance" readout** — a ruled vertical list with an emphasized right-aligned `tabular-nums` value and an optional "show more" disclosure (`MetricList more={…}`) for secondary figures. Neither `StatTileRow` (horizontal, wants the main column) nor `KeyValueRow` (no value emphasis/collapse) — a third shape for the Command Rail `summary` slot (Revenue + Gross profit / Gesamtwert + ARR pinned, the rest behind the disclosure). |
@@ -489,7 +500,7 @@ consolidation pass, after an audit found each hand-rolled in 3–4 places):
 | Status / category chip | `<Badge>` (`ui/badge`) | a `<span className="rounded-full border px-2.5 py-0.5">` |
 | Positive / caution status color | `--success` / `--warning` tokens (`styles/tokens.css`) | `bg-green-500`, `text-emerald-600`, `bg-amber-50`, or a second tone→class map beside `<Badge>`'s |
 | Quality / affordance marker (e.g. rating stars) | `--rating` token (`styles/tokens.css`) — no `-foreground` pair, drawn onto the surface | `text-amber-500`, hard-coded hex star ink, or `--warning` for the star (it is a quality signal, not an alert) |
-| Uppercase overline label | `OVERLINE_CLASS` (`layout/overline`), via `SectionHeading`/`StatTile` | a re-typed `text-xs uppercase tracking-*` string |
+| Muted label (the retired overline role) | `OVERLINE_CLASS` (`layout/overline`), via `StatTile`/`<Overline>` | a re-typed `text-xs uppercase tracking-*` string |
 | Editable control flush in a table/grid cell | `CellInput` / `CellSelect` (`ui/cell-input`) | a bare native `<input>`/`<select>` in a `<td>` |
 | Native colour picker (swatch + hex) | `ColorField` (`ui/color-field`) | a bare boxed `<input type="color">`, with or without a paired hex `<Input>` |
 | Native file picker (trigger + selected row) | `FileField` (`ui/file-field`) — `variant` (button/dropzone), `accept`, `multiple`, `busy`, `maxSizeBytes` | a hidden `<input type="file">` + hand-rolled trigger / `input.value=""` reset / filename+size row |

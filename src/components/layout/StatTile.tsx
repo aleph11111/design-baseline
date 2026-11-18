@@ -5,7 +5,7 @@ import { OVERLINE_CLASS } from "./overline";
 
 export type StatTileProps = {
   /**
-   * Short label. Rendered as an overline above the value via `OVERLINE_CLASS`
+   * Short label. Rendered as the muted 12px sentence-case label above the value via `OVERLINE_CLASS`
    * — matching the section-title signature.
    */
   label: React.ReactNode;
@@ -37,7 +37,7 @@ export type StatTileProps = {
  *
  * Shared layout primitive (used by detail-overview's `stats` slot and the
  * analytics-dashboard KPI row). Visual contract:
- *   [LABEL (overline)]
+ *   [Label (12px medium muted)]
  *   [value (display-stat mono semibold tabular)]
  *   [hint — the context line (xs muted, optional)]
  *
