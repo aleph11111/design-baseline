@@ -16,8 +16,8 @@ describe("DashboardPeriodPair — paired-period widget kind (contract 4.3)", () 
     const cells = container.querySelectorAll("section");
     expect(cells).toHaveLength(2);
     for (const cell of cells) {
-      expect(cell.className).toContain("sm:col-span-2");
-      expect(cell.className).toContain("lg:col-span-3");
+      expect(cell.className).toContain("@4xl:col-span-2");
+      expect(cell.className).toContain("@5xl:col-span-3");
     }
     const [month, ytd] = screen.getAllByText(/^(Month|YTD)$/) as [HTMLElement, HTMLElement];
     expect(month.textContent).toBe("Month");
@@ -48,7 +48,7 @@ describe("DashboardPeriodPair — paired-period widget kind (contract 4.3)", () 
       </DashboardGrid>,
     );
     const grid = container.querySelector(".grid") as HTMLElement;
-    expect(grid.className).toContain("lg:grid-cols-3");
+    expect(grid.className).toContain("@5xl:grid-cols-3");
   });
 
   it("takes { label, body, actions } halves: sub-headings, bodies, month before YTD, actions on one half only", () => {
@@ -72,6 +72,6 @@ describe("DashboardPeriodPair — paired-period widget kind (contract 4.3)", () 
     expect(ytd.parentElement!.textContent).not.toContain("Edit month");
     const cells = container.querySelectorAll("section");
     expect(cells).toHaveLength(2);
-    for (const cell of cells) expect(cell.className).toContain("lg:col-span-3");
+    for (const cell of cells) expect(cell.className).toContain("@5xl:col-span-3");
   });
 });

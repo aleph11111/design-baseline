@@ -430,9 +430,11 @@ describe("SettingsTableShell — split-pane variant (editPane)", () => {
     // ADR-0008 §3: the panes divide by a hairline, never a second card — the
     // pane wrapper (the form's parent) carries the left hairline.
     const pane = form.parentElement!;
-    expect(pane.className).toContain("md:border-l");
+    expect(pane.className).toContain("@4xl:border-l");
+    // the body root is the container the pane queries (not a viewport media query)
+    expect(pane.parentElement!.parentElement!.className).toContain("@container");
     // …so exactly one bordered pane node exists, sitting beside the table.
-    expect(container.querySelectorAll("[class*='md:border-l']")).toHaveLength(1);
+    expect(container.querySelectorAll("[class*='@4xl:border-l']")).toHaveLength(1);
     expect(screen.getByRole("cell", { name: "Row 0" })).toBeTruthy();
   });
 
@@ -446,7 +448,7 @@ describe("SettingsTableShell — split-pane variant (editPane)", () => {
       />,
     );
     // No divider node at all — the pane wrapper is simply not rendered.
-    expect(container.querySelectorAll("[class*='md:border-l']")).toHaveLength(0);
+    expect(container.querySelectorAll("[class*='@4xl:border-l']")).toHaveLength(0);
     // The frame body is the flex wrapper holding only the table region (one
     // child), not a table region plus an empty bordered pane (two children).
     const table = container.querySelector("table")!;

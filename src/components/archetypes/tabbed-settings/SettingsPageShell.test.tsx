@@ -220,7 +220,7 @@ describe("SettingsPageShell — one page frame (ADR-0008)", () => {
     // The pane is present — the split-pane variation also applies to the
     // frameless body…
     const pane = screen.getByRole("form", { name: "Edit channel" }).parentElement as HTMLElement;
-    expect(pane.className).toContain("md:border-l");
+    expect(pane.className).toContain("@4xl:border-l");
     // …and the bleed lands on the band and on the row wrapper (the edge
     // containers without flex siblings).
     const band = container.querySelector('[data-slot="settings-table-band"]') as HTMLElement;

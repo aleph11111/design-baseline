@@ -166,15 +166,17 @@ export function StructureBuilderShell({
   else if (isEmpty) body = <StateView variant="empty" title={emptyMessage ?? L.structureEmpty} action={create} />;
   else
     body = (
-      <div className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-3">
-        <section aria-label={L.structureTree} className="min-w-0 lg:col-span-2">
-          {children}
-        </section>
-        <aside className="min-w-0 space-y-3 border-t border-border pt-4 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
-          <h2 className="text-sm font-medium">{paletteTitle}</h2>
-          {coverage ? <CoverageLine coverage={coverage} /> : null}
-          {palette}
-        </aside>
+      <div className="@container">
+        <div className="grid grid-cols-1 gap-4 p-4 @4xl:grid-cols-3">
+          <section aria-label={L.structureTree} className="min-w-0 @4xl:col-span-2">
+            {children}
+          </section>
+          <aside className="min-w-0 space-y-3 border-t border-border pt-4 @4xl:border-l @4xl:border-t-0 @4xl:pl-4 @4xl:pt-0">
+            <h2 className="text-sm font-medium">{paletteTitle}</h2>
+            {coverage ? <CoverageLine coverage={coverage} /> : null}
+            {palette}
+          </aside>
+        </div>
       </div>
     );
 

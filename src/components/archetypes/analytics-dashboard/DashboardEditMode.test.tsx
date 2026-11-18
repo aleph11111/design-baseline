@@ -142,7 +142,7 @@ describe("analytics-dashboard edit mode (ADR-0011)", () => {
         <DashboardWidget title="Beta" span={1} edit={edit("Beta", 1)}>b</DashboardWidget>
       </DashboardGrid>,
     );
-    expect(container.firstElementChild!.className).toMatch(/gap-4.*md:gap-5/);
+    expect(container.querySelector(".grid")!.className).toMatch(/gap-4.*@2xl:gap-5/);
     expect(container.innerHTML).not.toMatch(/-mr-px|-mb-px|border-r/);
     for (const section of container.querySelectorAll("section")) {
       expect(section.className).toMatch(/(^|\s)border(\s|$)/);

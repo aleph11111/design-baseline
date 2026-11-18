@@ -26,7 +26,7 @@ export function KeyValueList({
   className,
 }: KeyValueListProps): React.ReactElement {
   return (
-    <dl className={cn("divide-y divide-border", className)}>{children}</dl>
+    <dl className={cn("@container divide-y divide-border", className)}>{children}</dl>
   );
 }
 

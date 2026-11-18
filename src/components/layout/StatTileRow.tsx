@@ -3,10 +3,10 @@ import * as React from "react";
 import { RaisedSurfaceContext, useRaisedChrome } from "./surface";
 import { cn } from "../../lib/utils";
 
-const SM_COLS_MAP: Record<2 | 3 | 4, string> = {
-  2: "sm:grid-cols-2",
-  3: "sm:grid-cols-3",
-  4: "sm:grid-cols-4",
+const XL_COLS_MAP: Record<2 | 3 | 4, string> = {
+  2: "@4xl:grid-cols-2",
+  3: "@4xl:grid-cols-3",
+  4: "@4xl:grid-cols-4",
 };
 
 export type StatTileRowProps = {
@@ -28,7 +28,7 @@ export type StatTileRowProps = {
  * does not derive (RULES.md hard rule 10 / ADR-0004), and "must match the child
  * count" is a rule the component can enforce itself. The strip always collapses
  * to a single stacked column on narrow viewports (horizontal hairlines), then
- * expands at `sm` (vertical hairlines).
+ * expands at the container's `@4xl` (vertical hairlines). It keys on its own container width, not the viewport: the outer `@container` wrapper takes `className` (the element the parent lays out), the bordered grid sits inside.
  *
  * Hand-rolled tile cells are forbidden — use `<StatTile>`. Fixed column
  * counts without the responsive collapse are forbidden — use this primitive.
@@ -51,16 +51,17 @@ export function StatTileRow({
   const chrome = useRaisedChrome();
 
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-lg text-card-foreground",
-        chrome,
-        "grid grid-cols-1 divide-y divide-border sm:divide-x sm:divide-y-0",
-        SM_COLS_MAP[columns],
-        className,
-      )}
-    >
-      <RaisedSurfaceContext.Provider value={true}>{children}</RaisedSurfaceContext.Provider>
+    <div className={cn("@container", className)}>
+      <div
+        className={cn(
+          "h-full overflow-hidden rounded-lg text-card-foreground",
+          chrome,
+          "grid grid-cols-1 divide-y divide-border @4xl:divide-x @4xl:divide-y-0",
+          XL_COLS_MAP[columns],
+        )}
+      >
+        <RaisedSurfaceContext.Provider value={true}>{children}</RaisedSurfaceContext.Provider>
+      </div>
     </div>
   );
 }
