@@ -277,8 +277,8 @@ function usePurchaseOrder(): TransactionDocumentShellProps {
 function compactLocks(compact: boolean): TransactionDocumentShellProps {
   const lock = { reason: "Price agreed in the accepted offer.", wayOut: { label: "Open offer AN-2026-0077", href: "#" } };
   const rows: LedgerRow[] = [
-    { ...poLine("a", "Ninjago City", "70620-1 · used", 195, 289), locks: { cost: lock }, removable: false },
-    { ...poLine("b", "Assembly Square", "10255-1 · new", 180, 248), locks: { cost: lock }, removable: false },
+    { ...poLine("a", "Ninjago City", "", 195, 289), locks: { cost: lock }, removable: false },
+    { ...poLine("b", "Assembly Square", "", 180, 248), locks: { cost: lock }, removable: false },
   ];
   return {
     title: "Purchase from Jana Petersen",

@@ -341,6 +341,8 @@ describe("TransactionDocumentShell — row locks, add and remove", () => {
     expect(slot("td-ledger").querySelector("h2")!.parentElement!.parentElement!.contains(trigger)).toBe(true); // on the title line
     fireEvent.click(trigger);
     expect(await screen.findByRole("link", { name: "Open in BrickLink" })).toBeTruthy();
+    expect(screen.getAllByText("Prices come from BrickLink.").length).toBeGreaterThan(0);
+    expect(screen.getByText("Cost", { selector: "p" })).toBeTruthy(); // the popover names its column
   });
 
   it("compact lock sits inline left of its figure on one line", () => {

@@ -251,7 +251,7 @@ export function TransactionDocumentShell({
 
   // Compact: the column locks ride the ledger's header line, not a note row above the table.
   const columnLocks = ledger.compactRowLocks
-    ? lockedColumns(ledger.columns, !!ledger.onCellChange, !!locks.ledger).map((c) => <LockPopover key={c.key} lock={c.lock!} field={c.label} />)
+    ? lockedColumns(ledger.columns, !!ledger.onCellChange, !!locks.ledger).map((c) => <LockPopover key={c.key} lock={c.lock!} field={c.label} named />)
     : undefined;
 
   const primaryButton = primary ? <PrimaryButton action={primary} renderLink={renderLink ?? link} /> : null;

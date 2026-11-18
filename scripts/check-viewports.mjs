@@ -358,6 +358,7 @@ for (const [radio, shot] of TD_VARIANTS) {
       // identity.progress: one line at laptop-window widths and wider (the header actions no longer squeeze it); a phone may wrap
       if (["laptop14", "desk27", "sweep 1133", "sweep 1280"].includes(name)) {
         const prog = await page.$eval('[data-slot="td-progress"]', (ol) => ({ h: ol.getBoundingClientRect().height, li: ol.querySelector("li").getBoundingClientRect().height })).catch(() => null);
+        if (!prog && radio === "Sales order") bad.push("progress: the sales order demo has no progress line to measure");
         if (prog && prog.h > prog.li + 2) bad.push(`progress: wraps to several lines (${Math.round(prog.h)}px, one line is ${Math.round(prog.li)}px)`);
       }
       // compact row locks vs the default sentences on the same 2-line document: the compact Total ends above the
@@ -370,7 +371,7 @@ for (const [radio, shot] of TD_VARIANTS) {
         const rowH = await page.$$eval('[data-slot="td-ledger"] tbody tr', (trs) => trs.map((tr) => Math.round(tr.getBoundingClientRect().height)));
         const cellH = await page.$$eval('[data-slot="td-lock-compact"]', (els) => els.map((el) => Math.round(el.getBoundingClientRect().height)));
         if (name === "laptop14") console.log(`  compact locks tbody row heights @ laptop14: ${rowH.join("/")}px, locked cell lines ${cellH.join("/")}px`);
-        if (name === "laptop14" && rowH.some((h) => h > 72)) bad.push(`ledger: locked row ${rowH.join("/")}px, want the two-line label floor of 69px (stacked locks made it 77px)`);
+        if (name === "laptop14" && rowH.some((h) => h > 60)) bad.push(`ledger: locked row ${rowH.join("/")}px, want one line (about 56px; stacked locks made a row 20px taller)`);
         if (cellH.some((h) => h > (name === "phone" ? 48 : 28))) bad.push(`ledger: locked cell ${cellH.join("/")}px high, want one line`);
         const inline = await page.$$eval('[data-slot="td-lock-compact"]', (els) => els.every((el) => { const b = el.querySelector("button").getBoundingClientRect(), t = el.getBoundingClientRect(); return Math.abs((b.top + b.bottom) / 2 - (t.top + t.bottom) / 2) < 4 && b.height <= t.height + 1; }));
         if (!inline) bad.push("ledger: compact lock not inline beside its figure");

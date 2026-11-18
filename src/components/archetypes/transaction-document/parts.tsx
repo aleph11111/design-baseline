@@ -58,9 +58,10 @@ export function LockNote({ lock, field }: { lock: Lock; field?: string }): React
 /**
  * A lock as a lock icon: the reason and way out open in a popover from it
  * (keyboard and touch reachable); the reason also reads aloud without opening.
- * `field` names the locked cell or column.
+ * `field` names the locked cell or column; `named` also shows it in the popover
+ * (a column lock, whose icon sits away from the column it belongs to).
  */
-export function LockPopover({ lock, field }: { lock: Lock; field: string }): React.ReactElement {
+export function LockPopover({ lock, field, named }: { lock: Lock; field: string; named?: boolean }): React.ReactElement {
   const L = useLabels();
   return (
     <Popover>
@@ -74,6 +75,7 @@ export function LockPopover({ lock, field }: { lock: Lock; field: string }): Rea
         </span>
       </PopoverTrigger>
       <PopoverContent className="w-64 p-3 text-left text-sm font-normal">
+        {named ? <p className="font-medium">{field}</p> : null}
         <p>{lock.reason}</p>
         {lock.wayOut ? (
           <p className="mt-1">
