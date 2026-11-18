@@ -4,7 +4,7 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 ## v0.54.0
 
-- **Changed:** `HEADING_ROW_CLASSES.actions` (every `PageHeader`, `PageFrame`, `NestedPageHeading` and the transaction-document header): from a 768px (`@3xl`) row the 60% cap lifts and the actions stay on one row (`flex-nowrap`), so a primary + secondary + overflow cluster no longer wraps beside the title at a laptop window and the subtitle stays one line. Below `@3xl` the wrapping and the 60% cap are unchanged.
+- **Changed:** `HEADING_ROW_CLASSES.actions` (every `PageHeader`, `PageFrame`, `NestedPageHeading` and the transaction-document header): from a 768px (`@3xl`) row the cap rises from 60% to 80% (768px is the narrowest row where a primary + secondary + overflow cluster fits one line), so it no longer wraps beside the title at a laptop window. A wider cluster still wraps instead of overflowing, and the title keeps at least 20%. Below `@3xl` nothing changes.
 - **Changed:** `transaction-document`: with `ledger.compactRowLocks` the ledger header row is `h-9` instead of the shared `h-12`. Default rendering is unchanged.
 - **Consumer:** no new props. Re-baseline screenshots of pages with header actions at 768px+ column width and of compact-lock ledgers; brickshop-manager bumps `design-baseline` and re-runs its visual check.
 - **Breaking:** no.

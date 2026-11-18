@@ -285,6 +285,8 @@ function compactLocks(compact: boolean): TransactionDocumentShellProps {
     backHref: "#",
     backLabel: "Purchase orders",
     identity: { id: "PO-2026-0032", status: "Awaiting parcel" },
+    // Header cluster: two secondary actions + the overflow menu stay on one row from a wide column.
+    actions: { secondary: [{ label: "Send email", icon: Mail, onSelect: noop }, { label: "Sync", icon: RotateCcw, onSelect: noop }], menu: [{ label: "Cancel purchase", destructive: true, onSelect: noop }] },
     nextStep: { title: "Receive the parcel", description: "Check each set against the offer, then book it into stock.", primary: { label: "Receive goods", icon: PackageCheck, onSelect: noop } },
     ledger: {
       // One locked column too: compact, its lock is an icon on the ledger's header line, not a note row above the table.
