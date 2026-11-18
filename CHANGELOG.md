@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.54.0
+
+- **Changed:** `HEADING_ROW_CLASSES.actions` (every `PageHeader`, `PageFrame`, `NestedPageHeading` and the transaction-document header): from a 768px (`@3xl`) row the 60% cap lifts and the actions stay on one row (`flex-nowrap`), so a primary + secondary + overflow cluster no longer wraps beside the title at a laptop window and the subtitle stays one line. Below `@3xl` the wrapping and the 60% cap are unchanged.
+- **Changed:** `transaction-document`: with `ledger.compactRowLocks` the ledger header row is `h-9` instead of the shared `h-12`. Default rendering is unchanged.
+- **Consumer:** no new props. Re-baseline screenshots of pages with header actions at 768px+ column width and of compact-lock ledgers; brickshop-manager bumps `design-baseline` and re-runs its visual check.
+- **Breaking:** no.
+
 ## v0.53.1
 
 - **Fixed:** `checkPageInvariants` / `assertPageInvariants` measure against `device.viewport.width` instead of `window.innerWidth`, and report `overflow:` when the layout viewport has grown past it. Under mobile emulation the viewport grows to fit overflowing content, so real phone overflow (and `clipped:` edges) passed silently. `device` must now carry `viewport` (every `devices.*` triad entry does).

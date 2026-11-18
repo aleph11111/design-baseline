@@ -29,6 +29,10 @@ describe("PageHeader", () => {
     expect(actions.className).not.toContain("shrink-0");
     expect(actions.className).toContain("flex-wrap");
     expect(actions.className).toContain("min-w-0");
+    // wide container: one row, cap lifted; below it the wrapping + 60% cap stay
+    expect(actions.className).toContain("@3xl:flex-nowrap");
+    expect(actions.className).toContain("@3xl:max-w-none");
+    expect(actions.className).toContain("@xl:max-w-[60%]");
     expect(container.querySelectorAll("button")).toHaveLength(9);
   });
 

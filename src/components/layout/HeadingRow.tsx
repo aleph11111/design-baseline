@@ -27,8 +27,8 @@ export const HEADING_ROW_CLASSES = {
   badges: "flex flex-wrap items-center gap-1.5",
   /** Subtitle scale. */
   subtitle: "text-xs text-muted-foreground",
-  /** Actions wrapper: wraps onto further lines and claims at most 60% of a side-by-side row, so the title keeps a usable width. */
-  actions: "flex min-w-0 flex-wrap items-center gap-3 @xl:max-w-[60%] @xl:justify-end",
+  /** Actions wrapper: wraps onto further lines and claims at most 60% of a side-by-side row, so the title keeps a usable width. From `@3xl` (768px row) the cap lifts and the cluster stays on one row; the title block keeps `min-w-0`. */
+  actions: "flex min-w-0 flex-wrap items-center gap-3 @xl:max-w-[60%] @xl:justify-end @3xl:max-w-none @3xl:flex-nowrap",
 } as const;
 
 // ---------------------------------------------------------------------------
