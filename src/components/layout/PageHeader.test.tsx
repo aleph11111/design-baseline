@@ -26,11 +26,12 @@ describe("PageHeader", () => {
     expect(HEADING_ROW_CLASSES.row).not.toMatch(/(^|\s)sm:/);
     const actions = container.querySelector("button")!.parentElement as HTMLElement;
     expect(actions.className).toBe(HEADING_ROW_CLASSES.actions);
-    expect(actions.className).not.toContain("shrink-0");
+    expect(actions.className).not.toMatch(/(^|\s)shrink-0/); // never pinned below the wide breakpoint
     expect(actions.className).toContain("flex-wrap");
     expect(actions.className).toContain("min-w-0");
     // wide container: cap rises to 80%; below it the wrapping + 60% cap stay
     expect(actions.className).toContain("@3xl:max-w-[80%]");
+    expect(actions.className).toContain("@3xl:shrink-0"); // the title absorbs the squeeze, so the cluster keeps its one row
     expect(actions.className).toContain("flex-wrap"); // oversized clusters wrap, never overflow the title
     expect(actions.className).toContain("@xl:max-w-[60%]");
     expect(container.querySelectorAll("button")).toHaveLength(9);
