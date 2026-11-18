@@ -12,6 +12,7 @@
 import * as React from "react";
 import { Copy, FileDown, Mail, Printer, RotateCcw, Tag, Truck, Undo2, XCircle, Gift, Send, PackageCheck } from "lucide-react";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Switch } from "@/components/ui/switch";
 import { formatFigure } from "@/lib/format";
 import {
   TransactionDocumentShell,
@@ -21,7 +22,7 @@ import {
   type WorkflowStep,
 } from "@/components/archetypes/transaction-document";
 
-type Variant = "order" | "offer" | "purchase";
+type Variant = "order" | "offer" | "purchase" | "compact";
 const noop = () => {};
 
 function HistoryList({ items }: { items: [string, string][] }) {
@@ -270,14 +271,42 @@ function usePurchaseOrder(): TransactionDocumentShellProps {
   };
 }
 
+// --- Compact cell locks -------------------------------------------------------
+
+/** A two-line purchase with locked Cost cells. Compact: the lock is an icon in the cell. Full: the sentence under each line (the default), for comparison. */
+function compactLocks(compact: boolean): TransactionDocumentShellProps {
+  const lock = { reason: "Price agreed in the accepted offer.", wayOut: { label: "Open offer AN-2026-0077", href: "#" } };
+  const rows: LedgerRow[] = [
+    { ...poLine("a", "Ninjago City", "70620-1 · used", 195, 289), locks: { cost: lock }, removable: false },
+    { ...poLine("b", "Assembly Square", "10255-1 · new", 180, 248), locks: { cost: lock }, removable: false },
+  ];
+  return {
+    title: "Purchase from Jana Petersen",
+    backHref: "#",
+    backLabel: "Purchase orders",
+    identity: { id: "PO-2026-0032", status: "Awaiting parcel" },
+    nextStep: { title: "Receive the parcel", description: "Check each set against the offer, then book it into stock.", primary: { label: "Receive goods", icon: PackageCheck, onSelect: noop } },
+    ledger: {
+      columns: PO_COLUMNS,
+      rows,
+      totals: [poLine("total", "Total", "", sum(rows, "cost"), sum(rows, "market"))],
+      onCellChange: noop,
+      compactRowLocks: compact, // lock icon in the locked cell; reason and way out open from it
+    },
+    facts: [{ label: "Seller", value: "Jana Petersen" }],
+    history: <HistoryList items={[["7 Nov 11:02", "Offer accepted"]]} />,
+  };
+}
+
 export function TransactionDocumentDemo() {
   const [variant, setVariant] = React.useState<Variant>("order");
   const offer = useOffer();
   const purchase = usePurchaseOrder();
-  const props = variant === "order" ? salesOrder() : variant === "offer" ? offer : purchase;
+  const [compact, setCompact] = React.useState(true);
+  const props = variant === "order" ? salesOrder() : variant === "offer" ? offer : variant === "compact" ? compactLocks(compact) : purchase;
   return (
     <div className="space-y-5">
-      {/* Demo control, not page chrome: switches between the three consumers. */}
+      {/* Demo control, not page chrome: switches between the three consumers and the compact-locks case. */}
       <SegmentedControl
         value={variant}
         onValueChange={(v) => setVariant(v as Variant)}
@@ -285,9 +314,16 @@ export function TransactionDocumentDemo() {
           { value: "order", label: "Sales order" },
           { value: "offer", label: "Offer" },
           { value: "purchase", label: "Purchase order" },
+          { value: "compact", label: "Compact locks" },
         ]}
         aria-label="Document type"
       />
+      {variant === "compact" ? (
+        <label className="flex items-center gap-2 text-sm">
+          <Switch checked={compact} onCheckedChange={setCompact} aria-label="Compact locks" />
+          Compact row locks (off: the default sentence under each line)
+        </label>
+      ) : null}
       <TransactionDocumentShell key={variant} {...props} />
     </div>
   );

@@ -53,7 +53,7 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await launchChrome();
 // transaction-document's three demo documents (demo radio label → contact-sheet slug).
-const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"]];
+const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"], ["Compact locks", "transaction-document-compact"]];
 const failures = [];
 const total = PAGES.length * (Object.keys(devices).length + widthSweep.length) + STEPS.length + 1 + 3 * Object.keys(devices).length + TD_VARIANTS.length * (Object.keys(devices).length + widthSweep.length) + Object.keys(devices).length; // + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench + transaction-document variants + grouped-list work queue
 let n = 0;
@@ -303,6 +303,24 @@ for (const [radio, shot] of TD_VARIANTS) {
       const wide = await page.$$eval('[data-slot="td-ledger"], [data-slot="td-ledger"] *', (els) =>
         els.filter((el) => ["auto", "scroll"].includes(getComputedStyle(el).overflowX) && el.scrollWidth > el.clientWidth + 1).map((el) => `<${el.tagName.toLowerCase()}> ${el.scrollWidth}>${el.clientWidth}`));
       for (const w of wide) bad.push(`ledger: scrolls sideways ${w}`);
+      // compact row locks vs the default sentences on the same 2-line document: the compact Total ends above the
+      // laptop14 fold and at least 20px higher than with the switch off (the sentences saved)
+      if (radio === "Compact locks") {
+        const lockSentences = () => page.locator('[data-slot="td-ledger"] [data-slot="td-lock"]').count();
+        const totalBottom = () => page.$eval('[data-slot="td-ledger"] tfoot', (el) => Math.round(el.getBoundingClientRect().bottom + window.scrollY));
+        if (await lockSentences()) bad.push("ledger: lock sentences under lines, want compact lock icons");
+        if (name === "laptop14") {
+          const compactBottom = await totalBottom();
+          await page.getByRole("switch", { name: "Compact locks" }).click();
+          await page.waitForTimeout(300);
+          const fullBottom = await totalBottom();
+          if ((await lockSentences()) !== 2) bad.push("ledger: switch off should show the default 2 lock sentences");
+          console.log(`  compact locks Total bottom @ laptop14: ${compactBottom}px, full sentences ${fullBottom}px (fold 739px)`);
+          if (compactBottom > 739) bad.push(`ledger: Total ends at ${compactBottom}px, below the 739px laptop14 fold`);
+          if (compactBottom > fullBottom - 20) bad.push(`ledger: compact Total ${compactBottom}px saves under 20px against the full ${fullBottom}px`);
+          await page.getByRole("switch", { name: "Compact locks" }).click();
+        }
+      }
       const title = await page.$eval(".db-content-column h1", (h) => {
         const s = getComputedStyle(h);
         return { cut: h.scrollWidth > h.clientWidth + 1 || h.scrollHeight > h.clientHeight + 1, ellipsis: s.textOverflow === "ellipsis" || s.webkitLineClamp !== "none" };

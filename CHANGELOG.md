@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.51.0
+
+- **Added:** `transaction-document` (contract v1.6): `ledger.compactRowLocks` (also `LedgerTable` `compactRowLocks`), opt-in. A row's cell lock shows as a lock icon beside the locked figure, with the reason and way out in a popover opened from it (keyboard and touch reachable; the reason also reads aloud without opening), instead of a sentence under the line's label. Default off: no ledger changes unless it opts in.
+- **Consumer:** set `ledger={{ ..., compactRowLocks: true }}` to keep a 2-item ledger's Total above the laptop fold.
+- **Breaking:** no.
+
 ## v0.50.8
 
 - **Fixed:** `ComboboxField` groups options with an in-place push instead of re-spreading the bucket per option (O(n²) per group on every `onSearch` result). Group and option order unchanged.

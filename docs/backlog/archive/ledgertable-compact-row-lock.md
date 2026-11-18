@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-17
-status: needs-enrichment
+status: done
 value: high
 model: sonnet
 model_reason: "additive optional prop on a shipped archetype; follows the existing LockNote/Lock pattern, design fork resolved to a recommended default"
@@ -40,7 +40,3 @@ Ask: add a compact row-lock variant: a lock icon kept in the locked Cost cell, w
 - [[transaction-document-ledger-row-lock-add-remove]] — shipped `LedgerRow.locks` this variant condenses
 - [[transaction-document-ledger-row-media]] — also edits the `LedgerTable` row cell (`LedgerRow` optional fields); independent, no ordering needed
 - [ADR-0014](/docs/adr/0014-transaction-document-page-archetype.md) — Transaction documents are their own `kind: page` archetype
-
-## Open question
-
-Tooltip or popover for the compact lock? The thought said "tooltip". Resolved to **Popover (Recommended)** because the way-out is an interactive link and a hover tooltip is not reachable by touch or reliably by keyboard. Alternatives: a plain `Tooltip` (reason only, way-out dropped or shown only on hover/focus), or an always-visible one-line truncated note (keeps text but saves less height). Confirm before `/feat`.

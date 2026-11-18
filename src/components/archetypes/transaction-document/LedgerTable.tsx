@@ -1,12 +1,13 @@
 "use client";
 import * as React from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Lock as LockIcon, Plus, Trash2 } from "lucide-react";
 import { Button } from "../../ui/button";
 import { CellInput } from "../../ui/cell-input";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "../../ui/table";
 import { formatFigure } from "../../../lib/format";
 import { useLabels } from "../../../lib/labels";
-import { fitColumns, parseFigure, type LedgerColumn, type LedgerResult, type LedgerRow } from "./ledger";
+import { fitColumns, parseFigure, type LedgerColumn, type LedgerResult, type LedgerRow, type Lock } from "./ledger";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { ActionLink, LockNote } from "./parts";
 
 export type LedgerTableProps = {
@@ -26,6 +27,12 @@ export type LedgerTableProps = {
   addRowLabel?: string;
   /** Remove a line: each row (unless `removable: false`) gets a remove control. */
   onRemoveRow?: (rowId: string) => void;
+  /**
+   * Row cell locks as a lock icon in the locked cell, the reason and way out in
+   * a popover opened from it, instead of a sentence under the line's label.
+   * Default off: every lock shows its sentence.
+   */
+  compactRowLocks?: boolean;
   locale: string;
 };
 
@@ -62,6 +69,7 @@ export function LedgerTable({
   onAddRow,
   addRowLabel,
   onRemoveRow,
+  compactRowLocks = false,
   locale,
 }: LedgerTableProps): React.ReactElement {
   const L = useLabels();
@@ -72,8 +80,10 @@ export function LedgerTable({
   const columnEditable = (c: LedgerColumn) => !locked && !!onCellChange && !!c.editable && !c.lock;
   const canEdit = (c: LedgerColumn, row: LedgerRow) => columnEditable(c) && !row.locks?.[c.key];
 
-  const value = (row: LedgerRow, c: LedgerColumn, editable: boolean) =>
-    editable ? (
+  const value = (row: LedgerRow, c: LedgerColumn, editable: boolean, total: boolean) => {
+    const lock = compactRowLocks && !total && columnEditable(c) ? row.locks?.[c.key] : undefined;
+    if (lock) return <CompactLock lock={lock} field={`${c.label} ${row.label}`} figure={formatFigure(row.values[c.key], c.kind, { locale })} />;
+    return editable ? (
       <FigureInput
         value={row.values[c.key] ?? null}
         kind={c.kind}
@@ -84,13 +94,14 @@ export function LedgerTable({
     ) : (
       formatFigure(row.values[c.key], c.kind, { locale })
     );
+  };
 
   const line = (row: LedgerRow, total: boolean) => (
     <TableRow key={row.id} data-slot="td-ledger-row" className={total ? "font-medium" : undefined}>
       <TableCell className="min-w-0 align-top whitespace-normal">
         <div className="break-words">{row.label}</div>
         {row.detail ? <div className="text-xs text-muted-foreground">{row.detail}</div> : null}
-        {total
+        {total || compactRowLocks
           ? null
           : columns
               .filter((c) => row.locks?.[c.key] && columnEditable(c))
@@ -107,7 +118,7 @@ export function LedgerTable({
             {overflow.map((c) => (
               <div key={c.key} className="flex items-center gap-1">
                 <dt>{c.label}</dt>
-                <dd className="tabular-nums text-foreground">{value(row, c, !total && canEdit(c, row))}</dd>
+                <dd className="tabular-nums text-foreground">{value(row, c, !total && canEdit(c, row), total)}</dd>
               </div>
             ))}
           </dl>
@@ -115,7 +126,7 @@ export function LedgerTable({
       </TableCell>
       {inline.map((c) => (
         <TableCell key={c.key} className="align-top text-right tabular-nums">
-          {value(row, c, !total && canEdit(c, row))}
+          {value(row, c, !total && canEdit(c, row), total)}
         </TableCell>
       ))}
       {removing ? (
@@ -173,6 +184,35 @@ export function LedgerTable({
         </Button>
       ) : null}
     </div>
+  );
+}
+
+/** A locked figure with its lock beside it: the reason and way out open from the icon, the reason also reads aloud without opening. */
+function CompactLock({ lock, field, figure }: { lock: Lock; field: string; figure: string }): React.ReactElement {
+  const L = useLabels();
+  return (
+    <span data-slot="td-lock-compact" className="flex flex-wrap items-center justify-end gap-x-1">
+      <Popover>
+        <PopoverTrigger
+          type="button"
+          className="inline-flex size-6 max-md:size-11 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        >
+          <LockIcon aria-hidden className="size-4" />
+          <span className="sr-only">
+            {L.locked}: {field}: {lock.reason}
+          </span>
+        </PopoverTrigger>
+        <PopoverContent className="w-64 p-3 text-left text-sm font-normal">
+          <p>{lock.reason}</p>
+          {lock.wayOut ? (
+            <p className="mt-1">
+              <ActionLink action={lock.wayOut} />
+            </p>
+          ) : null}
+        </PopoverContent>
+      </Popover>
+      {figure}
+    </span>
   );
 }
 

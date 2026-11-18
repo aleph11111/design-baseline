@@ -309,6 +309,25 @@ describe("TransactionDocumentShell — row locks, add and remove", () => {
     expect(onCellChange).toHaveBeenCalledTimes(1);
   });
 
+  it("compactRowLocks: lock icon in the cell, reason and way out in a popover, still read-only", async () => {
+    const onCellChange = vi.fn();
+    render(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onCellChange, compactRowLocks: true }} />);
+    expect(slot("td-lock")).toBeNull();
+    expect(screen.queryByRole("textbox", { name: "Cost Set" })).toBeNull();
+    const trigger = screen.getByRole("button", { name: /Locked: Cost Set: Cost comes from the stock lot/ });
+    expect(screen.queryByRole("link", { name: "Open lot" })).toBeNull();
+    expect(trigger.tagName).toBe("BUTTON"); // a native button: Enter and Space open it
+    trigger.focus();
+    fireEvent.click(trigger); // what Enter/Space on a focused button dispatches
+    const wayOut = await screen.findByRole("link", { name: "Open lot" });
+    wayOut.focus();
+    expect(wayOut.tabIndex).toBeGreaterThanOrEqual(0);
+    expect(document.activeElement).toBe(wayOut); // reachable by keyboard
+    expect(onCellChange).not.toHaveBeenCalled();
+    // the unlocked row is unaffected
+    expect(screen.getByRole("textbox", { name: "Cost Fee" })).toBeTruthy();
+  });
+
   it("adds and removes lines inside the ledger; removable:false keeps a line", () => {
     const onAddRow = vi.fn();
     const onRemoveRow = vi.fn();
