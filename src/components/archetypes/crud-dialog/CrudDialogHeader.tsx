@@ -73,7 +73,7 @@ export function CrudDialogHeader({
       className="shrink-0"
       actions={
         actions !== undefined || onClose !== undefined ? (
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex items-center gap-1">
             {actions}
             {onClose && (
               <Button

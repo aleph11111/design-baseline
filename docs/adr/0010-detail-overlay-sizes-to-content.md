@@ -44,3 +44,9 @@ Operator ruling (2026-10-15): the data decides the sheet's width. Scrolling side
 **Option A rejected** (keep one-line cells; a free-text column means the detail is a route). It sent ordinary line-item details — the most common detail table — off to a route just because one column holds a sentence, and it turned the overflow warning into noise consumers learn to ignore.
 
 **Consequences.** The overflow warning, when it fires on a detail that contains a table, now says to mark free-text columns with `FreeTextCell` before escalating to a route. In the gallery a six-column request-lines table with a marked description opens below the ceiling at 1280px without warning; the same table unmarked still reaches the ceiling and warns. `npm run check:detail-sheet` covers both, and the existing cases keep their widths.
+
+## Amendment (2026-11-18) — the title keeps its width next to the actions
+
+**Context.** Rule 3 contains the title, so it contributes no width. The header bar did not wrap and its actions did not shrink, so the actions took their full width and the title got what was left: with three `detailActions` (behandlungskompass, patient name plus two invite buttons and "New treatment path") the title collapsed to 0px.
+
+**Decision.** Rule 3 now reads: the title never widens the overlay, and the actions never squeeze it. The shared dialog/drawer header bar wraps, and its title block keeps a 12rem basis; actions that would leave it less wrap onto a row beneath the title. The close-button clearance moves from the actions row to the bar's right padding, so it holds for the title when the actions wrap. A title longer than the overlay still truncates. Still no prop (rule 5). `npm run check:detail-sheet` covers three actions beside a long title at 1280px and 390px.

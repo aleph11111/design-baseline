@@ -361,6 +361,34 @@ function RequestLinesPanel() {
   );
 }
 
+// Many detail actions beside a long title: the actions wrap onto a row beneath
+// the title instead of squeezing it to zero width.
+function ManyActionsPanel() {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = PODCASTS.find((p) => p.id === selectedId) ?? null;
+  return (
+    <ListWithDetailShell<Podcast>
+      title="Show management"
+      columns={ACTION_ROW_COLUMNS}
+      presentation={PRESENTATION_ACTION_ROW}
+      rows={PODCASTS}
+      getRowId={(p) => p.id}
+      onRowSelect={(p) => setSelectedId(p.id)}
+      selectedRowId={selectedId}
+      onDetailClose={() => setSelectedId(null)}
+      detailTitle={selected ? `${selected.title} · hosted by ${selected.host}` : undefined}
+      detailActions={
+        <>
+          <Button variant="outline">Invite host (SMS)</Button>
+          <Button variant="outline">Invite host (email)</Button>
+          <Button>New episode</Button>
+        </>
+      }
+      detail={selected ? <div className="p-5 text-[15px]">{selected.episodeCount} episodes</div> : undefined}
+    />
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Demo page
 // ---------------------------------------------------------------------------
@@ -601,6 +629,14 @@ export function ListWithDetailDemo() {
               (MA-2042 leaves it unmarked and warns in dev)
             </h3>
             <RequestLinesPanel />
+          </section>
+
+          {/* Three detail actions beside a long title: they wrap beneath it. */}
+          <section className="space-y-2">
+            <h3 className="text-xs font-medium text-muted-foreground">
+              Many detail actions — they wrap beneath a long title instead of hiding it
+            </h3>
+            <ManyActionsPanel />
           </section>
 
           {/* The mobile filter sheet, localized: below `md` (view the gallery

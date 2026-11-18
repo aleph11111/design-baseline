@@ -26,6 +26,10 @@ const CASES = [
   // names FreeTextCell before the route escalation.
   { label: "free-text table, marked @ 1280", width: 1280, panel: "Materialanforderungen", row: "MA-2041", want: (w) => w > 448 && w < 1216, wantText: "> 448px, < ceiling 1216px", scrollFree: true, warns: false, wraps: true },
   { label: "free-text table, unmarked @ 1280", width: 1280, panel: "Materialanforderungen", row: "MA-2042", want: (w) => w === 1216, wantText: "1216px (ceiling)", scrollFree: false, warns: true, warnText: "FreeTextCell" },
+  // Three detail actions beside a long title: the actions wrap beneath it, so
+  // the title stays readable (it collapsed to 0px before the bar wrapped).
+  { label: "3 actions + long title @ 1280", width: 1280, panel: "Show management", row: "Riverbed", want: (w) => w === 448, wantText: "448px (floor)", scrollFree: true, warns: false, minTitle: 200 },
+  { label: "3 actions + long title @ 390", width: 390, panel: "Show management", row: "Riverbed", want: (w) => w === 390, wantText: "390px (full-screen)", scrollFree: true, warns: false, minTitle: 200 },
   { label: "free-text table, marked @ 390", width: 390, panel: "Materialanforderungen", row: "MA-2041", want: (w) => w === 390, wantText: "390px (full-screen)", scrollFree: false, warns: false },
 ];
 const total = CASES.length;
@@ -53,6 +57,16 @@ for (const c of CASES) {
         w: Math.round(el.getBoundingClientRect().width),
         // the title is contained so it can't widen the sheet — it must still show
         title: Math.round(el.querySelector("h2")?.getBoundingClientRect().width ?? 0),
+        // the Sheet close button must overlap neither the title nor an action
+        closeHits: (() => {
+          const close = [...el.children].find((b) => b.tagName === "BUTTON" && getComputedStyle(b).position === "absolute");
+          if (!close) return -1; // no close button found: fail, never pass vacuously
+          const c = close.getBoundingClientRect();
+          const hit = (r) => r.width > 0 && r.left < c.right && r.right > c.left && r.top < c.bottom && r.bottom > c.top;
+          const bar = el.querySelector('[data-slot="surface-header"]');
+          const others = bar ? [bar.querySelector("h2"), ...bar.querySelectorAll("button")].filter((e) => e && e !== close) : [];
+          return others.filter((e) => hit(e.getBoundingClientRect())).length;
+        })(),
         sideways: scrollers.filter((e) => e.scrollWidth > e.clientWidth + 1).length,
         // free-text cells that wrap onto more than one line; every other cell
         // must stay on one line
@@ -66,8 +80,8 @@ for (const c of CASES) {
     });
     const wrapOk = !c.wraps || (m.wrapped > 0 && m.multiline === 0);
     const warnOk = warnings.length === (c.warns ? 1 : 0) && (!c.warnText || warnings.every((t) => t.includes(c.warnText)));
-    const ok = c.want(m.w) && m.title > 0 && (!c.scrollFree || m.sideways === 0) && warnOk && wrapOk;
-    report(c.label, ok, `${m.w}px (want ${c.wantText}), title ${m.title}px, ${m.sideways} sideways scroller(s), ${warnings.length} warning(s) (want ${c.warns ? 1 : 0}${c.warnText ? ` naming ${c.warnText}` : ""})${c.wraps ? `, ${m.wrapped} wrapped free-text cell(s), ${m.multiline} wrapping non-free-text cell(s)` : ""}`);
+    const ok = c.want(m.w) && m.title >= (c.minTitle ?? 1) && m.closeHits === 0 && (!c.scrollFree || m.sideways === 0) && warnOk && wrapOk;
+    report(c.label, ok, `${m.w}px (want ${c.wantText}), title ${m.title}px${c.minTitle ? ` (want >= ${c.minTitle})` : ""}, ${m.closeHits} close-button overlap(s), ${m.sideways} sideways scroller(s), ${warnings.length} warning(s) (want ${c.warns ? 1 : 0}${c.warnText ? ` naming ${c.warnText}` : ""})${c.wraps ? `, ${m.wrapped} wrapped free-text cell(s), ${m.multiline} wrapping non-free-text cell(s)` : ""}`);
     await page.close();
   } catch (e) {
     report(c.label, false, e.message.split("\n")[0]);
