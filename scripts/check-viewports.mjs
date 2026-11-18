@@ -370,9 +370,9 @@ for (const [radio, shot] of TD_VARIANTS) {
         const rowH = await page.$$eval('[data-slot="td-ledger"] tbody tr', (trs) => trs.map((tr) => Math.round(tr.getBoundingClientRect().height)));
         const cellH = await page.$$eval('[data-slot="td-lock-compact"]', (els) => els.map((el) => Math.round(el.getBoundingClientRect().height)));
         if (name === "laptop14") console.log(`  compact locks tbody row heights @ laptop14: ${rowH.join("/")}px, locked cell lines ${cellH.join("/")}px`);
+        if (name === "laptop14" && rowH.some((h) => h > 72)) bad.push(`ledger: locked row ${rowH.join("/")}px, want the two-line label floor of 69px (stacked locks made it 77px)`);
         if (cellH.some((h) => h > (name === "phone" ? 48 : 28))) bad.push(`ledger: locked cell ${cellH.join("/")}px high, want one line`);
         const inline = await page.$$eval('[data-slot="td-lock-compact"]', (els) => els.every((el) => { const b = el.querySelector("button").getBoundingClientRect(), t = el.getBoundingClientRect(); return Math.abs((b.top + b.bottom) / 2 - (t.top + t.bottom) / 2) < 4 && b.height <= t.height + 1; }));
-        if (name === "laptop14") console.log(`  compact locks tbody row heights @ laptop14: ${rowH.join("/")}px`);
         if (!inline) bad.push("ledger: compact lock not inline beside its figure");
         // the column lock is a header action on the slot's title line (a lock button inside the ledger card's header), reachable by name
         const headerLock = await page.locator('[data-slot="td-ledger"] >> role=button[name=/Locked: Expected market value/]').count();
@@ -384,6 +384,7 @@ for (const [radio, shot] of TD_VARIANTS) {
           const fullBottom = await totalBottom();
           if ((await lockSentences()) !== 3) bad.push("ledger: switch off should show the default 3 lock sentences (2 cells + the column)");
           console.log(`  compact locks Total bottom @ laptop14: ${compactBottom}px, full sentences ${fullBottom}px (fold 739px)`);
+          if (compactBottom >= 734) bad.push(`ledger: Total ends at ${compactBottom}px, not above the 734px v0.51.0 value`);
           if (compactBottom > 739) bad.push(`ledger: Total ends at ${compactBottom}px, below the 739px laptop14 fold`);
           if (compactBottom > fullBottom - 20) bad.push(`ledger: compact Total ${compactBottom}px saves under 20px against the full ${fullBottom}px`);
           await page.getByRole("switch", { name: "Compact locks" }).click();
