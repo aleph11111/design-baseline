@@ -243,7 +243,9 @@ export function SettingsTableDemo() {
   const seriesRef = React.useRef<HTMLDivElement>(null);
   const [narrow, setNarrow] = React.useState(false);
   React.useEffect(() => {
-    const el = seriesRef.current;
+    // observe the shell's own @container (the element the pane queries), not the wrapper around it:
+    // the body sits inside the frame's padding, so the wrapper is wider than the pane's container
+    const el = seriesRef.current?.querySelector<HTMLElement>('[data-slot="settings-table-body"]');
     if (!el || typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver(([e]) => setNarrow((e?.contentRect.width ?? Infinity) < 896));
     ro.observe(el);

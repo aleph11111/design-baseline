@@ -15,7 +15,6 @@ import {
   ListStateView,
   RowActionsMenu,
   alignClass,
-  hideBelowClass,
   identifierCell,
   resolveListState,
   type RowAction,
@@ -558,7 +557,7 @@ export function SettingsTableBody<Row>({
             </TableHead>
           )}
           {columns.map((col) => (
-            <TableHead key={col.key} className={cn(alignClass(col.align), hideBelowClass(col))}>
+            <TableHead key={col.key} className={cn(alignClass(col.align), hideBelowContainerClass(col))}>
               {col.header}
             </TableHead>
           ))}
@@ -595,7 +594,7 @@ export function SettingsTableBody<Row>({
                     key={col.key}
                     className={cn(
                       alignClass(col.align),
-                      hideBelowClass(col),
+                      hideBelowContainerClass(col),
                       cellProps?.className,
                     )}
                     {...cellProps}
@@ -678,7 +677,7 @@ export function SettingsTableBody<Row>({
     // `-mt-5` pulls the body's first child (the band, or the table when there
     // is no band) up through the panel's top `p-5`, so the tab body starts at
     // the tab strip's ruled line — the vertical half of the same bleed.
-    <div className={cn("@container", flushEnabled && "-mt-5")}>
+    <div data-slot="settings-table-body" className={cn("@container", flushEnabled && "-mt-5")}>
       {band}
       {/* One surface, always. With `editPane` the body splits into two panes
           (Layer 5, ADR-0008 §3): the table and the consumer's persistent edit
@@ -708,6 +707,19 @@ SettingsTableBody.displayName = "SettingsTableBody";
 // ---------------------------------------------------------------------------
 // Shell (page form)
 // ---------------------------------------------------------------------------
+
+/**
+ * Column `hideBelow` tiers keyed on the body's own container (the `@container`
+ * root of this shell), not the viewport: the sidebar makes the real column far
+ * narrower than the window. `md` hides below 896px of body, `2xl` below 1152px.
+ * Spelled out so Tailwind emits both tiers.
+ */
+function hideBelowContainerClass(col: Pick<TableColumn<unknown>, "hideBelow" | "isIdentifier">): string | undefined {
+  if (col.isIdentifier === true) return undefined;
+  if (col.hideBelow === "md") return "hidden @4xl:table-cell";
+  if (col.hideBelow === "2xl") return "hidden @6xl:table-cell";
+  return undefined;
+}
 
 /**
  * The page-archetype shell (D2) — `SettingsTableBody` inside a `PageFrame`. The frame owns the

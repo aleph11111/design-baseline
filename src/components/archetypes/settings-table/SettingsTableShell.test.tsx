@@ -574,3 +574,20 @@ describe("SettingsTableShell body prop pass-through", () => {
     expect(screen.getByText("Nothing here yet")).toBeTruthy();
   });
 });
+
+describe("SettingsTableShell — container-keyed column tiers", () => {
+  it("hideBelow tiers key on the body's @container, not the viewport", () => {
+    const cols: SettingsColumn<Row>[] = [
+      ...columns,
+      { key: "a", header: "A", cell: (r) => r.id, hideBelow: "md" },
+      { key: "b", header: "B", cell: (r) => r.id, hideBelow: "2xl" },
+    ];
+    const { container } = render(
+      <SettingsTableShell title="T" rows={[{ id: "1", name: "n" }]} columns={cols} getRowId={(r) => r.id} />,
+    );
+    expect(screen.getByText("A").className).toContain("@4xl:table-cell");
+    expect(screen.getByText("B").className).toContain("@6xl:table-cell");
+    expect(container.innerHTML).not.toMatch(/(^|[ "])(md|2xl):table-cell/);
+    expect(container.querySelector('[data-slot="settings-table-body"]')!.className).toContain("@container");
+  });
+});

@@ -206,7 +206,7 @@ const CQ_CASES = [
 ];
 for (const c of CQ_CASES) {
   const label = `container-query layout @ ${c.name}`;
-  let ctx;
+  let ctx, st;
   try {
     let page;
     ({ ctx, page } = await open("analytics-dashboard", c.device));
@@ -233,16 +233,16 @@ for (const c of CQ_CASES) {
     const build = await cols('[class*="@4xl:grid-cols-3"]');
     if (build !== c.build) bad.push(`structure-builder split has ${build} column(s), want ${c.build}`);
     // settings-table: the edit pane is a container query too (no editing surface gap: the demo's dialog follows the same width).
-    const st = await open("settings-table", c.device);
+    st = await open("settings-table", c.device);
     const paneSel = '[class*="w-1/2"][class*="@4xl:border-l"]';
     await st.page.waitForSelector(paneSel, { state: "attached", timeout: 10000 });
     const { pane, w } = await st.page.$eval(paneSel, (el) => ({ pane: getComputedStyle(el).display, w: Math.round(el.closest('[class*="@container"]').getBoundingClientRect().width) }));
     if (pane !== c.pane) bad.push(`settings-table edit pane display is "${pane}" in a ${w}px container, want ${c.pane}`);
-    await st.ctx.close();
     report(label, { failures: bad, knownGaps: [] });
   } catch (e) {
     report(label, fail(e.message.split("\n")[0]));
   } finally {
+    await st?.ctx.close();
     await ctx?.close();
   }
 }
