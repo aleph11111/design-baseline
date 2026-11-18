@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.53.0
+
+- **Changed:** `transaction-document` (contract v1.7): with `ledger.compactRowLocks`, a locked cell's lock icon now sits inline left of its figure (one line per row, not stacked above it), and a column lock (`LedgerColumn.lock`) moves from a note row above the table into the ledger card's title line as a lock icon with a popover (reason and way out; keyboard and touch reachable, sr-only reason). Default rendering is unchanged. `LedgerTable` gains `columnLocksInHeader` (the shell sets it with `compactRowLocks`; a standalone ledger keeps its notes).
+- **Changed:** `identity.progress` now renders full width under the header instead of inside the header's subtitle column, so a six-step line stays on one line at a laptop window instead of wrapping beside the header actions. Applies to every document that sets `identity.progress`; no prop change. The line now sits between the header and the next-step card.
+- **Consumer:** no new props; `compactRowLocks: true` already covers the lock changes. Re-baseline any screenshot of a document with a progress line.
+- **Breaking:** no.
+
 ## v0.52.0
 
 - **Changed:** layout switches of seven primitives now key on their own container width instead of the viewport (the `DetailOverviewShell` `@container` pattern): `StatTileRow` (`sm` to `@4xl`), `KeyValueRow`/`KeyValueList` (`md` to `@sm`, so the 300px rail stacks label over value), `CardGridBody` and `DashboardGrid` (`sm`/`lg` to `@4xl`/`@5xl`; `DashboardWidget` spans follow), `StructureBuilderShell` (`lg` to `@4xl`), `SettingsTableShell` edit pane (`md` to `@4xl`), `SectionNavShell` (`md` to `@4xl`), `DashboardGrid` gap (`md:gap-5` to `@2xl:gap-5`). Inside `AppShell` (256px sidebar) the real column is narrower than the viewport, so the wide layouts now start later: a ~780px column keeps the narrow layout of every one of them (`@4xl` = 896px; this is the intended jump from the old 640px `sm` point, e.g. the KPI strip stays single-column below 896px), while the 1144px laptop column shows the wide layout. In detail-overview the main column beside the 300px rail is ~820px on a laptop, so its KPI strip now stacks there.

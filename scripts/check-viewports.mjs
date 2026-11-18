@@ -355,18 +355,34 @@ for (const [radio, shot] of TD_VARIANTS) {
       const wide = await page.$$eval('[data-slot="td-ledger"], [data-slot="td-ledger"] *', (els) =>
         els.filter((el) => ["auto", "scroll"].includes(getComputedStyle(el).overflowX) && el.scrollWidth > el.clientWidth + 1).map((el) => `<${el.tagName.toLowerCase()}> ${el.scrollWidth}>${el.clientWidth}`));
       for (const w of wide) bad.push(`ledger: scrolls sideways ${w}`);
+      // identity.progress: one line at laptop-window widths and wider (the header actions no longer squeeze it); a phone may wrap
+      if (["laptop14", "desk27", "sweep 1133", "sweep 1280"].includes(name)) {
+        const prog = await page.$eval('[data-slot="td-progress"]', (ol) => ({ h: ol.getBoundingClientRect().height, li: ol.querySelector("li").getBoundingClientRect().height })).catch(() => null);
+        if (prog && prog.h > prog.li + 2) bad.push(`progress: wraps to several lines (${Math.round(prog.h)}px, one line is ${Math.round(prog.li)}px)`);
+      }
       // compact row locks vs the default sentences on the same 2-line document: the compact Total ends above the
       // laptop14 fold and at least 20px higher than with the switch off (the sentences saved)
       if (radio === "Compact locks") {
         const lockSentences = () => page.locator('[data-slot="td-ledger"] [data-slot="td-lock"]').count();
         const totalBottom = () => page.$eval('[data-slot="td-ledger"] tfoot', (el) => Math.round(el.getBoundingClientRect().bottom + window.scrollY));
-        if (await lockSentences()) bad.push("ledger: lock sentences under lines, want compact lock icons");
+        if (await lockSentences()) bad.push("ledger: lock sentences or a column-lock note row, want compact lock icons");
+        // one line per locked cell: the lock sits inline left of the figure, so the locked cell is one text line (stacked it was two)
+        const rowH = await page.$$eval('[data-slot="td-ledger"] tbody tr', (trs) => trs.map((tr) => Math.round(tr.getBoundingClientRect().height)));
+        const cellH = await page.$$eval('[data-slot="td-lock-compact"]', (els) => els.map((el) => Math.round(el.getBoundingClientRect().height)));
+        if (name === "laptop14") console.log(`  compact locks tbody row heights @ laptop14: ${rowH.join("/")}px, locked cell lines ${cellH.join("/")}px`);
+        if (cellH.some((h) => h > (name === "phone" ? 48 : 28))) bad.push(`ledger: locked cell ${cellH.join("/")}px high, want one line`);
+        const inline = await page.$$eval('[data-slot="td-lock-compact"]', (els) => els.every((el) => { const b = el.querySelector("button").getBoundingClientRect(), t = el.getBoundingClientRect(); return Math.abs((b.top + b.bottom) / 2 - (t.top + t.bottom) / 2) < 4 && b.height <= t.height + 1; }));
+        if (name === "laptop14") console.log(`  compact locks tbody row heights @ laptop14: ${rowH.join("/")}px`);
+        if (!inline) bad.push("ledger: compact lock not inline beside its figure");
+        // the column lock is a header action on the slot's title line (a lock button inside the ledger card's header), reachable by name
+        const headerLock = await page.locator('[data-slot="td-ledger"] >> role=button[name=/Locked: Expected market value/]').count();
+        if (!headerLock) bad.push("ledger: no column-lock icon in the ledger header");
         if (name === "laptop14") {
           const compactBottom = await totalBottom();
           await page.getByRole("switch", { name: "Compact locks" }).click();
           await page.waitForTimeout(300);
           const fullBottom = await totalBottom();
-          if ((await lockSentences()) !== 2) bad.push("ledger: switch off should show the default 2 lock sentences");
+          if ((await lockSentences()) !== 3) bad.push("ledger: switch off should show the default 3 lock sentences (2 cells + the column)");
           console.log(`  compact locks Total bottom @ laptop14: ${compactBottom}px, full sentences ${fullBottom}px (fold 739px)`);
           if (compactBottom > 739) bad.push(`ledger: Total ends at ${compactBottom}px, below the 739px laptop14 fold`);
           if (compactBottom > fullBottom - 20) bad.push(`ledger: compact Total ${compactBottom}px saves under 20px against the full ${fullBottom}px`);

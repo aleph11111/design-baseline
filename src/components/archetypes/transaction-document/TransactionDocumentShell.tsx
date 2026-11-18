@@ -13,9 +13,9 @@ import { formatFigure, type FigureKind } from "../../../lib/format";
 import { useLabels } from "../../../lib/labels";
 import { cn } from "../../../lib/utils";
 import type { LedgerColumn, LedgerResult, LedgerRow, LinkAction, Lock } from "./ledger";
-import { LedgerTable } from "./LedgerTable";
+import { LedgerTable, lockedColumns } from "./LedgerTable";
 import type { WorkflowStep, WorkflowTone } from "../shared/workflowStep";
-import { ActionLink, DocumentId, LockNote, RenderLinkContext, type RenderLink } from "./parts";
+import { ActionLink, DocumentId, LockNote, LockPopover, RenderLinkContext, type RenderLink } from "./parts";
 
 /** The document's identity: who it is and where it stands. */
 export type TransactionIdentity = {
@@ -114,7 +114,12 @@ export type TransactionLedger = {
   addRowLabel?: string;
   /** Remove a line from inside the ledger; rows opt out with `removable: false`. */
   onRemoveRow?: (rowId: string) => void;
-  /** Row cell locks show as a lock icon in the cell (reason and way out in a popover) instead of a sentence under the line; default off. */
+  /**
+   * Compact locks; default off. Row cell locks show as a lock icon beside the
+   * figure (reason and way out in a popover) instead of a sentence under the
+   * line, and column locks move into the ledger's header as lock icons
+   * (the same popover) instead of a note row above the table.
+   */
   compactRowLocks?: boolean;
 };
 
@@ -220,10 +225,9 @@ export function TransactionDocumentShell({
     </>
   );
   const subtitle =
-    identity.summary || identity.chain?.length || identity.progress?.length ? (
+    identity.summary || identity.chain?.length ? (
       <div className="space-y-1 text-sm">
         {identity.summary ? <p data-slot="td-summary">{identity.summary}</p> : null}
-        {identity.progress?.length ? <Progress steps={identity.progress} locale={locale} /> : null}
         {identity.chain?.length ? (
           <nav aria-label={L.documentChain} data-slot="td-chain">
             <ol className="flex flex-wrap items-center gap-x-1.5">
@@ -245,6 +249,11 @@ export function TransactionDocumentShell({
       </div>
     ) : undefined;
 
+  // Compact: the column locks ride the ledger's header line, not a note row above the table.
+  const columnLocks = ledger.compactRowLocks
+    ? lockedColumns(ledger.columns, !!ledger.onCellChange, !!locks.ledger).map((c) => <LockPopover key={c.key} lock={c.lock!} field={c.label} />)
+    : undefined;
+
   const primaryButton = primary ? <PrimaryButton action={primary} renderLink={renderLink ?? link} /> : null;
 
   return (
@@ -261,6 +270,8 @@ export function TransactionDocumentShell({
         body="stack"
         titleStep="document"
       >
+        {/* Full width under the header, not in the subtitle column the header actions squeeze. */}
+        {identity.progress?.length ? <Progress steps={identity.progress} locale={locale} /> : null}
         <SectionCard
           data-slot="td-next-step"
           aria-labelledby={`${id}-next`}
@@ -290,7 +301,7 @@ export function TransactionDocumentShell({
           </div>
         </SectionCard>
 
-        <Slot name="td-ledger" title={L.ledger} lock={locks.ledger}>
+        <Slot name="td-ledger" title={L.ledger} lock={locks.ledger} actions={columnLocks}>
           <LedgerTable
             columns={ledger.columns}
             rows={ledger.rows}
@@ -301,6 +312,7 @@ export function TransactionDocumentShell({
             addRowLabel={ledger.addRowLabel}
             onRemoveRow={ledger.onRemoveRow}
             compactRowLocks={ledger.compactRowLocks}
+            columnLocksInHeader={ledger.compactRowLocks}
             locked={!!locks.ledger}
             locale={locale}
           />
@@ -364,9 +376,9 @@ export function TransactionDocumentShell({
 TransactionDocumentShell.displayName = "TransactionDocumentShell";
 
 /** One titled section card; the lock note leads its body. */
-function Slot({ name, title, lock, children }: { name: string; title: string; lock?: Lock; children: React.ReactNode }) {
+function Slot({ name, title, lock, actions, children }: { name: string; title: string; lock?: Lock; actions?: React.ReactNode[]; children: React.ReactNode }) {
   return (
-    <SectionCard data-slot={name} title={title} aria-label={title} className="min-w-0">
+    <SectionCard data-slot={name} title={title} aria-label={title} actions={actions?.length ? <span className="-my-1.5 flex items-center">{actions}</span> : undefined} className="min-w-0">
       <div className="space-y-3">
         {lock ? <LockNote lock={lock} /> : null}
         {children}
@@ -382,7 +394,7 @@ function Progress({ steps, locale }: { steps: TransactionProgressStep[]; locale:
   const L = useLabels();
   const stateLabel = { done: L.sideEffectDone, pending: L.sideEffectPending };
   return (
-    <ol aria-label={L.documentProgress} data-slot="td-progress" className="flex flex-wrap gap-x-4 gap-y-1 pt-0.5 text-xs">
+    <ol aria-label={L.documentProgress} data-slot="td-progress" className="-mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground md:-mt-3.5">
       {steps.map((s, i) => (
         <li
           key={i} // positional: two steps may share a label (a re-pack)

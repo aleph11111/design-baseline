@@ -1,14 +1,13 @@
 "use client";
 import * as React from "react";
-import { Lock as LockIcon, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Button } from "../../ui/button";
 import { CellInput } from "../../ui/cell-input";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "../../ui/table";
 import { formatFigure } from "../../../lib/format";
 import { useLabels } from "../../../lib/labels";
 import { fitColumns, parseFigure, type LedgerColumn, type LedgerResult, type LedgerRow, type Lock } from "./ledger";
-import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
-import { ActionLink, LockNote } from "./parts";
+import { ActionLink, LockNote, LockPopover } from "./parts";
 
 export type LedgerTableProps = {
   columns: LedgerColumn[];
@@ -33,6 +32,12 @@ export type LedgerTableProps = {
    * Default off: every lock shows its sentence.
    */
   compactRowLocks?: boolean;
+  /**
+   * The column locks are shown by the host (as header actions), so no note
+   * row leads the table. The shell sets this with `compactRowLocks`; a
+   * standalone ledger leaves it off and keeps the notes.
+   */
+  columnLocksInHeader?: boolean;
   locale: string;
 };
 
@@ -70,6 +75,7 @@ export function LedgerTable({
   addRowLabel,
   onRemoveRow,
   compactRowLocks = false,
+  columnLocksInHeader = false,
   locale,
 }: LedgerTableProps): React.ReactElement {
   const L = useLabels();
@@ -147,7 +153,7 @@ export function LedgerTable({
     </TableRow>
   );
 
-  const fieldLocks = columns.filter((c) => c.lock && onCellChange && c.editable && !locked);
+  const fieldLocks = columnLocksInHeader ? [] : lockedColumns(columns, !!onCellChange, locked);
   return (
     <div ref={ref} data-slot="td-ledger-table" className="min-w-0">
       {fieldLocks.map((c) => (
@@ -187,30 +193,16 @@ export function LedgerTable({
   );
 }
 
-/** A locked figure with its lock beside it: the reason and way out open from the icon, the reason also reads aloud without opening. */
+/** The columns whose edit is locked on this ledger (a note, or a header lock icon each). */
+export function lockedColumns(columns: LedgerColumn[], editing: boolean, locked: boolean): LedgerColumn[] {
+  return columns.filter((c) => c.lock && editing && c.editable && !locked);
+}
+
+/** A locked figure with its lock inline to its left, on one right-aligned line. */
 function CompactLock({ lock, field, figure }: { lock: Lock; field: string; figure: string }): React.ReactElement {
-  const L = useLabels();
   return (
-    <span data-slot="td-lock-compact" className="flex flex-wrap items-center justify-end gap-x-1">
-      <Popover>
-        <PopoverTrigger
-          type="button"
-          className="inline-flex size-6 max-md:size-11 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-        >
-          <LockIcon aria-hidden className="size-4" />
-          <span className="sr-only">
-            {L.locked}: {field}: {lock.reason}
-          </span>
-        </PopoverTrigger>
-        <PopoverContent className="w-64 p-3 text-left text-sm font-normal">
-          <p>{lock.reason}</p>
-          {lock.wayOut ? (
-            <p className="mt-1">
-              <ActionLink action={lock.wayOut} />
-            </p>
-          ) : null}
-        </PopoverContent>
-      </Popover>
+    <span data-slot="td-lock-compact" className="flex items-center justify-end gap-x-1 whitespace-nowrap">
+      <LockPopover lock={lock} field={field} />
       {figure}
     </span>
   );
