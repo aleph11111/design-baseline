@@ -11,8 +11,10 @@ gate:
     - acceptance
     - related
   failed: []
-  graded_at: '2026-11-18T19:21:52.951Z'
+  graded_at: '2026-11-18T19:29:58Z'
 value: normal
+model: sonnet
+model_reason: "cause established (fixed numeric tracks starve the minmax(0,1fr) label track in STMT_GRID); scoped shared-grid fix plus a check:viewports invariant"
 ---
 
 # statement-with-filters phone label column squashed to one character
@@ -44,6 +46,7 @@ At 390px the committed phone baseline `tests/screenshots/phone/statement-with-fi
 - [[table-column-hide-below-tier]] — existing hide-below-tier precedent for wide tables
 - [[device-triad-check-viewports]] — the check:viewports device triad the new invariant extends
 - [[page-header-actions-squeeze-title-on-phones]] — same class of phone squeeze defect
+- [[print-statement-screen-table-clips-without-scroll-cue]] — sibling horizontal-scroll cue for wide statement bodies (separate `PrintStatementShell`, no shared file)
 
 ## Decision
 
