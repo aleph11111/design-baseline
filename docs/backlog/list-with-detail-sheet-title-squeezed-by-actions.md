@@ -2,7 +2,7 @@
 area: layout
 opened: 2026-11-18
 status: ready
-value: normal
+value: high
 model: sonnet
 model_reason: "scoped class change on one shared bar plus test, demo and version bump; cause is established"
 gate:
@@ -41,3 +41,17 @@ gate:
 - [[page-header-actions-squeeze-title-on-phones]] — earlier viewport-based fix of the same pattern
 - [[surface-header-compose-not-copy]] — origin of the shared `SurfaceHeaderBar`
 - [[list-with-detail-sheet-sizes-to-content]] — the `sm:w-min` / `contain:inline-size` sheet sizing this interacts with
+- [[archetype-gap-list-with-detail-sheet-title-squeezed-by-actions]] — duplicate of this ticket, to be discarded
+- [[list-with-detail-actions-squeeze-title]] — duplicate of this ticket, to be discarded
+- [[list-with-detail-sheet-actions-squeeze-title]] — duplicate of this ticket, to be discarded
+
+## 2026-11-18 update
+
+Four tickets were filed for this one defect. This is the canonical one: it fixes at the shared `SurfaceHeaderBar` (also covering `CrudDialogHeader`), so two parallel `/feat` sessions must not pick the others. The three listed under Related are duplicates; the operator discards them separately. `value` raised to `high` (the duplicates carried it): in behandlungskompass `/praxis/patienten` the hidden title is a wrong-patient risk, since the dentist cannot see whose record is open when pressing `Neue Strecke`, and consumer ticket `patient-detail-sheet-name-hidden` waits on this release.
+
+Fold in from the duplicates when implementing:
+
+- Keep ADR-0010 rule 3: the title never widens the sheet, and truncates only when longer than the sheet's own width.
+- Keep the `pr-8` Sheet-close clearance when the actions wrap onto their own row.
+- Amend ADR-0010 rule 3 / `docs/archetypes/list-with-detail.md` sizing text if the wrap changes the documented behaviour.
+- Acceptance across action counts: a test covers N = 0..4 `detailActions`, not only the 3-action case.
