@@ -371,7 +371,10 @@ for (const [radio, shot] of TD_VARIANTS) {
         const rowH = await page.$$eval('[data-slot="td-ledger"] tbody tr', (trs) => trs.map((tr) => Math.round(tr.getBoundingClientRect().height)));
         const cellH = await page.$$eval('[data-slot="td-lock-compact"]', (els) => els.map((el) => Math.round(el.getBoundingClientRect().height)));
         if (name === "laptop14") console.log(`  compact locks tbody row heights @ laptop14: ${rowH.join("/")}px, locked cell lines ${cellH.join("/")}px`);
-        if (name === "laptop14" && rowH.some((h) => h > 60)) bad.push(`ledger: locked row ${rowH.join("/")}px, want one line (about 56px; stacked locks made a row 20px taller)`);
+        // a locked row is as tall as its label cell alone (name + subline + padding): the lock adds no height. With a subline that is
+        // 69px (stacked locks made it 77px); a single-line label row is about 56px.
+        const lockAdds = await page.$$eval('[data-slot="td-ledger"] tbody tr', (trs) => trs.map((tr) => { const td = tr.firstElementChild, cs = getComputedStyle(td); const inner = [...td.children].reduce((h, c) => h + c.getBoundingClientRect().height, 0); return Math.round(tr.getBoundingClientRect().height - (inner + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom))); }));
+        if (name === "laptop14" && (lockAdds.some((d) => d > 2) || rowH.some((h) => h > 72))) bad.push(`ledger: locked row ${rowH.join("/")}px is taller than its label cell (excess ${lockAdds.join("/")}px)`);
         if (cellH.some((h) => h > (name === "phone" ? 48 : 28))) bad.push(`ledger: locked cell ${cellH.join("/")}px high, want one line`);
         const inline = await page.$$eval('[data-slot="td-lock-compact"]', (els) => els.every((el) => { const b = el.querySelector("button").getBoundingClientRect(), t = el.getBoundingClientRect(); return Math.abs((b.top + b.bottom) / 2 - (t.top + t.bottom) / 2) < 4 && b.height <= t.height + 1; }));
         if (!inline) bad.push("ledger: compact lock not inline beside its figure");
