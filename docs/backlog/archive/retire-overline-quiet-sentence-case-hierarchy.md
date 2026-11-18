@@ -1,7 +1,7 @@
 ---
 area: tokens
 opened: 2026-11-18
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "amends a house-look ADR and changes the shared type scale for every archetype; the hierarchy and surface rules are design judgment, not pattern-following"
