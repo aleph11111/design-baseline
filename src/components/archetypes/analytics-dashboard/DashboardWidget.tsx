@@ -70,8 +70,8 @@ function EditControls({ edit }: { edit: DashboardWidgetEdit }): React.ReactEleme
 
 const SPAN_MAP: Record<1 | 2 | 3, string> = {
   1: "",
-  2: "sm:col-span-2",
-  3: "sm:col-span-2 lg:col-span-3",
+  2: "@4xl:col-span-2",
+  3: "@4xl:col-span-2 @5xl:col-span-3",
 };
 
 export type DashboardWidgetProps = {

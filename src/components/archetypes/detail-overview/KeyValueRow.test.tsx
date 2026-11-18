@@ -22,13 +22,13 @@ describe("KeyValueRow", () => {
     render(<KeyValueRow label="E-Mail" value="a@b.de" />);
     const row = screen.getByText("a@b.de").parentElement!;
     expect(row.className).toContain("flex-col");
-    expect(row.className).toContain("md:flex-row");
-    expect(screen.getByText("a@b.de").className).toContain("md:text-right");
+    expect(row.className).toContain("@sm:flex-row");
+    expect(screen.getByText("a@b.de").className).toContain("@sm:text-right");
   });
 
   it("block layout stays stacked", () => {
     render(<KeyValueRow block label="Note" value="text" />);
-    expect(screen.getByText("text").parentElement!.className).not.toContain("md:flex-row");
+    expect(screen.getByText("text").parentElement!.className).not.toContain("@sm:flex-row");
   });
 
   it("without the enrichment props the value is the dd's only content", () => {
@@ -84,6 +84,6 @@ describe("KeyValueRow", () => {
   it("block rows take the affordances and stay stacked", () => {
     render(<KeyValueRow block label="Note" value="long text" provenance={{ source: "CRM" }} />);
     expect(screen.getByRole("button", { name: "Source: CRM" })).toBeTruthy();
-    expect(screen.getByText("Note").parentElement!.className).not.toContain("md:flex-row");
+    expect(screen.getByText("Note").parentElement!.className).not.toContain("@sm:flex-row");
   });
 });

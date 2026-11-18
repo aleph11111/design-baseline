@@ -139,7 +139,7 @@ export function KeyValueRow({
       <span
         className={cn(
           "inline-flex max-w-full flex-wrap items-baseline gap-1.5",
-          !block && "md:justify-end",
+          !block && "@sm:justify-end",
         )}
       >
         {missing ? (
@@ -210,12 +210,12 @@ export function KeyValueRow({
   return (
     <div
       className={cn(
-        "flex flex-col gap-1 px-5 py-2.5 md:flex-row md:items-baseline md:justify-between md:gap-6",
+        "flex flex-col gap-1 px-5 py-2.5 @sm:flex-row @sm:items-baseline @sm:justify-between @sm:gap-6",
         className,
       )}
     >
-      <dt className="md:shrink-0 text-[13px] text-muted-foreground">{label}</dt>
-      <dd className="min-w-0 text-left text-[13px] break-words md:text-right text-foreground tabular-nums">
+      <dt className="@sm:shrink-0 text-[13px] text-muted-foreground">{label}</dt>
+      <dd className="min-w-0 text-left text-[13px] break-words @sm:text-right text-foreground tabular-nums">
         {body}
       </dd>
     </div>

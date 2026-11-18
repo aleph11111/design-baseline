@@ -27,7 +27,7 @@
  */
 
 import * as React from "react";
-import { SettingsTableShell } from "@/components/archetypes/settings-table";
+import { SettingsTableShell, useEditPaneNarrow } from "@/components/archetypes/settings-table";
 import type { SettingsColumn, RowAction } from "@/components/archetypes/settings-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,7 +39,6 @@ import {
   CrudDialogBody,
   CrudDialogFooter,
 } from "@/components/archetypes/crud-dialog";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 // ---------------------------------------------------------------------------
 // Domain type
@@ -233,12 +232,15 @@ export function SettingsTableDemo() {
   const [paneSaveFlash, setPaneSaveFlash] = React.useState("");
   const editingSeries = series.find((s) => s.id === editingSeriesId) ?? null;
   // Layer 11: below `md` the shell drops the pane out of the frame and the
-  // click-contract edit dialog is the editing surface. `useIsMobile` (md =
-  // 768px, the shell's own breakpoint) decides which surface is live; both
+  // click-contract edit dialog is the editing surface. The measured container width
+  // (below 896px, the shell's own `@4xl` breakpoint) decides which surface is live; both
   // bind to the same selection state, so pane and dialog always edit the
   // same row.
-  const isMobile = useIsMobile();
-  const mobileDialogOpen = isMobile && editingSeries !== null;
+  // The pane keys on the shell's CONTAINER, so the dialog fallback follows the
+  // same width via the shipped hook, never a viewport check (`useIsMobile`).
+  const seriesRef = React.useRef<HTMLDivElement>(null);
+  const narrow = useEditPaneNarrow(seriesRef);
+  const mobileDialogOpen = narrow && editingSeries !== null;
 
   // Row click (the D2 click contract) selects the row the pane edits —
   // no dialog open/close cycle between successive saves.
@@ -374,9 +376,9 @@ export function SettingsTableDemo() {
 
       {/* Split-pane variant (Layer 5): the same shell, one page frame split
           into table + persistent edit form, hairline-divided. Click a series
-          to select it for the right pane; below `md` the pane drops out of
+          to select it for the right pane; below `@4xl` (container) the pane drops out of
           the frame and the edit dialog (the click contract) takes over. */}
-      <div>
+      <div ref={seriesRef}>
         <SettingsTableShell
           title="Numbering series"
           rows={series}
@@ -425,7 +427,7 @@ export function SettingsTableDemo() {
       />
 
       {/* Layer 11 (split-pane variant, mobile): when the shell has dropped
-          the pane out of the frame (< `md`), the click-contract edit dialog
+          the pane out of the frame (container < `@4xl`), the click-contract edit dialog
           is the editing surface. It composes the J `crud-dialog` sub-
           primitives and binds to the SAME selection + prefix state as the
           pane, so whichever surface is live edits the same row. */}

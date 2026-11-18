@@ -55,7 +55,7 @@ const browser = await launchChrome();
 // transaction-document's three demo documents (demo radio label → contact-sheet slug).
 const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"], ["Compact locks", "transaction-document-compact"]];
 const failures = [];
-const total = PAGES.length * (Object.keys(devices).length + widthSweep.length) + STEPS.length + 1 + 3 * Object.keys(devices).length + TD_VARIANTS.length * (Object.keys(devices).length + widthSweep.length) + Object.keys(devices).length; // + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench + transaction-document variants + grouped-list work queue
+const total = PAGES.length * (Object.keys(devices).length + widthSweep.length) + STEPS.length + 1 + 3 * Object.keys(devices).length + TD_VARIANTS.length * (Object.keys(devices).length + widthSweep.length) + Object.keys(devices).length + 2; // + the container-query layout cases + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench + transaction-document variants + grouped-list work queue
 let n = 0;
 const report = (label, { failures: bad, knownGaps: warn }) => {
   n++;
@@ -191,6 +191,58 @@ for (const [name, device] of Object.entries(devices)) {
   } catch (e) {
     report(label, fail(e.message.split("\n")[0]));
   } finally {
+    await ctx?.close();
+  }
+}
+
+// Container-query layout (viewport-breakpoints-container-query-audit): inside
+// AppShell the column is narrower than the viewport. At the 1133px laptop
+// window the content column is ~780px — below @4xl (896px) — so the KPI strip
+// and the widget grid keep their narrow layout; on laptop14 (wide column) they
+// show the wide one.
+const CQ_CASES = [
+  { name: "sweep 1133 (~780px column)", device: widthSweep.find((d) => d.viewport.width === 1133), strip: 1, grid: 1, build: 1, rail: false, pane: "none" },
+  { name: "laptop14 (wide column)", device: devices.laptop14, strip: 4, grid: 3, build: 3, rail: true, pane: "block" },
+];
+for (const c of CQ_CASES) {
+  const label = `container-query layout @ ${c.name}`;
+  let ctx, st;
+  try {
+    let page;
+    ({ ctx, page } = await open("analytics-dashboard", c.device));
+    const cols = (sel) => page.$eval(sel, (el) => getComputedStyle(el).gridTemplateColumns.split(" ").length);
+    const bad = [];
+    const strip = await cols('[class*="@4xl:divide-x"]');
+    const grid = await cols('[class*="@4xl:grid-cols-2"]');
+    if (strip !== c.strip) bad.push(`KPI strip has ${strip} column(s), want ${c.strip}`);
+    if (grid !== c.grid) bad.push(`widget grid has ${grid} column(s), want ${c.grid}`);
+    // detail-overview: the 300px rail stacks label over value at every width.
+    await page.goto(base + "detail-overview");
+    await page.waitForSelector('[class*="@sm:flex-row"]', { timeout: 10000 });
+    // every row follows ITS list's width: a list under 384px (@sm; the 300px rail) stacks, a wider one is a row.
+    const rows = await page.$$eval('[class*="@sm:flex-row"]', (els) =>
+      els.map((el) => ({ w: Math.round(el.closest('[class*="@container"]').getBoundingClientRect().width), dir: getComputedStyle(el).flexDirection })));
+    const wrong = rows.filter((r) => (r.w < 384) !== (r.dir === "column"));
+    if (wrong.length) bad.push(`detail-overview key-value rows ignore their list width: ${JSON.stringify(wrong.slice(0, 3))}`);
+    // the 300px rail only exists in a wide column (>= @4xl); in the narrow one the summary is full width and its rows sit side by side
+    if (c.rail && !rows.some((r) => r.w < 384 && r.dir === "column")) bad.push("detail-overview: no stacked row found in the 300px rail");
+    if (!c.rail && rows.some((r) => r.w < 384)) bad.push("detail-overview: a rail-width list in the narrow column");
+    // structure-builder: tree/palette split collapses in the narrow column.
+    await page.goto(base + "structure-builder");
+    await page.waitForSelector('[class*="@4xl:grid-cols-3"]', { timeout: 10000 });
+    const build = await cols('[class*="@4xl:grid-cols-3"]');
+    if (build !== c.build) bad.push(`structure-builder split has ${build} column(s), want ${c.build}`);
+    // settings-table: the edit pane is a container query too (no editing surface gap: the demo's dialog follows the same width).
+    st = await open("settings-table", c.device);
+    const paneSel = '[class*="w-1/2"][class*="@4xl:border-l"]';
+    await st.page.waitForSelector(paneSel, { state: "attached", timeout: 10000 });
+    const { pane, w } = await st.page.$eval(paneSel, (el) => ({ pane: getComputedStyle(el).display, w: Math.round(el.closest('[class*="@container"]').getBoundingClientRect().width) }));
+    if (pane !== c.pane) bad.push(`settings-table edit pane display is "${pane}" in a ${w}px container, want ${c.pane}`);
+    report(label, { failures: bad, knownGaps: [] });
+  } catch (e) {
+    report(label, fail(e.message.split("\n")[0]));
+  } finally {
+    await st?.ctx.close();
     await ctx?.close();
   }
 }

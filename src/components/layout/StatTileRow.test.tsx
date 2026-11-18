@@ -14,7 +14,7 @@ describe("StatTileRow", () => {
         <StatTile label="D" value="4" />
       </StatTileRow>,
     );
-    expect((container.firstChild as HTMLElement).className).toContain("sm:grid-cols-4");
+    expect((container.firstElementChild!.firstElementChild as HTMLElement).className).toContain("@4xl:grid-cols-4");
   });
 
   it("derives the visible tile count, not the child-slot count, when a conditional tile is hidden", () => {
@@ -26,21 +26,33 @@ describe("StatTileRow", () => {
         {showD && <StatTile label="D" value="4" />}
       </StatTileRow>,
     );
-    const className = (container.firstChild as HTMLElement).className;
-    expect(className).toContain("sm:grid-cols-2");
-    expect(className).not.toContain("sm:grid-cols-4");
+    const className = (container.firstElementChild!.firstElementChild as HTMLElement).className;
+    expect(className).toContain("@4xl:grid-cols-2");
+    expect(className).not.toContain("@4xl:grid-cols-4");
+  });
+
+  it("keys on its container, not the viewport, and forwards className to the @container wrapper", () => {
+    const { container } = render(
+      <StatTileRow className="lg:col-span-2 h-full">
+        <StatTile label="A" value="1" />
+        <StatTile label="B" value="2" />
+      </StatTileRow>,
+    );
+    const wrapper = container.firstElementChild as HTMLElement;
+    expect(wrapper.className.split(" ")).toEqual(expect.arrayContaining(["@container", "lg:col-span-2", "h-full"]));
+    expect(wrapper.innerHTML).not.toMatch(/(^|[ "])(sm|md|lg):/);
   });
 
   it("is bordered on the canvas and drops border and fill when nested (ADR-0015)", () => {
     const tiles = [<StatTile key="a" label="A" value="1" />, <StatTile key="b" label="B" value="2" />];
     const top = render(<StatTileRow>{tiles}</StatTileRow>);
-    expect((top.container.firstChild as HTMLElement).className.split(" ")).toContain("border");
+    expect((top.container.firstElementChild!.firstElementChild as HTMLElement).className.split(" ")).toContain("border");
     const nested = render(
       <SurfaceFrame>
         <StatTileRow>{tiles}</StatTileRow>
       </SurfaceFrame>,
     );
-    const row = nested.container.firstElementChild?.firstElementChild as HTMLElement;
+    const row = nested.container.firstElementChild?.firstElementChild?.firstElementChild as HTMLElement;
     expect(row.className.split(" ")).not.toContain("border");
     expect(row.className).not.toContain("bg-surface-raised");
   });

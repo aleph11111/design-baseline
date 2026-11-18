@@ -55,7 +55,7 @@ export interface SectionNavShellProps {
  * labels, icons) is consumer config; this primitive ships none.
  *
  * Responsive: stacks the nav above the content on narrow viewports and sits it
- * to the left from `md` up.
+ * to the left from the container's `@4xl` up.
  */
 export function SectionNavShell({
   groups,
@@ -68,44 +68,46 @@ export function SectionNavShell({
   const L = useLabels();
   const ariaLabel = ariaLabelProp ?? L.section;
   return (
-    <div className={cn("flex h-full flex-col md:flex-row", className)}>
-      <aside className="border-b md:w-64 md:shrink-0 md:border-b-0 md:border-r">
-        <ScrollArea className="h-full">
-          <nav aria-label={ariaLabel} className="flex flex-col gap-1 p-4">
-            {groups.map((group, groupIndex) => (
-              <div key={group.label ?? `group-${groupIndex}`} className={cn(groupIndex > 0 && "mt-4")}>
-                {group.label && (
-                  <h4 className={cn(OVERLINE_CLASS, "mb-1 px-3")}>
-                    {group.label}
-                  </h4>
-                )}
-                {group.items.map((item) => {
-                  const active = isNavPathActive(pathname, item);
-                  return (
-                    <React.Fragment key={item.path}>
-                      {renderLink(
-                        item,
-                        <span
-                          className={cn(
-                            "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                            active
-                              ? "bg-primary/10 font-medium text-primary"
-                              : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                          )}
-                        >
-                          <item.icon className="h-4 w-4 shrink-0" />
-                          {item.title}
-                        </span>,
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-              </div>
-            ))}
-          </nav>
-        </ScrollArea>
-      </aside>
-      <main className="relative flex-1 overflow-auto p-6">{children}</main>
+    <div className={cn("@container h-full", className)}>
+      <div className="flex h-full flex-col @4xl:flex-row">
+        <aside className="border-b @4xl:w-64 @4xl:shrink-0 @4xl:border-b-0 @4xl:border-r">
+          <ScrollArea className="h-full">
+            <nav aria-label={ariaLabel} className="flex flex-col gap-1 p-4">
+              {groups.map((group, groupIndex) => (
+                <div key={group.label ?? `group-${groupIndex}`} className={cn(groupIndex > 0 && "mt-4")}>
+                  {group.label && (
+                    <h4 className={cn(OVERLINE_CLASS, "mb-1 px-3")}>
+                      {group.label}
+                    </h4>
+                  )}
+                  {group.items.map((item) => {
+                    const active = isNavPathActive(pathname, item);
+                    return (
+                      <React.Fragment key={item.path}>
+                        {renderLink(
+                          item,
+                          <span
+                            className={cn(
+                              "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                              active
+                                ? "bg-primary/10 font-medium text-primary"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                            )}
+                          >
+                            <item.icon className="h-4 w-4 shrink-0" />
+                            {item.title}
+                          </span>,
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              ))}
+            </nav>
+          </ScrollArea>
+        </aside>
+        <main className="relative flex-1 overflow-auto p-6">{children}</main>
+      </div>
     </div>
   );
 }

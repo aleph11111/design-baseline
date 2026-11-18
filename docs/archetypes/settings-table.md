@@ -62,8 +62,8 @@ status: locked
 > Re-shapes the split-pane variation for ADR-0008 §3: the edit form is the
 > page frame's right pane, hairline-divided from the table — never a second
 > raised surface (the pre-ADR-0008 two-card layout is retired). The row
-> click contract drives the pane's selection; below `md` the pane is out
-> of the frame and the click-contract edit dialog is the mobile editing
+> click contract drives the pane's selection; when the body's own container is narrower than 896px (not the
+> viewport) the pane is out of the frame and the click-contract edit dialog is the mobile editing
 > surface (Layer 11). The shell carries the variant as a structural slot;
 > no breaking change.
 >

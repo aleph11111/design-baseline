@@ -46,51 +46,53 @@ export function CardGridBody<Row>({
   const secondaryColumns = columns.filter((c) => c !== idCol);
 
   return (
-    <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
-      {rows.map((row) => {
-        const rowId = getRowId(row);
-        const isSelected = selectedRowId === rowId;
-        const activate = clickable ? () => onRowSelect(row) : undefined;
-        return (
-          <div
-            key={rowId}
-            data-state={isSelected ? "selected" : undefined}
-            aria-pressed={activate ? isSelected : undefined}
-            onClick={activate}
-            className={cn(
-              "rounded-lg border bg-card p-4 transition-colors",
-              clickable && "cursor-pointer hover:bg-accent",
-              clickable && interactiveRowFocusRing,
-              isSelected && "ring-2 ring-ring",
-            )}
-            {...getInteractiveRowProps(activate)}
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div className={cn("min-w-0 font-medium", clickable && "text-primary")}>
-                {idCol ? idCol.cell(row) : null}
-              </div>
-              {hasActions && (
-                <div onClick={(e) => e.stopPropagation()}>
-                  <RowActionsMenu row={row} actions={rowActions} triggerLabel={rowActionsLabel} />
-                </div>
+    <div className="@container">
+      <div className="grid grid-cols-1 gap-4 p-4 @4xl:grid-cols-2 @5xl:grid-cols-3">
+        {rows.map((row) => {
+          const rowId = getRowId(row);
+          const isSelected = selectedRowId === rowId;
+          const activate = clickable ? () => onRowSelect(row) : undefined;
+          return (
+            <div
+              key={rowId}
+              data-state={isSelected ? "selected" : undefined}
+              aria-pressed={activate ? isSelected : undefined}
+              onClick={activate}
+              className={cn(
+                "rounded-lg border bg-card p-4 transition-colors",
+                clickable && "cursor-pointer hover:bg-accent",
+                clickable && interactiveRowFocusRing,
+                isSelected && "ring-2 ring-ring",
               )}
-            </div>
-            <dl className="mt-2 space-y-1">
-              {secondaryColumns.map((col) => (
-                <div
-                  key={col.key}
-                  className="flex items-baseline justify-between gap-3 text-[13px]"
-                >
-                  <dt className="shrink-0 text-muted-foreground">{col.header}</dt>
-                  <dd className="min-w-0 text-right text-foreground tabular-nums">
-                    {col.cell(row)}
-                  </dd>
+              {...getInteractiveRowProps(activate)}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className={cn("min-w-0 font-medium", clickable && "text-primary")}>
+                  {idCol ? idCol.cell(row) : null}
                 </div>
-              ))}
-            </dl>
-          </div>
-        );
-      })}
+                {hasActions && (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <RowActionsMenu row={row} actions={rowActions} triggerLabel={rowActionsLabel} />
+                  </div>
+                )}
+              </div>
+              <dl className="mt-2 space-y-1">
+                {secondaryColumns.map((col) => (
+                  <div
+                    key={col.key}
+                    className="flex items-baseline justify-between gap-3 text-[13px]"
+                  >
+                    <dt className="shrink-0 text-muted-foreground">{col.header}</dt>
+                    <dd className="min-w-0 text-right text-foreground tabular-nums">
+                      {col.cell(row)}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

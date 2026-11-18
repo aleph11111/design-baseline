@@ -1,26 +1,15 @@
 ---
 area: archetypes
-opened: '2026-11-16'
-status: blocked
-gate:
-  score: 5
-  passed:
-    - title
-    - context
-    - what-to-do
-    - acceptance
-    - related
-  failed: []
-  graded_at: '2026-11-16T00:00:00.000Z'
+opened: 2026-11-16
+status: done
 value: normal
 model: sonnet
-model_reason: >-
-  class swaps plus wrappers following the DetailOverviewShell @container pattern; per-primitive
-  verdicts already established
-blocked_reason: >-
-  review: PR https://github.com/aleph11111/design-baseline/pull/800 had 5 /ship review-gate rounds
-  that did not approve. Read the <!-- review-gate --> comments on the PR, decide how to proceed,
-  then release the ticket with back 2 ready.
+model_reason: "class swaps plus wrappers following the DetailOverviewShell @container pattern; per-primitive verdicts already established"
+gate:
+  score: 5
+  passed: [title, context, what-to-do, acceptance, related]
+  failed: []
+  graded_at: 2026-11-16T00:00:00Z
 ---
 
 # Primitives key layout on viewport width instead of container width
@@ -55,3 +44,10 @@ blocked_reason: >-
 - [[detail-overview-rail-switch-container-query]] — converted `DetailOverviewShell`; this is the split-off audit
 - [[heading-row-actions-squeeze-title-container-query]] — same viewport-vs-content defect in `HeadingRow`
 - [ADR-0004](/docs/adr/0004-appearance-locality-derived-vs-inherited.md) — fixed in the component, no appearance prop
+
+## Shipped (v0.52.0, PR 800)
+
+- Seven primitives converted; `DashboardWidget` spans follow the grid. Class pins: `StatTileRow.test.tsx`, `src/components/layout/container-query-pins.test.tsx`, `SettingsTableShell.test.tsx`, `KeyValueRow.test.tsx`.
+- ~780px evidence: a new `check:viewports` case asserts, in real Chrome, the analytics-dashboard KPI strip and widget grid are 1 column at the 1133px window (~780px column) and 4 / 3 columns on laptop14. Every former `sm`/`md`/`lg` switch now fires at `@4xl` (896px); `KeyValueRow` at `@sm` (rail stacks).
+- Same-grep leftovers have their own tickets: [[dashboard-period-pair-container-query]], [[dashboard-assignment-list-container-query]], [[crud-dialog-body-two-column-container-query]].
+- `SettingsTableShell` edit pane converted with the demo's dialog following the same container width (pinned in `SettingsTableShell.test.tsx`; `check:viewports` asserts the pane is absent in the ~780px column and shown in the wide one). `SettingsTableShell`'s column `hideBelow` tiers are container-keyed too; the shared `hideBelowClass` used by other shells stays viewport-keyed: [[settings-table-edit-surface-container-query]].

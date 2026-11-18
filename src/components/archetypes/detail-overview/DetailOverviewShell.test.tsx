@@ -278,7 +278,7 @@ describe("DetailOverviewShell — stats as StatItem[]", () => {
     // The strip is a grid that collapses to columns matching the data length.
     const tileRow = container.querySelector(".grid") as HTMLElement;
     expect(tileRow).not.toBeNull();
-    expect(tileRow.className).toContain("sm:grid-cols-3");
+    expect(tileRow.className).toContain("@4xl:grid-cols-3");
     // every cell renders; the hint lands too
     expect(getByText("Revenue")).toBeTruthy();
     expect(getByText("€120")).toBeTruthy();
@@ -298,7 +298,7 @@ describe("DetailOverviewShell — stats as StatItem[]", () => {
       />,
     );
     expect((four.container.querySelector(".grid") as HTMLElement).className).toContain(
-      "sm:grid-cols-4",
+      "@4xl:grid-cols-4",
     );
     cleanup();
 
@@ -306,7 +306,7 @@ describe("DetailOverviewShell — stats as StatItem[]", () => {
       <DetailOverviewShell title="T" stats={[{ label: "a", value: "1" }]} />,
     );
     expect((one.container.querySelector(".grid") as HTMLElement).className).toContain(
-      "sm:grid-cols-2",
+      "@4xl:grid-cols-2",
     );
   });
 
