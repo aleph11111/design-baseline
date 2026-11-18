@@ -154,7 +154,7 @@ export function LedgerTable({
     </TableRow>
   );
 
-  const headCls = compactRowLocks ? "h-9" : undefined;
+  const headCls = compactRowLocks ? "h-7" : undefined;
   const fieldLocks = columnLocksInHeader ? [] : lockedColumns(columns, !!onCellChange, locked);
   return (
     <div ref={ref} data-slot="td-ledger-table" className="min-w-0">

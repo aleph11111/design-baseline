@@ -210,6 +210,8 @@ export function TransactionDocumentShell({
   const tone = (nextStep.step ? nextStep.step.tone : nextStep.tone) ?? "default";
   const nextTitle = nextStep.title ?? nextStep.step?.label;
   const toned = tone !== "default";
+  // Toned panel with only failed effects left: they ride under the description, not in a block of their own.
+  const failedOnly = toned && !!nextStep.sideEffects?.length && nextStep.sideEffects.every((s) => s.state === "failed");
   // The header never renders a primary: a stray one (the type forbids it, an
   // untyped caller may still pass it) is demoted to the first secondary.
   const header = actions as HeaderActions | undefined;
@@ -286,6 +288,7 @@ export function TransactionDocumentShell({
                   {nextTitle}
                 </h2>
                 {nextStep.description ? <div className={cn("text-sm", !toned && "text-muted-foreground")}>{nextStep.description}</div> : null}
+                {failedOnly ? <SideEffects items={nextStep.sideEffects!} toned inline /> : null}
               </div>
               {(!isMobile && primaryButton) || secondary.length ? (
                 <div data-slot="td-next-step-actions" className="flex flex-wrap gap-2">
@@ -297,11 +300,11 @@ export function TransactionDocumentShell({
               ) : null}
             </div>
             {locks.nextStep ? <LockNote lock={locks.nextStep} /> : null}
-            {nextStep.sideEffects?.length ? <SideEffects items={nextStep.sideEffects} toned={toned} /> : null}
+            {nextStep.sideEffects?.length && !failedOnly ? <SideEffects items={nextStep.sideEffects} toned={toned} /> : null}
           </div>
         </SectionCard>
 
-        <Slot name="td-ledger" title={L.ledger} lock={locks.ledger} actions={columnLocks}>
+        <Slot name="td-ledger" compact={ledger.compactRowLocks} title={L.ledger} lock={locks.ledger} actions={columnLocks}>
           <LedgerTable
             columns={ledger.columns}
             rows={ledger.rows}
@@ -376,10 +379,10 @@ export function TransactionDocumentShell({
 TransactionDocumentShell.displayName = "TransactionDocumentShell";
 
 /** One titled section card; the lock note leads its body. */
-function Slot({ name, title, lock, actions, children }: { name: string; title: string; lock?: Lock; actions?: React.ReactNode[]; children: React.ReactNode }) {
+function Slot({ name, title, lock, actions, compact, children }: { name: string; title: string; lock?: Lock; actions?: React.ReactNode[]; compact?: boolean; children: React.ReactNode }) {
   return (
     <SectionCard data-slot={name} title={title} aria-label={title} actions={actions?.length ? <span className="-my-1.5 flex items-center">{actions}</span> : undefined} className="min-w-0">
-      <div className="space-y-3">
+      <div className={cn("space-y-3", compact && "-mt-3")}>
         {lock ? <LockNote lock={lock} /> : null}
         {children}
       </div>
@@ -448,11 +451,11 @@ function ActionButton({
 const SIDE_EFFECT_ICON = { done: CircleCheck, pending: Clock, failed: CircleAlert } as const;
 const SIDE_EFFECT_TONE = { done: "text-success", pending: "text-muted-foreground", failed: "text-destructive" } as const;
 
-function SideEffects({ items, toned }: { items: SideEffect[]; toned: boolean }) {
+function SideEffects({ items, toned, inline = false }: { items: SideEffect[]; toned: boolean; inline?: boolean }) {
   const L = useLabels();
   const stateLabel = { done: L.sideEffectDone, pending: L.sideEffectPending, failed: L.sideEffectFailed };
   return (
-    <div data-slot="td-side-effects" className="text-xs leading-5">
+    <div data-slot="td-side-effects" className={cn("text-xs leading-5", inline && "pt-0.5")}>
       <span className={cn("mr-4", !toned && "text-muted-foreground")}>{L.runningAlongside}:</span>
       <ul className="inline">
         {items.map((s) => {

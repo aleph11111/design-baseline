@@ -261,6 +261,21 @@ describe("TransactionDocumentShell — mockup fidelity", () => {
     expect(within(line).getByRole("link", { name: "Open" })).toBeTruthy();
   });
 
+  it("a toned panel with only failed effects renders them inside the description column", () => {
+    render(
+      <TransactionDocumentShell
+        {...base}
+        nextStep={{ ...base.nextStep, tone: "warning", sideEffects: [{ label: "C", state: "failed" }] }}
+      />,
+    );
+    const line = slot("td-side-effects");
+    expect(line.parentElement!.className).toMatch(/\bmin-w-0\b/);
+    expect(line.textContent).toContain("C (failed)");
+    cleanup();
+    render(<TransactionDocumentShell {...base} nextStep={{ ...base.nextStep, tone: "warning", sideEffects: [{ label: "C", state: "failed" }, { label: "D", state: "pending" }] }} />);
+    expect(slot("td-side-effects").parentElement!.className).not.toMatch(/\bmin-w-0\b/);
+  });
+
   it("a fact group renders its title, items and subline beside flat facts; flat facts render unchanged", () => {
     render(
       <TransactionDocumentShell
@@ -313,9 +328,9 @@ describe("TransactionDocumentShell — row locks, add and remove", () => {
     const { container, rerender } = render(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onCellChange: vi.fn() }} />);
     const th = () => container.querySelector("[data-slot=td-ledger-table] thead th") as HTMLElement;
     expect(th().className).toContain("h-12");
-    expect(th().className).not.toContain("h-9");
+    expect(th().className).not.toContain("h-7");
     rerender(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onCellChange: vi.fn(), compactRowLocks: true }} />);
-    expect(th().className).toContain("h-9");
+    expect(th().className).toContain("h-7");
     expect(th().className).not.toContain("h-12");
   });
 

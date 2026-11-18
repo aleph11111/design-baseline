@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.55.0
+
+- **Changed:** `transaction-document`, compact only: in a toned (warning/error) next-step panel whose side effects are all failed, they render under the description inside the panel's text column instead of a separate "Running alongside" block (every failed effect stays visible); with `ledger.compactRowLocks` the ledger header row is `h-7` (was `h-9`) and the ledger card's top padding above it shrinks by 12px. Default tone and non-compact ledgers are unchanged.
+- **Consumer:** none; re-baseline screenshots of toned documents and compact-lock ledgers.
+- **Breaking:** no.
+
 ## v0.54.0
 
 - **Changed:** `HEADING_ROW_CLASSES.actions` (every `PageHeader`, `PageFrame`, `NestedPageHeading` and the transaction-document header): from a 768px (`@3xl`) row the cap rises from 60% to 80% (768px is the narrowest row where a primary + secondary + overflow cluster fits one line), so it no longer wraps beside the title at a laptop window. The cluster no longer shrinks from that width (the title absorbs it). A wider cluster still wraps instead of overflowing, and the title keeps at least 20%. Below `@3xl` nothing changes.
