@@ -2,6 +2,7 @@
 import * as React from "react";
 import { Check, Copy, Lock as LockIcon } from "lucide-react";
 import { Button } from "../../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { useLabels } from "../../../lib/labels";
 import type { LinkAction, Lock } from "./ledger";
 
@@ -51,6 +52,38 @@ export function LockNote({ lock, field }: { lock: Lock; field?: string }): React
         ) : null}
       </span>
     </p>
+  );
+}
+
+/**
+ * A lock as a lock icon: the reason and way out open in a popover from it
+ * (keyboard and touch reachable); the reason also reads aloud without opening.
+ * `field` names the locked cell or column; `named` also shows it in the popover
+ * (a column lock, whose icon sits away from the column it belongs to).
+ */
+export function LockPopover({ lock, field, named }: { lock: Lock; field: string; named?: boolean }): React.ReactElement {
+  const L = useLabels();
+  return (
+    <Popover>
+      <PopoverTrigger
+        type="button"
+        className="inline-flex size-6 max-md:size-11 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      >
+        <LockIcon aria-hidden className="size-4" />
+        <span className="sr-only">
+          {L.locked}: {field}: {lock.reason}
+        </span>
+      </PopoverTrigger>
+      <PopoverContent className="w-64 p-3 text-left text-sm font-normal">
+        {named ? <p className="font-medium">{field}</p> : null}
+        <p>{lock.reason}</p>
+        {lock.wayOut ? (
+          <p className="mt-1">
+            <ActionLink action={lock.wayOut} />
+          </p>
+        ) : null}
+      </PopoverContent>
+    </Popover>
   );
 }
 

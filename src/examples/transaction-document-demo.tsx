@@ -287,11 +287,12 @@ function compactLocks(compact: boolean): TransactionDocumentShellProps {
     identity: { id: "PO-2026-0032", status: "Awaiting parcel" },
     nextStep: { title: "Receive the parcel", description: "Check each set against the offer, then book it into stock.", primary: { label: "Receive goods", icon: PackageCheck, onSelect: noop } },
     ledger: {
-      columns: PO_COLUMNS,
+      // One locked column too: compact, its lock is an icon on the ledger's header line, not a note row above the table.
+      columns: PO_COLUMNS.map((c) => (c.key === "market" ? { ...c, editable: true, lock: { reason: "Market values come from BrickLink — change them there.", wayOut: { label: "Open in BrickLink", href: "#" } } } : c)),
       rows,
       totals: [poLine("total", "Total", "", sum(rows, "cost"), sum(rows, "market"))],
       onCellChange: noop,
-      compactRowLocks: compact, // lock icon in the locked cell; reason and way out open from it
+      compactRowLocks: compact, // lock icons: beside the locked figure and in the header for the locked column; reason and way out open from them
     },
     facts: [{ label: "Seller", value: "Jana Petersen" }],
     history: <HistoryList items={[["7 Nov 11:02", "Offer accepted"]]} />,

@@ -2,7 +2,7 @@
 key: Td
 slug: transaction-document
 kind: page
-version: 1.6
+version: 1.7
 promoted_from: brickshop-manager
 promoted_at: 2026-11-09
 source_spec_version: n/a (no source spec — fleet-synthesis promotion from brickshop-manager's /orders/:id page and the transaction-documents mockup; ADR-0014)
@@ -109,7 +109,7 @@ add control (labelled for what it adds, e.g. *Add cost*) and a remove control
 on each line; a line that can't be dropped (an item line) opts out of removal.
 A line may also carry its **own actions** (open its stock lot), rendered with
 the line. A locked ledger shows neither add nor remove. A line's cell lock may show
-compactly beside its figure to keep the ledger short (see Locks).
+compactly beside its figure, and a column lock on the ledger's header line, to keep the ledger short (see Locks).
 
 **4 — Facts.** An auto-fitting grid of typed, locale-formatted values
 (customer, dates, payment, address, channel). Related facts may form a
@@ -145,14 +145,20 @@ shows its lock instead of the primary action. A **cell lock** closes one line's
 cell in an editable column (an item's cost taken from its stock lot) while the
 other lines stay editable: the cell shows its value read-only and the line
 shows the lock, naming the column, with its reason and way out. A document
-whose ledger must stay short may show cell locks **compactly**: a lock mark
-beside the locked figure, with the reason and way out opened from it (reachable
-by keyboard and touch, the reason also read aloud without opening); the default
-keeps the full sentence under the line.
+whose ledger must stay short may show locks **compactly**: a cell lock is a
+lock mark inline to the left of the locked figure, on the figure's own line
+(the row keeps one line); a column lock is a lock mark on the ledger card's
+title line instead of a note row above the table. Either way the reason and
+way out open from the mark (reachable by keyboard and touch, the reason also
+read aloud without opening); the default keeps the full sentences.
 
 ---
 
 ## Responsive behaviour
+
+- **The progress line takes the full width under the header.** It never
+  shares a row with the header actions, so on a laptop-width window the
+  lifecycle stays on one line; on a phone it may wrap.
 
 - **The page sits in the document column.** On a wide screen the header and
   the cards stop at a readable width, so a line's amounts stay next to its
@@ -261,3 +267,8 @@ keeps the full sentence under the line.
 - **1.6** (2026-11-17) — compact cell locks: a ledger may show a row's cell
   lock as a mark beside the figure, reason and way out opened from it.
   Additive; the default is unchanged.
+- **1.7** (2026-11-18) — compact locks also move a column lock onto the
+  ledger's title line and keep a locked cell's mark inline with its figure
+  (one line per row); the identity progress line renders full width under
+  the header instead of in the header's subtitle column. The progress move
+  applies to every document; the lock changes only with the compact opt-in.

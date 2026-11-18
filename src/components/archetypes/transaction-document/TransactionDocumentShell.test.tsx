@@ -328,6 +328,36 @@ describe("TransactionDocumentShell — row locks, add and remove", () => {
     expect(screen.getByRole("textbox", { name: "Cost Fee" })).toBeTruthy();
   });
 
+  it("compactRowLocks: a column lock moves from a note row above the table into the ledger header", async () => {
+    const lock = { reason: "Prices come from BrickLink.", wayOut: { label: "Open in BrickLink", href: "#" } };
+    const columns = cols.map((c) => (c.key === "cost" ? { ...c, lock } : c));
+    const onCellChange = vi.fn();
+    render(<TransactionDocumentShell {...base} ledger={{ columns, rows, onCellChange }} />);
+    expect(within(slot("td-ledger")).getByText(/Prices come from BrickLink/).closest("[data-slot=td-lock]")).toBeTruthy(); // default: the note row
+    cleanup();
+    render(<TransactionDocumentShell {...base} ledger={{ columns, rows, onCellChange, compactRowLocks: true }} />);
+    expect(slot("td-lock")).toBeNull();
+    const trigger = within(slot("td-ledger")).getByRole("button", { name: /Locked: Cost: Prices come from BrickLink/ });
+    expect(slot("td-ledger").querySelector("h2")!.parentElement!.parentElement!.contains(trigger)).toBe(true); // on the title line
+    fireEvent.click(trigger);
+    expect(await screen.findByRole("link", { name: "Open in BrickLink" })).toBeTruthy();
+    expect(screen.getAllByText("Prices come from BrickLink.").length).toBeGreaterThan(0);
+    expect(screen.getByText("Cost", { selector: "p" })).toBeTruthy(); // the popover names its column
+  });
+
+  it("compact lock sits inline left of its figure on one line", () => {
+    render(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onCellChange: vi.fn(), compactRowLocks: true }} />);
+    const cell = slot("td-ledger").querySelector("[data-slot=td-lock-compact]") as HTMLElement;
+    expect(cell.className).not.toMatch(/flex-wrap/);
+    expect(cell.firstElementChild!.tagName).toBe("BUTTON");
+  });
+
+  it("identity.progress renders under the header, not inside the header subtitle", () => {
+    render(<TransactionDocumentShell {...base} identity={{ ...base.identity, summary: "A summary", progress: [{ label: "Paid", state: "done" }] }} />);
+    expect(slot("td-progress").closest("[data-slot=heading-subtitle]")).toBeNull();
+    expect(slot("td-summary").closest("[data-slot=heading-subtitle]")).toBeTruthy();
+  });
+
   it("adds and removes lines inside the ledger; removable:false keeps a line", () => {
     const onAddRow = vi.fn();
     const onRemoveRow = vi.fn();
