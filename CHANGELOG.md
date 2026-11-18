@@ -4,7 +4,7 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 ## v0.58.0
 
-- **Added:** `list-with-detail` `detailActions` accepts the typed `HeaderActions` form (`{ primary, secondary, menu }`), rendered through the page header's renderer: at most 1 primary + 2 secondary inline, the rest behind one `⋯` menu (last in the actions row), destructive only in the menu. From `sm` up the typed row stays on one line and widens the overlay (ADR-0010 amendment); below `sm` the secondaries fold into `⋯` too (primary + `⋯`). Contract v4.6, MANIFEST 4.9.
+- **Added:** `list-with-detail` `detailActions` accepts the typed `HeaderActions` form (`{ primary, secondary, menu }`), rendered through the page header's renderer: at most 1 primary + 2 secondary inline, the rest behind one `⋯` menu (last in the actions row), destructive only in the menu. From `sm` up the typed row stays on one line and widens the overlay (ADR-0010 amendment); below `sm`, whenever `⋯` renders anyway, the secondaries fold into it too (primary + `⋯`); with no overflow they stay inline (primary + 1 secondary shows no `⋯`). Contract v4.6, MANIFEST 4.9.
 - **Consumer:** none required; existing `ReactNode` callers render unchanged (uncapped). To get the cap, pass `detailActions={{ primary, secondary, menu }}`.
 - **Breaking:** no.
 

@@ -8,6 +8,7 @@ import {
 
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
 });
 
 type Row = { id: string; name: string };
@@ -245,12 +246,15 @@ describe("ListWithDetailShell", () => {
     expect(within(bar).getAllByRole("button").map((b) => b.textContent)).toEqual(["Print", "Edit"]);
   });
 
-  it("typed detailActions on a phone: secondaries fold into ⋯, primary + ⋯ inline", () => {
+  const stubPhone = () =>
     vi.stubGlobal("matchMedia", (q: string) => ({
       matches: q.includes("max-width"),
       addEventListener: () => {},
       removeEventListener: () => {},
     }));
+
+  it("typed detailActions on a phone: when ⋯ renders anyway, every secondary folds into it", () => {
+    stubPhone();
     render(
       <ListWithDetailShell title="T"
         rows={rows}
@@ -261,7 +265,11 @@ describe("ListWithDetailShell", () => {
         detailTitle="Ada Lovelace"
         detailActions={{
           primary: { label: "New path" },
-          secondary: [{ label: "Invite SMS" }, { label: "Remove", destructive: true }],
+          secondary: [
+            { label: "Invite SMS" },
+            { label: "Invite email" },
+            { label: "Remove", destructive: true },
+          ],
         }}
       />,
     );
@@ -273,9 +281,28 @@ describe("ListWithDetailShell", () => {
     const menu = document.querySelector<HTMLElement>('[role="menu"]');
     expect(Array.from(menu!.querySelectorAll('[role="menuitem"]')).map((i) => i.textContent)).toEqual([
       "Invite SMS",
+      "Invite email",
       "Remove",
     ]);
-    vi.unstubAllGlobals();
+  });
+
+  it("typed detailActions on a phone: 1 primary + 1 secondary renders no ⋯ trigger", () => {
+    stubPhone();
+    render(
+      <ListWithDetailShell title="T"
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+        selectedRowId="1"
+        detail={<div>Details</div>}
+        detailTitle="Ada Lovelace"
+        detailActions={{ primary: { label: "Edit" }, secondary: [{ label: "Print" }] }}
+      />,
+    );
+    const bar = screen
+      .getByRole("heading", { name: "Ada Lovelace" })
+      .closest('[data-slot="surface-header"]') as HTMLElement;
+    expect(within(bar).getAllByRole("button").map((b) => b.textContent)).toEqual(["Print", "Edit"]);
   });
 
   it("desktop: the detail never renders in-flow beside the list — a row click opens the Sheet", () => {

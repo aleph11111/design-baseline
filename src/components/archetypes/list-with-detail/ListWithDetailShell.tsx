@@ -4,7 +4,7 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../../ui/shee
 import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
 import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
-import { isHeaderActions, renderHeaderActions, type HeaderActions } from "../../layout/HeaderActions";
+import { isHeaderActions, renderHeaderActions, splitHeaderActions, type HeaderActions } from "../../layout/HeaderActions";
 import {
   ListWithDetailEmptyState,
   type ListEmptyMode,
@@ -34,11 +34,12 @@ const isPhone = () => window.matchMedia?.(PHONE_QUERY).matches ?? false;
  * Typed detail actions in the overlay header. From `sm` up the capped row
  * (≤ 1 primary + 2 secondary + `⋯`) stays on one line and widens the overlay
  * like a table row (ADR-0010 rule 2). Below `sm` the sheet is full-screen and
- * cannot widen, so the secondaries fold into the `⋯` menu too: primary + `⋯`.
+ * cannot widen: when a `⋯` menu renders anyway, every secondary folds into
+ * it too (primary + `⋯`); when none would, the secondaries stay inline.
  */
 function DetailHeaderActions({ value }: { value: HeaderActions }): React.ReactNode {
   const phone = React.useSyncExternalStore(subscribePhone, isPhone, () => false);
-  if (!phone) return renderHeaderActions(value);
+  if (!phone || splitHeaderActions(value).menu.length === 0) return renderHeaderActions(value);
   const secondary = value.secondary ?? [];
   return renderHeaderActions({
     ...value,
