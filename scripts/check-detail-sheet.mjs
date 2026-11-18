@@ -30,6 +30,11 @@ const CASES = [
   // the title stays readable (it collapsed to 0px before the bar wrapped).
   { label: "3 actions + long title @ 1280", width: 1280, panel: "Show management", row: "Riverbed", want: (w) => w === 448, wantText: "448px (floor)", scrollFree: true, warns: false, minTitle: 200 },
   { label: "3 actions + long title @ 390", width: 390, panel: "Show management", row: "Riverbed", want: (w) => w === 390, wantText: "390px (full-screen)", scrollFree: true, warns: false, minTitle: 200 },
+  // Typed detail actions at the device triad: 1 primary + 2 secondary + ⋯
+  // inline, so the header is the title row plus at most one actions row.
+  { label: "typed actions + ⋯ @ desk27 2560", width: 2560, panel: "Show operations", row: "Riverbed", want: (w) => w >= 448 && w < 2496, wantText: ">= 448px, < ceiling 2496px", scrollFree: true, warns: false, minTitle: 200, maxActionRows: 1 },
+  { label: "typed actions + ⋯ @ laptop14 1512", width: 1512, panel: "Show operations", row: "Riverbed", want: (w) => w >= 448 && w < 1448, wantText: ">= 448px, < ceiling 1448px", scrollFree: true, warns: false, minTitle: 200, maxActionRows: 1 },
+  { label: "typed actions + ⋯ @ phone 390", width: 390, panel: "Show operations", row: "Riverbed", want: (w) => w === 390, wantText: "390px (full-screen)", scrollFree: true, warns: false, minTitle: 200, maxActionRows: 1 },
   { label: "free-text table, marked @ 390", width: 390, panel: "Materialanforderungen", row: "MA-2041", want: (w) => w === 390, wantText: "390px (full-screen)", scrollFree: false, warns: false },
 ];
 const total = CASES.length;
@@ -67,6 +72,16 @@ for (const c of CASES) {
           const others = bar ? [bar.querySelector("h2"), ...bar.querySelectorAll("button")].filter((e) => e && e !== close) : [];
           return others.filter((e) => hit(e.getBoundingClientRect())).length;
         })(),
+        // distinct rows the header bar's action buttons sit on
+        actionRows: new Set(
+          [...(el.querySelector('[data-slot="surface-header"]')?.querySelectorAll("button") ?? [])].map((b) =>
+            Math.round(b.getBoundingClientRect().top),
+          ),
+        ).size,
+        // the actions stay inside the sheet
+        actionsOut: [...(el.querySelector('[data-slot="surface-header"]')?.querySelectorAll("button") ?? [])].filter(
+          (b) => b.getBoundingClientRect().right > el.getBoundingClientRect().right + 0.5,
+        ).length,
         sideways: scrollers.filter((e) => e.scrollWidth > e.clientWidth + 1).length,
         // free-text cells that wrap onto more than one line; every other cell
         // must stay on one line
@@ -80,8 +95,8 @@ for (const c of CASES) {
     });
     const wrapOk = !c.wraps || (m.wrapped > 0 && m.multiline === 0);
     const warnOk = warnings.length === (c.warns ? 1 : 0) && (!c.warnText || warnings.every((t) => t.includes(c.warnText)));
-    const ok = c.want(m.w) && m.title >= (c.minTitle ?? 1) && m.closeHits === 0 && (!c.scrollFree || m.sideways === 0) && warnOk && wrapOk;
-    report(c.label, ok, `${m.w}px (want ${c.wantText}), title ${m.title}px${c.minTitle ? ` (want >= ${c.minTitle})` : ""}, ${m.closeHits} close-button overlap(s), ${m.sideways} sideways scroller(s), ${warnings.length} warning(s) (want ${c.warns ? 1 : 0}${c.warnText ? ` naming ${c.warnText}` : ""})${c.wraps ? `, ${m.wrapped} wrapped free-text cell(s), ${m.multiline} wrapping non-free-text cell(s)` : ""}`);
+    const ok = c.want(m.w) && m.title >= (c.minTitle ?? 1) && m.closeHits === 0 && (!c.scrollFree || m.sideways === 0) && warnOk && wrapOk && m.actionsOut === 0 && (!c.maxActionRows || m.actionRows <= c.maxActionRows);
+    report(c.label, ok, `${m.w}px (want ${c.wantText}), title ${m.title}px${c.minTitle ? ` (want >= ${c.minTitle})` : ""}, ${m.closeHits} close-button overlap(s), ${m.sideways} sideways scroller(s), ${warnings.length} warning(s) (want ${c.warns ? 1 : 0}${c.warnText ? ` naming ${c.warnText}` : ""})${c.maxActionRows ? `, ${m.actionRows} action row(s) (want <= ${c.maxActionRows}), ${m.actionsOut} action(s) outside the sheet` : ""}${c.wraps ? `, ${m.wrapped} wrapped free-text cell(s), ${m.multiline} wrapping non-free-text cell(s)` : ""}`);
     await page.close();
   } catch (e) {
     report(c.label, false, e.message.split("\n")[0]);

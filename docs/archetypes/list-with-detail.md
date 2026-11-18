@@ -2,7 +2,7 @@
 key: A
 slug: list-with-detail
 kind: page
-version: 4.5
+version: 4.6
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.9
@@ -11,6 +11,15 @@ status: locked
 
 # Archetype A — List-with-detail
 
+> **v4.6 (2026-11-18) — detail actions follow the header hierarchy.**
+> `detailActions` also accepts the page header's typed actions
+> (`{ primary, secondary, menu }`): at most one primary and two secondary
+> actions inline, the rest behind one `⋯` menu, a destructive action only in
+> that menu. From the small breakpoint up that capped row stays on one line
+> and widens the overlay (ADR-0010); on the full-screen phone sheet the
+> secondaries fold into the `⋯` menu as well. Rendered nodes still work
+> unchanged and are not capped. Additive; no breaking change.
+>
 > **v4.5 (2026-11-18) — detail actions wrap beneath the title.** The
 > overlay header's title keeps a usable width next to `detailActions`: when
 > the actions do not fit beside it they wrap onto a row beneath the title
@@ -357,6 +366,7 @@ Mutations are out of the primitive's scope. The consumer's row-click handler or 
 - **Detail panel slot** — whatever element the consumer passes as the `detail` prop renders inside an **overlay surface** (sheet) anchored to the viewport's trailing edge, on every width — full-screen on mobile, a side sheet on desktop. Selecting a row opens it; a `selectedRowId` set from outside (a deep link) opens it on mount. There is no in-flow presentation: the detail never renders inside the list's own column (see forbidden pattern 10), and there is no prop to choose one.
 - **Overlay dismissal** — dismissing the overlay (Esc, backdrop click, close button) is reported back to the consumer via a dismissal callback. Required whenever a consumer relies on the overlay to reflect a cleared selection — otherwise the consumer's own selection state can go stale after the surface closes.
 - **Overlay header** — the overlay is not a page: `detailTitle` titles it and `detailActions` sit beside the title, in the overlay's own header bar. When the actions do not fit beside a readable title they wrap onto a row beneath it; they never squeeze the title.
+- **Overlay header actions follow the page-header hierarchy** — passed as typed actions (primary, secondary, menu), the overlay header shows at most one primary and two secondary actions inline and puts the rest behind one overflow (`⋯`) menu, the last element of the actions row; a destructive action renders only inside that menu. From the small breakpoint up this capped row stays on one line and widens the overlay; on mobile, where the overlay is full-screen and cannot widen, the secondary actions move into the overflow menu too, leaving the primary and the menu. Rendered action nodes are the unbounded legacy form: they render as passed and are not capped.
 - **Overlay width is the content's** (ADR-0010) — on mobile the overlay is full-screen. From the small breakpoint up it is exactly as wide as its content needs, clamped between a **floor** (28rem) and a **ceiling** (the viewport minus a 4rem gutter, so the list's edge stays visible behind it). Content that can wrap (prose, label/value pairs laid out outside a table) wraps at the floor, so a summary detail opens at the floor width. Table rows inside the detail do not wrap from the small breakpoint up, so a table's columns set the width — except cells marked as **free text** (a description, a long key/value value): those wrap inside a readable band (about 24ch to 48ch), so the overlay grows only by the single-line columns plus one readable text column. Codes, numbers, dates and status badges are never marked and never wrap. The marker names the kind of content, not a width. On mobile, cells wrap as before. A long title truncates; it never widens the overlay. There is no width prop: two consumers passing the same detail get the same width.
 - **No sideways scroll inside the overlay** — neither the overlay body nor a nested table scrolls horizontally from the small breakpoint up. A detail whose content outgrows the ceiling escalates to its own `detail-overview` route (see `CHOOSING-A-SURFACE.md`, the read/detail spectrum). For free text the rule is met by wrapping (mark the column), not by width. The shell warns in development builds when an open detail scrolls sideways at the ceiling, naming the detail; when the detail holds a table, the warning first says to mark free-text columns. On mobile a wide table scrolls inside its own container, and that is accepted.
 

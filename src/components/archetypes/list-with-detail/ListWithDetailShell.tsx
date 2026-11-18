@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../../ui/shee
 import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
 import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
+import { isHeaderActions, renderHeaderActions, type HeaderActions } from "../../layout/HeaderActions";
 import {
   ListWithDetailEmptyState,
   type ListEmptyMode,
@@ -20,6 +21,32 @@ import { resolveListState, type RowAction, type TableColumn } from "../shared";
 // render an identical menu. Re-exported here for back-compat with consumers that
 // import `RowAction` from this archetype.
 export type { RowAction };
+
+const PHONE_QUERY = "(max-width: 639px)"; // below `sm`: the sheet is full-screen
+const subscribePhone = (onChange: () => void) => {
+  const mql = window.matchMedia?.(PHONE_QUERY);
+  mql?.addEventListener("change", onChange);
+  return () => mql?.removeEventListener("change", onChange);
+};
+const isPhone = () => window.matchMedia?.(PHONE_QUERY).matches ?? false;
+
+/**
+ * Typed detail actions in the overlay header. From `sm` up the capped row
+ * (≤ 1 primary + 2 secondary + `⋯`) stays on one line and widens the overlay
+ * like a table row (ADR-0010 rule 2). Below `sm` the sheet is full-screen and
+ * cannot widen, so the secondaries fold into the `⋯` menu too: primary + `⋯`.
+ */
+function DetailHeaderActions({ value }: { value: HeaderActions }): React.ReactNode {
+  const phone = React.useSyncExternalStore(subscribePhone, isPhone, () => false);
+  if (!phone) return renderHeaderActions(value);
+  const secondary = value.secondary ?? [];
+  return renderHeaderActions({
+    ...value,
+    // destructive ones stay in `secondary` so the hierarchy still sorts them last
+    secondary: secondary.filter((a) => a.destructive),
+    menu: [...secondary.filter((a) => !a.destructive), ...(value.menu ?? [])],
+  });
+}
 
 /**
  * Dev-only: warn when the open detail overlay scrolls sideways — its body, or
@@ -90,8 +117,14 @@ export type ListWithDetailBodyProps<Row> = {
    * renders only `detail`.
    */
   detailTitle?: React.ReactNode;
-  /** Optional right-aligned actions in the detail surface's header (e.g. an Edit button). */
-  detailActions?: React.ReactNode;
+  /**
+   * Actions in the detail overlay's header bar. Pass the typed form
+   * `{ primary, secondary, menu }` (the page header's `HeaderActions`): at
+   * most one primary and two secondary buttons inline, the rest behind one
+   * `⋯` menu, and any `destructive` action only inside that menu. Rendered
+   * nodes still render unchanged but bypass that cap (unbounded legacy form).
+   */
+  detailActions?: HeaderActions | React.ReactNode;
   /**
    * Called when the detail overlay (the Sheet — the only detail surface, on
    * every width) closes — Esc, backdrop click, or
@@ -369,7 +402,17 @@ export function ListWithDetailBody<Row>(
             // (absolute, top-4 right-4; touch: right-1, 44px) floats over the
             // bar's right edge, so the bar's right padding clears it — for the
             // title too when the actions wrap beneath it (structural).
-            <SurfaceHeaderBar className="pr-13" actions={detailActions}>
+            <SurfaceHeaderBar
+              className="pr-13"
+              actionsClassName={isHeaderActions(detailActions) ? "sm:flex-nowrap" : undefined}
+              actions={
+                isHeaderActions(detailActions) ? (
+                  <DetailHeaderActions value={detailActions} />
+                ) : (
+                  detailActions
+                )
+              }
+            >
               {/* SheetTitle so Radix Dialog gets an accessible name (aria-labelledby).
                   SheetDescription is screen-reader-only fallback so Content never
                   renders without a description — matching the J archetype fix. */}

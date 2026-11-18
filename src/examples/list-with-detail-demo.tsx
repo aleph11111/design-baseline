@@ -389,6 +389,37 @@ function ManyActionsPanel() {
   );
 }
 
+// Typed detail actions (the page header's `HeaderActions`): at most one
+// primary and two secondary inline, the rest and every destructive in `⋯`.
+function OverflowActionsPanel() {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = PODCASTS.find((p) => p.id === selectedId) ?? null;
+  return (
+    <ListWithDetailShell<Podcast>
+      title="Show operations"
+      columns={ACTION_ROW_COLUMNS}
+      presentation={PRESENTATION_ACTION_ROW}
+      rows={PODCASTS}
+      getRowId={(p) => p.id}
+      onRowSelect={(p) => setSelectedId(p.id)}
+      selectedRowId={selectedId}
+      onDetailClose={() => setSelectedId(null)}
+      detailTitle={selected ? `${selected.title} · hosted by ${selected.host}` : undefined}
+      detailActions={{
+        primary: { label: "New episode" },
+        secondary: [
+          { label: "Invite host (SMS)" },
+          { label: "Invite host (email)" },
+          { label: "Export" },
+          { label: "Print" },
+        ],
+        menu: [{ label: "Delete show", destructive: true }],
+      }}
+      detail={selected ? <div className="p-5 text-[15px]">{selected.episodeCount} episodes</div> : undefined}
+    />
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Demo page
 // ---------------------------------------------------------------------------
@@ -637,6 +668,14 @@ export function ListWithDetailDemo() {
               Many detail actions — they wrap beneath a long title instead of hiding it
             </h3>
             <ManyActionsPanel />
+          </section>
+
+          {/* Typed detail actions: 1 primary + 2 secondary inline, the rest in ⋯. */}
+          <section className="space-y-2">
+            <h3 className="text-xs font-medium text-muted-foreground">
+              Typed detail actions — 1 primary + 2 secondary inline, the rest and the destructive in ⋯
+            </h3>
+            <OverflowActionsPanel />
           </section>
 
           {/* The mobile filter sheet, localized: below `md` (view the gallery
