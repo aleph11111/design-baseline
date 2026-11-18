@@ -1,17 +1,25 @@
 ---
 area: archetypes
-opened: 2026-11-18
-status: needs-enrichment
-value: normal
-depends_on: [list-with-detail-sheet-title-squeezed-by-actions, list-with-detail-sheet-actions-squeeze-title]
-model: opus
-model_reason: "public detailActions contract change (new accepted shape) and an overflow rule across archetypes; design is the deliverable"
+opened: '2026-11-18'
+status: ready
 gate:
-  score: 4
-  passed: [title, context, what_to_do, acceptance, related]
-  failed:
-    - open_question: "auto-resolved fork (typed form vs. consumer-composed menu) awaits operator confirmation"
-  graded_at: 2026-11-18T00:00:00Z
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-11-18T19:22:42.800Z'
+value: normal
+depends_on:
+  - list-with-detail-sheet-title-squeezed-by-actions
+  - list-with-detail-sheet-actions-squeeze-title
+model: opus
+model_reason: >-
+  public detailActions contract change (new accepted shape) and an overflow rule across archetypes;
+  design is the deliverable
 ---
 
 # List-with-detail detail sheet header caps inline detailActions with overflow
@@ -45,6 +53,8 @@ The list-with-detail overlay header has no rule for how many `detailActions` sit
 - [ADR-0004](/docs/adr/0004-appearance-locality-derived-vs-inherited.md) — appearance locality: the new shape must carry behaviour only
 - [ADR-0010](/docs/adr/0010-detail-overlay-sizes-to-content.md) — the overlay sizes to its content
 
-## Open question
+## Decision
 
-Fork auto-resolved to the recommended default (not asked, headless): reuse the existing typed `HeaderActions` form on `detailActions` (union with `ReactNode`). Alternatives: (b) leave `detailActions` a `ReactNode` and only document the rule, with consumers composing their own `RowActionsMenu` (no enforcement, the option rejected for the page header); (c) a new sheet-specific prop shape (rejected: a second typed model for the same hierarchy). Confirm before `/feat`.
+Operator-delegated decision (2026-11-18): reuse the typed `HeaderActions` form on `detailActions` (union with `ReactNode`), as recommended. Alternatives (b) document-only and (c) a sheet-specific prop shape are rejected.
+
+Dependencies: `list-with-detail-sheet-title-squeezed-by-actions` shipped in #821 (archived) and `list-with-detail-sheet-actions-squeeze-title` was discarded as its duplicate, so `depends_on` is satisfied and should be cleared.
