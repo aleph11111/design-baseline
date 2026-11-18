@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-11-18
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "scoped class change on one shared bar plus test, demo and version bump; cause is established"
