@@ -25,7 +25,7 @@ The re-skinnable tokens â€” the `:root` / `.dark` HSL triplets plus `--radius` â
 | Role                  | Default light             | Default dark              | Used for                              |
 |-----------------------|---------------------------|---------------------------|---------------------------------------|
 | `background`          | `0 0% 100%`               | `222.2 84% 4.9%`          | App background                        |
-| `foreground`          | `222.2 84% 4.9%`          | `210 40% 98%`             | Body text                             |
+| `foreground`          | `222 22% 10%`             | `210 40% 98%`             | Body text                             |
 | `primary`             | `222 70% 42%`             | `222 80% 68%`             | The one brand accent: primary action, active nav, progress/selection, focus ring |
 | `secondary`           | `210 40% 96.1%`           | `217.2 32.6% 17.5%`       | Secondary buttons / pills             |
 | `muted`               | `210 40% 96.1%`           | `217.2 32.6% 17.5%`       | Muted backgrounds, disabled rows      |
@@ -34,7 +34,8 @@ The re-skinnable tokens â€” the `:root` / `.dark` HSL triplets plus `--radius` â
 | `destructive`         | `0 84.2% 60.2%`           | `0 62.8% 30.6%`           | Errors, danger buttons                |
 | `success`             | `142.4 71.8% 29.2%`       | `141.9 69.2% 58%`         | Positive status, confirmations        |
 | `warning`             | `26 90.5% 37.1%`          | `43 96% 56%`              | Caution status, non-blocking problems |
-| `border` / `input`    | `214.3 31.8% 91.4%`       | `217.2 32.6% 17.5%`       | Borders, input outlines               |
+| `border`              | `220 13% 91%`             | `217.2 32.6% 17.5%`       | Hairlines, card and divider edges     |
+| `input`               | `218 16% 83%`             | `217.2 32.6% 17.5%`       | Field and outlined-button edges (darker than `border` so they show on white) |
 | `sidebar-*`           | (separate palette)        | (separate palette)        | Sidebar text, hover, border (`-foreground`, `-accent*`, `-border`) |
 
 **Fixed roles â€” declared in the layer, not in `tokens.css` (ADR-0007).** The layer

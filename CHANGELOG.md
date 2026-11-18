@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.57.0
+
+- **Changed (tokens, light theme only):** `--border` `220 13% 91%` (neutral, matches `--sidebar-border`; was bluish `214.3 31.8% 91.4%`); `--input` split from `--border`, now `218 16% 83%` (~1.5:1 on white, field and outlined-button edges show); `--foreground` / `--card-foreground` / `--popover-foreground` `222 22% 10%` (~17.9:1 on white; was saturated navy-black). `.dark` unchanged.
+- **Added:** `--shadow-overlay` in `tokens.layer.css` (tinted ring plus two layers); `dialog`, `popover` and `sheet` use `shadow-overlay` instead of `shadow-lg` / `shadow-md`. Raised non-overlay surfaces keep the hairline.
+- **Consumer:** bump `design-baseline`; a brand `tokens.css` that overrides these values keeps them. Re-baseline screenshots (light theme, most pages).
+- **Breaking:** no (visual only).
+
 ## v0.56.0
 
 - **Changed (ADR-0016, amends ADR-0007 §2):** the uppercase overline is retired for a quiet sentence-case hierarchy. Page title 30px (unchanged) > section heading 15px semibold foreground > card title 13px semibold foreground > body 13px; labels are 12px medium muted. No shared heading or label renders uppercase or letter-spaced any more.
