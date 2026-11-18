@@ -317,7 +317,8 @@ describe("TransactionDocumentShell — row locks, add and remove", () => {
     expect(body().className).not.toContain("-mt-3");
     cleanup();
     render(<TransactionDocumentShell {...base} ledger={{ ...ledger, compactRowLocks: true }} />);
-    expect(body().className).toContain("-mt-3");
+    expect(body().className).toContain("sm:-mt-3");
+    expect(body().className).not.toMatch(/(^|\s)-mt-3/);
     cleanup();
     render(<TransactionDocumentShell {...base} ledger={{ ...ledger, compactRowLocks: true }} locks={{ ledger: { reason: "Closed" } }} />);
     expect(body().className).not.toContain("-mt-3");
@@ -341,9 +342,9 @@ describe("TransactionDocumentShell — row locks, add and remove", () => {
     const { container, rerender } = render(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onCellChange: vi.fn() }} />);
     const th = () => container.querySelector("[data-slot=td-ledger-table] thead th") as HTMLElement;
     expect(th().className).toContain("h-12");
-    expect(th().className).not.toContain("h-6");
+    expect(th().className).not.toContain("sm:h-6");
     rerender(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onCellChange: vi.fn(), compactRowLocks: true }} />);
-    expect(th().className).toContain("h-6");
+    expect(th().className).toContain("sm:h-6");
     expect(th().className).not.toContain("h-12");
   });
 

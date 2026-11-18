@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.55.1
+
+- **Fixed:** `transaction-document` with `ledger.compactRowLocks`: the 12px ledger-body pull-up (`sm:-mt-3`) and the `h-6` header row (`h-9 sm:h-6`) from v0.55.0 now apply from the `sm` breakpoint only. On a phone the shorter page put a ledger lock button under the next-step panel's action buttons (a tap overlap in brickshop-manager's phone visual check). Laptop widths are unchanged.
+- **Consumer:** none; bump `design-baseline`.
+- **Breaking:** no.
+
 ## v0.55.0
 
 - **Changed:** `transaction-document`: in a toned (warning/error) next-step panel (any ledger mode; default tone is unchanged) whose side effects are all failed, they render under the description inside the panel's text column instead of a separate "Running alongside" block (every failed effect stays visible; the row uses `leading-4`); and, only with `ledger.compactRowLocks`, the ledger header row is `h-6` (was `h-9`) and the ledger card's top padding above it shrinks by 12px (unless the ledger itself is locked, which keeps its note above the table). Non-compact ledgers are unchanged.

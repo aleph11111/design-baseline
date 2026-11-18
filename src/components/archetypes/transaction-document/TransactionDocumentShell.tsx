@@ -382,7 +382,7 @@ TransactionDocumentShell.displayName = "TransactionDocumentShell";
 function Slot({ name, title, lock, actions, compact, children }: { name: string; title: string; lock?: Lock; actions?: React.ReactNode[]; compact?: boolean; children: React.ReactNode }) {
   return (
     <SectionCard data-slot={name} title={title} aria-label={title} actions={actions?.length ? <span className="-my-1.5 flex items-center">{actions}</span> : undefined} className="min-w-0">
-      <div className={cn("space-y-3", compact && !lock && "-mt-3")}>
+      <div className={cn("space-y-3", compact && !lock && "sm:-mt-3")}>
         {lock ? <LockNote lock={lock} /> : null}
         {children}
       </div>
