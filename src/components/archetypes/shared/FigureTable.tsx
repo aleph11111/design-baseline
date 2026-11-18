@@ -5,8 +5,8 @@ import { COL_HEADER_CLASS } from "../../layout/overline";
 /**
  * The shared figure-table signature — the hairline-divided line-item table
  * behind the report (R) and statement-with-filters (F) archetypes. The two
- * once shipped their own copies of this grid: the same 9.5px column-header
- * overline, the same `divide-y divide-border/70` body, the same mono tabular
+ * once shipped their own copies of this grid: the same column-header
+ * label rung, the same `divide-y divide-border/70` body, the same mono tabular
  * figure cells with the terminal column promoted. `FigureTable`/`FigureRow`
  * own that signature once so a single edit to the header treatment or the
  * figure-cell recipe lands in both archetypes.
@@ -77,7 +77,7 @@ export type FigureTableProps = {
 
 /**
  * FigureTable — the hairline-divided figure table. Owns the `COL_HEADER_CLASS`
- * column-header row (the 9.5px overline scale) and the
+ * column-header row (the 12px label rung) and the
  * `divide-y divide-border/70` row body with the bottom hairline, so the table
  * signature never drifts between archetypes. Rows share the `grid` template.
  */

@@ -27,7 +27,7 @@ describe("SurfaceHeaderBar — the one dialog/drawer header bar", () => {
 
     const bar = container.querySelector('[data-slot="surface-header"]') as HTMLElement;
     expect(bar.className).toContain("bg-surface-raised");
-    expect(bar.className).toContain("border-b");
+    expect(bar.className).not.toContain("border-b"); // no ruled band (ADR-0016)
     expect(bar.className).not.toContain("bg-primary");
     expect(bar.className).not.toContain("text-primary-foreground");
   });

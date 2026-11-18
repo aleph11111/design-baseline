@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn } from "../../../lib/utils";
 import { OVERLINE_CLASS } from "../../layout/overline";
 
-// The shared owner of a **typed overline** — the small, uppercase, letter-spaced
+// The shared owner of a **typed overline** — the small, muted
 // "eyebrow / kicker" label that sits above a heading or section title. The fleet
 // re-invents it everywhere: mistra and hk-crm each keep a copy of an `OVERLINE_CLASS`
 // string (already drifted — `text-xs`/`0.08em` vs `text-[10.5px]`/`0.09em`);
@@ -39,7 +39,7 @@ export interface OverlineProps {
 }
 
 /**
- * Overline — a typed overline: the baseline's uppercase, tracked, muted eyebrow
+ * Overline — a typed overline: the baseline's muted 12px sentence-case eyebrow
  * label on the canonical `OVERLINE_CLASS` signature, color included (L7, v2).
  */
 export function Overline({

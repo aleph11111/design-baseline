@@ -42,7 +42,7 @@ describe("SectionCard — chrome=true (default)", () => {
     expect(inner.className).not.toMatch(/\bborder\b/);
   });
 
-  it("renders a ruled title bar when title is set", () => {
+  it("renders the title inside the card padding (no ruled band) on the 13px card-title rung", () => {
     const { container, getByText } = render(
       <SectionCard title="Details" description="A clarifier">
         <p>body</p>
@@ -50,8 +50,14 @@ describe("SectionCard — chrome=true (default)", () => {
     );
 
     const bar = sectionOf(container).firstElementChild as HTMLElement;
-    expect(bar.className).toContain("border-b");
-    expect(bar.contains(getByText("Details"))).toBe(true);
+    expect(bar.className).not.toContain("border-b");
+    expect(bar.className).toContain("px-5");
+    const h2 = getByText("Details");
+    expect(h2.tagName).toBe("H2");
+    expect(h2.className).toContain("text-[13px]");
+    expect(h2.className).toContain("font-semibold");
+    expect(h2.className).not.toContain("uppercase");
+    expect(bar.contains(h2)).toBe(true);
     expect(bar.contains(getByText("A clarifier"))).toBe(true);
   });
 
@@ -165,7 +171,7 @@ describe("SectionCard — flush", () => {
 
     const body = sectionOf(container).children[1] as HTMLElement;
     expect(body.className).toContain("px-5");
-    expect(body.className).toContain("py-4");
+    expect(body.className).toContain("pb-4"); // the in-padding title above supplies the top gap (ADR-0016)
     expect(body.contains(getByText("body"))).toBe(true);
   });
 

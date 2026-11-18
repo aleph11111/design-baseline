@@ -7,12 +7,15 @@ afterEach(() => {
 });
 
 describe("Overline — typed overline label", () => {
-  it("carries the base signature (uppercase, tracked, muted) by default", () => {
+  it("carries the base signature (12px medium muted, sentence case — ADR-0016) by default", () => {
     render(<Overline>Season 3</Overline>);
     const el = screen.getByText("Season 3");
     expect(el.tagName).toBe("DIV");
-    expect(el.className).toContain("uppercase");
+    expect(el.className).toContain("text-xs");
+    expect(el.className).toContain("font-medium");
     expect(el.className).toContain("text-muted-foreground");
+    expect(el.className).not.toContain("uppercase");
+    expect(el.className).not.toContain("tracking-");
   });
 
   it("exposes no tone prop — the color is fixed in the base signature (L7, v2)", () => {
@@ -32,7 +35,7 @@ describe("Overline — typed overline label", () => {
       <Overline className="mb-1 text-emerald-700">Income</Overline>,
     );
     const cls = screen.getByText("Income").className;
-    expect(cls).toContain("uppercase");
+    expect(cls).toContain("font-medium");
     expect(cls).toContain("mb-1");
     expect(cls).toContain("text-emerald-700");
   });

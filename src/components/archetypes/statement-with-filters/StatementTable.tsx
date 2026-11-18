@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn } from "../../../lib/utils";
+import { COL_HEADER_CLASS } from "../../layout/overline";
 import {
   FigureTable,
   FigureRow,
@@ -25,8 +26,8 @@ export type StatementTableProps = {
  * (`FigureTable`): the statement owns the derived N-column grid (label column
  * fluid; numeric columns right-aligned, fixed 5.5rem — the static
  * `statementGridClass` lookup, derived once from the column count so the
- * header row and every data row always share a layout), while the 9.5px
- * column-header overlines and the hairline row dividers are the shared
+ * header row and every data row always share a layout), while the
+ * column-header labels and the hairline row dividers are the shared
  * signature, so every statement (BWA/GuV, cashflow, liquidity, variance)
  * shares one table signature.
  *
@@ -84,13 +85,13 @@ export function StatementRow({
   className,
 }: StatementRowProps): React.ReactElement {
   if (section) {
-    // Section rows span the full grid width with a muted overline label.
+    // Section rows span the full grid width with the muted label rung.
     return (
       <div
         className={cn(
           "flex items-baseline py-2.5",
           "border-b border-border/40",
-          "text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground",
+          COL_HEADER_CLASS,
           className,
         )}
       >

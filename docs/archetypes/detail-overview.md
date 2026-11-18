@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 4.4
+version: 4.5
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.6
@@ -561,12 +561,12 @@ detail-section boundary.
 ### 6c. Bounded section
 
 **Required:**
-- A detail section with a `title` (short noun phrase, rendered as the ruled
-  overline bar via the shared section-heading primitive) and optional
+- A detail section with a `title` (short noun phrase, rendered as the card
+  title inside the section's padding via the shared section-heading primitive) and optional
   right-aligned `actions` — the uniform surface for every section in the
-  `content` and `references` slots. The overline itself is a baseline-wide
-  primitive, shared with grouped-list and form-page; detail-overview adds the
-  ruled bar around it.
+  `content` and `references` slots. The heading itself is a baseline-wide
+  primitive, shared with grouped-list and form-page; detail-overview binds it
+  to the section's card (no ruled band, ADR-0016).
 - Contents: ruled row lists use `flush` (rows own their own padding and
   hairline dividers); free-form content (islands, prose) omits it and gets
   the section's default padding. Do not use the project's base card

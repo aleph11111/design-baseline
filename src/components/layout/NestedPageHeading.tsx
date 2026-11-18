@@ -9,7 +9,7 @@ import { HeadingRow } from "./HeadingRow";
 /**
  * The single type treatment for a nested page heading — rendered as an `<h2>`
  * at the one fixed scale that sits between `PageHeader` (the h1 page title)
- * and `SectionHeading` (the overline sub-section label). No prop may change it:
+ * and `SectionHeading` (the 15px sub-section heading). No prop may change it:
  * a per-call-site size/weight/variant is exactly the appearance-prop that hard
  * rule 12 forbids, and it is the freedom that split the fleet's sub-tab headings
  * into competing weights.
@@ -61,8 +61,8 @@ export type NestedPageHeadingProps = {
  * NestedPageHeading — the canonical nested page title for the baseline.
  *
  * This is the third rung of the heading-scale ladder, between `PageHeader`
- * (the standalone h1 page title) and `SectionHeading` (the uppercase
- * overline that names a sub-section inside a card). It carries a nested *page*
+ * (the standalone h1 page title) and `SectionHeading` (the 15px
+ * semibold heading that names a sub-section). It carries a nested *page*
  * title for the case where a parent route layout owns the h1 and the page
  * below it still needs a title of its own.
  *

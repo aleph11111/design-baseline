@@ -117,7 +117,7 @@ describe("CrudDialogHeader — the one neutral bar treatment", () => {
     ) as HTMLElement;
     // the bar's treatment is SurfaceHeaderBar's; this header adds no classes
     expect(bar.className).toContain("bg-surface-raised");
-    expect(bar.className).toContain("border-b");
+    expect(bar.className).not.toContain("border-b"); // no ruled band (ADR-0016)
     expect(bar.className).not.toContain("bg-primary");
   });
 });

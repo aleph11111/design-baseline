@@ -94,7 +94,7 @@ export function DetailSection({
       <Collapsible open={open} onOpenChange={setOpen}>
         <SectionCard
           title={
-            <CollapsibleTrigger className="inline-flex cursor-pointer items-center gap-1.5 text-left uppercase hover:text-foreground">
+            <CollapsibleTrigger className="inline-flex cursor-pointer items-center gap-1.5 text-left hover:text-muted-foreground">
               <ChevronRight
                 aria-hidden
                 className={cn(
@@ -112,7 +112,7 @@ export function DetailSection({
           className={className}
         >
           <CollapsibleContent
-            className={cn(!flush && (unified ? "px-5" : "px-5 py-4"))}
+            className={cn(!flush && (unified ? "px-5" : "px-5 pb-4"))}
           >
             {children}
           </CollapsibleContent>

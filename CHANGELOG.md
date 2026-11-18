@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.56.0
+
+- **Changed (ADR-0016, amends ADR-0007 §2):** the uppercase overline is retired for a quiet sentence-case hierarchy. Page title 30px (unchanged) > section heading 15px semibold foreground > card title 13px semibold foreground > body 13px; labels are 12px medium muted. No shared heading or label renders uppercase or letter-spaced any more.
+- **Changed — visuals of these owners and every archetype composing them:** `SectionHeading` (15px bare, 13px inside a card) and `SectionCard` (title inside the card padding, no ruled `border-b` band; body `px-5 pb-4` under a title) — so `DetailSection` (detail-overview), grouped-list groups and form-page field groups; `StatTile` / `StatTileRow` labels (detail-overview stats, analytics-dashboard KPI row); `Sidebar` group labels (chevron now shows on hover / keyboard focus only); `SectionNav` group headings; `BottomNav` sheet title; kanban-board `BoardColumn` titles; the typed `<Overline>` (overline-typed v2.1); column headers via `COL_HEADER_CLASS` in shared `FigureTable` (report, statement-with-filters), `StatementTable` section rows, `CalendarShell` weekday labels, and the report and print-statement demos; `SurfaceHeaderBar` (list-with-detail detail sheet, `CrudDialogHeader`) and the matrix-grid `MatrixInspector` header lose their `border-b`; `Alert` `variant="warning"` is border-only (status colour on border and icon, foreground text, no tinted fill).
+- **Added:** `SECTION_HEADING_CLASS` and `CARD_TITLE_CLASS` in `layout/overline`. `OVERLINE_CLASS` and `COL_HEADER_CLASS` keep their names and now carry the 12px label rung.
+- **Consumer:** no API changes; bump `design-baseline`. Re-baseline screenshots (every page with a section card, stat tile, table header, sidebar, dialog/drawer header or warning alert). A hand-typed `uppercase tracking-*` label still renders the old look: compose `OVERLINE_CLASS` / `<Overline>` instead.
+- **Breaking:** no (visual only).
+
 ## v0.55.2
 
 - **Fixed:** the dialog/drawer header bar (`SurfaceHeaderBar`, used by the `list-with-detail` detail sheet and `CrudDialogHeader`) no longer squeezes its title to zero width next to several actions. The bar wraps, and the title block keeps a 12rem basis: actions that do not fit beside it move onto a row beneath the title. With one short action and a short title the header looks as before. A long title still truncates and never widens the sheet (ADR-0010 rule 3, amended).

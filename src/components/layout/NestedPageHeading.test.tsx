@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import { HEADING_ROW_CLASSES } from "./HeadingRow";
 import { NestedPageHeading, NESTED_HEADING_CLASS } from "./NestedPageHeading";
-import { OVERLINE_CLASS } from "./overline";
+import { OVERLINE_CLASS, SECTION_HEADING_CLASS } from "./overline";
 
 const SUBTITLE = `[class="${HEADING_ROW_CLASSES.subtitle}"]`;
 
@@ -26,10 +26,11 @@ describe("NestedPageHeading", () => {
     expect(container.querySelector("h2")?.className).toBe(NESTED_HEADING_CLASS);
   });
 
-  it("is a distinct rung of the ladder — not the overline, not the page title", () => {
+  it("is a distinct rung of the ladder — not the section heading, not the page title", () => {
     // Guards against silently collapsing the ladder: the nested rung must stay
     // below the h1 page title (the display step, ADR-0007 §2) and above the
-    // section overline.
+    // section heading (15px) and the label rung.
+    expect(NESTED_HEADING_CLASS).not.toBe(SECTION_HEADING_CLASS);
     expect(NESTED_HEADING_CLASS).not.toBe(OVERLINE_CLASS);
     expect(NESTED_HEADING_CLASS).not.toContain("text-display-title");
   });
