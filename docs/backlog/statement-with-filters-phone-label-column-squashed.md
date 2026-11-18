@@ -1,14 +1,18 @@
 ---
 area: archetypes
 opened: '2026-11-18'
-status: needs-enrichment
-value: normal
+status: ready
 gate:
-  score: 4
-  passed: [title, context, what_to_do, acceptance, related]
-  failed:
-    - open_question: "unresolved design fork under ## Open question — needs an interactive operator decision before /feat"
-  graded_at: '2026-11-18T00:00:00Z'
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-11-18T19:21:52.951Z'
+value: normal
 ---
 
 # statement-with-filters phone label column squashed to one character
@@ -41,6 +45,6 @@ At 390px the committed phone baseline `tests/screenshots/phone/statement-with-fi
 - [[device-triad-check-viewports]] — the check:viewports device triad the new invariant extends
 - [[page-header-actions-squeeze-title-on-phones]] — same class of phone squeeze defect
 
-## Open question
+## Decision
 
-Numeric columns yielding under `sm`: horizontal scroll (asserted above, Recommended — drops no figure from a financial statement) vs hiding the trailing comparison/delta column below `sm` (keeps one screen width, loses a figure on phones). Operator to confirm before `/feat`.
+Operator-delegated decision (2026-11-18): numeric columns yield under `sm` by horizontal scroll, as recommended. No column is hidden on phones; a financial statement never drops a figure.
