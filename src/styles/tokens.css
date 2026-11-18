@@ -22,12 +22,12 @@
   :root {
     /* ---- BRAND TOKENS — override per project ---- */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 222 22% 10%;
 
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 22% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222 22% 10%;
 
     /* The one brand accent (ADR-0007 §4). The `.dark` value keeps this hue
        (±10°) and stays chromatic (saturation ≥ 30%). */
@@ -79,8 +79,8 @@
        `text-rating`), like a chart step, not paired text-on-chip. */
     --rating: 38 92% 45%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 220 13% 91%;
+    --input: 218 16% 83%;
 
     --radius: 0.5rem;
 

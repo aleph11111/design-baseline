@@ -60,6 +60,11 @@
    (ADR-0007 §8). Such direct `var()` readers still resolve at `:root`; only
    the utilities re-resolve under a nested scope. */
 @theme inline static {
+  /* Overlay shadow (ADR-0015: shadow lives on overlays only): hairline ring plus
+     two tinted layers; `shadow-overlay` on dialog, popover, sheet. */
+  --shadow-overlay: 0 0 0 1px hsl(var(--foreground) / 0.06),
+    0 4px 12px -1px hsl(var(--foreground) / 0.06),
+    0 1px 3px -1px hsl(var(--foreground) / 0.18);
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   /* Fixed roles (ADR-0007 §4): the focus ring and the sidebar accent follow
