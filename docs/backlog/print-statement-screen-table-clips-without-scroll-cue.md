@@ -1,16 +1,22 @@
 ---
 area: archetypes
-opened: 2026-11-18
-status: needs-enrichment
+opened: '2026-11-18'
+status: ready
+gate:
+  score: 5
+  passed:
+    - title
+    - context
+    - what_to_do
+    - acceptance
+    - related
+  failed: []
+  graded_at: '2026-11-18T19:21:50.610Z'
 value: normal
 model: sonnet
-model_reason: "cause established (overlay scrollbar hides an existing overflow-x-auto wrapper); scoped shell + demo change following the MatrixGridShell sticky-column pattern"
-gate:
-  score: 4
-  passed: [title, context, what_to_do, acceptance, related]
-  failed:
-    - open_question: "unresolved design fork under ## Open question — needs an interactive operator decision before /feat"
-  graded_at: 2026-11-18T12:00:00Z
+model_reason: >-
+  cause established (overlay scrollbar hides an existing overflow-x-auto wrapper); scoped shell +
+  demo change following the MatrixGridShell sticky-column pattern
 ---
 
 # Print-statement on-screen month table clips without a scroll cue
@@ -35,9 +41,9 @@ The scroll container exists: `PrintStatementShell` (`src/components/archetypes/p
 - Print output (A4 landscape) is unchanged: no fade, no sticky offset, `print:overflow-visible` still applies.
 - No other wide statement body inside `PrintStatementShell` (every `pageSize`, including `"none"`) clips without a cue.
 
-## Open question
+## Decision
 
-Alternative to the scroll cue: fit 12 months + label at laptop width with the existing tabular 13px ledger body (no scrolling at 1512px). Recommended default above is the cue at shell level, because a statement body is unbounded by contract and any width can overflow on a narrower viewport; fitting only fixes the demo at one width. Both could be done; confirm if fit-to-width is wanted in addition.
+Operator-delegated decision (2026-11-18): ship the shell-level scroll cue only, as recommended. No fit-to-width change to the demo: a statement body is unbounded by contract, so the cue is the fix that holds at every width.
 
 ## Related
 
