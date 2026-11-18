@@ -8,7 +8,7 @@ model: opus
 model_reason: "public detailActions contract change (new accepted shape) and an overflow rule across archetypes; design is the deliverable"
 gate:
   score: 4
-  passed: [title, context, what-to-do, acceptance]
+  passed: [title, context, what_to_do, acceptance, related]
   failed:
     - open_question: "auto-resolved fork (typed form vs. consumer-composed menu) awaits operator confirmation"
   graded_at: 2026-11-18T00:00:00Z
