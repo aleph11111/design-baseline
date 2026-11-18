@@ -134,7 +134,7 @@ describe("FigureTable — shared figure-table signature", () => {
       </StatementTable>,
     );
 
-    const reportGrid = "grid grid-cols-[1fr_3rem_5.5rem_6rem] gap-x-3";
+    const reportGrid = "grid min-w-[23.75rem] grid-cols-[minmax(7rem,1fr)_3rem_5.5rem_6rem] gap-x-3";
     const statementGrid = statementGridClass(2);
 
     for (const [grid, container, minRows] of [
@@ -158,9 +158,9 @@ describe("FigureTable — shared figure-table signature", () => {
     // Every grid class is a fixed literal the Tailwind scanner sees — one per
     // column count, no runtime composition.
     const expected: Record<number, string> = {
-      1: "grid items-baseline gap-x-3 grid-cols-[minmax(0,1fr)_5.5rem]",
-      2: "grid items-baseline gap-x-3 grid-cols-[minmax(0,1fr)_5.5rem_5.5rem]",
-      3: "grid items-baseline gap-x-3 grid-cols-[minmax(0,1fr)_5.5rem_5.5rem_5.5rem]",
+      1: "grid min-w-[13.25rem] items-baseline gap-x-3 grid-cols-[minmax(7rem,1fr)_5.5rem]",
+      2: "grid min-w-[19.5rem] items-baseline gap-x-3 grid-cols-[minmax(7rem,1fr)_5.5rem_5.5rem]",
+      3: "grid min-w-[25.75rem] items-baseline gap-x-3 grid-cols-[minmax(7rem,1fr)_5.5rem_5.5rem_5.5rem]",
     };
     for (const [count, grid] of Object.entries(expected)) {
       expect(statementGridClass(Number(count))).toBe(grid);

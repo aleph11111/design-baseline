@@ -9,7 +9,7 @@ import { FigureTable, FigureRow } from "../shared";
  * · sum (6rem). Static — visible to the Tailwind scanner. `items-center` is a
  * row-level concern (header cells are single-line) and composes on `FigureRow`.
  */
-const REPORT_GRID = "grid grid-cols-[1fr_3rem_5.5rem_6rem] gap-x-3";
+const REPORT_GRID = "grid min-w-[23.75rem] grid-cols-[minmax(7rem,1fr)_3rem_5.5rem_6rem] gap-x-3";
 
 /** Name / qty centered / unit right / sum right — the report's canonical header set. */
 const REPORT_HEADER_ALIGN: readonly ("left" | "center" | "right")[] = [
