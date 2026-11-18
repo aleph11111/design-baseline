@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-18
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "one-class responsive gate on a shipped offset; acceptance is a measured number plus a phone tap check"
