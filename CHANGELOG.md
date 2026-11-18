@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.57.1
+
+- **Fixed (print-statement):** `PrintStatementShell` shows a screen-only right-edge fade while its body overflows to the right, so a clipped wide table no longer reads as complete; it hides at the scroll end, when the body fits, and in print. The gallery demo pins its Position column.
+- **Consumer:** bump `design-baseline`; re-baseline `print-statement` screenshots.
+- **Breaking:** no.
+
 ## v0.57.0
 
 - **Changed (tokens, light theme only):** `--border` `220 13% 91%` (neutral, matches `--sidebar-border`; was bluish `214.3 31.8% 91.4%`); `--input` split from `--border`, now `218 16% 83%` (~1.5:1 on white, field and outlined-button edges show); `--foreground` / `--card-foreground` / `--popover-foreground` `222 22% 10%` (~17.9:1 on white; was saturated navy-black). `.dark` unchanged.
