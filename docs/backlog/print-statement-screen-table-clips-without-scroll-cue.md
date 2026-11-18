@@ -3,12 +3,14 @@ area: archetypes
 opened: 2026-11-18
 status: needs-enrichment
 value: normal
+model: sonnet
+model_reason: "cause established (overlay scrollbar hides an existing overflow-x-auto wrapper); scoped shell + demo change following the MatrixGridShell sticky-column pattern"
 gate:
   score: 4
   passed: [title, context, what_to_do, acceptance, related]
   failed:
     - open_question: "unresolved design fork under ## Open question — needs an interactive operator decision before /feat"
-  graded_at: 2026-11-18T00:00:00Z
+  graded_at: 2026-11-18T12:00:00Z
 ---
 
 # Print-statement on-screen month table clips without a scroll cue
