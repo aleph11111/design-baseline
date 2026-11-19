@@ -725,6 +725,7 @@ real Chrome and asserts what needs no image baseline:
 - the content column is 1144px on `laptop14` and 1680px on `desk27` (896px on document-column pages, none on full-bleed pages; the 1903/1920 steps stay measured on `form-page` — "Spacing & rhythm");
 - the desktop toolbar band is one row ("Toolbar field labels", desktop cap);
 - on `phone` the toolbar's filter fields live in the filter sheet, the navigation is a `BottomNav` or the sidebar sheet, and tap targets are at least 44px (a control's own box, its wrapping `<label>`, or its `TOUCH_TARGET_CLASS` hit area — "App touch density"; a link inside running text is exempt), and a tap 1px inside each edge of a target reaches that target, not a neighbour's hit area.
+- a table's label (first text) column is never narrower than ~6ch (`figureTable`, `tableColumn`), and a horizontal scroller with content past its right edge shows the shared right-edge cue (`ScrollCue` from `archetypes/shared`, `scrollCue`); archetype label columns take `FIRST_COLUMN_CLASS` (~8ch min, ~40% max, truncated), right-aligned figure cells never wrap.
 
 **Real-window widths.** A real 14-inch MacBook Chrome window (browser chrome,
 a side panel) is about 1133 x 739 CSS px, and `AppShell` then leaves a content

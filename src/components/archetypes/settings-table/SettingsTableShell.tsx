@@ -12,6 +12,7 @@ import {
 import { Button } from "../../ui/button";
 import { Checkbox } from "../../ui/checkbox";
 import {
+  FIRST_COLUMN_CLASS,
   ListStateView,
   RowActionsMenu,
   alignClass,
@@ -557,7 +558,7 @@ export function SettingsTableBody<Row>({
             </TableHead>
           )}
           {columns.map((col) => (
-            <TableHead key={col.key} className={cn(alignClass(col.align), hideBelowContainerClass(col))}>
+            <TableHead key={col.key} className={cn("whitespace-nowrap", alignClass(col.align), hideBelowContainerClass(col))}>
               {col.header}
             </TableHead>
           ))}
@@ -599,7 +600,8 @@ export function SettingsTableBody<Row>({
                     )}
                     {...cellProps}
                   >
-                    {col.cell(row)}
+                    {/* A name truncates on one line at phone width, never wraps. */}
+                    {isIdentifier ? <span className={FIRST_COLUMN_CLASS}>{col.cell(row)}</span> : col.cell(row)}
                   </TableCell>
                 );
               })}

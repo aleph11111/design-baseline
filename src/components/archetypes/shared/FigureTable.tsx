@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "../../../lib/utils";
 import { COL_HEADER_CLASS } from "../../layout/overline";
+import { ScrollCue } from "./ScrollCue";
 
 /**
  * The shared figure-table signature — the hairline-divided line-item table
@@ -97,7 +98,7 @@ export function FigureTable({
     return "";
   };
   return (
-    <div className={cn("overflow-x-auto", className)}>
+    <ScrollCue className={className}>
       <div data-slot="figure-table-header" className={cn(grid, "border-b border-border py-2", COL_HEADER_CLASS)}>
         {columns.map((col, i) => (
           <div key={i} className={headerCellClass(i)}>
@@ -106,7 +107,7 @@ export function FigureTable({
         ))}
       </div>
       <div className="divide-y divide-border/70">{children}</div>
-    </div>
+    </ScrollCue>
   );
 }
 

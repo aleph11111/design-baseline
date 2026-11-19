@@ -16,6 +16,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dr
 import { useIsMobile } from "../../hooks/use-mobile";
 import { cn } from "../../lib/utils";
 import { useLabels } from "../../lib/labels";
+import { ScrollCue } from "../archetypes/shared/ScrollCue";
 
 /**
  * The toolbar band — one owner of the ruled band chrome and its inner layout.
@@ -116,7 +117,7 @@ export function ToolbarBand({
   return (
     <div className="flex flex-nowrap items-center justify-between gap-x-4">
       {/* p-1/-m-1: room for the 4px focus ring + offset, which overflow-x clips. */}
-      <div className="-m-1 flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-x-auto p-1">
+      <ScrollCue className="-m-1 min-w-0 flex-1" scrollClassName="flex flex-nowrap items-center gap-2 p-1">
         <ToolbarBandContext.Provider value={true}>
           {has(viewSwitch) && (
             // max-w-full + overflow-x-auto: a switch wider than the band scrolls in its own
@@ -137,7 +138,7 @@ export function ToolbarBand({
             {overflowFields}
           </FilterSheet>
         )}
-      </div>
+      </ScrollCue>
       {has(count) || has(trailing) || has(viewOptions) ? (
         <div className="ml-auto flex shrink-0 items-center gap-3">
           {has(count) && <span className="text-sm text-muted-foreground">{count}</span>}
@@ -306,9 +307,9 @@ function MobileBand({
   return (
     <div className="flex flex-col gap-2">
       {viewSwitch && (
-        <div data-view-switch="" className="-mx-4 overflow-x-auto px-4">
+        <ScrollCue data-view-switch="" className="-mx-4" scrollClassName="px-4">
           <ToolbarBandContext.Provider value={true}>{viewSwitch}</ToolbarBandContext.Provider>
-        </div>
+        </ScrollCue>
       )}
       <div className="flex items-center gap-2">
         {toolbar && (

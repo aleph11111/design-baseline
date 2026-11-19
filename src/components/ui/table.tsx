@@ -3,6 +3,7 @@ import * as React from "react"
 
 import { cn } from "../../lib/utils"
 import { useCompactDensity as useCompact } from "./toolbar-band"
+import { ScrollCue } from "../archetypes/shared/ScrollCue"
 
 /** An unprefixed vertical padding utility (`p-0`, `py-4`, `pt-1`, …) in a consumer className. */
 const VERTICAL_PADDING = /(^|\s)p[ytb]?-\S+/
@@ -13,13 +14,15 @@ const Table = React.forwardRef<
 >(({ className, ...props }, ref) => {
   const compact = useCompact()
   return (
-    <div className="relative w-full overflow-auto">
+    // The shared horizontal-overflow cue: a right-edge fade while columns lie
+    // past the edge (phone), none when the table fits.
+    <ScrollCue className="w-full" scrollClassName="relative w-full">
       <table
         ref={ref}
         className={cn("w-full caption-bottom", compact ? "text-[13px]" : "text-sm", className)}
         {...props}
       />
-    </div>
+    </ScrollCue>
   )
 })
 Table.displayName = "Table"

@@ -55,7 +55,9 @@ export type TableColumn<Row> = {
  * The single alignment → Tailwind-class mapping for archetype table bodies.
  */
 export function alignClass(align: TableColumn<unknown>["align"]): string {
-  if (align === "right") return "text-right";
+  // Right = a figure (number, amount, date, "35 / min"): it never wraps onto
+  // a second line at phone width; the table scrolls (with its cue) instead.
+  if (align === "right") return "text-right whitespace-nowrap";
   if (align === "center") return "text-center";
   return "text-left";
 }

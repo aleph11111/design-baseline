@@ -4,6 +4,7 @@ import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../
 import { useFullBleedClass } from "../../layout/surface";
 import { useIsMobile } from "../../../hooks/use-mobile";
 import { cn } from "../../../lib/utils";
+import { FIRST_COLUMN_CLASS, ScrollCue } from "../shared/ScrollCue";
 import { MatrixCell } from "./MatrixCell";
 import { MatrixGridHead } from "./MatrixGridHead";
 import {
@@ -164,14 +165,15 @@ export function MatrixGridShell<Cell>({
   const frameProps = { ...header, className: fullBleed };
 
   // Only the table scrolls sideways: the frame clips (default mode) and an
-  // inner `relative overflow-x-auto` box is the scroll container. The header
+  // inner `relative overflow-x-auto` box (the shared ScrollCue, right-edge
+  // fade while clipped) is the scroll container. The header
   // toolbar band stays full-width and in view, the sticky first column pins
   // against the inner box, and `relative` keeps absolutely positioned
   // descendants (sr-only labels) inside the clip.
   const empty = emptyState !== undefined && emptyState !== null;
 
   const grid = empty ? emptyState : (
-      <div data-slot="matrix-scroll" className="relative min-w-0 flex-1 overflow-x-auto">
+      <ScrollCue data-slot="matrix-scroll" className="min-w-0 flex-1" scrollClassName="relative @container">
         <table className="text-[13px] border-collapse">
           <MatrixGridHead columns={columns} rowHeaderLabel={rowHeaderLabel} />
           <tbody>
@@ -188,11 +190,11 @@ export function MatrixGridShell<Cell>({
                     scope="row"
                     className={cn(
                       "sticky left-0 z-10 bg-card border-r border-border",
-                      "px-4 py-2 text-left font-medium text-foreground whitespace-nowrap",
+                      "px-3 py-2 sm:px-4 text-left font-medium text-foreground whitespace-nowrap",
                       "hover:bg-muted/50",
                     )}
                   >
-                    {row.label}
+                    <span className={FIRST_COLUMN_CLASS}>{row.label}</span>
                   </th>
                   {columns.map((col) => {
                     const cell = row.cells[col.key];
@@ -236,7 +238,7 @@ export function MatrixGridShell<Cell>({
             })}
           </tbody>
         </table>
-      </div>
+      </ScrollCue>
   );
 
   // Workbench: grid, then body, then dock, in one column. With neither slot

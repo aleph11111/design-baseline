@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "../../../lib/utils";
+import { FIRST_COLUMN_CLASS } from "../shared/ScrollCue";
 import type { MatrixColumn } from "./MatrixGridShell";
 
 export type MatrixGridHeadProps = {
@@ -34,8 +35,8 @@ export function MatrixGridHead({ columns, rowHeaderLabel }: MatrixGridHeadProps)
             className={cn(
               // Opaque: the row's muted tint mixed onto the raised surface, so
               // headers scrolled underneath don't show through the pinned cell.
-              "sticky left-0 z-10 bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-surface-raised))] border-r border-border min-w-[180px]",
-              "px-4 py-2",
+              "sticky left-0 z-10 bg-[color-mix(in_oklab,var(--color-muted)_50%,var(--color-surface-raised))] border-r border-border sm:min-w-[180px]",
+              "px-3 py-2 sm:px-4",
             )}
           />
           {groupSpans.map(({ group, span, startIdx }) => (
@@ -56,10 +57,10 @@ export function MatrixGridHead({ columns, rowHeaderLabel }: MatrixGridHeadProps)
         <th
           className={cn(
             "sticky left-0 z-10 bg-[color-mix(in_oklab,var(--color-muted)_30%,var(--color-surface-raised))] border-r border-border",
-            "px-4 py-2 text-left font-medium text-muted-foreground whitespace-nowrap",
+            "px-3 py-2 sm:px-4 text-left font-medium text-muted-foreground whitespace-nowrap",
           )}
         >
-          {rowHeaderLabel}
+          <span className={FIRST_COLUMN_CLASS}>{rowHeaderLabel}</span>
         </th>
         {columns.map((col) => (
           <th
