@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import {
   ListWithDetailShell,
   type ListColumn,
@@ -8,6 +8,7 @@ import {
 
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
 });
 
 type Row = { id: string; name: string };
@@ -193,6 +194,115 @@ describe("ListWithDetailShell", () => {
       expect(sheetTitle.className).toContain("truncate");
       cleanup();
     }
+  });
+
+  it("typed detailActions: 1 primary + 2 secondary inline, the rest and the destructive in ⋯", () => {
+    render(
+      <ListWithDetailShell title="T"
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+        selectedRowId="1"
+        detail={<div>Details</div>}
+        detailTitle="Ada Lovelace"
+        detailActions={{
+          primary: { label: "New path" },
+          secondary: [{ label: "Invite SMS" }, { label: "Invite email" }, { label: "Print" }, { label: "Export" }],
+          menu: [{ label: "Archive patient", destructive: true }],
+        }}
+      />,
+    );
+    const bar = screen
+      .getByRole("heading", { name: "Ada Lovelace" })
+      .closest('[data-slot="surface-header"]') as HTMLElement;
+    const inline = within(bar).getAllByRole("button").map((b) => b.textContent);
+    // the ⋯ trigger is the last element of the actions row (clears the close button via the bar's pr-13)
+    expect(inline).toEqual(["Invite SMS", "Invite email", "New path", "More actions"]);
+    expect(within(bar).queryByText("Archive patient")).toBeNull();
+    fireEvent.pointerDown(within(bar).getByRole("button", { name: "More actions" }), { button: 0, ctrlKey: false });
+    const menu = document.querySelector<HTMLElement>('[role="menu"]');
+    expect(Array.from(menu!.querySelectorAll('[role="menuitem"]')).map((i) => i.textContent)).toEqual([
+      "Print",
+      "Export",
+      "Archive patient",
+    ]);
+  });
+
+  it("typed detailActions: 1 primary + 1 secondary renders no ⋯ trigger", () => {
+    render(
+      <ListWithDetailShell title="T"
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+        selectedRowId="1"
+        detail={<div>Details</div>}
+        detailTitle="Ada Lovelace"
+        detailActions={{ primary: { label: "Edit" }, secondary: [{ label: "Print" }] }}
+      />,
+    );
+    const bar = screen
+      .getByRole("heading", { name: "Ada Lovelace" })
+      .closest('[data-slot="surface-header"]') as HTMLElement;
+    expect(within(bar).getAllByRole("button").map((b) => b.textContent)).toEqual(["Print", "Edit"]);
+  });
+
+  const stubPhone = () =>
+    vi.stubGlobal("matchMedia", (q: string) => ({
+      matches: q.includes("max-width"),
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+
+  it("typed detailActions on a phone: when ⋯ renders anyway, every secondary folds into it", () => {
+    stubPhone();
+    render(
+      <ListWithDetailShell title="T"
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+        selectedRowId="1"
+        detail={<div>Details</div>}
+        detailTitle="Ada Lovelace"
+        detailActions={{
+          primary: { label: "New path" },
+          secondary: [
+            { label: "Invite SMS" },
+            { label: "Invite email" },
+            { label: "Remove", destructive: true },
+          ],
+        }}
+      />,
+    );
+    const bar = screen
+      .getByRole("heading", { name: "Ada Lovelace" })
+      .closest('[data-slot="surface-header"]') as HTMLElement;
+    expect(within(bar).getAllByRole("button").map((b) => b.textContent)).toEqual(["New path", "More actions"]);
+    fireEvent.pointerDown(within(bar).getByRole("button", { name: "More actions" }), { button: 0, ctrlKey: false });
+    const menu = document.querySelector<HTMLElement>('[role="menu"]');
+    expect(Array.from(menu!.querySelectorAll('[role="menuitem"]')).map((i) => i.textContent)).toEqual([
+      "Invite SMS",
+      "Invite email",
+      "Remove",
+    ]);
+  });
+
+  it("typed detailActions on a phone: 1 primary + 1 secondary renders no ⋯ trigger", () => {
+    stubPhone();
+    render(
+      <ListWithDetailShell title="T"
+        rows={rows}
+        columns={columns}
+        getRowId={(row) => row.id}
+        selectedRowId="1"
+        detail={<div>Details</div>}
+        detailTitle="Ada Lovelace"
+        detailActions={{ primary: { label: "Edit" }, secondary: [{ label: "Print" }] }}
+      />,
+    );
+    const bar = screen
+      .getByRole("heading", { name: "Ada Lovelace" })
+      .closest('[data-slot="surface-header"]') as HTMLElement;
+    expect(within(bar).getAllByRole("button").map((b) => b.textContent)).toEqual(["Print", "Edit"]);
   });
 
   it("desktop: the detail never renders in-flow beside the list — a row click opens the Sheet", () => {
