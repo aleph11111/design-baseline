@@ -2,6 +2,15 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.60.0
+
+- **Added:** `ScrollCue` and `FIRST_COLUMN_CLASS` (`archetypes/shared`). `ScrollCue` is the one horizontal scroller with a right-edge fade while content lies past the edge (none at the end or when it fits), promoted from print-statement. `FIRST_COLUMN_CLASS` is the label-column width rule: ~8ch min, ~40% (`cqw`) max, truncated.
+- **Changed (phone column allocation):** `matrix-grid`'s sticky label column follows `FIRST_COLUMN_CLASS` (the 180px floor now applies from `sm` only), so at 390px three value columns show. Right-aligned table cells (`alignClass("right")`: figures, amounts, dates, "35 / min") never wrap, in `list-with-detail`, `grouped-list` and `settings-table`; `settings-table` header cells never wrap and its identifier (name) cell truncates. Horizontal scrollers render through `ScrollCue`: `ui/Table`, `FigureTable` (report, statement-with-filters), `matrix-grid`, `calendar` week grid, `import-wizard` stepper (which now scrolls instead of cropping "4 Commit"), `kanban-board` lanes, the phone view-switch strip, print-statement. MANIFEST: list-with-detail 4.10, settings-table 3.8, grouped-list 4.7, matrix-grid 3.10, import-wizard 3.9, kanban-board 3.8, calendar 3.4, print-statement 1.2.
+- **Changed (invariants):** `checkPageInvariants` adds `tableColumn` (a table's first text column under ~6ch fails) and `scrollCue` (a horizontal scroller clipping content with no `[data-slot="scroll-cue"]` sibling fails).
+- **Consumer:** bump `design-baseline`; re-baseline phone screenshots of pages with tables, boards, matrices or a stepper. A page that hand-rolls an `overflow-x-auto` strip which overflows at phone width now fails `scrollCue` in its Playwright suite: wrap it in `ScrollCue` (or add the code to `knownGaps` with a ticket).
+- **Moved:** `className` on `WizardStepper` and `FigureTable` now lands on the outer `ScrollCue` box (was the `<ol>` / the scroller); layout classes (margins, width) behave the same, flex or gap classes meant for the strip itself no longer reach it.
+- **Breaking:** no API break; the new invariant codes can fail a consumer suite (see Consumer).
+
 ## v0.59.0
 
 - **Changed (ADR-0017 compact density step):** surfaces tighten at every app density but touch (`useCompactDensity()`, new export of `ui/toolbar-band`); under touch (phones by default, `density="touch"`) they keep today's roomy step and no control target changes. `Table`: 13px body, `TableHead` `h-9`, `TableCell` `px-3 py-2` (~37px rows, was ~53px). `StatTile`: `px-4 py-2`, 24px value (~60px, was ~105px). `KeyValueList`/`KeyValueRow` and `MetricList`/`MetricRow`: unruled 28px rows (were ruled 38px).

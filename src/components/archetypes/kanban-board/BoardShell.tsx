@@ -1,9 +1,10 @@
 "use client";
 import * as React from "react";
 import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
-import { useFullBleedClass } from "../../layout/surface";
+import { RaisedSurfaceContext, useFullBleedClass } from "../../layout/surface";
 import { SurfaceFrame } from "../../layout/SurfaceFrame";
 import { has } from "../../layout/ToolbarBand";
+import { ScrollCue } from "../shared/ScrollCue";
 
 /** The page header's back-link slot — `BoardShell` opts into the back-link
  *  header chrome that `PageShellFrameProps` omits (a board can sit under a
@@ -32,15 +33,21 @@ export function BoardShell({
 }: BoardShellProps): React.ReactElement {
   // Full-bleed archetype (ADR-0007 §1): the marker lifts AppShell's column.
   const fullBleed = useFullBleedClass();
+  // The lane row sits on the canvas, or on the raised card when nested in a section.
+  const raised = React.useContext(RaisedSurfaceContext);
   // Same band condition as PageFrame: a band-only first card only when there
   // is a band to carry (spec rule 5).
   const hasBand = has(frame.toolbar) || has(frame.viewSwitch) || has(frame.count) || has(frame.viewOptions);
   return (
     <PageFrame {...frame} body="stack" className={fullBleed}>
       {hasBand && <SurfaceFrame>{null}</SurfaceFrame>}
-      <div data-slot="board-lanes" className="relative flex items-start gap-4 overflow-x-auto pb-2">
+      <ScrollCue
+        data-slot="board-lanes"
+        scrollClassName="relative flex items-start gap-4 pb-2"
+        cueClassName={raised ? "from-card" : "from-surface-canvas"}
+      >
         {children}
-      </div>
+      </ScrollCue>
     </PageFrame>
   );
 }

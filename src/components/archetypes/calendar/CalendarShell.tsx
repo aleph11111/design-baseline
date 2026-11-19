@@ -4,6 +4,7 @@ import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
 import { COL_HEADER_CLASS } from "../../layout/overline";
 import { cn } from "../../../lib/utils";
+import { ScrollCue } from "../shared/ScrollCue";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -124,7 +125,7 @@ export function CalendarShell({
       className={fullBleed}
     >
       {/* Grid — scrolls horizontally on narrow viewports. */}
-      <div className="relative overflow-x-auto">
+      <ScrollCue scrollClassName="relative">
         <div className="grid min-w-[640px] grid-cols-7">
           {/* Row 1 — day headers */}
           {days.map((day) => (
@@ -189,7 +190,7 @@ export function CalendarShell({
             </div>
           ))}
         </div>
-      </div>
+      </ScrollCue>
     </PageFrame>
   );
 }

@@ -156,14 +156,35 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
     if (small.length) problems.push(`tapTargets: ${small.length} tap target(s) under ${tap}px: ${small.slice(0, 6).join(", ")}${small.length > 6 ? ", ..." : ""}`);
     if (stolen.length) problems.push(`tapOverlap: ${stolen.length} target(s) whose edge tap reaches a neighbour: ${stolen.slice(0, 4).join(", ")}${stolen.length > 4 ? ", ..." : ""}`);
   }
-  // A figure-table label (first) column never squeezes below ~6ch — the
-  // numeric tracks yield by scroll, not by eating the label.
+  // A table's label (first text) column never squeezes below ~6ch — the
+  // value columns yield by scroll, not by eating the label. A figure table's
+  // label is its header's first cell; an HTML table's is the first cell with
+  // text in its first body row (a leading checkbox / icon column is skipped).
+  const ch6 = (c) => 6 * 0.6 * parseFloat(getComputedStyle(c).fontSize);
   for (const h of document.querySelectorAll('[data-slot="figure-table-header"]')) {
     const c = h.firstElementChild;
     if (!c || !visible(c)) continue;
-    const min = 6 * 0.6 * parseFloat(getComputedStyle(c).fontSize);
     const w = c.getBoundingClientRect().width;
-    if (w < min) problems.push(`figureTable: label column ${Math.round(w)}px, under ~6ch (${Math.round(min)}px)`);
+    if (w < ch6(c)) problems.push(`figureTable: label column ${Math.round(w)}px, under ~6ch (${Math.round(ch6(c))}px)`);
+  }
+  for (const t of document.querySelectorAll("table")) {
+    if (!visible(t) || t.closest("[role=dialog]")) continue;
+    const row = t.tBodies[0]?.rows[0] ?? t.rows[0];
+    const c = row && [...row.cells].find((x) => visible(x) && x.textContent.trim());
+    if (!c) continue;
+    const w = c.getBoundingClientRect().width;
+    if (w < ch6(c)) problems.push(`tableColumn: first column ${describe(c)} ${Math.round(w)}px, under ~6ch (${Math.round(ch6(c))}px)`);
+  }
+  // A horizontal scroller with content past its right edge shows the shared
+  // right-edge cue (ScrollCue, `data-slot="scroll-cue"`) — overlay scrollbars
+  // otherwise crop a table or strip silently. Checked unscrolled, as loaded.
+  for (const el of document.body.querySelectorAll("*")) {
+    if (el.closest("[role=dialog],pre,textarea") || !visible(el)) continue;
+    const ox = getComputedStyle(el).overflowX;
+    if (ox !== "auto" && ox !== "scroll") continue;
+    if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 1) continue;
+    if (el.parentElement?.querySelector(':scope > [data-slot="scroll-cue"]')) continue;
+    problems.push(`scrollCue: ${describe(el)} clips ${el.scrollWidth - el.clientWidth}px sideways with no scroll cue (shared ScrollCue)`);
   }
   return [...new Set(problems)];
 }

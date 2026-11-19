@@ -36,7 +36,9 @@ describe("BoardShell — stack body (ADR-0015)", () => {
     );
     const stack = container.querySelector('[data-page-body="stack"]')!;
     expect(stack).toBeTruthy();
-    const [first, lanes] = Array.from(stack.children) as [HTMLElement, HTMLElement];
+    const [first, cue] = Array.from(stack.children) as [HTMLElement, HTMLElement];
+    // The lane row scrolls inside the shared ScrollCue box (right-edge fade).
+    const lanes = cue.firstElementChild as HTMLElement;
     expect(first.className).toContain("bg-surface-raised");
     expect(first.contains(screen.getByRole("textbox", { name: "Search cards" }))).toBe(true);
     expect(first.contains(screen.getByText("Card"))).toBe(false);
@@ -59,7 +61,7 @@ describe("BoardShell — stack body (ADR-0015)", () => {
     );
     const stack = container.querySelector('[data-page-body="stack"]')!;
     expect(stack.children).toHaveLength(1);
-    expect(stack.firstElementChild!.getAttribute("data-slot")).toBe("board-lanes");
+    expect(stack.firstElementChild!.firstElementChild!.getAttribute("data-slot")).toBe("board-lanes");
     expect(container.querySelector(".db-full-bleed")).toBeTruthy();
   });
 });
