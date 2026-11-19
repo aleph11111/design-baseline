@@ -156,6 +156,15 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
     if (small.length) problems.push(`tapTargets: ${small.length} tap target(s) under ${tap}px: ${small.slice(0, 6).join(", ")}${small.length > 6 ? ", ..." : ""}`);
     if (stolen.length) problems.push(`tapOverlap: ${stolen.length} target(s) whose edge tap reaches a neighbour: ${stolen.slice(0, 4).join(", ")}${stolen.length > 4 ? ", ..." : ""}`);
   }
+  // A figure-table label (first) column never squeezes below ~6ch — the
+  // numeric tracks yield by scroll, not by eating the label.
+  for (const h of document.querySelectorAll('[data-slot="figure-table-header"]')) {
+    const c = h.firstElementChild;
+    if (!c || !visible(c)) continue;
+    const min = 6 * 0.6 * parseFloat(getComputedStyle(c).fontSize);
+    const w = c.getBoundingClientRect().width;
+    if (w < min) problems.push(`figureTable: label column ${Math.round(w)}px, under ~6ch (${Math.round(min)}px)`);
+  }
   return [...new Set(problems)];
 }
 

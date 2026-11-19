@@ -21,19 +21,21 @@ import { COL_HEADER_CLASS } from "../../layout/overline";
 
 /**
  * The statement column grid as a static template per numeric column count —
- * fluid label column first, then fixed `5.5rem` numeric columns,
- * `items-baseline` aligned. Keyed by numeric column count (1–6) so the
+ * label column first (floored at `7rem` so numeric columns never squeeze it
+ * to a character), then fixed `5.5rem` numeric columns, `items-baseline`
+ * aligned. `min-w` is the floor + tracks + gaps: below it the enclosing
+ * `FigureTable` scrolls horizontally instead of dropping a figure. Keyed by numeric column count (1–6) so the
  * N-column form composes from a static lookup instead of a runtime
  * `grid-cols-[…repeat(N,5.5rem)]` concatenation.
  */
 const STMT_GRID: Record<number, string> = {
-  1: "grid items-baseline gap-x-3 grid-cols-[minmax(0,1fr)_5.5rem]",
-  2: "grid items-baseline gap-x-3 grid-cols-[minmax(0,1fr)_5.5rem_5.5rem]",
-  3: "grid items-baseline gap-x-3 grid-cols-[minmax(0,1fr)_5.5rem_5.5rem_5.5rem]",
-  4: "grid items-baseline gap-x-3 grid-cols-[minmax(0,1fr)_5.5rem_5.5rem_5.5rem_5.5rem]",
-  5: "grid items-baseline gap-x-3 grid-cols-[minmax(0,1fr)_5.5rem_5.5rem_5.5rem_5.5rem_5.5rem]",
+  1: "grid min-w-[13.25rem] items-baseline gap-x-3 grid-cols-[minmax(7rem,1fr)_5.5rem]",
+  2: "grid min-w-[19.5rem] items-baseline gap-x-3 grid-cols-[minmax(7rem,1fr)_5.5rem_5.5rem]",
+  3: "grid min-w-[25.75rem] items-baseline gap-x-3 grid-cols-[minmax(7rem,1fr)_5.5rem_5.5rem_5.5rem]",
+  4: "grid min-w-[32rem] items-baseline gap-x-3 grid-cols-[minmax(7rem,1fr)_5.5rem_5.5rem_5.5rem_5.5rem]",
+  5: "grid min-w-[38.25rem] items-baseline gap-x-3 grid-cols-[minmax(7rem,1fr)_5.5rem_5.5rem_5.5rem_5.5rem_5.5rem]",
   6:
-    "grid items-baseline gap-x-3 grid-cols-[minmax(0,1fr)_5.5rem_5.5rem_5.5rem_5.5rem_5.5rem_5.5rem]",
+    "grid min-w-[44.5rem] items-baseline gap-x-3 grid-cols-[minmax(7rem,1fr)_5.5rem_5.5rem_5.5rem_5.5rem_5.5rem_5.5rem]",
 };
 
 /**
@@ -95,8 +97,8 @@ export function FigureTable({
     return "";
   };
   return (
-    <div className={className}>
-      <div className={cn(grid, "border-b border-border py-2", COL_HEADER_CLASS)}>
+    <div className={cn("overflow-x-auto", className)}>
+      <div data-slot="figure-table-header" className={cn(grid, "border-b border-border py-2", COL_HEADER_CLASS)}>
         {columns.map((col, i) => (
           <div key={i} className={headerCellClass(i)}>
             {col}

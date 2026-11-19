@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.57.2
+
+- **Fixed:** the shared figure table (statement-with-filters, report) no longer squeezes the label column to one character at phone width. The label track is floored at `7rem`; below the grid's minimum width `FigureTable` scrolls horizontally, so no figure is dropped.
+- **Consumer:** bump `design-baseline`; re-baseline screenshots of pages using these tables.
+- **Breaking:** no.
+
 ## v0.57.1
 
 - **Fixed (print-statement):** `PrintStatementShell` shows a screen-only right-edge fade while its body overflows to the right, so a clipped wide table no longer reads as complete; it hides at the scroll end, when the body fits, and in print. The gallery demo pins its Position column.
