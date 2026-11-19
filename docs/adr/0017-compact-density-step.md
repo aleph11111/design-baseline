@@ -14,7 +14,7 @@ The Refero visual audit (2026-11-18, item B) measured design-baseline at about 1
 1. **One compact step, keyed to the app density, not the breakpoint.** Surfaces read `useCompactDensity()` (`ui/toolbar-band`): compact at every density but touch. Phones resolve to touch by default, so they keep the roomy step; `density="touch"` (a kiosk) keeps it at every width; `density="default"` is compact at every width. Keying to the density (not `md:` classes) keeps a consumer's `className` override on a cell or tile merging cleanly, and keeps one rule for both kiosk and phone.
 2. **Controls are untouched.** The control ladder and its touch lift (STYLE.md "Control heights") stay as they are; no control target drops below 44pt under touch. A control inside a compact row keeps its own step and the row grows to fit.
 3. **Compact targets.**
-   - `Table`: 13px body; `TableHead` `h-9 px-3`; `TableCell` `px-3 py-2` (~37px row). Touch keeps `text-sm`, `h-12`, `p-4`.
+   - `Table`: 13px body; `TableHead` `h-9 px-3`; `TableCell` `px-3 py-2`, `py-0.5` when the cell holds a button or input, so a row control sets the height (~37–41px rows). Touch keeps `text-sm`, `h-12`, `p-4`.
    - `StatTile`: `px-4 py-2`, 24px value, ~60px tile without a hint. Touch keeps `px-5 py-4` and the 34px stat step.
    - `KeyValueList` / `KeyValueRow`: unruled, `py-1` (~28px rows). Touch keeps the hairline rules and `py-2.5`.
 4. **Chrome, at every density** (it holds only controls that already size themselves):
