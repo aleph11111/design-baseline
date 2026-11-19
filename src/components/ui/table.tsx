@@ -93,7 +93,8 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn(useCompact() ? "px-3 py-2" : "p-4", "align-middle [&:has([role=checkbox])]:pr-0", className)}
+    // a row control (the 32px ⋯ trigger, a 36px cell input) sets the row height, so its cell drops to py-0.5 (~37–41px rows)
+    className={cn(useCompact() ? "px-3 py-2 [&:has(button,input)]:py-0.5" : "p-4", "align-middle [&:has([role=checkbox])]:pr-0", className)}
     {...props}
   />
 ))
