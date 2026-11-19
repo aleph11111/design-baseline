@@ -51,7 +51,7 @@ export function StatTile({
   hint,
   className,
 }: StatTileProps): React.ReactElement {
-  // compact step (ADR-0017): ~55px tile; touch keeps the roomy one
+  // compact step (ADR-0017): ~60px tile; touch keeps the roomy one
   const compact = useCompactDensity();
   return (
     <div className={cn(compact ? "px-4 py-2" : "px-5 py-4", className)}>

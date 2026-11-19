@@ -4,6 +4,9 @@ import * as React from "react"
 import { cn } from "../../lib/utils"
 import { useCompactDensity as useCompact } from "./toolbar-band"
 
+/** An unprefixed vertical padding utility (`p-0`, `py-4`, `pt-1`, …) in a consumer className. */
+const VERTICAL_PADDING = /(^|\s)p[ytb]?-\S+/
+
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
@@ -93,8 +96,13 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    // a row control (the 32px ⋯ trigger, a 36px cell input) sets the row height, so its cell drops to py-0.5 (~37–41px rows)
-    className={cn(useCompact() ? "px-3 py-2 [&:has(button,input)]:py-0.5" : "p-4", "align-middle [&:has([role=checkbox])]:pr-0", className)}
+    // a row control (the 32px ⋯ trigger, a 36px cell input) sets the row height, so its cell drops to py-0.5 (~37–41px rows);
+    // skipped when the consumer sets vertical padding — the `:has()` selector would otherwise out-rank its utility
+    className={cn(
+      useCompact() ? cn("px-3 py-2", !VERTICAL_PADDING.test(className ?? "") && "[&:has(button,input)]:py-0.5") : "p-4",
+      "align-middle [&:has([role=checkbox])]:pr-0",
+      className
+    )}
     {...props}
   />
 ))

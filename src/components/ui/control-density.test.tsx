@@ -292,4 +292,17 @@ describe("Table density (ADR-0017)", () => {
     expect(cls).toContain("px-1");
     expect(cls).not.toContain("px-3");
   });
+
+  it("lets a consumer vertical padding win in a cell holding a control", () => {
+    const { container } = render(
+      <Table><TableBody><TableRow>
+        <TableCell className="p-0"><input /></TableCell>
+        <TableCell><button>x</button></TableCell>
+      </TableRow></TableBody></Table>,
+    );
+    const [flush, ctl] = [...container.querySelectorAll("td")].map((td) => td.className);
+    expect(flush).toContain("p-0");
+    expect(flush).not.toContain("py-0.5");
+    expect(ctl).toContain("[&:has(button,input)]:py-0.5");
+  });
 });
