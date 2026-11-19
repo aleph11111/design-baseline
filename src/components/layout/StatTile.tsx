@@ -2,6 +2,7 @@
 import * as React from "react";
 import { cn } from "../../lib/utils";
 import { OVERLINE_CLASS } from "./overline";
+import { useCompactDensity } from "../ui/toolbar-band";
 
 export type StatTileProps = {
   /**
@@ -50,14 +51,16 @@ export function StatTile({
   hint,
   className,
 }: StatTileProps): React.ReactElement {
+  // compact step (ADR-0017): ~60px tile; touch keeps the roomy one
+  const compact = useCompactDensity();
   return (
-    <div className={cn("px-5 py-4", className)}>
+    <div className={cn(compact ? "px-4 py-2" : "px-5 py-4", className)}>
       <div className={OVERLINE_CLASS}>{label}</div>
-      <div className="mt-1.5 text-display-stat leading-none text-foreground tabular-nums">
+      <div className={cn(compact ? "mt-1 text-2xl" : "mt-1.5 text-display-stat", "leading-none text-foreground tabular-nums")}>
         {value}
       </div>
       {hint && (
-        <div className="mt-2 text-xs text-muted-foreground">{hint}</div>
+        <div className={cn(compact ? "mt-1" : "mt-2", "text-xs text-muted-foreground")}>{hint}</div>
       )}
     </div>
   );

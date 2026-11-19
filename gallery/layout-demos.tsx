@@ -1063,9 +1063,11 @@ function ButtonSizesDemo() {
   );
 }
 
-/** `AppShell density="touch"` (same provider) beside the default: unsized controls resolve to `lg`. */
+/** `AppShell density="touch"` (same provider) beside the default: unsized controls resolve to `lg`,
+ *  and surfaces (table, stat tiles, metric rows) leave the compact step for the roomy one (ADR-0017). */
 function ControlDensityDemo(): React.ReactElement {
   const row = (
+    <div className="space-y-3">
     <div className="flex flex-wrap items-center gap-3">
       <Button>Save</Button>
       <Input className="w-40" placeholder="Name" />
@@ -1077,16 +1079,49 @@ function ControlDensityDemo(): React.ReactElement {
         </TabsList>
       </Tabs>
     </div>
+    <div className="grid gap-3 lg:grid-cols-2">
+      <div className="rounded-lg border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Invoice</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {["INV-1001", "INV-1002", "INV-1003"].map((id, i) => (
+              <TableRow key={id}>
+                <TableCell>{id}</TableCell>
+                <TableCell className="text-right tabular-nums">{(1240 * (i + 1)).toLocaleString("en-US")}.00</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="space-y-3">
+        <StatTileRow>
+          <StatTile label="Revenue" value="48,210" />
+          <StatTile label="Open" value="12" />
+        </StatTileRow>
+        <div className="rounded-lg border">
+          <MetricList>
+            <MetricRow label="Gross profit" value="18,400" emphasis />
+            <MetricRow label="Margin" value="38%" />
+          </MetricList>
+        </div>
+      </div>
+    </div>
+    </div>
   );
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <p className="text-sm text-muted-foreground">density="default"</p>
+        <p className="text-sm text-muted-foreground">density="default" — compact surfaces</p>
         {row}
       </div>
       <ControlDensityProvider density="touch">
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">density="touch"</p>
+          <p className="text-sm text-muted-foreground">density="touch" — roomy surfaces, 44pt controls</p>
           {row}
         </div>
       </ControlDensityProvider>

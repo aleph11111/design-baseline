@@ -2,19 +2,26 @@
 import * as React from "react"
 
 import { cn } from "../../lib/utils"
+import { useCompactDensity as useCompact } from "./toolbar-band"
+
+/** An unprefixed vertical padding utility (`p-0`, `py-4`, `pt-1`, …) in a consumer className. */
+const VERTICAL_PADDING = /(^|\s)p[ytb]?-\S+/
 
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto">
-    <table
-      ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
-      {...props}
-    />
-  </div>
-))
+>(({ className, ...props }, ref) => {
+  const compact = useCompact()
+  return (
+    <div className="relative w-full overflow-auto">
+      <table
+        ref={ref}
+        className={cn("w-full caption-bottom", compact ? "text-[13px]" : "text-sm", className)}
+        {...props}
+      />
+    </div>
+  )
+})
 Table.displayName = "Table"
 
 const TableHeader = React.forwardRef<
@@ -74,7 +81,8 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+      useCompact() ? "h-9 px-3" : "h-12 px-4",
+      "text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
       className
     )}
     {...props}
@@ -88,7 +96,13 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)}
+    // a row control (the 32px ⋯ trigger, a 36px cell input) sets the row height, so its cell drops to py-0.5 (~37–41px rows);
+    // skipped when the consumer sets vertical padding — the `:has()` selector would otherwise out-rank its utility
+    className={cn(
+      useCompact() ? cn("px-3 py-2", !VERTICAL_PADDING.test(className ?? "") && "[&:has(button,input)]:py-0.5") : "p-4",
+      "align-middle [&:has([role=checkbox])]:pr-0",
+      className
+    )}
     {...props}
   />
 ))

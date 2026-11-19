@@ -1,7 +1,7 @@
 ---
 area: tokens
 opened: 2026-11-18
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "design is the deliverable: a new density step across the shared primitives, an ADR, and a fleet-wide baseline regeneration; touch-vs-compact interplay needs judgment"

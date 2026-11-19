@@ -18,8 +18,10 @@ export interface AppHeaderUser {
 }
 
 export interface AppHeaderProps {
-  /** Page or app title rendered next to the mobile sidebar toggle. */
-  title: string;
+  /** @deprecated Not rendered since ADR-0017 — the page title already renders in
+   *  the page frame, so the header no longer repeats it. Kept so existing call
+   *  sites compile; it only names the header landmark for assistive tech. */
+  title?: string;
   /** Center slot — usually a command/search input. Hidden if omitted. */
   center?: React.ReactNode;
   /** Right slot — notification bells, quick actions, etc. */
@@ -45,14 +47,13 @@ export function AppHeader({
 }: AppHeaderProps) {
   const L = useLabels();
   return (
-    <header className="h-16 min-w-0 overflow-hidden [contain:inline-size] border-b border-border px-2 sm:px-4 flex items-center justify-between gap-2">
+    <header aria-label={title} className="h-12 min-w-0 overflow-hidden [contain:inline-size] border-b border-border px-2 sm:px-4 flex items-center justify-between gap-2">
       <div className="flex min-w-0 items-center gap-2">
         {showSidebarTrigger && (
           <SidebarTrigger className="md:hidden shrink-0">
             <Menu className="h-5 w-5" />
           </SidebarTrigger>
         )}
-        <span className="text-xl font-semibold hidden sm:block truncate">{title}</span>
       </div>
 
       {center && <div className="flex-1 min-w-0 sm:min-w-32 flex justify-center">{center}</div>}

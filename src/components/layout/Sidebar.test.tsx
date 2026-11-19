@@ -53,29 +53,22 @@ function renderSidebar(extra?: Extra, providerOpen = true) {
 }
 
 describe("AppSidebar aboveNav", () => {
-  it("renders the slot between the header and the nav", () => {
-    const { container, getByTestId } = renderSidebar({
+  it("renders the slot in the one borderless top row, beside the brand (ADR-0017)", () => {
+    const { container, getByTestId, getByText } = renderSidebar({
       aboveNav: <div data-testid="switcher">Switcher</div>,
     });
 
-    const header = container.querySelector('[data-sidebar="header"]');
-    const content = container.querySelector('[data-sidebar="content"]');
-    const slot = getByTestId("switcher").parentElement!;
-
-    expect(header).not.toBeNull();
-    expect(content).not.toBeNull();
-    // DOCUMENT_POSITION_FOLLOWING === 4
-    expect(header!.compareDocumentPosition(slot) & 4).toBeTruthy();
-    expect(slot.compareDocumentPosition(content!) & 4).toBeTruthy();
+    const header = container.querySelector('[data-sidebar="header"]')!;
+    expect(header.contains(getByTestId("switcher"))).toBe(true);
+    expect(header.className).toContain("h-12");
+    expect(header.className).not.toMatch(/\bborder-b\b/);
+    // the switcher replaces the visible app name; the name stays for screen readers
+    expect(getByText("App").className).toContain("sr-only");
   });
 
-  it("renders no wrapper at all when omitted, leaving existing consumers' DOM unchanged", () => {
-    const withSlot = renderSidebar({ aboveNav: <div>x</div> }).container.innerHTML;
-    cleanup();
-    const without = renderSidebar().container.innerHTML;
-
-    expect(without).not.toContain("border-b py-3");
-    expect(withSlot).toContain("border-b py-3");
+  it("shows the app name when omitted", () => {
+    const { getByText } = renderSidebar();
+    expect(getByText("App").className).not.toContain("sr-only");
   });
 });
 

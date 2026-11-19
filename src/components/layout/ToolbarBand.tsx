@@ -165,7 +165,7 @@ function ViewOptionsMenu({
       <DropdownMenuTrigger asChild>
         {iconOnly ? (
           <Button
-            variant="outline"
+            variant="ghost"
             size={touch ? "icon-lg" : "icon"}
             className="ml-auto shrink-0"
             aria-label={label}
@@ -173,7 +173,7 @@ function ViewOptionsMenu({
             <SlidersHorizontal className="h-4 w-4" />
           </Button>
         ) : (
-          <Button variant="outline">
+          <Button variant="ghost">
             <SlidersHorizontal className="h-4 w-4" />
             {label}
           </Button>
@@ -219,7 +219,7 @@ function FilterSheet({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" className="shrink-0">
+        <Button variant="ghost" className="shrink-0">
           <ListFilter className="h-4 w-4" />
           {filterLabel}
           {filterCount ? (

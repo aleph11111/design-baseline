@@ -2,7 +2,7 @@
 key: C
 slug: detail-overview
 kind: page
-version: 4.5
+version: 4.6
 promoted_from: hk-crm
 promoted_at: 2026-05-23
 source_spec_version: 1.6
@@ -10,6 +10,11 @@ status: locked
 ---
 
 # Archetype C — Detail Overview
+
+> **v4.6 (2026-11-19) — compact key-value rows (ADR-0017).** Off touch
+> density the key-value list is unruled, ~28px per row; under touch density
+> (phones by default) it keeps its hairline rules and roomy rows. Visual
+> change only; no prop change.
 
 > **v4.4 (2026-11-12) — a stack of section cards (ADR-0015).** The body is no
 > longer one raised frame: each main-column section (and the stat-tile row) is
@@ -197,7 +202,7 @@ then **transactional data** (what happened), then references.
 | # | Slot | Required content | Omit when |
 |---|------|------------------|-----------|
 | 1 | `header` | the page header: `title` (the entity) + `subtitle` / `badges` / `actions` / back link — see Layer 3 | never — `title` is required |
-| 2 | `summary` | master data: a detail section (typically titled "Details", flush) wrapping a key-value list of ruled rows, including categorical chip attributes | the page is purely metric/tabular |
+| 2 | `summary` | master data: a detail section (typically titled "Details", flush) wrapping a key-value list (unruled rows at the compact step, ruled under touch — ADR-0017), including categorical chip attributes | the page is purely metric/tabular |
 | 3 | `stats` | aggregates: the stat-tile strip of 2–4 cells, rendered by the shell from the `stats` data (one cell per item) | the entity has no headline metrics |
 | 4 | `content` | transactional data: embedded read-only lists/tables and read-write islands, each in its own detail section | nothing beyond the summary exists |
 | 5 | `references` | a detail section of cross-entity links, related records, external resources | no references exist |
@@ -263,10 +268,10 @@ top→bottom, tells the same story.
 | `references` | **Aside**, bottom (documents, linked records, external links) |
 
 **Compact metric readout (rail).** In the rail variant the `summary` slot may
-lead with a condensed, ruled metric list (label left, tabular value right, a
+lead with a condensed metric list (label left, tabular value right, a
 "show more" disclosure for secondary figures) instead of the full stat-tile
 row — the "financials at a glance" affordance. It is still `summary`-slot
-master data, still ruled rows, **no new primitive**. Because `summary` is
+master data, still key-value rows, **no new primitive**. Because `summary` is
 rendered once and placed into both the sticky aside (desktop) and the
 canonical vertical flow (mobile), keep it presentation-only — stateful edit
 islands belong in `content`, not in `summary` or `references`.
@@ -385,7 +390,7 @@ picked per call site; it is fixed in the primitives.
 
 **Allowed variation:**
 - `width="md"` (a contained column width) is the record-page default — the
-  shell's own default — because ruled rows and the stat strip read best in a
+  shell's own default — because key-value rows and the stat strip read best in a
   contained column. Use `width="none"` only when the page carries wide
   embedded tables that need the full content column.
 - `layout="rail"` (default `"vertical"`) renders the slots in the two-column

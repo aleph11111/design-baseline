@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn } from "../../../lib/utils";
+import { useCompactDensity } from "../../ui/toolbar-band";
 
 export type KeyValueListProps = {
   /**
@@ -25,8 +26,10 @@ export function KeyValueList({
   children,
   className,
 }: KeyValueListProps): React.ReactElement {
+  const compact = useCompactDensity();
   return (
-    <dl className={cn("@container divide-y divide-border", className)}>{children}</dl>
+    // compact step (ADR-0017): unruled rows; touch keeps the hairlines
+    <dl className={cn("@container", !compact && "divide-y divide-border", className)}>{children}</dl>
   );
 }
 

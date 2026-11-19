@@ -153,7 +153,7 @@ export function KanbanBoardDemo(): React.ReactElement {
               onChange={setQuery}
               placeholder="Search cards"
             />
-            <Button variant="outline">
+            <Button variant="ghost">
               <Filter className="mr-1 h-4 w-4" />
               Filter
             </Button>

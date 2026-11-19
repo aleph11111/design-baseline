@@ -43,6 +43,7 @@ import {
 } from "../ui/collapsible";
 import { ChevronDown } from "lucide-react";
 import { useLabels } from "../../lib/labels";
+import { useCompactDensity } from "../ui/toolbar-band";
 
 export type MetricRowProps = {
   label: React.ReactNode;
@@ -70,10 +71,13 @@ export function MetricRow({
   keyFigure,
   className,
 }: MetricRowProps): React.ReactElement {
+  // compact step (ADR-0017): ~28px rows; touch keeps the roomy 38px
+  const compact = useCompactDensity();
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-4 px-5 py-2.5",
+        "flex items-center justify-between gap-4 px-5",
+        compact ? "py-1" : "py-2.5",
         className,
       )}
     >
@@ -127,13 +131,15 @@ export function MetricList({
   const lessLabel = lessLabelProp ?? L.showLess;
   const moreLabel = moreLabelProp ?? L.showMore;
   const [open, setOpen] = React.useState(false);
+  // compact step (ADR-0017): unruled; touch keeps the hairlines
+  const rules = useCompactDensity() ? undefined : "divide-y divide-border";
   return (
-    <div className={cn("divide-y divide-border", className)}>
+    <div className={cn(rules, className)}>
       {children}
       {more && (
         <Collapsible open={open} onOpenChange={setOpen}>
           <CollapsibleContent>
-            <div className="divide-y divide-border border-t border-border">
+            <div className={cn(rules, rules && "border-t border-border")}>
               {more}
             </div>
           </CollapsibleContent>
