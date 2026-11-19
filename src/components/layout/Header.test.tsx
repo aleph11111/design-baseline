@@ -85,15 +85,13 @@ describe("AppHeader phone overflow", () => {
   it("does not repeat the page title — the page frame renders it (ADR-0017); the title names the landmark", () => {
     const { container } = renderHeader({ title: LONG_TITLE });
     expect(screen.queryByText(LONG_TITLE)).toBeNull();
+    // and no heading: the page's PageHeader owns the one h1 (ADR-0008)
+    expect(screen.queryByRole("heading", { hidden: true })).toBeNull();
     const header = container.querySelector("header")!;
     expect(header.getAttribute("aria-label")).toBe(LONG_TITLE);
     expect(header.className.split(/\s+/)).toContain("h-12");
   });
 
-  it("renders the title as text, not a heading: the page's PageHeader owns the one h1 (ADR-0008)", () => {
-    renderHeader({ title: LONG_TITLE });
-    expect(screen.queryByRole("heading", { hidden: true })).toBeNull();
-  });
 
   it("does not clip the center slot's focus ring", () => {
     const { container } = renderHeader({ center: <input /> });
