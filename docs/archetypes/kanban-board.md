@@ -2,7 +2,7 @@
 key: P
 slug: kanban-board
 kind: page
-version: 3.6
+version: 3.7
 promoted_from: fleet-audit-2026-06-13 (pmo, hk-crm)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -10,6 +10,10 @@ status: locked
 ---
 
 # Archetype P — kanban-board
+
+> **v3.7 (2026-11-19) — bare lanes (ADR-0017 compact step).** A lane drops
+> its sunken tray; the cards sit on the canvas 6px apart. Visual change only;
+> no prop change.
 
 > **v3.6 (2026-11-16) — nested boards keep raised cards (ADR-0015 rule 2).**
 > A lane starts a fresh surface, so its cards keep their raised chrome even
@@ -77,8 +81,8 @@ card; the lane row follows on the canvas. There is no untitled form.
 The board shell of board-column primitives of board-card primitives. The
 **card is the raised object**: each board card carries the raised-surface
 chrome on the canvas (border, raised fill, card radius). A **lane is a
-grouping region**, not a card: the sunken tone, no border, no raised fill —
-so the cards inside it stay raised (a raised lane would strip their border,
+grouping region**, not a card: no tray, no border, no raised fill (ADR-0017),
+cards 6px apart — so the cards inside it stay raised (a raised lane would strip their border,
 ADR-0015 rule 2). The lane starts a fresh surface: its cards stay raised even
 when the board itself is nested in another raised surface. Its title is a section-level label. The lane row scrolls
 horizontally in its own scroller; the page does not. Columns show a count and an optional per-column add-card
@@ -138,6 +142,8 @@ view; a read-only viewer gets the board without drag handles.
 ---
 
 ## Version log
+- **3.7** — ADR-0017 compact step: the lane drops its sunken tray and the
+  cards stack 6px apart. Visual change only.
 - **3.6** — ADR-0015 rule 2 amendment: a lane starts a fresh surface, so
   board cards keep their raised chrome when the board is nested in another
   raised surface. Visual fix only.

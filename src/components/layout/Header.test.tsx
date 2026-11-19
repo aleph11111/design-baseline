@@ -51,7 +51,6 @@ describe("AppHeader phone overflow", () => {
     // the user slot is the one exception below sm: a 36px icon that must stay
     // visible; from sm up, where the email renders inline, it shrinks too
     expect(tokens(user)).toEqual(expect.arrayContaining(["shrink-0", "sm:min-w-0", "sm:shrink"]));
-    expect(screen.getByText(LONG_TITLE).className.split(/\s+/)).toContain("truncate");
   });
 
   it("keeps the email and sign-out in a menu below sm, inline from sm up", () => {
@@ -77,11 +76,18 @@ describe("AppHeader phone overflow", () => {
     expect(onSignOut).toHaveBeenCalled();
   });
 
-  it("with center, the left slot stays content-sized and truncates its title", () => {
+  it("with center, the left slot stays content-sized", () => {
     const { container } = renderHeader({ title: LONG_TITLE, center: <input /> });
     const left = container.querySelector("header")!.firstElementChild!;
     expect(left.className.split(/\s+/)).not.toContain("flex-1");
-    expect(screen.getByText(LONG_TITLE).className).toContain("truncate");
+  });
+
+  it("does not repeat the page title — the page frame renders it (ADR-0017); the title names the landmark", () => {
+    const { container } = renderHeader({ title: LONG_TITLE });
+    expect(screen.queryByText(LONG_TITLE)).toBeNull();
+    const header = container.querySelector("header")!;
+    expect(header.getAttribute("aria-label")).toBe(LONG_TITLE);
+    expect(header.className.split(/\s+/)).toContain("h-12");
   });
 
   it("renders the title as text, not a heading: the page's PageHeader owns the one h1 (ADR-0008)", () => {

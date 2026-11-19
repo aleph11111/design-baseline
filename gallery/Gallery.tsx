@@ -218,7 +218,7 @@ function DemoSwitcher(): React.ReactElement {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="mx-2 w-[calc(100%-1rem)] justify-between group-data-[collapsible=icon]:hidden">
+        <Button variant="ghost" className="w-full justify-between px-2">
           <span className="truncate">{value}</span>
           <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
         </Button>

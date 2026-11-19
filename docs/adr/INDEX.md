@@ -21,3 +21,4 @@ Architecture Decision Records for design-baseline. One file per decision:
 | [0014](0014-transaction-document-page-archetype.md) | Transaction documents are their own `kind: page` archetype (transaction-document, Td) | Accepted |
 | [0015](0015-page-body-section-card-stack.md) | The page body is one frame or a stack of raised section cards; one bordered chrome on every raised surface | Accepted |
 | [0016](0016-quiet-sentence-case-type-hierarchy.md) | Retire the uppercase overline for a quiet sentence-case hierarchy (amends ADR 0007 §2) | Accepted |
+| [0017](0017-compact-density-step.md) | A compact density step for desktop surfaces (tables, stat tiles, key-value rows, header, sidebar); touch keeps 44pt | Accepted |

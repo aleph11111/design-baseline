@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.59.0
+
+- **Changed (ADR-0017 compact density step):** surfaces tighten at every app density but touch (`useCompactDensity()`, new export of `ui/toolbar-band`); under touch (phones by default, `density="touch"`) they keep today's roomy step and no control target changes. `Table`: 13px body, `TableHead` `h-9`, `TableCell` `px-3 py-2` (~37px rows, was ~53px). `StatTile`: `px-4 py-2`, 24px value (~60px, was ~105px). `KeyValueList`/`KeyValueRow` and `MetricList`/`MetricRow`: unruled 28px rows (were ruled 38px).
+- **Changed (chrome, every density):** `AppHeader` is 48px (was 64px) and no longer renders `title` (now optional; it names the header landmark). `AppSidebar` has one borderless 48px top row: brand mark + the `aboveNav` switcher (the app name becomes screen-reader text) or the app name; the separate bordered switcher row is gone. Kanban lanes (`BoardColumn`) drop the sunken tray, cards 6px apart (kanban-board MANIFEST 3.7). The toolbar band's Filter and View buttons are `ghost`. detail-overview MANIFEST 4.9.
+- **Consumer:** bump `design-baseline`; re-baseline screenshots (every page with a table, stat tile, key-value or metric list, board, toolbar band, plus header and sidebar chrome) — controlling-app, hk-crm, brickshop-manager. An `aboveNav` switcher styled as an outlined full-width button with its own margin should become a ghost `w-full` button. To keep the roomy surfaces on desktop set `AppShell density="touch"` (also lifts controls to 44pt).
+- **Breaking:** no (visual only; `AppHeader.title` became optional).
+
 ## v0.58.0
 
 - **Added:** `list-with-detail` `detailActions` accepts the typed `HeaderActions` form (`{ primary, secondary, menu }`), rendered through the page header's renderer: at most 1 primary + 2 secondary inline, the rest behind one `⋯` menu (last in the actions row), destructive only in the menu. From `sm` up the typed row stays on one line and widens the overlay (ADR-0010 amendment); below `sm`, whenever `⋯` renders anyway, the secondaries fold into it too (primary + `⋯`); with no overflow they stay inline (primary + 1 secondary shows no `⋯`). Contract v4.6, MANIFEST 4.9.

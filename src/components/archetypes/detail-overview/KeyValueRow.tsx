@@ -3,7 +3,7 @@ import * as React from "react";
 import { CircleDashed, TriangleAlert } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
-import { useTouchTarget } from "../../ui/toolbar-band";
+import { useCompactDensity, useTouchTarget } from "../../ui/toolbar-band";
 
 /**
  * Where a value came from. Every field is pre-formatted text — the row never
@@ -134,6 +134,8 @@ export function KeyValueRow({
   const contested = alternatives && alternatives.length > 0;
   // touch density: a 44pt hit area around the small chip / marker
   const touch = useTouchTarget();
+  // compact step (ADR-0017): 28px rows; touch keeps the roomy 38px
+  const pad = useCompactDensity() ? "px-5 py-1" : "px-5 py-2.5";
   const body =
     provenance || contested || missing ? (
       <span
@@ -199,7 +201,7 @@ export function KeyValueRow({
 
   if (block) {
     return (
-      <div className={cn("px-5 py-2.5", className)}>
+      <div className={cn(pad, className)}>
         <dt className="text-sm text-muted-foreground">{label}</dt>
         <dd className="mt-1 text-sm leading-relaxed text-foreground">
           {body}
@@ -210,7 +212,7 @@ export function KeyValueRow({
   return (
     <div
       className={cn(
-        "flex flex-col gap-1 px-5 py-2.5 @sm:flex-row @sm:items-baseline @sm:justify-between @sm:gap-6",
+        pad, "flex flex-col gap-1 @sm:flex-row @sm:items-baseline @sm:justify-between @sm:gap-6",
         className,
       )}
     >

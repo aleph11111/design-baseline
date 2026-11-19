@@ -25,9 +25,9 @@ export type BoardColumnProps = React.HTMLAttributes<HTMLDivElement> & {
 };
 
 /**
- * BoardColumn — one column in a `<BoardShell>`: an unbordered grouping region
- * on the canvas (sunken tone, no border, no raised fill — the cards are the
- * raised objects; the sunken lane starts a fresh surface — it resets
+ * BoardColumn — one column in a `<BoardShell>`: a bare lane on the canvas
+ * (no tray, no border, no raised fill; ADR-0017 — the cards are the raised
+ * objects, 6px apart; the lane starts a fresh surface — it resets
  * `RaisedSurfaceContext` to false, so its cards keep their chrome even when the
  * board is nested in another raised surface, ADR-0015 rule 2)
  * with a label-rung `h3` header (title + count + actions) over a vertical stack
@@ -50,12 +50,12 @@ export function BoardColumn({
     <div
       ref={ref}
       className={cn(
-        "flex w-72 shrink-0 flex-col rounded-lg bg-surface-sunken",
+        "flex w-72 shrink-0 flex-col",
         className,
       )}
       {...rest}
     >
-      <div className="flex items-center gap-2 px-3 py-2">
+      <div className="flex items-center gap-2 px-1 py-2">
         <h3 className={OVERLINE_CLASS}>{title}</h3>
         {count !== undefined && (
           <span className="text-xs tabular-nums text-muted-foreground">{count}</span>
@@ -70,7 +70,7 @@ export function BoardColumn({
           {emptyContent}
         </div>
       ) : (
-        <div className="flex flex-1 flex-col gap-2 p-2">
+        <div className="flex flex-1 flex-col gap-1.5">
           <RaisedSurfaceContext.Provider value={false}>{children}</RaisedSurfaceContext.Provider>
         </div>
       )}

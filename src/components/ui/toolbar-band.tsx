@@ -77,6 +77,16 @@ export function useAppDensity(): "lg" | undefined {
 }
 
 /**
+ * The compact surface step (ADR-0017): true at every density but touch. Tables,
+ * stat tiles and key-value rows tighten on it; under touch (phones by default,
+ * `density="touch"`) they keep the roomy step. Controls never read it — their
+ * 44pt touch rule is `useControlSize` / `useTouchLift`.
+ */
+export function useCompactDensity(): boolean {
+  return useAppDensity() !== "lg";
+}
+
+/**
  * A centred hit area of at least 44pt around a box that stays its own size (a
  * 16px checkbox, a 24px switch), as an absolutely positioned `::after`. Put it
  * before a caller's `className`, so a caller's own position wins. Only for a

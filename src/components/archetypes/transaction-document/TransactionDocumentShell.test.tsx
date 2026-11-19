@@ -341,11 +341,10 @@ describe("TransactionDocumentShell — row locks, add and remove", () => {
   it("compactRowLocks: ledger header row is compact; default header is unchanged", () => {
     const { container, rerender } = render(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onCellChange: vi.fn() }} />);
     const th = () => container.querySelector("[data-slot=td-ledger-table] thead th") as HTMLElement;
-    expect(th().className).toContain("h-12");
+    expect(th().className).toContain("h-9");
     expect(th().className).not.toContain("sm:h-6");
     rerender(<TransactionDocumentShell {...base} ledger={{ columns: cols, rows, onCellChange: vi.fn(), compactRowLocks: true }} />);
     expect(th().className).toContain("sm:h-6");
-    expect(th().className).not.toContain("h-12");
   });
 
   it("compactRowLocks: lock icon in the cell, reason and way out in a popover, still read-only", async () => {

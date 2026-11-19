@@ -43,11 +43,12 @@ export interface AppSidebarProps {
   /** App name shown next to the brand mark. */
   appName: string;
   /**
-   * Anything to render between the header and the nav — a workspace/tenant/asset
-   * switcher is the canonical case. `footer` is the wrong slot for those: it pins
+   * The workspace/tenant/asset switcher — rendered in the top row beside the brand
+   * mark, in place of the visible app name (which stays as screen-reader text; ADR-0017).
+   * Keep it borderless and one control high (a ghost button). `footer` is the wrong slot for those: it pins
    * them to the bottom of the rail. The wrapper clips overflow so the node cannot
-   * blow out a narrow rail; rendering a compact variant under
-   * `collapsible="icon"` is the node's own job (it can read `useSidebar().state`).
+   * blow out a narrow rail; under `collapsible="icon"` the slot is hidden and only
+   * the brand mark stays.
    *
    * Because of that clip, anything that pops out of the slot (a switcher list, a
    * menu) MUST render through a portal — `Popover` / `DropdownMenu` fit. An
@@ -157,16 +158,19 @@ export function AppSidebar({
 
   return (
     <SidebarRoot collapsible={collapsible} className="border-r border-border">
-      <SidebarHeader className="h-16 flex justify-center border-b px-4">
-        <div className="flex items-center gap-2 overflow-hidden">
-          {brand}
-          <span className="truncate font-bold text-lg group-data-[collapsible=icon]:hidden">
-            {appName}
-          </span>
-        </div>
+      {/* One borderless top row (ADR-0017): the brand mark, then the switcher in
+          `aboveNav` — or the app name when there is none. */}
+      <SidebarHeader className="h-12 flex-row items-center gap-2 overflow-hidden px-2 py-0">
+        <div className="shrink-0">{brand}</div>
+        {aboveNav ? (
+          <>
+            <span className="sr-only">{appName}</span>
+            <div className="min-w-0 flex-1 overflow-hidden group-data-[collapsible=icon]:hidden">{aboveNav}</div>
+          </>
+        ) : (
+          <span className="truncate font-semibold group-data-[collapsible=icon]:hidden">{appName}</span>
+        )}
       </SidebarHeader>
-
-      {aboveNav && <div className="overflow-hidden border-b py-3">{aboveNav}</div>}
 
       <SidebarContent>
         {topItems.length > 0 && (
