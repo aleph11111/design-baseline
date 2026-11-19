@@ -67,7 +67,7 @@ const STUDENTS: Student[] = [
   { id: "s1", name: "Ana Reyes", year: 10 },
   { id: "s2", name: "Bo Chen", year: 10 },
   { id: "s3", name: "Cyrus Ali", year: 10 },
-  { id: "s4", name: "Dawn Park", year: 10 },
+  { id: "s4", name: "Dawn Park-Lindqvist Okafor", year: 10 },
 ];
 
 // Seed grades. Empty entries = subject not taken this term.

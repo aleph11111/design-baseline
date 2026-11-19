@@ -71,7 +71,7 @@ export function WizardStepper({
               {i < steps.length - 1 && (
                 <span
                   className={cn(
-                    "h-px flex-1",
+                    "h-px min-w-4 flex-1",
                     done ? "bg-primary" : "bg-border",
                   )}
                 />

@@ -6,11 +6,13 @@ import { cn } from "../../../lib/utils";
  * The one first-column width rule for archetype tables at phone width: a label
  * (first) column never narrower than ~8ch, never wider than ~40% of the table's
  * scroll box. Put it on the column's inner content (not the cell — table cells
- * ignore `max-width`) together with `truncate`. `cqw` resolves against the
+ * ignore `max-width`); the cap subtracts 2rem for the cell's own padding and
+ * border (`px-3`/`px-4` + `border-r`), so the COLUMN, not just its text, stays
+ * within ~40%. `cqw` resolves against the
  * nearest `@container` (e.g. a {@link ScrollCue} scroller) and falls back to the
  * viewport without one.
  */
-export const FIRST_COLUMN_CLASS = "block min-w-[8ch] max-w-[40cqw] truncate";
+export const FIRST_COLUMN_CLASS = "block min-w-[8ch] max-w-[calc(40cqw-2rem)] truncate";
 
 export type ScrollCueProps = {
   /** Classes on the outer, `relative` positioning box (layout in the parent: `flex-1`, `min-w-0`). */
@@ -55,7 +57,7 @@ export function ScrollCue({
     };
   }, [children]);
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative isolate", className)}>
       <div ref={ref} {...scrollerProps} className={cn("overflow-x-auto print:overflow-visible", scrollClassName)}>
         {children}
       </div>
