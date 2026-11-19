@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-18
-status: ready
+status: done
 value: normal
 depends_on: [statement-with-filters-phone-label-column-squashed, print-statement-screen-table-clips-without-scroll-cue]
 model: opus
