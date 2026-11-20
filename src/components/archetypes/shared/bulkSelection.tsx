@@ -120,10 +120,10 @@ export function resolveBulkActions<Row>({
   if (!show) return { show: false, node: null };
   const deleteSelected = labels?.deleteSelected ?? L.deleteSelected;
   const handleBulkDelete = () => {
-    if (!onBulkDelete || !onBulkSelectChange) return;
+    if (!onBulkDelete) return;
     const selectedRows = rows.filter((row) => selection.selectedSet.has(getRowId(row)));
     onBulkDelete(selectedRows);
-    onBulkSelectChange([]);
+    onBulkSelectChange?.([]);
   };
   return {
     show: true,

@@ -125,10 +125,21 @@ for (const width of PIN_WIDTHS) {
       window.scrollBy(0, t.top + t.height / 2);
       await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
       const stickyTop = parseFloat(getComputedStyle(el).top);
-      return { top: Math.round(el.getBoundingClientRect().top), stickyTop: Math.round(stickyTop), tableTop: Math.round(table.getBoundingClientRect().top) };
+      // The band's offset is AppShell's --db-sticky-top (the sticky header
+      // slot's height, published in layout/AppShell.tsx). Measure that header
+      // directly: the band must sit at or below its bottom edge, never under it.
+      const header = [...document.querySelectorAll("div")].find(
+        (d) => getComputedStyle(d).position === "sticky" && getComputedStyle(d).top === "0px" && d.getBoundingClientRect().height > 0,
+      );
+      return {
+        top: Math.round(el.getBoundingClientRect().top),
+        stickyTop: Math.round(stickyTop),
+        headerBottom: header ? Math.round(header.getBoundingClientRect().bottom) : -1,
+        tableTop: Math.round(table.getBoundingClientRect().top),
+      };
     });
-    const ok = Math.abs(m.top - m.stickyTop) <= 1 && m.tableTop < m.top;
-    report(label, ok, `band top ${m.top}px (want sticky offset ${m.stickyTop}px), table top ${m.tableTop}px (want above the band, i.e. scrolled)`);
+    const ok = m.headerBottom > 0 && Math.abs(m.top - m.stickyTop) <= 1 && m.top >= m.headerBottom - 1 && m.tableTop < m.top;
+    report(label, ok, `band top ${m.top}px (want sticky offset ${m.stickyTop}px, >= app header bottom ${m.headerBottom}px), table top ${m.tableTop}px (want above the band, i.e. scrolled)`);
     await page.close();
   } catch (e) {
     report(label, false, e.message.split("\n")[0]);

@@ -7,7 +7,8 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 - **Added (`list-with-detail`, contract v4.7, MANIFEST 4.11):** three optional, default-off props. `bulkSelectable` + `selectedIds` / `onBulkSelectChange` / `bulkActions` / `onBulkDelete` (table presentation only): a checkbox column; while a shown row is ticked, a bulk band ("{n} selected", the actions, "Clear selection") replaces the page's toolbar band. Ids a filter hides are pruned from the consumer's selection via `onBulkSelectChange` (not while loading/erroring). `detailStepping`: previous/next buttons in the detail overlay header that call `onRowSelect` with the adjacent row of `rows` (the displayed order), disabled at the ends. `summary`: a band above the body, sticky below the app header while rows scroll. New `labels` keys: `selectAll`, `selectRow`, `selectedCount`, `deleteSelected`, `clearSelection`, `previous`, `next`; new baseline label `clearSelection`.
 - **Moved:** settings-table's `computeBulkSelection` / `resolveCountLabel` / `resolveBulkActions` now live in `archetypes/shared` (exported there); settings-table behaviour is unchanged (MANIFEST 3.9).
 - **Consumer:** none required; pages that pass none of the new props render unchanged. A custom `BaselineLabels` object must add `clearSelection`.
-- **Breaking:** no (a hand-built full `BaselineLabels` object needs the new key).
+- **Fixed:** the shared "Delete {n} selected" button (settings-table, list-with-detail) now calls `onBulkDelete` even when `onBulkSelectChange` is not passed; it was a silent no-op.
+- **Breaking:** type-only, for a hand-built full `BaselineLabels` object (it must add `clearSelection`); no runtime break.
 
 ## v0.61.0
 

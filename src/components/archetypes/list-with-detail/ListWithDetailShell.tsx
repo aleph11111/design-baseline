@@ -588,7 +588,8 @@ export function ListWithDetailBody<Row>(
     <>
       {bulkBand}
       {summary != null && summary !== false && (
-        // Sticky below the app header (`--db-sticky-top`); a sibling of the
+        // Sticky below the app header: `--db-sticky-top` is the header slot's
+        // height, published by layout/AppShell.tsx. A sibling of the
         // scrollers, which would otherwise capture the stickiness.
         <div
           data-slot="list-summary"
