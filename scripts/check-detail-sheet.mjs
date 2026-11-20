@@ -36,8 +36,14 @@ const CASES = [
   { label: "typed actions + ⋯ @ laptop14 1512", width: 1512, panel: "Show operations", row: "Riverbed", want: (w) => w >= 448 && w < 1448, wantText: ">= 448px, < ceiling 1448px", scrollFree: true, warns: false, minTitle: 200, maxActionRows: 1 },
   { label: "typed actions + ⋯ @ phone 390", width: 390, panel: "Show operations", row: "Riverbed", want: (w) => w === 390, wantText: "390px (full-screen)", scrollFree: true, warns: false, minTitle: 200, maxActionRows: 1 },
   { label: "free-text table, marked @ 390", width: 390, panel: "Materialanforderungen", row: "MA-2041", want: (w) => w === 390, wantText: "390px (full-screen)", scrollFree: false, warns: false },
+  // Detail stepping: ˄/˅ sit in the header bar beside the close button, never under it.
+  { label: "stepper + title @ 1280", width: 1280, panel: "Production budget", row: "Episode 1 · Ines Duarte", want: (w) => w === 448, wantText: "448px (floor)", scrollFree: true, warns: false, minTitle: 100, maxActionRows: 1 },
+  { label: "stepper + title @ phone 390", width: 390, panel: "Production budget", row: "Episode 1 · Ines Duarte", want: (w) => w === 390, wantText: "390px (full-screen)", scrollFree: true, warns: false, minTitle: 100, maxActionRows: 1 },
 ];
-const total = CASES.length;
+// The summary band stays pinned below the app header while the page scrolls
+// past its rows (desk27 is tall enough that the page may not scroll).
+const PIN_WIDTHS = [1512, 390];
+const total = CASES.length + PIN_WIDTHS.length;
 const report = (label, ok, detail) => {
   n++;
   console.log(`[${new Date().toTimeString().slice(0, 8)}] ${n}/${total} ${ok ? "ok  " : "FAIL"} ${label}: ${detail}`);
@@ -100,6 +106,32 @@ for (const c of CASES) {
     await page.close();
   } catch (e) {
     report(c.label, false, e.message.split("\n")[0]);
+  }
+}
+
+for (const width of PIN_WIDTHS) {
+  const label = `summary band pins @ ${width}`;
+  try {
+    const page = await browser.newPage({ viewport: { width, height: 800 } });
+    await page.goto(url);
+    const section = page.locator("section").filter({ has: page.getByRole("heading", { name: "Production budget", exact: true }) });
+    const band = section.locator('[data-slot="list-summary"]');
+    await band.waitFor();
+    // Scroll so the table's middle sits at the viewport top: the band must hold
+    // at the sticky offset instead of leaving with the rows above it.
+    const m = await band.evaluate(async (el) => {
+      const table = el.parentElement.querySelector("table");
+      const t = table.getBoundingClientRect();
+      window.scrollBy(0, t.top + t.height / 2);
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const stickyTop = parseFloat(getComputedStyle(el).top);
+      return { top: Math.round(el.getBoundingClientRect().top), stickyTop: Math.round(stickyTop), tableTop: Math.round(table.getBoundingClientRect().top) };
+    });
+    const ok = Math.abs(m.top - m.stickyTop) <= 1 && m.tableTop < m.top;
+    report(label, ok, `band top ${m.top}px (want sticky offset ${m.stickyTop}px), table top ${m.tableTop}px (want above the band, i.e. scrolled)`);
+    await page.close();
+  } catch (e) {
+    report(label, false, e.message.split("\n")[0]);
   }
 }
 
