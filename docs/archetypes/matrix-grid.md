@@ -166,7 +166,7 @@ For a select → tune → next-line job — the user tunes one line, watches its
 - **Navigation.** The panel carries prev / next (step the rows, keeping the column) and close.
 - **Line-switch guard.** `onBeforeSelect(next, current)` is asked before every switch — grid click, prev / next, close, Escape, backdrop click — and may answer late (e.g. after a confirm prompt). A blocked switch leaves selection and inspector unchanged; with no guard the switch is immediate.
 - **No save model.** The shell owns layout and navigation only. A draft-with-apply body (an explicit apply plus a dirty guard on line switch) and a per-field autosave body (no guard) are both conformant; the body decides.
-- **Body.** Tab-free: the line's own row (e.g. its year values) and inputs with a live result first — that is what replaces watching the grid update beside the panel — the derivation below in collapsible sections. It never scrolls sideways — wide content is reshaped (e.g. twelve months as a 6×2 grid plus a year toggle); a full periodic view belongs in the grid itself (e.g. expandable rows), not in the panel.
+- **Body.** Tab-free: method and inputs with a live result first, the derivation below in collapsible sections. It never scrolls sideways — wide content is reshaped (e.g. twelve months as a 6×2 grid plus a year toggle); a full periodic view belongs in the grid itself (e.g. expandable rows), not in the panel.
 
 Rejected for this job: a panel docked beside a narrowed grid (v3.6–3.10; it made one gesture, clicking a line, behave differently here than on every other side surface — ADR-0018) and a centered overlay (it only buys width, which the content-sized edge overlay already gives).
 
