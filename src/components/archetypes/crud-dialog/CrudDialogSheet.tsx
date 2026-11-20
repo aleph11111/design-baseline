@@ -8,10 +8,11 @@ import { useIsMobile } from "../../../hooks/use-mobile";
 // Width variant map
 // ---------------------------------------------------------------------------
 
-const WIDTH_MAP: Record<"sm" | "md" | "lg", string> = {
+const WIDTH_MAP: Record<"sm" | "md" | "lg" | "xl", string> = {
   sm: "22rem",   // ~352px — minimal forms (3–4 fields)
   md: "30rem",   // ~480px — standard entity dialogs
   lg: "40rem",   // ~640px — tabbed or complex entities
+  xl: "54rem",   // ~860px — two-pane body: inputs beside a live result pane
 };
 
 // ---------------------------------------------------------------------------
@@ -22,10 +23,11 @@ export type CrudDialogSheetProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /**
-   * Desktop width preset. Defaults to "md" (~480px).
+   * Desktop width preset. Defaults to "md" (~480px); "xl" (~860px) is the
+   * two-pane body (inputs beside a live result pane).
    * On mobile the sheet is always full-viewport regardless of this setting.
    */
-  width?: "sm" | "md" | "lg";
+  width?: "sm" | "md" | "lg" | "xl";
   /** `sr-only` label of the Sheet's built-in close button. Override in a non-English app. */
   closeLabel?: string;
   children: React.ReactNode;

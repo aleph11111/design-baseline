@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.63.0
+
+- **Added (`crud-dialog`, contract v3.11, MANIFEST 3.12):** `CrudDialogSheet` width step `"xl"` (54rem, ~860px) for a two-pane body: inputs beside a live result pane, stacked on mobile. Layer 2 keys a body with a live result pane to `"xl"` first, then tab count, then field count, so every body still resolves to exactly one step. The demo gains a "Two-pane" layout (inputs left, computed preview right, container query). Mobile stays full-viewport; `sm` / `md` / `lg` unchanged.
+- **Consumer:** none required. A two-pane dialog (e.g. controlling-app Planung "Neuer Effekt") bumps `design-baseline` and passes `width="xl"`.
+- **Breaking:** none; the `width` prop type widens.
+
 ## v0.62.0
 
 - **Added (`list-with-detail`, contract v4.7, MANIFEST 4.11):** three optional, default-off props. `bulkSelectable` + `selectedIds` / `onBulkSelectChange` / `bulkActions` / `onBulkDelete` (table presentation only): a checkbox column; while a shown row is ticked, a bulk band ("{n} selected", the actions, "Clear selection") replaces the page's toolbar band. Ids a filter hides are pruned from the consumer's selection via `onBulkSelectChange` (not while loading/erroring). `detailStepping`: previous/next buttons in the detail overlay header that call `onRowSelect` with the adjacent row of `rows` (the displayed order), disabled at the ends. `summary`: a band above the body, sticky below the app header while rows scroll. New `labels` keys: `selectAll`, `selectRow`, `selectedCount`, `deleteSelected`, `clearSelection`, `previous`, `next`; new baseline label `clearSelection`.

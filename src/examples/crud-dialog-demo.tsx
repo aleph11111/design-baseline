@@ -78,12 +78,13 @@ import {
 } from "@/components/archetypes/crud-dialog";
 import { PageHeader } from "@/components/layout";
 
-type DialogWidth = "sm" | "md" | "lg";
-type DialogBodyLayout = "flat" | "two-column" | "two-tab";
+type DialogWidth = "sm" | "md" | "lg" | "xl";
+type DialogBodyLayout = "flat" | "two-column" | "two-tab" | "two-pane";
 
 /**
  * Derive the shell `width` step from the rendered body's shape — the Layer 2
- * keying rule, not a per-consumer choice: a two-tab (or otherwise tabbed) body
+ * keying rule, not a per-consumer choice: a body with a live result pane beside
+ * the inputs (two-pane) → `xl`; a two-tab (or otherwise tabbed) body
  * is the complex-entity case → `lg`; a 3–4-field minimal single-section form →
  * `sm`; a 5+ field standard form → `md`. `tabs` and `fieldCount` are read off
  * the body the dialog is actually rendering, so the step tracks the entity's
@@ -92,10 +93,13 @@ type DialogBodyLayout = "flat" | "two-column" | "two-tab";
 function deriveDialogWidth({
   tabs,
   fieldCount,
+  resultPane = false,
 }: {
   tabs: number;
   fieldCount: number;
+  resultPane?: boolean;
 }): DialogWidth {
+  if (resultPane) return "xl";
   if (tabs > 1) return "lg";
   if (fieldCount <= 4) return "sm";
   return "md";
@@ -149,6 +153,47 @@ const EMPTY_FORM: WorkoutFormValues = {
 };
 
 // ---------------------------------------------------------------------------
+// Two-pane result pane
+// ---------------------------------------------------------------------------
+
+const KCAL_PER_MINUTE: Record<WorkoutKind, number> = { run: 11, lift: 6, bike: 9, swim: 10 };
+
+/** Computed preview of the workout being edited — the right pane of the two-pane shape. */
+function WorkoutPreview({ values }: { values: WorkoutFormValues }): React.ReactElement {
+  const minutes = Number.isFinite(values.durationMinutes) ? values.durationMinutes : 0;
+  const kcal = minutes * KCAL_PER_MINUTE[values.kind];
+  const tiles = [
+    { label: "Duration", value: `${minutes} min` },
+    { label: "Energy", value: `${kcal} kcal` },
+    { label: "Weekly share", value: `${Math.round((minutes / 300) * 100)} %` },
+    { label: "Pace class", value: minutes >= 60 ? "Long" : minutes >= 30 ? "Steady" : "Short" },
+  ];
+  return (
+    <section aria-label="Preview" className="space-y-3 rounded-lg border bg-muted/30 p-4">
+      <h3 className="text-sm font-medium text-foreground">Preview</h3>
+      <div className="grid grid-cols-2 gap-2">
+        {tiles.map((t) => (
+          <div key={t.label} className="rounded-md border bg-card px-3 py-2">
+            <div className="text-xs text-muted-foreground">{t.label}</div>
+            <div className="text-sm font-medium tabular-nums text-foreground">{t.value}</div>
+          </div>
+        ))}
+      </div>
+      <dl className="space-y-1 text-sm">
+        <div className="flex justify-between gap-2">
+          <dt className="text-muted-foreground">{KIND_LABELS[values.kind]} · per minute</dt>
+          <dd className="tabular-nums">{KCAL_PER_MINUTE[values.kind]} kcal</dd>
+        </div>
+        <div className="flex justify-between gap-2">
+          <dt className="text-muted-foreground">Total</dt>
+          <dd className="tabular-nums">{kcal} kcal</dd>
+        </div>
+      </dl>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Workout dialog
 // ---------------------------------------------------------------------------
 
@@ -161,7 +206,7 @@ type WorkoutDialogProps = {
   onSave: (updated: Workout) => void;
   onCreate: (created: Omit<Workout, "id">) => void;
   onDelete: (id: string) => void;
-  /** Drives `<CrudDialogBody layout>` — "two-tab" composes shadcn `<Tabs>` manually. */
+  /** Drives `<CrudDialogBody layout>` — "two-tab" composes shadcn `<Tabs>` and "two-pane" a result pane manually. */
   bodyLayout: DialogBodyLayout;
   /** Fail the first entity load, so the fetch-error state + retry are visible. */
   simulateLoadError: boolean;
@@ -184,7 +229,7 @@ function WorkoutDialog({
   // supplied by the caller.
   const tabs = bodyLayout === "two-tab" ? 2 : 0;
   const fieldCount = 4; // date, kind, duration, notes — the demo workout schema
-  const width = deriveDialogWidth({ tabs, fieldCount });
+  const width = deriveDialogWidth({ tabs, fieldCount, resultPane: bodyLayout === "two-pane" });
   // Simulate a fetch delay when opening an existing workout in view mode.
   const [isLoading, setIsLoading] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -315,6 +360,9 @@ function WorkoutDialog({
     ? `Workout · ${KIND_LABELS[workout.kind]}`
     : "Workout";
   const subtitle = mode.isCreate ? undefined : workout?.date;
+
+  // Two-pane shape's live result pane reads the form as the user types.
+  const previewValues = form.watch();
 
   // Two-tab shape's read-only Tab 2 — other logged workouts of the same kind.
   const relatedHistory = workout
@@ -499,6 +547,21 @@ function WorkoutDialog({
               )}
             </TabsContent>
           </Tabs>
+        </CrudDialogBody>
+      ) : bodyLayout === "two-pane" ? (
+        // Two-pane shape — `layout` omitted, composed manually: inputs left,
+        // a live computed preview right. The panes sit side by side when the
+        // body is wide enough (container query) and stack on mobile.
+        <CrudDialogBody isLoading={isLoading} error={loadError} onRetry={retryLoad}>
+          <div className="@container">
+            <div className="grid gap-6 @2xl:grid-cols-2">
+              <div className="space-y-4">
+                {modeBadge}
+                <Form {...form}>{fields}</Form>
+              </div>
+              <WorkoutPreview values={previewValues} />
+            </div>
+          </div>
         </CrudDialogBody>
       ) : (
         // Flat stack / two-column grid — the pure shapes, driven by the real
@@ -739,8 +802,9 @@ export function CrudDialogDemo(): React.ReactElement {
         <p className="max-w-prose text-sm text-muted-foreground">
           The dialog body's graded richness axis — <strong>Layout</strong>{" "}
           (flat stack / two-column grid / two-tab with a read-only History
-          tab). The slide-in <strong>Width</strong> is derived from the layout
-          (two-tab → wide; other shapes → narrower) and is not a free choice.
+          tab / two-pane with a live preview beside the inputs). The slide-in
+          <strong> Width</strong> is derived from the layout (two-pane → widest;
+          two-tab → wide; other shapes → narrower) and is not a free choice.
           The loading skeleton adopts the body's layout shape, so a fetch
           finishing mid-viewport reflows nothing. Open a workout to see them
           applied. Flip <strong>Simulate load failure</strong> to see the
@@ -755,6 +819,7 @@ export function CrudDialogDemo(): React.ReactElement {
               { value: "flat", label: "Flat" },
               { value: "two-column", label: "Two-column" },
               { value: "two-tab", label: "Two-tab" },
+              { value: "two-pane", label: "Two-pane" },
             ]}
           />
           <label className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
@@ -849,7 +914,9 @@ export function CrudDialogDemo(): React.ReactElement {
             sibling of the same type in the list → its <strong>History</strong>{" "}
             tab lists it; otherwise it shows the empty state. The sheet's
             <strong>Width</strong> follows the layout — two-tab opens wide, the
-            flat / two-column shapes open narrow; it is derived, not toggled.
+            flat / two-column shapes open narrow, and two-pane opens widest
+            (inputs left, live preview right, stacked on mobile); it is
+            derived, not toggled.
           </li>
         </ol>
       </div>
