@@ -2,7 +2,7 @@
 key: J
 slug: crud-dialog
 kind: dialog
-version: 3.10
+version: 3.11
 promoted_from: brickshop-manager
 promoted_at: 2026-08-04
 source_spec_version: 1.7
@@ -74,11 +74,12 @@ J is the first non-page archetype in the baseline. It extends the twelve-layer p
 
 **Required:**
 - Use the **CRUD-dialog shell** — the single primitive that owns this archetype's chrome (the overlay wrapper with mobile-adaptive width).
-- Pass `open`, `onOpenChange` (wrapping `onClose`), and `width` (`"sm" | "md" | "lg"`). `width` is **derived from the rendered body's shape** — not chosen per call site:
+- Pass `open`, `onOpenChange` (wrapping `onClose`), and `width` (`"sm" | "md" | "lg" | "xl"`). `width` is **derived from the rendered body's shape** — not chosen per call site:
   - `"sm"` — minimal entity form: 3–4 form fields, no tabs.
   - `"md"` — standard entity form: 5+ form fields, single section (no tabs).
   - `"lg"` — tabbed or complex entity: a two-tab body (Tab 1 + Tab 2 per Layer 6) or an entity whose form spans multiple logically distinct sections.
-- Derive the width from the body's **tab count** (two-tab body → `"lg"`) and **field count** (3–4 fields → `"sm"`; 5+ fields → `"md"`), not from a per-consumer preference. The call site that owns the entity knows its shape; pass the derived value.
+  - `"xl"` — two-pane body: a **live result pane beside the inputs** (inputs on the left, a computed preview on the right, stacked on mobile). The sheet must be wide enough for the preview's tiles and breakdown rows to read untruncated beside the form.
+- Derive the width from the body's **shape**, checked in this order so every body resolves to exactly one step: a live result pane beside the inputs → `"xl"`; else **tab count** (two-tab body → `"lg"`); else **field count** (3–4 fields → `"sm"`; 5+ fields → `"md"`). Never a per-consumer preference. The call site that owns the entity knows its shape; pass the derived value.
 - Optional `closeLabel`: the accessible name of the shell's built-in close affordance; override in a non-English app.
 - Desktop: right-side slide-in at the derived width. Mobile: full-viewport (handled automatically by the CRUD-dialog shell via the **viewport-breakpoint hook**).
 
@@ -408,6 +409,7 @@ When a target project applies this archetype, it wires the generic primitives to
 - **2026-09-30 — v3.3.** Optional `closeLabel` on the dialog shell and the dialog-header primitive (Layers 2–3) so the close affordance's accessible name is overridable per call site. Additive.
 - **2026-10-02 — v3.4.** Fetch-error state: the dialog-body primitive takes `error`, `errorMessage`, `onRetry` and `retryLabel`, and renders the shared inline-error primitive (announced, icon plus tint, retry) in place of the fields (Layers 5 and 7). The reference demo gains a "Simulate load failure" toggle. Additive.
 - **2026-10-10 — v3.10.** Footer lift (radar candidate `crud-dialog-form-owns-footer`, a fleet synthesis of brickshop-manager, hk-crm and mistra). Layer 14 now names the two sanctioned ways a form's state reaches the shell-level footer: the dialog owns the form, or a form island reports up through the new **form-report hook** (from hk-crm). It also requires the new **submit-on-Enter control** (from mistra) in every body `<form>`; brickshop-manager's dialogs lacked it, so Enter submitted nothing. Adds the Forbidden entry against a form that renders its own footer. The reference demo gains Enter-to-submit and a form-island "Quick log" variant. Additive.
+- **2026-11-20 — v3.11.** Width step `"xl"` (Layer 2): a body with a live result pane beside the inputs (two-pane, stacked on mobile) derives `"xl"`; the keying rule is checked pane → tabs → fields so it stays exhaustive. Additive; mobile and `sm` / `md` / `lg` unchanged.
 
 ---
 
