@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-20
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "additive width step plus one keying bullet, following the existing WIDTH_MAP and Layer 2 pattern; cause established"
