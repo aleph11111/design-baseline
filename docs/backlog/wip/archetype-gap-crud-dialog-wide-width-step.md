@@ -36,3 +36,8 @@ gate:
 - [[crud-dialog-body-two-column-container-query]] — body layout already keys on container width, which is what the two-pane consumer relies on
 - [[archetype-convergence-crud-dialog-close-api]] — closed the width axis and its keying rule that this extends
 - [ADR-0004](/docs/adr/0004-appearance-locality-derived-vs-inherited.md) — width stays a derived prop, no override
+
+## Resolution
+
+- Shipped as v0.63.0 (crud-dialog contract v3.11, MANIFEST 3.12): `xl: "54rem"` in `WIDTH_MAP`, widened `width` type/JSDoc, Layer 2 keying (result pane, then tabs, then fields), demo "Two-pane" layout, `CrudDialogSheet.test.tsx` pinning all four steps plus mobile full-viewport.
+- Gallery acceptance verified in real Chrome against the built gallery (ad hoc script, not committed; no existing check covers dialog demos): the two-pane sheet measured 864px at desk27 (2560) and laptop14 (1512) with the preview pane 396px wide, side by side, no truncated or overflowing element in the pane; at phone (390) the sheet is full viewport with the panes stacked (screenshot reviewed).
