@@ -247,9 +247,11 @@ for (const c of CQ_CASES) {
   }
 }
 
-// matrix-grid's docked inspector (contract Layer 6 "Inspector slot"): docked
-// at ~480px beside a still-live grid on the desktops, the full-screen overlay
-// on phone, and nothing inside it scrolls sideways.
+// matrix-grid's inspector (contract Layer 6 "Inspector slot", ADR-0018): the
+// standard edge overlay over a dimmed backdrop on every device, with
+// list-with-detail's geometry (ADR-0010: floor 28rem, ceiling 100vw - 4rem,
+// full-screen on phone); the grid keeps its closed width and is inert behind
+// the backdrop; nothing inside the panel scrolls sideways.
 for (const [name, device] of Object.entries(devices)) {
   const label = `matrix-grid inspector @ ${name}`;
   let ctx;
@@ -257,28 +259,32 @@ for (const [name, device] of Object.entries(devices)) {
     let page;
     ({ ctx, page } = await open("matrix-grid", device));
     await page.getByRole("radio", { name: "inspector" }).click();
+    const gridClosed = await page.locator('[data-slot="matrix-scroll"]').boundingBox();
     await page.locator("td[data-filled]").first().click();
     const dock = page.locator('[data-slot="matrix-inspector"]');
     await dock.waitFor({ timeout: 5000 });
     await dock.getByRole("button", { name: "Monthly attendance" }).click();
-    await page.waitForTimeout(400); // sheet slide-in / collapsible settle
+    await page.waitForTimeout(600); // sheet slide-in / collapsible settle
     const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: COLUMN[name], fullBleed: true });
-    // phone: the overlay is modal, so the page's nav is aria-hidden behind it by design
+    // the overlay is modal, so the page's nav is aria-hidden behind it by design
     const bad = result.failures.filter((f) => !(name === "phone" && f.startsWith("phoneNav:")));
     const box = await dock.boundingBox();
     const W = device.viewport.width;
+    if (!(await page.locator("[data-state=open][class*='bg-black']").count())) bad.push("inspector: no dimmed backdrop");
+    if (Math.abs(box.x + box.width - W) > 1) bad.push(`inspector: right edge at ${box.x + box.width}px, want the viewport edge ${W}px`);
     if (name === "phone") {
       if (Math.abs(box.width - W) > 1) bad.push(`inspector: ${box.width}px wide on phone, want full-screen ${W}px`);
     } else {
-      if (box.width < 440 || box.width > 500) bad.push(`inspector: ${box.width}px wide, want ~480px docked`);
-      const grid = await page.locator('[data-slot="matrix-scroll"]').boundingBox();
-      if (grid.x + grid.width > box.x) bad.push("inspector: overlaps the grid instead of docking beside it");
-      // the grid stays live: another row's cell re-roots the open inspector
-      const before = await dock.locator("h2").textContent();
-      await page.locator("tbody tr:nth-child(3) td").first().click();
-      await page.waitForTimeout(200);
-      const after = await dock.locator("h2").textContent();
-      if (after === before) bad.push(`inspector: a grid click did not switch the line (still "${after}")`);
+      const rem = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).fontSize));
+      if (box.width < 28 * rem - 1 || box.width > W - 4 * rem + 1)
+        bad.push(`inspector: ${box.width}px wide, want ${28 * rem}..${W - 4 * rem}px (list-with-detail geometry)`);
+      const gridOpen = await page.locator('[data-slot="matrix-scroll"]').boundingBox();
+      if (Math.abs(gridOpen.width - gridClosed.width) > 1)
+        bad.push(`inspector: grid ${gridClosed.width}px wide closed, ${gridOpen.width}px open — it must not narrow`);
+      // the grid is inert: a point on a grid cell left of the overlay hits the backdrop
+      const cell = await page.locator("tbody tr:nth-child(3) td").first().boundingBox();
+      const hit = await page.evaluate(([x, y]) => !!document.elementFromPoint(x, y)?.closest("td"), [cell.x + 4, cell.y + 4]);
+      if (cell.x + 4 < box.x && hit) bad.push("inspector: a grid cell is still clickable behind the backdrop");
     }
     const wide = await dock.evaluate((root) =>
       [root, ...root.querySelectorAll("*")]
@@ -298,7 +304,7 @@ for (const [name, device] of Object.entries(devices)) {
 }
 
 // matrix-grid workbench (ADR-0013, contract Layer 5 "Workbench satellites"):
-// with the inspector open, the read-only preview matrix in `body` and the
+// with the inspector overlay open (ADR-0018), the read-only preview matrix in `body` and the
 // `dock` summary stay rendered and on-screen, and the page never scrolls
 // sideways (checkPageInvariants).
 for (const [name, device] of Object.entries(devices)) {
@@ -319,11 +325,6 @@ for (const [name, device] of Object.entries(devices)) {
       const box = await page.locator(`[data-slot="${slot}"]`).boundingBox();
       if (!box || box.width < 1) bad.push(`workbench: ${slot} not rendered`);
       else if (box.x < 0 || box.x + box.width > W + 1) bad.push(`workbench: ${slot} spans ${box.x}..${box.x + box.width}, viewport ${W}`);
-    }
-    if (name !== "phone") {
-      const dock = await page.locator('[data-slot="matrix-inspector"]').boundingBox();
-      const body = await page.locator('[data-slot="matrix-body"]').boundingBox();
-      if (body && dock && body.x + body.width > dock.x) bad.push("workbench: body runs under the docked inspector");
     }
     const file = `matrix-grid-workbench--${name}.jpg`;
     await page.screenshot({ path: path.join(OUT, file), type: "jpeg", quality: 70, scale: "css", fullPage: true });

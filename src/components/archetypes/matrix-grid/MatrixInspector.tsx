@@ -10,13 +10,15 @@ import {
   SheetTitle,
 } from "../../ui/sheet";
 import { useLabels } from "../../../lib/labels";
+import { cn } from "../../../lib/utils";
+import { DETAIL_OVERLAY_CLASS } from "../shared/detailOverlay";
 
 /** The open intersection: the row (line) and the column it was opened from. */
 export type MatrixSelection = { rowId: string; columnKey: string };
 
 /**
- * The selection-driven, non-modal inspector (matrix-grid contract, Layer 6
- * "Inspector slot"). The shell owns layout and navigation only — never saving:
+ * The selection-driven inspector (matrix-grid contract, Layer 6 "Inspector
+ * slot"), rendered as the edge overlay. The shell owns layout and navigation only — never saving:
  * a draft-with-apply body and a per-field autosave body are both conformant.
  */
 export type MatrixInspectorProps = {
@@ -26,7 +28,7 @@ export type MatrixInspectorProps = {
   onSelectionChange: (next: MatrixSelection | null) => void;
   /**
    * Line-switch guard, asked before every switch: a grid click, prev / next,
-   * close and Escape. Return (or resolve) `false` to block — selection and
+   * close, Escape and a backdrop click. Return (or resolve) `false` to block — selection and
    * inspector then stay unchanged. Omitted: every switch is immediate.
    */
   onBeforeSelect?: (
@@ -42,13 +44,13 @@ export type MatrixInspectorProps = {
   children: React.ReactNode;
 };
 
-type DockProps = Omit<MatrixInspectorProps, "selection" | "onSelectionChange" | "onBeforeSelect"> & {
+type PanelProps = Omit<MatrixInspectorProps, "selection" | "onSelectionChange" | "onBeforeSelect"> & {
   onClose: () => void;
   onPrev?: () => void;
   onNext?: () => void;
 };
 
-function NavButtons({ onClose, onPrev, onNext }: Pick<DockProps, "onClose" | "onPrev" | "onNext">) {
+function NavButtons({ onClose, onPrev, onNext }: Pick<PanelProps, "onClose" | "onPrev" | "onNext">) {
   const L = useLabels();
   return (
     <div className="flex shrink-0 items-center gap-1">
@@ -65,36 +67,13 @@ function NavButtons({ onClose, onPrev, onNext }: Pick<DockProps, "onClose" | "on
   );
 }
 
-/** Desk / laptop: a sticky ~480px column beside the grid. No backdrop, the grid stays live. */
-export function MatrixInspectorDock({ title, description, footer, children, ...nav }: DockProps) {
-  return (
-    <aside
-      data-slot="matrix-inspector"
-      aria-label={typeof title === "string" ? title : undefined}
-      onKeyDown={(e) => {
-        // a popup in the body (Select, Popover) already handled its own Escape
-        if (e.key === "Escape" && !e.defaultPrevented) {
-          e.stopPropagation();
-          nav.onClose();
-        }
-      }}
-      className="sticky top-4 flex max-h-[calc(100svh-2rem)] w-[480px] max-w-[50%] shrink-0 flex-col overflow-x-hidden rounded-lg border bg-background shadow-sm"
-    >
-      <header className="flex items-start gap-2 px-5 pb-1 pt-4">
-        <div className="min-w-0 flex-1 space-y-0.5">
-          <h2 className="truncate text-base font-semibold text-foreground">{title}</h2>
-          {description && <p className="text-sm text-muted-foreground">{description}</p>}
-        </div>
-        <NavButtons {...nav} />
-      </header>
-      <div className="min-w-0 flex-1 space-y-5 overflow-y-auto px-5 py-4">{children}</div>
-      {footer && <footer className="flex justify-end gap-2 border-t px-5 py-3">{footer}</footer>}
-    </aside>
-  );
-}
-
-/** Phone: the existing full-screen overlay. */
-export function MatrixInspectorSheet({ title, description, footer, children, ...nav }: DockProps) {
+/**
+ * The inspector panel: the standard edge overlay over a dimmed backdrop on
+ * every viewport, with list-with-detail's geometry (ADR-0010, ADR-0018). The
+ * grid is inert behind the backdrop; a backdrop click or Escape closes through
+ * the shell's guard. A body popup (Select, Popover) handles its own Escape.
+ */
+export function MatrixInspectorSheet({ title, description, footer, children, ...nav }: PanelProps) {
   return (
     <Sheet open onOpenChange={(open) => !open && nav.onClose()}>
       <SheetContent
@@ -102,17 +81,18 @@ export function MatrixInspectorSheet({ title, description, footer, children, ...
         showCloseButton={false}
         data-slot="matrix-inspector"
         {...(description ? {} : { "aria-describedby": undefined })}
-        className="flex w-full flex-col gap-0 overflow-x-hidden p-0 sm:max-w-none"
+        className={cn(DETAIL_OVERLAY_CLASS, "overflow-x-hidden")}
       >
-        <SheetHeader className="flex-row items-start gap-2 space-y-0 border-b px-4 py-3 text-left">
-          <div className="min-w-0 flex-1 space-y-0.5">
+        <SheetHeader className="flex-row items-start gap-2 space-y-0 border-b px-5 py-3 text-left">
+          {/* contain:inline-size — a long title truncates instead of widening the overlay. */}
+          <div className="min-w-0 flex-1 space-y-0.5 [contain:inline-size]">
             <SheetTitle className="truncate text-base">{title}</SheetTitle>
             {description && <SheetDescription>{description}</SheetDescription>}
           </div>
           <NavButtons {...nav} />
         </SheetHeader>
-        <div className="min-w-0 flex-1 space-y-5 overflow-y-auto px-4 py-4">{children}</div>
-        {footer && <div className="flex justify-end gap-2 border-t px-4 py-3">{footer}</div>}
+        <div className="min-w-0 flex-1 space-y-5 overflow-y-auto px-5 py-4">{children}</div>
+        {footer && <div className="flex justify-end gap-2 border-t px-5 py-3">{footer}</div>}
       </SheetContent>
     </Sheet>
   );

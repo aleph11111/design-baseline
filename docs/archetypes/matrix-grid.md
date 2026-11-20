@@ -2,7 +2,7 @@
 key: M
 slug: matrix-grid
 kind: page
-version: 3.9
+version: 4.0
 promoted_from: hk-crm (inspector slot: controlling-app planset LinePanel + planung InspektorDrawer; body/dock slots: controlling-app workspace/planung, fleet synthesis)
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -129,7 +129,7 @@ so they sit outside the scroller. The mapping is exhaustive:
   - `body` — rendered below the grid in the same column: a configuration panel, and **read-only preview matrices** as nested matrix-grid shells (no cell click, no inspector; each draws its own nested heading and owns its own sideways scroll). Several may stack.
   - `dock` — a summary region rendered last, after `body` (e.g. the plan result).
   When the grid shows its `emptyState`, `body` and `dock` stay visible below it (a plan with no lines still needs its config panel).
-  With the inspector open, grid, `body` and `dock` share the narrowed column beside the docked panel, so all stay visible and nothing scrolls the page sideways. History stays a header `actions` entry; a view switch that picks which body shows stays in `toolbar`; page-level dialogs stay siblings.
+  The inspector opens as the edge overlay above the whole page, so grid, `body` and `dock` keep their full column width and never reflow (ADR-0018). History stays a header `actions` entry; a view switch that picks which body shows stays in `toolbar`; page-level dialogs stay siblings.
 - A page-level flex container that lets the shell shrink and scroll rather than enforce its intrinsic width is allowed when the page composes the matrix with a fixed-width sibling (e.g. a permanent filter rail).
 
 **Forbidden:**
@@ -160,15 +160,15 @@ This is the core layer. The matrix shell is generic over a single type parameter
 - `onCellClick?: (ctx: MatrixCellContext<Cell>) => void` — fires when a cell is clicked. Consumers route this into their side overlay open/close state. The shell applies the **clickable-cell interaction treatment** (pointer cursor, no text selection) to cells when `onCellClick` is present.
 
 **Inspector slot (v3.6):**
-For a select → tune → next-line job — the user tunes one line, watches the result, then moves on without closing — the shell takes an optional `inspector`. It is selection-driven and non-modal:
-- **Selection.** The consumer owns the selection (`{ rowId, columnKey }` or none) and applies a switch in `onSelectionChange`. With `inspector` set, a cell click selects that row/column instead of calling `onCellClick`; selecting another cell re-roots the open inspector, it never closes and reopens. The selected row and cell are marked, and selection stays keyboard-operable (cells are tab stops; prev / next and close are buttons; Escape closes).
-- **Placement.** On the desktop and laptop the panel docks beside the grid at about 480px, with no backdrop: the grid narrows and stays interactive. On phone it falls back to the full-screen overlay (Layer 11).
+For a select → tune → next-line job — the user tunes one line, watches its result, then moves on without closing — the shell takes an optional `inspector`. It is selection-driven:
+- **Selection.** The consumer owns the selection (`{ rowId, columnKey }` or none) and applies a switch in `onSelectionChange`. With `inspector` set, a cell click selects that row/column instead of calling `onCellClick`. While the inspector is open the grid is inert behind the backdrop: switching lines is prev / next (the open inspector re-roots, it never closes and reopens), or close and click another cell. The selected row and cell are marked, and selection stays keyboard-operable (cells are tab stops; prev / next and close are buttons; Escape closes).
+- **Placement (v4.0, ADR-0018).** On every viewport the panel is the standard edge overlay: it slides in from the viewport edge over a dimmed backdrop, with list-with-detail's geometry (ADR-0010 — content-sized, floor 28rem, ceiling the viewport minus 4rem, full-screen on phone). The grid never narrows or reflows when it opens — the same gesture behaves the same as every other side surface.
 - **Navigation.** The panel carries prev / next (step the rows, keeping the column) and close.
-- **Line-switch guard.** `onBeforeSelect(next, current)` is asked before every switch — grid click, prev / next, close, Escape — and may answer late (e.g. after a confirm prompt). A blocked switch leaves selection and inspector unchanged; with no guard the switch is immediate.
+- **Line-switch guard.** `onBeforeSelect(next, current)` is asked before every switch — grid click, prev / next, close, Escape, backdrop click — and may answer late (e.g. after a confirm prompt). A blocked switch leaves selection and inspector unchanged; with no guard the switch is immediate.
 - **No save model.** The shell owns layout and navigation only. A draft-with-apply body (an explicit apply plus a dirty guard on line switch) and a per-field autosave body (no guard) are both conformant; the body decides.
-- **Body.** Tab-free: method and inputs with a live result first, the derivation below in collapsible sections. It never scrolls sideways — wide content is reshaped (e.g. twelve months as a 6×2 grid plus a year toggle); a full periodic view belongs in the grid itself (e.g. expandable rows), not in the panel.
+- **Body.** Tab-free: the line's own row (e.g. its year values) and inputs with a live result first — that is what replaces watching the grid update beside the panel — the derivation below in collapsible sections. It never scrolls sideways — wide content is reshaped (e.g. twelve months as a 6×2 grid plus a year toggle); a full periodic view belongs in the grid itself (e.g. expandable rows), not in the panel.
 
-Rejected for this job: a modal side overlay (the grid goes inert behind a backdrop and a wide overlay covers half the desk) and a centered overlay (it only buys width, which list-with-detail's content-sized overlay already gives).
+Rejected for this job: a panel docked beside a narrowed grid (v3.6–3.10; it made one gesture, clicking a line, behave differently here than on every other side surface — ADR-0018) and a centered overlay (it only buys width, which the content-sized edge overlay already gives).
 
 **Number / date formatting:**
 - The shell does **not** format cell content. The consumer's `renderCell` is responsible for invoking project-level formatters (currency, date) on numbers and ISO strings.
@@ -281,7 +281,7 @@ Matrices are inherently dense and wide. Mobile is a constrained surface.
 - No dedicated `/mobile/...` route.
 - The shell's outer wrapper provides horizontal scroll on overflow. Mobile users scroll horizontally over the sticky first column.
 - Tappable cells gain the **touch-friendly clickable-cell treatment** (pointer cursor, no text selection, touch-optimized) — the shell adds this when `onCellClick` is provided.
-- The side overlay renders as a full-width **overlay surface** on mobile — same pattern as other archetypes. The Layer 6 `inspector` does the same on phone: full-screen, with its prev / next and close.
+- The side overlay renders as a full-width **overlay surface** on mobile — same pattern as other archetypes. The Layer 6 `inspector` is the same overlay on every width: full-screen on phone, with its prev / next and close.
 
 **Extension points (not shipped by default — consumer may add):**
 - **Column-collapse-to-pivot** — replacing the matrix with a stacked list (one card per row, columns as nested rows) on narrow viewports. Consumer-owned.
@@ -318,7 +318,7 @@ The following patterns are never permitted in a matrix-grid page, regardless of 
 9. **Raw ISO date or number strings in cells.** Always route through a formatter inside `renderCell`.
 10. **Static (non-lazy) page imports.** Always lazy-import matrix-grid pages.
 11. **Missing render-error boundary.**
-12. **A hand-rolled docked panel beside the shell.** A select → tune → next-line editor uses the `inspector` slot, not a page-level flex row with its own panel.
+12. **A hand-rolled panel beside the shell.** A select → tune → next-line editor uses the `inspector` slot, not a page-level flex row with its own docked panel.
 13. **Tabs or sideways scrolling inside the inspector.** Reshape wide content instead.
 
 ---
@@ -374,6 +374,14 @@ When a target project applies this archetype, it wires the generic primitive to 
 ---
 
 ## Version log
+
+- **4.0** (ADR-0018) — the `inspector` (Layer 6) renders on every viewport as
+  the standard edge overlay over a dimmed backdrop, with list-with-detail's
+  content-sized geometry (ADR-0010); it no longer docks at ~480px beside a
+  narrowed grid. The grid is inert while it is open: switch lines with
+  prev / next, or close (backdrop click, Escape, close — all through
+  `onBeforeSelect`) and click. `body` and `dock` keep the full column width.
+  Rejected paragraph amended. Breaking (placement); props unchanged.
 
 - **3.9** — `emptyState` replaces only the grid: `body` and `dock` still render
   below it (Layer 5 "Workbench satellites"). Fixes a drop in v3.8. Additive.

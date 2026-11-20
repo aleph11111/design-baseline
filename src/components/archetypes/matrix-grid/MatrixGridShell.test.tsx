@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import * as React from "react";
 import type { MatrixSelection } from "./MatrixInspector";
+import { DETAIL_OVERLAY_CLASS } from "../shared/detailOverlay";
 import { TooltipProvider } from "../../ui/tooltip";
 import { MatrixGridShell, type MatrixColumn, type MatrixRow } from "./MatrixGridShell";
 
@@ -376,36 +377,54 @@ describe("MatrixGridShell horizontal scroll", () => {
       );
     }
     const dock = () => document.querySelector('[data-slot="matrix-inspector"]');
+    const backdrop = () => document.querySelector("[data-state=open][class*='bg-black']");
     const flush = () => act(async () => {});
 
-    it("a cell click opens the dock beside the grid, without a backdrop, and skips onCellClick", async () => {
+    it("a cell click opens the edge overlay over a backdrop, sized like list-with-detail, and skips onCellClick", async () => {
       const onCellClick = vi.fn();
       render(<Harness onCellClick={onCellClick} />);
       expect(dock()).toBeNull();
       fireEvent.click(screen.getByRole("button", { name: "b2" }));
       await flush();
-      expect(dock()?.tagName).toBe("ASIDE");
-      expect(dock()?.className).toContain("w-[480px]");
+      expect(dock()?.getAttribute("role")).toBe("dialog");
+      for (const c of DETAIL_OVERLAY_CLASS.split(" ")) expect(dock()?.classList.contains(c)).toBe(true);
+      expect(backdrop()).not.toBeNull();
       expect(screen.getByText("body b:y2")).toBeTruthy();
-      expect(document.querySelector("[data-state=open][class*='bg-black']")).toBeNull();
       expect(onCellClick).not.toHaveBeenCalled();
-      expect(screen.getByRole("button", { name: "b2" }).getAttribute("aria-current")).toBe("true");
+      // the grid is inert behind the backdrop (Radix hides it from AT)
+      expect(document.querySelector('[data-slot="matrix-scroll"]')!.closest("[aria-hidden=true]")).not.toBeNull();
     });
 
-    it("another cell click re-roots the open inspector without closing it", async () => {
+    it("prev / next re-root the open overlay without closing it", async () => {
       render(<Harness initial={{ rowId: "a", columnKey: "y1" }} />);
       const first = dock();
-      fireEvent.click(screen.getByRole("button", { name: "c1" }));
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
       await flush();
       expect(dock()).toBe(first);
-      expect(screen.getByText("body c:y1")).toBeTruthy();
+      expect(screen.getByText("body b:y1")).toBeTruthy();
+    });
+
+    it("a backdrop click closes through the guard; a blocked close keeps the overlay", async () => {
+      const guard = vi.fn(() => false);
+      render(<Harness guard={guard} initial={{ rowId: "a", columnKey: "y1" }} />);
+      await flush(); // Radix registers its outside-pointer listener a tick after mount
+      fireEvent.pointerDown(backdrop()!);
+      await flush();
+      expect(guard).toHaveBeenCalledWith(null, { rowId: "a", columnKey: "y1" });
+      expect(screen.getByText("body a:y1")).toBeTruthy();
+      cleanup();
+      render(<Harness initial={{ rowId: "a", columnKey: "y1" }} />);
+      await flush();
+      fireEvent.pointerDown(backdrop()!);
+      await flush();
+      expect(dock()).toBeNull();
     });
 
     it("a blocking guard keeps selection and inspector unchanged (sync and async)", async () => {
       for (const guard of [() => false, async () => false]) {
         render(<Harness guard={guard} initial={{ rowId: "a", columnKey: "y1" }} />);
-        fireEvent.click(screen.getByRole("button", { name: "b1" }));
         fireEvent.click(screen.getByRole("button", { name: "Next" }));
+        fireEvent.keyDown(dock()!, { key: "Escape" });
         fireEvent.click(screen.getByRole("button", { name: "Close" }));
         await flush();
         expect(screen.getByText("body a:y1")).toBeTruthy();
@@ -413,31 +432,35 @@ describe("MatrixGridShell horizontal scroll", () => {
       }
     });
 
-    it("the guard is asked for grid clicks, prev / next and close, and an allowing guard switches", async () => {
+    it("the guard is asked for prev / next, Escape and a grid click, and an allowing guard switches", async () => {
       const guard = vi.fn(async () => true);
       render(<Harness guard={guard} initial={{ rowId: "a", columnKey: "y2" }} />);
       fireEvent.click(screen.getByRole("button", { name: "Next" }));
       await flush();
       expect(screen.getByText("body b:y2")).toBeTruthy();
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+      await flush();
+      expect(screen.getByText("body c:y2")).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Next" })).toHaveProperty("disabled", true);
       fireEvent.click(screen.getByRole("button", { name: "Previous" }));
       await flush();
-      expect(screen.getByText("body a:y2")).toBeTruthy();
-      fireEvent.click(screen.getByRole("button", { name: "c1" }));
-      await flush();
-      expect(screen.getByText("body c:y1")).toBeTruthy();
-      expect(screen.getByRole("button", { name: "Next" })).toHaveProperty("disabled", true);
+      expect(screen.getByText("body b:y2")).toBeTruthy();
       fireEvent.keyDown(dock()!, { key: "Escape" });
       await flush();
       expect(dock()).toBeNull();
+      fireEvent.click(screen.getByRole("button", { name: "a1" }));
+      await flush();
+      expect(screen.getByText("body a:y1")).toBeTruthy();
       expect(guard.mock.calls.map((c) => (c as unknown[])[0])).toEqual([
         { rowId: "b", columnKey: "y2" },
-        { rowId: "a", columnKey: "y2" },
-        { rowId: "c", columnKey: "y1" },
+        { rowId: "c", columnKey: "y2" },
+        { rowId: "b", columnKey: "y2" },
         null,
+        { rowId: "a", columnKey: "y1" },
       ]);
     });
 
-    it("Escape a body popup already handled does not close the dock", async () => {
+    it("Escape a body popup already handled does not close the overlay", async () => {
       render(<Harness initial={{ rowId: "a", columnKey: "y1" }} />);
       const ev = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
       ev.preventDefault();
@@ -452,11 +475,11 @@ describe("MatrixGridShell horizontal scroll", () => {
       const resolvers: Array<(ok: boolean) => void> = [];
       const guard = () => new Promise<boolean>((r) => resolvers.push(r));
       render(<Harness guard={guard} initial={{ rowId: "a", columnKey: "y1" }} />);
-      fireEvent.click(screen.getByRole("button", { name: "b1" }));
-      fireEvent.click(screen.getByRole("button", { name: "c1" }));
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
+      fireEvent.click(screen.getByRole("button", { name: "Close" }));
       await act(async () => resolvers[1]!(true));
       await act(async () => resolvers[0]!(true));
-      expect(screen.getByText("body c:y1")).toBeTruthy();
+      expect(dock()).toBeNull();
     });
 
     it("opening and closing keeps the same grid node (no remount: scroll and focus survive)", async () => {
@@ -467,26 +490,16 @@ describe("MatrixGridShell horizontal scroll", () => {
       await flush();
       expect(dock()).not.toBeNull();
       expect(document.querySelector('[data-slot="matrix-scroll"]')).toBe(scroller);
-      expect(screen.getByRole("button", { name: "b1" })).toBe(cell);
+      expect(screen.getByRole("button", { name: "b1", hidden: true })).toBe(cell);
       fireEvent.click(screen.getByRole("button", { name: "Close" }));
       await flush();
       expect(dock()).toBeNull();
       expect(document.querySelector('[data-slot="matrix-scroll"]')).toBe(scroller);
     });
 
-    it("a click on the open cell cancels a pending switch", async () => {
-      const resolvers: Array<(ok: boolean) => void> = [];
-      const guard = () => new Promise<boolean>((r) => resolvers.push(r));
-      render(<Harness guard={guard} initial={{ rowId: "a", columnKey: "y1" }} />);
-      fireEvent.click(screen.getByRole("button", { name: "b1" }));
-      fireEvent.click(screen.getByRole("button", { name: "a1" }));
-      await act(async () => resolvers[0]!(true));
-      expect(screen.getByText("body a:y1")).toBeTruthy();
-    });
-
     it("no guard: the switch is immediate (same tick)", () => {
       render(<Harness initial={{ rowId: "a", columnKey: "y1" }} />);
-      fireEvent.click(screen.getByRole("button", { name: "b1" }));
+      fireEvent.click(screen.getByRole("button", { name: "Next" }));
       // no flush: an absent guard must not defer the switch to a microtask
       expect(screen.getByText("body b:y1")).toBeTruthy();
       fireEvent.click(screen.getByRole("button", { name: "Close" }));
@@ -501,7 +514,7 @@ describe("MatrixGridShell horizontal scroll", () => {
       expect(document.querySelector('[data-slot="matrix-dock"]')).toBeNull();
     });
 
-    it("renders body (a nested read-only matrix) after the grid and dock last, beside an open inspector", () => {
+    it("renders body (a nested read-only matrix) after the grid and dock last; an open inspector never wraps them", () => {
       render(
         <MatrixGridShell<string>
           title="Plan"
@@ -519,11 +532,12 @@ describe("MatrixGridShell horizontal scroll", () => {
       expect(body.contains(preview)).toBe(true);
       expect(grid.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
       expect(body.compareDocumentPosition(dockRegion) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-      expect(screen.getByRole("heading", { level: 2, name: "Preview" })).toBeTruthy();
+      expect(screen.getByRole("heading", { level: 2, name: "Preview", hidden: true })).toBeTruthy();
       expect(dockRegion.textContent).toBe("Summary");
-      // the docked inspector sits beside the column holding grid + body + dock
+      // the inspector portals out as the overlay: grid, body and dock keep their column
       const inspector = document.querySelector('[data-slot="matrix-inspector"]')!;
-      expect(inspector.previousElementSibling?.contains(dockRegion)).toBe(true);
+      expect(inspector.contains(dockRegion)).toBe(false);
+      expect(grid.parentElement!.closest('[data-slot="matrix-inspector"]')).toBeNull();
     });
   });
 });

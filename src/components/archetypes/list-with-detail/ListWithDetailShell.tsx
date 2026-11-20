@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../../ui/sheet";
+import { DETAIL_OVERLAY_CLASS } from "../shared/detailOverlay";
 import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
 import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
@@ -395,7 +396,7 @@ export function ListWithDetailBody<Row>(
         <SheetContent
           side="right"
           closeLabel={labels?.close}
-          className="flex w-full flex-col gap-0 p-0 sm:w-min sm:min-w-md sm:max-w-[calc(100vw-4rem)]"
+          className={DETAIL_OVERLAY_CLASS}
         >
           {detailTitle !== undefined ? (
             // The shared bar chrome (padding + neutral fill) with the Radix

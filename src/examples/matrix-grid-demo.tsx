@@ -239,7 +239,7 @@ export function MatrixGridDemo() {
   // stays the route's one editable matrix.
   const [mode, setMode] = useState<"click" | "inline" | "inspector" | "workbench">("click");
   const withInspector = mode === "inspector" || mode === "workbench";
-  // Inspector variant (Layer 6 "Inspector slot"): the shell docks the panel and
+  // Inspector variant (Layer 6 "Inspector slot"): the shell opens the edge overlay and
   // asks `onBeforeSelect` before every switch; this body is draft-with-apply,
   // so it guards unsaved edits. The shell prescribes no save model.
   const [selection, setSelection] = useState<MatrixSelection | null>(null);
