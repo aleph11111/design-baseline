@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.62.0
+
+- **Added (`list-with-detail`, contract v4.7, MANIFEST 4.11):** three optional, default-off props. `bulkSelectable` + `selectedIds` / `onBulkSelectChange` / `bulkActions` / `onBulkDelete` (table presentation only): a checkbox column; while a shown row is ticked, a bulk band ("{n} selected", the actions, "Clear selection") replaces the page's toolbar band. Ids a filter hides are pruned from the consumer's selection via `onBulkSelectChange` (not while loading/erroring). `detailStepping`: previous/next buttons in the detail overlay header that call `onRowSelect` with the adjacent row of `rows` (the displayed order), disabled at the ends. `summary`: a band above the body, sticky below the app header while rows scroll. New `labels` keys: `selectAll`, `selectRow`, `selectedCount`, `deleteSelected`, `clearSelection`, `previous`, `next`; new baseline label `clearSelection`.
+- **Moved:** settings-table's `computeBulkSelection` / `resolveCountLabel` / `resolveBulkActions` now live in `archetypes/shared` (exported there); settings-table behaviour is unchanged (MANIFEST 3.9).
+- **Consumer:** none required; pages that pass none of the new props render unchanged. A custom `BaselineLabels` object must add `clearSelection`.
+- **Fixed:** the shared "Delete {n} selected" button (settings-table, list-with-detail) now calls `onBulkDelete` even when `onBulkSelectChange` is not passed; it was a silent no-op.
+- **Breaking:** type-only, for a hand-built full `BaselineLabels` object (it must add `clearSelection`); no runtime break.
+
 ## v0.61.0
 
 - **Changed (ADR-0018):** `matrix-grid`'s `inspector` renders on every viewport as the standard edge overlay over a dimmed backdrop, with list-with-detail's content-sized geometry (floor 28rem, ceiling `100vw − 4rem`, full-screen below `sm`); it no longer docks at ~480px beside a narrowed grid. The grid keeps its width and is inert while the overlay is open: switch lines with prev / next, or close (backdrop click, Escape, close button — all through `onBeforeSelect`) and click. `body` / `dock` keep the full column. The geometry is one shared class (`archetypes/shared/detailOverlay`) used by both surfaces. Contract v4.0, MANIFEST matrix-grid 4.0.

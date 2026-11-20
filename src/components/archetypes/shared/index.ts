@@ -49,3 +49,11 @@ export {
 export type { WorkflowStep, WorkflowTone } from "./workflowStep";
 
 export { ScrollCue, FIRST_COLUMN_CLASS, type ScrollCueProps } from "./ScrollCue";
+
+export {
+  computeBulkSelection,
+  resolveCountLabel,
+  resolveBulkActions,
+  type BulkSelection,
+  type BulkLabels,
+} from "./bulkSelection";

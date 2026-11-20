@@ -77,6 +77,7 @@ export type BaselineLabels = {
   selectRowNamed: (name: string | number) => string;
   selectedCount: (count: number) => string;
   deleteSelected: (count: number) => string;
+  clearSelection: string;
   addNew: string;
   unread: string;
   reportColumns: readonly [string, string, string, string];
@@ -198,6 +199,7 @@ export const labelsEn: BaselineLabels = {
   selectRowNamed: (name) => `Select row: ${name}`,
   selectedCount: (count) => `${count} selected`,
   deleteSelected: (count) => `Delete ${count} selected`,
+  clearSelection: "Clear selection",
   addNew: "Add new",
   unread: "Unread",
   reportColumns: ["Position", "Qty", "Unit", "Sum"],
@@ -314,6 +316,7 @@ export const labelsDe: BaselineLabels = {
   selectRowNamed: (name) => `Zeile auswählen: ${name}`,
   selectedCount: (count) => `${count} ausgewählt`,
   deleteSelected: (count) => `${count} ausgewählte löschen`,
+  clearSelection: "Auswahl aufheben",
   addNew: "Neu hinzufügen",
   unread: "Ungelesen",
   reportColumns: ["Position", "Menge", "Einheit", "Summe"],

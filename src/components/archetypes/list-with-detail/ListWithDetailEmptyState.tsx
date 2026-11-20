@@ -33,6 +33,20 @@ export type ListWithDetailLabels = {
   close?: string;
   /** `sr-only` label of each row's `⋯` trigger when `rowActions` is set. Default "Row actions". */
   rowActions?: string;
+  /** Bulk mode: the header checkbox. Default "Select all rows". */
+  selectAll?: string;
+  /** Bulk mode: every row checkbox. Default "Select row: {identifier}" (flat "Select row" for a JSX identifier). */
+  selectRow?: string;
+  /** Bulk mode: the bulk band's caption. Default `${n} selected`. */
+  selectedCount?: (count: number) => string;
+  /** Bulk mode: the convenience delete button. Default `Delete ${n} selected`. */
+  deleteSelected?: (count: number) => string;
+  /** Bulk mode: the bulk band's clear button. Default "Clear selection". */
+  clearSelection?: string;
+  /** Detail stepping: the previous-row button. Default "Previous". */
+  previous?: string;
+  /** Detail stepping: the next-row button. Default "Next". */
+  next?: string;
 };
 
 export type ListWithDetailEmptyStateProps = {
