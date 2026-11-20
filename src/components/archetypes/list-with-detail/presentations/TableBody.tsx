@@ -12,6 +12,7 @@ import {
 } from "../../../ui/table";
 import { cn } from "../../../../lib/utils";
 import { useTouchTarget } from "../../../ui/toolbar-band";
+import { Checkbox } from "../../../ui/checkbox";
 import { RowActionsMenu, alignClass, hideBelowClass, identifierCell } from "../../shared";
 import type { RowAction } from "../../shared";
 import type { ListColumn, SortDirection } from "../ListWithDetailShell";
@@ -55,6 +56,19 @@ export type TableBodyProps<Row> = {
   sortDirection?: SortDirection;
   onSortChange?: (sortBy: string, sortDirection: SortDirection) => void;
   onRowSelect?: (row: Row) => void;
+  /** Bulk mode: the leading checkbox column (absent = no column). */
+  bulk?: TableBulk<Row>;
+};
+
+/** The leading checkbox column's state and handlers, derived by the shell. */
+export type TableBulk<Row> = {
+  selected: ReadonlySet<string>;
+  allSelected: boolean;
+  someSelected: boolean;
+  onToggleAll: () => void;
+  onToggleRow: (rowId: string) => void;
+  selectAllLabel: string;
+  rowLabel: (row: Row) => string;
 };
 
 // ---------------------------------------------------------------------------
@@ -73,6 +87,7 @@ export function TableBody<Row>({
   sortDirection,
   onSortChange,
   onRowSelect,
+  bulk,
 }: TableBodyProps<Row>): React.ReactElement {
   const L = useLabels();
   const touchTarget = useTouchTarget();
@@ -91,6 +106,15 @@ export function TableBody<Row>({
     <Table>
       <TableHeader>
         <TableRow>
+          {bulk && (
+            <TableHead className="w-10">
+              <Checkbox
+                checked={bulk.allSelected ? true : bulk.someSelected ? "indeterminate" : false}
+                onCheckedChange={bulk.onToggleAll}
+                aria-label={bulk.selectAllLabel}
+              />
+            </TableHead>
+          )}
           {columns.map((col) => {
             const canSort = col.sortable === true && onSortChange !== undefined;
             return (
@@ -145,12 +169,22 @@ export function TableBody<Row>({
         {rows.map((row) => {
           const rowId = getRowId(row);
           const isSelected = selectedRowId === rowId;
+          const isTicked = bulk?.selected.has(rowId) ?? false;
           return (
             <TableRow
               key={rowId}
-              data-state={isSelected ? "selected" : undefined}
+              data-state={isSelected || isTicked ? "selected" : undefined}
               aria-selected={onRowSelect ? isSelected : undefined}
             >
+              {bulk && (
+                <TableCell className="w-10">
+                  <Checkbox
+                    checked={isTicked}
+                    onCheckedChange={() => bulk.onToggleRow(rowId)}
+                    aria-label={bulk.rowLabel(row)}
+                  />
+                </TableCell>
+              )}
               {columns.map((col) => {
                 const activate =
                   col.isIdentifier === true && onRowSelect !== undefined

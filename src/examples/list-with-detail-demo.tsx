@@ -420,6 +420,63 @@ function OverflowActionsPanel() {
   );
 }
 
+
+// Bulk selection + detail stepping + summary band on one 25-row page: two rows
+// start ticked so the bulk band (in place of the toolbar) shows; a search that
+// hides a ticked row prunes it; ˄/˅ in the detail step in the sorted order;
+// the total stays pinned while the rows scroll.
+type Episode = { id: string; title: string; cost: number };
+const EPISODES: Episode[] = Array.from({ length: 25 }, (_, i) => ({
+  id: `ep-${i + 1}`,
+  title: `Episode ${i + 1} · ${GUESTS[i % GUESTS.length]}`,
+  cost: 400 + ((i * 739) % 2600),
+}));
+const EPISODE_COST_COLUMNS: ListColumn<Episode>[] = [
+  { key: "title", header: "Episode", cell: (e) => e.title, isIdentifier: true, sortable: true },
+  { key: "cost", header: "Cost", cell: (e) => formatFigure(e.cost, "currency", { locale: "en" }), align: "right", sortable: true },
+];
+
+function BulkSteppingPanel() {
+  const [query, setQuery] = useState("");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [ticked, setTicked] = useState<string[]>(["ep-3", "ep-7"]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const rows = EPISODES.filter((e) => e.title.toLowerCase().includes(query.toLowerCase())).sort(
+    (a, b) => (sortDirection === "asc" ? a.cost - b.cost : b.cost - a.cost),
+  );
+  const selected = rows.find((e) => e.id === selectedId) ?? null;
+  const total = rows.reduce((sum, e) => sum + e.cost, 0);
+  return (
+    <ListWithDetailShell<Episode>
+      title="Production budget"
+      columns={EPISODE_COST_COLUMNS}
+      toolbar={<ListWithDetailToolbar searchValue={query} onSearchChange={setQuery} />}
+      count={`${rows.length} episodes`}
+      rows={rows}
+      getRowId={(e) => e.id}
+      sortBy="cost"
+      sortDirection={sortDirection}
+      onSortChange={(_, dir) => setSortDirection(dir)}
+      bulkSelectable
+      selectedIds={ticked}
+      onBulkSelectChange={setTicked}
+      bulkActions={<Button variant="outline">Mark reviewed</Button>}
+      summary={
+        <div className="flex items-baseline justify-between gap-4 text-sm">
+          <span className="text-muted-foreground">Total cost</span>
+          <span className="font-medium tabular-nums">{formatFigure(total, "currency", { locale: "en" })}</span>
+        </div>
+      }
+      onRowSelect={(e) => setSelectedId(e.id)}
+      selectedRowId={selectedId}
+      onDetailClose={() => setSelectedId(null)}
+      detailStepping
+      detailTitle={selected?.title}
+      detail={selected ? <div className="p-5 text-[15px]">Cost {formatFigure(selected.cost, "currency", { locale: "en" })}</div> : undefined}
+    />
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Demo page
 // ---------------------------------------------------------------------------
@@ -676,6 +733,15 @@ export function ListWithDetailDemo() {
               Typed detail actions — 1 primary + 2 secondary inline, the rest and the destructive in ⋯
             </h3>
             <OverflowActionsPanel />
+          </section>
+
+          {/* Bulk selection, detail stepping, pinned summary band. */}
+          <section className="space-y-2">
+            <h3 className="text-xs font-medium text-muted-foreground">
+              Bulk selection, detail stepping, summary band — the bulk band replaces the toolbar
+              while rows are ticked; ˄/˅ follow the sort; the total stays pinned
+            </h3>
+            <BulkSteppingPanel />
           </section>
 
           {/* The mobile filter sheet, localized: below `md` (view the gallery

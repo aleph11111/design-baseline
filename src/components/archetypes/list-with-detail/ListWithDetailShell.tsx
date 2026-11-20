@@ -1,10 +1,14 @@
 "use client";
 import * as React from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "../../ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../../ui/sheet";
 import { DETAIL_OVERLAY_CLASS } from "../shared/detailOverlay";
 import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
 import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
+import { BandChrome, ToolbarBand } from "../../layout/ToolbarBand";
+import { useLabels } from "../../../lib/labels";
 import { isHeaderActions, renderHeaderActions, splitHeaderActions, type HeaderActions } from "../../layout/HeaderActions";
 import {
   ListWithDetailEmptyState,
@@ -15,7 +19,13 @@ import { TableBody } from "./presentations/TableBody";
 import { CardGridBody } from "./presentations/CardGridBody";
 import { ActionRowBody } from "./presentations/ActionRowBody";
 import { isDevBuild } from "../../../lib/env";
-import { resolveListState, type RowAction, type TableColumn } from "../shared";
+import {
+  computeBulkSelection,
+  resolveBulkActions,
+  resolveListState,
+  type RowAction,
+  type TableColumn,
+} from "../shared";
 
 // The per-row overflow menu and its action shape are owned by the shared
 // primitive (../shared/RowActionsMenu) so list-with-detail and settings-table
@@ -82,6 +92,8 @@ function warnIfDetailOverflows(body: HTMLElement, detailTitle: React.ReactNode):
   );
   return true;
 }
+
+const EMPTY_IDS: string[] = [];
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -167,6 +179,39 @@ export type ListWithDetailBodyProps<Row> = {
    * chrome is fixed here; the slot varies content only.
    */
   footer?: React.ReactNode;
+  /**
+   * A band pinned above the list body (hairline bottom rule) — e.g. the sum
+   * over the listed rows. It sticks below the app header while the rows
+   * scroll the page. A composition slot: the chrome is fixed here, the slot
+   * varies content only. Absent = no band.
+   */
+  summary?: React.ReactNode;
+  /**
+   * Bulk selection — `presentation="table"` only. A leading checkbox column;
+   * while at least one shown row is ticked, a bulk band ("{n} selected", the
+   * bulk actions, and a clear button) replaces the page's toolbar band. Only
+   * shown rows are ever acted on: ids of rows a filter hides are pruned from
+   * the selection through `onBulkSelectChange` (not while loading or erroring).
+   */
+  bulkSelectable?: boolean;
+  /** Ticked row ids. Consumer-owned. */
+  selectedIds?: string[];
+  /** Called when the ticked set changes. Consumer updates `selectedIds`. */
+  onBulkSelectChange?: (selectedIds: string[]) => void;
+  /** Write actions on the ticked rows, rendered in the bulk band. */
+  bulkActions?: React.ReactNode;
+  /**
+   * Convenience bulk action: a "Delete {n} selected" button in the bulk band,
+   * called with the ticked shown rows; the selection clears afterwards.
+   */
+  onBulkDelete?: (rows: Row[]) => void;
+  /**
+   * Previous / next buttons in the detail overlay's header bar. They step
+   * through `rows` in the order given — the displayed (sorted, filtered)
+   * order — by calling `onRowSelect`, and are disabled at the first / last
+   * row. The header bar renders even without a `detailTitle`.
+   */
+  detailStepping?: boolean;
 };
 
 /**
@@ -215,6 +260,14 @@ export function ListWithDetailShell<Row>({
   // Full-bleed archetype (ADR-0007 §1) — only as the page's own surface; the
   // hook yields nothing inside another surface.
   const fullBleed = useFullBleedClass();
+  // While shown rows are ticked, the body's bulk band replaces the frame's
+  // toolbar band (same derivation the body uses).
+  const bulkBand =
+    isBulkTable(body) &&
+    computeBulkSelection(body.rows, body.getRowId, body.selectedIds ?? [], true).hasBulkSelection;
+  const band = bulkBand
+    ? {}
+    : { toolbar, count, viewSwitch, filterCount, filterSummary, onResetFilters, filterLabels, viewOptions, viewOptionsLabel };
   return (
     <PageFrame
       title={title}
@@ -224,15 +277,7 @@ export function ListWithDetailShell<Row>({
       backHref={backHref}
       backLabel={backLabel}
       renderBackLink={renderBackLink}
-      toolbar={toolbar}
-      count={count}
-      viewSwitch={viewSwitch}
-      filterCount={filterCount}
-      filterSummary={filterSummary}
-      onResetFilters={onResetFilters}
-      filterLabels={filterLabels}
-      viewOptions={viewOptions}
-      viewOptionsLabel={viewOptionsLabel}
+      {...band}
       className={fullBleed}
     >
       <ListWithDetailBody<Row> {...body} />
@@ -241,6 +286,11 @@ export function ListWithDetailShell<Row>({
 }
 
 ListWithDetailShell.displayName = "ListWithDetailShell";
+
+/** Bulk selection applies to the table presentation only. */
+function isBulkTable<Row>(p: Pick<ListWithDetailBodyProps<Row>, "bulkSelectable" | "presentation">): boolean {
+  return p.bulkSelectable === true && (p.presentation ?? "table") === "table";
+}
 
 /**
  * The list body without a page frame: the rows in their presentation, the
@@ -272,8 +322,16 @@ export function ListWithDetailBody<Row>(
     onSortChange,
     presentation = "table",
     footer,
+    summary,
+    bulkSelectable,
+    selectedIds = EMPTY_IDS,
+    onBulkSelectChange,
+    bulkActions,
+    onBulkDelete,
+    detailStepping,
   }: ListWithDetailBodyProps<Row>,
 ) {
+  const L = useLabels();
   const [sheetOpen, setSheetOpen] = React.useState(Boolean(selectedRowId));
   // Sync sheet visibility with selectedRowId: a selection set from outside (a
   // deep link, a restored URL) opens the sheet; clearing it (e.g. after a
@@ -324,6 +382,90 @@ export function ListWithDetailBody<Row>(
     [onRowSelect],
   );
 
+  // Bulk selection: only shown rows count (visible-only derivation shared with
+  // settings-table). Ids a filter hid are pruned from the consumer's state, so
+  // its own bulk handlers never see them — skipped while loading/erroring, where
+  // `rows` is not the shown set.
+  const hasBulk = isBulkTable({ bulkSelectable, presentation });
+  const selection = computeBulkSelection(rows, getRowId, selectedIds, hasBulk);
+  const pruneTo =
+    hasBulk && !isLoading && error == null && selection.visibleSelected.length !== selectedIds.length
+      ? selection.visibleSelected
+      : null;
+  React.useEffect(() => {
+    if (pruneTo) onBulkSelectChange?.(pruneTo);
+  }, [pruneTo, onBulkSelectChange]);
+
+  const identifierCol = columns.find((c) => c.isIdentifier);
+  const bulk = hasBulk
+    ? {
+        selected: selection.selectedSet,
+        allSelected: selection.allSelected,
+        someSelected: selection.someSelected,
+        onToggleAll: () => onBulkSelectChange?.(selection.allSelected ? [] : selection.allIds),
+        onToggleRow: (rowId: string) =>
+          onBulkSelectChange?.(
+            selection.selectedSet.has(rowId)
+              ? selection.visibleSelected.filter((id) => id !== rowId)
+              : [...selection.visibleSelected, rowId],
+          ),
+        selectAllLabel: labels?.selectAll ?? L.selectAll,
+        rowLabel: (row: Row) => {
+          if (labels?.selectRow !== undefined) return labels.selectRow;
+          const name = identifierCol?.cell(row);
+          return typeof name === "string" || typeof name === "number" ? L.selectRowNamed(name) : L.selectRow;
+        },
+      }
+    : undefined;
+
+  const bulkBand = selection.hasBulkSelection ? (
+    <BandChrome slot="list-bulk-band">
+      <ToolbarBand
+        count={(labels?.selectedCount ?? L.selectedCount)(selection.visibleSelected.length)}
+        trailing={
+          <>
+            {
+              resolveBulkActions({
+                L,
+                selection,
+                rows,
+                getRowId,
+                labels,
+                bulkActions,
+                onBulkDelete,
+                onBulkSelectChange,
+              }).node
+            }
+            <Button variant="ghost" onClick={() => onBulkSelectChange?.([])}>
+              {labels?.clearSelection ?? L.clearSelection}
+            </Button>
+          </>
+        }
+      />
+    </BandChrome>
+  ) : null;
+
+  // Detail stepping walks `rows` as given — the shell never re-sorts, so this
+  // is the displayed order. Disabled at either end, or when the selected row
+  // is not shown.
+  const selectedIndex = detailStepping ? rows.findIndex((r) => getRowId(r) === selectedRowId) : -1;
+  const stepTo = (delta: number) => {
+    const target = selectedIndex < 0 ? undefined : rows[selectedIndex + delta];
+    return target !== undefined && onRowSelect ? () => handleRowSelect(target) : undefined;
+  };
+  const prev = stepTo(-1);
+  const next = stepTo(1);
+  const stepper = detailStepping ? (
+    <div data-slot="detail-stepper" className="flex shrink-0 items-center gap-1">
+      <Button variant="outline" size="icon" aria-label={labels?.previous ?? L.previous} disabled={!prev} onClick={prev}>
+        <ChevronUp className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="icon" aria-label={labels?.next ?? L.next} disabled={!next} onClick={next}>
+        <ChevronDown className="h-4 w-4" />
+      </Button>
+    </div>
+  ) : null;
+
   // Determine body content
   const listState = resolveListState({ isLoading, error, isEmpty: rows.length === 0 });
   const showTable = listState === "content";
@@ -369,6 +511,7 @@ export function ListWithDetailBody<Row>(
       sortBy={sortBy}
       sortDirection={sortDirection}
       onSortChange={onSortChange}
+      bulk={bulk}
     />
   );
 
@@ -384,6 +527,11 @@ export function ListWithDetailBody<Row>(
   // cells are held on one line here (from `sm` up only) so their data sets the
   // width instead of scrolling sideways. Below `sm` the sheet is full-screen and
   // cells wrap as before.
+  const headerActions = isHeaderActions(detailActions) ? (
+    <DetailHeaderActions value={detailActions} />
+  ) : (
+    detailActions
+  );
   const detailPanel =
     detail !== undefined ? (
       <Sheet
@@ -398,7 +546,7 @@ export function ListWithDetailBody<Row>(
           closeLabel={labels?.close}
           className={DETAIL_OVERLAY_CLASS}
         >
-          {detailTitle !== undefined ? (
+          {detailTitle !== undefined || stepper ? (
             // The shared bar chrome (padding + neutral fill) with the Radix
             // SheetTitle as its title element. The built-in Sheet close button
             // (absolute, top-4 right-4; touch: right-1, 44px) floats over the
@@ -407,13 +555,7 @@ export function ListWithDetailBody<Row>(
             <SurfaceHeaderBar
               className="pr-13"
               actionsClassName={isHeaderActions(detailActions) ? "sm:flex-nowrap" : undefined}
-              actions={
-                isHeaderActions(detailActions) ? (
-                  <DetailHeaderActions value={detailActions} />
-                ) : (
-                  detailActions
-                )
-              }
+              actions={stepper ? <>{headerActions}{stepper}</> : headerActions}
             >
               {/* SheetTitle so Radix Dialog gets an accessible name (aria-labelledby).
                   SheetDescription is screen-reader-only fallback so Content never
@@ -444,6 +586,17 @@ export function ListWithDetailBody<Row>(
 
   return (
     <>
+      {bulkBand}
+      {summary != null && summary !== false && (
+        // Sticky below the app header (`--db-sticky-top`); a sibling of the
+        // scrollers, which would otherwise capture the stickiness.
+        <div
+          data-slot="list-summary"
+          className="sticky top-[var(--db-sticky-top,0px)] z-10 border-b bg-surface-raised px-4 py-3"
+        >
+          {summary}
+        </div>
+      )}
       <div className="relative overflow-x-auto">{bodyContent}</div>
       {footer !== undefined && <div className="border-t px-4 py-3">{footer}</div>}
       {detailPanel}
