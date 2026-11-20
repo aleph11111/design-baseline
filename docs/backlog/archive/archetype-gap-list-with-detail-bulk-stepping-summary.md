@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-19
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "archetype shape is the deliverable: bulk-bar, sort-order stepping and pinned summary band must compose into one role-only contract without forking settings-table or matrix-grid"
