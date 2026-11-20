@@ -2,13 +2,11 @@
 import * as React from "react";
 import { PageFrame, type PageFrameProps, type PageShellFrameProps } from "../../layout/PageFrame";
 import { useFullBleedClass } from "../../layout/surface";
-import { useIsMobile } from "../../../hooks/use-mobile";
 import { cn } from "../../../lib/utils";
 import { FIRST_COLUMN_CLASS, ScrollCue } from "../shared/ScrollCue";
 import { MatrixCell } from "./MatrixCell";
 import { MatrixGridHead } from "./MatrixGridHead";
 import {
-  MatrixInspectorDock,
   MatrixInspectorSheet,
   type MatrixInspectorProps,
   type MatrixSelection,
@@ -75,18 +73,18 @@ export type MatrixGridShellProps<Cell> = {
   /** Click handler. When present, cells receive `cursor-pointer select-none touch-manipulation`. */
   onCellClick?: (ctx: MatrixCellContext<Cell>) => void;
   /**
-   * Selection-driven, non-modal inspector (contract Layer 6). When set, a cell
-   * click asks `onBeforeSelect` and selects that cell's row/column instead of
-   * calling `onCellClick`. Docked beside the narrowed, still-live grid from
-   * `md`; the full-screen overlay on phone. Layout and navigation only — the
-   * body owns its save model.
+   * Selection-driven inspector (contract Layer 6). When set, a cell click asks
+   * `onBeforeSelect` and selects that cell's row/column instead of calling
+   * `onCellClick`. Rendered as the edge overlay over a dimmed backdrop on every
+   * viewport (list-with-detail's geometry, ADR-0018); the grid keeps its width.
+   * Layout and navigation only — the body owns its save model.
    */
   inspector?: MatrixInspectorProps;
   /**
    * Workbench satellites (contract Layer 5): content rendered below the grid,
    * e.g. a config panel or read-only preview matrices (nested
    * `MatrixGridShell`s without `onCellClick` / `inspector`). Never a second
-   * editable matrix. Stays beside an open docked inspector.
+   * editable matrix.
    */
   body?: React.ReactNode;
   /** Summary region rendered last, after `body` (e.g. the plan result). */
@@ -128,7 +126,6 @@ export function MatrixGridShell<Cell>({
   ...header
 }: MatrixGridShellProps<Cell>) {
   const fullBleed = useFullBleedClass();
-  const isMobile = useIsMobile();
   const isFilledFn = isFilled ?? defaultIsFilled;
   const rowIdOf = getRowId ?? ((r: MatrixRow<Cell>) => r.id);
   const clickable = onCellClick !== undefined || inspector !== undefined;
@@ -136,13 +133,11 @@ export function MatrixGridShell<Cell>({
   // Only the latest request may apply: an earlier, slower guard answer is dropped.
   const requestSeq = React.useRef(0);
 
-  // Every switch (grid click, prev / next, close, Escape) goes through the
+  // Every switch (grid click, prev / next, close, Escape, backdrop) goes through the
   // body's guard; a blocked switch leaves selection and inspector unchanged.
   async function requestSelect(next: MatrixSelection | null) {
     if (!inspector) return;
-    // bumped first: a click on the open cell ("stay") cancels a pending switch
     const seq = ++requestSeq.current;
-    if (next && selection && next.rowId === selection.rowId && next.columnKey === selection.columnKey) return;
     if (inspector.onBeforeSelect && !(await inspector.onBeforeSelect(next, selection))) return;
     if (seq !== requestSeq.current) return;
     inspector.onSelectionChange(next);
@@ -257,18 +252,14 @@ export function MatrixGridShell<Cell>({
   // The empty state replaces the grid only: body and dock stay (ADR-0013); no inspector without a grid.
   if (!inspector || empty) return <PageFrame {...frameProps}>{column}</PageFrame>;
 
-  // One stable wrapper whether the inspector is open or closed: swapping the
-  // grid's parent would remount the table (scroll position and focus lost).
+  // The overlay portals out, so the grid's parent and width never change when
+  // it opens (no remount: scroll position and focus survive).
   const { selection: _s, onSelectionChange: _c, onBeforeSelect: _g, ...panel } = inspector;
   const nav = { onClose: () => void requestSelect(null), onPrev: step(-1), onNext: step(1) };
-  const docked = selection !== null && !isMobile;
   return (
     <PageFrame {...frameProps}>
-      <div className={cn(docked && "flex items-start gap-4")}>
-        {column}
-        {selection !== null &&
-          (isMobile ? <MatrixInspectorSheet {...panel} {...nav} /> : <MatrixInspectorDock {...panel} {...nav} />)}
-      </div>
+      {column}
+      {selection !== null && <MatrixInspectorSheet {...panel} {...nav} />}
     </PageFrame>
   );
 }

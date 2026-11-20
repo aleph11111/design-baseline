@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-19
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "amends a shipped contract layer and an ADR-backed rejection; overlay geometry reuse, selection/stepping semantics and gallery/check changes need design judgment"

@@ -17,8 +17,9 @@ Architecture Decision Records for design-baseline. One file per decision:
 | [0010](0010-detail-overlay-sizes-to-content.md) | The list-with-detail overlay sizes to its content; a detail that cannot fit gets its own route | Accepted |
 | [0011](0011-analytics-dashboard-edit-mode.md) | An editable dashboard tile layout is an edit mode of analytics-dashboard, not a new archetype | Accepted |
 | [0012](0012-structure-builder-page-archetype.md) | The report-structure builder is its own `kind: page` archetype (structure-builder, Sb) | Accepted |
-| [0013](0013-matrix-grid-workbench-body-dock.md) | A planning workbench is matrix-grid with `body` and `dock` slots, not a new archetype | Accepted |
+| [0013](0013-matrix-grid-workbench-body-dock.md) | A planning workbench is matrix-grid with `body` and `dock` slots, not a new archetype | Accepted (§2 inspector placement amended by 0018) |
 | [0014](0014-transaction-document-page-archetype.md) | Transaction documents are their own `kind: page` archetype (transaction-document, Td) | Accepted |
 | [0015](0015-page-body-section-card-stack.md) | The page body is one frame or a stack of raised section cards; one bordered chrome on every raised surface | Accepted |
 | [0016](0016-quiet-sentence-case-type-hierarchy.md) | Retire the uppercase overline for a quiet sentence-case hierarchy (amends ADR 0007 §2) | Accepted |
 | [0017](0017-compact-density-step.md) | A compact density step for desktop surfaces (tables, stat tiles, key-value rows, header, sidebar); touch keeps 44pt | Accepted |
+| [0018](0018-matrix-grid-inspector-edge-overlay.md) | The matrix-grid inspector is the standard edge overlay over a backdrop, not a docked panel (amends ADR 0013 §2) | Accepted |

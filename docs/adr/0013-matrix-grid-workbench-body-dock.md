@@ -1,6 +1,6 @@
 # 0013 — A planning workbench is matrix-grid with `body` and `dock` slots, not a new archetype
 
-- **Status:** Accepted
+- **Status:** Accepted (§2 inspector placement amended by [ADR 0018](0018-matrix-grid-inspector-edge-overlay.md): the inspector is an edge overlay, the column never narrows)
 - **Date:** 2026-11-08
 - **Closes:** backlog `archetype-gap-planning-workbench`
 - **Amends:** matrix-grid (M) Layers 1 and 5, forbidden pattern #3 — contract v3.8 / MANIFEST 3.8.
