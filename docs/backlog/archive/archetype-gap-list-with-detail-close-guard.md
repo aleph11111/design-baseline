@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-22
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "adds a veto seam to a shared shell's close path (Escape, backdrop, X, stepping) — a contract/API decision other consumers rely on"
