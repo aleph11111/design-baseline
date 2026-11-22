@@ -17,7 +17,7 @@
  * sub-modes), which is data — not a per-page appearance choice.
  */
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   FreeTextCell,
   ListWithDetailShell,
@@ -28,6 +28,8 @@ import {
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
   TableBody,
@@ -477,6 +479,86 @@ function BulkSteppingPanel() {
   );
 }
 
+// Close guard: the detail holds an editable draft. Closing (Esc, backdrop, X)
+// or stepping while it is dirty asks first; a clean close passes straight
+// through. The guard returns a promise the confirm dialog settles.
+function CloseGuardPanel() {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [draft, setDraft] = useState<string | null>(null);
+  const [asking, setAsking] = useState(false);
+  const answer = useRef<(discard: boolean) => void>(() => {});
+  const selected = PODCASTS.find((p) => p.id === selectedId) ?? null;
+  const saved = selected ? (notes[selected.id] ?? "") : "";
+  const dirty = draft !== null && draft !== saved;
+  const settle = (discard: boolean) => {
+    setAsking(false);
+    if (discard) setDraft(null);
+    answer.current(discard);
+    answer.current = () => {};
+  };
+  return (
+    <>
+      <ListWithDetailShell<Podcast>
+        title="Show notes"
+        columns={ACTION_ROW_COLUMNS}
+        presentation={PRESENTATION_ACTION_ROW}
+        rows={PODCASTS}
+        getRowId={(p) => p.id}
+        onRowSelect={(p) => {
+          setSelectedId(p.id);
+          setDraft(null);
+        }}
+        selectedRowId={selectedId}
+        onDetailClose={() => setSelectedId(null)}
+        detailStepping
+        onBeforeDetailClose={() => {
+          if (!dirty) return true;
+          setAsking(true);
+          return new Promise<boolean>((resolve) => (answer.current = resolve));
+        }}
+        detailTitle={selected?.title}
+        detailActions={{
+          primary: {
+            label: "Save",
+            disabled: !dirty,
+            onSelect: () => {
+              if (!selected || draft === null) return;
+              setNotes((n) => ({ ...n, [selected.id]: draft }));
+              setDraft(null);
+            },
+          },
+        }}
+        detail={
+          selected ? (
+            <div className="space-y-2 p-5">
+              <label htmlFor="show-notes" className="text-muted-foreground text-[13px]">
+                Notes {dirty && "· unsaved"}
+              </label>
+              <Textarea
+                id="show-notes"
+                value={draft ?? saved}
+                onChange={(e) => setDraft(e.target.value)}
+                placeholder="Type, then close or step — you are asked before the draft is lost."
+              />
+            </div>
+          ) : undefined
+        }
+      />
+      <ConfirmationDialog
+        isOpen={asking}
+        onClose={() => settle(false)}
+        onConfirm={() => settle(true)}
+        title="Discard unsaved notes?"
+        description="Your changes to this show's notes have not been saved."
+        confirmText="Discard"
+        cancelText="Keep editing"
+        variant="destructive"
+      />
+    </>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Demo page
 // ---------------------------------------------------------------------------
@@ -742,6 +824,15 @@ export function ListWithDetailDemo() {
               while rows are ticked; ˄/˅ follow the sort; the total stays pinned
             </h3>
             <BulkSteppingPanel />
+          </section>
+
+          {/* Close guard: a dirty draft asks before the overlay closes or steps. */}
+          <section className="space-y-2">
+            <h3 className="text-xs font-medium text-muted-foreground">
+              Close guard — edit the notes, then close or step: a dirty draft asks to discard or keep
+              editing; a clean close passes straight through
+            </h3>
+            <CloseGuardPanel />
           </section>
 
           {/* The mobile filter sheet, localized: below `md` (view the gallery

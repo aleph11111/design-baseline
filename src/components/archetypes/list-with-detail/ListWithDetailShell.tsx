@@ -147,6 +147,15 @@ export type ListWithDetailBodyProps<Row> = {
    * Sheet is gone.
    */
   onDetailClose?: () => void;
+  /**
+   * Close guard: consulted before the detail overlay leaves its current row —
+   * Esc, backdrop click, the close button, and a previous / next step.
+   * Return (or resolve) `true` to proceed, `false` to keep the overlay on the
+   * current row (e.g. after a "discard unsaved changes?" prompt). A rejected
+   * promise counts as `false`. While an async guard is pending, further close
+   * or step attempts are ignored. Absent = every close proceeds.
+   */
+  onBeforeDetailClose?: () => boolean | Promise<boolean>;
 
   emptyStateMessage?: string;
   /** Overrides for the shell's built-in copy (see `ListWithDetailLabels`). */
@@ -313,6 +322,7 @@ export function ListWithDetailBody<Row>(
     detailTitle,
     detailActions,
     onDetailClose,
+    onBeforeDetailClose,
     emptyStateMessage,
     labels,
     emptyStateAction,
@@ -381,6 +391,25 @@ export function ListWithDetailBody<Row>(
     },
     [onRowSelect],
   );
+
+  // Close guard: every way of leaving the current row (close or step) runs
+  // through here. A pending async guard swallows further attempts.
+  const guardPending = React.useRef(false);
+  const leaveDetail = (proceed: () => void) => {
+    if (!onBeforeDetailClose) return proceed();
+    if (guardPending.current) return;
+    const verdict = onBeforeDetailClose();
+    if (typeof verdict === "boolean") {
+      if (verdict) proceed();
+      return;
+    }
+    guardPending.current = true;
+    verdict
+      .then((ok) => ok && proceed(), () => {})
+      .finally(() => {
+        guardPending.current = false;
+      });
+  };
 
   // Bulk selection: only shown rows count (visible-only derivation shared with
   // settings-table). Ids a filter hid are pruned from the consumer's state, so
@@ -451,7 +480,7 @@ export function ListWithDetailBody<Row>(
   const selectedIndex = detailStepping ? rows.findIndex((r) => getRowId(r) === selectedRowId) : -1;
   const stepTo = (delta: number) => {
     const target = selectedIndex < 0 ? undefined : rows[selectedIndex + delta];
-    return target !== undefined && onRowSelect ? () => handleRowSelect(target) : undefined;
+    return target !== undefined && onRowSelect ? () => leaveDetail(() => handleRowSelect(target)) : undefined;
   };
   const prev = stepTo(-1);
   const next = stepTo(1);
@@ -537,8 +566,11 @@ export function ListWithDetailBody<Row>(
       <Sheet
         open={sheetOpen}
         onOpenChange={(open) => {
-          setSheetOpen(open);
-          if (!open) onDetailClose?.();
+          if (open) return setSheetOpen(true);
+          leaveDetail(() => {
+            setSheetOpen(false);
+            onDetailClose?.();
+          });
         }}
       >
         <SheetContent
