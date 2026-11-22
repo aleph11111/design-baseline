@@ -1,3 +1,4 @@
+import * as React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import {
@@ -675,5 +676,106 @@ describe("ListWithDetailShell — back link", () => {
       />,
     );
     expect(screen.getByText("Back").hasAttribute("data-router")).toBe(true);
+  });
+});
+
+describe("ListWithDetailShell — onBeforeDetailClose guard", () => {
+  const three: Row[] = [
+    { id: "a", name: "Alpha" },
+    { id: "b", name: "Bravo" },
+    { id: "c", name: "Charlie" },
+  ];
+
+  function GuardedPage({
+    guard,
+    onDetailClose,
+  }: {
+    guard?: () => boolean | Promise<boolean>;
+    onDetailClose?: () => void;
+  }) {
+    const [sel, setSel] = React.useState<string | null>("b");
+    const row = three.find((r) => r.id === sel);
+    return (
+      <ListWithDetailShell
+        title="T"
+        rows={three}
+        columns={columns}
+        getRowId={(r) => r.id}
+        onRowSelect={(r) => setSel(r.id)}
+        selectedRowId={sel}
+        detailTitle={row?.name}
+        detail={<input aria-label="draft" defaultValue={`draft ${row?.name}`} />}
+        detailStepping
+        onBeforeDetailClose={guard}
+        onDetailClose={() => {
+          onDetailClose?.();
+          setSel(null);
+        }}
+      />
+    );
+  }
+
+  type Trigger = "escape" | "backdrop" | "close button" | "step";
+  const fire = async (trigger: Trigger) => {
+    if (trigger === "escape") fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+    else if (trigger === "close button") fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    else if (trigger === "step") fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    else {
+      // Radix registers its outside-pointer listener a tick after mount.
+      await new Promise((r) => setTimeout(r, 0));
+      const overlay = document.querySelector('[data-state="open"][class*="bg-black"]') as HTMLElement;
+      fireEvent.pointerDown(overlay);
+    }
+  };
+  // Did the shell leave Bravo? A step lands on Charlie; a close unmounts the sheet.
+  const left = (trigger: Trigger) =>
+    trigger === "step"
+      ? screen.queryByRole("heading", { name: "Charlie" }) !== null
+      : screen.queryByRole("dialog") === null;
+
+  const triggers: Trigger[] = ["escape", "backdrop", "close button", "step"];
+  const verdicts = [
+    ["true", () => true, true],
+    ["false", () => false, false],
+    ["resolved true", () => Promise.resolve(true), true],
+    ["resolved false", () => Promise.resolve(false), false],
+  ] as const;
+
+  for (const trigger of triggers) {
+    for (const [name, guard, proceeds] of verdicts) {
+      it(`${trigger}: guard ${name} ${proceeds ? "proceeds" : "keeps the current row"}`, async () => {
+        const onDetailClose = vi.fn();
+        const spy = vi.fn(guard);
+        render(<GuardedPage guard={spy} onDetailClose={onDetailClose} />);
+        fireEvent.change(screen.getByLabelText("draft"), { target: { value: "edited" } });
+        await fire(trigger);
+        expect(spy).toHaveBeenCalledTimes(1);
+        if (proceeds) {
+          await vi.waitFor(() => expect(left(trigger)).toBe(true));
+          expect(onDetailClose).toHaveBeenCalledTimes(trigger === "step" ? 0 : 1);
+        } else {
+          await Promise.resolve();
+          await Promise.resolve();
+          expect((screen.getByLabelText("draft") as HTMLInputElement).value).toBe("edited");
+          expect(screen.getByRole("heading", { name: "Bravo" })).toBeTruthy();
+          expect(onDetailClose).not.toHaveBeenCalled();
+        }
+      });
+    }
+  }
+
+  it("ignores a second close attempt while an async guard is pending", async () => {
+    let resolve!: (ok: boolean) => void;
+    const guard = vi.fn(() => new Promise<boolean>((r) => (resolve = r)));
+    const onDetailClose = vi.fn();
+    render(<GuardedPage guard={guard} onDetailClose={onDetailClose} />);
+    await fire("escape");
+    await fire("close button");
+    await fire("step");
+    await fire("backdrop");
+    expect(guard).toHaveBeenCalledTimes(1);
+    resolve(true);
+    await vi.waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(onDetailClose).toHaveBeenCalledTimes(1);
   });
 });

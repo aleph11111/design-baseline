@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.64.0
+
+- **Added (`list-with-detail`, contract v4.8, MANIFEST 4.12):** optional `onBeforeDetailClose?: () => boolean | Promise<boolean>`. The shell consults it before the detail overlay leaves its row — Esc, backdrop click, the close button, and a `detailStepping` previous/next step. `false` (or a rejected / `false`-resolving promise) keeps the overlay open on the same row with its draft intact and skips `onDetailClose`; `true` proceeds and `onDetailClose` fires once after the close. Further close/step attempts while an async guard is pending are ignored. The demo gains a "Close guard" panel (dirty notes draft, discard / keep-editing confirm).
+- **Consumer:** none required; without the prop every close proceeds as before. A detail holding unsaved input (e.g. controlling-app Planung account sheet) bumps `design-baseline` and passes the guard.
+- **Breaking:** none.
+
 ## v0.63.0
 
 - **Added (`crud-dialog`, contract v3.11, MANIFEST 3.12):** `CrudDialogSheet` width step `"xl"` (54rem, ~860px) for a two-pane body: inputs beside a live result pane, stacked on mobile. Layer 2 keys a body with a live result pane to `"xl"` first, then tab count, then field count, so every body still resolves to exactly one step. The demo gains a "Two-pane" layout (inputs left, computed preview right, container query). Mobile stays full-viewport; `sm` / `md` / `lg` unchanged.
