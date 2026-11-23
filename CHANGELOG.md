@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.64.1
+
+- **Added (`transaction-document` demo, no shipped-code change):** a realistic 2-line **warning-state** order case ("Shipped, no carrier scan") to the living demo — the consumer's `/orders/:id` shipped/no-scan shape: two ledger lines, `compactRowLocks` on with a locked column riding the ledger's header line (not a note row), and a warning next step whose single failed side effect renders inline with the shipment line. This is the shape the ledger **Total row fold is measured**: at the 1133×739 laptop window (`check:viewports`) the Total row ends at **719px**, at most 739px. `check:viewports` now reports that fold for this case and fails if it drops below the fold.
+- **Why no shipped-code change (the ticket's two "costs" were already resolved):** the ticket opened on v0.54.0 flagging (1) a ~65px `LedgerTable` header row and (2) a padded `SideEffects` line. Both are already compact on `main`: the header row is `h-9`/`sm:h-6` (v0.54.0) and tightened to ~24px by the ADR-0017 compact density step (v0.59.0), and the `failedOnly` branch (v0.55.0) already renders the failed side effect inline with the shipment line. Measured at `main`, the only remaining cost was the demo's old title (a long marketing line, not the order number a consumer renders), which pushed the Total below the fold; the demo now titles the page with the order number like the consumer does.
+- **Consumer:** none required; shipped `LedgerTable` / `nextStep` rendering is byte-identical to v0.64.0. A consumer chasing the laptop fold (brickshop-manager `/orders/:id`, shipped, no carrier scan) bumps `design-baseline` to `0.64.1` as the anchor and re-baselines its `laptop14Window` screenshot with `known-failing` cleared.
+- **Breaking:** no.
+
 ## v0.64.0
 
 - **Added (`list-with-detail`, contract v4.8, MANIFEST 4.12):** optional `onBeforeDetailClose?: () => boolean | Promise<boolean>`. The shell consults it before the detail overlay leaves its row — Esc, backdrop click, the close button, and a `detailStepping` previous/next step. `false` (or a rejected / `false`-resolving promise) keeps the overlay open on the same row with its draft intact and skips `onDetailClose`; `true` proceeds and `onDetailClose` fires once after the close. Further close/step attempts while an async guard is pending are ignored. The demo gains a "Close guard" panel (dirty notes draft, discard / keep-editing confirm).

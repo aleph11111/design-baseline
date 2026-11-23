@@ -12,6 +12,7 @@
 import * as React from "react";
 import { Copy, FileDown, Mail, Printer, RotateCcw, Tag, Truck, Undo2, XCircle, Gift, Send, PackageCheck } from "lucide-react";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { ScrollCue } from "@/components/archetypes/shared/ScrollCue";
 import { Switch } from "@/components/ui/switch";
 import { formatFigure } from "@/lib/format";
 import {
@@ -22,7 +23,7 @@ import {
   type WorkflowStep,
 } from "@/components/archetypes/transaction-document";
 
-type Variant = "order" | "offer" | "purchase" | "compact";
+type Variant = "order" | "offer" | "purchase" | "shipped" | "compact";
 const noop = () => {};
 
 function HistoryList({ items }: { items: [string, string][] }) {
@@ -142,6 +143,76 @@ function salesOrder(): TransactionDocumentShellProps {
         ]}
       />
     ),
+  };
+}
+
+// --- Shipped, no carrier scan ------------------------------------------------
+
+/**
+ * The realistic warning-state order: a shipped, no-carrier-scan sales order on
+ * the laptop window (1133x739). Two ledger lines, the ledger compact (a locked
+ * column rides the ledger's header line, not a note row), a warning next step
+ * with its one failed side effect inline with the shipment line. This is the
+ * shape the Total-row fold is measured against.
+ */
+function shippedOrder(): TransactionDocumentShellProps {
+  const rows: LedgerRow[] = [
+    { id: "1", label: "Millennium Falcon (UCS)", detail: "75192-1 · used, complete", values: { charged: 689, cost: 512.4 } },
+    { id: "2", label: "Hogwarts Castle", detail: "71043-1 · new, sealed", values: { charged: 429.9, cost: 318 } },
+  ];
+  const total = { id: "total", label: "Total", values: { charged: sum(rows, "charged"), cost: sum(rows, "cost") } };
+  const margin = formatFigure(((sum(rows, "charged") - sum(rows, "cost")) / sum(rows, "charged")) * 100, "percent", { locale: "de-DE" });
+  const lock = { reason: "Prices come from BrickLink — change them there.", wayOut: { label: "Open in BrickLink", href: "#" } };
+  return {
+    // The consumer's /orders/:id titles the page with the order number (a short
+    // single line), the sets living in the summary — not a long marketing title.
+    title: "SO-2026-00053",
+    backHref: "#",
+    backLabel: "Orders",
+    identity: {
+      id: "SO-2026-00053",
+      status: "Shipped",
+      attention: "No carrier scan",
+      summary: "Millennium Falcon UCS 75192 and Hogwarts Castle 71043 for Bricks & Co. Trading GmbH, Hamburg.",
+      chain: [{ label: "BrickLink order 2981734", href: "#" }, { label: "Sales order", current: true }],
+      progress: [
+        { label: "Placed", state: "done", date: new Date("2026-11-03T10:12:00") },
+        { label: "Paid", state: "done", date: new Date("2026-11-04T09:41:00") },
+        { label: "Packed", state: "done", date: new Date("2026-11-04T14:20:00") },
+        { label: "Label created", state: "current", date: new Date("2026-11-05T16:25:00") },
+        { label: "Carrier scan", state: "pending" },
+        { label: "Delivered", state: "pending" },
+      ],
+    },
+    actions: {
+      secondary: [{ label: "Print packing slip", icon: Printer, onSelect: noop }],
+      menu: [{ label: "Create return", icon: Undo2, onSelect: noop }],
+    },
+    nextStep: {
+      // A warning step; with only a failed effect left, the panel keeps the
+      // failure inline with the shipment line (not a block of its own).
+      step: { key: "shipped", label: "Shipped", phase: "open", tone: "warning" },
+      title: "No carrier scan 8 days after the label was created",
+      description: "DHL Paket 2 kg · 358086789302 · tracking last checked: never.",
+      primary: { label: "Refresh tracking", icon: Truck, onSelect: noop },
+      secondary: [{ label: "Replacement label", icon: Tag, onSelect: noop }],
+      sideEffects: [{ label: "BrickLink status set to Shipped on carrier scan", state: "failed" }],
+    },
+    ledger: {
+      // The locked charged column rides the ledger's header line (a lock icon),
+      // not a note row above the table. No full-slot lock, so the ledger body
+      // takes the compact slot offset.
+      columns: ORDER_COLUMNS.map((c) => (c.key === "charged" ? { ...c, lock } : c)),
+      rows,
+      totals: [total],
+      result: { label: "Profit", value: sum(rows, "charged") - sum(rows, "cost"), kind: "currency", detail: `${margin} margin · target 20 %` },
+      compactRowLocks: true,
+    },
+    facts: [
+      { title: "Ship to", items: ["Bricks & Co. Trading GmbH", "Speicherstadt 12, 20457 Hamburg, DE"] },
+      { title: "Payment", items: ["PayPal, EUR"], subline: "received in full" },
+    ],
+    history: <HistoryList items={[["4 Nov 09:41", "Payment received (PayPal)"], ["3 Nov 10:12", "Order imported from BrickLink"]]} />,
   };
 }
 
@@ -306,21 +377,29 @@ export function TransactionDocumentDemo() {
   const offer = useOffer();
   const purchase = usePurchaseOrder();
   const [compact, setCompact] = React.useState(true);
-  const props = variant === "order" ? salesOrder() : variant === "offer" ? offer : variant === "compact" ? compactLocks(compact) : purchase;
+  const props =
+    variant === "order" ? salesOrder()
+      : variant === "offer" ? offer
+        : variant === "shipped" ? shippedOrder()
+          : variant === "compact" ? compactLocks(compact) : purchase;
   return (
     <div className="space-y-5">
-      {/* Demo control, not page chrome: switches between the three consumers and the compact-locks case. */}
-      <SegmentedControl
-        value={variant}
-        onValueChange={(v) => setVariant(v as Variant)}
-        options={[
-          { value: "order", label: "Sales order" },
-          { value: "offer", label: "Offer" },
-          { value: "purchase", label: "Purchase order" },
-          { value: "compact", label: "Compact locks" },
-        ]}
-        aria-label="Document type"
-      />
+      {/* Demo control, not page chrome: switches between the consumers and the two compact cases.
+          Scrolls sideways on a phone (the strip is wider than the body) instead of widening the page. */}
+      <ScrollCue cueClassName="from-surface-canvas" className="min-w-0">
+        <SegmentedControl
+          value={variant}
+          onValueChange={(v) => setVariant(v as Variant)}
+          options={[
+            { value: "order", label: "Sales order" },
+            { value: "shipped", label: "Shipped, no scan" },
+            { value: "offer", label: "Offer" },
+            { value: "purchase", label: "Purchase order" },
+            { value: "compact", label: "Compact locks" },
+          ]}
+          aria-label="Document type"
+        />
+      </ScrollCue>
       {variant === "compact" ? (
         <label className="flex items-center gap-2 text-sm">
           <Switch checked={compact} onCheckedChange={setCompact} aria-label="Compact locks" />

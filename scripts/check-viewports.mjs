@@ -52,8 +52,9 @@ const base = `${gallery.url}/#/a/`;
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await launchChrome();
-// transaction-document's three demo documents (demo radio label → contact-sheet slug).
-const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"], ["Compact locks", "transaction-document-compact"]];
+// transaction-document's four demo documents (demo radio label → contact-sheet slug); "Shipped, no scan"
+// is the realistic 2-line warning-state order the Total-row fold is measured at the 1133px laptop window.
+const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Shipped, no scan", "transaction-document-shipped"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"], ["Compact locks", "transaction-document-compact"]];
 const failures = [];
 const total = PAGES.length * (Object.keys(devices).length + widthSweep.length) + STEPS.length + 1 + 3 * Object.keys(devices).length + TD_VARIANTS.length * (Object.keys(devices).length + widthSweep.length) + Object.keys(devices).length + 2; // + the container-query layout cases + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench + transaction-document variants + grouped-list work queue
 let n = 0;
@@ -361,6 +362,28 @@ for (const [radio, shot] of TD_VARIANTS) {
         const prog = await page.$eval('[data-slot="td-progress"]', (ol) => ({ h: ol.getBoundingClientRect().height, li: ol.querySelector("li").getBoundingClientRect().height })).catch(() => null);
         if (!prog && radio === "Sales order") bad.push("progress: the sales order demo has no progress line to measure");
         if (prog && prog.h > prog.li + 2) bad.push(`progress: wraps to several lines (${Math.round(prog.h)}px, one line is ${Math.round(prog.li)}px)`);
+      }
+      // The realistic 2-line warning-state order (contract "Acceptance gate"): its ledger Total
+      // row ends at most 739px down at the 1133x739 laptop window (the consumer's
+      // /orders/:id shipped-no-scan case). The document column is fixed at 896px on every
+      // desktop device, so the height is the same at laptop14; 739 is the fold that fails.
+      if (radio === "Shipped, no scan") {
+        const totalBottom = await page.$eval('[data-slot="td-ledger"] tfoot tr', (el) => Math.round(el.getBoundingClientRect().bottom + window.scrollY));
+        if (name === "sweep 1133") {
+          // The 1133x739 laptop window is the fold the consumer's /orders/:id case runs into.
+          console.log(`  shipped order Total row bottom @ 1133x739: ${totalBottom}px (fold 739px)`);
+          if (totalBottom > 739) bad.push(`shipped order: the Total row ends at ${totalBottom}px, below the 739px laptop14 fold`);
+        } else if (name === "laptop14") {
+          console.log(`  shipped order Total row bottom @ 1512 (laptop14): ${totalBottom}px`);
+        }
+        // The warning next step keeps its single failed side effect inline with the shipment
+        // line (inside the description wrapper, not a padded "Running alongside" block of its
+        // own at the panel's bottom). Inline sits in the space-y-1 wrapper with the title.
+        const sideInDesc = await page.$eval('[data-slot="td-next-step"]', (panel) => {
+          const side = panel.querySelector('[data-slot="td-side-effects"]');
+          return !!side && !!side.closest(".space-y-1");
+        });
+        if (!sideInDesc) bad.push('shipped order: the failed side effect is a padded block, not inline with the shipment line');
       }
       // compact row locks vs the default sentences on the same 2-line document: the compact Total ends above the
       // laptop14 fold and at least 20px higher than with the switch off (the sentences saved)
