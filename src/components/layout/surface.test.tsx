@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 import { TooltipProvider } from "../ui/tooltip";
 import { SectionCard } from "./SectionCard";
+import { PageFrame } from "./PageFrame";
 import { FULL_BLEED_CLASS } from "./surface";
 import { DetailOverviewShell } from "../archetypes/detail-overview/DetailOverviewShell";
 import { DetailSection } from "../archetypes/detail-overview/DetailSection";
@@ -61,5 +62,18 @@ describe("full-bleed marker is scoped to the page's own surface", () => {
       );
       expect(bleeds(inDetail.container)).toBe(false);
     });
+  }
+});
+
+describe("full-bleed marker does not leak out of a PageFrame body", () => {
+  for (const [name, shell] of shells) {
+    for (const body of ["frame", "stack"] as const) {
+      it(`${name}: not marked inside a body="${body}" PageFrame`, () => {
+        const { container } = render(
+          <TooltipProvider><PageFrame title="Page" body={body}>{shell()}</PageFrame></TooltipProvider>,
+        );
+        expect(bleeds(container)).toBe(false);
+      });
+    }
   }
 });

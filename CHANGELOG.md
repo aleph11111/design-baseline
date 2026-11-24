@@ -2,6 +2,11 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.65.1
+
+- **Fixed:** a full-bleed (`matrix-grid`, `list-with-detail`, `kanban-board`, `calendar`, `statement-with-filters`) or document-column (`transaction-document`) shell rendered inside a `PageFrame` / `DashboardShell` body (frame or canvas stack) no longer marks the page column. `useFullBleedClass` / `useDocumentColumnClass` now also return `undefined` when `PageFrameContext` (hoisted into `layout/surface.ts`) is true, so only the outermost page shell sets the width mode (ADR-0007 §1). Before, a `MatrixGridShell` in a `DashboardShell` canvas dropped `--db-content-max` and the page jumped edge-to-edge.
+- **Consumer:** none required; bump `design-baseline` to `0.65.1`. Page-root shells are unchanged.
+
 ## v0.65.0
 
 - **Added (`ui/checkbox-list-field`):** `CheckboxListField` — a labelled multi-pick list (`options` `{ value, label, badge?, disabled? }`, `value: string[]`, `onChange(string[])`, label/hint/error via the shared field frame) built on `Checkbox`, so it keeps the touch hit area. **Uncapped by default**: inside a `CrudDialogBody` (or any scrolling host) it grows and the host scrolls. Opt-in `scroll` applies the component's one fixed cap (`max-h-64`) for inline use. Gallery demo: 12 options in a `CrudDialogSheet` plus one inline capped list.
