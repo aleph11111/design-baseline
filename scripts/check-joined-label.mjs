@@ -21,7 +21,7 @@ const url = `${gallery.url}/#/l/page-frame`;
 const browser = await launchChrome();
 const failures = [];
 let n = 0;
-const total = 8;
+const total = 10;
 const report = (label, ok, detail) => {
   n++;
   console.log(`[${new Date().toTimeString().slice(0, 8)}] ${n}/${total} ${ok ? "ok  " : "FAIL"} ${label}: ${detail}`);
@@ -121,6 +121,24 @@ try {
   await page.close();
 } catch (e) {
   report("fixed-width boxes @ 1440px (w-28, w-80, w-64, w-40)", false, e.message.split("\n")[0]);
+}
+
+// The toolbar search must reach its max-w-sm (24rem = 384px) when the band has room: the band
+// lays a toolbar wrapper out as one content-sized flex item, so a wrapper that does not grow
+// leaves the search's flex-1 nothing to fill and it sits at its 14rem (224px) floor.
+for (const width of [2560, 1512]) {
+  const label = `toolbar search max width @ ${width}px`;
+  try {
+    const page = await browser.newPage({ viewport: { width, height: 900 } });
+    await page.goto(`${gallery.url}/#/a/list-with-detail`);
+    const box = page.getByRole("searchbox").first();
+    await box.waitFor({ timeout: 5000 });
+    const w = await box.evaluate((el) => Math.round(el.parentElement.getBoundingClientRect().width));
+    report(label, w === 384, `${w}px, want 384px`);
+    await page.close();
+  } catch (e) {
+    report(label, false, e.message.split("\n")[0]);
+  }
 }
 
 await browser.close();

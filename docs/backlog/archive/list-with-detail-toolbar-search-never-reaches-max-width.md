@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: 2026-11-24
-status: ready
+status: done
 model: sonnet
 model_reason: "cause established (non-growing wrapper), one-class fix plus a check following the existing check-joined-label pattern"
 value: normal

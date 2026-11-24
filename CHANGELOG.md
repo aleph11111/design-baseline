@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.64.2
+
+- **Fixed (`list-with-detail`, `ListWithDetailToolbar`):** the search no longer sits at its 14rem band floor when the band has room. The toolbar wrapper now grows (`grow`, basis auto), so `SearchInput` reaches its `max-w-sm` (384px) and a long placeholder shows in full; in a crowded band the floor holds and the band scrolls, unchanged. The kanban-board demo's toolbar wrapper got the same fix. `check:joined-label` asserts the 384px width at desk27 and laptop14.
+- **Consumer:** none required; controlling-app search placeholders (e.g. `/workspace/consolidation`) stop clipping after a `design-baseline` bump to `0.64.2`.
+- **Breaking:** no.
+
 ## v0.64.1
 
 - **Added (`transaction-document` demo, no shipped-code change):** a realistic 2-line **warning-state** order case ("Shipped, no carrier scan") to the living demo — the consumer's `/orders/:id` shipped/no-scan shape: two ledger lines, `compactRowLocks` on with a locked column riding the ledger's header line (not a note row), and a warning next step whose single failed side effect renders inline with the shipment line. The case is not a strip option: it loads from the page hash (`#/a/transaction-document?variant=shipped`), and `check:viewports` navigates to it by URL. This is the shape the ledger **Total row fold is measured**: at the 1133×739 laptop window the Total row ends at **719px**, at most 739px. `check:viewports` now reports that fold for the case and fails if the Total row ends below the 739px fold (a post-loop guard fails the run if the 1133×739 window was never measured).

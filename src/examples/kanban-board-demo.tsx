@@ -147,7 +147,7 @@ export function KanbanBoardDemo(): React.ReactElement {
           />
         }
         toolbar={
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex grow flex-wrap items-center gap-2">
             <SearchInput
               value={query}
               onChange={setQuery}
