@@ -21,7 +21,7 @@ const url = `${gallery.url}/#/l/page-frame`;
 const browser = await launchChrome();
 const failures = [];
 let n = 0;
-const total = 12;
+const total = 15;
 const report = (label, ok, detail) => {
   n++;
   console.log(`[${new Date().toTimeString().slice(0, 8)}] ${n}/${total} ${ok ? "ok  " : "FAIL"} ${label}: ${detail}`);
@@ -144,10 +144,13 @@ for (const width of [2560, 1512]) {
 // Content-fit selects (no width class): sized to label + the WIDEST option, never the band.
 // Every content-fit select on the page carries option ghosts (a trigger without `options` would
 // pass the other assertions vacuously) and no ghost is clipped by the value cell at desk width.
+// The page-frame route plus every archetype demo whose band holds a labelled select.
+for (const [route, min] of [[url, 2], [`${gallery.url}/#/a/statement-with-filters`, 3], [`${gallery.url}/#/a/analytics-dashboard`, 1], [`${gallery.url}/#/a/matrix-grid`, 1]]) {
+const what = `content-fit selects @ 1440px ${route.split("#")[1]} (ghosts present, longest option whole, not stretched)`;
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-  await page.goto(url);
-  await page.locator('[data-testid="content-fit-band"]').waitFor({ timeout: 5000 });
+  await page.goto(route);
+  await page.locator("[data-toolbar-band] [data-joined-label]").first().waitFor({ timeout: 5000 });
   const fit = await page.evaluate(() =>
     [...document.querySelectorAll('button[role="combobox"]:has(> [data-joined-label])')]
       .filter((t) => getComputedStyle(t).display === "grid" && t.closest("[data-toolbar-band]"))
@@ -167,10 +170,11 @@ try {
       }),
   );
   const bad = fit.filter((r) => r.ghosts === 0 || !r.ghostsWhole || r.stretched);
-  report("content-fit selects @ 1440px (ghosts present, longest option whole, not stretched)", fit.length >= 2 && bad.length === 0, JSON.stringify(bad.length ? bad : fit));
+  report(what, fit.length >= min && bad.length === 0, JSON.stringify(bad.length ? bad : fit));
   await page.close();
 } catch (e) {
-  report("content-fit selects @ 1440px (ghosts present, longest option whole, not stretched)", false, e.message.split("\n")[0]);
+  report(what, false, e.message.split("\n")[0]);
+}
 }
 
 // Width is stable across a selection change: short option -> longest option.
