@@ -42,7 +42,9 @@ export const FULL_BLEED_CLASS = "db-full-bleed";
  * scope is decided.
  */
 export function useFullBleedClass(): string | undefined {
-  const nested = React.useContext(RaisedSurfaceContext) || React.useContext(PageFrameContext);
+  const raised = React.useContext(RaisedSurfaceContext);
+  const inFrame = React.useContext(PageFrameContext);
+  const nested = raised || inFrame;
   return nested ? undefined : FULL_BLEED_CLASS;
 }
 
@@ -56,8 +58,10 @@ export function useFullBleedClass(): string | undefined {
 export const DOCUMENT_COLUMN_CLASS = "db-document-column";
 
 /** `DOCUMENT_COLUMN_CLASS` as the page's own surface; `undefined` when nested
- *  in another raised surface (mirrors `useFullBleedClass`). */
+ *  in a `PageFrame` or another raised surface (mirrors `useFullBleedClass`). */
 export function useDocumentColumnClass(): string | undefined {
-  const nested = React.useContext(RaisedSurfaceContext) || React.useContext(PageFrameContext);
+  const raised = React.useContext(RaisedSurfaceContext);
+  const inFrame = React.useContext(PageFrameContext);
+  const nested = raised || inFrame;
   return nested ? undefined : DOCUMENT_COLUMN_CLASS;
 }

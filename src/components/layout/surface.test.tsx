@@ -4,7 +4,8 @@ import { cleanup, render } from "@testing-library/react";
 import { TooltipProvider } from "../ui/tooltip";
 import { SectionCard } from "./SectionCard";
 import { PageFrame } from "./PageFrame";
-import { FULL_BLEED_CLASS } from "./surface";
+import { DOCUMENT_COLUMN_CLASS, FULL_BLEED_CLASS, useDocumentColumnClass } from "./surface";
+import { TransactionDocumentDemo } from "../../examples/transaction-document-demo";
 import { DetailOverviewShell } from "../archetypes/detail-overview/DetailOverviewShell";
 import { DetailSection } from "../archetypes/detail-overview/DetailSection";
 import { ListWithDetailShell, type ListColumn } from "../archetypes/list-with-detail/ListWithDetailShell";
@@ -76,4 +77,25 @@ describe("full-bleed marker does not leak out of a PageFrame body", () => {
       });
     }
   }
+});
+
+describe("document-column marker is scoped to the page's own surface", () => {
+  const Probe = () => <div data-testid="probe" className={useDocumentColumnClass()} />;
+  const marked = (el: HTMLElement) => el.querySelector(`.${DOCUMENT_COLUMN_CLASS}`) !== null;
+
+  it("transaction-document marks the column at page root", () => {
+    expect(marked(render(<TooltipProvider><TransactionDocumentDemo /></TooltipProvider>).container)).toBe(true);
+  });
+
+  for (const body of ["frame", "stack"] as const) {
+    it(`not marked inside a body="${body}" PageFrame`, () => {
+      expect(marked(render(<PageFrame title="Page" body={body}><Probe /></PageFrame>).container)).toBe(false);
+    });
+  }
+
+  it("not marked inside a raised surface; marked bare", () => {
+    expect(marked(render(<SectionCard title="Card"><Probe /></SectionCard>).container)).toBe(false);
+    cleanup();
+    expect(marked(render(<Probe />).container)).toBe(true);
+  });
 });

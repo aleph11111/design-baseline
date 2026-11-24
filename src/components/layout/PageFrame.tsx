@@ -11,13 +11,6 @@ import { cn } from "../../lib/utils";
 import { isHeaderActions, renderHeaderActions, type HeaderActions } from "./HeaderActions";
 
 /**
- * True inside a `PageFrame`. A `PageFrame` rendered inside another (a tabbed
- * sub-route under a layout that owns the page) titles itself with
- * `NestedPageHeading` and joins the parent's surface — derived from where it
- * renders, never a prop (ADR-0008 §1).
- */
-
-/**
  * @deprecated The rendered-node form of `PageFrame` `actions`: renders
  * unchanged for one minor and bypasses the action hierarchy. Pass the typed
  * `HeaderActions` form instead. Removal: backlog ticket
