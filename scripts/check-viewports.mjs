@@ -52,9 +52,12 @@ const base = `${gallery.url}/#/a/`;
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await launchChrome();
-// transaction-document's four demo documents (demo radio label → contact-sheet slug); "Shipped, no scan"
+// transaction-document's five demo documents (demo selector option → contact-sheet slug). "Shipped, no scan"
 // is the realistic 2-line warning-state order the Total-row fold is measured at the 1133px laptop window.
-const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Shipped, no scan", "transaction-document-shipped"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"], ["Compact locks", "transaction-document-compact"]];
+// It is not a strip option — the default view (and its pixel baseline) is the strip's four options — so it
+// loads from the page hash (`#/a/transaction-document?variant=shipped`; the gallery's HashRouter keeps it
+// there) and the loop navigates by URL instead of clicking the strip.
+const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Shipped, no scan", "transaction-document-shipped", "?variant=shipped"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"], ["Compact locks", "transaction-document-compact"]];
 const failures = [];
 const total = PAGES.length * (Object.keys(devices).length + widthSweep.length) + STEPS.length + 1 + 3 * Object.keys(devices).length + TD_VARIANTS.length * (Object.keys(devices).length + widthSweep.length) + Object.keys(devices).length + 2; // + the container-query layout cases + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench + transaction-document variants + grouped-list work queue
 let n = 0;
@@ -67,10 +70,10 @@ const report = (label, { failures: bad, knownGaps: warn }) => {
 const fail = (message) => ({ failures: [message], knownGaps: [] });
 console.log(`viewports check: ${PAGES.length} pages x (${Object.keys(devices).length} devices + ${widthSweep.length} sweep widths ${widthSweep.map((d) => d.viewport.width).join("/")}) + ${STEPS.length} column steps against ${DIST} (Chrome: ${CHROME})`);
 
-const open = async (slug, device) => {
+const open = async (slug, device, query = "") => {
   const ctx = await browser.newContext(device);
   const page = await ctx.newPage();
-  await page.goto(base + slug);
+  await page.goto(base + slug + query); // query lands in the hash (HashRouter): `#/a/slug?variant=…`
   await page.waitForSelector(".db-content-column");
   // demos are lazy chunks: wait for the page's own h1 inside the content column
   await page.waitForSelector(".db-content-column h1", { timeout: 10000 });
@@ -346,14 +349,14 @@ for (const [name, device] of Object.entries(devices)) {
 // post-loop guard after this block fails the check if no device with that exact
 // viewport was measured (widthSweep losing its 1133×739 entry must not pass).
 let foldMeasured = false;
-for (const [radio, shot] of TD_VARIANTS) {
+for (const [radio, shot, query] of TD_VARIANTS) {
   for (const [name, device] of [...Object.entries(devices), ...widthSweep.map((d) => [`sweep ${d.viewport.width}`, d])]) {
     const label = `transaction-document ${radio} @ ${name}`;
     let ctx;
     try {
       let page;
-      ({ ctx, page } = await open("transaction-document", device));
-      await page.getByRole("radio", { name: radio }).click();
+      ({ ctx, page } = await open("transaction-document", device, query));
+      if (!query) await page.getByRole("radio", { name: radio }).click(); // the shipped variant loads from the URL hash, not the strip
       await page.waitForTimeout(300); // ledger ResizeObserver settles
       const triad = name in devices;
       const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: triad ? columnFor("transaction-document", name) : undefined, fullBleed: false });
@@ -465,8 +468,9 @@ for (const [radio, shot] of TD_VARIANTS) {
 }
 // Fold-gate guard (acceptance criterion 1): the 1133×739 Total-row fold assertion
 // must have actually run. It is keyed on the device viewport, so widthSweep losing
-// its 1133×739 entry — or the "Shipped, no scan" case never being reached — fails
-// the run instead of passing with the fold check silently skipped.
+// its 1133×739 entry — or the "Shipped, no scan" case (loaded by URL, never through
+// the strip) never being reached — fails the run instead of passing with the fold
+// check silently skipped.
 if (!foldMeasured) {
   failures.push("transaction-document fold gate @ laptop14Window");
   console.log(`[FAIL] transaction-document fold gate @ laptop14Window\n      - the 1133×739 laptop-window fold was never measured (widthSweep lost its 1133×739 entry or the \"Shipped, no scan\" case was skipped) — the fold gate cannot pass having compared nothing`);

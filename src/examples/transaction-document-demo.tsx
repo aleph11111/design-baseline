@@ -8,11 +8,20 @@
  * and a purchase order (editable Cost with one cell locked to the accepted
  * offer, lines added and removed inside the ledger). Each declares its own ledger columns; the shell
  * places every slot. Demo-only — not shipped in the package.
+ *
+ * A fourth case — the realistic "shipped, no carrier scan" warning-state order
+ * (the form the ledger Total row's laptop fold is measured against) — is not
+ * a strip option: it loads from the page hash (`#/a/transaction-document?variant=shipped`)
+ * so the default view and its pixel baseline stay the strip's four options.
+ * `check:viewports` navigates to it by URL and asserts the Total row ends at
+ * most 739px down at the 1133×739 laptop window. The case mirrors the
+ * consumer's sales order page (brickshop-manager `/orders/:id` →
+ * `SalesOrderDocument.tsx`'s `TransactionDocumentShell`, `title={order.order_number}` —
+ * a one-line order number, not a heading-sized marketing line).
  */
 import * as React from "react";
 import { Copy, FileDown, Mail, Printer, RotateCcw, Tag, Truck, Undo2, XCircle, Gift, Send, PackageCheck } from "lucide-react";
 import { SegmentedControl } from "@/components/ui/segmented-control";
-import { ScrollCue } from "@/components/archetypes/shared/ScrollCue";
 import { Switch } from "@/components/ui/switch";
 import { formatFigure } from "@/lib/format";
 import {
@@ -372,8 +381,15 @@ function compactLocks(compact: boolean): TransactionDocumentShellProps {
   };
 }
 
+// The "shipped, no scan" case arrives through the page hash (the gallery's
+// HashRouter keeps it there: `#/a/transaction-document?variant=shipped`), never
+// through the strip: the default view is the strip's four options, and its
+// pixel baseline must not move.
+const initialVariant: Variant =
+  typeof window !== "undefined" && window.location.hash.includes("variant=shipped") ? "shipped" : "order";
+
 export function TransactionDocumentDemo() {
-  const [variant, setVariant] = React.useState<Variant>("order");
+  const [variant, setVariant] = React.useState<Variant>(initialVariant);
   const offer = useOffer();
   const purchase = usePurchaseOrder();
   const [compact, setCompact] = React.useState(true);
@@ -384,22 +400,18 @@ export function TransactionDocumentDemo() {
           : variant === "compact" ? compactLocks(compact) : purchase;
   return (
     <div className="space-y-5">
-      {/* Demo control, not page chrome: switches between the consumers and the two compact cases.
-          Scrolls sideways on a phone (the strip is wider than the body) instead of widening the page. */}
-      <ScrollCue cueClassName="from-surface-canvas" className="min-w-0">
-        <SegmentedControl
-          value={variant}
-          onValueChange={(v) => setVariant(v as Variant)}
-          options={[
-            { value: "order", label: "Sales order" },
-            { value: "shipped", label: "Shipped, no scan" },
-            { value: "offer", label: "Offer" },
-            { value: "purchase", label: "Purchase order" },
-            { value: "compact", label: "Compact locks" },
-          ]}
-          aria-label="Document type"
-        />
-      </ScrollCue>
+      {/* Demo control, not page chrome: switches between the three consumers and the compact-locks case. */}
+      <SegmentedControl
+        value={variant}
+        onValueChange={(v) => setVariant(v as Variant)}
+        options={[
+          { value: "order", label: "Sales order" },
+          { value: "offer", label: "Offer" },
+          { value: "purchase", label: "Purchase order" },
+          { value: "compact", label: "Compact locks" },
+        ]}
+        aria-label="Document type"
+      />
       {variant === "compact" ? (
         <label className="flex items-center gap-2 text-sm">
           <Switch checked={compact} onCheckedChange={setCompact} aria-label="Compact locks" />
