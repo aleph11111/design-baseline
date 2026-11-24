@@ -409,6 +409,28 @@ describe("scanSource", () => {
     expect(scanSource("p.tsx", page("", table), compiled)).toEqual([null]); // no PageFrame import
   });
 
+  it("applies the live handrolled-label-input-field signal: a hand-rolled Label+Input file hits, a file that adopted raw-input clears, a Label without htmlFor (or no Input) does not", () => {
+    const compiled = compileSignals(
+      signalsDoc.adoptionQuality.filter((s) => s.id === "handrolled-label-input-field"),
+    );
+    const hand = (body) => `import { Input } from "@/components/ui/input";\n${body}\n`;
+    // The triad: <Label htmlFor=...> within 400 chars of a shadcn <Input> or <Textarea>.
+    const triad = 'function F() { return <div><Label htmlFor="x">Name</Label><Input id="x" /></div>; }';
+    // Same triad but the file adopts the donor primitive — the coOccursWith absence
+    // gate closes, so the signal clears (a file that uses NativeField is not the candidate).
+    const adopted = triad + '\nimport { NativeField } from "design-baseline/archetypes/raw-input";\n';
+    // <Label> without htmlFor — not wired to its control by id: not the triad, no hit.
+    const noHtmlFor = 'function F() { return <Label>Bare</Label><Input />; }';
+    // htmlFor-wired but a bare lowercase <input> (raw-input molecule's territory, not
+    // the shadcn-wrapped form the signal targets): no hit.
+    const raw = 'function F() { return <Label htmlFor="x">x</Label><input id="x" />; }';
+    const hitLabel = { file: "f.tsx", line: 2 }; // the <Label> line, not line 1
+    expect(scanSource("f.tsx", hand(triad), compiled)).toEqual([hitLabel]);
+    expect(scanSource("f.tsx", hand(adopted), compiled)).toEqual([null]);
+    expect(scanSource("f.tsx", hand(noHtmlFor), compiled)).toEqual([null]);
+    expect(scanSource("f.tsx", hand(raw), compiled)).toEqual([null]);
+  });
+
   it("keeps a mismatched indent out of a \\1 backreference window", () => {
     const compiled = compileSignals([sig("bw", "Panel", "\\n([ \\t]+)<Button\\b[\\s\\S]{0,100}?\\n\\1<Panel\\b")]);
     expect(scanSource("m.tsx", "Panel\n    <Button/>\n    <Panel/>\n", compiled)).toEqual([{ file: "m.tsx", line: 1 }]);
