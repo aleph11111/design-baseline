@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-11-07
-status: ready
+status: done
 value: high
 depends_on: [invariants-overflow-blind-under-mobile-emulation]
 gate:
