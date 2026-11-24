@@ -133,10 +133,9 @@ export function StatementWithFiltersDemo(): React.ReactElement {
     key: K,
     label: string,
     options: Array<[Tuple[K], string]>,
-    width: string,
   ) => (
     <Select value={tuple[key]} onValueChange={(v) => setTuple((t) => ({ ...t, [key]: v }))}>
-      <SelectTrigger label={label} className={width}>
+      <SelectTrigger label={label} options={options.map(([, text]) => text)}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -182,9 +181,9 @@ export function StatementWithFiltersDemo(): React.ReactElement {
         }
         toolbar={
           <>
-            {selector("scenario", "Scenario", [["actual", "Actual"], ["budget", "Budget"]], "w-44")}
-            {selector("year", "Year", [["2025", "2025"], ["2026", "2026"]], "w-36")}
-            {selector("structure", "Structure", [["lines", "By line"], ["sections", "By section"]], "w-52")}
+            {selector("scenario", "Scenario", [["actual", "Actual"], ["budget", "Budget"]])}
+            {selector("year", "Year", [["2025", "2025"], ["2026", "2026"]])}
+            {selector("structure", "Structure", [["lines", "By line"], ["sections", "By section"]])}
           </>
         }
         filterCount={(Object.keys(DEFAULT_TUPLE) as Array<keyof Tuple>).filter((k) => tuple[k] !== DEFAULT_TUPLE[k]).length}

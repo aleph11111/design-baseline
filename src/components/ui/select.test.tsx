@@ -67,6 +67,7 @@ describe("SelectTrigger joined label", () => {
   it("a width class on a labelled trigger sets the whole box: no content floor, label column yields first", () => {
     render(
       <Select value="a">
+        {/* adherence-ok: fixed-width-band-select — tests the deliberate fixed-box path */}
         <SelectTrigger label="Verantwortliche Abteilung" className="w-40">
           <SelectValue>Alle Werte</SelectValue>
         </SelectTrigger>
@@ -96,6 +97,35 @@ describe("SelectTrigger joined label", () => {
     const classes = classSet(screen.getByRole("combobox"));
     expect(classes).toContain("min-w-min");
     expect(classes).toContain("grid-cols-[auto_minmax(max-content,1fr)_auto]");
+    // content-fit: never stretched across the band
+    expect(classes).toContain("w-fit");
+    expect(classes).not.toContain("w-full");
+  });
+
+  it("stacks every option as an invisible ghost before the value (content-fit only)", () => {
+    const { rerender } = render(
+      <Select value="a">
+        <SelectTrigger label="Jahr" options={["2026 · A+B", "2025"]}>
+          <SelectValue>2025</SelectValue>
+        </SelectTrigger>
+      </Select>
+    );
+    const trigger = screen.getByRole("combobox", { name: "Jahr" });
+    const ghosts = [...trigger.querySelectorAll("[data-option-ghost]")];
+    expect(ghosts.map((g) => g.textContent)).toEqual(["2026 · A+B", "2025"]);
+    expect(ghosts.every((g) => g.getAttribute("aria-hidden") === "true" && g.classList.contains("invisible"))).toBe(true);
+    // the value stays the last cell before the chevron
+    expect(trigger.lastElementChild?.previousElementSibling?.hasAttribute("data-option-ghost")).toBe(false);
+    rerender(
+      <Select value="a">
+        {/* adherence-ok: fixed-width-band-select — tests the deliberate fixed-box path */}
+        <SelectTrigger label="Jahr" className="w-44" options={["2026 · A+B", "2025"]}>
+          <SelectValue>2025</SelectValue>
+        </SelectTrigger>
+      </Select>
+    );
+    // the fixed box is unchanged: no ghosts
+    expect(screen.getByRole("combobox").querySelector("[data-option-ghost]")).toBeNull();
   });
 
   it("renders no label cell without the prop", () => {
