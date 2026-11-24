@@ -23,6 +23,7 @@ import {
   exportsSelfSubpath,
   viteUiHelperExported,
   scanFilesShipped,
+  findDeadDocLinks,
 } from "./verify-exports.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -252,11 +253,63 @@ describe("scanFilesShipped (invariant 10)", () => {
   });
 });
 
+describe("findDeadDocLinks (invariant 11)", () => {
+  it("flags a shipped file's reference to a donor doc that is not in files", () => {
+    const { dir, put } = fixtureTree();
+    try {
+      put("README.md", "The guide lives in docs/STYLE.md and docs/archetypes/report.md.\n");
+      put("docs/STYLE.md", "a shipped doc\n");
+      const pkg = { files: ["docs/archetypes"] };
+      expect(findDeadDocLinks(dir, pkg)).toEqual([
+        "docs/STYLE.md (referenced by README.md — outside every \"files\" scope, so the link dies in the consumer's tarball)",
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("ignores a shipped doc ref, a sub-path ref, and a non-donor doc", () => {
+    const { dir, put } = fixtureTree();
+    try {
+      // docs/STYLE.md is in files (covered); docs/archetypes/report.md and
+      // docs/adr/INDEX.md are sub-paths (not top-level donor docs); the
+      // per-project docs/SURFACES.md is absent from the tree (not a donor doc).
+      put("README.md", `\`docs/STYLE.md\` and docs/archetypes/report.md and docs/adr/INDEX.md; a consumer authors docs/SURFACES.md locally.\n`);
+      put("docs/STYLE.md", "a shipped doc\n");
+      const pkg = { files: ["docs/STYLE.md", "docs/archetypes"] };
+      expect(findDeadDocLinks(dir, pkg)).toEqual([]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("scans the shipped scope too, not only README.md", () => {
+    const { dir, put } = fixtureTree();
+    try {
+      put("README.md", "clean readme\n");
+      put("scripts/lint-design.mjs", 'console.log("see docs/PACKAGE.md");\n');
+      put("docs/PACKAGE.md", "a shipped doc\n");
+      expect(findDeadDocLinks(dir, { files: ["scripts/lint-design.mjs"] })).toEqual([
+        "docs/PACKAGE.md (referenced by scripts/lint-design.mjs — outside every \"files\" scope, so the link dies in the consumer's tarball)",
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("the packed tarball contains docs/STYLE.md and docs/PACKAGE.md", () => {
+    const [{ files }] = JSON.parse(execFileSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], { cwd: root, encoding: "utf8" }));
+    const packed = files.map((f) => f.path);
+    expect(packed).toContain("docs/STYLE.md");
+    expect(packed).toContain("docs/PACKAGE.md");
+  });
+});
+
 describe("CLI exit codes", () => {
-  it("exits 0 on the clean donor tree and reports 10/10 ok", () => {
+  it("exits 0 on the clean donor tree and reports 11/11 ok", () => {
     const { status, stdout } = runScript(root);
     expect(status).toBe(0);
-    expect(stdout).toContain("verify:exports — 0 failing invariant(s), 10/10 ok");
+    expect(stdout).toContain("verify:exports — 0 failing invariant(s), 11/11 ok");
   });
 
   it("exits 1 when a barrel's directive is missing (fixture)", () => {

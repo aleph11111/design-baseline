@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: '2026-11-19'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "scoped package.json files edit plus a CHANGELOG/version bump, following the archived scan-adoption-quality-not-shipped-in-package pattern"
