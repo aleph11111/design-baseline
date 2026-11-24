@@ -4,7 +4,7 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { FIXED_BOX_LABEL_CLASS, JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useControlSize, useTouchLift } from "./toolbar-band";
+import { FIXED_BOX_LABEL_CLASS, JOINED_LABEL_CLASS, JoinedLabelText, hasWidthClass, useControlSize, useInToolbarBand, useTouchLift } from "./toolbar-band";
 
 // ---------------------------------------------------------------------------
 // Radix UI Select primitives
@@ -17,7 +17,7 @@ const SelectValue = SelectPrimitive.Value;
 // Per-size geometry on the shared control height ladder (STYLE.md "Control
 // heights"): sm h-8 · default h-9 · lg h-11 (the 44pt touch target).
 const selectTriggerVariants = cva(
-  "flex w-full items-center justify-between rounded-md border border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span:not([data-joined-label])]:line-clamp-1",
+  "flex w-full items-center justify-between rounded-md text-start border border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span:not([data-joined-label])]:line-clamp-1",
   {
     variants: {
       size: {
@@ -52,7 +52,8 @@ const SelectTrigger = React.forwardRef<
        * Every option's label (and the placeholder), for a content-fit labelled trigger: rendered
        * as invisible text stacked in the value's grid cell, so the trigger is as wide as its
        * WIDEST option and keeps that width when the selection changes. `SelectField` fills it
-       * from its `options`. Ignored without `label` or in a fixed-width box.
+       * from its `options`. Ignored without `label`, in a fixed-width box, or outside a toolbar band
+       * (a form select is `w-full`).
        */
       options?: React.ReactNode[];
     }
@@ -60,8 +61,10 @@ const SelectTrigger = React.forwardRef<
   const labelId = React.useId();
   const bandSize = useControlSize();
   const step = useTouchLift(size);
+  const inBand = useInToolbarBand();
   const fixed = label != null && (fixedWidth ?? hasWidthClass(className));
-  const contentFit = label != null && !fixed;
+  // content-fit only in a toolbar band; a labelled form select fills its row (STYLE.md "Toolbar field labels")
+  const contentFit = label != null && !fixed && inBand;
   return (
     <SelectPrimitive.Trigger
       ref={ref}
@@ -71,9 +74,15 @@ const SelectTrigger = React.forwardRef<
           (fixed
             ? // fixed box: plain flex row — the label gives way first (FIXED_BOX_LABEL_CLASS), then the value truncates
               "shrink-0 overflow-hidden pl-0"
-            : // content-fit: as wide as label + widest option, never the band's width. Every child sits
-              // in row 1, the value and its option ghosts stacked in column 2.
-              "grid w-fit min-w-min grid-cols-[auto_minmax(max-content,1fr)_auto] overflow-hidden pl-0 [&>*]:col-start-2 [&>*]:row-start-1 [&>[data-joined-label]]:col-start-1 [&>svg]:col-start-3"),
+            : // Every child sits in row 1, the value (and its option ghosts) in column 2, which
+              // yields to the container: the value ellipsizes rather than overflow.
+              cn(
+                "grid grid-cols-[auto_minmax(0,1fr)_auto] overflow-hidden pl-0 [&>*]:col-start-2 [&>*]:row-start-1 [&>[data-joined-label]]:col-start-1 [&>svg]:col-start-3",
+                // content-fit: label + widest option (the ghosts' max-content), never the band's
+                // width; shrink-0 keeps it whole in a crowded band (the band scrolls), max-w-full
+                // caps it at a container narrower than that
+                contentFit ? "w-fit max-w-full shrink-0" : "w-full"
+              )),
         className
       )}
       {...props}

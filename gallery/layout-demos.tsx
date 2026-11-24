@@ -799,6 +799,12 @@ function PageFrameDemo() {
   const [density, setDensity] = React.useState("comfortable");
   const [year, setYear] = React.useState("2024");
   const [structure, setStructure] = React.useState("short");
+  const [line, setLine] = React.useState("long");
+  const [formLine, setFormLine] = React.useState("short");
+  const lineOptions = [
+    { value: "short", label: "Umsatz" },
+    { value: "long", label: "Umsatzerlöse aus Lieferungen und Leistungen (Inland)" },
+  ];
   const rows = (
     <Table>
       <TableHeader>
@@ -1051,6 +1057,35 @@ function PageFrameDemo() {
           >
             {rows}
           </PageFrame>
+        </div>
+      </Variant>
+      <Variant label="narrow container (360px) — a content-fit band select whose longest option is wider than the container caps at it and ellipsizes; outside a band a labelled select (bare trigger or SelectField) fills its row, no option ghosts; checked by `npm run check:joined-label`">
+        <div data-testid="content-fit-narrow" className="w-[360px] max-w-full space-y-4">
+          <PageFrame
+            title="Kennzahlen"
+            toolbar={<SelectField label="Zeile" value={line} onChange={setLine} options={lineOptions} />}
+          >
+            {null}
+          </PageFrame>
+          <div className="space-y-3 rounded-md border p-3">
+            {/* a form card, outside any band: the controlling-app deck-figure case — long value
+                (ellipsized) and short value (start-aligned in the filled row) */}
+            {([[line, setLine], [formLine, setFormLine]] as const).map(([v, set], i) => (
+              <Select key={i} value={v} onValueChange={set}>
+                <SelectTrigger label="Zeile" options={lineOptions.map((o) => o.label)}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {lineOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ))}
+            <SelectField label="Zeile" value={formLine} onChange={setFormLine} options={lineOptions} />
+          </div>
         </div>
       </Variant>
       <Variant label="crowded band — SearchInput holds its 14rem floor (placeholder never clipped); the band scrolls instead. minWidth overrides it">

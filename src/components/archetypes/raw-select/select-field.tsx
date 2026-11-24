@@ -111,7 +111,9 @@ export function SelectField({
   const joined = useInToolbarBand();
 
   return (
-    <FieldFrame className={cn(className, joined && hasWidthClass(className) && "shrink-0")}>
+    // In a band the frame is the flex item: never squeezed by a crowded band (it scrolls),
+    // never wider than its container (the content-fit value ellipsizes).
+    <FieldFrame className={cn(className, joined && "shrink-0 max-w-full")}>
       {/* Radix's trigger is a button, so the label associates via aria-labelledby
           (not htmlFor) — id on the Label, aria-labelledby on the trigger. */}
       {!joined && (

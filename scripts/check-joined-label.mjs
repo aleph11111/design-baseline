@@ -2,7 +2,8 @@
 // control value truncates. jsdom can't measure layout. Run: npm run check:joined-label
 // (builds gallery-dist first, uses local Chrome). Guards the grid layout of joined controls
 // (label column auto = its text up to 8rem; value column floored at content width in
-// SelectTrigger/SegmentedControl so the band scrolls instead of clipping the value; a
+// SegmentedControl, and a content-fit SelectTrigger / SelectField frame `shrink-0`, so the band
+// scrolls instead of clipping the value — `max-w-full` caps it at a narrower container; a
 // NativeField input keeps that floor in the band but its value cell carries min-w-0, and the
 // filter sheet re-scopes the row's track to 130px + minmax(0,1fr), so a number input can
 // shrink below its intrinsic width there): dropping any of that fails the band runs or the
@@ -21,7 +22,7 @@ const url = `${gallery.url}/#/l/page-frame`;
 const browser = await launchChrome();
 const failures = [];
 let n = 0;
-const total = 16;
+const total = 17;
 const report = (label, ok, detail) => {
   n++;
   console.log(`[${new Date().toTimeString().slice(0, 8)}] ${n}/${total} ${ok ? "ok  " : "FAIL"} ${label}: ${detail}`);
@@ -153,7 +154,8 @@ try {
   await page.locator("[data-toolbar-band] [data-joined-label]").first().waitFor({ timeout: 5000 });
   const fit = await page.evaluate(() =>
     [...document.querySelectorAll('button[role="combobox"]:has(> [data-joined-label])')]
-      .filter((t) => getComputedStyle(t).display === "grid" && t.closest("[data-toolbar-band]"))
+      // the 360px narrow demo truncates by design (its own run below)
+      .filter((t) => getComputedStyle(t).display === "grid" && t.closest("[data-toolbar-band]") && !t.closest('[data-testid="content-fit-narrow"]'))
       .map((t) => {
         const ghosts = [...t.querySelectorAll(":scope > [data-option-ghost]")];
         const value = [...t.children].filter((c) => c.tagName.toLowerCase() !== "svg").pop();
@@ -201,6 +203,48 @@ try {
   await page.close();
 } catch (e) {
   report("content-fit width stable across selection @ 1440px", false, e.message.split("\n")[0]);
+}
+
+// Narrow container (360px): a content-fit band select whose longest option is wider than the
+// container caps at it (value ellipsized, chevron inside); outside a band a labelled select fills
+// its row with no option ghosts and a start-aligned value. Nothing widens the container or page.
+try {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await page.goto(url);
+  const box = page.locator('[data-testid="content-fit-narrow"]');
+  await box.waitFor({ timeout: 5000 });
+  const r = await box.evaluate((root) => {
+    const b = root.getBoundingClientRect();
+    const textLeft = (el) => { const x = document.createRange(); x.selectNodeContents(el); return x.getBoundingClientRect().left; };
+    const triggers = [...root.querySelectorAll('button[role="combobox"]')].map((t) => {
+      const tr = t.getBoundingClientRect();
+      const value = [...t.children].filter((c) => c.tagName.toLowerCase() !== "svg").pop();
+      const v = value.getBoundingClientRect();
+      return {
+        band: !!t.closest("[data-toolbar-band]"),
+        inside: tr.right <= b.right + 0.5 && t.querySelector("svg").getBoundingClientRect().right <= tr.right + 0.5 && v.right <= tr.right + 0.5,
+        ghosts: t.querySelectorAll("[data-option-ghost]").length,
+        // the parent's content box (the form card has padding)
+        fills: (() => { const p = t.parentElement, cs = getComputedStyle(p); return Math.abs(tr.width - (p.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight))) < 1; })(),
+        // line-clamp overflows vertically: same predicate as the band runs' valueWhole
+        ellipsized: value.scrollWidth > value.clientWidth + 1 || value.scrollHeight > value.clientHeight + 1,
+        startAligned: textLeft(value) - v.left <= 1,
+      };
+    });
+    return { overflow: root.scrollWidth > root.clientWidth, page: document.documentElement.scrollWidth > window.innerWidth, triggers };
+  });
+  const band = r.triggers.filter((t) => t.band);
+  const form = r.triggers.filter((t) => !t.band);
+  // form: bare labelled triggers with the long value (ellipsized) and the short one (start-aligned,
+  // the case a centred button would fail), then a stacked SelectField
+  const ok = !r.overflow && !r.page && band.length === 1 && form.length === 3 &&
+    r.triggers.every((t) => t.inside && t.startAligned) &&
+    band.every((t) => t.ghosts > 0 && t.ellipsized) &&
+    form.every((t) => t.ghosts === 0 && t.fills) && form[0].ellipsized && !form[1].ellipsized;
+  report("content-fit capped in a 360px container @ 1440px", ok, JSON.stringify(r));
+  await page.close();
+} catch (e) {
+  report("content-fit capped in a 360px container @ 1440px", false, e.message.split("\n")[0]);
 }
 
 // Phone filter sheet: content-fit is a band device only — the sheet's own `w-full!` still makes

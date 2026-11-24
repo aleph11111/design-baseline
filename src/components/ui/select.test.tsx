@@ -1,7 +1,11 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { Select, SelectTrigger, SelectValue } from "./select";
-import { ControlDensityProvider, JoinedLabelText, hasWidthClass } from "./toolbar-band";
+import { ControlDensityProvider, JoinedLabelText, ToolbarBandContext, hasWidthClass } from "./toolbar-band";
+
+const Band = ({ children }: { children: React.ReactNode }) => (
+  <ToolbarBandContext.Provider value={true}>{children}</ToolbarBandContext.Provider>
+);
 
 afterEach(() => {
   cleanup();
@@ -86,29 +90,52 @@ describe("SelectTrigger joined label", () => {
     expect(labelClasses).toContain("max-w-[max(min(8rem,60%),calc(4ch+1.5rem))]");
   });
 
-  it("a content-sized labelled trigger floors at label floor + full value", () => {
+  it("a content-fit band trigger is label + widest option, capped at its container", () => {
+    render(
+      <Band>
+        <Select value="a">
+          <SelectTrigger label="Scenario">
+            <SelectValue>Actuals</SelectValue>
+          </SelectTrigger>
+        </Select>
+      </Band>
+    );
+    const classes = classSet(screen.getByRole("combobox"));
+    // never stretched across the band, never wider than its container, never squeezed by a crowded band
+    expect(classes).toContain("w-fit");
+    expect(classes).toContain("max-w-full");
+    expect(classes).toContain("shrink-0");
+    expect(classes).not.toContain("w-full");
+    // the value column yields to the cap, so the value ellipsizes instead of overflowing
+    expect(classes).toContain("grid-cols-[auto_minmax(0,1fr)_auto]");
+    expect(classes).toContain("text-start");
+  });
+
+  it("outside a band a labelled trigger fills its row and ignores options", () => {
     render(
       <Select value="a">
-        <SelectTrigger label="Scenario">
-          <SelectValue>Actuals</SelectValue>
+        <SelectTrigger label="Zeile" options={["A very long option label indeed", "B"]}>
+          <SelectValue>B</SelectValue>
         </SelectTrigger>
       </Select>
     );
-    const classes = classSet(screen.getByRole("combobox"));
-    expect(classes).toContain("min-w-min");
-    expect(classes).toContain("grid-cols-[auto_minmax(max-content,1fr)_auto]");
-    // content-fit: never stretched across the band
-    expect(classes).toContain("w-fit");
-    expect(classes).not.toContain("w-full");
+    const trigger = screen.getByRole("combobox", { name: "Zeile" });
+    const classes = classSet(trigger);
+    expect(classes).toContain("w-full");
+    expect(classes).not.toContain("w-fit");
+    expect(classes).toContain("grid-cols-[auto_minmax(0,1fr)_auto]");
+    expect(trigger.querySelector("[data-option-ghost]")).toBeNull();
   });
 
   it("stacks every option as an invisible ghost before the value (content-fit only)", () => {
     const { rerender } = render(
-      <Select value="a">
-        <SelectTrigger label="Jahr" options={["2026 · A+B", "2025"]}>
-          <SelectValue>2025</SelectValue>
-        </SelectTrigger>
-      </Select>
+      <Band>
+        <Select value="a">
+          <SelectTrigger label="Jahr" options={["2026 · A+B", "2025"]}>
+            <SelectValue>2025</SelectValue>
+          </SelectTrigger>
+        </Select>
+      </Band>
     );
     const trigger = screen.getByRole("combobox", { name: "Jahr" });
     const ghosts = [...trigger.querySelectorAll("[data-option-ghost]")];
@@ -117,12 +144,14 @@ describe("SelectTrigger joined label", () => {
     // the value stays the last cell before the chevron
     expect(trigger.lastElementChild?.previousElementSibling?.hasAttribute("data-option-ghost")).toBe(false);
     rerender(
-      <Select value="a">
-        {/* adherence-ok: fixed-width-band-select — tests the deliberate fixed-box path */}
-        <SelectTrigger label="Jahr" className="w-44" options={["2026 · A+B", "2025"]}>
-          <SelectValue>2025</SelectValue>
-        </SelectTrigger>
-      </Select>
+      <Band>
+        <Select value="a">
+          {/* adherence-ok: fixed-width-band-select — tests the deliberate fixed-box path */}
+          <SelectTrigger label="Jahr" className="w-44" options={["2026 · A+B", "2025"]}>
+            <SelectValue>2025</SelectValue>
+          </SelectTrigger>
+        </Select>
+      </Band>
     );
     // the fixed box is unchanged: no ghosts
     expect(screen.getByRole("combobox").querySelector("[data-option-ghost]")).toBeNull();
