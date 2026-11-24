@@ -166,11 +166,44 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   // page text) is the intended overlap. Intersects the PAINTED line fragments
   // (`getClientRects`), not the element box: a wrapping element's box is the
   // union of its lines, which intersects line neighbours even when the glyphs
-  // don't touch. An element with no painted fragments (jsdom has no layout)
-  // falls back to its box so the helper stays testable.
+  // don't touch. But `getClientRects` returns UNCLIPPED geometry — a truncated
+  // link's boxes, or cells scrolled off the right of a scroller, extend past
+  // the ancestor that hides them — so every fragment is also intersected with
+  // the boxes of its overflow-clipping and scrolling ancestors (both axes),
+  // and clips that disappear are deleted: hidden text is not painted, so it
+  // is not included in the overlap. Elements with no painted fragments (jsdom
+  // has no layout) fall back to their box, so the helper remains testable.
+  const CLIP_VALS = new Set(["hidden", "clip", "auto", "scroll"]);
+  const clipBox = (el) => {
+    // A region of text painted by an overflow ancestor: hidden/clip box, or
+    // (auto/scroll) scrollport — content outside is invisible.
+    const r = { left: -Infinity, top: -Infinity, right: Infinity, bottom: Infinity };
+    for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+      const s = getComputedStyle(a);
+      // jsdom does not expand the `overflow` shorthand into the longhands
+      // (see the textClip check above), so read the shorthand's tokens too:
+      // first token is x, second is y (a single token applies to both).
+      const t = s.overflow ? s.overflow.trim().split(/\s+/) : ["", ""];
+      const cutX = CLIP_VALS.has(s.overflowX) || CLIP_VALS.has(t[0]);
+      const cutY = CLIP_VALS.has(s.overflowY) || CLIP_VALS.has(t.length === 1 ? t[0] : t[1]);
+      if (!cutX && !cutY) continue;
+      const ar = a.getBoundingClientRect();
+      if (cutX) { r.left = Math.max(r.left, ar.left); r.right = Math.min(r.right, ar.right); }
+      if (cutY) { r.top = Math.max(r.top, ar.top); r.bottom = Math.min(r.bottom, ar.bottom); }
+    }
+    return r;
+  };
   const fragments = (el) => {
-    const rs = [...el.getClientRects()].filter((r) => r.width > 1 && r.height > 1);
-    return rs.length ? rs : [el.getBoundingClientRect()];
+    const c = clipBox(el);
+    const rs = [...el.getClientRects()];
+    const src = rs.length ? rs : [el.getBoundingClientRect()];
+    const out = [];
+    for (const r of src) {
+      const l = Math.max(r.left, c.left), t = Math.max(r.top, c.top);
+      const rt = Math.min(r.right, c.right), b = Math.min(r.bottom, c.bottom);
+      if (rt - l > 1 && b - t > 1) out.push({ left: l, top: t, right: rt, bottom: b });
+    }
+    return out.length ? out : [el.getBoundingClientRect()];
   };
   const boxes = [...document.body.querySelectorAll("*")]
     .filter((el) => visible(el) && ownText(el))

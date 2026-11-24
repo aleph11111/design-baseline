@@ -314,6 +314,34 @@ describe("page invariants", () => {
     expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
   });
 
+  it("textOverlap: text a clipping ancestor hides is not painted, so it never overlaps a neighbour", async () => {
+    // getClientRects returns UNCLIPPED geometry: the truncating link's fragment
+    // runs its full natural width (..300) past its overflow:hidden cell (..200)
+    // into the badge's band (210..310). The cell paints nothing there, so the
+    // clipped fragment is empty and no overlap exists.
+    const cellFixture = (clipStyle: string) => {
+      document.body.innerHTML =
+        "<div class='db-content-column'><div id='cell' style='" + clipStyle + "'><span id='long'>A very long customer name</span></div><span id='badge'>Sh</span></div>";
+      const cell = document.getElementById("cell")!;
+      const long = document.getElementById("long")!;
+      const badge = document.getElementById("badge")!;
+      box(cell, 0, 0, 200, 44); // paints 0..200
+      box(long, 0, 0, 300, 44); // unclipped geometry overruns the cell
+      box(badge, 210, 0, 100, 44); // 210..310: under the unclipped long span, never under the painted part
+      return { long, badge };
+    };
+    cellFixture("overflow:hidden");
+    expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
+    // a scroller clips just like a hidden box (the donor table pattern)
+    cellFixture("overflow:auto");
+    expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
+    // but text PAINTED inside the visible band still collides: move the badge so
+    // its band (150..250) intersects the long span's painted part (0..200)
+    const { badge } = cellFixture("overflow:hidden");
+    box(badge, 150, 0, 100, 44);
+    expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap:.*overlap/)]));
+  });
+
   it("knownGaps: each new code downgrades to a warning naming its ticket", async () => {
     // The downgrade slicing is code-independent (`p.slice(0, p.indexOf(":"))`), but
     // this proves each NEW code's key is a valid `InvariantCode` that round-trips to
