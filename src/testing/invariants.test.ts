@@ -314,6 +314,23 @@ describe("page invariants", () => {
     expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
   });
 
+  it("textOverlap: a scroller both boxes share must not hide overlaps below its visible box", async () => {
+    // The page scrolls inside its overflow:auto container (AppShell `main`):
+    // two boxes inside it scroll TOGETHER, so an overlap below the scroller's
+    // visible box is still a real collision. A scroller that holds only one
+    // side still cuts (covered by the "scrolled-off" test — the span overruns
+    // its own cell into the sibling outside the cell).
+    document.body.innerHTML =
+      "<div class='db-content-column'><div id='pane' style='overflow:auto'><span id='a'>A</span><span id='b'>B</span></div></div>";
+    const pane = document.getElementById("pane")!;
+    const a = document.getElementById("a")!;
+    const b = document.getElementById("b")!;
+    box(pane, 0, 0, 390, 500); // the visible scroller box: top 500px
+    box(a, 0, 900, 120, 44); // below the fold, inside the scroller's content
+    box(b, 60, 900, 120, 44); // overlaps a at x 60..120, y 900..944
+    expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap:.*overlap/)]));
+  });
+
   it("textOverlap: text a clipping ancestor hides is not painted, so it never overlaps a neighbour", async () => {
     // getClientRects returns UNCLIPPED geometry: the truncating link's fragment
     // runs its full natural width (..300) past its overflow:hidden cell (..200)
