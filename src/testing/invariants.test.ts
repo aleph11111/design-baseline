@@ -337,9 +337,29 @@ describe("page invariants", () => {
     expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
     // but text PAINTED inside the visible band still collides: move the badge so
     // its band (150..250) intersects the long span's painted part (0..200)
-    const { badge } = cellFixture("overflow:hidden");
+    document.body.innerHTML =
+      "<div class='db-content-column'><div id='cell' style='overflow:hidden'><span id='long'>A very long customer name</span></div><span id='badge'>Sh</span></div>";
+    const cell = document.getElementById("cell")!;
+    const long = document.getElementById("long")!;
+    const badge = document.getElementById("badge")!;
+    box(cell, 0, 0, 200, 44);
+    box(long, 0, 0, 300, 44);
     box(badge, 150, 0, 100, 44);
     expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap:.*overlap/)]));
+
+    // a span FULLY clipped — not a sliver (0..300 in 0..200) but wholly past the
+    // clip edge (210..310 in 0..200) — has NO painted fragment, so an empty
+    // fragment list must not fall back to the unclipped box. A neighbour at the
+    // span's natural band (210..310) does NOT overlap.
+    document.body.innerHTML =
+      "<div class='db-content-column'><div id='cell2' style='overflow:hidden'><span id='gone'>Off screen</span></div><span id='rail'>Rail</span></div>";
+    const cell2 = document.getElementById("cell2")!;
+    const gone = document.getElementById("gone")!;
+    const rail = document.getElementById("rail")!;
+    box(cell2, 0, 0, 200, 44); // paints 0..200
+    box(gone, 210, 0, 100, 44); // natural band 210..310, entirely past the clip edge
+    box(rail, 210, 0, 100, 44); // under the gone span's unclipped band, never the painted one
+    expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
   });
 
   it("knownGaps: each new code downgrades to a warning naming its ticket", async () => {

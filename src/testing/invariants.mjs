@@ -195,6 +195,10 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   };
   const fragments = (el) => {
     const c = clipBox(el);
+    // `getClientRects` is empty only where there is no layout at all (jsdom):
+    // then the box stands in for the fragments, clipped the same way. With real
+    // layout an empty result after clipping means nothing is painted — it must
+    // NOT fall back to the unclipped box, or hidden text overlaps again.
     const rs = [...el.getClientRects()];
     const src = rs.length ? rs : [el.getBoundingClientRect()];
     const out = [];
@@ -203,7 +207,7 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
       const rt = Math.min(r.right, c.right), b = Math.min(r.bottom, c.bottom);
       if (rt - l > 1 && b - t > 1) out.push({ left: l, top: t, right: rt, bottom: b });
     }
-    return out.length ? out : [el.getBoundingClientRect()];
+    return out;
   };
   const boxes = [...document.body.querySelectorAll("*")]
     .filter((el) => visible(el) && ownText(el))
