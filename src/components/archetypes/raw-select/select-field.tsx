@@ -139,6 +139,8 @@ export function SelectField({
           aria-describedby={describedBy}
           aria-invalid={invalid}
           fixedWidth={hasWidthClass(className)}
+          // content-fit in the band: sized to the widest option, stable across selections
+          options={placeholder ? [placeholder, ...options.map((o) => o.label)] : options.map((o) => o.label)}
           className={cn(error && FIELD_ERROR_RING)}
         >
           <SelectValue placeholder={placeholder} />

@@ -62,6 +62,9 @@
 //                              attribute's line or the line above; the reason is required.
 //   toolbarSwitch: true      — same check for a bare `Switch` (use `ToggleField`);
 //                              opt-out id `bare-switch-in-toolbar`.
+//   bandSelectWidth: true    — `findBandSelectWidth`: a fixed `w-*` on a labelled `SelectTrigger`
+//                              (anywhere) or a `SelectField` inside `toolbar={…}` — band selects
+//                              are content-fit. Opt-out id `fixed-width-band-select`.
 //   handRolledCombobox: true — `findHandRolledCombobox`: a searchable picker built from local
 //                              state (open flag, query state, `.filter(`ed options, own
 //                              `ArrowDown`/`mousedown` handling) — `ComboboxField`
@@ -307,6 +310,52 @@ function findToolbarTabs(text, tags = 'Tabs|TabsList|SegmentedControl', ruleId =
   return hits;
 }
 
+// Report a fixed width (`w-44`, `size-…`; not `w-auto|fit|full|min|max`, not breakpoint-prefixed —
+// the `hasWidthClass` rule in src/components/ui/toolbar-band.tsx) on a band select: any
+// `<SelectTrigger … label=…>` (the joined label exists only for the band, so the tag is band-scoped
+// wherever the file builds it) or an app's own `<…Select label=…>` wrapper (`ReportSelect`), and a
+// `<SelectField>` inside a `toolbar={…}` attribute (it also stacks its label in forms). Without a
+// width the trigger is content-fit: sized to its widest option. Read from the original text at the
+// blanked code's offsets (blanking hides the class string). Opt-out for a deliberate fixed box:
+// `adherence-ok: fixed-width-band-select — <reason>` on the tag's line or the line above.
+// Ceiling (ADR-0003, no parser): a width in an expression (`className={width}`) is not seen.
+const FIXED_WIDTH = /(^|\s)(?:w|size)-(?!(?:auto|fit|full|min|max)(?:\s|$))\S+/;
+function findBandSelectWidth(text) {
+  const code = text.replace(
+    /"(?:\\.|[^"\\\n])*"|(?<!\w)'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`|\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,
+    (m) => m.replace(/[^\n]/g, ' '),
+  );
+  // [start, end) of every toolbar={…} attribute
+  const toolbars = [];
+  for (const m of code.matchAll(/\btoolbar=\{/g)) {
+    let depth = 1;
+    let i = m.index + m[0].length;
+    for (; i < code.length && depth; i++) depth += code[i] === '{' ? 1 : code[i] === '}' ? -1 : 0;
+    if (!depth) toolbars.push([m.index, i]);
+  }
+  const lines = text.split('\n');
+  const hits = [];
+  for (const m of code.matchAll(/<(SelectTrigger|SelectField|[A-Z]\w*Select)(?=[\s/>])/g)) {
+    // the opening tag ends at the first `>` outside braces
+    let depth = 0;
+    let i = m.index + m[0].length;
+    for (; i < code.length && !(code[i] === '>' && depth === 0); i++) depth += code[i] === '{' ? 1 : code[i] === '}' ? -1 : 0;
+    const tag = code.slice(m.index, i);
+    const inBand = m[1] === 'SelectField' ? toolbars.some(([s, e]) => m.index > s && m.index < e) : /\slabel=/.test(tag);
+    if (!inBand) continue;
+    const cls = /\sclassName=/.exec(tag);
+    if (!cls) continue;
+    // the class attribute's string literals, up to the next attribute
+    const rest = text.slice(m.index + cls.index, i);
+    const attr = rest.slice(0, (/\s[A-Za-z-]+=/.exec(rest.slice(11)) ?? { index: rest.length }).index + 11);
+    if (![...attr.matchAll(/"([^"]*)"|'([^']*)'|`([^`]*)`/g)].some((s) => FIXED_WIDTH.test(s[1] ?? s[2] ?? s[3]))) continue;
+    const line = text.slice(0, m.index).split('\n').length;
+    if (lines.slice(Math.max(0, line - 2), line).some((l) => /adherence-ok:\s*fixed-width-band-select\s*[—–:-]+\s*\S/.test(l))) continue;
+    hits.push({ tag: m[1], line, col: text.slice(0, m.index).split('\n').at(-1).length + 1 });
+  }
+  return hits;
+}
+
 // Report a hand-rolled combobox: one file holding an open-flag `useState`, a search-query
 // `useState`, a `.filter(` whose call (or the two lines above it) references that query, and popup plumbing of its own
 // (an `ArrowDown` key branch or a `mousedown` outside-click listener). All four must co-occur:
@@ -422,6 +471,8 @@ const FILE_CHECKS = {
   },
   handRolledCombobox: (text, rule) => findHandRolledCombobox(text).map(({ line, col }) => ({ line, col, message: rule.message })),
   toolbarSwitch: toolbarCheck('Switch', 'bare-switch-in-toolbar'),
+  bandSelectWidth: (text, rule) =>
+    findBandSelectWidth(text).map(({ tag, line, col }) => ({ line, col, message: `\`<${tag}>\` in a toolbar band carries a fixed width class. ${rule.message}` })),
 };
 
 // The ratchet's other half: a `grandfathered` entry that is not a scanned, in-scope page file
@@ -679,4 +730,4 @@ if (process.argv[1] && pathToFileURL(realpathSync(process.argv[1])).href === imp
   main();
 }
 
-export { compileGlobs, compileRules, scanFile, findSwallowedSlots, findToolbarTabs, findHandRolledCombobox, findPageShellIssues, loadPageShells, staleGrandfathered, harvestUnionAliases, includeReachableUnder, CompileError };
+export { compileGlobs, compileRules, scanFile, findSwallowedSlots, findToolbarTabs, findHandRolledCombobox, findBandSelectWidth, findPageShellIssues, loadPageShells, staleGrandfathered, harvestUnionAliases, includeReachableUnder, CompileError };

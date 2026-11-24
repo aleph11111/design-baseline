@@ -48,12 +48,20 @@ const SelectTrigger = React.forwardRef<
        * class on `className`). `SelectField` passes it when ITS root carries the width.
        */
       fixedWidth?: boolean;
+      /**
+       * Every option's label (and the placeholder), for a content-fit labelled trigger: rendered
+       * as invisible text stacked in the value's grid cell, so the trigger is as wide as its
+       * WIDEST option and keeps that width when the selection changes. `SelectField` fills it
+       * from its `options`. Ignored without `label` or in a fixed-width box.
+       */
+      options?: React.ReactNode[];
     }
->(({ className, children, size, label, fixedWidth, ...props }, ref) => {
+>(({ className, children, size, label, fixedWidth, options, ...props }, ref) => {
   const labelId = React.useId();
   const bandSize = useControlSize();
   const step = useTouchLift(size);
   const fixed = label != null && (fixedWidth ?? hasWidthClass(className));
+  const contentFit = label != null && !fixed;
   return (
     <SelectPrimitive.Trigger
       ref={ref}
@@ -63,7 +71,9 @@ const SelectTrigger = React.forwardRef<
           (fixed
             ? // fixed box: plain flex row — the label gives way first (FIXED_BOX_LABEL_CLASS), then the value truncates
               "shrink-0 overflow-hidden pl-0"
-            : "grid min-w-min grid-cols-[auto_minmax(max-content,1fr)_auto] overflow-hidden pl-0"),
+            : // content-fit: as wide as label + widest option, never the band's width. Every child sits
+              // in row 1, the value and its option ghosts stacked in column 2.
+              "grid w-fit min-w-min grid-cols-[auto_minmax(max-content,1fr)_auto] overflow-hidden pl-0 [&>*]:col-start-2 [&>*]:row-start-1 [&>[data-joined-label]]:col-start-1 [&>svg]:col-start-3"),
         className
       )}
       {...props}
@@ -79,6 +89,13 @@ const SelectTrigger = React.forwardRef<
           <JoinedLabelText>{label}</JoinedLabelText>
         </span>
       )}
+      {/* before `children`: the value stays the last cell before the chevron */}
+      {contentFit &&
+        options?.map((o, i) => (
+          <span key={i} data-option-ghost="" aria-hidden="true" className="invisible whitespace-nowrap">
+            {o}
+          </span>
+        ))}
       {children}
       <SelectPrimitive.Icon asChild>
         <ChevronDown className="ml-auto h-4 w-4 opacity-50 shrink-0" />

@@ -1638,3 +1638,40 @@ describe("pageframe-body-call-site (ADR-0015: the body shape belongs to the arch
     expect(status).toBe(0);
   });
 });
+
+describe("the `fixed-width-band-select` rule — band selects are content-fit", async () => {
+  const { compileRules, scanFile } = await import("./lint-design.mjs");
+  const compiled = compileRules([{ id: "fixed-width-band-select", bandSelectWidth: true, severity: "warn", message: "drop the width" }]);
+  const scan = (src) => scanFile("src/pages/x.tsx", src, compiled);
+
+  it("warns on a fixed width on a labelled SelectTrigger, wherever the file builds it", () => {
+    const hits = scan(`<Select>\n  <SelectTrigger label="Jahr" className="w-44">\n    <SelectValue />\n  </SelectTrigger>\n</Select>`);
+    expect(hits).toHaveLength(1);
+    expect(hits[0]).toMatchObject({ rule: "fixed-width-band-select", line: 2 });
+    // multi-line tag, cn() call, size- utility
+    expect(scan(`<SelectTrigger\n  className={cn("mt-1", "size-40")}\n  label={<b>Jahr</b>}\n>`)).toHaveLength(1);
+    // an app's own labelled select wrapper forwards to the joined trigger
+    expect(scan(`<ReportSelect value={v} label="Struktur" className="w-72" />`)).toHaveLength(1);
+    expect(scan(`<CellSelect className="w-40" />`)).toEqual([]);
+  });
+
+  it("warns on a fixed width on a SelectField inside toolbar only", () => {
+    expect(scan(`<PageFrame toolbar={<SelectField label="Jahr" className="w-40" options={o} />} />`)).toHaveLength(1);
+    expect(scan(`<form><SelectField label="Jahr" className="w-40" options={o} /></form>`)).toEqual([]);
+  });
+
+  it("is clean for content-fit, intrinsic or breakpoint widths, unlabelled triggers and expressions", () => {
+    expect(scan(`<SelectTrigger label="Jahr" options={o}>`)).toEqual([]);
+    expect(scan(`<SelectTrigger label="Jahr" className="w-full md:w-40">`)).toEqual([]);
+    expect(scan(`<SelectTrigger aria-label="Jahr" className="w-44">`)).toEqual([]);
+    expect(scan(`<SelectTrigger label={label} className={width}>`)).toEqual([]);
+    // a width on a later attribute's string is not the class's
+    expect(scan(`<SelectTrigger className="mt-2" label="w-44">`)).toEqual([]);
+  });
+
+  it("honours an inline opt-out only when it names a reason", () => {
+    const tag = (note) => `{/* ${note} */}\n<SelectTrigger label="Jahr" className="w-44">`;
+    expect(scan(tag("adherence-ok: fixed-width-band-select — fixed grid column"))).toEqual([]);
+    expect(scan(tag("adherence-ok: fixed-width-band-select"))).toHaveLength(1);
+  });
+});

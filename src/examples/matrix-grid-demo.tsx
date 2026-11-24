@@ -421,7 +421,7 @@ export function MatrixGridDemo() {
         }
         toolbar={
           <Select value={term} onValueChange={(v) => setTerm(v as "spring" | "summer")}>
-            <SelectTrigger label="Term" className="w-56">
+            <SelectTrigger label="Term" options={["Spring 2026", "Summer 2026"]}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

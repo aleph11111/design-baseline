@@ -38,6 +38,7 @@ import { SelectField } from "@/components/archetypes/raw-select";
 import { NativeField } from "@/components/archetypes/raw-input";
 import { SearchInput } from "@/components/ui/search-input";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ControlDensityProvider, JOINED_LABEL_CLASS, JoinedLabelText } from "@/components/ui/toolbar-band";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
@@ -796,6 +797,8 @@ function MetricListDemo() {
 function PageFrameDemo() {
   const [decimals, setDecimals] = React.useState(true);
   const [density, setDensity] = React.useState("comfortable");
+  const [year, setYear] = React.useState("2024");
+  const [structure, setStructure] = React.useState("short");
   const rows = (
     <Table>
       <TableHeader>
@@ -1010,6 +1013,39 @@ function PageFrameDemo() {
                   onChange={() => {}}
                   options={[{ value: "all", label: "Alle Werte (ungefiltert)" }]}
                 />
+              </>
+            }
+          >
+            {rows}
+          </PageFrame>
+        </div>
+      </Variant>
+      <Variant label="content-fit selects — no width class: each trigger is as wide as label + its LONGEST option, never the band, and keeps that width when the selection changes; checked by `npm run check:joined-label`">
+        <div data-testid="content-fit-band">
+          <PageFrame
+            title="Kontenplan"
+            toolbar={
+              <>
+                <SelectField
+                  label="Jahr"
+                  value={year}
+                  onChange={setYear}
+                  options={[
+                    { value: "2024", label: "2024" },
+                    { value: "2025", label: "2025 · A" },
+                    { value: "2026", label: "2026 · A+B" },
+                  ]}
+                />
+                {/* the bare-trigger form consumers compose: `options` feeds the width */}
+                <Select value={structure} onValueChange={setStructure}>
+                  <SelectTrigger label="Struktur" options={["GKV", "HGB §275 GKV"]}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="short">GKV</SelectItem>
+                    <SelectItem value="long">HGB §275 GKV</SelectItem>
+                  </SelectContent>
+                </Select>
               </>
             }
           >
