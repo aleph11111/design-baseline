@@ -49,4 +49,16 @@ describe("CheckboxListField", () => {
     expect(g.getAttribute("aria-describedby")).toContain("-error");
     expect(screen.getByText("Pick one")).toBeTruthy();
   });
+
+  it("keeps selected values that have no option when toggling", () => {
+    const onChange = vi.fn();
+    render(<CheckboxListField label="M" options={OPTIONS} value={["gone", "a"]} onChange={onChange} />);
+    fireEvent.click(screen.getByLabelText("Beta"));
+    expect(onChange).toHaveBeenLastCalledWith(["a", "b", "gone"]);
+  });
+
+  it("puts the id on the group", () => {
+    render(<CheckboxListField id="members" label="M" options={OPTIONS} value={[]} onChange={() => {}} />);
+    expect(screen.getByRole("group").id).toBe("members");
+  });
 });

@@ -82,7 +82,13 @@ export function CheckboxListField({
     const next = new Set(value);
     if (checked) next.add(optionValue);
     else next.delete(optionValue);
-    onChange(options.filter((o) => next.has(o.value)).map((o) => o.value));
+    // Known values keep `options` order; values with no matching option (archived,
+    // paged-out) are carried through untouched rather than dropped.
+    const known = new Set(options.map((o) => o.value));
+    onChange([
+      ...options.filter((o) => next.has(o.value)).map((o) => o.value),
+      ...value.filter((v) => !known.has(v)),
+    ]);
   };
 
   return (
@@ -93,6 +99,7 @@ export function CheckboxListField({
         </FieldLabel>
       )}
       <div
+        id={fieldId}
         role="group"
         aria-labelledby={label ? labelId : undefined}
         aria-describedby={describedBy}
