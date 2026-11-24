@@ -67,7 +67,13 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   const overlay = (el) => {
     const cached = overlayMemo.get(el);
     if (cached !== undefined) return cached;
+    // the element's OWN position too — a fixed feedback button or a sticky action
+    // bar carries its text and sits over the page; its ancestors aren't the only
+    // reason it is chrome.
+    const pos = getComputedStyle(el).position;
+    const own = pos === "fixed" || pos === "sticky";
     const hit =
+      own ||
       !!el.closest('[role="dialog"],[role="tooltip"],[role="menu"],[data-radix-popper-content-wrapper]') ||
       !!firstPos(el);
     overlayMemo.set(el, hit);
@@ -125,14 +131,20 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   for (const el of nested.slice(0, 5))
     problems.push(`nestedOverflow: ${describe(el)} scrolls sideways (${Math.round(el.scrollWidth)}px in a ${Math.round(el.clientWidth)}px box, no data-scroll-region)`);
 
-  // Cut-off text: a text-bearing box that `overflow: hidden|clip` clips wider
-  // than it is. An intentional ellipsis (`text-overflow: ellipsis`, the
-  // `truncate` surface) is a design choice, not a bug, so it is exempt;
-  // `pre`/`textarea`/`[role=dialog]` are excluded as in `scrollCue`.
+  // Cut-off text: a text-bearing box that clips HORIZONTALLY (the axis
+  // scrollWidth/clientWidth measure) wider than it is. An intentional ellipsis
+  // (`text-overflow: ellipsis`, the `truncate` surface) is a design choice, not
+  // a bug, so it is exempt; `pre`/`textarea`/`[role=dialog]` are excluded as in
+  // `scrollCue`. `overflowX` is the horizontal axis, but jsdom does not expand
+  // the `overflow` shorthand into it (`overflow:hidden` reports overflowX
+  // "visible"), so the shorthand's first token (also the x-axis) is read too.
+  // In a real browser the two always agree, so this only covers the jsdom unit
+  // surface — it can't add findings on the `check:viewports` (Chrome) path.
   for (const el of document.body.querySelectorAll("*")) {
     if (!visible(el) || !ownText(el) || el.closest("[role=dialog],pre,textarea")) continue;
     const s = getComputedStyle(el);
-    if (s.overflow !== "hidden" && s.overflow !== "clip") continue;
+    const oxTok = s.overflow.trim().split(/\s+/)[0];
+    if (s.overflowX !== "hidden" && s.overflowX !== "clip" && oxTok !== "hidden" && oxTok !== "clip") continue;
     if (el.scrollWidth <= el.clientWidth + 1) continue;
     if (s.textOverflow === "ellipsis") continue;
     problems.push(`textClip: ${describe(el)} is cut off by overflow (text ${el.scrollWidth}px > box ${el.clientWidth}px)`);

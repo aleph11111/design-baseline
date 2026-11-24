@@ -49,7 +49,10 @@ const SWEEP_GAPS = {
   // title's first line — a real textOverlap the v0.65.0 invariant surfaced.
   // Clean at 1133 (title ends 675px, button starts 691px) and at the triad;
   // the header fix lands in the follow-up ticket, not this PR (the check is
-  // strict, this only names the known gap so the sweep is green).
+  // strict, this only names the known gap so the sweep is green). The ticket
+  // lives on trunk (docs/backlog/transaction-document-header-title-action-overlap-1024.md,
+  // merged via the dashboard inbox before this PR) — this branch's diff does
+  // not create it on purpose.
   "transaction-document@1024:textOverlap": "transaction-document-header-title-action-overlap-1024",
 };
 const sweepGaps = (slug, w) => {

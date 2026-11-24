@@ -164,6 +164,19 @@ describe("page invariants", () => {
     Object.defineProperty(p, "scrollWidth", { configurable: true, value: 100 });
     f = await runCheck();
     expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
+    // HORIZONTAL-ONLY clipping: `overflow-x: hidden` with the vertical axis free
+    // (the computed `overflow` shorthand reads "hidden auto", so this case can
+    // only be caught by reading `overflowX` — the axis scrollWidth measures)
+    document.body.innerHTML = "<p></p>";
+    p = document.querySelector("p")!;
+    p.textContent = "wide";
+    p.style.overflowX = "hidden";
+    p.style.overflowY = "auto";
+    box(p, 0, 0, 100, 20);
+    Object.defineProperty(p, "scrollWidth", { configurable: true, value: 200 });
+    Object.defineProperty(p, "clientWidth", { configurable: true, value: 100 });
+    f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textClip:.*cut off by overflow/)]));
   });
 
   it("headingLines: an h1 taller than 2 line-heights fails; a 2-line h1 passes", async () => {
@@ -260,13 +273,26 @@ describe("page invariants", () => {
   });
 
   it("textOverlap: text in a position:fixed overlay (e.g. a BottomNav) over page text is exempt", async () => {
+    // (a) the fixed element is the ANCESTOR (a BottomNav wrapper): the text lives
+    // in a child. body 0..400y and nav 380..424y genuinely intersect — so a
+    // deleted exemption would be caught here (the rects must actually overlap).
     document.body.innerHTML = "<div class='db-content-column'><p>body</p></div><div style='position:fixed'><p>nav</p></div>";
     const body = document.querySelector(".db-content-column p")!;
     const nav = document.querySelector("div[style] p")!;
     box(body, 0, 0, 390, 400);
-    box(nav, 0, 800, 390, 44); // sits over the bottom of the body text
-    const f = await runCheck();
-    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
+    box(nav, 0, 380, 390, 44); // 20px overlap over the bottom of the body text
+    expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
+
+    // (b) the fixed element ITSELF carries the text (a fixed Feedback button):
+    // its own `position` must exempt it, not just a fixed ancestor. body 0..390x
+    // and fb 300..580 x 300..344y intersect (90 x 44px) — a real overlap that the
+    // exemption must explain.
+    document.body.innerHTML = "<div class='db-content-column'><p>body</p></div><div id='fb' style='position:fixed'>Feedback</div>";
+    const body2 = document.querySelector(".db-content-column p")!;
+    const fb = document.getElementById("fb")!;
+    box(body2, 0, 0, 390, 400);
+    box(fb, 300, 300, 280, 44); // overlap at x 300..390, y 300..344
+    expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
   });
 
   it("knownGaps: each new code downgrades to a warning naming its ticket", async () => {
