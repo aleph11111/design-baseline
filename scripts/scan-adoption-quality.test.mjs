@@ -677,3 +677,16 @@ describe("scanShadowedBaseline", () => {
     rmSync(dir, { recursive: true, force: true });
   });
 });
+
+describe("band-select-fixed-width signal", () => {
+  const rx = new RegExp(signalsDoc.adoptionQuality.find((s) => s.id === "band-select-fixed-width").regex);
+  it("flags a fixed width on a joined-label select, in either attribute order and across `=>`", () => {
+    expect(rx.test(`<SelectTrigger label="Jahr" className="w-44">`)).toBe(true);
+    expect(rx.test(`<ReportSelect\n  onChange={(v) => set(v)}\n  label="Struktur"\n  className="w-72"\n/>`)).toBe(true);
+    expect(rx.test(`<SelectTrigger className="mt-1 w-44" label="Jahr">`)).toBe(true);
+  });
+  it("ignores aria-label, intrinsic and breakpoint widths", () => {
+    expect(rx.test(`<SelectTrigger aria-label="Jahr" className="w-44">`)).toBe(false);
+    expect(rx.test(`<SelectTrigger label="Jahr" className="w-full md:w-40">`)).toBe(false);
+  });
+});
