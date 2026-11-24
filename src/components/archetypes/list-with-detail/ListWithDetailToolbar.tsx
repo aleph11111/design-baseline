@@ -31,7 +31,9 @@ export function ListWithDetailToolbar({
   const hasSearch = onSearchChange !== undefined || searchValue !== undefined;
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-3", className)}>
+    // grow: the band lays this wrapper out as ONE content-sized flex item, so without it the search's
+    // flex-1 has no free space and sits at its 14rem floor. basis stays auto — a crowded band still scrolls.
+    <div className={cn("flex grow flex-wrap items-center gap-3", className)}>
       {hasSearch && (
         <SearchInput
           value={searchValue}
