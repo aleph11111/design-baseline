@@ -42,9 +42,20 @@ const STEPS = [
 const KNOWN_GAPS = {};
 // Sweep findings with a ticket, keyed `<slug>@<width>:<code>` → ticket slug.
 // Per page and width, so a sweep gap never downgrades a code at the triad.
-// Empty on purpose: the first sweep run (2026-11-09, 51/51 ok) found no
-// finding at any width — toolbarRows at 1024 included.
-const SWEEP_GAPS = {};
+const SWEEP_GAPS = {
+  // At 1024 the transaction-document header is side-by-side (title | actions);
+  // the "Print packing slip" button is `whitespace-nowrap` and wider than its
+  // actions container, so it overflows left and its icon paints over the
+  // title's first line — a real textOverlap the v0.65.0 invariant surfaced.
+  // Clean at 1133 (title ends 675px, button starts 691px) and at the triad;
+  // the header fix lands in the follow-up ticket, not this PR (the check is
+  // strict, this only names the known gap so the sweep is green).
+  "transaction-document@1024:textOverlap": "transaction-document-header-title-action-overlap-1024",
+};
+const sweepGaps = (slug, w) => {
+  const prefix = `${slug}@${w}:`;
+  return Object.fromEntries(Object.entries(SWEEP_GAPS).filter(([k]) => k.startsWith(prefix)).map(([k, t]) => [k.slice(prefix.length), t]));
+};
 
 const gallery = await serveDir(DIST);
 const base = `${gallery.url}/#/a/`;
@@ -109,9 +120,7 @@ for (const slug of PAGES) {
     try {
       let page;
       ({ ctx, page } = await open(slug, device));
-      const prefix = `${slug}@${w}:`;
-      const gaps = Object.fromEntries(Object.entries(SWEEP_GAPS).filter(([k]) => k.startsWith(prefix)).map(([k, t]) => [k.slice(prefix.length), t]));
-      report(label, await checkPageInvariants(page, device, { knownGaps: gaps, fullBleed: FULL_BLEED.includes(slug) }));
+      report(label, await checkPageInvariants(page, device, { knownGaps: sweepGaps(slug, w), fullBleed: FULL_BLEED.includes(slug) }));
     } catch (e) {
       report(label, fail(e.message.split("\n")[0]));
     } finally {
@@ -351,7 +360,11 @@ for (const [radio, shot] of TD_VARIANTS) {
       await page.getByRole("radio", { name: radio }).click();
       await page.waitForTimeout(300); // ledger ResizeObserver settles
       const triad = name in devices;
-      const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: triad ? columnFor("transaction-document", name) : undefined, fullBleed: false });
+      // Sweep-width passes honor the per-width sweep gaps (a variant's sweep is
+      // a sweep finding too); the triad passes stay on donor-wide KNOWN_GAPS only,
+      // so the invariant is strict at the triad and only the named sweep width softens.
+      const knownGaps = triad ? KNOWN_GAPS : { ...KNOWN_GAPS, ...sweepGaps("transaction-document", device.viewport.width) };
+      const result = await checkPageInvariants(page, device, { knownGaps, column: triad ? columnFor("transaction-document", name) : undefined, fullBleed: false });
       const bad = [...result.failures];
       const wide = await page.$$eval('[data-slot="td-ledger"], [data-slot="td-ledger"] *', (els) =>
         els.filter((el) => ["auto", "scroll"].includes(getComputedStyle(el).overflowX) && el.scrollWidth > el.clientWidth + 1).map((el) => `<${el.tagName.toLowerCase()}> ${el.scrollWidth}>${el.clientWidth}`));

@@ -86,4 +86,208 @@ describe("page invariants", () => {
     expect(await run(bottomBar, 775, 0, 789, 69, 44)).toHaveLength(1); // ...but not on a page that cannot scroll
     expect(await run(bottomBar, 775, 200, 810, 69, 44)).toEqual([]); // visible part under the bar, rest below the viewport
   });
+
+  // jsdom has no layout: run the real `measure` against a fixed DOM and stub the
+  // geometry each check reads. `runCheck` runs `measure` in-page, as a consumer does.
+  const runCheck = (): Promise<string[]> =>
+    checkPageInvariants(
+      { evaluate: async (fn, a) => ((fn as (a: unknown) => unknown)(a)) as never },
+      devices.laptop14,
+    ).then((r) => r.failures);
+  const box = (el: Element, l: number, top: number, w: number, h: number, right?: number) => {
+    const rect = () => {
+      const rr = { left: l, top, width: w, height: h, right: right ?? l + w, bottom: top + h, x: l, y: top };
+      const obj = { ...rr, toJSON: () => rr };
+      return obj as unknown as DOMRect;
+    };
+    el.getBoundingClientRect = rect;
+  };
+  const scroller = () => {
+    const s = document.createElement("div");
+    s.style.overflowX = "auto";
+    box(s, 0, 0, 100, 50);
+    Object.defineProperty(s, "scrollWidth", { configurable: true, value: 200 });
+    Object.defineProperty(s, "clientWidth", { configurable: true, value: 100 });
+    return s;
+  };
+
+  it("nestedOverflow: an overflow-x scroller wider than its box fails; data-scroll-region (self or ancestor) exempts; content that fits passes", async () => {
+    document.body.innerHTML = "<div class='db-content-column'></div>";
+    const col = document.querySelector(".db-content-column")!;
+    const unmarked = scroller();
+    col.appendChild(unmarked);
+    let f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^nestedOverflow:.*scrolls sideways/)]));
+    // content that fits: scrollWidth == clientWidth → no finding
+    Object.defineProperty(unmarked, "scrollWidth", { configurable: true, value: 100 });
+    f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^nestedOverflow/)]));
+    // intended: a wide table opts out with the marker on the scroller
+    Object.defineProperty(unmarked, "scrollWidth", { configurable: true, value: 200 });
+    unmarked.setAttribute("data-scroll-region", "");
+    f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^nestedOverflow/)]));
+
+    // opt out via an ANCESTOR marker, scroller unmarked
+    document.body.innerHTML = "<div class='db-content-column'></div>";
+    const col2 = document.querySelector(".db-content-column")!;
+    const wrap = document.createElement("div");
+    wrap.setAttribute("data-scroll-region", "");
+    const s2 = scroller();
+    wrap.appendChild(s2);
+    col2.appendChild(wrap);
+    f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^nestedOverflow/)]));
+  });
+
+  it("textClip: a text box clipped by overflow:hidden fails; intentional ellipsis and content that fits pass", async () => {
+    const clipped = () => {
+      document.body.innerHTML = "<p></p>";
+      const p = document.querySelector("p")!;
+      p.textContent = "long";
+      p.style.overflow = "hidden";
+      box(p, 0, 0, 100, 20);
+      Object.defineProperty(p, "scrollWidth", { configurable: true, value: 200 });
+      Object.defineProperty(p, "clientWidth", { configurable: true, value: 100 });
+      return p;
+    };
+    let p = clipped();
+    let f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textClip:.*cut off by overflow/)]));
+    // intentional ellipsis (the `truncate` surface) is exempt
+    p = clipped();
+    p.style.textOverflow = "ellipsis";
+    f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip:.*cut off/)]));
+    // content that fits is not clipped
+    p = clipped();
+    Object.defineProperty(p, "scrollWidth", { configurable: true, value: 100 });
+    f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
+  });
+
+  it("headingLines: an h1 taller than 2 line-heights fails; a 2-line h1 passes", async () => {
+    const heading = (lines: number) => {
+      document.body.innerHTML = "<h1 style='line-height:40px'>Title</h1>";
+      const h = document.querySelector("h1")!;
+      box(h, 0, 0, 300, lines * 40);
+      return h;
+    };
+    heading(1);
+    let f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^headingLines/)])); // one line
+    heading(2);
+    f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^headingLines/)])); // exactly two
+    heading(3);
+    f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^headingLines:.*more than 2 lines/)]));
+  });
+
+  it("headingLines: a document-column page's h1 (the document title, wraps in full by design) is exempt", async () => {
+    document.body.innerHTML = "<div class='db-content-column'><div class='db-document-column'><h1 style='line-height:40px'>A long document title that wraps</h1></div></div>";
+    const h = document.querySelector("h1")!;
+    box(h, 0, 0, 300, 120); // 3 lines
+    const f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^headingLines/)]));
+    // the same h1 OUTSIDE a document column still fails
+    document.body.innerHTML = "<div class='db-content-column'><h1 style='line-height:40px'>A long page title that wraps</h1></div>";
+    const h2 = document.querySelector("h1")!;
+    box(h2, 0, 0, 300, 120);
+    expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^headingLines/)]));
+  });
+
+  it("textClip: a zero-clipped (sr-only) label — clip-path: inset(50%) or clip: rect(0,0,0,0) — is not cut-off text", async () => {
+    const srOnly = (clip: string) => {
+      document.body.innerHTML = "<p></p>";
+      const p = document.querySelector("p")!;
+      p.textContent = "sr only label";
+      p.setAttribute("style", `position:absolute;width:1px;height:1px;overflow:hidden;${clip}`);
+      // 1x1 visible rect (jsdom reports the zero-clip box as 0, so give it explicit size) so
+      // the width gate passes and the clip gate is what must exclude it.
+      box(p, 0, 0, 1, 1);
+      Object.defineProperty(p, "scrollWidth", { configurable: true, value: 100 });
+      Object.defineProperty(p, "clientWidth", { configurable: true, value: 1 });
+      return p;
+    };
+    // modern utility: clip-path inset(50%)
+    srOnly("clip-path:inset(50%)");
+    expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
+    // legacy utility: clip rect(0,0,0,0)
+    srOnly("clip:rect(0,0,0,0)");
+    expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
+    // and a real clipped text (no zero-clip, no ellipsis) still fails the check
+    document.body.innerHTML = "<p></p>";
+    const p = document.querySelector("p")!;
+    p.textContent = "clipped";
+    p.setAttribute("style", "position:absolute;overflow:hidden");
+    box(p, 0, 0, 100, 20);
+    Object.defineProperty(p, "scrollWidth", { configurable: true, value: 200 });
+    Object.defineProperty(p, "clientWidth", { configurable: true, value: 100 });
+    expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
+  });
+
+  it("textOverlap: two overlapping text boxes fail; disjoint, contained, and overlay-passed boxes don't", async () => {
+    const twoBox = (overlap: boolean) => {
+      document.body.innerHTML = "<div class='db-content-column'></div>";
+      const col = document.querySelector(".db-content-column")!;
+      const a = document.createElement("span"); a.textContent = "A";
+      const b = document.createElement("span"); b.textContent = "B";
+      col.append(a, b);
+      box(a, 0, 0, 100, 40);
+      box(b, overlap ? 50 : 101, 0, 100, 40);
+      return { a, b };
+    };
+    twoBox(true);
+    let f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap:.*overlap/)]));
+    twoBox(false);
+    f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
+
+    // a box inside its own container is containment, not overlap
+    document.body.innerHTML = "<div class='db-content-column'></div>";
+    const inner = document.createElement("div");
+    const outer = document.createElement("div");
+    outer.textContent = "outer";
+    outer.appendChild(inner);
+    inner.textContent = "inner";
+    document.querySelector(".db-content-column")!.appendChild(outer);
+    box(outer, 0, 0, 200, 100);
+    box(inner, 10, 10, 80, 40);
+    f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
+  });
+
+  it("textOverlap: text in a position:fixed overlay (e.g. a BottomNav) over page text is exempt", async () => {
+    document.body.innerHTML = "<div class='db-content-column'><p>body</p></div><div style='position:fixed'><p>nav</p></div>";
+    const body = document.querySelector(".db-content-column p")!;
+    const nav = document.querySelector("div[style] p")!;
+    box(body, 0, 0, 390, 400);
+    box(nav, 0, 800, 390, 44); // sits over the bottom of the body text
+    const f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
+  });
+
+  it("knownGaps: each new code downgrades to a warning naming its ticket", async () => {
+    // The downgrade slicing is code-independent (`p.slice(0, p.indexOf(":"))`), but
+    // this proves each NEW code's key is a valid `InvariantCode` that round-trips to
+    // the same prefix the real `measure` emits — a typo'd key would stay a failure.
+    const stub = (problems: string[]) => ({ evaluate: async () => problems as never });
+    for (const [code, full] of [
+      ["nestedOverflow", "nestedOverflow: <div> scrolls sideways (200px in a 100px box, no data-scroll-region)"],
+      ["textClip", "textClip: <p> is cut off by overflow (text 200px > box 100px)"],
+      ["headingLines", "headingLines: <h1> wraps onto more than 2 lines (125px of text, 80px is two)"],
+      ["textOverlap", "textOverlap: <p> and <span> overlap"],
+    ] as const) {
+      const warnings = await assertPageInvariants(stub([full]) as never, devices.laptop14, {
+        knownGaps: { [code]: "the-ticket" } as never,
+      });
+      expect(warnings).toEqual([`known gap (the-ticket): ${full}`]);
+      // no downgrade → it stays a failure
+      await expect(assertPageInvariants(stub([full]) as never, devices.laptop14, {} as never)).rejects.toThrow(
+        new RegExp(`^page invariants failed:\\s*- ${code}: .*$`, "s"),
+      );
+    }
+  });
 });

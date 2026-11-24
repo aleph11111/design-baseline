@@ -2,6 +2,18 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.65.0
+
+- **Changed (invariants):** `checkPageInvariants` (exported `design-baseline/testing/invariants`, used by the donor's `check:viewports` and every consumer's Playwright suite) adds four codes, each a stable `<code>: <message>` so `options.knownGaps` downgrades them:
+  - `nestedOverflow` — a visible horizontal scroller (`overflow-x: auto|scroll`) whose content is wider than its box. The page scrolls inside `main`, so the viewport-edge checks never see a container that scrolls sideways on its own. An intended region (a wide table, matrix, code block) opts out with `data-scroll-region` on the scroller or an ancestor; the outermost offender is reported, as `clipped` is.
+  - `textClip` — a text-bearing box clipped by `overflow: hidden|clip` wider than it is. Intentional ellipsis (`text-overflow: ellipsis`, the `truncate` surface) and `pre`/`textarea`/`[role=dialog]` are exempt; a zero-clipped `.sr-only` label is not cut-off text.
+  - `headingLines` — a page `h1` that wraps onto a third line (content height past 2 line-heights). A document-column page's `h1` is exempt — the document title wraps in full by contract (ADR-0015).
+  - `textOverlap` — two visible text boxes painted on top of each other. Intersects painted line fragments (`getClientRects`), not the element box, so a wrapping title's own lines never count as an overlap; ancestor/descendant pairs and positioned overlays (dialogs, tooltips, menus, popovers, `position: fixed|sticky` chrome such as an `AppHeader`/`BottomNav`/sticky action bar) are exempt.
+  - The `InvariantCode` union is now complete (it was missing `figureTable`, `tableColumn`, `scrollCue`).
+- **Changed (`ScrollCue`):** the shared scroller `ScrollCue` (`archetypes/shared`) renders its inner scroller with the `data-scroll-region` marker, so the donor's tables, matrices, boards and steppers — which all render through it — are already opted out of `nestedOverflow`; no per-call-site marking.
+- **Consumer:** bump `design-baseline`. The new codes can fail a consumer's Playwright suite: a consumer's own `overflow-x-auto` scroller that overflows at a checked width now fails `nestedOverflow` (mark the scroller or an ancestor `data-scroll-region` when the scroll is intended, or add the code to `knownGaps` with a ticket); a cut-off text, a 3-line `h1`, and two overlapping text boxes each return their own coded failure.
+- **Breaking:** no API break; the new invariant codes can fail a consumer suite (see Consumer). The `InvariantCode` type widens.
+
 ## v0.64.0
 
 - **Added (`list-with-detail`, contract v4.8, MANIFEST 4.12):** optional `onBeforeDetailClose?: () => boolean | Promise<boolean>`. The shell consults it before the detail overlay leaves its row — Esc, backdrop click, the close button, and a `detailStepping` previous/next step. `false` (or a rejected / `false`-resolving promise) keeps the overlay open on the same row with its draft intact and skips `onDetailClose`; `true` proceeds and `onDetailClose` fires once after the close. Further close/step attempts while an async guard is pending are ignored. The demo gains a "Close guard" panel (dirty notes draft, discard / keep-editing confirm).
