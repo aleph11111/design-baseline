@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: '2026-11-24'
-status: ready
+status: done
 value: high
 model: sonnet
 model_reason: "cause established (context scoping gap), fix follows the existing useFullBleedClass pattern with one shared hook"
