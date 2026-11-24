@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: '2026-11-24'
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "design is the deliverable: content-fit sizing mechanism for the shared Select primitive plus a band-width policy and a new check"
