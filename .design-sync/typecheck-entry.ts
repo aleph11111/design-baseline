@@ -11,6 +11,8 @@ export * from "@/components/ui/calendar";
 export * from "@/components/ui/calendar.test";
 export * from "@/components/ui/card";
 export * from "@/components/ui/cell-input";
+export * from "@/components/ui/checkbox-list-field.test";
+export * from "@/components/ui/checkbox-list-field";
 export * from "@/components/ui/checkbox";
 export * from "@/components/ui/collapsible";
 export * from "@/components/ui/color-field.test";

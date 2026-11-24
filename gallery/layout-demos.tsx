@@ -32,6 +32,8 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { ToggleField } from "@/components/ui/toggle-field";
+import { CheckboxListField } from "@/components/ui/checkbox-list-field";
+import { CrudDialogSheet, CrudDialogHeader, CrudDialogBody } from "@/components/archetypes/crud-dialog";
 import { SelectField } from "@/components/archetypes/raw-select";
 import { NativeField } from "@/components/archetypes/raw-input";
 import { SearchInput } from "@/components/ui/search-input";
@@ -402,6 +404,40 @@ function ToggleFieldDemo() {
         <ToggleField label="Status" checked={on} onCheckedChange={setOn}>
           Active only
         </ToggleField>
+      </Variant>
+    </div>
+  );
+}
+
+function CheckboxListFieldDemo() {
+  const members = Array.from({ length: 12 }, (_, i) => ({
+    value: `m${i + 1}`,
+    label: `Entity ${String(i + 1).padStart(2, "0")}`,
+    badge: i % 3 === 0 ? <Badge variant="outline">{i + 2} accounts</Badge> : undefined,
+  }));
+  const [dialogValue, setDialogValue] = React.useState<string[]>(["m1", "m4"]);
+  const [inlineValue, setInlineValue] = React.useState<string[]>(["m2"]);
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div className="space-y-8">
+      <Variant label="in a CrudDialogSheet — 12 rows, no inner scrollbar; CrudDialogBody owns the scroll">
+        <Button onClick={() => setOpen(true)}>Open dialog</Button>
+        <CrudDialogSheet open={open} onOpenChange={setOpen}>
+          <CrudDialogHeader title="Edit group" />
+          <CrudDialogBody>
+            <CheckboxListField label="Members" options={members} value={dialogValue} onChange={setDialogValue} />
+          </CrudDialogBody>
+        </CrudDialogSheet>
+      </Variant>
+      <Variant label="inline, scroll — the one fixed cap, scrolls inside itself">
+        <CheckboxListField
+          scroll
+          label="Members"
+          hint={`${inlineValue.length} selected`}
+          options={members}
+          value={inlineValue}
+          onChange={setInlineValue}
+        />
       </Variant>
     </div>
   );
@@ -1197,6 +1233,7 @@ export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "auth-card", displayName: "AuthCard", Demo: AuthCardDemo },
   { slug: "segmented-control", displayName: "SegmentedControl", Demo: SegmentedControlDemo },
   { slug: "toggle-field", displayName: "ToggleField", Demo: ToggleFieldDemo },
+  { slug: "checkbox-list-field", displayName: "CheckboxListField", Demo: CheckboxListFieldDemo },
   { slug: "search-input", displayName: "SearchInput", Demo: SearchInputDemo },
   { slug: "state-view", displayName: "StateView", Demo: StateViewDemo },
   { slug: "icon-avatar", displayName: "IconAvatar", Demo: IconAvatarDemo },

@@ -506,6 +506,7 @@ consolidation pass, after an audit found each hand-rolled in 3–4 places):
 | Muted label (the retired overline role) | `OVERLINE_CLASS` (`layout/overline`), via `StatTile`/`<Overline>` | a re-typed `text-xs uppercase tracking-*` string |
 | Editable control flush in a table/grid cell | `CellInput` / `CellSelect` (`ui/cell-input`) | a bare native `<input>`/`<select>` in a `<td>` |
 | Native colour picker (swatch + hex) | `ColorField` (`ui/color-field`) | a bare boxed `<input type="color">`, with or without a paired hex `<Input>` |
+| Multi-pick list (checkbox rows bound to a `string[]`) | `CheckboxListField` (`ui/checkbox-list-field`) | a hand-rolled bordered checkbox list with its own `max-h-* overflow-y-auto` cap (a second scroll container inside `CrudDialogBody`) |
 | Native file picker (trigger + selected row) | `FileField` (`ui/file-field`) — `variant` (button/dropzone), `accept`, `multiple`, `busy`, `maxSizeBytes` | a hidden `<input type="file">` + hand-rolled trigger / `input.value=""` reset / filename+size row |
 
 `StateView`'s empty variant offers **at most one** next-step action (ADR-0007 §7 — `action` is a single slot, not a list). Whether a call site passes two actions can't be caught by the zero-dep line-pattern scanner (ADR-0003) — it has no way to count sibling elements inside a `ReactNode` prop — so this is a **manual contract-close review step**: when closing an archetype's empty-state API, confirm its `action`/`emptyStateAction` call sites pass exactly one control.
@@ -602,6 +603,7 @@ recurs, the routing is promote/wrap, not "exception".
 | `<ul`/`<div>` rows rendering a record list (cells, columns) | `<Table>` |
 | `<label` / `<input` / `<select` / `<textarea` (raw, not shadcn) | shared field stack (`<Label>`+`<Input>`/`<Select>`/`<Textarea>` or RHF `<FormField>`) |
 | `<input type="color">` (boxed swatch, optional hex `<Input>`) | `ColorField` (`ui/color-field`) |
+| bordered list of `<Checkbox>` rows, optionally `max-h-* overflow-y-auto` | `CheckboxListField` (`ui/checkbox-list-field`) |
 | `<input type="file">` (hidden + hand-rolled trigger / dropzone / filename row) | `FileField` (`ui/file-field`) |
 | `rounded-md border p-0.5` wrapping `<button>`s | `SegmentedControl` |
 | `relative … max-w-sm` + `Search` icon + `<Input className="pl-9">` | `SearchInput` |
