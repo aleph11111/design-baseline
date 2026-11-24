@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-18
-status: ready
+status: done
 value: high
 gate:
   score: 5
