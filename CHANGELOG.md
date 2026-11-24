@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.66.3
+
+- **Fixed (barrel, `listModules` in `.design-sync/modules.mjs`):** the bundled barrel no longer re-exports the donor's own `src/components/ui/*.test.tsx` files. `listModules` — the shared module list both `build-pkg.mjs` (the package barrel) and `scripts/design-sync-entry.test.mjs` (the drift guard) consume — filtered only `*.tsx`, so every ui test file (`button.test.tsx`, `calendar.test.tsx`, …) shipped in the published barrel and had to be hand-listed as an `@/components/ui/<x>.test` export in `.design-sync/typecheck-entry.ts`; adding a new `*.test.tsx` under `components/ui` broke `npm test` until that list was edited. The filter now drops `*.test.tsx`, and the 14 hand-listed test exports in `typecheck-entry.ts` are deleted (new test files need no entry).
+- **Consumer:** none required; bump `design-baseline` to `0.66.3`. The barrel no longer re-exports the (meaningless out-of-package) `<ui-module>.test` specifiers — no consumer code can reference a non-existent test file, so nothing imports them.
+- **Breaking:** no.
+
 ## v0.66.2
 
 - **Fixed (package `files`):** the published tarball ships the methodology docs the shipped surface points at. `docs/STYLE.md` and `docs/PACKAGE.md` were referenced by `README.md` (the re-skin pointer and the four-line runbook) and by `scripts/lint-design.mjs` (whose header names `PACKAGE.md` as the home of the four-gate stack), yet they were absent from the `files` list, so a consumer following a failing `pnpm lint:design` into those files found them missing under `node_modules/design-baseline/docs/`. The `files` list now also ships the rest of the top-level doc set those two close over — `docs/ADOPTION-QUALITY.md`, `docs/TAXONOMY.md`, `docs/ARCHITECTURE.md`, `docs/RULES.md`, `docs/PROMOTION-RADAR.md`, `docs/PLUGIN-CONTRACT.md` — so no shipped doc, script, or source leaf points at a top-level `docs/<name>.md` the tarball does not ship. (Per-project docs a consumer authors locally, e.g. `docs/SURFACES.md`, are intentionally not donor files.)

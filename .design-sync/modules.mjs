@@ -7,7 +7,7 @@ import { join } from 'node:path';
 // Returns [{ rel: './components/...' re-export specifier, srcFile: module to read exports from }].
 export function listModules(SRC) {
   const uiFiles = readdirSync(join(SRC, 'components/ui'))
-    .filter((f) => f.endsWith('.tsx')).map((f) => f.replace(/\.tsx$/, '')).sort();
+    .filter((f) => f.endsWith('.tsx') && !/\.test\.tsx$/.test(f)).map((f) => f.replace(/\.tsx$/, '')).sort();
   const archetypeDirs = readdirSync(join(SRC, 'components/archetypes'), { withFileTypes: true })
     .filter((d) => d.isDirectory() && existsSync(join(SRC, 'components/archetypes', d.name, 'index.ts')))
     .map((d) => d.name).sort();

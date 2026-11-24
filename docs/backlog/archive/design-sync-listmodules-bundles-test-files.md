@@ -1,7 +1,7 @@
 ---
 area: code-health
 opened: '2026-11-19'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "one filter in an existing helper plus deleting 13 lines; cause established"
