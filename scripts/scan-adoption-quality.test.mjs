@@ -414,8 +414,15 @@ describe("scanSource", () => {
       signalsDoc.adoptionQuality.filter((s) => s.id === "handrolled-label-input-field"),
     );
     const hand = (body) => `import { Input } from "@/components/ui/input";\n${body}\n`;
-    // The triad: <Label htmlFor=...> within 400 chars of a shadcn <Input> or <Textarea>.
+    const hitLabel = { file: "f.tsx", line: 2 }; // the <Label> line (line 1 is the import)
+    // The triad: <Label htmlFor=...> within 400 chars of a shadcn <Input>.
     const triad = 'function F() { return <div><Label htmlFor="x">Name</Label><Input id="x" /></div>; }';
+    // Same triad but className before htmlFor — attribute order must not blind the scan.
+    const triadClassFirst =
+      'function F() { return <div><Label className="text-right" htmlFor="x">Name</Label><Input id="x" /></div>; }';
+    // The Textarea half of the alternation: <Label htmlFor=...> over a shadcn <Textarea>.
+    const triadTextarea =
+      'function F() { return <div><Label htmlFor="x">Note</Label><Textarea id="x" rows={3} /></div>; }';
     // Same triad but the file adopts the donor primitive — the coOccursWith absence
     // gate closes, so the signal clears (a file that uses NativeField is not the candidate).
     const adopted = triad + '\nimport { NativeField } from "design-baseline/archetypes/raw-input";\n';
@@ -424,8 +431,9 @@ describe("scanSource", () => {
     // htmlFor-wired but a bare lowercase <input> (raw-input molecule's territory, not
     // the shadcn-wrapped form the signal targets): no hit.
     const raw = 'function F() { return <Label htmlFor="x">x</Label><input id="x" />; }';
-    const hitLabel = { file: "f.tsx", line: 2 }; // the <Label> line, not line 1
     expect(scanSource("f.tsx", hand(triad), compiled)).toEqual([hitLabel]);
+    expect(scanSource("f.tsx", hand(triadClassFirst), compiled)).toEqual([hitLabel]);
+    expect(scanSource("f.tsx", hand(triadTextarea), compiled)).toEqual([hitLabel]);
     expect(scanSource("f.tsx", hand(adopted), compiled)).toEqual([null]);
     expect(scanSource("f.tsx", hand(noHtmlFor), compiled)).toEqual([null]);
     expect(scanSource("f.tsx", hand(raw), compiled)).toEqual([null]);
