@@ -6,6 +6,7 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 - **Fixed:** a full-bleed (`matrix-grid`, `list-with-detail`, `kanban-board`, `calendar`, `statement-with-filters`) or document-column (`transaction-document`) shell rendered inside a `PageFrame` / `DashboardShell` body (frame or canvas stack) no longer marks the page column. `useFullBleedClass` / `useDocumentColumnClass` now also return `undefined` when `PageFrameContext` (hoisted into `layout/surface.ts`) is true, so only the outermost page shell sets the width mode (ADR-0007 §1). Before, a `MatrixGridShell` in a `DashboardShell` canvas dropped `--db-content-max` and the page jumped edge-to-edge.
 - **Consumer:** none required; bump `design-baseline` to `0.65.1`. Page-root shells are unchanged.
+- **Breaking:** no.
 
 ## v0.65.0
 
