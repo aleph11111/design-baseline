@@ -10,7 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { CHROME, serveDir, launchChrome } from "./lib/serve-gallery.mjs";
-import { devices, widthSweep } from "../src/testing/devices.mjs";
+import { devices, widthSweep, laptop14Window } from "../src/testing/devices.mjs";
 import { checkPageInvariants } from "../src/testing/invariants.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -342,6 +342,10 @@ for (const [name, device] of Object.entries(devices)) {
 // documents at the triad and the sweep widths — the ledger never scrolls
 // sideways, the long title shows in full, and on phone the nextStep primary
 // stays in the viewport while the page scrolls.
+// The 1133×739 (laptop14Window) Total-row fold assertion must actually run; the
+// post-loop guard after this block fails the check if no device with that exact
+// viewport was measured (widthSweep losing its 1133×739 entry must not pass).
+let foldMeasured = false;
 for (const [radio, shot] of TD_VARIANTS) {
   for (const [name, device] of [...Object.entries(devices), ...widthSweep.map((d) => [`sweep ${d.viewport.width}`, d])]) {
     const label = `transaction-document ${radio} @ ${name}`;
@@ -369,21 +373,30 @@ for (const [radio, shot] of TD_VARIANTS) {
       // desktop device, so the height is the same at laptop14; 739 is the fold that fails.
       if (radio === "Shipped, no scan") {
         const totalBottom = await page.$eval('[data-slot="td-ledger"] tfoot tr', (el) => Math.round(el.getBoundingClientRect().bottom + window.scrollY));
-        if (name === "sweep 1133") {
-          // The 1133x739 laptop window is the fold the consumer's /orders/:id case runs into.
-          console.log(`  shipped order Total row bottom @ 1133x739: ${totalBottom}px (fold 739px)`);
-          if (totalBottom > 739) bad.push(`shipped order: the Total row ends at ${totalBottom}px, below the 739px laptop14 fold`);
+        // The 1133x739 laptop window is the fold the consumer's /orders/:id case
+        // runs into. Keyed on the device viewport, not the label string: the
+        // assertion must still fire if a sweep entry is renamed, and the guard
+        // below fails the run if no device with this exact viewport ever ran.
+        const isFoldWindow = device.viewport.width === laptop14Window.viewport.width && device.viewport.height === laptop14Window.viewport.height;
+        if (isFoldWindow) {
+          foldMeasured = true;
+          console.log(`  shipped order Total row bottom @ ${device.viewport.width}x${device.viewport.height}: ${totalBottom}px (fold 739px)`);
+          if (totalBottom > 739) bad.push(`shipped order: the Total row ends at ${totalBottom}px, below the ${device.viewport.height}px laptop14Window fold`);
         } else if (name === "laptop14") {
-          console.log(`  shipped order Total row bottom @ 1512 (laptop14): ${totalBottom}px`);
+          console.log(`  shipped order Total row bottom @ ${device.viewport.width} (laptop14): ${totalBottom}px`);
         }
         // The warning next step keeps its single failed side effect inline with the shipment
-        // line (inside the description wrapper, not a padded "Running alongside" block of its
-        // own at the panel's bottom). Inline sits in the space-y-1 wrapper with the title.
-        const sideInDesc = await page.$eval('[data-slot="td-next-step"]', (panel) => {
+        // line: a direct child of the description wrapper that also holds the
+        // nextStep title. That wrapper is the only element holding the <h2>, so
+        // this stays true for inline and fails if a regression re-blocks the side
+        // effect into its own padded "Running alongside" block at the panel's
+        // bottom (where its parent holds no <h2>), even if an unrelated
+        // .space-y-1 ancestor sits somewhere higher in the tree.
+        const sideInline = await page.$eval('[data-slot="td-next-step"]', (panel) => {
           const side = panel.querySelector('[data-slot="td-side-effects"]');
-          return !!side && !!side.closest(".space-y-1");
+          return !!side && side.parentElement !== null && !!side.parentElement.querySelector(":scope > h2");
         });
-        if (!sideInDesc) bad.push('shipped order: the failed side effect is a padded block, not inline with the shipment line');
+        if (!sideInline) bad.push('shipped order: the failed side effect is a padded block, not inline with the shipment line');
       }
       // compact row locks vs the default sentences on the same 2-line document: the compact Total ends above the
       // laptop14 fold and at least 20px higher than with the switch off (the sentences saved)
@@ -449,6 +462,14 @@ for (const [radio, shot] of TD_VARIANTS) {
       await ctx?.close();
     }
   }
+}
+// Fold-gate guard (acceptance criterion 1): the 1133×739 Total-row fold assertion
+// must have actually run. It is keyed on the device viewport, so widthSweep losing
+// its 1133×739 entry — or the "Shipped, no scan" case never being reached — fails
+// the run instead of passing with the fold check silently skipped.
+if (!foldMeasured) {
+  failures.push("transaction-document fold gate @ laptop14Window");
+  console.log(`[FAIL] transaction-document fold gate @ laptop14Window\n      - the 1133×739 laptop-window fold was never measured (widthSweep lost its 1133×739 entry or the \"Shipped, no scan\" case was skipped) — the fold gate cannot pass having compared nothing`);
 }
 
 // grouped-list work-queue variant (contract "Work-queue variant"): at the
