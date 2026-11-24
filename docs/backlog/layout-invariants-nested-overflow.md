@@ -1,14 +1,24 @@
 ---
 area: tooling
-opened: 2026-11-07
-status: ready
-value: high
-depends_on: [invariants-overflow-blind-under-mobile-emulation]
+opened: '2026-11-07'
+status: blocked
 gate:
   score: 5
-  passed: [title, context, what-to-do, acceptance, related]
+  passed:
+    - title
+    - context
+    - what-to-do
+    - acceptance
+    - related
   failed: []
-  graded_at: 2026-11-07T00:00:00Z
+  graded_at: '2026-11-07T00:00:00.000Z'
+value: high
+depends_on:
+  - invariants-overflow-blind-under-mobile-emulation
+blocked_reason: >-
+  review: PR https://github.com/aleph11111/design-baseline/pull/859 had 5 /ship review-gate rounds
+  that did not approve. Read the <!-- review-gate --> comments on the PR, decide how to proceed,
+  then release the ticket with back 2 ready.
 ---
 
 # Layout invariants miss overflow inside scroll containers
