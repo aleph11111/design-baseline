@@ -21,7 +21,7 @@ const url = `${gallery.url}/#/l/page-frame`;
 const browser = await launchChrome();
 const failures = [];
 let n = 0;
-const total = 15;
+const total = 16;
 const report = (label, ok, detail) => {
   n++;
   console.log(`[${new Date().toTimeString().slice(0, 8)}] ${n}/${total} ${ok ? "ok  " : "FAIL"} ${label}: ${detail}`);
@@ -158,12 +158,14 @@ try {
         const ghosts = [...t.querySelectorAll(":scope > [data-option-ghost]")];
         const value = [...t.children].filter((c) => c.tagName.toLowerCase() !== "svg").pop();
         const v = value.getBoundingClientRect();
-        const widest = Math.max(0, ...ghosts.map((g) => g.scrollWidth));
+        // the option TEXT width (a Range), not the span's box: the span stretches with its grid column
+        const textW = (el) => { const r = document.createRange(); r.selectNodeContents(el); return r.getBoundingClientRect().width; };
+        const widest = Math.max(0, ...ghosts.map(textW));
         return {
           name: t.querySelector("[data-joined-label]").textContent,
           ghosts: ghosts.length,
           // longest option fits the value cell whole
-          ghostsWhole: ghosts.every((g) => g.scrollWidth <= v.width + 1),
+          ghostsWhole: ghosts.every((g) => textW(g) <= v.width + 1),
           // not stretched: the value cell is no wider than the widest option
           stretched: v.width > widest + 1,
         };
@@ -199,6 +201,26 @@ try {
   await page.close();
 } catch (e) {
   report("content-fit width stable across selection @ 1440px", false, e.message.split("\n")[0]);
+}
+
+// Phone filter sheet: content-fit is a band device only — the sheet's own `w-full!` still makes
+// every select fill its row (all rows line up), ghosts or not.
+try {
+  const page = await browser.newPage({ viewport: { width: 430, height: 900 } });
+  await page.goto(`${gallery.url}/#/a/statement-with-filters`);
+  await page.getByRole("button", { name: /filter/i }).first().click();
+  await page.waitForSelector('[role="dialog"] [data-joined-label]', { timeout: 5000 });
+  const rows = await page.evaluate(() =>
+    [...document.querySelectorAll('[role="dialog"] button[role="combobox"]:has(> [data-joined-label])')].map((t) => ({
+      name: t.querySelector("[data-joined-label]").textContent,
+      w: Math.round(t.getBoundingClientRect().width),
+      col: Math.round(t.closest('[role="dialog"] .flex.flex-col.gap-3').getBoundingClientRect().width),
+    })),
+  );
+  report("content-fit selects fill the filter-sheet row @ 430px", rows.length >= 3 && rows.every((r) => Math.abs(r.w - r.col) <= 1), JSON.stringify(rows));
+  await page.close();
+} catch (e) {
+  report("content-fit selects fill the filter-sheet row @ 430px", false, e.message.split("\n")[0]);
 }
 
 await browser.close();
