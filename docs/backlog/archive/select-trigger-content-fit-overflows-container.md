@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: 2026-11-24
-status: ready
+status: done
 value: high
 model: opus
 model_reason: "design decision on where content-fit applies (band vs form) plus a width-cap mechanism on a shared primitive and a new phone-width check"
