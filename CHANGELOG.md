@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.66.2
+
+- **Fixed (package `files`):** the published tarball ships the methodology docs the shipped surface points at. `docs/STYLE.md` and `docs/PACKAGE.md` were referenced by `README.md` (the re-skin pointer and the four-line runbook) and by `scripts/lint-design.mjs` (whose header names `PACKAGE.md` as the home of the four-gate stack), yet they were absent from the `files` list, so a consumer following a failing `pnpm lint:design` into those files found them missing under `node_modules/design-baseline/docs/`. The `files` list now also ships the rest of the top-level doc set those two close over — `docs/ADOPTION-QUALITY.md`, `docs/TAXONOMY.md`, `docs/ARCHITECTURE.md`, `docs/RULES.md`, `docs/PROMOTION-RADAR.md`, `docs/PLUGIN-CONTRACT.md` — so no shipped doc, script, or source leaf points at a top-level `docs/<name>.md` the tarball does not ship. (Per-project docs a consumer authors locally, e.g. `docs/SURFACES.md`, are intentionally not donor files.)
+- **Added (invariant 11, `verify:exports`):** `findDeadDocLinks` fails `npm test` when any shipped file (`README.md` or a file under the `files` scopes) references a top-level `docs/<name>.md` that exists in the donor repo but is outside every `files` scope — the dead-tarball-doc-link class this gap is, checked mechanically so the next `files` edit cannot silently drop a shipped doc again. Top-level only: a `docs/archetypes/<slug>.md` pointer is a sibling inside the always-shipped `docs/archetypes` dir and an `adr`/`backlog`/`superpowers` pointer is donor-internal tooling, so those are out of scope by construction.
+- **Consumer:** none required; bump `design-baseline` to `0.66.2` and `docs/STYLE.md` / `docs/PACKAGE.md` (and their sibling methodology docs) are present under `node_modules/design-baseline/docs/`.
+- **Breaking:** no.
+
 ## v0.66.1
 
 - **Fixed (`SelectTrigger` content-fit overflow, `ui/select`):** a content-fit labelled trigger could grow wider than its container (no cap; the value column was floored at `max-content`), overflowing a phone card and widening the page. Its value column is now `minmax(0,1fr)` and the trigger is `w-fit max-w-full shrink-0`: label + widest option, never wider than its container (the value ellipsizes), never squeezed in a crowded band (the band still scrolls). Every `SelectTrigger` (base variant, labelled or not) now renders its value start-aligned (`text-start`), not centred.

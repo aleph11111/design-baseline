@@ -1,6 +1,6 @@
 {
   "name": "design-baseline",
-  "version": "0.66.1",
+  "version": "0.66.2",
   "private": true,
   "engines": {
     "node": ">=22"
@@ -52,10 +52,18 @@
     "src/vite",
     "src/testing",
     "src/styles",
+    "docs/STYLE.md",
+    "docs/PACKAGE.md",
+    "docs/ADOPTION-QUALITY.md",
+    "docs/TAXONOMY.md",
     "docs/CHOOSING-A-SURFACE.md",
     "docs/PLACEMENT.md",
     "docs/STACK.md",
     "docs/DETAIL-PAGE-TEARDOWN-PLAYBOOK.md",
+    "docs/ARCHITECTURE.md",
+    "docs/RULES.md",
+    "docs/PROMOTION-RADAR.md",
+    "docs/PLUGIN-CONTRACT.md",
     "docs/archetypes",
     "bin/new-page.mjs",
     "bin/design-baseline-playwright.mjs",

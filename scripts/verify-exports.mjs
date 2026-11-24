@@ -9,7 +9,7 @@
 // against synthetic inputs, so a guard failing open (or a silent no-match
 // on the real tree) stays caught even if the donor tree is clean.
 //
-// Ten invariants of the package surface are checked:
+// Eleven invariants of the package surface are checked:
 //
 //   1. No `@/` import specifier survives under the four packaged source
 //      dirs. The relativization (P1) must be total — `@/` would resolve
@@ -73,6 +73,24 @@
 //      and the signals file it reads by default are both covered by `files`.
 //      Without them the command is absent from the tarball (or exits 2 on a
 //      missing signals file) in every consumer.
+//  11. No shipped file points at a top-level donor doc that `files` does not
+//      ship. npm packs only the `files` paths, so a `docs/<name>.md` referenced
+//      from a shipped file (`README.md`, a shipped methodology doc, a shipped
+//      script — even a `.tsx`/`.css` leaf that names the brand guide) resolves
+//      in a consumer's `node_modules/design-baseline/docs/` only while that doc
+//      stays in scope. This is the closure the `files` additions discharge: a
+//      consumer whose `pnpm lint:design` fails follows `docs/PACKAGE.md` (the
+//      `lint-design` header names it) / `docs/STYLE.md` (the README's re-skin
+//      pointer) into the tarball, and those docs close over their sibling
+//      methodology docs. Top-level ONLY: a `docs/archetypes/<slug>.md` pointer
+//      is a sibling inside the always-shipped `docs/archetypes` dir, and a
+//      `docs/adr|backlog|superpowers/…` pointer is donor-internal tooling — the
+//      same reason those dirs stay out of `files` — so a single-segment
+//      `docs/<name>.md` target is the only one checked. A reference to a doc
+//      that does not exist in the repo (a per-project `docs/SURFACES.md` a
+//      consumer authors, not a donor file) has no donor half to cover and is
+//      out of scope by construction — flagging it would force a repo-URL
+//      rewrite pinning consumers to `main`, the version-skew this exists to kill.
 //
 // Usage:  node scripts/verify-exports.mjs [--json]
 //         exit 0 all invariants hold; exit 1 at least one broken; exit 2
@@ -260,6 +278,54 @@ function scanFilesShipped(pkg) {
     .map((p) => `${p} (outside every "files" scope — the documented consumer scan command would not run)`);
 }
 
+// Invariant 11 — see header: the dead doc-link scan. A reference is a
+// top-level donor doc when it is a single path segment after `docs/` (`docs/<name>.md`)
+// — not a sub-path (`docs/archetypes/<slug>.md`) and not another extension.
+// `README.md` is always packed by npm, so it is scanned even though `files`
+// never names it; the `files` scopes contribute their text files.
+const DOC_REF_RE = /\bdocs\/([A-Za-z0-9_-]+)\.md\b/g;
+const SHIPPED_TEXT_EXT = /\.(md|mjs|tsx|ts|css|json|js|jsx)$/;
+const SHIPPED_TEXT_ROOT_FILES = ['README.md'];
+
+function shippedTextFiles(root, pkg) {
+  const out = new Set(SHIPPED_TEXT_ROOT_FILES);
+  for (const rawScope of pkg.files ?? []) {
+    const scope = String(rawScope).replace(/^\.\//, '').replace(/\/+$/, '');
+    // a dir scope contributes its text files; the `**` walk is a no-op for a
+    // leaf (a file has no children), so the single-file scope is added below.
+    for (const rel of globSync(`${scope}/**/*`, { cwd: root })) if (SHIPPED_TEXT_EXT.test(rel)) out.add(rel);
+    if (existsSync(join(root, scope)) && SHIPPED_TEXT_EXT.test(scope)) out.add(scope);
+  }
+  return [...out];
+}
+
+function findDeadDocLinks(root, pkg) {
+  const files = (pkg.files ?? []).map((f) => String(f).replace(/^\.\//, '').replace(/\/$/, ''));
+  const covered = (p) => files.some((f) => p === f || p.startsWith(`${f}/`));
+  const offenders = new Map(); // "docs/<name>.md" → [shipped referrer, …]
+  for (const f of shippedTextFiles(root, pkg)) {
+    let text;
+    try {
+      text = readFileSync(join(root, f), 'utf8');
+    } catch {
+      continue; // a vanished scope entry (an already-missing file) is not a doc link
+    }
+    for (const m of text.matchAll(DOC_REF_RE)) {
+      const rel = `docs/${m[1]}.md`;
+      if (covered(rel)) continue;
+      if (!existsSync(join(root, rel))) continue; // not a donor doc (a per-project file) — no donor half to cover
+      (offenders.get(rel) ?? offenders.set(rel, []).get(rel)).push(f);
+    }
+  }
+  return [...offenders.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([doc, who]) =>
+      `${doc} (referenced by ${[...new Set(who)]
+        .sort()
+        .slice(0, 3)
+        .join(', ')} — outside every "files" scope, so the link dies in the consumer's tarball)`);
+}
+
 function main() {
   const root = process.cwd();
   let pkg;
@@ -285,6 +351,7 @@ function main() {
   const selfSubpath = exportsSelfSubpath(pkg);
   const viteUiHelper = viteUiHelperExported(pkg);
   const scanShipped = scanFilesShipped(pkg);
+  const deadDocLinks = findDeadDocLinks(root, pkg);
   // The count for the ok label; a missing set already fails via the
   // predicate's message, so this must not throw on the same condition.
   let totalLeaves = 0;
@@ -304,6 +371,7 @@ function main() {
     ['exports declares "./package.json"', selfSubpath, selfSubpath.length === 0],
     ['Vite-consumer helper ./vite/design-baseline-ui is exported and in scope', viteUiHelper, viteUiHelper.length === 0],
     ['adoption-quality scan script + default signals file are in files', scanShipped, scanShipped.length === 0],
+    ['no shipped file points at a top-level donor doc outside files', deadDocLinks, deadDocLinks.length === 0],
   ];
   let failures = 0;
   for (const [label, items, ok] of report) {
@@ -344,4 +412,5 @@ export {
   consumerLeavesMissingDirective,
   exportsSelfSubpath,
   viteUiHelperExported,
+  findDeadDocLinks,
 };
