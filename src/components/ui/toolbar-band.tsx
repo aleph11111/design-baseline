@@ -139,7 +139,9 @@ export function useControlSize(): "lg" | undefined {
  * one ellipsizes (via `JoinedLabelText`) only at the cap. Past that the band scrolls. A control with a
  * label lays out as a grid whose label column is `auto` and whose value columns are never narrower than their content, so the
  * control's own minimum width is label floor + full value: it stops shrinking
- * there and the band scrolls instead of clipping the value. (`shrink` here only
+ * there and the band scrolls instead of clipping the value. (A content-fit
+ * `SelectTrigger` instead holds its width with `shrink-0` and caps at its
+ * container with `max-w-full`, its value column `minmax(0,1fr)`.) (`shrink` here only
  * serves custom flex consumers; it is not the mechanism for the built-ins.)
  */
 export const JOINED_LABEL_CLASS =
