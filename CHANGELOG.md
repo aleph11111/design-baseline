@@ -4,10 +4,10 @@ One entry per `package.json` version (`## v<version>`), newest first. Each recor
 
 ## v0.66.1
 
-- **Fixed (`SelectTrigger` content-fit overflow, `ui/select`):** a content-fit labelled trigger could grow wider than its container (no cap; the value column was floored at `max-content`), overflowing a phone card and widening the page. Its value column is now `minmax(0,1fr)` and the trigger is `w-fit max-w-full shrink-0`: label + widest option, never wider than its container (the value ellipsizes), never squeezed in a crowded band (the band still scrolls). The selected value renders start-aligned (`text-start`), not centred.
+- **Fixed (`SelectTrigger` content-fit overflow, `ui/select`):** a content-fit labelled trigger could grow wider than its container (no cap; the value column was floored at `max-content`), overflowing a phone card and widening the page. Its value column is now `minmax(0,1fr)` and the trigger is `w-fit max-w-full shrink-0`: label + widest option, never wider than its container (the value ellipsizes), never squeezed in a crowded band (the band still scrolls). Every `SelectTrigger` (base variant, labelled or not) now renders its value start-aligned (`text-start`), not centred.
 - **Changed (scope):** content-fit applies only inside a `PageFrame` toolbar band. Outside a band a labelled trigger without a width class is `w-full` with no option ghosts (the `options` prop is ignored there). `SelectField`'s frame in a band is `shrink-0 max-w-full` (was `shrink-0` only with a width class). STYLE.md "Toolbar field labels" documents both rules.
 - **Added (checks/demos):** `check:joined-label` gains a run on the new `content-fit-narrow` page-frame demo (a 360px container): band select capped and ellipsized, out-of-band labelled triggers fill their row with no ghosts, every value start-aligned, nothing overflows.
-- **Consumer:** none required. A form/card `SelectTrigger label=… options=…` outside a band fills its row again — drop any width class added to work around the overflow.
+- **Consumer:** none required. A form/card `SelectTrigger label=… options=…` outside a band fills its row again — drop any width class added to work around the overflow; a labelled trigger in a hand-rolled toolbar row (not a `PageFrame` band) that went content-fit on v0.66.0 also fills its row again. A band select inside the app's own wrapper element needs `shrink-0` on that wrapper, or a crowded band squeezes it. Pixel baselines with a truncated or wrapped select value diff (value now start-aligned).
 - **Breaking:** no.
 
 ## v0.66.0
