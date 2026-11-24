@@ -45,39 +45,27 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   };
   // an element's own text box: it carries a non-whitespace text node directly
   const ownText = (el) => [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
-  // a positioned overlay (a dialog/menu/tooltip/popover, or any position:fixed /
-  // position:sticky chrome — the AppHeader, a BottomNav, a sticky action bar, a
-  // floating feedback button) — text in one legitimately sits on top of the page's
-  // text by design; that overlap is intended, not a collision. Memoized per element:
-  // the check runs this for every element and O(n) per element would be O(n²) on a
-  // full page.
-  const posAncestorCache = new WeakMap(); // el → nearest position:fixed|sticky ancestor (null = none)
-  const overlayMemo = new WeakMap();
-  const firstPos = (el) => {
-    const cached = posAncestorCache.get(el);
+  // The overlay LAYER an element belongs to: the nearest position:fixed|sticky
+  // ancestor (an AppHeader, a BottomNav, a sticky action bar, a floating feedback
+  // button) or the nearest dialog/menu/tooltip/popover, or the element itself when
+  // it carries that position — or no layer (plain page text). Text in one layer
+  // legitimately sits over page text, so a box collides only with text in ITS OWN
+  // layer; a box over text in a different layer (or over plain page text) is
+  // intended chrome, not a collision. Two boxes INSIDE one chrome bar, though, can
+  // still collide, and that stays checked. Memoized per element so the check stays
+  // O(page) rather than O(page²).
+  const OVERLAY_SEL = '[role="dialog"],[role="tooltip"],[role="menu"],[data-radix-popper-content-wrapper]';
+  const overlayRootMemo = new WeakMap(); // el → overlay-layer root element, or null
+  const overlayRoot = (el) => {
+    const cached = overlayRootMemo.get(el);
     if (cached !== undefined) return cached;
     const parent = el.parentElement;
-    const p = parent ? getComputedStyle(parent).position : "static";
-    const hit = parent
-      ? ((p === "fixed" || p === "sticky") ? parent : firstPos(parent))
-      : null;
-    posAncestorCache.set(el, hit);
-    return hit;
-  };
-  const overlay = (el) => {
-    const cached = overlayMemo.get(el);
-    if (cached !== undefined) return cached;
-    // the element's OWN position too — a fixed feedback button or a sticky action
-    // bar carries its text and sits over the page; its ancestors aren't the only
-    // reason it is chrome.
-    const pos = getComputedStyle(el).position;
-    const own = pos === "fixed" || pos === "sticky";
-    const hit =
-      own ||
-      !!el.closest('[role="dialog"],[role="tooltip"],[role="menu"],[data-radix-popper-content-wrapper]') ||
-      !!firstPos(el);
-    overlayMemo.set(el, hit);
-    return hit;
+    const root =
+      el.matches(OVERLAY_SEL) || ["fixed", "sticky"].includes(getComputedStyle(el).position)
+        ? el
+        : (parent ? overlayRoot(parent) : null);
+    overlayRootMemo.set(el, root);
+    return root;
   };
 
   if (window.innerWidth > W) problems.push(`overflow: layout viewport grew to ${window.innerWidth}px past the ${W}px device width`);
@@ -119,7 +107,8 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   // an ancestor; report the outermost offender, as `clipped` does.
   const nested = [];
   for (const el of document.body.querySelectorAll("*")) {
-    if (!visible(el) || overlay(el)) continue;
+    // no overlay exemption: the ticket's only opt-out is data-scroll-region
+    if (!visible(el)) continue;
     const s = getComputedStyle(el);
     if (s.overflowX !== "auto" && s.overflowX !== "scroll") continue;
     if (el.scrollWidth <= el.clientWidth + 1) continue;
@@ -171,7 +160,10 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
 
   // Two visible text boxes that sit on top of each other — a real overlap is a
   // bug (a label printed over a value). Excludes ancestor/descendant pairs and
-  // positioned overlays. Intersects the PAINTED line fragments
+  // cross-layer overlays: a box in one chrome layer (a sticky bar, a fixed
+  // header, a dialog) sits over page text by design, so it is reported only
+  // against other text IN ITS OWN layer — text in a different layer (or plain
+  // page text) is the intended overlap. Intersects the PAINTED line fragments
   // (`getClientRects`), not the element box: a wrapping element's box is the
   // union of its lines, which intersects line neighbours even when the glyphs
   // don't touch. An element with no painted fragments (jsdom has no layout)
@@ -180,11 +172,17 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
     const rs = [...el.getClientRects()].filter((r) => r.width > 1 && r.height > 1);
     return rs.length ? rs : [el.getBoundingClientRect()];
   };
-  const boxes = [...document.body.querySelectorAll("*")].filter((el) => visible(el) && ownText(el) && !overlay(el)).map((el) => ({ el, fs: fragments(el) }));
+  const boxes = [...document.body.querySelectorAll("*")]
+    .filter((el) => visible(el) && ownText(el))
+    .map((el) => ({ el, fs: fragments(el), layer: overlayRoot(el) }));
   for (let i = 0; i < boxes.length; i++) {
     for (let j = i + 1; j < boxes.length; j++) {
       const a = boxes[i], b = boxes[j];
       if (a.el === b.el || a.el.contains(b.el) || b.el.contains(a.el)) continue;
+      // same overlay layer (both plain page text, or the same chrome bar): a real
+      // collision is possible. Different layers (chrome over page, or two chrome
+      // bars): an intended overlay, not a bug.
+      if (a.layer !== b.layer) continue;
       let hit = false;
       for (const la of a.fs) for (const lb of b.fs) {
         const w = Math.min(la.right, lb.right) - Math.max(la.left, lb.left);

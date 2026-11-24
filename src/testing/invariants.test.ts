@@ -295,6 +295,25 @@ describe("page invariants", () => {
     expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
   });
 
+  it("textOverlap: two overlapping text boxes INSIDE one sticky bar are a real collision, not an exempted overlay", async () => {
+    // The overlay exemption is layered: a box collides only with text in its OWN
+    // overlay layer. Two spans in the same position:sticky parent share one layer,
+    // so their overlap is a real bug — not intended chrome. This is the case the
+    // per-element overlay drop (pre-layering) missed.
+    document.body.innerHTML = "<div class='db-content-column'><p>page</p></div><div style='position:sticky'><span id='a'>Label</span><span id='b'>Value</span></div>";
+    const pageEl = document.querySelector(".db-content-column p")!;
+    const a = document.getElementById("a")!;
+    const b = document.getElementById("b")!;
+    box(pageEl, 0, 0, 390, 200);
+    box(a, 0, 800, 120, 44); // sits inside the sticky bar
+    box(b, 60, 800, 120, 44); // overlaps a at x 60..120 (60px wide, 44px tall)
+    expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap:.*overlap/)]));
+    // the same two spans NOT overlapping do not report
+    box(a, 0, 800, 120, 44);
+    box(b, 140, 800, 120, 44);
+    expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
+  });
+
   it("knownGaps: each new code downgrades to a warning naming its ticket", async () => {
     // The downgrade slicing is code-independent (`p.slice(0, p.indexOf(":"))`), but
     // this proves each NEW code's key is a valid `InvariantCode` that round-trips to
