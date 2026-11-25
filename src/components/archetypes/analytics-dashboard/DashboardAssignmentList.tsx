@@ -31,11 +31,13 @@ export type DashboardAssignmentListProps = {
  * target, each saving on its own with a per-row pending state. Render it as a
  * direct child of `DashboardShell`, after the `DashboardGrid`.
  *
- * The column count is keyed to the column's container, not the viewport, in
- * the same steps as the `DashboardGrid` it sits on top of (1, 2 at `@4xl`,
- * 3 at `@5xl`): the card's real width is the page column's, and inside
- * `AppShell` that column is narrower than the window — `DashboardGrid` is the
- * container that queries, so the list's grid steps with the widget grid.
+ * The column count is keyed to the LIST's OWN box (its `@container` wrapper),
+ * not the viewport — inside `AppShell` the card's real width is the page
+ * column's minus the card's padding, narrower than the window — and the
+ * steps (1, 2 at `@4xl`, 3 at `@5xl`) are the same thresholds the
+ * `DashboardGrid` sits at, so the two grids step together. The wrapper is
+ * what the `@4xl` / `@5xl` classes query against: without it the variants
+ * would resolve against whatever ancestor container exists, or none.
  */
 export function DashboardAssignmentList({
   title,
@@ -53,7 +55,7 @@ export function DashboardAssignmentList({
         // list's own box, so the column count follows the column's real width
         // (inside `AppShell`, the page column's), not the viewport.
         <div className="@container">
-          <ul className="grid grid-cols-1 gap-x-6 gap-y-1 @4xl:grid-cols-2 @5xl:grid-cols-3">
+          <ul data-slot="dashboard-assignment-list" className="grid grid-cols-1 gap-x-6 gap-y-1 @4xl:grid-cols-2 @5xl:grid-cols-3">
             {targets.map((target) => (
               <li key={target.id}>
                 <Label className="flex min-h-9 cursor-pointer items-center gap-3 font-normal">

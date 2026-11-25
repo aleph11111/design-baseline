@@ -29,6 +29,7 @@ describe("container-query layout primitives", () => {
     const wrapper = container.querySelector('[class*="@container"]')!;
     expect(wrapper.className).toContain("@container");
     const list = wrapper.firstElementChild as HTMLElement;
+    expect(list.getAttribute("data-slot")).toBe("dashboard-assignment-list"); // check:viewports's assignment-list selector targets this box
     expect(list.className).toContain("grid-cols-1");
     expect(list.className).toContain("@4xl:grid-cols-2");
     expect(list.className).toContain("@5xl:grid-cols-3");

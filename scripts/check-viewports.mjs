@@ -208,8 +208,9 @@ for (const [name, device] of Object.entries(devices)) {
 // @4xl (896px) stays a stacked month-over-YTD even on a wide viewport; in the
 // wide column (cards ~1104–1640px) it splits at @4xl. The edit-mode assignment
 // list (dashboard-assignment-list-container-query) steps with the widget grid
-// off the LIST's own @container — 1 col while its column is under @4xl, 3 from
-// @5xl (1024px): ~738px in the 1133 window, ~1102px in laptop14's column.
+// off the LIST's own @container — 1 col while its box is under @4xl (896px), 3
+// from @5xl (1024px); the box is the page column minus the card's padding+2·1px
+// border, so ~738px in the 1133 window's ~780px column, ~1102px in laptop14's.
 const CQ_CASES = [
   { name: "sweep 1133 (~780px column)", device: widthSweep.find((d) => d.viewport.width === 1133), strip: 1, grid: 1, pair: 1, build: 1, rail: false, pane: "none", assign: 1 },
   { name: "laptop14 (wide column)", device: devices.laptop14, strip: 4, grid: 3, pair: 2, build: 3, rail: true, pane: "block", assign: 3 },
@@ -232,12 +233,13 @@ for (const c of CQ_CASES) {
     // split grid: it is the only @container that also carries the -my-4 gutter-cancel.
     const pair = await page.$eval('[class*="@container"][class*="-my-4"]', (wrap) => getComputedStyle(wrap.firstElementChild).gridTemplateColumns.split(" ").length);
     if (pair !== c.pair) bad.push(`period-pair split has ${pair} column(s), want ${c.pair}`);
-    // the edit-mode assignment list keys its columns on the LIST's own @container (the only
-    // one besides the grid's, on this page), not the viewport: it holds the narrow layout
-    // while its column is under @4xl (896px) and steps to 2/3 like the widget grid at @4xl/@5xl.
+    // the edit-mode assignment list keys its columns on the LIST's own @container (its own
+    // `data-slot` box — the widget grid carries the SAME @4xl/@5xl classes, so a shared
+    // class selector would measure the grid, not the list), not the viewport: 1 col while
+    // its box is under @4xl (896px), 2/3 from there like the widget grid.
     await page.getByRole("button", { name: "Edit layout" }).click();
     await page.waitForSelector('[data-slot="dashboard-widget-edit"]', { timeout: 5000 });
-    const assign = await cols('[class*="@4xl:grid-cols-2"]:not([class*="@4xl:divide-x"])');
+    const assign = await cols('[data-slot="dashboard-assignment-list"]');
     if (assign !== c.assign) bad.push(`assignment list has ${assign} column(s), want ${c.assign}`);
     // detail-overview: the 300px rail stacks label over value at every width.
     await page.goto(base + "detail-overview");
