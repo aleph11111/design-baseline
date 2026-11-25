@@ -39,8 +39,9 @@ export type CrudDialogBodyProps = {
    * Body presentation — the dialog's graded "richness" axis (see
    * docs/CHOOSING-A-SURFACE.md). This is a variant, NOT a separate component:
    * - `"flat"` (default): a single `space-y-4` stack — simple entities (5–8 fields).
-   * - `"two-column"`: a responsive paired-field grid (`grid-cols-1 sm:grid-cols-2`,
-   *   `gap-4`) with the mandated mobile collapse baked in.
+   * - `"two-column"`: a responsive paired-field grid (`grid-cols-1 @md:grid-cols-2`,
+   *   `gap-4`) with the mandated collapse baked in — keyed on the body's own
+   *   `@container` (its padding box), not the viewport.
    * - `undefined`: no wrapper — for **mixed** bodies (full-width fields beside a
    *   2-col section) and the **tabbed** shape (compose shadcn `<Tabs>`), where
    *   the consumer structures the layout itself.
@@ -76,7 +77,7 @@ function SkeletonField({
 // content so a fetch finishing mid-viewport can't shift the layout. It also
 // publishes the horizontal padding as `--form-inset` (= px-6), so a
 // `FormPageActions` bar rendered inside the body bleeds to the body edge.
-const BODY_INSET = "px-6 py-4 [--form-inset:1.5rem]";
+const BODY_INSET = cn("px-6 py-4 @container", "[--form-inset:1.5rem]");
 
 // Decorative loading shape. The visible skeleton stays aria-hidden — the
 // announcement lives in the body's persistent status region (below), not on
@@ -153,7 +154,7 @@ function BodySkeleton({
  */
 const LAYOUT_CLASS: Record<"flat" | "two-column", string> = {
   flat: "space-y-4",
-  "two-column": "grid grid-cols-1 gap-4 sm:grid-cols-2",
+  "two-column": "grid grid-cols-1 gap-4 @md:grid-cols-2",
 };
 
 export function CrudDialogBody({
