@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.68.1
+
+- **Fixed (`ui/progress` a11y):** the wrapper destructured `value` for the Indicator's `translateX` transform but never passed it to `ProgressPrimitive.Root`, so every `<Progress value={40} />` rendered `data-state=indeterminate` with no `aria-valuenow` on the `role=progressbar` — screen readers announced no value. The `value` is now forwarded to the Root; the Indeterminate transform is untouched. The no-value form still renders indeterminate, unchanged.
+- **Audit (acceptance criterion 3):** no other `src/components/ui/` wrapper destructures a Radix root prop without re-passing it (`DropdownMenuCheckboxItem` re-passes `checked` explicitly; the rest spread `...props`). No sibling fix required.
+- **Consumer:** bump `design-baseline` to `0.68.1` and drop the explicit `aria-valuenow` workaround in behandlungskompass's `src/app/(portal)/portal/page.tsx` (it passed the value attribute by hand because the primitive swallowed it).
+- **Breaking:** no.
+
 ## v0.68.0
 
 - **Fixed (`analytics-dashboard` `DashboardPeriodPair` split):** the pair's month/YTD split (`grid-cols-1 … sm:grid-cols-2 sm:divide-x sm:divide-y-0`) keyed on the **viewport** width. Since v0.51.0 a `DashboardGrid` widget is a card in a container-query grid, so the real width of a pair is its card (full-width inside the page grid's column), not the viewport: on a wide desktop viewport a narrow pair card split into two squeezed columns, and on a narrow window a wide card stacked. The split now sits inside the primitive's own `@container` wrapper and the classes are `@4xl:grid-cols-2 @4xl:divide-x @4xl:divide-y-0` — container-query, following the `StatTileRow` / `DashboardGrid` steps, so the pair stacks when its *card* is under 896px regardless of window width, and splits when the card is at least that wide. The wrapper carries the card's gutter-cancel (`-mx-5 -my-4`) directly: a plain wrapper in between would have stopped that top margin from collapsing against the card body and grown every pair card by the body's 16px top gutter at every width. No new prop (ADR-0004), no structural change.
