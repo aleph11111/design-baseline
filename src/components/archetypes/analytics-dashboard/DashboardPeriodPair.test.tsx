@@ -6,7 +6,7 @@ import { DashboardPeriodPair } from "./DashboardPeriodPair";
 afterEach(cleanup);
 
 describe("DashboardPeriodPair — paired-period widget kind (contract 4.3)", () => {
-  it("is one full-width cell per pair: month first, YTD second, split side by side from sm", () => {
+  it("is one full-width cell per pair: month first, YTD second, split side by side from @4xl (container, not viewport)", () => {
     const { container } = render(
       <DashboardGrid>
         <DashboardPeriodPair title="Revenue" month={{ label: "Month", value: "1" }} ytd={{ label: "YTD", value: "10" }} />
@@ -24,7 +24,8 @@ describe("DashboardPeriodPair — paired-period widget kind (contract 4.3)", () 
     expect(ytd.textContent).toBe("YTD");
     const split = month.parentElement!.parentElement!;
     expect(split.className).toMatch(/(^|\s)grid-cols-1(\s|$)/);
-    expect(split.className).toContain("sm:grid-cols-2");
+    expect(split.className).toContain("@4xl:grid-cols-2");
+    expect(split.parentElement!.className).toContain("@container");
   });
 
   it("renders a state plane in place of both figures", () => {

@@ -203,10 +203,13 @@ for (const [name, device] of Object.entries(devices)) {
 // AppShell the column is narrower than the viewport. At the 1133px laptop
 // window the content column is ~780px — below @4xl (896px) — so the KPI strip
 // and the widget grid keep their narrow layout; on laptop14 (wide column) they
-// show the wide one.
+// show the wide one. The paired-period split keys on its own card/container
+// width too (dashboard-period-pair-container-query): a pair card narrower than
+// @4xl (896px) stays a stacked month-over-YTD even on a wide viewport; in the
+// wide column (cards ~1104–1640px) it splits at @4xl.
 const CQ_CASES = [
-  { name: "sweep 1133 (~780px column)", device: widthSweep.find((d) => d.viewport.width === 1133), strip: 1, grid: 1, build: 1, rail: false, pane: "none" },
-  { name: "laptop14 (wide column)", device: devices.laptop14, strip: 4, grid: 3, build: 3, rail: true, pane: "block" },
+  { name: "sweep 1133 (~780px column)", device: widthSweep.find((d) => d.viewport.width === 1133), strip: 1, grid: 1, pair: 1, build: 1, rail: false, pane: "none" },
+  { name: "laptop14 (wide column)", device: devices.laptop14, strip: 4, grid: 3, pair: 2, build: 3, rail: true, pane: "block" },
 ];
 for (const c of CQ_CASES) {
   const label = `container-query layout @ ${c.name}`;
@@ -220,6 +223,12 @@ for (const c of CQ_CASES) {
     const grid = await cols('[class*="@4xl:grid-cols-2"]');
     if (strip !== c.strip) bad.push(`KPI strip has ${strip} column(s), want ${c.strip}`);
     if (grid !== c.grid) bad.push(`widget grid has ${grid} column(s), want ${c.grid}`);
+    // the paired-period split keys on ITS card's width (the @container -my-4 wrapper carries
+    // both the gutter-cancel and the container the split queries), so a pair card narrower than
+    // @4xl (896px) stacks month over YTD even on a wide viewport. Select via that wrapper's
+    // split grid: it is the only @container that also carries the -my-4 gutter-cancel.
+    const pair = await page.$eval('[class*="@container"][class*="-my-4"]', (wrap) => getComputedStyle(wrap.firstElementChild).gridTemplateColumns.split(" ").length);
+    if (pair !== c.pair) bad.push(`period-pair split has ${pair} column(s), want ${c.pair}`);
     // detail-overview: the 300px rail stacks label over value at every width.
     await page.goto(base + "detail-overview");
     await page.waitForSelector('[class*="@sm:flex-row"]', { timeout: 10000 });
