@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-11-20
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "new check script following the check-detail-sheet.mjs pattern; cause and assertions established"

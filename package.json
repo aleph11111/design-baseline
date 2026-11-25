@@ -16,6 +16,7 @@
     "screenshots:update": "node bin/design-baseline-playwright.mjs sh -c 'npm run gallery:build && npx playwright test --update-snapshots'",
     "check:app-header-phone": "npm run gallery:build && node scripts/check-app-header-phone.mjs",
     "check:joined-label": "npm run gallery:build && node scripts/check-joined-label.mjs",
+    "check:crud-dialog-demo": "npm run gallery:build && node scripts/check-crud-dialog-demo.mjs",
     "check:detail-sheet": "NODE_ENV=development vite build --configLoader runner --mode development --outDir ../gallery-dist-dev --emptyOutDir && node scripts/check-detail-sheet.mjs",
     "verify:manifest": "node scripts/verify-manifest-versions.mjs",
     "verify:package-version": "node scripts/verify-package-version.mjs",

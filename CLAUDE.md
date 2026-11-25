@@ -59,6 +59,7 @@ npm run screenshots               # pixel baselines (tests/screenshots/) compare
 npm run screenshots:update        # regenerate the baselines after an intended visual change (same image; review the PNG diff)
 npm run check:app-header-phone    # gallery:build + real-Chrome check that AppHeader cannot widen the page at 1024/430/360px; runs in CI (after check:viewports, reusing its build)
 npm run check:joined-label        # gallery:build + real-Chrome check that joined toolbar labels yield before values truncate; runs in CI (same)
+npm run check:crud-dialog-demo    # gallery:build + real-Chrome check of the crud-dialog Two-pane demo body at the device triad (sheet `xl` 864px width, panes side-by-side on desk/laptop, stacked on phone, no truncated preview text); runs in CI (same)
 npm run check:detail-sheet        # dev gallery build + real-Chrome check of list-with-detail's content-sized overlay (ADR-0010; local Chrome, not in CI)
 ```
 
