@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render } from "@testing-library/react";
+import { DashboardAssignmentList } from "../archetypes/analytics-dashboard/DashboardAssignmentList";
 import { DashboardGrid } from "../archetypes/analytics-dashboard/DashboardGrid";
 import { DashboardPeriodPair } from "../archetypes/analytics-dashboard/DashboardPeriodPair";
 import { KeyValueList } from "../archetypes/detail-overview/KeyValueList";
@@ -19,6 +20,19 @@ describe("container-query layout primitives", () => {
     expect(grid.className).toContain("@4xl:grid-cols-2");
     expect(grid.className).toContain("@5xl:grid-cols-3");
     expect(grid.className).not.toMatch(/(^| )(sm|md|lg):/);
+  });
+
+  it("DashboardAssignmentList: the list's columns step at the list's own container (@4xl/@5xl), not the viewport", () => {
+    const { container } = render(
+      <DashboardAssignmentList title="Shops" onToggle={() => {}} targets={[{ id: "a", label: "North", assigned: true }]} />,
+    );
+    const wrapper = container.querySelector('[class*="@container"]')!;
+    expect(wrapper.className).toContain("@container");
+    const list = wrapper.firstElementChild as HTMLElement;
+    expect(list.className).toContain("grid-cols-1");
+    expect(list.className).toContain("@4xl:grid-cols-2");
+    expect(list.className).toContain("@5xl:grid-cols-3");
+    expect(container.innerHTML).not.toMatch(/(^|[ "])(sm|md|lg):/);
   });
 
   it("DashboardPeriodPair: split keys on the card's container (@4xl), not the viewport", () => {
