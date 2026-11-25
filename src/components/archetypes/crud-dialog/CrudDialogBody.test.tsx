@@ -153,6 +153,27 @@ describe("CrudDialogBody — skeleton mobile collapse", () => {
     }
   });
 
+  it("keys the two-column layout on the body's @container, not the viewport", () => {
+    const { loadedRoot, skeletonRoot } = renderBoth("two-column");
+
+    // The body's padding box carries @container so the paired-field grid
+    // keys on the dialog's content width, not the viewport (a fixed-width
+    // dialog on a wide viewport must still collapse to one column).
+    const loadedInset = loadedRoot.querySelector<HTMLElement>(".grid")!.parentElement!;
+    const skeletonInset = skeletonRoot.querySelector<HTMLElement>("[aria-hidden]")!;
+    for (const [name, el] of [["loaded", loadedInset], ["skeleton", skeletonInset]] as const) {
+      expect(el.classList.contains("@container"), `${name} body inset missing @container`).toBe(true);
+    }
+
+    // The layout class uses the @md container-query variant — both states.
+    const loadedGrid = loadedRoot.querySelector<HTMLElement>(".grid")!;
+    const skeletonGrids = Array.from(skeletonRoot.querySelectorAll<HTMLElement>(".grid"));
+    for (const el of [loadedGrid, ...skeletonGrids]) {
+      expect(el.classList.contains("@md:grid-cols-2"), "grid missing @md:grid-cols-2").toBe(true);
+      expect(el.classList.contains("sm:grid-cols-2"), "grid still has viewport sm:grid-cols-2").toBe(false);
+    }
+  });
+
   it("shares the loaded body's padding box so load causes no layout shift", () => {
     const { loadedRoot, skeletonRoot } = renderBoth("two-column");
 

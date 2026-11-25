@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.67.0
+
+- **Fixed (`crud-dialog` `two-column` layout):** the body's paired-field grid (`layout="two-column"`) previously keyed on the viewport breakpoint (`sm:grid-cols-2`). Because a crud-dialog has a fixed width (width presets `sm`/`md`/`lg`/`xl` via `CrudDialogSheet`) independent of the viewport, this meant a narrow dialog on a wide desktop viewport always showed two columns and a wide dialog on a narrow window could collapse to one — the opposite of what consumers expect. The body's padding box now carries `@container`, and the class is `@md:grid-cols-2` (container-query, content-width keyed). The loading skeleton — which shares the same `LAYOUT_CLASS["two-column"]` and `BODY_INSET` — collapses at the same content width. No new prop (ADR-0004), no structural change.
+- **Consumer:** none required. Any `layout="two-column"` crud-dialog now collapses correctly when the dialog content is narrower than the `@md` container threshold (~448px), regardless of viewport width.
+- **Breaking:** no.
+
 ## v0.66.4
 
 - **Fixed (`ui/checkbox` indeterminate indicator):** a bulk-select header checkbox in the `indeterminate` state (some rows ticked) rendered the lucide `Check` icon — Radix mounts `CheckboxPrimitive.Indicator` for `indeterminate` as well as `true`, and the primitive drew `Check` unconditionally — so "2 of 25 selected" looked identical to "all selected". The root now carries `group`, and the two icons toggle off the root's `data-state`: `hidden group-data-[state=indeterminate]:block` on the new lucide `Minus`, `group-data-[state=indeterminate]:hidden` on the `Check`. The visible `checked` (check mark) and `unchecked` (empty box) outcomes are unchanged — the extra markup (a `group` token, the carried-but-hidden `Minus`, and the state-gated variant tokens) resolves to the same pixels — and no call site changes (both shipped bulk headers — `settings-table`'s `SettingsTableShell` and `list-with-detail`'s `TableBody` — already pass `"indeterminate"` and now read it correctly).
