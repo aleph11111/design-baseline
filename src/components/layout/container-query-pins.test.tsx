@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render } from "@testing-library/react";
 import { DashboardGrid } from "../archetypes/analytics-dashboard/DashboardGrid";
+import { DashboardPeriodPair } from "../archetypes/analytics-dashboard/DashboardPeriodPair";
 import { KeyValueList } from "../archetypes/detail-overview/KeyValueList";
 import { SectionNavShell } from "./SectionNav";
 import { CardGridBody } from "../archetypes/list-with-detail/presentations/CardGridBody";
@@ -18,6 +19,19 @@ describe("container-query layout primitives", () => {
     expect(grid.className).toContain("@4xl:grid-cols-2");
     expect(grid.className).toContain("@5xl:grid-cols-3");
     expect(grid.className).not.toMatch(/(^| )(sm|md|lg):/);
+  });
+
+  it("DashboardPeriodPair: split keys on the card's container (@4xl), not the viewport", () => {
+    const { container } = render(
+      <DashboardPeriodPair title="Revenue" month={{ label: "Month", value: "1" }} ytd={{ label: "YTD", value: "10" }} />,
+    );
+    const split = container.querySelector('[class*="@4xl:grid-cols-2"]') as HTMLElement;
+    expect(split.className).toContain("grid-cols-1");
+    expect(split.className).toContain("divide-y");
+    expect(split.className).toContain("@4xl:grid-cols-2");
+    expect(split.className).toContain("@4xl:divide-x");
+    expect(split.parentElement!.className).toContain("@container");
+    expect(container.innerHTML).not.toMatch(/(^|[ "])(sm|md|lg):/);
   });
 
   it("KeyValueList is the container the rows query", () => {

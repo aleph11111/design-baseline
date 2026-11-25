@@ -86,11 +86,18 @@ export function DashboardPeriodPair({
       className={className}
     >
       {state ?? (
-        // Cancel the card's body gutter (SectionCard body px-5 py-4): each
-        // StatTile owns its own px-5 / py-4.
-        <div className="-mx-5 -my-4 grid grid-cols-1 divide-y divide-border sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-          <Half half={month} />
-          <Half half={ytd} />
+        // The wrapper carries the gutter-cancel (`-mx-5 -my-4`, so each StatTile
+        // owns its own px-5 / py-4 against the SectionCard body) AND the
+        // `@container` the split queries against. The negative margins must sit
+        // on this box, not the inner grid: a plain wrapper in between would
+        // make the grid's own top margin collapse against the (zero-height)
+        // wrapper instead of the body, and the card would grow by the body's
+        // top gutter at every width.
+        <div className="@container -mx-5 -my-4">
+          <div className="grid grid-cols-1 divide-y divide-border @4xl:grid-cols-2 @4xl:divide-x @4xl:divide-y-0">
+            <Half half={month} />
+            <Half half={ytd} />
+          </div>
         </div>
       )}
     </DashboardWidget>
