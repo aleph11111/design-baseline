@@ -354,6 +354,15 @@ A failure throws one error listing every breach, each prefixed with its code
 silent pass. The check needs no image baseline, so it runs on any machine; only
 screenshot baselines need the pinned image below.
 
+The donor runs two more no-baseline layout guards over the same
+`gallery-dist` in its CI `check` job (they are not part of the shipped
+package): `npm run check:viewports` — every `kind: page` archetype at the
+device triad + the desk-width column steps; and `check:crud-dialog-demo` — the
+crud-dialog Two-pane demo body at the triad (sheet `xl` width, the two panes
+side by side on the desktops / stacked on phone, no truncated preview text).
+They guard the demo, not the consumer — take the triad export and the
+invariants, not the scripts.
+
 ### Gate 3 setup — screenshot baselines in the pinned image
 
 Baselines are only comparable when every machine renders in the same image, so
