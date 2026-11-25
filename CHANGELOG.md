@@ -2,6 +2,13 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.69.0
+
+- **Added (`import-wizard` `WizardStep` per-step `hideNext`):** a `WizardStep` may carry `hideNext: true`. The `WizardPanel` footer — and `WizardShell`, which forwards `steps` to it — then renders no forward action (Next, or Commit on the last step) for that step while keeping Back, `onFirstBack` / `firstBackLabel` and the footer layout unchanged. The footer stays navigation with **one primary**: a step whose body already carries its own primary action (e.g. a side-rail "Strecke prüfen") sets `hideNext` so the footer never doubles it. The flag is per-step — no other step of the same wizard loses its forward action. A step without `hideNext` renders the footer exactly as before (`canProceed`, `busy` and labels unchanged). The stepper ignores the flag; only the panel footer reads it.
+- **Docs:** `docs/archetypes/import-wizard.md` Layer 5 now states the footer holds Back plus at most one primary and documents the per-step `hideNext` contract (contract v2.5, MANIFEST 3.10).
+- **Consumer:** optional; set `hideNext: true` on the `WizardStep` that owns its body primary, and bump `design-baseline` to `0.69.0`.
+- **Breaking:** no.
+
 ## v0.68.1
 
 - **Fixed (`ui/progress` a11y):** the wrapper destructured `value` for the Indicator's `translateX` transform but never passed it to `ProgressPrimitive.Root`, so every `<Progress value={40} />` rendered `data-state=indeterminate` with no `aria-valuenow` on the `role=progressbar` — screen readers announced no value. The `value` is now forwarded to the Root; the Indeterminate transform is untouched. The no-value form still renders indeterminate, unchanged.
