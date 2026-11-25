@@ -12,6 +12,11 @@ afterEach(cleanup);
 //   - `hidden` vs `group-data-[state=indeterminate]:hidden` are distinct classList
 //     tokens (a standalone `hidden` hides everywhere; the variant hides only
 //     while indeterminate; `...:block` re-shows the Minus in that state).
+// The `group-data-[…]` variants only fire because an ANCESTOR carries `group`; the
+// mechanism therefore also pins that anchor — the checkbox root must hold `group`
+// and be the indicator's nearest `.group` ancestor (drop `group` and the variant
+// matches nothing: the Minus stays hidden and the Check is never hidden either,
+// silently resurrecting the check mark this ticket removes).
 // Identifying an icon by its `path d` (below) is robust to lucide's internal
 // class-naming (`lucide-minus`); the tokens themselves are the contract.
 const CHECK_D = "M20 6 9 17l-5-5";
@@ -22,15 +27,24 @@ const svgByPath = (d: string) =>
   ) ?? null);
 const tokens = (el: SVGElement) => el.classList;
 const checkbox = () => screen.getByRole("checkbox");
+// The variant's anchor: the indicator's nearest `.group` ancestor must be the
+// checkbox root (not an incidental outer group), which requires the root itself to
+// carry `group`. `closest` returns the innermost match, so an outer group cannot
+// satisfy this.
+const groupAncestor = (icon: SVGElement) => icon.closest<HTMLElement>(".group");
 
 describe("Checkbox indicator icon by state", () => {
   it("shows only the check mark for checked={true}", () => {
     render(<Checkbox aria-label="Select" checked />);
-    expect(checkbox().getAttribute("data-state")).toBe("checked");
+    const root = checkbox();
+    expect(root.getAttribute("data-state")).toBe("checked");
+    // The mechanism's anchor is present even in the default state.
+    expect(root.classList.contains("group")).toBe(true);
     const check = svgByPath(CHECK_D);
     const minus = svgByPath(MINUS_D);
     expect(check).toBeTruthy();
     expect(minus).toBeTruthy();
+    expect(groupAncestor(minus!)).toBe(root);
     // Non-indeterminate: the Check carries no standalone `hidden`, so it shows;
     // the Minus is gated behind `hidden` and only un-hidden while indeterminate.
     expect(tokens(check!).contains("hidden")).toBe(false);
@@ -39,11 +53,16 @@ describe("Checkbox indicator icon by state", () => {
 
   it("shows the Minus icon, not the check mark, for checked='indeterminate'", () => {
     render(<Checkbox aria-label="Select" checked="indeterminate" />);
-    expect(checkbox().getAttribute("data-state")).toBe("indeterminate");
+    const root = checkbox();
+    expect(root.getAttribute("data-state")).toBe("indeterminate");
+    expect(root.classList.contains("group")).toBe(true);
     const check = svgByPath(CHECK_D);
     const minus = svgByPath(MINUS_D);
     expect(check).toBeTruthy();
     expect(minus).toBeTruthy();
+    // The variant anchors on THIS root, which carries data-state=indeterminate.
+    expect(groupAncestor(minus!)).toBe(root);
+    expect(groupAncestor(check!)).toBe(root);
     // In this state the Check is hidden and the Minus re-shown:
     expect(tokens(check!).contains("group-data-[state=indeterminate]:hidden")).toBe(true);
     expect(tokens(minus!).contains("group-data-[state=indeterminate]:block")).toBe(true);
@@ -54,7 +73,9 @@ describe("Checkbox indicator icon by state", () => {
 
   it("shows no icon for checked={false}", () => {
     render(<Checkbox aria-label="Select" checked={false} />);
-    expect(checkbox().getAttribute("data-state")).toBe("unchecked");
+    const root = checkbox();
+    expect(root.getAttribute("data-state")).toBe("unchecked");
+    expect(root.classList.contains("group")).toBe(true);
     // The Indicator is unmounted entirely when nothing is checked.
     expect(svgByPath(CHECK_D)).toBeNull();
     expect(svgByPath(MINUS_D)).toBeNull();
