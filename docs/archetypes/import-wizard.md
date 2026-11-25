@@ -2,7 +2,7 @@
 key: W
 slug: import-wizard
 kind: page
-version: 2.4
+version: 2.5
 promoted_from: fleet-audit-2026-06-13 (controlling-app, my-finance-app)
 promoted_at: 2026-06-14
 source_spec_version: 1.2
@@ -66,7 +66,8 @@ toolbar); navigation is via the footer, not by clicking steps. The current
 step's body is a section titled with the step's label — a section of the
 page's one surface, never a card of its own. The **footer** holds the commit
 actions: **Back** + **Next**, swapping Next for a single **Commit** on the
-last step.
+last step. The footer is navigation with **one primary** — Back plus at most one
+forward action, never a second body primary mirrored into the footer.
 Flow state is **consumer-owned** — the consumer holds `current` and per-step
 data; the shell renders chrome and emits navigation intents. Canonical stages:
 - **Upload** — a file dropzone (or a paste / connect-source affordance). `canProceed`
@@ -77,6 +78,13 @@ data; the shell renders chrome and emits navigation intents. Canonical stages:
   K skipped`). This is the "show what will happen before it happens" step — never
   skip it for a destructive/bulk import.
 - **Commit** — a summary + the single terminal action.
+
+**Per-step primary action.** A step whose body already carries its own primary
+action sets `hideNext: true` on its `WizardStep`; the panel drops the footer
+forward action (Next, or Commit on the last step) for that step so the footer
+never doubles a body primary. Back, `onFirstBack` and the footer layout are
+unchanged, and the flag is per-step — the other steps keep their forward
+action. It applies in both the page shell and the embeddable `WizardPanel`.
 
 **Non-page hosts.** Where the wizard lives in a dialog, drawer or tab body
 rather than on its own route, it uses the embeddable frame **`WizardPanel`**:
@@ -143,3 +151,7 @@ without import rights sees history (read-only) but not the wizard.
 - **2.4** — view slots: the page shell takes `viewSwitch` (the "New import" /
   "History" toggle) and `viewOptions` / `viewOptionsLabel` (display-only
   toggles), rendered in the stepper and the done state.
+- **2.5** — per-step `hideNext`: a `WizardStep` may hide the footer forward
+  action (Next, or Commit on the last step) when its body carries its own
+  primary action; navigation stays one-primary and the per-step flag leaves the
+  other steps' forward action intact.
