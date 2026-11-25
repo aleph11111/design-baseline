@@ -1,7 +1,7 @@
 ---
 area: ui
 opened: '2026-11-20'
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "single-primitive fix with an established cause and a clear CSS-state mechanism"
