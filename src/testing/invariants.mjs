@@ -229,7 +229,13 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   };
   const boxes = [...document.body.querySelectorAll("*")]
     .filter((el) => visible(el) && ownText(el))
-    .map((el) => ({ el, layer: overlayRoot(el) }));
+    .map((el) => ({ el, layer: overlayRoot(el), rect: el.getBoundingClientRect() }));
+  // Painted fragments lie inside the element's bounding box, so two boxes that
+  // do not intersect can never overlap — the cheap test runs before the
+  // ancestor walks in fragments(), keeping table-heavy pages fast.
+  const boxesMeet = (p, q) =>
+    Math.min(p.right, q.right) - Math.max(p.left, q.left) > 1 &&
+    Math.min(p.bottom, q.bottom) - Math.max(p.top, q.top) > 1;
   for (let i = 0; i < boxes.length; i++) {
     for (let j = i + 1; j < boxes.length; j++) {
       const a = boxes[i], b = boxes[j];
@@ -237,11 +243,12 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
       // same overlay layer (both plain page text, or the same chrome bar): a real
       // collision is possible. Different layers (chrome over page, or two chrome
       // bars): an intended overlay, not a bug.
-      if (a.layer !== b.layer) continue;
+      if (a.layer !== b.layer || !boxesMeet(a.rect, b.rect)) continue;
       // fragments are pair-specific: a scroller both boxes share must not cut
       const fa = fragments(a.el, b.el);
+      const fb = fragments(b.el, a.el);
       let hit = false;
-      for (const la of fa) for (const lb of fragments(b.el, a.el)) {
+      for (const la of fa) for (const lb of fb) {
         const w = Math.min(la.right, lb.right) - Math.max(la.left, lb.left);
         const h = Math.min(la.bottom, lb.bottom) - Math.max(la.top, lb.top);
         if (w > 1 && h > 1) { hit = true; break; }

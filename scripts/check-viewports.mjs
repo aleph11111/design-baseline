@@ -46,7 +46,7 @@ const SWEEP_GAPS = {
   // At 1024 the transaction-document header is side-by-side (title | actions);
   // the "Print packing slip" button is `whitespace-nowrap` and wider than its
   // actions container, so it overflows left and its icon paints over the
-  // title's first line — a real textOverlap the v0.65.0 invariant surfaced.
+  // title's first line — a real textOverlap the v0.71.0 invariant surfaced.
   // Clean at 1133 (title ends 675px, button starts 691px) and at the triad;
   // the header fix lands in the follow-up ticket, not this PR (the check is
   // strict, this only names the known gap so the sweep is green). The ticket
