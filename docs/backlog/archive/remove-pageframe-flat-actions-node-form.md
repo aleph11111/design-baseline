@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-11-08
-status: ready
+status: done
 value: low
 model: sonnet
 model_reason: "mechanical narrowing of a prop type along an established deprecation path; cause and edit sites are named"

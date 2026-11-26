@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { SettingsSection, SettingsSectionsShell, type SettingsSectionsShellProps } from "./index";
-import { Button } from "../../ui/button";
 
 afterEach(() => {
   cleanup();
@@ -12,7 +11,7 @@ describe("SettingsSectionsShell — section-card stack (ADR-0008, ADR-0015)", ()
   it("renders one page title, the page verbs in the header, and each section title once", () => {
     const onSave = vi.fn();
     const { container } = render(
-      <SettingsSectionsShell title="Studio" actions={<Button>Refresh</Button>}>
+      <SettingsSectionsShell title="Studio" actions={{ primary: { label: "Refresh" } }}>
         <SettingsSection title="Recording" onSave={onSave}>
           <p>recording body</p>
         </SettingsSection>

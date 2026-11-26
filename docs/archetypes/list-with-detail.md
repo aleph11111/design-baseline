@@ -2,7 +2,7 @@
 key: A
 slug: list-with-detail
 kind: page
-version: 4.8
+version: 4.9
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.9
@@ -11,6 +11,14 @@ status: locked
 
 # Archetype A — List-with-detail
 
+> **v4.9 (2026-11-26) — `detailActions` is the typed form only.**
+> `PageFrame` `actions` is typed-only as of v0.71.0 (the rendered-node form is
+> removed), and Layer 11's overlay header takes the same contract: `detailActions`
+> takes the typed `{ primary, secondary, menu }` form only (v4.6's rendered-node
+> form is retired). Breaking for a consumer that passed rendered nodes as
+> `detailActions`: pass `{ primary, secondary, menu }` — the cap and
+> destructive-only-in-`⋯` rule already applied to it (v4.6).
+>
 > **v4.8 (2026-11-22) — close guard.** One optional, default-off seam
 > (Layer 11): the consumer may veto the detail overlay leaving its current
 > row — dismissal and stepping alike — e.g. to ask before discarding an
@@ -386,7 +394,7 @@ Mutations are out of the primitive's scope. The consumer's row-click handler or 
 - **Overlay header** — the overlay is not a page: `detailTitle` titles it and `detailActions` sit beside the title, in the overlay's own header bar. When the actions do not fit beside a readable title they wrap onto a row beneath it; they never squeeze the title.
 - **Close guard** — optional. Before the overlay leaves its current row — every dismissal (Esc, backdrop click, close button) and every previous / next step — the shell asks the consumer's guard. A yes (immediate or eventual) lets it proceed, and the dismissal callback fires after the close; a no, or a failed answer, keeps the overlay open on the same row with its content intact and fires nothing. While an eventual answer is pending, further close or step attempts are ignored, so the consumer's confirm prompt never stacks. No trigger in the shell closes the overlay or changes its row without asking. A selection the consumer clears itself is not a shell trigger and is not guarded. Without a guard every close proceeds. Mirrors `crud-dialog`'s dirty-close check; here the shell owns the open state, so the seam lives on the shell.
 - **Detail stepping** — optional. Previous / next controls in the overlay header step the detail to the adjacent row in the **displayed order** (the consumer's sorted, filtered rows), disabled at the first and last row and when the selected row is not shown. They sit after the header actions, beside the close control; the header bar renders for them even without a title.
-- **Overlay header actions follow the page-header hierarchy** — passed as typed actions (primary, secondary, menu), the overlay header shows at most one primary and two secondary actions inline and puts the rest behind one overflow (`⋯`) menu, the last element of the actions row; a destructive action renders only inside that menu. From the small breakpoint up this capped row stays on one line and widens the overlay; on mobile, where the overlay is full-screen and cannot widen, the secondary actions move into the overflow menu too whenever that menu is shown anyway, leaving the primary and the menu; when no menu is needed (a primary with up to two secondary actions, none destructive) they stay inline. Rendered action nodes are the unbounded legacy form: they render as passed and are not capped.
+- **Overlay header actions follow the page-header hierarchy** — passed as typed actions (primary, secondary, menu), the overlay header shows at most one primary and two secondary actions inline and puts the rest behind one overflow (`⋯`) menu, the last element of the actions row; a destructive action renders only inside that menu. From the small breakpoint up this capped row stays on one line and widens the overlay; on mobile, where the overlay is full-screen and cannot widen, the secondary actions move into the overflow menu too whenever that menu is shown anyway, leaving the primary and the menu; when no menu is needed (a primary with up to two secondary actions, none destructive) they stay inline. `detailActions` is typed-only (v4.9; v4.6's rendered-node form is retired with the `PageFrame` `actions` narrowing in v0.71.0).
 - **Overlay width is the content's** (ADR-0010) — on mobile the overlay is full-screen. From the small breakpoint up it is exactly as wide as its content needs, clamped between a **floor** (28rem) and a **ceiling** (the viewport minus a 4rem gutter, so the list's edge stays visible behind it). Content that can wrap (prose, label/value pairs laid out outside a table) wraps at the floor, so a summary detail opens at the floor width. Table rows inside the detail do not wrap from the small breakpoint up, so a table's columns set the width — except cells marked as **free text** (a description, a long key/value value): those wrap inside a readable band (about 24ch to 48ch), so the overlay grows only by the single-line columns plus one readable text column. Codes, numbers, dates and status badges are never marked and never wrap. The marker names the kind of content, not a width. On mobile, cells wrap as before. A long title truncates; it never widens the overlay. There is no width prop: two consumers passing the same detail get the same width.
 - **No sideways scroll inside the overlay** — neither the overlay body nor a nested table scrolls horizontally from the small breakpoint up. A detail whose content outgrows the ceiling escalates to its own `detail-overview` route (see `CHOOSING-A-SURFACE.md`, the read/detail spectrum). For free text the rule is met by wrapping (mark the column), not by width. The shell warns in development builds when an open detail scrolls sideways at the ceiling, naming the detail; when the detail holds a table, the warning first says to mark free-text columns. On mobile a wide table scrolls inside its own container, and that is accepted.
 

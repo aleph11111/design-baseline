@@ -1,5 +1,4 @@
 import * as React from "react";
-import { createPortal } from "react-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   cleanup,
@@ -475,7 +474,11 @@ describe("PageFrame inside an overlay (ADR-0008: drawers are not pages)", () => 
         <SheetContent>
           <SheetTitle>Drawer</SheetTitle>
           <SheetDescription>d</SheetDescription>
-          <PageFrame title="Page" actions={<button>Act</button>} toolbar={<span>scope</span>}>
+          <PageFrame
+            title="Page"
+            actions={{ primary: { label: "Act" } }}
+            toolbar={<span>scope</span>}
+          >
             body
           </PageFrame>
         </SheetContent>
@@ -495,7 +498,7 @@ describe("PageFrame inside a titled SectionCard (the section owns the heading)",
     const { container } = render(
       <PageFrame title="Item">
         <SectionCard title="Market Intelligence">
-          <PageFrame title="Market Intelligence" actions={<button>Sync</button>}>
+          <PageFrame title="Market Intelligence" actions={{ primary: { label: "Sync" } }}>
             grid
           </PageFrame>
         </SectionCard>
@@ -609,13 +612,4 @@ describe("PageFrame — typed header actions (≤ 1 primary + 2 secondary, rest 
     expect(container.querySelector(".justify-end.gap-2")).toBeNull();
   });
 
-  it("treats a portal as a rendered node, not a typed object", () => {
-    render(<PageFrame title="T" actions={createPortal(<button>Portaled</button>, document.body)}>body</PageFrame>);
-    expect(screen.getByRole("button", { name: "Portaled" })).toBeTruthy();
-  });
-
-  it("still renders the deprecated flat ReactNode form as before", () => {
-    render(<PageFrame title="T" actions={<><button>A</button><button>B</button><button>C</button><button>D</button></>}>body</PageFrame>);
-    expect(screen.getAllByRole("button").map((b) => b.textContent)).toEqual(["A", "B", "C", "D"]);
-  });
 });

@@ -159,12 +159,7 @@ export function CalendarDemo(): React.ReactElement {
             </span>
           </>
         }
-        actions={
-          <Button>
-            <Plus className="mr-1 h-4 w-4" />
-            Event
-          </Button>
-        }
+        actions={{ primary: { label: "Event", icon: Plus } }}
         days={days}
         emptyDayLabel="—"
       />

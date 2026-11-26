@@ -7,7 +7,6 @@ import {
   MetricRow,
   ProgressTracker,
   Badge,
-  Button,
   IconAvatar,
 } from "design-baseline";
 
@@ -34,7 +33,7 @@ export function CommandRailUnified() {
             <Badge variant="warning">Packing</Badge>
           </>
         }
-        actions={<Button size="sm">Mark as shipped</Button>}
+        actions={{ primary: { label: "Mark as shipped" } }}
         summary={
           <>
             <DetailSection title="Revenue & profit">
@@ -108,7 +107,7 @@ export function VerticalSeparated() {
       title="Jonas Berger"
       subtitle="Customer since Mar 2024"
       badges={<Badge variant="secondary">Active</Badge>}
-      actions={<Button size="sm">Edit customer</Button>}
+      actions={{ primary: { label: "Edit customer" } }}
       summary={
         <DetailSection title="Contact" flush>
           <KeyValueList>

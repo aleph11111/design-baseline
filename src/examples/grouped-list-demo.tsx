@@ -14,7 +14,6 @@ import {
   ListWithDetailToolbar,
   type ListColumn,
 } from "@/components/archetypes/list-with-detail";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 
@@ -188,12 +187,7 @@ function TaxonomyDemo() {
         // back link is the page header's, not a bespoke leading control.
         backHref="#"
         backLabel="Catalog"
-        actions={
-          <Button>
-            <Plus className="mr-1 h-4 w-4" />
-            Add recipe
-          </Button>
-        }
+        actions={{ primary: { label: "Add recipe", icon: Plus } }}
         isLoading={isLoading}
         error={error}
         onRetry={() => setState("loaded")}
@@ -351,12 +345,7 @@ function WorkQueueDemo() {
   return (
     <GroupedListShell
       title="Print orders"
-      actions={
-        <Button>
-          <Plus className="mr-1 h-4 w-4" />
-          New order
-        </Button>
-      }
+      actions={{ primary: { label: "New order", icon: Plus } }}
       viewSwitch={<WorkQueueViewSwitch value={view} onValueChange={setView} counts={counts} />}
       toolbar={<ListWithDetailToolbar searchValue={search} onSearchChange={setSearch} searchPlaceholder="Order no., customer…" />}
       isEmpty={counts[view] === 0}

@@ -413,12 +413,7 @@ export function MatrixGridDemo() {
         // header's, not a bespoke leading control.
         backHref="#"
         backLabel="Classes"
-        actions={
-          <Button variant="outline">
-            <Download className="h-4 w-4" />
-            Export CSV
-          </Button>
-        }
+        actions={{ primary: { label: "Export CSV", icon: Download } }}
         toolbar={
           <Select value={term} onValueChange={(v) => setTerm(v as "spring" | "summer")}>
             <SelectTrigger label="Term" options={["Spring 2026", "Summer 2026"]}>

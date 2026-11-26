@@ -9,7 +9,7 @@ import { useFullBleedClass } from "../../layout/surface";
 import { SurfaceHeaderBar } from "../../layout/SurfaceHeaderBar";
 import { BandChrome, ToolbarBand } from "../../layout/ToolbarBand";
 import { useLabels } from "../../../lib/labels";
-import { isHeaderActions, renderHeaderActions, splitHeaderActions, type HeaderActions } from "../../layout/HeaderActions";
+import { renderHeaderActions, splitHeaderActions, type HeaderActions } from "../../layout/HeaderActions";
 import {
   ListWithDetailEmptyState,
   type ListEmptyMode,
@@ -132,13 +132,12 @@ export type ListWithDetailBodyProps<Row> = {
    */
   detailTitle?: React.ReactNode;
   /**
-   * Actions in the detail overlay's header bar. Pass the typed form
+   * Actions in the detail overlay's header bar. Typed form
    * `{ primary, secondary, menu }` (the page header's `HeaderActions`): at
    * most one primary and two secondary buttons inline, the rest behind one
-   * `⋯` menu, and any `destructive` action only inside that menu. Rendered
-   * nodes still render unchanged but bypass that cap (unbounded legacy form).
+   * `⋯` menu, and any `destructive` action only inside that menu.
    */
-  detailActions?: HeaderActions | React.ReactNode;
+  detailActions?: HeaderActions;
   /**
    * Called when the detail overlay (the Sheet — the only detail surface, on
    * every width) closes — Esc, backdrop click, or
@@ -556,11 +555,7 @@ export function ListWithDetailBody<Row>(
   // cells are held on one line here (from `sm` up only) so their data sets the
   // width instead of scrolling sideways. Below `sm` the sheet is full-screen and
   // cells wrap as before.
-  const headerActions = isHeaderActions(detailActions) ? (
-    <DetailHeaderActions value={detailActions} />
-  ) : (
-    detailActions
-  );
+  const headerActions = detailActions ? <DetailHeaderActions value={detailActions} /> : undefined;
   const detailPanel =
     detail !== undefined ? (
       <Sheet
@@ -584,9 +579,14 @@ export function ListWithDetailBody<Row>(
             // (absolute, top-4 right-4; touch: right-1, 44px) floats over the
             // bar's right edge, so the bar's right padding clears it — for the
             // title too when the actions wrap beneath it (structural).
+            // `detailActions` is typed-only since v4.9 (v0.71.0): the capped
+            // row stays on one line from `sm` up and widens the overlay
+            // (ADR-0010) — the conditional that used to gate this on the
+            // typed/node discriminant is now just presence. On phone the ⋯
+            // fold may add a wrapping row (full-screen sheet).
             <SurfaceHeaderBar
               className="pr-13"
-              actionsClassName={isHeaderActions(detailActions) ? "sm:flex-nowrap" : undefined}
+              actionsClassName={detailActions ? "sm:flex-nowrap" : undefined}
               actions={stepper ? <>{headerActions}{stepper}</> : headerActions}
             >
               {/* SheetTitle so Radix Dialog gets an accessible name (aria-labelledby).

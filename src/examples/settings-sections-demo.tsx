@@ -86,7 +86,7 @@ export function SettingsSectionsDemo() {
     <SettingsSectionsShell
       title="Observatory"
       subtitle="Telescope, night-session and sensor defaults."
-      actions={<Button variant="outline">Sync sky catalog</Button>}
+      actions={{ primary: { label: "Sync sky catalog" } }}
     >
       <SettingsSection
         title="Telescope"

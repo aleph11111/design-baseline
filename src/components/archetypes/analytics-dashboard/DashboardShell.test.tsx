@@ -12,7 +12,7 @@ function renderDashboard() {
     <DashboardShell
       title="Revenue Analytics"
       toolbar={<span>Period</span>}
-      actions={<button type="button">Export</button>}
+      actions={{ primary: { label: "Export" } }}
     >
       <StatTileRow>
         <StatTile label="Revenue" value="1" />

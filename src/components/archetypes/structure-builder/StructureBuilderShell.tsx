@@ -6,7 +6,7 @@ import { Button } from "../../ui/button";
 import { StateView } from "../../ui/state-view";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../../ui/sheet";
 import { PageFrame, type PageShellFrameProps } from "../../layout/PageFrame";
-import { isHeaderActions, type HeaderAction } from "../../layout/HeaderActions";
+import { type HeaderAction, type HeaderActions } from "../../layout/HeaderActions";
 import { useLabels } from "../../../lib/labels";
 
 /** The coverage check: how many palette items are not placed in the tree yet,
@@ -120,37 +120,26 @@ export function StructureBuilderShell({
       </div>
     ) : undefined;
 
-  // Typed `actions`: History joins the secondaries and Save takes the primary
-  // slot (a consumer primary moves to the secondaries), so the frame's
+  // `actions` is typed only: History joins the secondaries and Save takes the
+  // primary slot (a consumer primary moves to the secondaries), so the frame's
   // hierarchy rule still holds.
   const historyAction: HeaderAction | undefined =
     history && ready ? { label: L.structureHistory, icon: History, onSelect: () => openHistory(true) } : undefined;
   const saveAction: HeaderAction | undefined =
     onSave && ready ? { label: saving ? L.saving : L.save, onSelect: onSave, disabled: !dirty || saving } : undefined;
-  const headerActions = isHeaderActions(actions) ? {
-    ...actions,
-    primary: saveAction ?? actions.primary,
-    secondary: [
-      ...(historyAction ? [historyAction] : []),
-      ...(saveAction && actions.primary ? [actions.primary] : []),
-      ...(actions.secondary ?? []),
-    ],
-  } : history || actions || onSave ? (
-      <>
-        {history && ready ? (
-          <Button type="button" variant="outline" onClick={() => openHistory(true)}>
-            <History aria-hidden />
-            {L.structureHistory}
-          </Button>
-        ) : null}
-        {actions}
-        {onSave && ready ? (
-          <Button type="button" onClick={onSave} disabled={!dirty || saving}>
-            {saving ? L.saving : L.save}
-          </Button>
-        ) : null}
-      </>
-    ) : undefined;
+  // Spread `…actions` first so the consumer's `menu` (a destructive Delete can
+  // only live there) and `renderLink` survive — this shell rewrites only the
+  // primary/secondary slots; the frame renders the rest.
+  const headerActions: HeaderActions | undefined =
+    historyAction || saveAction || actions ? {
+      ...actions,
+      primary: saveAction ?? actions?.primary,
+      secondary: [
+        ...(historyAction ? [historyAction] : []),
+        ...(saveAction && actions?.primary ? [actions?.primary] : []),
+        ...(actions?.secondary ?? []),
+      ],
+    } : undefined;
 
   const headerBadges =
     badges || (dirty && ready) ? (

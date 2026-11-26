@@ -7,11 +7,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Button,
   type MatrixColumn,
   type MatrixRow,
 } from "design-baseline";
-import { Download } from "lucide-react";
 
 // ---------------------------------------------------------------------------
 // Domain — a school-year gradebook (rows: students, columns: subjects grouped
@@ -90,12 +88,7 @@ export function StudentGrades() {
     <div>
       <MatrixGridShell<GradeEntry>
         title="Student Grades"
-        actions={
-          <Button variant="outline" size="sm">
-            <Download className="mr-1 h-4 w-4" />
-            Export
-          </Button>
-        }
+        actions={{ secondary: [{ label: "Export" }] }}
         toolbar={
           <div className="flex items-end gap-2">
             <div className="space-y-1.5">

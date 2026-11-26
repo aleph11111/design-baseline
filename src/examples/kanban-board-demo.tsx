@@ -129,12 +129,7 @@ export function KanbanBoardDemo(): React.ReactElement {
         // back link is the page header's, not a bespoke leading control.
         backHref="#"
         backLabel="Delivery"
-        actions={
-          <Button>
-            <Plus className="mr-1 h-4 w-4" />
-            Add card
-          </Button>
-        }
+        actions={{ primary: { label: "Add card", icon: Plus } }}
         viewOptions={
           <SegmentedControl
             aria-label="Board state"

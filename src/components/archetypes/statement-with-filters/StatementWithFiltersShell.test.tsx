@@ -26,7 +26,7 @@ describe("StatementWithFiltersShell", () => {
       <StatementWithFiltersShell
         title="Yield 2026"
         toolbar={<button type="button">Season</button>}
-        actions={<button type="button">Export</button>}
+        actions={{ primary: { label: "Export" } }}
         viewOptions={<div />}
       >
         <div>body</div>

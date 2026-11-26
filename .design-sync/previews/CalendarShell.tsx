@@ -3,7 +3,7 @@ import {
   type CalendarDay,
   Button,
 } from "design-baseline";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // CalendarShell — the week scheduling grid reference primitive (ported from
 // calendar-demo.tsx). Domain: a community centre's room timetable. Full week:
@@ -81,12 +81,7 @@ export function CommunityCentreWeek() {
           </span>
         </>
       }
-      actions={
-        <Button size="sm">
-          <Plus className="mr-1 h-4 w-4" />
-          Event
-        </Button>
-      }
+      actions={{ primary: { label: "Event" } }}
       days={FULL_WEEK}
       emptyDayLabel="—"
     />

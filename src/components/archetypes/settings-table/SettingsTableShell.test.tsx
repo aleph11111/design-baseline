@@ -334,7 +334,7 @@ describe("SettingsTableShell row-checkbox accessible names", () => {
 });
 
 describe("SettingsTableShell — page frame (ADR-0008)", () => {
-  it("renders one h1, no on-surface title; Add + page actions in the header, count in the band", () => {
+  it("renders one h1, no on-surface title; the typed page verb in the header, Add in the band's trailing cluster, count in the band", () => {
     const { container } = render(
       <SettingsTableShell
         title="Suppliers"
@@ -344,27 +344,26 @@ describe("SettingsTableShell — page frame (ADR-0008)", () => {
         rowLabel="suppliers"
         onAddNew={() => {}}
         addNewLabel="Add supplier"
-        actions={<button type="button">Export</button>}
+        actions={{ primary: { label: "Export" } }}
         toolbar={<input aria-label="Search" />}
       />,
     );
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.getAllByText("Suppliers")).toHaveLength(1);
     expect(container.querySelector('[data-slot="surface-header"]')).toBeNull();
-    // Create merges before the page's own actions, in the page header.
+    // The shell's own create action is shell-owned: it rides the band's trailing
+    // cluster (inside the raised surface, between the count and the View menu),
+    // not the typed header actions.
     const add = screen.getByRole("button", { name: "Add supplier" });
-    const exp = screen.getByRole("button", { name: "Export" });
-    expect(add.compareDocumentPosition(exp) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    // …above the surface, not inside it.
-    expect(add.closest(".bg-surface-raised")).toBeNull();
-    expect(exp.closest(".bg-surface-raised")).toBeNull();
-    // Toolbar band: search + count, no Add button there.
     const band = screen.getByRole("textbox", { name: "Search" }).closest(".border-b") as HTMLElement;
+    expect(band.contains(add)).toBe(true);
     expect(band.textContent).toContain("3 suppliers");
-    expect(band.querySelector("button")).toBeNull();
+    // The typed page verb stays in the page header, clear of the band.
+    const exp = screen.getByRole("button", { name: "Export" });
+    expect(band.contains(exp)).toBe(false);
   });
 
-  it("bulk mode: '{n} selected' replaces the count; bulk delete is a header action", () => {
+  it("bulk mode: '{n} selected' replaces the count; bulk delete rides the band's trailing cluster", () => {
     render(
       <SettingsTableShell
         title="Suppliers"
@@ -382,9 +381,8 @@ describe("SettingsTableShell — page frame (ADR-0008)", () => {
     const band = screen.getByRole("textbox", { name: "Search" }).closest(".border-b") as HTMLElement;
     expect(band.textContent).toContain("1 selected");
     expect(band.textContent).not.toContain("3 suppliers");
-    expect(
-      screen.getByRole("button", { name: "Delete 1 selected" }).closest(".bg-surface-raised"),
-    ).toBeNull();
+    const bulk = screen.getByRole("button", { name: "Delete 1 selected" });
+    expect(band.contains(bulk)).toBe(true);
   });
 
   it("a falsy bulkActions node (e.g. `canArchive && <Button/>`) is no bulk action: the count stays", () => {

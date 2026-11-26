@@ -267,7 +267,7 @@ describe("MatrixGridShell page frame (ADR-0008)", () => {
       <MatrixGridShell
         title="Attendance"
         toolbar={<span>As of</span>}
-        actions={<button type="button">Export CSV</button>}
+        actions={{ primary: { label: "Export CSV" } }}
         columns={columns}
         rows={rows}
         renderCell={(ctx) => ctx.cell}

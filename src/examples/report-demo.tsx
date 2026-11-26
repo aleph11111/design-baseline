@@ -20,7 +20,6 @@
  */
 
 import * as React from "react";
-import { Button } from "@/components/ui/button";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { COL_HEADER_CLASS } from "@/components/layout/overline";
 import { cn } from "@/lib/utils";
@@ -143,14 +142,7 @@ export function ReportDemo(): React.ReactElement {
             Rechnung {inv.number}
           </>
         }
-        actions={
-          <>
-            <Button variant="outline">
-              PDF
-            </Button>
-            <Button>Senden</Button>
-          </>
-        }
+        actions={{ primary: { label: "Senden" }, secondary: [{ label: "PDF" }] }}
         width={width}
       >
         {/* Parties row — Von / An identity blocks + right-aligned mono dates */}

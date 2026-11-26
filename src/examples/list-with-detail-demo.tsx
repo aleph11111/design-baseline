@@ -379,13 +379,10 @@ function ManyActionsPanel() {
       selectedRowId={selectedId}
       onDetailClose={() => setSelectedId(null)}
       detailTitle={selected ? `${selected.title} · hosted by ${selected.host}` : undefined}
-      detailActions={
-        <>
-          <Button variant="outline">Invite host (SMS)</Button>
-          <Button variant="outline">Invite host (email)</Button>
-          <Button>New episode</Button>
-        </>
-      }
+      detailActions={{
+        primary: { label: "New episode" },
+        secondary: [{ label: "Invite host (SMS)" }, { label: "Invite host (email)" }],
+      }}
       detail={selected ? <div className="p-5 text-[15px]">{selected.episodeCount} episodes</div> : undefined}
     />
   );
@@ -635,11 +632,7 @@ export function ListWithDetailDemo() {
     selectedRowId: selection?.panel === panel ? selection.id : null,
     onDetailClose: () => setSelection(null),
     detailTitle: selection?.panel === panel ? selected?.title : undefined,
-    detailActions: (
-      <Button variant="outline">
-        Edit
-      </Button>
-    ),
+    detailActions: { primary: { label: "Edit" } },
     detail: selection?.panel === panel ? detail : undefined,
     isLoading,
     error,
@@ -733,17 +726,12 @@ export function ListWithDetailDemo() {
                   backHref={panel.backHref}
                   backLabel={panel.backLabel}
                   actions={
-                    panel.presentation === "table" ? (
-                      <>
-                        <Button variant="outline">
-                          Import
-                        </Button>
-                        <Button>
-                          <Plus className="mr-1 h-4 w-4" />
-                          New show
-                        </Button>
-                      </>
-                    ) : undefined
+                    panel.presentation === "table"
+                      ? {
+                          primary: { label: "New show", icon: Plus },
+                          secondary: [{ label: "Import" }],
+                        }
+                      : undefined
                   }
                   columns={panel.columns}
                   presentation={panel.presentation}

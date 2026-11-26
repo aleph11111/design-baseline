@@ -241,15 +241,9 @@ function InboxDemo(): React.ReactElement {
         // the back link is the page header's, not a bespoke leading control.
         backHref="#"
         backLabel="Workspace"
-        actions={
-          <Button
-            variant="outline"
-            onClick={markAllRead}
-            disabled={unreadCount === 0}
-          >
-            Mark all read
-          </Button>
-        }
+        actions={{
+          primary: { label: "Mark all read", onSelect: markAllRead, disabled: unreadCount === 0 },
+        }}
         count={unreadCount === 0 ? "All caught up" : `${unreadCount} unread`}
         // adherence-ok: page-tabs-in-toolbar — the read/unread filter scopes the feed list, it does not switch pages
         toolbar={

@@ -11,7 +11,7 @@ describe("BoardShell — page frame (ADR-0008)", () => {
     const { container } = render(
       <BoardShell
         title="Delivery board"
-        actions={<button>Add card</button>}
+        actions={{ primary: { label: "Add card" } }}
         toolbar={<input aria-label="Search cards" />}
       >
         <BoardColumn title="To do" />

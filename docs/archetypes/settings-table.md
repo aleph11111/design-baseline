@@ -2,7 +2,7 @@
 key: D2
 slug: settings-table
 kind: page
-version: 3.4
+version: 3.5
 promoted_from: brickshop-manager
 promoted_at: 2026-05-22
 source_spec_version: 1.4
@@ -11,6 +11,20 @@ status: locked
 
 # Archetype D2 — Settings table
 
+> **v3.5 (2026-11-26) — shell-owned create + bulk writes ride the band;
+> header `actions` is the consumer's typed verbs only.** `PageFrame` `actions`
+> is typed-only as of v0.71.0 (the rendered-node form is removed), and this
+> shell was composing its own free-form `bulkActions` node plus the `onAddNew`
+> button into it — the node form this bump removes. The shell's create and
+> bulk-write controls now render in the toolbar band's right cluster (the
+> frame's `trailing` slot — between the `count` caption and the View menu),
+> where the caption already reads "{n} selected" while a row is selected; the
+> consumer's whole-page verbs stay in the header `actions` (Layer 3). The
+> frameless body's flush band already held create + bulk there — the page form
+> now matches it. Breaking for a consumer that passed rendered nodes as this
+> shell's `actions`: pass `{ primary, secondary, menu }`. `bulkActions`,
+> `onBulkDelete` and `onAddNew` (label `addNewLabel`) are unchanged.
+>
 > **v3.3 (2026-10-06) — narrow the frameless body's default-`flush` placement
 > to a `SettingsPageShell` tab.** Docs / JSDoc only, no behavior change. The
 > v3.2 note and JSDoc advertised `SettingsTableBody` for "any other page frame
@@ -178,7 +192,7 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
 
 **Allowed variation:**
 - **`subtitle`** / **`badges`** — compact metadata and read-only status next to the title.
-- **`actions`** — verbs on the whole page: the one primary action plus at most two secondary ones (e.g. "Import", "Sync" as an async action button). The create action comes from `onAddNew` (label `addNewLabel`, default "Add new"), which the shell renders first; don't also pass an Add button.
+- **`actions`** — the consumer's page verbs only, typed only (the page header's `{ primary, secondary, menu }` form, v0.71.0): the one primary action plus at most two secondary ones (e.g. "Import", "Sync" as an async action button) — never rendered nodes. The create action comes from `onAddNew` (label `addNewLabel`, default "Add new"), which the shell renders in the toolbar band's right cluster (after the `count` caption), not in the header; don't also pass an Add button.
 
 **Forbidden:**
 - A hand-rolled page title or header — always the shell's props.
@@ -194,7 +208,7 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
 - **Search input** — the shared **search-input molecule**; never hand-rolled. Required when the dataset is not intrinsically small (threshold: more than ~10 rows). Omit for pages where search adds no value (e.g. a fixed list of ≤10 numbering series).
 - **Filter pill bar** — for categorical filters (e.g. status), via the shared **one-of-N segmented control** — a pill row — not a dropdown select.
 - **Binary filter switches** — for toggle-style filters (e.g. "Show archived").
-- **Bulk actions** — `bulkActions` / `onBulkDelete` are write actions on the selection: they join the page `actions` only while a visible row is selected.
+- **Bulk actions** — `bulkActions` / `onBulkDelete` are write actions on the selection: they render in the toolbar band's right cluster (after the `count` caption) only while a visible row is selected; the header `actions` stays the consumer's typed page verbs.
 
 **Forbidden:**
 - Status filters rendered as dropdown selects (use the segmented control).
@@ -258,10 +272,12 @@ D2 is a sibling of A (list-with-detail) — it inherits the same outer shell, to
   absorbs, which would widen the table and paint over the pane's hairline.
 - `SettingsTableShell` passes `band={false}` and `flush={false}` and routes
   `toolbar` / the `count` noun to the frame's `toolbar` / `count` slots and
-  the write actions to the frame's `actions`, so a standalone page keeps
-  exactly one band at the frame's edges. It still forwards `onAddNew` so the
-  body's empty state offers the same CTA the header action does. Mirrors the
-  `ListWithDetailBody` / `ListWithDetailShell` split.
+  the write actions (the `onAddNew` create button, `bulkActions` /
+  `onBulkDelete`) to the frame's `trailing` slot — the band's right cluster
+  after the count — so a standalone page keeps exactly one band at the frame's
+  edges. It still forwards `onAddNew` so the body's empty state offers the
+  same CTA the band action does. Mirrors the `ListWithDetailBody` /
+  `ListWithDetailShell` split.
   - The split-pane variation below also applies to the frameless body.
 
 **Allowed variation — split-pane editing:**
@@ -481,8 +497,9 @@ When a target project applies this archetype, it wires the generic primitives to
       overlay (that's archetype A). *Wrapper tell:* a detail panel bolted on.
       (Split-pane variant: the click selects the row the frame's edit pane
       edits — Layer 5.)
-- [ ] **Create + write actions are page `actions`** (create via `onAddNew`);
-      filters and search are the `toolbar`; no second home for either.
+- [ ] **Page verbs are typed page `actions`** (`{ primary, secondary, menu }`);
+      create (`onAddNew`) and bulk writes (`bulkActions` / `onBulkDelete`) render in the band's
+      right cluster; filters and search are the `toolbar`; no second home for either.
 - [ ] **One settings-table shell** owns the page frame + table + row-actions dropdown; no
       hand-rolled card. (Split-pane variant: the edit form is the frame's
       right pane, hairline-divided — the page's only raised surface, never a

@@ -28,7 +28,7 @@
 
 import * as React from "react";
 import { StatTile, StatTileRow } from "@/components/layout";
-import { Check, Download, LayoutGrid, Pencil, Plus, Share2 } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import {
   DashboardAssignmentList,
   DashboardGrid,
@@ -419,33 +419,15 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
         title={editing ? <DashboardTitleEditor value={name} onRename={setName} /> : name}
         subtitle="Shop · all figures net of refunds"
         actions={
-          editing ? (
-            <>
-              <Button variant="outline" onClick={() => setEditing(false)}>
-                <Check className="h-4 w-4" />
-                Done
-              </Button>
-              <Button onClick={() => setConfiguring("new")}>
-                <Plus className="h-4 w-4" />
-                Add tile
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button variant="outline" onClick={() => setEditing(true)}>
-                <LayoutGrid className="h-4 w-4" />
-                Edit layout
-              </Button>
-              <Button variant="outline">
-                <Share2 className="h-4 w-4" />
-                Share
-              </Button>
-              <Button variant="outline">
-                <Download className="h-4 w-4" />
-                Export
-              </Button>
-            </>
-          )
+          editing
+            ? {
+                primary: { label: "Add tile", onSelect: () => setConfiguring("new") },
+                secondary: [{ label: "Done", onSelect: () => setEditing(false) }],
+              }
+            : {
+                primary: { label: "Edit layout", onSelect: () => setEditing(true) },
+                secondary: [{ label: "Share" }, { label: "Export" }],
+              }
         }
         // adherence-ok: page-tabs-in-toolbar — the period selector scopes the dashboard data, it does not switch pages
         toolbar={

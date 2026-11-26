@@ -3,7 +3,6 @@ import {
   ReportLineTable,
   ReportLineRow,
   ReportTotalRow,
-  Button,
 } from "design-baseline";
 
 // Local formatters — primitives never format; the caller pre-formats via Intl.
@@ -43,12 +42,7 @@ export function Invoice() {
   return (
     <ReportShell
       title={<>Rechnung <span className="font-mono">RE-2025-0417</span></>}
-      actions={
-        <>
-          <Button variant="outline" size="sm">PDF</Button>
-          <Button size="sm">Senden</Button>
-        </>
-      }
+      actions={{ primary: { label: "Senden" }, secondary: [{ label: "PDF" }] }}
     >
       <div className="mb-6 flex justify-between gap-6">
         <PartyBlock label="Von" name="Falkenberg Letterpress" lines={["Gerberstraße 14", "70178 Stuttgart"]} />
