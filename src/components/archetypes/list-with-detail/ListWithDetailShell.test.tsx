@@ -164,9 +164,9 @@ describe("ListWithDetailShell", () => {
     expect(bar.textContent).toContain("Edit");
   });
 
-  it("the detail title is never squeezed by a typed detailActions set (1 primary + 1..3 secondary)", () => {
+  it("the detail title is never squeezed by a typed detailActions set (1 primary + 0..3 secondary)", () => {
     const title = "Maximilian Mustermann-Schulze";
-    for (const n of [1, 2, 3]) {
+    for (const n of [0, 1, 2, 3]) {
       render(
         <ListWithDetailShell title="T"
           rows={rows}

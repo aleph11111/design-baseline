@@ -139,6 +139,50 @@ describe("StructureBuilderShell — page frame", () => {
     expect(screen.getByText("v1")).toBeTruthy();
   });
 
+  it("the consumer's menu items and renderLink survive the shell's History/Save merge", () => {
+    const onDelete = vi.fn();
+    render(
+      <StructureBuilderShell
+        {...base}
+        coverage={{ unplaced: 0 }}
+        onSave={() => {}}
+        history={<p>v1</p>}
+        actions={{
+          menu: [{ label: "Delete template", destructive: true, onSelect: onDelete }],
+        }}
+      >
+        <div>tree</div>
+      </StructureBuilderShell>,
+    );
+    // Save owns the primary slot, so no destructive or secondary renders inline —
+    // the trigger exists only because the consumer's menu (and the shell's Save)
+    // feed it.
+    const trigger = screen.getByRole("button", { name: "More actions" });
+    expect(screen.queryByRole("button", { name: "Delete template" })).toBeNull();
+    fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false });
+    const menu = document.querySelector<HTMLElement>('[role="menu"]');
+    if (!menu) throw new Error("menu did not open");
+    const items = Array.from(menu.querySelectorAll('[role="menuitem"]')).map((i) => i.textContent);
+    expect(items).toEqual(["Delete template"]);
+    // renderLink survives too: an href action renders through the consumer's
+    // link renderer, not the default <a>.
+    render(
+      <StructureBuilderShell
+        {...base}
+        coverage={{ unplaced: 0 }}
+        actions={{
+          secondary: [{ label: "Report", href: "/r" }],
+          renderLink: (href, children) => <a href={href} data-router-link="">{children}</a>,
+        }}
+      >
+        <div>tree</div>
+      </StructureBuilderShell>,
+    );
+    const link = screen.getByRole("link", { name: "Report" });
+    expect(link.getAttribute("href")).toBe("/r");
+    expect(link.hasAttribute("data-router-link")).toBe(true);
+  });
+
   it("Save is disabled when clean; coverage reads complete at zero", () => {
     render(
       <StructureBuilderShell {...base} coverage={{ unplaced: 0 }} onSave={() => {}}>

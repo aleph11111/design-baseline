@@ -127,8 +127,12 @@ export function StructureBuilderShell({
     history && ready ? { label: L.structureHistory, icon: History, onSelect: () => openHistory(true) } : undefined;
   const saveAction: HeaderAction | undefined =
     onSave && ready ? { label: saving ? L.saving : L.save, onSelect: onSave, disabled: !dirty || saving } : undefined;
+  // Spread `…actions` first so the consumer's `menu` (a destructive Delete can
+  // only live there) and `renderLink` survive — this shell rewrites only the
+  // primary/secondary slots; the frame renders the rest.
   const headerActions: HeaderActions | undefined =
     historyAction || saveAction || actions ? {
+      ...actions,
       primary: saveAction ?? actions?.primary,
       secondary: [
         ...(historyAction ? [historyAction] : []),
