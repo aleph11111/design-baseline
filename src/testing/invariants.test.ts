@@ -197,17 +197,30 @@ describe("page invariants", () => {
     expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^headingLines:.*more than 2 lines/)]));
   });
 
-  it("headingLines: a document-column page's h1 (the document title, wraps in full by design) is exempt", async () => {
+  it("headingLines: a document-column page's h1 is not exempt — a 3-line title there fails too", async () => {
     document.body.innerHTML = "<div class='db-content-column'><div class='db-document-column'><h1 style='line-height:40px'>A long document title that wraps</h1></div></div>";
-    const h = document.querySelector("h1")!;
-    box(h, 0, 0, 300, 120); // 3 lines
-    const f = await runCheck();
-    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^headingLines/)]));
-    // the same h1 OUTSIDE a document column still fails
-    document.body.innerHTML = "<div class='db-content-column'><h1 style='line-height:40px'>A long page title that wraps</h1></div>";
-    const h2 = document.querySelector("h1")!;
-    box(h2, 0, 0, 300, 120);
+    box(document.querySelector("h1")!, 0, 0, 300, 120); // 3 lines
     expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^headingLines/)]));
+  });
+
+  it("zeroClipped: a px clip-path inset is measured against the element's box, never read as a percent", async () => {
+    const clippedText = (clip: string, w: number, h: number) => {
+      document.body.innerHTML = "<p></p>";
+      const p = document.querySelector("p")!;
+      p.textContent = "clipped";
+      p.setAttribute("style", `position:absolute;overflow:hidden;${clip}`);
+      box(p, 0, 0, w, h);
+      Object.defineProperty(p, "scrollWidth", { configurable: true, value: w * 2 });
+      Object.defineProperty(p, "clientWidth", { configurable: true, value: w });
+    };
+    // 60px of a 300x200 box per side leaves a visible middle: the element is still checked
+    clippedText("clip-path:inset(60px)", 300, 200);
+    expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
+    clippedText("clip-path:inset(0 0 120px 0)", 300, 200);
+    expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
+    // 100px top + bottom of a 200px-tall box collapses it: hidden, not checked
+    clippedText("clip-path:inset(100px 0)", 300, 200);
+    expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
   });
 
   it("textClip: a zero-clipped (sr-only) label — clip-path: inset(50%) or clip: rect(0,0,0,0) — is not cut-off text", async () => {

@@ -24,10 +24,18 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
     const s = getComputedStyle(el);
     const inset = s.clipPath.match(/^inset\(([^)]+)\)$/i);
     if (inset) {
-      let v = inset[1].trim().split(/\s+/).map(parseFloat); // top [right] [bottom|left] [left]
-      if (v.length === 1) v = [v[0], v[0], v[0], v[0]];
-      else if (v.length === 2) v = [v[0], v[1], v[0], v[1]];
-      else if (v.length === 3) v = [v[0], v[1], v[2], v[1]];
+      // Each side as a percent of the box it cuts (top/bottom of the height,
+      // right/left of the width): `%` as given, `px` against the element's own
+      // box, any other unit (calc, em, `round` radius) counts as no cut — a
+      // px inset must never be read as a percent and hide a visible element.
+      const box = el.getBoundingClientRect();
+      const pct = (tok, dim) =>
+        tok.endsWith("%") ? parseFloat(tok) : tok.endsWith("px") && dim > 0 ? (parseFloat(tok) / dim) * 100 : 0;
+      let t = inset[1].trim().split(/\s+round\s/)[0].trim().split(/\s+/); // top [right] [bottom|left] [left]
+      if (t.length === 1) t = [t[0], t[0], t[0], t[0]];
+      else if (t.length === 2) t = [t[0], t[1], t[0], t[1]];
+      else if (t.length === 3) t = [t[0], t[1], t[2], t[1]];
+      const v = [pct(t[0], box.height), pct(t[1], box.width), pct(t[2], box.height), pct(t[3], box.width)];
       if (v[0] + v[2] >= 99.5 || v[1] + v[3] >= 99.5) return true; // a dimension collapses to zero
     }
     if (/^rect\(\s*0[^,]+,\s*0[^,]+,\s*0[^,]+,\s*0[^,]+\s*\)$/.test(String(s.clip).replace(/\s+/g, ""))) return true;
@@ -145,14 +153,6 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   const px = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
   for (const h of document.body.querySelectorAll("h1")) {
     if (!visible(h)) continue;
-    // A document-column page's title is its document identity and contracts the
-    // whole title to wrap in full: docs/archetypes/transaction-document.md —
-    // "the title…never cut (it wraps)" / "the long title wraps in full at every
-    // width". `.db-document-column` is the marker ADR-0015's amendment defines
-    // for a document-column archetype (today only transaction-document), so a
-    // 3-line h1 there is intended, not a layout bug; headingLines scopes to
-    // app pages.
-    if (h.closest(".db-document-column")) continue;
     const s = getComputedStyle(h);
     const lh = s.lineHeight === "normal" ? px(s.fontSize) * 1.2 : px(s.lineHeight);
     if (!lh || !isFinite(lh)) continue;
