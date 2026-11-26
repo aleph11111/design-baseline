@@ -12,7 +12,7 @@ describe("GroupedListShell — page frame (ADR-0008)", () => {
     const { container } = render(
       <GroupedListShell
         title="Products"
-        actions={<button type="button">Add product</button>}
+        actions={{ primary: { label: "Add product" } }}
         toolbar={<input aria-label="Search" />}
       >
         <SectionCard title="Group">section</SectionCard>

@@ -835,14 +835,7 @@ function PageFrameDemo() {
           title="Aufträge"
           subtitle="Q3 2026"
           badges={<Badge variant="success">Aktiv</Badge>}
-          actions={
-            <>
-              <Button variant="outline">Exportieren</Button>
-              <Button>
-                <Plus /> Anlegen
-              </Button>
-            </>
-          }
+          actions={{ primary: { label: "Anlegen", icon: Plus }, secondary: [{ label: "Exportieren" }] }}
           toolbar={<SearchInput placeholder="Aufträge suchen…" className="w-64" />}
           count="2 Ergebnisse"
           viewOptions={

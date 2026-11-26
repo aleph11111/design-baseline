@@ -1,7 +1,7 @@
 ---
 slug: placement
 kind: methodology
-version: 2.3
+version: 2.4
 status: locked
 governs: [A, B, C, J, K, D2, F2, M, P, G, R, H]
 ---
@@ -68,7 +68,7 @@ PageHeader   Title · subtitle · badges                          [actions]
 | Slot | Home | Holds |
 |------|------|-------|
 | `title` (+ `subtitle`, `badges`) | `PageHeader`, top-left | The page's one title — passed once, to the shell. Under a parent page it renders as the nested heading automatically. |
-| `actions` | `PageHeader`, right | Verbs on the whole page/document: the **one** primary action (create included), export, print. Passed typed — `{ primary, secondary, menu }` — and the frame enforces ≤ 1 primary + 2 secondary inline, the rest behind one `⋯` menu, on every path (page, nested, host-titled). A `destructive` action renders **only** in the `⋯` menu, wherever it was passed. This applies to page-header actions only: form and dialog footers keep Delete at their left edge, behind a confirm ("Actions grammar" below). Rendered `<Button>` nodes still work for one minor (deprecated) and bypass the rule. The list-with-detail overlay header (`detailActions`) takes the same typed form under the same cap. |
+| `actions` | `PageHeader`, right | Verbs on the whole page/document: the **one** primary action (create included), export, print. Passed typed only — `{ primary, secondary, menu }` — and the frame enforces ≤ 1 primary + 2 secondary inline, the rest behind one `⋯` menu, on every path (page, nested, host-titled); the rendered-node form was removed in v0.71.0. A `destructive` action renders **only** in the `⋯` menu, wherever it was passed. This applies to page-header actions only: form and dialog footers keep Delete at their left edge, behind a confirm ("Actions grammar" below). The list-with-detail overlay header (`detailActions`) takes the same typed form under the same cap. Shells' own shell-owned controls (settings-table's create + bulk-write) never ride this slot: they ride the band's trailing cluster (`trailing`, between the count and the View menu). |
 | `toolbar` | the surface's first band, left | Everything that **scopes** the body: search (leftmost), filters, scoping selectors. Never page-switching tabs — those are `viewSwitch`. |
 | `viewSwitch` | toolbar band, first | A control that switches **what** the page shows (Plan · Checkliste · …) rather than scoping it — page-navigation `Tabs` / `SegmentedControl` live here, never in `toolbar`. |
 | `count` | toolbar band, right | The result count, canonical muted small text, in the archetype's declared format. |
@@ -209,6 +209,7 @@ When the same placement mistake lands twice in a consuming project, promote it: 
 
 ## Revision log
 
+- **2.4** — The rendered-node form of the page-header `actions` slot (and of `list-with-detail`'s `detailActions`) is removed (v0.71.0): only the typed `{ primary, secondary, menu }` form remains, on the `PageFrame`-derived shells. Shell-owned create + bulk-write controls (settings-table) move from the header `actions` to the band's trailing cluster (`trailing`, after the count).
 - **2.3** — Page-header `actions` are typed (`{ primary, secondary, menu }`) and `PageFrame` enforces the ≤ 1 primary + 2 secondary cap and destructive-only-in-`⋯` on every path; rendered nodes are deprecated.
 - **2.1** — Below `md` the toolbar band collapses into one row plus a bottom filter sheet; the new `viewSwitch` slot keeps a view switch outside the sheet.
 - **2.0** — The page frame is `PageFrame` (ADR-0008): one title, one untitled surface, five named slots. Replaced the separate header/toolbar slot tables (which contradicted the title-on-the-card shells and `audit-signals.json` on where the create action and filters go) with the one slot table; the red list now names the double-title and split-control shapes.

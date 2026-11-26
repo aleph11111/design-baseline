@@ -9,7 +9,7 @@ afterEach(() => {
 describe("ReportShell", () => {
   it("titles the page once, as the h1, with no on-surface title and no toolbar band", () => {
     const { container } = render(
-      <ReportShell title="RE-2025-0417" actions={<button type="button">PDF</button>}>
+      <ReportShell title="RE-2025-0417" actions={{ primary: { label: "PDF" } }}>
         <div>body</div>
       </ReportShell>,
     );

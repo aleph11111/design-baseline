@@ -50,17 +50,6 @@ export type HeaderActions = {
 /** Most secondary buttons a page header renders inline. */
 export const MAX_SECONDARY_ACTIONS = 2;
 
-/** True for the typed form; false for the deprecated rendered-node form. */
-export function isHeaderActions(value: unknown): value is HeaderActions {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    !React.isValidElement(value) &&
-    !("$$typeof" in value) && // portals and other React nodes
-    !(Symbol.iterator in value)
-  );
-}
-
 /** Applies the hierarchy: what renders inline, what goes into the menu. */
 export function splitHeaderActions({ primary, secondary = [], menu = [] }: HeaderActions): {
   primary?: HeaderAction;

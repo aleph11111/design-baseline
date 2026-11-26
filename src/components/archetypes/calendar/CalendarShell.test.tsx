@@ -24,7 +24,7 @@ describe("CalendarShell", () => {
       <CalendarShell
         title="Room schedule"
         toolbar={<button>Today</button>}
-        actions={<button>New event</button>}
+        actions={{ primary: { label: "New event" } }}
         days={days}
       />,
     );

@@ -1,9 +1,7 @@
-import { Plus } from "lucide-react";
 import {
   GroupedListShell,
   GroupedListSection,
   ListWithDetailToolbar,
-  Button,
 } from "design-baseline";
 
 // Domain: a recipe book grouped by cuisine.
@@ -29,13 +27,6 @@ const LEVANTINE: Recipe[] = [
   { id: "r4", name: "Mhammara", prepMinutes: 20, spiceLevel: 1 },
 ];
 
-const addAction = (
-  <Button size="sm">
-    <Plus className="mr-1 h-4 w-4" />
-    Add recipe
-  </Button>
-);
-
 const toolbar = (
   <ListWithDetailToolbar
     searchValue=""
@@ -50,7 +41,7 @@ export function Loaded() {
     <div>
       <GroupedListShell
         title="Recipe Book"
-        actions={addAction}
+        actions={{ primary: { label: "Add recipe" } }}
         toolbar={toolbar}
       >
         <GroupedListSection<Recipe>
@@ -78,7 +69,7 @@ export function Loading() {
     <div>
       <GroupedListShell
         title="Recipe Book"
-        actions={addAction}
+        actions={{ primary: { label: "Add recipe" } }}
         toolbar={toolbar}
         isLoading
       >
@@ -94,7 +85,7 @@ export function Empty() {
     <div>
       <GroupedListShell
         title="Recipe Book"
-        actions={addAction}
+        actions={{ primary: { label: "Add recipe" } }}
         toolbar={toolbar}
         isEmpty
         emptyMessage="No recipes yet. Add one to get started."
@@ -111,7 +102,7 @@ export function ErrorState() {
     <div>
       <GroupedListShell
         title="Recipe Book"
-        actions={addAction}
+        actions={{ primary: { label: "Add recipe" } }}
         toolbar={toolbar}
         error={new Error("Failed to load the recipe book.")}
         onRetry={() => {}}

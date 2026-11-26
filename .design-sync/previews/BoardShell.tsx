@@ -27,12 +27,7 @@ export function DeliveryBoard() {
     <div>
       <BoardShell
         title="Delivery board"
-        actions={
-          <Button size="sm">
-            <Plus className="mr-1 h-4 w-4" />
-            Add card
-          </Button>
-        }
+        actions={{ primary: { label: "Add card" } }}
         toolbar={
           <Button variant="outline" size="sm">
             <Filter className="mr-1 h-4 w-4" />

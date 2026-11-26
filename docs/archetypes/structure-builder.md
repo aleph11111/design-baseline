@@ -177,3 +177,9 @@ own subtree is refused.
   balance-sheet builder; ADR-0012.
 - **1.1** (2026-11-17) — palette placement by keyboard specifies where focus goes
   afterwards (next palette item, else previous, else the placed tree line).
+- **1.2** (2026-11-26) — the shell's `actions` slot is the page header's typed
+  `{ primary, secondary, menu }` form **only** (the rendered-node form was
+  removed from `PageFrame` in v0.71.0); the shell-merge rule that kept both
+  forms working is gone with it. Breaking for a consumer that passed rendered
+  nodes as `actions`: pass the typed form. History / Save and New / Clone are
+  unchanged.

@@ -765,11 +765,7 @@ export function FormPageDemo(): React.ReactElement {
       <div>
         <PageFrame
           title="Recipes"
-          actions={
-            <Button onClick={() => setMode({ kind: "create" })}>
-              New recipe
-            </Button>
-          }
+          actions={{ primary: { label: "New recipe", onSelect: () => setMode({ kind: "create" }) } }}
           count={`${recipes.length} recipe${recipes.length !== 1 ? "s" : ""}`}
         >
           {recipes.length === 0 ? (

@@ -2,7 +2,6 @@ import {
   FeedShell,
   FeedItem,
   SectionCard,
-  Button,
   SegmentedControl,
   StateView,
 } from "design-baseline";
@@ -16,11 +15,7 @@ export function InboxWithFilters() {
     <div>
       <FeedShell
         title="Notifications"
-        actions={
-          <Button variant="outline" size="sm">
-            Mark all read
-          </Button>
-        }
+        actions={{ primary: { label: "Mark all read" } }}
         toolbar={
           <SegmentedControl
             value="all"

@@ -139,7 +139,7 @@ describe("ListWithDetailShell", () => {
         selectedRowId="1"
         detail={<div>Details for Ada</div>}
         detailTitle="Ada Lovelace"
-        detailActions={<button type="button">Edit</button>}
+        detailActions={{ primary: { label: "Edit" } }}
       />,
     );
 
@@ -164,12 +164,9 @@ describe("ListWithDetailShell", () => {
     expect(bar.textContent).toContain("Edit");
   });
 
-  it("the detail title is never squeezed by detailActions (N = 0..4)", () => {
+  it("the detail title is never squeezed by a typed detailActions set (1 primary + 1..3 secondary)", () => {
     const title = "Maximilian Mustermann-Schulze";
-    for (const n of [0, 1, 2, 3, 4]) {
-      const actions = Array.from({ length: n }, (_, i) => (
-        <button key={i} type="button">Zum Portal einladen {i}</button>
-      ));
+    for (const n of [1, 2, 3]) {
       render(
         <ListWithDetailShell title="T"
           rows={rows}
@@ -178,7 +175,10 @@ describe("ListWithDetailShell", () => {
           selectedRowId="1"
           detail={<div>Details</div>}
           detailTitle={title}
-          detailActions={n ? actions : undefined}
+          detailActions={{
+            primary: { label: "Edit" },
+            secondary: Array.from({ length: n }, (_, i) => ({ label: `Zum Portal einladen ${i}` })),
+          }}
         />,
       );
       const sheetTitle = screen.getByRole("heading", { name: title });
@@ -317,7 +317,7 @@ describe("ListWithDetailShell", () => {
         onRowSelect={() => {}}
         detail={<div>Details for Ada</div>}
         detailTitle="Ada Lovelace"
-        detailActions={<button type="button">Edit</button>}
+        detailActions={{ primary: { label: "Edit" } }}
       />,
     );
     expect(container.textContent).not.toContain("Details for Ada");
@@ -351,7 +351,7 @@ describe("ListWithDetailShell", () => {
         getRowId={(row) => row.id}
         selectedRowId="1"
         detail={<div>Details for Ada</div>}
-        detailActions={<button type="button">Edit</button>}
+        detailActions={{ primary: { label: "Edit" } }}
       />,
     );
     const dialog = screen.getByRole("dialog");
@@ -487,7 +487,7 @@ describe("ListWithDetailShell", () => {
     const { container } = render(
       <ListWithDetailShell
         title="People"
-        actions={<button type="button">Add person</button>}
+        actions={{ primary: { label: "Add person" } }}
         toolbar={<input aria-label="Search" />}
         count="1 result"
         rows={rows}

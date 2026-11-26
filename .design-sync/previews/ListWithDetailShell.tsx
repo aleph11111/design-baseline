@@ -1,5 +1,4 @@
-import { ListWithDetailShell, ListWithDetailToolbar, Badge, Button, type ListColumn } from "design-baseline";
-import { Plus } from "lucide-react";
+import { ListWithDetailShell, ListWithDetailToolbar, Badge, type ListColumn } from "design-baseline";
 
 type Podcast = {
   id: string;
@@ -63,17 +62,7 @@ export function PodcastLibraryTable() {
     <div>
       <ListWithDetailShell<Podcast>
         title="Podcast Library"
-        actions={
-          <>
-            <Button variant="outline" size="sm">
-              Import
-            </Button>
-            <Button size="sm">
-              <Plus className="mr-1 h-4 w-4" />
-              New show
-            </Button>
-          </>
-        }
+        actions={{ primary: { label: "New show" }, secondary: [{ label: "Import" }] }}
         rows={PODCASTS}
         columns={columns}
         getRowId={(p) => p.id}
@@ -88,11 +77,7 @@ export function PodcastLibraryTable() {
           />
         }
         detailTitle={selected.title}
-        detailActions={
-          <Button size="sm" variant="outline">
-            Edit
-          </Button>
-        }
+        detailActions={{ primary: { label: "Edit" } }}
         detail={
           <div className="p-5">
             <p className="text-[13px] text-muted-foreground">by {selected.host}</p>

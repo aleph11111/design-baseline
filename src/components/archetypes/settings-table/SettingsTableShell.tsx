@@ -644,18 +644,20 @@ export function SettingsTableShell<Row>(props: SettingsTableShellProps<Row>): Re
     onBulkSelectChange,
   });
 
-  const addButton = onAddNew ? <SettingsTableAddButton onAddNew={onAddNew} label={addNewLabel} /> : null;
-  const mergedActions =
-    bulkNode.show || addButton || actions ? (
+  // The shell's own create + bulk-write controls are shell-owned, not page verbs: they
+  // ride the frame's band (`trailing` — the documented home for bulk/add after the count,
+  // the same cluster the body's flush band and list-with-detail's bulk band use), while the
+  // frame's header `actions` holds the consumer's typed page verbs only.
+  const trailing =
+    bulkNode.show || onAddNew != null ? (
       <>
         {bulkNode.show && bulkNode.node}
-        {addButton}
-        {actions}
+        {onAddNew != null && <SettingsTableAddButton onAddNew={onAddNew} label={addNewLabel} />}
       </>
     ) : undefined;
 
   return (
-    <PageFrame {...frame} title={props.title} actions={mergedActions} count={count}>
+    <PageFrame {...frame} title={props.title} actions={actions} trailing={trailing} count={count}>
       {/* The frame owns the page's toolbar/count/bulk-write actions; the body's own band is
           suppressed so the page has exactly one band. `onAddNew` still drives the body's
           empty-state CTA. The frame surface never pads its body, so `flush={false}` keeps the

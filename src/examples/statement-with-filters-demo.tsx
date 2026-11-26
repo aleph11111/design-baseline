@@ -28,7 +28,6 @@ import {
   StatementRow,
   StatementTotalRow,
 } from "@/components/archetypes/statement-with-filters";
-import { Button } from "@/components/ui/button";
 import { formatFigure } from "@/lib/format";
 import {
   Select,
@@ -167,18 +166,10 @@ export function StatementWithFiltersDemo(): React.ReactElement {
         backHref="#"
         backLabel="Finance"
         subtitle={`Beekeeping club · ${tuple.scenario === "actual" ? "Actual" : "Budget"} ${tuple.year}`}
-        actions={
-          <>
-            <Button variant="outline">
-              <Download className="h-4 w-4" />
-              Export
-            </Button>
-            <Button variant="outline">
-              <FileText className="h-4 w-4" />
-              PDF
-            </Button>
-          </>
-        }
+        actions={{
+          primary: { label: "Export", icon: Download },
+          secondary: [{ label: "PDF", icon: FileText }],
+        }}
         toolbar={
           <>
             {selector("scenario", "Scenario", [["actual", "Actual"], ["budget", "Budget"]])}

@@ -50,7 +50,7 @@ describe("FeedShell", () => {
         title="Notifications"
         toolbar={<span>All</span>}
         count="3 unread"
-        actions={<button>Mark all read</button>}
+        actions={{ primary: { label: "Mark all read" } }}
       >
         <div>feed rows</div>
       </FeedShell>,

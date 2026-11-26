@@ -341,17 +341,14 @@ export function SettingsTableDemo() {
         </div>
       )}
 
-      {/* ADR-0008 page frame: the title is the page h1; Add recipe + Import
-          are header actions, search is the toolbar, the count (or
-          "{n} selected") sits in the toolbar band. */}
+      {/* ADR-0008 page frame: the title is the page h1; the typed Import verb
+          sits in the header actions, Add recipe (onAddNew) + the bulk actions
+          ride the band's trailing cluster, search is the toolbar, the count
+          (or "{n} selected") sits in the toolbar band. */}
       <div>
         <SettingsTableShell
           title="Recipe Collection"
-          actions={
-            <Button variant="outline">
-              Import
-            </Button>
-          }
+          actions={{ secondary: [{ label: "Import" }] }}
           rows={filtered}
           columns={COLUMNS}
           getRowId={(r) => r.id}

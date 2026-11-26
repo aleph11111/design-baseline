@@ -8,15 +8,7 @@ import { BandChrome, ToolbarBand, ToolbarLeadContext, has, type FilterLabels } f
 import { HeadingHostContext } from "../ui/heading-host";
 import { PageFrameContext, RaisedSurfaceContext } from "./surface";
 import { cn } from "../../lib/utils";
-import { isHeaderActions, renderHeaderActions, type HeaderActions } from "./HeaderActions";
-
-/**
- * @deprecated The rendered-node form of `PageFrame` `actions`: renders
- * unchanged for one minor and bypasses the action hierarchy. Pass the typed
- * `HeaderActions` form instead. Removal: backlog ticket
- * `remove-pageframe-flat-actions-node-form`.
- */
-export type LegacyHeaderActions = React.ReactNode;
+import { renderHeaderActions, type HeaderActions } from "./HeaderActions";
 
 export type PageFrameProps = {
   /** The page title — passed once. Renders as the `PageHeader` `<h1>`
@@ -41,11 +33,8 @@ export type PageFrameProps = {
    * secondary buttons inline, the rest behind one `⋯` menu, and any
    * `destructive` action only inside that menu. Page-header actions only —
    * form/dialog footers keep Delete at their left edge (PLACEMENT.md).
-   *
-   * Rendered nodes (`<Button>`s) still render unchanged for one minor but
-   * bypass the hierarchy — see `LegacyHeaderActions`. Move to the typed form.
    */
-  actions?: HeaderActions | LegacyHeaderActions;
+  actions?: HeaderActions;
   /**
    * The frame's toolbar band, left side — everything that **scopes** the body:
    * search, filters, scoping selectors, tabs. Keep these controls **controlled**
@@ -75,6 +64,14 @@ export type PageFrameProps = {
   /** The result count, right side of the toolbar band, in the canonical muted
    *  treatment. Pass the formatted string (`"12 results"`). */
   count?: React.ReactNode;
+  /**
+   * Shell-owned controls in the band's right cluster, between the count and
+   * the View menu: the shell's own create action and bulk-write actions for a
+   * selection. A shell (settings-table) passes it — a page never does; page
+   * verbs belong to the typed `actions` slot. Below `md` it rides its own
+   * wrapping row so a wide cluster never overflows the phone.
+   */
+  trailing?: React.ReactNode;
   /**
    * Display options that change **how** the body is shown without re-scoping
    * it (decimals, KPI rows, show-zero rows, density). Pass
@@ -136,6 +133,7 @@ export const PAGE_SHELL_FRAME_KEYS = {
   onResetFilters: true,
   filterLabels: true,
   count: true,
+  trailing: true,
   viewOptions: true,
   viewOptionsLabel: true,
 } satisfies Record<keyof PageShellFrameProps, true>;
@@ -183,6 +181,7 @@ export function PageFrame({
   onResetFilters,
   filterLabels,
   count,
+  trailing,
   viewOptions,
   viewOptionsLabel,
   children,
@@ -190,11 +189,14 @@ export function PageFrame({
   body = "frame",
   titleStep = "display",
 }: PageFrameProps): React.ReactElement {
-  const actions = isHeaderActions(actionsProp) ? renderHeaderActions(actionsProp) : actionsProp;
+  // `renderHeaderActions` returns `null` when nothing would render; `has(actions)`
+  // treats that as absent, so the host-titled / nested / default paths keep the
+  // same rendering for an empty typed object as the old `undefined` did.
+  const actions = actionsProp ? renderHeaderActions(actionsProp) ?? undefined : undefined;
   const nested = React.useContext(PageFrameContext);
   const hostTitled = React.useContext(HeadingHostContext);
 
-  const hasBand = has(toolbar) || has(viewSwitch) || has(count) || has(viewOptions);
+  const hasBand = has(toolbar) || has(viewSwitch) || has(count) || has(trailing) || has(viewOptions);
   const band = hasBand ? (
     <ToolbarBand
       toolbar={toolbar}
@@ -204,6 +206,7 @@ export function PageFrame({
       onResetFilters={onResetFilters}
       filterLabels={filterLabels}
       count={count}
+      trailing={trailing}
       viewOptions={viewOptions}
       viewOptionsLabel={viewOptionsLabel}
     />

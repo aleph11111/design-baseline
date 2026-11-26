@@ -40,18 +40,13 @@ export function RecipeCollection() {
     <div>
       <SettingsTableShell
         title="Recipe Collection"
-        actions={
-          <>
-            <Button variant="outline" size="sm">
-              Import
-            </Button>
-            <Button size="sm">Add recipe</Button>
-          </>
-        }
+        actions={{ secondary: [{ label: "Import" }] }}
         rows={RECIPES}
         columns={COLUMNS}
         getRowId={(r) => r.id}
         onRowEdit={() => {}}
+        onAddNew={() => {}}
+        addNewLabel="Add recipe"
         toolbar={<SearchInput value="" onChange={() => {}} placeholder="Search recipes…" />}
         rowActions={ROW_ACTIONS}
         bulkSelectable
