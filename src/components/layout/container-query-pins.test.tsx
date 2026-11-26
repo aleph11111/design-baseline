@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { render } from "@testing-library/react";
+import { DashboardAssignmentList } from "../archetypes/analytics-dashboard/DashboardAssignmentList";
 import { DashboardGrid } from "../archetypes/analytics-dashboard/DashboardGrid";
+import { DashboardPeriodPair } from "../archetypes/analytics-dashboard/DashboardPeriodPair";
 import { KeyValueList } from "../archetypes/detail-overview/KeyValueList";
 import { SectionNavShell } from "./SectionNav";
 import { CardGridBody } from "../archetypes/list-with-detail/presentations/CardGridBody";
@@ -18,6 +20,33 @@ describe("container-query layout primitives", () => {
     expect(grid.className).toContain("@4xl:grid-cols-2");
     expect(grid.className).toContain("@5xl:grid-cols-3");
     expect(grid.className).not.toMatch(/(^| )(sm|md|lg):/);
+  });
+
+  it("DashboardAssignmentList: the list's columns step at the list's own container (@4xl/@5xl), not the viewport", () => {
+    const { container } = render(
+      <DashboardAssignmentList title="Shops" onToggle={() => {}} targets={[{ id: "a", label: "North", assigned: true }]} />,
+    );
+    const wrapper = container.querySelector('[class*="@container"]')!;
+    expect(wrapper.className).toContain("@container");
+    const list = wrapper.firstElementChild as HTMLElement;
+    expect(list.getAttribute("data-slot")).toBe("dashboard-assignment-list"); // check:viewports's assignment-list selector targets this box
+    expect(list.className).toContain("grid-cols-1");
+    expect(list.className).toContain("@4xl:grid-cols-2");
+    expect(list.className).toContain("@5xl:grid-cols-3");
+    expect(container.innerHTML).not.toMatch(/(^|[ "])(sm|md|lg):/);
+  });
+
+  it("DashboardPeriodPair: split keys on the card's container (@4xl), not the viewport", () => {
+    const { container } = render(
+      <DashboardPeriodPair title="Revenue" month={{ label: "Month", value: "1" }} ytd={{ label: "YTD", value: "10" }} />,
+    );
+    const split = container.querySelector('[class*="@4xl:grid-cols-2"]') as HTMLElement;
+    expect(split.className).toContain("grid-cols-1");
+    expect(split.className).toContain("divide-y");
+    expect(split.className).toContain("@4xl:grid-cols-2");
+    expect(split.className).toContain("@4xl:divide-x");
+    expect(split.parentElement!.className).toContain("@container");
+    expect(container.innerHTML).not.toMatch(/(^|[ "])(sm|md|lg):/);
   });
 
   it("KeyValueList is the container the rows query", () => {

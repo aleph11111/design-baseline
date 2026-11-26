@@ -32,10 +32,13 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { ToggleField } from "@/components/ui/toggle-field";
+import { CheckboxListField } from "@/components/ui/checkbox-list-field";
+import { CrudDialogSheet, CrudDialogHeader, CrudDialogBody } from "@/components/archetypes/crud-dialog";
 import { SelectField } from "@/components/archetypes/raw-select";
 import { NativeField } from "@/components/archetypes/raw-input";
 import { SearchInput } from "@/components/ui/search-input";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ControlDensityProvider, JOINED_LABEL_CLASS, JoinedLabelText } from "@/components/ui/toolbar-band";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
@@ -407,6 +410,40 @@ function ToggleFieldDemo() {
   );
 }
 
+function CheckboxListFieldDemo() {
+  const members = Array.from({ length: 12 }, (_, i) => ({
+    value: `m${i + 1}`,
+    label: `Entity ${String(i + 1).padStart(2, "0")}`,
+    badge: i % 3 === 0 ? <Badge variant="outline">{i + 2} accounts</Badge> : undefined,
+  }));
+  const [dialogValue, setDialogValue] = React.useState<string[]>(["m1", "m4"]);
+  const [inlineValue, setInlineValue] = React.useState<string[]>(["m2"]);
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div className="space-y-8">
+      <Variant label="in a CrudDialogSheet — 12 rows, no inner scrollbar; CrudDialogBody owns the scroll">
+        <Button onClick={() => setOpen(true)}>Open dialog</Button>
+        <CrudDialogSheet open={open} onOpenChange={setOpen}>
+          <CrudDialogHeader title="Edit group" />
+          <CrudDialogBody>
+            <CheckboxListField label="Members" options={members} value={dialogValue} onChange={setDialogValue} />
+          </CrudDialogBody>
+        </CrudDialogSheet>
+      </Variant>
+      <Variant label="inline, scroll — the one fixed cap, scrolls inside itself">
+        <CheckboxListField
+          scroll
+          label="Members"
+          hint={`${inlineValue.length} selected`}
+          options={members}
+          value={inlineValue}
+          onChange={setInlineValue}
+        />
+      </Variant>
+    </div>
+  );
+}
+
 function SearchInputDemo() {
   const [q, setQ] = React.useState("");
   const [clearable, setClearable] = React.useState("acme");
@@ -760,6 +797,14 @@ function MetricListDemo() {
 function PageFrameDemo() {
   const [decimals, setDecimals] = React.useState(true);
   const [density, setDensity] = React.useState("comfortable");
+  const [year, setYear] = React.useState("2024");
+  const [structure, setStructure] = React.useState("short");
+  const [line, setLine] = React.useState("long");
+  const [formLine, setFormLine] = React.useState("short");
+  const lineOptions = [
+    { value: "short", label: "Umsatz" },
+    { value: "long", label: "Umsatzerlöse aus Lieferungen und Leistungen (Inland)" },
+  ];
   const rows = (
     <Table>
       <TableHeader>
@@ -981,6 +1026,68 @@ function PageFrameDemo() {
           </PageFrame>
         </div>
       </Variant>
+      <Variant label="content-fit selects — no width class: each trigger is as wide as label + its LONGEST option, never the band, and keeps that width when the selection changes; checked by `npm run check:joined-label`">
+        <div data-testid="content-fit-band">
+          <PageFrame
+            title="Kontenplan"
+            toolbar={
+              <>
+                <SelectField
+                  label="Jahr"
+                  value={year}
+                  onChange={setYear}
+                  options={[
+                    { value: "2024", label: "2024" },
+                    { value: "2025", label: "2025 · A" },
+                    { value: "2026", label: "2026 · A+B" },
+                  ]}
+                />
+                {/* the bare-trigger form consumers compose: `options` feeds the width */}
+                <Select value={structure} onValueChange={setStructure}>
+                  <SelectTrigger label="Struktur" options={["GKV", "HGB §275 GKV"]}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="short">GKV</SelectItem>
+                    <SelectItem value="long">HGB §275 GKV</SelectItem>
+                  </SelectContent>
+                </Select>
+              </>
+            }
+          >
+            {rows}
+          </PageFrame>
+        </div>
+      </Variant>
+      <Variant label="narrow container (360px) — a content-fit band select whose longest option is wider than the container caps at it and ellipsizes; outside a band a labelled select (bare trigger or SelectField) fills its row, no option ghosts; checked by `npm run check:joined-label`">
+        <div data-testid="content-fit-narrow" className="w-[360px] max-w-full space-y-4">
+          <PageFrame
+            title="Kennzahlen"
+            toolbar={<SelectField label="Zeile" value={line} onChange={setLine} options={lineOptions} />}
+          >
+            {null}
+          </PageFrame>
+          <div className="space-y-3 rounded-md border p-3">
+            {/* a form card, outside any band: the controlling-app deck-figure case — long value
+                (ellipsized) and short value (start-aligned in the filled row) */}
+            {([[line, setLine], [formLine, setFormLine]] as const).map(([v, set], i) => (
+              <Select key={i} value={v} onValueChange={set}>
+                <SelectTrigger label="Zeile" options={lineOptions.map((o) => o.label)}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {lineOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ))}
+            <SelectField label="Zeile" value={formLine} onChange={setFormLine} options={lineOptions} />
+          </div>
+        </div>
+      </Variant>
       <Variant label="crowded band — SearchInput holds its 14rem floor (placeholder never clipped); the band scrolls instead. minWidth overrides it">
         <div className="w-[34rem] max-w-full">
           <PageFrame
@@ -1197,6 +1304,7 @@ export const LAYOUT_PRIMS: LayoutPrim[] = [
   { slug: "auth-card", displayName: "AuthCard", Demo: AuthCardDemo },
   { slug: "segmented-control", displayName: "SegmentedControl", Demo: SegmentedControlDemo },
   { slug: "toggle-field", displayName: "ToggleField", Demo: ToggleFieldDemo },
+  { slug: "checkbox-list-field", displayName: "CheckboxListField", Demo: CheckboxListFieldDemo },
   { slug: "search-input", displayName: "SearchInput", Demo: SearchInputDemo },
   { slug: "state-view", displayName: "StateView", Demo: StateViewDemo },
   { slug: "icon-avatar", displayName: "IconAvatar", Demo: IconAvatarDemo },

@@ -1,7 +1,7 @@
 ---
 area: a11y
 opened: 2026-11-22
-status: ready
+status: done
 model: sonnet
 model_reason: "one-line forward in a single primitive plus a render test; cause established"
 value: normal

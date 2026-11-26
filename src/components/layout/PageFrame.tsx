@@ -6,17 +6,9 @@ import { NestedPageHeading } from "./NestedPageHeading";
 import { SurfaceFrame } from "./SurfaceFrame";
 import { BandChrome, ToolbarBand, ToolbarLeadContext, has, type FilterLabels } from "./ToolbarBand";
 import { HeadingHostContext } from "../ui/heading-host";
-import { RaisedSurfaceContext } from "./surface";
+import { PageFrameContext, RaisedSurfaceContext } from "./surface";
 import { cn } from "../../lib/utils";
 import { isHeaderActions, renderHeaderActions, type HeaderActions } from "./HeaderActions";
-
-/**
- * True inside a `PageFrame`. A `PageFrame` rendered inside another (a tabbed
- * sub-route under a layout that owns the page) titles itself with
- * `NestedPageHeading` and joins the parent's surface — derived from where it
- * renders, never a prop (ADR-0008 §1).
- */
-const PageFrameContext = React.createContext(false);
 
 /**
  * @deprecated The rendered-node form of `PageFrame` `actions`: renders

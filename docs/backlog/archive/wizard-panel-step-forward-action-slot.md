@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-19
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "scoped additive optional prop on an existing footer, pinned semantics, existing WizardPanel/WizardShell tests to extend; no open design choice"

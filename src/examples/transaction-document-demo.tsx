@@ -8,6 +8,16 @@
  * and a purchase order (editable Cost with one cell locked to the accepted
  * offer, lines added and removed inside the ledger). Each declares its own ledger columns; the shell
  * places every slot. Demo-only — not shipped in the package.
+ *
+ * A fourth case — the realistic "shipped, no carrier scan" warning-state order
+ * (the form the ledger Total row's laptop fold is measured against) — is not
+ * a strip option: it loads from the page hash (`#/a/transaction-document?variant=shipped`)
+ * so the default view and its pixel baseline stay the strip's four options.
+ * `check:viewports` navigates to it by URL and asserts the Total row ends at
+ * most 739px down at the 1133×739 laptop window. The case mirrors the
+ * consumer's sales order page (brickshop-manager `/orders/:id` →
+ * `SalesOrderDocument.tsx`'s `TransactionDocumentShell`, `title={order.order_number}` —
+ * a one-line order number, not a heading-sized marketing line).
  */
 import * as React from "react";
 import { Copy, FileDown, Mail, Printer, RotateCcw, Tag, Truck, Undo2, XCircle, Gift, Send, PackageCheck } from "lucide-react";
@@ -22,7 +32,7 @@ import {
   type WorkflowStep,
 } from "@/components/archetypes/transaction-document";
 
-type Variant = "order" | "offer" | "purchase" | "compact";
+type Variant = "order" | "offer" | "purchase" | "shipped" | "compact";
 const noop = () => {};
 
 function HistoryList({ items }: { items: [string, string][] }) {
@@ -142,6 +152,76 @@ function salesOrder(): TransactionDocumentShellProps {
         ]}
       />
     ),
+  };
+}
+
+// --- Shipped, no carrier scan ------------------------------------------------
+
+/**
+ * The realistic warning-state order: a shipped, no-carrier-scan sales order on
+ * the laptop window (1133x739). Two ledger lines, the ledger compact (a locked
+ * column rides the ledger's header line, not a note row), a warning next step
+ * with its one failed side effect inline with the shipment line. This is the
+ * shape the Total-row fold is measured against.
+ */
+function shippedOrder(): TransactionDocumentShellProps {
+  const rows: LedgerRow[] = [
+    { id: "1", label: "Millennium Falcon (UCS)", detail: "75192-1 · used, complete", values: { charged: 689, cost: 512.4 } },
+    { id: "2", label: "Hogwarts Castle", detail: "71043-1 · new, sealed", values: { charged: 429.9, cost: 318 } },
+  ];
+  const total = { id: "total", label: "Total", values: { charged: sum(rows, "charged"), cost: sum(rows, "cost") } };
+  const margin = formatFigure(((sum(rows, "charged") - sum(rows, "cost")) / sum(rows, "charged")) * 100, "percent", { locale: "de-DE" });
+  const lock = { reason: "Prices come from BrickLink — change them there.", wayOut: { label: "Open in BrickLink", href: "#" } };
+  return {
+    // The consumer's /orders/:id titles the page with the order number (a short
+    // single line), the sets living in the summary — not a long marketing title.
+    title: "SO-2026-00053",
+    backHref: "#",
+    backLabel: "Orders",
+    identity: {
+      id: "SO-2026-00053",
+      status: "Shipped",
+      attention: "No carrier scan",
+      summary: "Millennium Falcon UCS 75192 and Hogwarts Castle 71043 for Bricks & Co. Trading GmbH, Hamburg.",
+      chain: [{ label: "BrickLink order 2981734", href: "#" }, { label: "Sales order", current: true }],
+      progress: [
+        { label: "Placed", state: "done", date: new Date("2026-11-03T10:12:00") },
+        { label: "Paid", state: "done", date: new Date("2026-11-04T09:41:00") },
+        { label: "Packed", state: "done", date: new Date("2026-11-04T14:20:00") },
+        { label: "Label created", state: "current", date: new Date("2026-11-05T16:25:00") },
+        { label: "Carrier scan", state: "pending" },
+        { label: "Delivered", state: "pending" },
+      ],
+    },
+    actions: {
+      secondary: [{ label: "Print packing slip", icon: Printer, onSelect: noop }],
+      menu: [{ label: "Create return", icon: Undo2, onSelect: noop }],
+    },
+    nextStep: {
+      // A warning step; with only a failed effect left, the panel keeps the
+      // failure inline with the shipment line (not a block of its own).
+      step: { key: "shipped", label: "Shipped", phase: "open", tone: "warning" },
+      title: "No carrier scan 8 days after the label was created",
+      description: "DHL Paket 2 kg · 358086789302 · tracking last checked: never.",
+      primary: { label: "Refresh tracking", icon: Truck, onSelect: noop },
+      secondary: [{ label: "Replacement label", icon: Tag, onSelect: noop }],
+      sideEffects: [{ label: "BrickLink status set to Shipped on carrier scan", state: "failed" }],
+    },
+    ledger: {
+      // The locked charged column rides the ledger's header line (a lock icon),
+      // not a note row above the table. No full-slot lock, so the ledger body
+      // takes the compact slot offset.
+      columns: ORDER_COLUMNS.map((c) => (c.key === "charged" ? { ...c, lock } : c)),
+      rows,
+      totals: [total],
+      result: { label: "Profit", value: sum(rows, "charged") - sum(rows, "cost"), kind: "currency", detail: `${margin} margin · target 20 %` },
+      compactRowLocks: true,
+    },
+    facts: [
+      { title: "Ship to", items: ["Bricks & Co. Trading GmbH", "Speicherstadt 12, 20457 Hamburg, DE"] },
+      { title: "Payment", items: ["PayPal, EUR"], subline: "received in full" },
+    ],
+    history: <HistoryList items={[["4 Nov 09:41", "Payment received (PayPal)"], ["3 Nov 10:12", "Order imported from BrickLink"]]} />,
   };
 }
 
@@ -301,12 +381,23 @@ function compactLocks(compact: boolean): TransactionDocumentShellProps {
   };
 }
 
+// The "shipped, no scan" case arrives through the page hash (the gallery's
+// HashRouter keeps it there: `#/a/transaction-document?variant=shipped`), never
+// through the strip: the default view is the strip's four options, and its
+// pixel baseline must not move.
+const initialVariant: Variant =
+  typeof window !== "undefined" && window.location.hash.includes("variant=shipped") ? "shipped" : "order";
+
 export function TransactionDocumentDemo() {
-  const [variant, setVariant] = React.useState<Variant>("order");
+  const [variant, setVariant] = React.useState<Variant>(initialVariant);
   const offer = useOffer();
   const purchase = usePurchaseOrder();
   const [compact, setCompact] = React.useState(true);
-  const props = variant === "order" ? salesOrder() : variant === "offer" ? offer : variant === "compact" ? compactLocks(compact) : purchase;
+  const props =
+    variant === "order" ? salesOrder()
+      : variant === "offer" ? offer
+        : variant === "shipped" ? shippedOrder()
+          : variant === "compact" ? compactLocks(compact) : purchase;
   return (
     <div className="space-y-5">
       {/* Demo control, not page chrome: switches between the three consumers and the compact-locks case. */}

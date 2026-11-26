@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-17
-status: ready
+status: done
 value: low
 model: sonnet
 model_reason: "one class swap plus wrapper following the sibling container-query pattern; cause established"

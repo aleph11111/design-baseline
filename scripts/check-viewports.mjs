@@ -10,7 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { CHROME, serveDir, launchChrome } from "./lib/serve-gallery.mjs";
-import { devices, widthSweep } from "../src/testing/devices.mjs";
+import { devices, widthSweep, laptop14Window } from "../src/testing/devices.mjs";
 import { checkPageInvariants } from "../src/testing/invariants.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -66,8 +66,12 @@ const base = `${gallery.url}/#/a/`;
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 const browser = await launchChrome();
-// transaction-document's three demo documents (demo radio label → contact-sheet slug).
-const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"], ["Compact locks", "transaction-document-compact"]];
+// transaction-document's five demo documents (demo selector option → contact-sheet slug). "Shipped, no scan"
+// is the realistic 2-line warning-state order the Total-row fold is measured at the 1133px laptop window.
+// It is not a strip option — the default view (and its pixel baseline) is the strip's four options — so it
+// loads from the page hash (`#/a/transaction-document?variant=shipped`; the gallery's HashRouter keeps it
+// there) and the loop navigates by URL instead of clicking the strip.
+const TD_VARIANTS = [["Sales order", "transaction-document-order"], ["Shipped, no scan", "transaction-document-shipped", "?variant=shipped"], ["Offer", "transaction-document-offer"], ["Purchase order", "transaction-document-purchase"], ["Compact locks", "transaction-document-compact"]];
 const failures = [];
 const total = PAGES.length * (Object.keys(devices).length + widthSweep.length) + STEPS.length + 1 + 3 * Object.keys(devices).length + TD_VARIANTS.length * (Object.keys(devices).length + widthSweep.length) + Object.keys(devices).length + 2; // + the container-query layout cases + the print-media check + analytics-dashboard edit mode + matrix-grid inspector + matrix-grid workbench + transaction-document variants + grouped-list work queue
 let n = 0;
@@ -80,10 +84,10 @@ const report = (label, { failures: bad, knownGaps: warn }) => {
 const fail = (message) => ({ failures: [message], knownGaps: [] });
 console.log(`viewports check: ${PAGES.length} pages x (${Object.keys(devices).length} devices + ${widthSweep.length} sweep widths ${widthSweep.map((d) => d.viewport.width).join("/")}) + ${STEPS.length} column steps against ${DIST} (Chrome: ${CHROME})`);
 
-const open = async (slug, device) => {
+const open = async (slug, device, query = "") => {
   const ctx = await browser.newContext(device);
   const page = await ctx.newPage();
-  await page.goto(base + slug);
+  await page.goto(base + slug + query); // query lands in the hash (HashRouter): `#/a/slug?variant=…`
   await page.waitForSelector(".db-content-column");
   // demos are lazy chunks: wait for the page's own h1 inside the content column
   await page.waitForSelector(".db-content-column h1", { timeout: 10000 });
@@ -211,10 +215,17 @@ for (const [name, device] of Object.entries(devices)) {
 // AppShell the column is narrower than the viewport. At the 1133px laptop
 // window the content column is ~780px — below @4xl (896px) — so the KPI strip
 // and the widget grid keep their narrow layout; on laptop14 (wide column) they
-// show the wide one.
+// show the wide one. The paired-period split keys on its own card/container
+// width too (dashboard-period-pair-container-query): a pair card narrower than
+// @4xl (896px) stays a stacked month-over-YTD even on a wide viewport; in the
+// wide column (cards ~1104–1640px) it splits at @4xl. The edit-mode assignment
+// list (dashboard-assignment-list-container-query) steps with the widget grid
+// off the LIST's own @container — 1 col while its box is under @4xl (896px), 3
+// from @5xl (1024px); the box is the page column minus the card's padding+2·1px
+// border, so ~738px in the 1133 window's ~780px column, ~1102px in laptop14's.
 const CQ_CASES = [
-  { name: "sweep 1133 (~780px column)", device: widthSweep.find((d) => d.viewport.width === 1133), strip: 1, grid: 1, build: 1, rail: false, pane: "none" },
-  { name: "laptop14 (wide column)", device: devices.laptop14, strip: 4, grid: 3, build: 3, rail: true, pane: "block" },
+  { name: "sweep 1133 (~780px column)", device: widthSweep.find((d) => d.viewport.width === 1133), strip: 1, grid: 1, pair: 1, build: 1, rail: false, pane: "none", assign: 1 },
+  { name: "laptop14 (wide column)", device: devices.laptop14, strip: 4, grid: 3, pair: 2, build: 3, rail: true, pane: "block", assign: 3 },
 ];
 for (const c of CQ_CASES) {
   const label = `container-query layout @ ${c.name}`;
@@ -228,6 +239,20 @@ for (const c of CQ_CASES) {
     const grid = await cols('[class*="@4xl:grid-cols-2"]');
     if (strip !== c.strip) bad.push(`KPI strip has ${strip} column(s), want ${c.strip}`);
     if (grid !== c.grid) bad.push(`widget grid has ${grid} column(s), want ${c.grid}`);
+    // the paired-period split keys on ITS card's width (the @container -my-4 wrapper carries
+    // both the gutter-cancel and the container the split queries), so a pair card narrower than
+    // @4xl (896px) stacks month over YTD even on a wide viewport. Select via that wrapper's
+    // split grid: it is the only @container that also carries the -my-4 gutter-cancel.
+    const pair = await page.$eval('[class*="@container"][class*="-my-4"]', (wrap) => getComputedStyle(wrap.firstElementChild).gridTemplateColumns.split(" ").length);
+    if (pair !== c.pair) bad.push(`period-pair split has ${pair} column(s), want ${c.pair}`);
+    // the edit-mode assignment list keys its columns on the LIST's own @container (its own
+    // `data-slot` box — the widget grid carries the SAME @4xl/@5xl classes, so a shared
+    // class selector would measure the grid, not the list), not the viewport: 1 col while
+    // its box is under @4xl (896px), 2/3 from there like the widget grid.
+    await page.getByRole("button", { name: "Edit layout" }).click();
+    await page.waitForSelector('[data-slot="dashboard-widget-edit"]', { timeout: 5000 });
+    const assign = await cols('[data-slot="dashboard-assignment-list"]');
+    if (assign !== c.assign) bad.push(`assignment list has ${assign} column(s), want ${c.assign}`);
     // detail-overview: the 300px rail stacks label over value at every width.
     await page.goto(base + "detail-overview");
     await page.waitForSelector('[class*="@sm:flex-row"]', { timeout: 10000 });
@@ -353,14 +378,18 @@ for (const [name, device] of Object.entries(devices)) {
 // documents at the triad and the sweep widths — the ledger never scrolls
 // sideways, the long title shows in full, and on phone the nextStep primary
 // stays in the viewport while the page scrolls.
-for (const [radio, shot] of TD_VARIANTS) {
+// The 1133×739 (laptop14Window) Total-row fold assertion must actually run; the
+// post-loop guard after this block fails the check if no device with that exact
+// viewport was measured (widthSweep losing its 1133×739 entry must not pass).
+let foldMeasured = false;
+for (const [radio, shot, query] of TD_VARIANTS) {
   for (const [name, device] of [...Object.entries(devices), ...widthSweep.map((d) => [`sweep ${d.viewport.width}`, d])]) {
     const label = `transaction-document ${radio} @ ${name}`;
     let ctx;
     try {
       let page;
-      ({ ctx, page } = await open("transaction-document", device));
-      await page.getByRole("radio", { name: radio }).click();
+      ({ ctx, page } = await open("transaction-document", device, query));
+      if (!query) await page.getByRole("radio", { name: radio }).click(); // the shipped variant loads from the URL hash, not the strip
       await page.waitForTimeout(300); // ledger ResizeObserver settles
       const triad = name in devices;
       // Sweep-width passes honor the per-width sweep gaps (a variant's sweep is
@@ -377,6 +406,37 @@ for (const [radio, shot] of TD_VARIANTS) {
         const prog = await page.$eval('[data-slot="td-progress"]', (ol) => ({ h: ol.getBoundingClientRect().height, li: ol.querySelector("li").getBoundingClientRect().height })).catch(() => null);
         if (!prog && radio === "Sales order") bad.push("progress: the sales order demo has no progress line to measure");
         if (prog && prog.h > prog.li + 2) bad.push(`progress: wraps to several lines (${Math.round(prog.h)}px, one line is ${Math.round(prog.li)}px)`);
+      }
+      // The realistic 2-line warning-state order (contract "Acceptance gate"): its ledger Total
+      // row ends at most 739px down at the 1133x739 laptop window (the consumer's
+      // /orders/:id shipped-no-scan case). The document column is fixed at 896px on every
+      // desktop device, so the height is the same at laptop14; 739 is the fold that fails.
+      if (radio === "Shipped, no scan") {
+        const totalBottom = await page.$eval('[data-slot="td-ledger"] tfoot tr', (el) => Math.round(el.getBoundingClientRect().bottom + window.scrollY));
+        // The 1133x739 laptop window is the fold the consumer's /orders/:id case
+        // runs into. Keyed on the device viewport, not the label string: the
+        // assertion must still fire if a sweep entry is renamed, and the guard
+        // below fails the run if no device with this exact viewport ever ran.
+        const isFoldWindow = device.viewport.width === laptop14Window.viewport.width && device.viewport.height === laptop14Window.viewport.height;
+        if (isFoldWindow) {
+          foldMeasured = true;
+          console.log(`  shipped order Total row bottom @ ${device.viewport.width}x${device.viewport.height}: ${totalBottom}px (fold 739px)`);
+          if (totalBottom > 739) bad.push(`shipped order: the Total row ends at ${totalBottom}px, below the ${device.viewport.height}px laptop14Window fold`);
+        } else if (name === "laptop14") {
+          console.log(`  shipped order Total row bottom @ ${device.viewport.width} (laptop14): ${totalBottom}px`);
+        }
+        // The warning next step keeps its single failed side effect inline with the shipment
+        // line: a direct child of the description wrapper that also holds the
+        // nextStep title. That wrapper is the only element holding the <h2>, so
+        // this stays true for inline and fails if a regression re-blocks the side
+        // effect into its own padded "Running alongside" block at the panel's
+        // bottom (where its parent holds no <h2>), even if an unrelated
+        // .space-y-1 ancestor sits somewhere higher in the tree.
+        const sideInline = await page.$eval('[data-slot="td-next-step"]', (panel) => {
+          const side = panel.querySelector('[data-slot="td-side-effects"]');
+          return !!side && side.parentElement !== null && !!side.parentElement.querySelector(":scope > h2");
+        });
+        if (!sideInline) bad.push('shipped order: the failed side effect is a padded block, not inline with the shipment line');
       }
       // compact row locks vs the default sentences on the same 2-line document: the compact Total ends above the
       // laptop14 fold and at least 20px higher than with the switch off (the sentences saved)
@@ -442,6 +502,15 @@ for (const [radio, shot] of TD_VARIANTS) {
       await ctx?.close();
     }
   }
+}
+// Fold-gate guard (acceptance criterion 1): the 1133×739 Total-row fold assertion
+// must have actually run. It is keyed on the device viewport, so widthSweep losing
+// its 1133×739 entry — or the "Shipped, no scan" case (loaded by URL, never through
+// the strip) never being reached — fails the run instead of passing with the fold
+// check silently skipped.
+if (!foldMeasured) {
+  failures.push("transaction-document fold gate @ laptop14Window");
+  console.log(`[FAIL] transaction-document fold gate @ laptop14Window\n      - the 1133×739 laptop-window fold was never measured (widthSweep lost its 1133×739 entry or the \"Shipped, no scan\" case was skipped) — the fold gate cannot pass having compared nothing`);
 }
 
 // grouped-list work-queue variant (contract "Work-queue variant"): at the

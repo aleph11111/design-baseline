@@ -41,6 +41,10 @@ jobs:
       - run: node scripts/check-joined-label.mjs
         env:
           CHROME_PATH: /usr/bin/google-chrome
+      # the crud-dialog two-pane demo at the device triad (sheet width + pane layout)
+      - run: node scripts/check-crud-dialog-demo.mjs
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
 
   # Pixel baselines (tests/screenshots/), compared inside the same pinned image
   # `npm run screenshots` uses locally — PLAYWRIGHT_IMAGE in src/testing/docker.mjs

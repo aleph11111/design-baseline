@@ -457,7 +457,7 @@ export function AnalyticsDashboardDemo(): React.ReactElement {
               label="Period"
             />
             <Select value={channel} onValueChange={(v) => setChannel(v)}>
-              <SelectTrigger label="Channel" className="w-56">
+              <SelectTrigger label="Channel" options={["All channels", "Web", "Retail", "Wholesale"]}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

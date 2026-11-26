@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-17
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "class swap following the DetailOverviewShell @container pattern; cause established"

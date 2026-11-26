@@ -103,6 +103,49 @@ describe("WizardShell page frame", () => {
   });
 });
 
+describe("WizardShell hideNext (footer forward action hidden on one step)", () => {
+  // WizardShell forwards `steps` to WizardPanel, so the per-step flag flows through.
+  const midHide: WizardStep[] = [
+    { key: "upload", label: "Upload" },
+    { key: "map", label: "Map fields", hideNext: true },
+    { key: "commit", label: "Commit" },
+  ];
+  const lastHide: WizardStep[] = [
+    { key: "upload", label: "Upload" },
+    { key: "map", label: "Map fields" },
+    { key: "commit", label: "Commit", hideNext: true },
+  ];
+
+  it("a middle step with hideNext renders no Next, keeps an enabled Back", () => {
+    renderShell({ steps: midHide, current: 1 });
+    expect(screen.queryByRole("button", { name: "Next" })).toBeNull();
+    expect(back().disabled).toBe(false);
+  });
+
+  it("the last step with hideNext renders no Commit, keeps an enabled Back", () => {
+    renderShell({ steps: lastHide, current: 2 });
+    expect(screen.queryByRole("button", { name: "Commit import" })).toBeNull();
+    expect(back().disabled).toBe(false);
+  });
+
+  it("a hideNext on one step leaves the other steps' forward action intact", () => {
+    // midHide sets hideNext on step 1; step 2 (last) is untouched.
+    renderShell({ steps: midHide, current: 2 });
+    expect(commit()).toBeTruthy();
+  });
+
+  it("hideNext on the first step: no Next, Back stays disabled (the shell wires no onFirstBack)", () => {
+    const firstHide: WizardStep[] = [
+      { key: "upload", label: "Upload", hideNext: true },
+      { key: "map", label: "Map fields" },
+      { key: "commit", label: "Commit" },
+    ];
+    renderShell({ steps: firstHide, current: 0 });
+    expect(screen.queryByRole("button", { name: "Next" })).toBeNull();
+    expect(back().disabled).toBe(true);
+  });
+});
+
 describe("WizardShell done state", () => {
   it("keeps the page h1 and drops the wizard chrome", () => {
     renderShell({ done: <p>All imported</p> });

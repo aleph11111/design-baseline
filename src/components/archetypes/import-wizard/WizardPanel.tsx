@@ -66,6 +66,8 @@ export function WizardPanel({
   const isLast = current >= steps.length - 1;
   const isFirst = current <= 0;
   const firstExit = isFirst && onFirstBack != null;
+  /** The step may hide the footer forward action when its body carries its own primary. */
+  const hideNext = steps[current]?.hideNext === true;
 
   return (
     <div className={cn("space-y-5", className)}>
@@ -81,23 +83,24 @@ export function WizardPanel({
         >
           {firstExit ? (firstBackLabel ?? backLabel) : backLabel}
         </Button>
-        {isLast ? (
-          <Button onClick={onCommit} disabled={!canProceed || busy}>
-            {busy ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                {busyLabel}
-              </>
-            ) : (
-              commitLabel
-            )}
-          </Button>
-        ) : (
-          <Button onClick={onNext} disabled={!canProceed || busy}>
-            {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-            {nextLabel}
-          </Button>
-        )}
+        {!hideNext &&
+          (isLast ? (
+            <Button onClick={onCommit} disabled={!canProceed || busy}>
+              {busy ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  {busyLabel}
+                </>
+              ) : (
+                commitLabel
+              )}
+            </Button>
+          ) : (
+            <Button onClick={onNext} disabled={!canProceed || busy}>
+              {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
+              {nextLabel}
+            </Button>
+          ))}
       </div>
     </div>
   );

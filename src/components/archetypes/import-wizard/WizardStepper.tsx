@@ -5,7 +5,16 @@ import { Check } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import { ScrollCue } from "../shared/ScrollCue";
 
-export type WizardStep = { key: string; label: string };
+export type WizardStep = {
+  key: string;
+  label: string;
+  /**
+   * Hide the footer forward action (Next, or Commit on the last step) on this step
+   * when its body carries its own primary action. The stepper ignores it; only the
+   * panel footer reads it.
+   */
+  hideNext?: boolean;
+};
 
 export type WizardStepperProps = {
   steps: WizardStep[];

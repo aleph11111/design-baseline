@@ -139,7 +139,9 @@ export function useControlSize(): "lg" | undefined {
  * one ellipsizes (via `JoinedLabelText`) only at the cap. Past that the band scrolls. A control with a
  * label lays out as a grid whose label column is `auto` and whose value columns are never narrower than their content, so the
  * control's own minimum width is label floor + full value: it stops shrinking
- * there and the band scrolls instead of clipping the value. (`shrink` here only
+ * there and the band scrolls instead of clipping the value. (A content-fit
+ * `SelectTrigger` instead holds its width with `shrink-0` and caps at its
+ * container with `max-w-full`, its value column `minmax(0,1fr)`.) (`shrink` here only
  * serves custom flex consumers; it is not the mechanism for the built-ins.)
  */
 export const JOINED_LABEL_CLASS =
@@ -155,7 +157,7 @@ export function JoinedLabelText({ children }: { children: React.ReactNode }): Re
  * `size-…`; `w-auto|fit|full|min|max` and breakpoint-prefixed widths do not count). Such a width sets the WHOLE joined box (label +
  * control): inside it the label shrinks first, then the value truncates, and nothing
  * overflows the box. Without one the box is content-sized, floored at label floor + full
- * value (STYLE.md "Toolbar field labels").
+ * value — for a select, the widest of its `options` (STYLE.md "Toolbar field labels").
  */
 export function hasWidthClass(className?: string): boolean {
   // unprefixed only (`md:w-40` sets no width below md); `w-auto|fit|full|min|max` are not a fixed box
