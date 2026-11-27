@@ -7,6 +7,7 @@ export type InvariantCode =
   | "nestedOverflow"
   | "textClip"
   | "headingLines"
+  | "titleSqueeze"
   | "textOverlap"
   | "duplicateFact"
   | "column"

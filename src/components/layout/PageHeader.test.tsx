@@ -188,6 +188,10 @@ describe("PageHeader", () => {
     expect(row.className).toBe(HEADING_ROW_CLASSES.row);
     expect(titleBlock.className).toBe(HEADING_ROW_CLASSES.titleBlock);
     expect(headingRow.className).toBe(HEADING_ROW_CLASSES.titleBadges);
+    // The title/badges row carries a stable slot marker the invariants'
+    // titleSqueeze check (and any future tooling) targets — a heading row
+    // without it would stop being measurable.
+    expect(headingRow.getAttribute("data-slot")).toBe("heading-row-title");
     expect(getByTestId("badge").parentElement!.className).toBe(
       HEADING_ROW_CLASSES.badges,
     );

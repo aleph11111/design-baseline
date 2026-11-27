@@ -102,6 +102,23 @@ describe("page invariants", () => {
     };
     el.getBoundingClientRect = rect;
   };
+  // jsdom has no text metrics: the titleSqueeze check's hidden word-probe
+  // divs (`visibility:hidden`, created per word) have no rect — stub a natural
+  // width per word so the check's measurement path is exercised.
+  const stubWordWidths = (widths: Record<string, number>): (() => void) => {
+    const proto = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = function (this: Element) {
+      if (this instanceof HTMLDivElement && this.style.visibility === "hidden") {
+        const w = widths[(this.textContent ?? "").trim()] ?? 0;
+        const r = { left: 0, top: 0, width: w, height: 20, right: w, bottom: 20, x: 0, y: 0, toJSON() {} };
+        return r as unknown as DOMRect;
+      }
+      return proto.call(this);
+    };
+    return () => {
+      Element.prototype.getBoundingClientRect = proto;
+    };
+  };
   const scroller = () => {
     const s = document.createElement("div");
     s.style.overflowX = "auto";
@@ -201,6 +218,59 @@ describe("page invariants", () => {
     document.body.innerHTML = "<div class='db-content-column'><div class='db-document-column'><h1 style='line-height:40px'>A long document title that wraps</h1></div></div>";
     box(document.querySelector("h1")!, 0, 0, 300, 120); // 3 lines
     expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^headingLines/)]));
+  });
+
+  it("titleSqueeze: a page title squeezed below its longest word fails — the check measures each word's natural width, because a squeezed title re-wraps and the box alone can't see the mid-token break", async () => {
+    const heading = (tag: "h1" | "h2", cls: string) => {
+      document.body.innerHTML = `<div class="db-content-column"><${tag}${cls ? ` class="${cls}"` : ""}>SO-2026-00053</${tag}></div>`;
+      const h = document.querySelector(tag)!;
+      box(h, 0, 0, 120, 44); // a 120px box
+      return h;
+    };
+    // desktop: the content column's h1 — the title's single 150px word no
+    // longer fits the 120px box, so the browser breaks it mid-token
+    const restore1 = stubWordWidths({ "SO-2026-00053": 150 });
+    try {
+      heading("h1", "");
+      expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^titleSqueeze: <h1.*wraps mid-token/)]));
+      // the NestedPageHeading h2 rung (its single fixed scale) is guarded by
+      // the same one check, not a second per-page assertion
+      heading("h2", "text-base font-medium leading-tight tracking-tight text-foreground");
+      expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^titleSqueeze: <h2.*wraps mid-token/)]));
+      // an h2 at a similar but not-nested scale (a generic `text-base
+      // font-medium` h2) is not the nested rung: no finding
+      heading("h2", "text-base font-medium tracking-tight");
+      expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^titleSqueeze/)]));
+      heading("h1", "");
+    } finally {
+      restore1();
+    }
+    // a word that fits the box is not squeezed
+    const restore2 = stubWordWidths({ "SO-2026-00053": 110 });
+    try {
+      expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^titleSqueeze/)]));
+      // no content column (an off-app page): nothing guarded, nothing to fail
+      document.body.innerHTML = "<h1>SO-2026-00053</h1>";
+      box(document.querySelector("h1")!, 0, 0, 120, 44);
+      expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^titleSqueeze/)]));
+    } finally {
+      restore2();
+    }
+  });
+
+  it("titleSqueeze: a phone row stacks — the title has the full width, so a squeezed box there is not a squeeze", async () => {
+    document.body.innerHTML = '<div class="db-content-column"><h1>SO-2026-00053</h1></div>';
+    box(document.querySelector("h1")!, 0, 0, 120, 44);
+    const restore = stubWordWidths({ "SO-2026-00053": 150 });
+    try {
+      const { failures } = await checkPageInvariants(
+        { evaluate: async (fn, a) => ((fn as (a: unknown) => unknown)(a)) as never },
+        devices.phone,
+      );
+      expect(failures).not.toEqual(expect.arrayContaining([expect.stringMatching(/^titleSqueeze/)]));
+    } finally {
+      restore();
+    }
   });
 
   it("duplicateFact: one money token three times fails naming the token; twice and distinct tokens pass", async () => {
@@ -477,6 +547,7 @@ describe("page invariants", () => {
       ["nestedOverflow", "nestedOverflow: <div> scrolls sideways (200px in a 100px box, no data-scroll-region)"],
       ["textClip", "textClip: <p> is cut off by overflow (text 200px > box 100px)"],
       ["headingLines", "headingLines: <h1> wraps onto more than 2 lines (125px of text, 80px is two)"],
+      ["titleSqueeze", 'titleSqueeze: <h1 "SO-2026-00053"> squeezed to 120px, content 150px — title wraps mid-token'],
       ["textOverlap", "textOverlap: <p> and <span> overlap"],
       ["duplicateFact", 'duplicateFact: "1.234,56 €" rendered 3 times in main'],
     ] as const) {

@@ -21,7 +21,7 @@ export const HEADING_ROW_CLASSES = {
   row: "flex flex-col gap-4 @xl:flex-row @xl:items-start @xl:justify-between",
   /** Title block. */
   titleBlock: "min-w-0 space-y-1",
-  /** Title/badges row. */
+  /** Title/badges row. Carries `data-slot="heading-row-title"` as a stable slot marker for tooling (the invariants' `titleSqueeze` check). */
   titleBadges: "flex flex-wrap items-center gap-x-3 gap-y-2",
   /** Badges wrapper (read-only state, after the heading). */
   badges: "flex flex-wrap items-center gap-1.5",
@@ -107,7 +107,7 @@ export function HeadingRow({
       {beforeRow && <div>{beforeRow}</div>}
       <div className={HEADING_ROW_CLASSES.row}>
         <div className={HEADING_ROW_CLASSES.titleBlock}>
-          <div className={HEADING_ROW_CLASSES.titleBadges}>
+          <div className={HEADING_ROW_CLASSES.titleBadges} data-slot="heading-row-title">
             {beforeHeading}
             {heading}
             {badges && <div className={HEADING_ROW_CLASSES.badges}>{badges}</div>}
