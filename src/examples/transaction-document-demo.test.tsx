@@ -49,8 +49,14 @@ const dupFactFailures = async () => {
 it("the shipped transaction-document demo passes duplicateFact", async () => {
   render(<TransactionDocumentDemo />);
   stackBoxes();
-  // the fixture actually rendered figure text (not an empty shell vacuously passing)
-  const root = document.body;
-  expect([...root.querySelectorAll("*")].some((el) => /[\d.](?:\d|,)/.test(el.textContent.trim()))).toBe(true);
+  // Guard against a vacuous pass: the page must contain at least one figure
+  // in the house form the scan's FACT patterns can actually count — a de-DE
+  // money figure (digit group, comma decimal, NBSP + symbol) or percent
+  // (digit group, NBSP + %). Any digits at all would not do: an order ID or
+  // a date would let a render regression pass while the check counts nothing.
+  const text = document.body.textContent;
+  expect(
+    /\b\d{1,3}(?:\.\d{3})*,\d{2}[\s\u00A0]€/.test(text) || /\b\d+(?:\.\d{3})*,\d+[\s\u00A0]%/.test(text),
+  ).toBe(true);
   expect(await dupFactFailures()).toEqual([]);
 });
