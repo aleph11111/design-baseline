@@ -42,19 +42,7 @@ const STEPS = [
 const KNOWN_GAPS = {};
 // Sweep findings with a ticket, keyed `<slug>@<width>:<code>` → ticket slug.
 // Per page and width, so a sweep gap never downgrades a code at the triad.
-const SWEEP_GAPS = {
-  // At 1024 the transaction-document header is side-by-side (title | actions);
-  // the "Print packing slip" button is `whitespace-nowrap` and wider than its
-  // actions container, so it overflows left and its icon paints over the
-  // title's first line — a real textOverlap the v0.71.0 invariant surfaced.
-  // Clean at 1133 (title ends 675px, button starts 691px) and at the triad;
-  // the header fix lands in the follow-up ticket, not this PR (the check is
-  // strict, this only names the known gap so the sweep is green). The ticket
-  // lives on trunk (docs/backlog/transaction-document-header-title-action-overlap-1024.md,
-  // merged via the dashboard inbox before this PR) — this branch's diff does
-  // not create it on purpose.
-  "transaction-document@1024:textOverlap": "transaction-document-header-title-action-overlap-1024",
-};
+const SWEEP_GAPS = {};
 // Page-scoped findings with a ticket, keyed slug → { code: ticket slug }, at
 // every width of that page only (triad, sweep, variants) — never donor-wide,
 // so the same code still fails on every other page.

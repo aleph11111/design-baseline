@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.71.1
+
+- **Fixed (`HeadingRow` actions overlapping the title):** the shared header actions wrapper (`HEADING_ROW_CLASSES.actions`, every `PageHeader`/`NestedPageHeading` and so every `PageFrame` archetype) carried `min-w-0`, so between the row's `@xl` (576px) and `@3xl` (768px) container widths it shrank below its widest action. A `whitespace-nowrap` button wider than the wrapper then overflowed **left** under `@xl:justify-end` and painted over the title — `transaction-document` at a 1024px window (672px row): the 173px "Print packing slip" button sat in a 132px wrapper and covered the title's first line by 22px (`textOverlap`). The wrapper drops `min-w-0`, so its floor is its widest single action (min-width beats the `@xl:max-w-[60%]` cap) and the `min-w-0` title block absorbs the squeeze. Unchanged from a 768px row up (`@3xl:shrink-0` already held the cluster) and when stacked; the `check:viewports` sweep gap `transaction-document@1024:textOverlap` is removed.
+- **Consumer:** none required; bump `design-baseline` to pick it up. A header whose widest action exceeds 60% of a 576–767px row now keeps the action whole and narrows the title instead of overlapping it.
+- **Breaking:** no.
+
 ## v0.71.0
 
 - **Changed (invariants):** `checkPageInvariants` (exported `design-baseline/testing/invariants`, used by the donor's `check:viewports` and every consumer's Playwright suite) adds four codes, each a stable `<code>: <message>` so `options.knownGaps` downgrades them:
