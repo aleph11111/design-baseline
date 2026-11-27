@@ -1,7 +1,7 @@
 ---
 area: layout
 opened: 2026-11-24
-status: ready
+status: done
 value: normal
 model: opus
 model_reason: "cause not established (title block is min-w-0 yet its first line paints past the action box); diagnosis is part of the work"
