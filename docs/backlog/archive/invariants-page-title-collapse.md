@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-11-09
-status: ready
+status: done
 value: normal
 depends_on: [layout-invariants-nested-overflow]
 model: sonnet
