@@ -58,7 +58,16 @@ export function ScrollCue({
   }, [children]);
   return (
     <div className={cn("relative isolate", className)}>
-      <div ref={ref} {...scrollerProps} className={cn("overflow-x-auto print:overflow-visible", scrollClassName)}>
+      {/* data-scroll-region: this scroller is an INTENDED horizontal region (a wide
+          table / matrix / board / stepper), so `nestedOverflow` in checkPageInvariants
+          does not flag it for scrolling sideways — `scrollCue` (the right-edge cue)
+          still governs it. Every table/board/matrix in the donor renders through here. */}
+      <div
+        ref={ref}
+        {...scrollerProps}
+        data-scroll-region
+        className={cn("overflow-x-auto print:overflow-visible", scrollClassName)}
+      >
         {children}
       </div>
       {more ? (

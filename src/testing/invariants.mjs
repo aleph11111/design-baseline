@@ -16,15 +16,64 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   // The device width, not window.innerWidth: mobile emulation grows the layout
   // viewport to fit overflowing content, so innerWidth would hide the overflow.
   const W = vw;
+  // clipped to (≈) zero area by `clip-path`/`clip` — Tailwind's `.sr-only` is a 1px
+  // box + `clip-path: inset(50%)` (or legacy `clip: rect(0,0,0,0)`): screen-reader
+  // text hidden from the page. Its `overflow:hidden` is the hiding, not "cut-off
+  // text", so it is not visible to the user.
+  const zeroClipped = (el) => {
+    const s = getComputedStyle(el);
+    const inset = s.clipPath.match(/^inset\(([^)]+)\)$/i);
+    if (inset) {
+      // Each side as a percent of the box it cuts (top/bottom of the height,
+      // right/left of the width): `%` as given, `px` against the element's own
+      // box, any other unit (calc, em, `round` radius) counts as no cut — a
+      // px inset must never be read as a percent and hide a visible element.
+      const box = el.getBoundingClientRect();
+      const pct = (tok, dim) =>
+        tok.endsWith("%") ? parseFloat(tok) : tok.endsWith("px") && dim > 0 ? (parseFloat(tok) / dim) * 100 : 0;
+      let t = inset[1].trim().split(/\s+round\s/)[0].trim().split(/\s+/); // top [right] [bottom|left] [left]
+      if (t.length === 1) t = [t[0], t[0], t[0], t[0]];
+      else if (t.length === 2) t = [t[0], t[1], t[0], t[1]];
+      else if (t.length === 3) t = [t[0], t[1], t[2], t[1]];
+      const v = [pct(t[0], box.height), pct(t[1], box.width), pct(t[2], box.height), pct(t[3], box.width)];
+      if (v[0] + v[2] >= 99.5 || v[1] + v[3] >= 99.5) return true; // a dimension collapses to zero
+    }
+    if (/^rect\(\s*0[^,]+,\s*0[^,]+,\s*0[^,]+,\s*0[^,]+\s*\)$/.test(String(s.clip).replace(/\s+/g, ""))) return true;
+    return false;
+  };
   const visible = (el) => {
     const r = el.getBoundingClientRect();
     if (r.width === 0 || r.height === 0) return false;
     const s = getComputedStyle(el);
-    return s.visibility !== "hidden" && s.display !== "none" && !el.closest("[aria-hidden=true],[inert]");
+    return s.visibility !== "hidden" && s.display !== "none" && !zeroClipped(el) && !el.closest("[aria-hidden=true],[inert]");
   };
   const describe = (el) => {
     const label = el.getAttribute("aria-label") || el.textContent.trim().replace(/\s+/g, " ").slice(0, 40);
     return `<${el.tagName.toLowerCase()}${label ? ` "${label}"` : ""}>`;
+  };
+  // an element's own text box: it carries a non-whitespace text node directly
+  const ownText = (el) => [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+  // The overlay LAYER an element belongs to: the nearest position:fixed|sticky
+  // ancestor (an AppHeader, a BottomNav, a sticky action bar, a floating feedback
+  // button) or the nearest dialog/menu/tooltip/popover, or the element itself when
+  // it carries that position — or no layer (plain page text). Text in one layer
+  // legitimately sits over page text, so a box collides only with text in ITS OWN
+  // layer; a box over text in a different layer (or over plain page text) is
+  // intended chrome, not a collision. Two boxes INSIDE one chrome bar, though, can
+  // still collide, and that stays checked. Memoized per element so the check stays
+  // O(page) rather than O(page²).
+  const OVERLAY_SEL = '[role="dialog"],[role="tooltip"],[role="menu"],[data-radix-popper-content-wrapper]';
+  const overlayRootMemo = new WeakMap(); // el → overlay-layer root element, or null
+  const overlayRoot = (el) => {
+    const cached = overlayRootMemo.get(el);
+    if (cached !== undefined) return cached;
+    const parent = el.parentElement;
+    const root =
+      el.matches(OVERLAY_SEL) || ["fixed", "sticky"].includes(getComputedStyle(el).position)
+        ? el
+        : (parent ? overlayRoot(parent) : null);
+    overlayRootMemo.set(el, root);
+    return root;
   };
 
   if (window.innerWidth > W) problems.push(`overflow: layout viewport grew to ${window.innerWidth}px past the ${W}px device width`);
@@ -57,6 +106,158 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   for (const el of clipped.slice(0, 5)) {
     const r = el.getBoundingClientRect();
     problems.push(`clipped: ${describe(el)} cut off at the viewport edge (${Math.round(r.left)}..${Math.round(r.right)}px of ${W}px)`);
+  }
+
+  // A visible horizontal scroller whose content is wider than its box is a
+  // nested overflow — the page scrolls inside `main`, not the container, so the
+  // viewport-edge checks above never see it. Intended scrollers (wide tables,
+  // matrices, code blocks) opt out with `data-scroll-region` on the scroller or
+  // an ancestor; report the outermost offender, as `clipped` does.
+  const nested = [];
+  for (const el of document.body.querySelectorAll("*")) {
+    // no overlay exemption: the ticket's only opt-out is data-scroll-region
+    if (!visible(el)) continue;
+    const s = getComputedStyle(el);
+    if (s.overflowX !== "auto" && s.overflowX !== "scroll") continue;
+    if (el.scrollWidth <= el.clientWidth + 1) continue;
+    let marked = false;
+    for (let a = el; a && a !== document.body; a = a.parentElement) if (a.hasAttribute("data-scroll-region")) { marked = true; break; }
+    if (marked) continue;
+    if (!nested.some((c) => c.contains(el))) nested.push(el);
+  }
+  for (const el of nested.slice(0, 5))
+    problems.push(`nestedOverflow: ${describe(el)} scrolls sideways (${Math.round(el.scrollWidth)}px in a ${Math.round(el.clientWidth)}px box, no data-scroll-region)`);
+
+  // Cut-off text: a text-bearing box that clips HORIZONTALLY (the axis
+  // scrollWidth/clientWidth measure) wider than it is. An intentional ellipsis
+  // (`text-overflow: ellipsis`, the `truncate` surface) is a design choice, not
+  // a bug, so it is exempt; `pre`/`textarea`/`[role=dialog]` are excluded as in
+  // `scrollCue`. `overflowX` is the horizontal axis, but jsdom does not expand
+  // the `overflow` shorthand into it (`overflow:hidden` reports overflowX
+  // "visible"), so the shorthand's first token (also the x-axis) is read too.
+  // In a real browser the two always agree, so this only covers the jsdom unit
+  // surface — it can't add findings on the `check:viewports` (Chrome) path.
+  for (const el of document.body.querySelectorAll("*")) {
+    if (!visible(el) || !ownText(el) || el.closest("[role=dialog],pre,textarea")) continue;
+    const s = getComputedStyle(el);
+    const oxTok = s.overflow.trim().split(/\s+/)[0];
+    if (s.overflowX !== "hidden" && s.overflowX !== "clip" && oxTok !== "hidden" && oxTok !== "clip") continue;
+    if (el.scrollWidth <= el.clientWidth + 1) continue;
+    if (s.textOverflow === "ellipsis") continue;
+    problems.push(`textClip: ${describe(el)} is cut off by overflow (text ${el.scrollWidth}px > box ${el.clientWidth}px)`);
+  }
+
+  // A page heading that wraps onto a third line is a layout failure — the title
+  // line is the page's first thing read. Content height exceeds 2 rendered
+  // line-heights (not the box: padding/borders don't count).
+  const px = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
+  for (const h of document.body.querySelectorAll("h1")) {
+    if (!visible(h)) continue;
+    const s = getComputedStyle(h);
+    const lh = s.lineHeight === "normal" ? px(s.fontSize) * 1.2 : px(s.lineHeight);
+    if (!lh || !isFinite(lh)) continue;
+    const box = h.getBoundingClientRect();
+    const contentH = box.height - px(s.paddingTop) - px(s.paddingBottom) - px(s.borderTopWidth) - px(s.borderBottomWidth);
+    if (contentH > lh * 2 + 1)
+      problems.push(`headingLines: ${describe(h)} wraps onto more than 2 lines (${Math.round(contentH)}px of text, ${Math.round(lh * 2)}px is two)`);
+  }
+
+  // Two visible text boxes that sit on top of each other — a real overlap is a
+  // bug (a label printed over a value). Excludes ancestor/descendant pairs and
+  // cross-layer overlays: a box in one chrome layer (a sticky bar, a fixed
+  // header, a dialog) sits over page text by design, so it is reported only
+  // against other text IN ITS OWN layer — text in a different layer (or plain
+  // page text) is the intended overlap. Intersects the PAINTED line fragments
+  // (`getClientRects`), not the element box: a wrapping element's box is the
+  // union of its lines, which intersects line neighbours even when the glyphs
+  // don't touch. `getClientRects` returns UNCLIPPED geometry though — a
+  // truncated link's boxes, or cells scrolled off the right of a scroller,
+  // extend past the ancestor that hides them — so fragments are clipped to
+  // the elements' overflow ancestors; a clip that removes every fragment
+  // leaves nothing painted, and that must NOT fall back to the unclipped box.
+  const CLIP_AXIS = new Set(["hidden", "clip"]); // hides text past its box
+  const SCROLL_AXIS = new Set(["auto", "scroll"]); // paints only inside its box
+  const axisVals = (s) => {
+    // jsdom does not expand the `overflow` shorthand into the longhands (see
+    // the textClip check above) — an unexpanded longhand stays at "visible",
+    // so the shorthand's tokens (first x, second y; one token is both) carry.
+    const t = s.overflow ? s.overflow.trim().split(/\s+/) : ["", ""];
+    const pick = (long, tok) => (long && long !== "visible" ? long : tok !== "visible" ? tok : "visible");
+    return { x: pick(s.overflowX, t[0]), y: pick(s.overflowY, t.length === 1 ? t[0] : t[1]) };
+  };
+  const clipSide = (el, other) => {
+    // The area an element's text is painted in, RELATIVE TO `other`. A
+    // hidden|clip ancestor always cuts: text past its box is not painted (a
+    // box holding both is a shared clip — a common clip keeps relative
+    // geometry intact). An auto|scroll ancestor cuts only when it holds one
+    // side: two boxes inside the same scroller (the page's own <main>
+    // included) scroll together, so their relative placement is real anywhere
+    // — including below the visible box; a box past a NESTED scroller's edge
+    // is painted relative to nothing (scrolled away / clipped) and must not
+    // overlap text outside the scroller.
+    const r = { left: -Infinity, top: -Infinity, right: Infinity, bottom: Infinity };
+    for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+      const v = axisVals(getComputedStyle(a));
+      const hx = CLIP_AXIS.has(v.x), sx = SCROLL_AXIS.has(v.x);
+      const hy = CLIP_AXIS.has(v.y), sy = SCROLL_AXIS.has(v.y);
+      if (!hx && !sx && !hy && !sy) continue;
+      const onlyOne = !a.contains(other);
+      const cutX = hx || (sx && onlyOne);
+      const cutY = hy || (sy && onlyOne);
+      if (!cutX && !cutY) continue;
+      const ar = a.getBoundingClientRect();
+      if (cutX) { r.left = Math.max(r.left, ar.left); r.right = Math.min(r.right, ar.right); }
+      if (cutY) { r.top = Math.max(r.top, ar.top); r.bottom = Math.min(r.bottom, ar.bottom); }
+    }
+    return r;
+  };
+  const fragments = (el, other) => {
+    const c = clipSide(el, other);
+    const rs = [...el.getClientRects()];
+    // `getClientRects` is empty only where there is no layout at all (jsdom):
+    // then the box stands in for the fragments, clipped the same way. With
+    // real layout an empty clipped result means nothing is painted — it must
+    // NOT fall back to the unclipped box, or hidden text overlaps again.
+    const src = rs.length ? rs : [el.getBoundingClientRect()];
+    const out = [];
+    for (const r of src) {
+      const l = Math.max(r.left, c.left), t = Math.max(r.top, c.top);
+      const rt = Math.min(r.right, c.right), b = Math.min(r.bottom, c.bottom);
+      if (rt - l > 1 && b - t > 1) out.push({ left: l, top: t, right: rt, bottom: b });
+    }
+    return out;
+  };
+  const boxes = [...document.body.querySelectorAll("*")]
+    .filter((el) => visible(el) && ownText(el))
+    .map((el) => ({ el, layer: overlayRoot(el), rect: el.getBoundingClientRect() }));
+  // Painted fragments lie inside the element's bounding box, so two boxes that
+  // do not intersect can never overlap — the cheap test runs before the
+  // ancestor walks in fragments(), keeping table-heavy pages fast.
+  const boxesMeet = (p, q) =>
+    Math.min(p.right, q.right) - Math.max(p.left, q.left) > 1 &&
+    Math.min(p.bottom, q.bottom) - Math.max(p.top, q.top) > 1;
+  for (let i = 0; i < boxes.length; i++) {
+    for (let j = i + 1; j < boxes.length; j++) {
+      const a = boxes[i], b = boxes[j];
+      if (a.el === b.el || a.el.contains(b.el) || b.el.contains(a.el)) continue;
+      // same overlay layer (both plain page text, or the same chrome bar): a real
+      // collision is possible. Different layers (chrome over page, or two chrome
+      // bars): an intended overlay, not a bug.
+      if (a.layer !== b.layer || !boxesMeet(a.rect, b.rect)) continue;
+      // fragments are pair-specific: a scroller both boxes share must not cut
+      const fa = fragments(a.el, b.el);
+      const fb = fragments(b.el, a.el);
+      let hit = false;
+      for (const la of fa) for (const lb of fb) {
+        const w = Math.min(la.right, lb.right) - Math.max(la.left, lb.left);
+        const h = Math.min(la.bottom, lb.bottom) - Math.max(la.top, lb.top);
+        if (w > 1 && h > 1) { hit = true; break; }
+      }
+      if (hit) {
+        problems.push(`textOverlap: ${describe(a.el)} and ${describe(b.el)} overlap`);
+        break; // one report per element — outermost / first, not every pair
+      }
+    }
   }
 
   if (fullBleed !== undefined) {

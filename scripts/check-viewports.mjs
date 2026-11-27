@@ -42,9 +42,33 @@ const STEPS = [
 const KNOWN_GAPS = {};
 // Sweep findings with a ticket, keyed `<slug>@<width>:<code>` → ticket slug.
 // Per page and width, so a sweep gap never downgrades a code at the triad.
-// Empty on purpose: the first sweep run (2026-11-09, 51/51 ok) found no
-// finding at any width — toolbarRows at 1024 included.
-const SWEEP_GAPS = {};
+const SWEEP_GAPS = {
+  // At 1024 the transaction-document header is side-by-side (title | actions);
+  // the "Print packing slip" button is `whitespace-nowrap` and wider than its
+  // actions container, so it overflows left and its icon paints over the
+  // title's first line — a real textOverlap the v0.71.0 invariant surfaced.
+  // Clean at 1133 (title ends 675px, button starts 691px) and at the triad;
+  // the header fix lands in the follow-up ticket, not this PR (the check is
+  // strict, this only names the known gap so the sweep is green). The ticket
+  // lives on trunk (docs/backlog/transaction-document-header-title-action-overlap-1024.md,
+  // merged via the dashboard inbox before this PR) — this branch's diff does
+  // not create it on purpose.
+  "transaction-document@1024:textOverlap": "transaction-document-header-title-action-overlap-1024",
+};
+// Page-scoped findings with a ticket, keyed slug → { code: ticket slug }, at
+// every width of that page only (triad, sweep, variants) — never donor-wide,
+// so the same code still fails on every other page.
+const PAGE_GAPS = {
+  // transaction-document's contract wraps the long document title in full at
+  // every width; headingLines (v0.71.0) caps any h1 at 2 lines. The demo's
+  // long title is 3-4 lines everywhere. Which rule wins is decided in the ticket.
+  "transaction-document": { headingLines: "transaction-document-title-vs-heading-lines" },
+};
+const pageGaps = (slug) => PAGE_GAPS[slug] ?? {};
+const sweepGaps = (slug, w) => {
+  const prefix = `${slug}@${w}:`;
+  return Object.fromEntries(Object.entries(SWEEP_GAPS).filter(([k]) => k.startsWith(prefix)).map(([k, t]) => [k.slice(prefix.length), t]));
+};
 
 const gallery = await serveDir(DIST);
 const base = `${gallery.url}/#/a/`;
@@ -90,7 +114,7 @@ for (const slug of PAGES) {
     try {
       let page;
       ({ ctx, page } = await open(slug, device));
-      const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: columnFor(slug, name), fullBleed: FULL_BLEED.includes(slug) });
+      const result = await checkPageInvariants(page, device, { knownGaps: { ...KNOWN_GAPS, ...pageGaps(slug) }, column: columnFor(slug, name), fullBleed: FULL_BLEED.includes(slug) });
       const file = `${slug}--${name}.jpg`;
       await page.screenshot({ path: path.join(OUT, file), type: "jpeg", quality: 70, scale: "css" });
       shots.push({ slug, name, file, problems: [...result.failures, ...result.knownGaps] });
@@ -113,9 +137,7 @@ for (const slug of PAGES) {
     try {
       let page;
       ({ ctx, page } = await open(slug, device));
-      const prefix = `${slug}@${w}:`;
-      const gaps = Object.fromEntries(Object.entries(SWEEP_GAPS).filter(([k]) => k.startsWith(prefix)).map(([k, t]) => [k.slice(prefix.length), t]));
-      report(label, await checkPageInvariants(page, device, { knownGaps: gaps, fullBleed: FULL_BLEED.includes(slug) }));
+      report(label, await checkPageInvariants(page, device, { knownGaps: { ...pageGaps(slug), ...sweepGaps(slug, w) }, fullBleed: FULL_BLEED.includes(slug) }));
     } catch (e) {
       report(label, fail(e.message.split("\n")[0]));
     } finally {
@@ -380,7 +402,11 @@ for (const [radio, shot, query] of TD_VARIANTS) {
       if (!query) await page.getByRole("radio", { name: radio }).click(); // the shipped variant loads from the URL hash, not the strip
       await page.waitForTimeout(300); // ledger ResizeObserver settles
       const triad = name in devices;
-      const result = await checkPageInvariants(page, device, { knownGaps: KNOWN_GAPS, column: triad ? columnFor("transaction-document", name) : undefined, fullBleed: false });
+      // Sweep-width passes honor the per-width sweep gaps (a variant's sweep is
+      // a sweep finding too); the triad passes take donor-wide KNOWN_GAPS plus the
+      // page's own PAGE_GAPS, so only the named sweep width softens beyond those.
+      const knownGaps = { ...KNOWN_GAPS, ...pageGaps("transaction-document"), ...(triad ? {} : sweepGaps("transaction-document", device.viewport.width)) };
+      const result = await checkPageInvariants(page, device, { knownGaps, column: triad ? columnFor("transaction-document", name) : undefined, fullBleed: false });
       const bad = [...result.failures];
       const wide = await page.$$eval('[data-slot="td-ledger"], [data-slot="td-ledger"] *', (els) =>
         els.filter((el) => ["auto", "scroll"].includes(getComputedStyle(el).overflowX) && el.scrollWidth > el.clientWidth + 1).map((el) => `<${el.tagName.toLowerCase()}> ${el.scrollWidth}>${el.clientWidth}`));

@@ -4,13 +4,20 @@ import type { Device } from "./devices.mjs";
 export type InvariantCode =
   | "overflow"
   | "clipped"
+  | "nestedOverflow"
+  | "textClip"
+  | "headingLines"
+  | "textOverlap"
   | "column"
   | "fullBleed"
   | "toolbarRows"
   | "phoneToolbar"
   | "phoneNav"
   | "tapTargets"
-  | "tapOverlap";
+  | "tapOverlap"
+  | "figureTable"
+  | "tableColumn"
+  | "scrollCue";
 
 export interface InvariantOptions {
   /** code → ticket slug that will fix it */
