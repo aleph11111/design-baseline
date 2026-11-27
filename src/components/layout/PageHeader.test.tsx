@@ -28,7 +28,7 @@ describe("PageHeader", () => {
     expect(actions.className).toBe(HEADING_ROW_CLASSES.actions);
     expect(actions.className).not.toMatch(/(^|\s)shrink-0/); // never pinned below the wide breakpoint
     expect(actions.className).toContain("flex-wrap");
-    expect(actions.className).toContain("min-w-0");
+    expect(actions.className).not.toMatch(/(^|\s)min-w-0/); // floor = widest action, so a nowrap button never overflows left over the title
     // wide container: cap rises to 80%; below it the wrapping + 60% cap stay
     expect(actions.className).toContain("@3xl:max-w-[80%]");
     expect(actions.className).toContain("@3xl:shrink-0"); // the title absorbs the squeeze, so the cluster keeps its one row

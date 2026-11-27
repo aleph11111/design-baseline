@@ -27,8 +27,8 @@ export const HEADING_ROW_CLASSES = {
   badges: "flex flex-wrap items-center gap-1.5",
   /** Subtitle scale. */
   subtitle: "text-xs text-muted-foreground",
-  /** Actions wrapper: wraps onto further lines and claims at most 60% of a side-by-side row, so the title keeps a usable width. From `@3xl` (768px row) the cap rises to 80%, and the cluster stops shrinking (`@3xl:shrink-0`, so the title block absorbs the squeeze, not the actions), so a cluster up to 80% of the row stays on one row. A wider one still wraps instead of overflowing, and the title keeps at least 20%. */
-  actions: "flex min-w-0 flex-wrap items-center gap-3 @xl:max-w-[60%] @xl:justify-end @3xl:max-w-[80%] @3xl:shrink-0",
+  /** Actions wrapper: wraps onto further lines and claims at most 60% of a side-by-side row, so the title keeps a usable width. From `@3xl` (768px row) the cap rises to 80%, and the cluster stops shrinking (`@3xl:shrink-0`, so the title block absorbs the squeeze, not the actions), so a cluster up to 80% of the row stays on one row. A wider one still wraps instead of overflowing, and the title keeps at least 20%. No `min-w-0`: the wrapper never shrinks below its widest single action (min-width beats the % cap), else a `whitespace-nowrap` button overflows left under `justify-end` and paints over the title. */
+  actions: "flex flex-wrap items-center gap-3 @xl:max-w-[60%] @xl:justify-end @3xl:max-w-[80%] @3xl:shrink-0",
 } as const;
 
 // ---------------------------------------------------------------------------
