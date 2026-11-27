@@ -162,6 +162,63 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
       problems.push(`headingLines: ${describe(h)} wraps onto more than 2 lines (${Math.round(contentH)}px of text, ${Math.round(lh * 2)}px is two)`);
   }
 
+  // A page title squeezed below its longest word — the header actions steal
+  // the title block's width (HEADING_ROW_CLASSES.actions re-gaining `shrink-0`
+  // or losing its width cap), so the title's line boxes run wider than the
+  // block and the browser breaks a token MID-TOKEN (SO-2026-00053 splitting in
+  // the ~780px column). A squeezed title re-wraps, so the box alone and the
+  // text's own scrollWidth/rects both re-lay-out and neither sees the break —
+  // the token's NATURAL width is measured instead: one hidden, max-content
+  // probe per title word at the heading's own font (family/size/weight/
+  // stretch/spacing, text-transform applied). A word wider than the heading
+  // box cannot sit on any line: it wraps mid-token.
+  // Guarded exactly on HeadingRow's `data-slot="heading-row-title"` marker —
+  // h1 rung (PageHeader, every shell through PageFrame) and the
+  // NestedPageHeading h2 rung: one check, every heading row, by construction.
+  // No other h1/h2 is guarded: SectionHeading and detail-panel headings
+  // legitimately narrow and wrap at word boundaries. Non-mobile only: a
+  // stacked row gives the title the full width, so it cannot be squeezed (a
+  // mid-token line there is text-wrap, not layout).
+  if (!mobile) {
+    const wordWidth = (word, source) => {
+      const s = getComputedStyle(source);
+      const probe = document.createElement("div");
+      probe.textContent = s.textTransform === "uppercase" ? word.toUpperCase() : word;
+      probe.style.cssText =
+        `position:fixed;left:0;top:0;visibility:hidden;z-index:-1;white-space:nowrap;` +
+        `font-family:${s.fontFamily};font-size:${s.fontSize};font-weight:${s.fontWeight};` +
+        `font-style:${s.fontStyle};font-stretch:${s.fontStretch};letter-spacing:${s.letterSpacing};direction:${s.direction}`;
+      document.body.appendChild(probe);
+      const width = probe.getBoundingClientRect().width;
+      probe.remove();
+      return width;
+    };
+    const num = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
+    for (const h of document.querySelectorAll('[data-slot="heading-row-title"] > h1, [data-slot="heading-row-title"] > h2')) {
+      if (!visible(h)) continue;
+      const s = getComputedStyle(h);
+      const contentW = h.getBoundingClientRect().width - num(s.paddingLeft) - num(s.paddingRight);
+      if (contentW < 2) continue;
+      let worst = 0, worstWord = "";
+      const seen = new Set();
+      const walk = (node) => {
+        for (const c of node.childNodes) {
+          if (c.nodeType === 3) {
+            for (const word of c.textContent.split(/\s+/)) {
+              if (!word || seen.has(word)) continue;
+              seen.add(word);
+              const tw = wordWidth(word, h);
+              if (tw > worst) { worst = tw; worstWord = word; }
+            }
+          } else if (c.nodeType === 1) walk(c);
+        }
+      };
+      walk(h);
+      if (worst > contentW + 2)
+        problems.push(`titleSqueeze: ${describe(h)} squeezed to ${Math.round(contentW)}px, longest word ${Math.round(worst)}px ("${worstWord.slice(0, 24)}") — wraps mid-token`);
+    }
+  }
+
   // Two visible text boxes that sit on top of each other — a real overlap is a
   // bug (a label printed over a value). Excludes ancestor/descendant pairs and
   // cross-layer overlays: a box in one chrome layer (a sticky bar, a fixed
