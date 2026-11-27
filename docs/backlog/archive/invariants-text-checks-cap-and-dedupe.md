@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-11-24
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "cause established: two checks lack the cap and dedupe the sibling checks already carry; pattern is in the same function"

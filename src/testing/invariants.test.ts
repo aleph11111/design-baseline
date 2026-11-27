@@ -539,6 +539,130 @@ describe("page invariants", () => {
     expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
   });
 
+  it("textClip: past five offenders only five lines; a clipped element inside another is not listed separately", async () => {
+    document.body.innerHTML = "<div class='db-content-column'></div>";
+    const col = document.querySelector(".db-content-column")!;
+    // seven disjoint clipped boxes (no overlap, so textOverlap stays idle)
+    for (let i = 0; i < 7; i++) {
+      const p = document.createElement("p");
+      p.textContent = `clip ${i}`;
+      p.style.overflow = "hidden";
+      box(p, 0, i * 30, 100, 20);
+      Object.defineProperty(p, "scrollWidth", { configurable: true, value: 200 });
+      Object.defineProperty(p, "clientWidth", { configurable: true, value: 100 });
+      col.appendChild(p);
+    }
+    let f = (await runCheck()).filter((s) => s.startsWith("textClip"));
+    expect(f).toHaveLength(5);
+    // a clipped child inside a clipped parent: the outermost offender only
+    document.body.innerHTML = "<div class='db-content-column'></div>";
+    const col2 = document.querySelector(".db-content-column")!;
+    const outer = document.createElement("div");
+    outer.style.overflow = "hidden";
+    outer.appendChild(document.createTextNode("outer text "));
+    const inner = document.createElement("span");
+    inner.textContent = "inner";
+    inner.style.overflow = "hidden";
+    outer.appendChild(inner);
+    col2.appendChild(outer);
+    box(outer, 0, 0, 100, 20);
+    box(inner, 20, 5, 60, 10);
+    for (const el of [outer, inner]) {
+      Object.defineProperty(el, "scrollWidth", { configurable: true, value: 200 });
+      Object.defineProperty(el, "clientWidth", { configurable: true, value: 100 });
+    }
+    f = (await runCheck()).filter((s) => s.startsWith("textClip"));
+    expect(f).toHaveLength(1);
+    expect(f[0]).toContain("<div"); // the outermost offender describes, the nested span doesn't
+  });
+
+  it("textOverlap: past five overlapping pairs only five lines; each box in at most one reported pair; later checks still run", async () => {
+    document.body.innerHTML = "<div class='db-content-column'></div>";
+    const col = document.querySelector(".db-content-column")!;
+    // seven disjoint overlapping pairs (spans in DOM order a0 b0 a1 b1 …)
+    for (let i = 0; i < 7; i++) {
+      for (const [label, x] of [["A" + i, 0], ["B" + i, 50]] as const) {
+        const s = document.createElement("span");
+        s.textContent = label;
+        box(s, x, i * 60, 100, 40);
+        col.appendChild(s);
+      }
+    }
+    // one clipped paragraph BELOW all the pairs: the line proves the checks
+    // AFTER the overlap scan still run (an early-return cap would drop it).
+    const p = document.createElement("p");
+    p.textContent = "clip";
+    p.style.overflow = "hidden";
+    box(p, 0, 500, 100, 20);
+    Object.defineProperty(p, "scrollWidth", { configurable: true, value: 200 });
+    Object.defineProperty(p, "clientWidth", { configurable: true, value: 100 });
+    col.appendChild(p);
+    const f = await runCheck();
+    const overlaps = f.filter((s) => s.startsWith("textOverlap"));
+    expect(overlaps).toHaveLength(5);
+    // no element appears in more than one reported pair
+    const labels = overlaps.flatMap((line) => [...line.matchAll(/"([^"]+)"/g)].map((m) => m[1]));
+    expect(new Set(labels).size).toBe(labels.length);
+    // and the scan's cap ends at the pairs named by the first boxes in the
+    // document (scan order, not arbitrary)
+    expect(overlaps[0]).toContain('"A0"');
+    expect(overlaps[0]).toContain('"B0"');
+    expect(f.filter((s) => s.startsWith("textClip"))).toHaveLength(1); // post-scan checks ran
+  });
+
+  it("every per-element check caps at five outermost offenders (headingLines, tableColumn, scrollCue)", async () => {
+    // headingLines: seven 3-line h1s → five lines
+    document.body.innerHTML = "<div class='db-content-column'></div>";
+    const col = document.querySelector(".db-content-column")!;
+    for (let i = 0; i < 7; i++) {
+      const h = document.createElement("h1");
+      h.textContent = `Title ${i}`;
+      h.style.lineHeight = "40px";
+      box(h, 0, i * 140, 300, 120);
+      col.appendChild(h);
+    }
+    let f = (await runCheck()).filter((s) => s.startsWith("headingLines"));
+    expect(f).toHaveLength(5);
+    // tableColumn: seven tables whose first text cell is narrow → five lines
+    document.body.innerHTML = "<div class='db-content-column'></div>";
+    const col2 = document.querySelector(".db-content-column")!;
+    for (let i = 0; i < 7; i++) {
+      const t = document.createElement("table");
+      // distinct label text: identical offenders would collapse in the final
+      // `[...new Set(problems)]` message dedupe
+      t.innerHTML = `<tbody><tr><td>Label ${i}</td><td>x</td></tr></tbody>`;
+      col2.appendChild(t);
+      box(t, 0, i * 50, 300, 40);
+      const c = t.querySelector("td")!;
+      c.style.fontSize = "16px"; // jsdom does not compute the initial font size
+      box(c, 0, i * 50, 44, 20); // 44px < 6ch of 16px (57.6px)
+    }
+    f = (await runCheck()).filter((s) => s.startsWith("tableColumn"));
+    expect(f).toHaveLength(5);
+    // scrollCue: six uncued scrollers → five lines (nestedOverflow sees the
+    // same six and caps itself too — the audit cap is per code)
+    document.body.innerHTML = "<div class='db-content-column'></div>";
+    const col3 = document.querySelector(".db-content-column")!;
+    for (let i = 0; i < 6; i++) {
+      const s = scroller();
+      s.textContent = `sc ${i}`; // distinct: identical lines would Set-dedupe
+      box(s, 0, i * 60, 100, 50);
+      col3.appendChild(s);
+    }
+    f = (await runCheck()).filter((s) => s.startsWith("scrollCue"));
+    expect(f).toHaveLength(5);
+    // a scroller nested inside an already-reported one is not listed separately
+    document.body.innerHTML = "<div class='db-content-column'></div>";
+    const outer = scroller();
+    const inner = scroller();
+    outer.appendChild(inner);
+    document.querySelector(".db-content-column")!.appendChild(outer);
+    box(outer, 0, 0, 100, 50);
+    box(inner, 5, 5, 90, 40);
+    f = (await runCheck()).filter((s) => s.startsWith("scrollCue"));
+    expect(f).toHaveLength(1); // the outermost offender only
+  });
+
   it("knownGaps: each new code downgrades to a warning naming its ticket", async () => {
     // The downgrade slicing is code-independent (`p.slice(0, p.indexOf(":"))`), but
     // this proves each NEW code's key is a valid `InvariantCode` that round-trips to

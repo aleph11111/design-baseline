@@ -137,6 +137,7 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   // "visible"), so the shorthand's first token (also the x-axis) is read too.
   // In a real browser the two always agree, so this only covers the jsdom unit
   // surface — it can't add findings on the `check:viewports` (Chrome) path.
+  const textClipped = [];
   for (const el of document.body.querySelectorAll("*")) {
     if (!visible(el) || !ownText(el) || el.closest("[role=dialog],pre,textarea")) continue;
     const s = getComputedStyle(el);
@@ -144,13 +145,18 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
     if (s.overflowX !== "hidden" && s.overflowX !== "clip" && oxTok !== "hidden" && oxTok !== "clip") continue;
     if (el.scrollWidth <= el.clientWidth + 1) continue;
     if (s.textOverflow === "ellipsis") continue;
-    problems.push(`textClip: ${describe(el)} is cut off by overflow (text ${el.scrollWidth}px > box ${el.clientWidth}px)`);
+    // report the outermost offender only, not every child inside it
+    if (!textClipped.some((c) => c.contains(el))) textClipped.push(el);
   }
+  for (const el of textClipped.slice(0, 5))
+    problems.push(`textClip: ${describe(el)} is cut off by overflow (text ${el.scrollWidth}px > box ${el.clientWidth}px)`);
 
   // A page heading that wraps onto a third line is a layout failure — the title
   // line is the page's first thing read. Content height exceeds 2 rendered
-  // line-heights (not the box: padding/borders don't count).
+  // line-heights (not the box: padding/borders don't count). At most five
+  // offenders are reported — the same cap as `clipped` and friends.
   const px = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
+  const wrappedHeadings = [];
   for (const h of document.body.querySelectorAll("h1")) {
     if (!visible(h)) continue;
     const s = getComputedStyle(h);
@@ -158,9 +164,10 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
     if (!lh || !isFinite(lh)) continue;
     const box = h.getBoundingClientRect();
     const contentH = box.height - px(s.paddingTop) - px(s.paddingBottom) - px(s.borderTopWidth) - px(s.borderBottomWidth);
-    if (contentH > lh * 2 + 1)
-      problems.push(`headingLines: ${describe(h)} wraps onto more than 2 lines (${Math.round(contentH)}px of text, ${Math.round(lh * 2)}px is two)`);
+    if (contentH > lh * 2 + 1) wrappedHeadings.push({ h, contentH, lh });
   }
+  for (const { h, contentH, lh } of wrappedHeadings.slice(0, 5))
+    problems.push(`headingLines: ${describe(h)} wraps onto more than 2 lines (${Math.round(contentH)}px of text, ${Math.round(lh * 2)}px is two)`);
 
   // A page title squeezed below its longest word — the header actions steal
   // the title block's width (HEADING_ROW_CLASSES.actions re-gaining `shrink-0`
@@ -180,6 +187,7 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   // stacked row gives the title the full width, so it cannot be squeezed (a
   // mid-token line there is text-wrap, not layout).
   if (!mobile) {
+    const squeezedTitles = [];
     const wordWidth = (word, source) => {
       const s = getComputedStyle(source);
       const probe = document.createElement("div");
@@ -215,8 +223,9 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
       };
       walk(h);
       if (worst > contentW + 2)
-        problems.push(`titleSqueeze: ${describe(h)} squeezed to ${Math.round(contentW)}px, longest word ${Math.round(worst)}px ("${worstWord.slice(0, 24)}") — wraps mid-token`);
+        squeezedTitles.push(`titleSqueeze: ${describe(h)} squeezed to ${Math.round(contentW)}px, longest word ${Math.round(worst)}px ("${worstWord.slice(0, 24)}") — wraps mid-token`);
     }
+    for (const line of squeezedTitles.slice(0, 5)) problems.push(line);
   }
 
   // Two visible text boxes that sit on top of each other — a real overlap is a
@@ -293,9 +302,11 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   const boxesMeet = (p, q) =>
     Math.min(p.right, q.right) - Math.max(p.left, q.left) > 1 &&
     Math.min(p.bottom, q.bottom) - Math.max(p.top, q.top) > 1;
-  for (let i = 0; i < boxes.length; i++) {
+  const reported = new Set(); // each box in one report only: as `a` or as `b`
+  overlapCap: for (let i = 0; i < boxes.length; i++) {
     for (let j = i + 1; j < boxes.length; j++) {
       const a = boxes[i], b = boxes[j];
+      if (reported.has(a.el) || reported.has(b.el)) continue;
       if (a.el === b.el || a.el.contains(b.el) || b.el.contains(a.el)) continue;
       // same overlay layer (both plain page text, or the same chrome bar): a real
       // collision is possible. Different layers (chrome over page, or two chrome
@@ -311,8 +322,10 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
         if (w > 1 && h > 1) { hit = true; break; }
       }
       if (hit) {
+        reported.add(a.el);
+        reported.add(b.el);
         problems.push(`textOverlap: ${describe(a.el)} and ${describe(b.el)} overlap`);
-        break; // one report per element — outermost / first, not every pair
+        if (reported.size >= 10) break overlapCap; // cap reached: exactly 5 pair lines — the scan ends, the rest of the checks still run
       }
     }
   }
@@ -476,31 +489,45 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   // label is its header's first cell; an HTML table's is the first cell with
   // text in its first body row (a leading checkbox / icon column is skipped).
   const ch6 = (c) => 6 * 0.6 * parseFloat(getComputedStyle(c).fontSize);
+  // one offender per table/figure-table (its header's first cell); past five
+  // offenders a cap stands in for the rest, as `clipped` and `nestedOverflow` do
+  const figureTables = [];
   for (const h of document.querySelectorAll('[data-slot="figure-table-header"]')) {
     const c = h.firstElementChild;
     if (!c || !visible(c)) continue;
     const w = c.getBoundingClientRect().width;
-    if (w < ch6(c)) problems.push(`figureTable: label column ${Math.round(w)}px, under ~6ch (${Math.round(ch6(c))}px)`);
+    if (w < ch6(c)) figureTables.push({ c, w });
   }
+  for (const { c, w } of figureTables.slice(0, 5))
+    problems.push(`figureTable: label column ${Math.round(w)}px, under ~6ch (${Math.round(ch6(c))}px)`);
+  const narrowColumns = [];
   for (const t of document.querySelectorAll("table")) {
     if (!visible(t) || t.closest("[role=dialog]")) continue;
     const row = t.tBodies[0]?.rows[0] ?? t.rows[0];
     const c = row && [...row.cells].find((x) => visible(x) && x.textContent.trim());
     if (!c) continue;
     const w = c.getBoundingClientRect().width;
-    if (w < ch6(c)) problems.push(`tableColumn: first column ${describe(c)} ${Math.round(w)}px, under ~6ch (${Math.round(ch6(c))}px)`);
+    if (w < ch6(c)) narrowColumns.push({ c, w });
   }
+  for (const { c, w } of narrowColumns.slice(0, 5))
+    problems.push(`tableColumn: first column ${describe(c)} ${Math.round(w)}px, under ~6ch (${Math.round(ch6(c))}px)`);
   // A horizontal scroller with content past its right edge shows the shared
   // right-edge cue (ScrollCue, `data-slot="scroll-cue"`) — overlay scrollbars
   // otherwise crop a table or strip silently. Checked unscrolled, as loaded.
+  // A nested scroller inside an already-reported one is not listed separately
+  // (the same contains-dedupe as `clipped` and `nestedOverflow`), past five
+  // offenders a cap stands in.
+  const uncuedScrollers = [];
   for (const el of document.body.querySelectorAll("*")) {
     if (el.closest("[role=dialog],pre,textarea") || !visible(el)) continue;
     const ox = getComputedStyle(el).overflowX;
     if (ox !== "auto" && ox !== "scroll") continue;
     if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 1) continue;
     if (el.parentElement?.querySelector(':scope > [data-slot="scroll-cue"]')) continue;
-    problems.push(`scrollCue: ${describe(el)} clips ${el.scrollWidth - el.clientWidth}px sideways with no scroll cue (shared ScrollCue)`);
+    if (!uncuedScrollers.some((c) => c.el.contains(el))) uncuedScrollers.push({ el, gap: el.scrollWidth - el.clientWidth });
   }
+  for (const { el, gap } of uncuedScrollers.slice(0, 5))
+    problems.push(`scrollCue: ${describe(el)} clips ${gap}px sideways with no scroll cue (shared ScrollCue)`);
   return [...new Set(problems)];
 }
 
