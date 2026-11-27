@@ -260,6 +260,48 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
     }
   }
 
+  // A formatted money or percent FACT rendered more than twice in main is a
+  // duplicate fact — the same number sitting in three places (rail + table +
+  // total row) is a layout smell, not content. Scans the main content region:
+  // `<main>` (AppShell's canonical owner), falling back to `document.body` when
+  // none exists (off-app AuthCard pages). Heuristic limits (documented per the
+  // ticket, kept loose on purpose):
+  //   - only formatted money (digits + thousands/decimal separator + currency
+  //     symbol or 3-letter code) and percent (digits + %) are counted. A bare
+  //     number, a plain ID (SO-2026-0412), an address line (20457 Hamburg), a
+  //     tracking number, or a date are never matched — no false positives on
+  //     the house formats, but a fact written as a bare number is missed.
+  //   - locale-tolerant: both `1,234.50 €` and `1.234,50 €` count, and the
+  //     NBSP/figure-space a real `Intl` emits before a symbol or `%` is
+  //     normalised to one space, so the two spellings of the same fact agree.
+  //   - a label/value repeat (a column label and its total row share one token)
+  //     renders twice and passes — only the > 2× case is a finding.
+  const FACT_MONEY =
+    /(?<![\d.,\u2212-])([\u2212-]?\d{1,3}(?:\.\d{3})*(?:[.,]\d{1,2})?|[\u2212-]?\d{1,3}(?:,\d{3})*\.\d{1,2}|[\u2212-]?\d+(?:[.,]\d{1,2})?)[ ]*(?:[\u20AC\u00A3$\u00A5]|\b[A-Z]{3}\b)/gu;
+  const FACT_PCT = /(?<![\d.,\u2212-])([\u2212-]?\d+(?:[.,]\d+)?)[ ]*%/gu;
+  const normWs = (s) => s.replace(/[\u00A0\u2007\u202F]/g, " ").replace(/\s+/g, " ").trim();
+  const factRoot = document.querySelector("main") || document.body;
+  const factCounts = new Map();
+  for (const el of factRoot.querySelectorAll("*")) {
+    if (!visible(el) || !ownText(el)) continue;
+    const t = normWs(el.textContent);
+    for (const re of [FACT_MONEY, FACT_PCT]) {
+      for (const m of t.matchAll(re)) {
+        const tok = normWs(m[0]);
+        factCounts.set(tok, (factCounts.get(tok) ?? 0) + 1);
+      }
+    }
+  }
+  let factSeen = 0;
+  for (const [tok, n] of factCounts) {
+    if (n > 2) {
+      // at most one report per offending token (not every occurrence), so a
+      // page can't drown the report in repeats of the same fact
+      if (factSeen++ >= 5) continue;
+      problems.push(`duplicateFact: "${tok}" rendered ${n} times in main`);
+    }
+  }
+
   if (fullBleed !== undefined) {
     const marked = !!document.querySelector(".db-full-bleed");
     if (fullBleed && !marked) problems.push("fullBleed: full-bleed archetype lost its .db-full-bleed marker");
