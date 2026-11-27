@@ -223,6 +223,31 @@ describe("page invariants", () => {
     expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^duplicateFact/)]));
   });
 
+  it("duplicateFact: a nested label/value figure is counted once per surface, so twice nested passes and thrice fails", async () => {
+    // the common label/value shape: the figure sits in a <strong> value inside
+    // a <p> that carries its own label text — each surface is one rendered
+    // figure, so the wrapper must not count it a second time.
+    const nestedFixture = (n: number, label: (i: number) => string) => {
+      document.body.innerHTML = "<main></main>";
+      const m = document.querySelector("main")!;
+      for (let i = 0; i < n; i++) {
+        const p = document.createElement("p");
+        const strong = document.createElement("strong");
+        strong.textContent = "1.234,56 €";
+        p.append(label(i) + " ", strong);
+        m.appendChild(p);
+        box(p, 0, i * 40, 160, 20); // stacked, no overlap
+        box(strong, 40, i * 40, 120, 20);
+      }
+    };
+    nestedFixture(2, (i) => `Line ${i}`);
+    let f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^duplicateFact/)])); // two surfaces, one figure each
+    nestedFixture(3, (i) => `Line ${i}`);
+    f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^duplicateFact: "1\.234,56 €" rendered 3 times in main/)]));
+  });
+
   it("duplicateFact: both locale forms, the NBSP before the symbol, and the percent form are counted", async () => {
     const fixture = (tokens: string[]) => {
       document.body.innerHTML = `<main>${tokens.map((t) => `<p>${t}</p>`).join("")}</main>`;
