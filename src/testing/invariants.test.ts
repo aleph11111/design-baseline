@@ -203,6 +203,82 @@ describe("page invariants", () => {
     expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^headingLines/)]));
   });
 
+  it("duplicateFact: one money token three times fails naming the token; twice and distinct tokens pass", async () => {
+    const fixture = (tokens: string[]) => {
+      document.body.innerHTML = `<main>${tokens.map((t) => `<p>${t}</p>`).join("")}</main>`;
+      // jsdom has no layout: stub a distinct stacked box per paragraph so the
+      // check's `visible` gate passes and the textOverlap pairing sees no overlap.
+      document.querySelectorAll("main p").forEach((p, i) => box(p, 0, i * 24, 120, 20));
+    };
+    fixture(["1.234,56 €", "1.234,56 €", "1.234,56 €", "19,00 €"]);
+    let f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^duplicateFact: "1\.234,56 €" rendered 3 times in main/)]));
+    // the same token twice passes (label + total row share one fact)
+    fixture(["1.234,56 €", "1.234,56 €"]);
+    f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^duplicateFact/)]));
+    // a distinct token each time passes
+    fixture(["1.234,56 €", "2.345,67 €", "3.456,78 €"]);
+    f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^duplicateFact/)]));
+  });
+
+  it("duplicateFact: a nested label/value figure is counted once per surface, so twice nested passes and thrice fails", async () => {
+    // the common label/value shape: the figure sits in a <strong> value inside
+    // a <p> that carries its own label text — each surface is one rendered
+    // figure, so the wrapper must not count it a second time.
+    const nestedFixture = (n: number, label: (i: number) => string) => {
+      document.body.innerHTML = "<main></main>";
+      const m = document.querySelector("main")!;
+      for (let i = 0; i < n; i++) {
+        const p = document.createElement("p");
+        const strong = document.createElement("strong");
+        strong.textContent = "1.234,56 €";
+        p.append(label(i) + " ", strong);
+        m.appendChild(p);
+        box(p, 0, i * 40, 160, 20); // stacked, no overlap
+        box(strong, 40, i * 40, 120, 20);
+      }
+    };
+    nestedFixture(2, (i) => `Line ${i}`);
+    let f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^duplicateFact/)])); // two surfaces, one figure each
+    nestedFixture(3, (i) => `Line ${i}`);
+    f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^duplicateFact: "1\.234,56 €" rendered 3 times in main/)]));
+  });
+
+  it("duplicateFact: both locale forms, the NBSP before the symbol, and the percent form are counted", async () => {
+    const fixture = (tokens: string[]) => {
+      document.body.innerHTML = `<main>${tokens.map((t) => `<p>${t}</p>`).join("")}</main>`;
+      document.querySelectorAll("main p").forEach((p, i) => box(p, 0, i * 24, 120, 20));
+    };
+    // the en-US form (comma thousands, period decimal) is matched, not only the de-DE one
+    fixture(["1,234.50 €", "1,234.50 €", "1,234.50 €"]);
+    let f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^duplicateFact: "1,234\.50 €" rendered 3 times in main/)]));
+    // an NBSP (U+00A0, what a real `Intl` de-DE emits between figure and symbol)
+    // normalises to one space: same token as the space-variant, still counted
+    fixture(["1.234,56\u00A0€", "1.234,56\u00A0€", "1.234,56 €"]);
+    f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^duplicateFact: "1\.234,56 €" rendered 3 times in main/)]));
+    // a percent fact repeated three times fails too
+    fixture(["47,3 %", "47,3 %", "47,3 %"]);
+    f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^duplicateFact: "47,3 %" rendered 3 times in main/)]));
+  });
+
+  it("duplicateFact: without a <main> the body is scanned; without a repeated token it passes", async () => {
+    document.body.innerHTML = '<p>1.234,56 €</p><p>1.234,56 €</p><p>1.234,56 €</p>';
+    document.querySelectorAll("p").forEach((p, i) => box(p, 0, i * 24, 120, 20));
+    let f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^duplicateFact: "1\.234,56 €" rendered 3 times in main/)]));
+    document.body.innerHTML = "<main><p>1.234,56 €</p></main>";
+    box(document.querySelector("p")!, 0, 0, 120, 20);
+    f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^duplicateFact/)]));
+  });
+
   it("zeroClipped: a px clip-path inset is measured against the element's box, never read as a percent", async () => {
     const clippedText = (clip: string, w: number, h: number) => {
       document.body.innerHTML = "<p></p>";
@@ -402,6 +478,7 @@ describe("page invariants", () => {
       ["textClip", "textClip: <p> is cut off by overflow (text 200px > box 100px)"],
       ["headingLines", "headingLines: <h1> wraps onto more than 2 lines (125px of text, 80px is two)"],
       ["textOverlap", "textOverlap: <p> and <span> overlap"],
+      ["duplicateFact", 'duplicateFact: "1.234,56 €" rendered 3 times in main'],
     ] as const) {
       const warnings = await assertPageInvariants(stub([full]) as never, devices.laptop14, {
         knownGaps: { [code]: "the-ticket" } as never,

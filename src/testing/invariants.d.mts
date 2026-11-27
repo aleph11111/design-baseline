@@ -8,6 +8,7 @@ export type InvariantCode =
   | "textClip"
   | "headingLines"
   | "textOverlap"
+  | "duplicateFact"
   | "column"
   | "fullBleed"
   | "toolbarRows"

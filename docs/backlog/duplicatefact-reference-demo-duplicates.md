@@ -41,6 +41,13 @@ The `duplicateFact` check shipped in v0.72.0 (`src/testing/invariants.mjs`, `mea
 - [[invariants-overflow-blind-under-mobile-emulation]] — sibling check in the same `measure` function and the same `data-scroll-region` / `PAGE_GAPS` exemption machinery
 - [[layout-invariants-nested-overflow]] — the `nestedOverflow` / `data-scroll-region` marker pattern an exemption would mirror
 
+## Recorded known gaps (re-verified 2026-11-27)
+
+These are the exact findings `check:viewports` records behind the two `PAGE_GAPS` entries (owned by `scripts/check-viewports.mjs`, PR #887 — this ticket is the owner of both entries; the check is not loosened, every other page still fails a > 2× fact). Counts verified on the final scan (each element's own figure text only) across the device triad and every sweep width:
+
+- `detail-overview` — `duplicateFact: "55,08 €" rendered 3 times in main`; `duplicateFact: "34.0%" rendered 3 times in main`.
+- `print-statement` — `duplicateFact: "18.400 €" rendered 7 times in main`; `duplicateFact: "6.200 €" rendered 7 times in main`; `duplicateFact: "2.100 €" rendered 7 times in main`; `duplicateFact: "26.700 €" rendered 7 times in main`; `duplicateFact: "−7.400 €" rendered 7 times in main`; plus one cap line `duplicateFact: 4 more repeated fact(s) not listed` (the scan's > 5 offender cap mirrors the print-statement's 9 seven× line values).
+
 ## Open question
 
 How should `duplicateFact` treat an intentional reference-demo restatement of a money fact? Chosen (Recommended): (a) an explicit `data-fact-exempt` marker the scan skips — a visible, per-call-site opt-out exactly like `nestedOverflow`'s `data-scroll-region`, so the check stays strict everywhere the marker is absent. Alternatives:
