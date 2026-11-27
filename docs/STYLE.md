@@ -764,7 +764,7 @@ has one committed screenshot per device (`tests/screenshots/<device>/<slug>.png`
 Playwright `toHaveScreenshot()`, CSS-pixel scale, clock pinned). Pixels differ
 between machines (fonts, antialiasing), so baselines are rendered and compared
 **only inside one pinned image**, `PLAYWRIGHT_IMAGE` from
-`design-baseline/testing/docker` (`mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27`,
+`design-baseline/testing/docker` (`mcr.microsoft.com/playwright:v1.65.1-noble@sha256:1507cbfc550a63a6b7396791ca4f00df17beb56342d2447b3f106c306f525579`,
 the version `@playwright/test` is pinned to exactly). The screenshot config calls
 `assertInPlaywrightImage()`, so a host run refuses. `npm run screenshots`
 compares and prints the HTML report path (expected / actual / diff per failure);

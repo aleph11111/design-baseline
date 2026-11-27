@@ -2,6 +2,12 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.74.0
+
+- **Changed (pinned image):** the screenshot-rendering image and the exact Playwright pin move from `1.63.0` to `1.65.1`. `PLAYWRIGHT_VERSION` is now `1.65.1`, `PLAYWRIGHT_IMAGE` is re-pinned to `mcr.microsoft.com/playwright:v1.65.1-noble@sha256:1507cbfc…` (index digest, re-resolved with `docker buildx imagetools inspect`), and the CI `screenshots` job image moves with it. `@playwright/test` and `playwright-core` are pinned to `1.65.1` exactly, so `assertInPlaywrightImage` keeps passing against the new image. The donor's `tests/screenshots/` baselines were re-captured in the pinned `v1.65.1-noble` image and the comparison pass is clean — the donor's pixels are unchanged between the two image versions, so no baseline file changed.
+- **Consumer:** bump `design-baseline` **and** Playwright together in the same change: `npm install --save-dev --save-exact @playwright/test@1.65.1` (and matching `playwright-core` if pinned directly) — a consumer that bumps only one side has `assertInPlaywrightImage` throw (installed version ≠ `PLAYWRIGHT_VERSION`) until the other side catches up, and running the old image with 1.65.1 browsers (or vice versa) is exactly the baseline-rot scenario the pin guards. Then re-run `npx design-baseline-playwright playwright test --update-snapshots` and review the PNG diff — on the donor the 1.63.0→1.65.1 re-capture was byte-identical, so a clean comparison is the expected outcome; a diff in a consumer means its own app renders something the new Chromium draws differently (fonts/antialiasing or a real layout change) and it re-baselines the intended parts.
+- **Breaking:** no. The pin contract is unchanged (same exports, same throw conditions); the shipped image and its Playwright version move together, and re-baselining is the documented consumer step, not an API break.
+
 ## v0.73.0
 
 - **Changed (invariants):** `checkPageInvariants` (exported `design-baseline/testing/invariants`, used by the donor's `check:viewports` and every consumer's Playwright suite) adds a code, in the stable `<code>: <message>` pattern so `options.knownGaps` downgrades it:
