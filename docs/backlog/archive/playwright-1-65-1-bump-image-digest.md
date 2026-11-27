@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-11-27
-status: ready
+status: done
 value: high
 conventional_hours: 2
 conventional_hours_by: agent
