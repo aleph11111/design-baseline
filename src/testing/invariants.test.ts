@@ -102,29 +102,52 @@ describe("page invariants", () => {
     };
     el.getBoundingClientRect = rect;
   };
-  // jsdom has no Range geometry API (the per-line text-node rects the check
-  // reads in a real browser), so a browser-style per-line `getClientRects` is
-  // stubbed on the element side: set `el.__lines = [[left, top, w, h], …]` to
-  // make the element report those line rects; other elements keep the
-  // (empty) jsdom default — the implementation's border-box fallback path.
-  const stubLineRects = (): (() => void) => {
-    const proto = Element.prototype.getClientRects;
+  // jsdom has no Range geometry API — `textNodeRange` in the implementation
+  // reads the painted per-line rects via `document.createRange().
+  // getClientRects()` per own text node, which is absent here. To make the
+  // unit surface exercise THAT path (not the element's `getClientRects`
+  // fallback, which the pre-fragment-change code also read rect-by-rect), the
+  // stub has two halves:
+  //   `__box` on an element → its `getClientRects()` returns that single
+  //     border box (a real browser's block-element `getClientRects` is a
+  //     single border box, so this is the correct stub for the element side);
+  //   the patched `Range.prototype.getClientRects` reads `__rangeLines` from
+  //     the Range's `startContainer.parentElement` (the element the text node
+  //     belongs to) → the per-line painted rects.
+  // A test that asserted on the element `getClientRects` side alone would pass
+  // on code without the Range change, so the Range half is the one that proves
+  // the fix. Restore is idempotent and must run in a `finally`.
+  const rectify = (l: [number, number, number, number][]) =>
+    l.map(([left, top, w, h]) => {
+      const r = { left, top, width: w, height: h, right: left + w, bottom: top + h, x: left, y: top, toJSON() {} };
+      return r as unknown as DOMRect;
+    });
+  const stubRangeRects = (): (() => void) => {
+    const elProto = Element.prototype.getClientRects;
     Element.prototype.getClientRects = function (this: Element) {
-      const lines = (this as unknown as { __lines?: [number, number, number, number][] }).__lines;
-      if (Array.isArray(lines)) {
-        const rects = lines.map(([left, top, w, h]) => {
-          const r = { left, top, width: w, height: h, right: left + w, bottom: top + h, x: left, y: top, toJSON() {} };
-          return r as unknown as DOMRect;
-        });
-        // the check spreads its result (`[...rs]`) and reads `.length` — an
-        // array satisfies both; `DOMRectList`'s extra `item` method is a
-        // type-surface cast, not a runtime requirement here
-        return rects as unknown as DOMRectList;
-      }
-      return proto.call(this);
+      const b = (this as unknown as { __box?: [number, number, number, number] }).__box;
+      if (b) return rectify([b]) as unknown as DOMRectList;
+      return elProto.call(this);
     };
+    // The implementation reads the bare global `Range` (not `document.Range`,
+    // which is not a standard property), so the patch has to land on
+    // `globalThis.Range.prototype` — and be removed again (jsdom's own
+    // prototype has no `getClientRects`).
+    const rangeProto = (globalThis as unknown as { Range?: { prototype: { getClientRects?: unknown } } }).Range?.prototype;
+    let rangeRestored = false;
+    if (rangeProto && typeof rangeProto.getClientRects !== "function") {
+      rangeProto.getClientRects = function (this: { startContainer: Node }) {
+        const node = this.startContainer;
+        const parent = node.parentElement as unknown as { __rangeLines?: [number, number, number, number][] } | null;
+        const lines = parent?.__rangeLines;
+        if (lines) return rectify(lines) as unknown as DOMRectList;
+        return [] as unknown as DOMRectList;
+      };
+      rangeRestored = true;
+    }
     return () => {
-      Element.prototype.getClientRects = proto;
+      Element.prototype.getClientRects = elProto;
+      if (rangeRestored && rangeProto) delete (rangeProto as { getClientRects?: unknown }).getClientRects;
     };
   };
 
@@ -272,46 +295,30 @@ describe("page invariants", () => {
     expect(f[0]).toContain("<div"); // the outermost offender describes, the nested button doesn't
   });
 
-  it("textClip: a box whose excess width is a designated horizontal scroller (data-scroll-region) is not cut-off text; unmarked it is", async () => {
+  it("textClip: a clipping box whose text is inside designated horizontal scrollers still reports — the scroller-vs-clip distinction is settled per page, not by box geometry", async () => {
     // The import-wizard phone shape: a card (overflow:clip) holds the step
-    // strip scroller (overflow-x:auto, wider than the card, marked
-    // data-scroll-region) — the content is scrollable, not clipped. `nestedOverflow`
-    // exempts the same marker; textClip's widened scope must too.
-    const fixture = (marked: boolean, scroller = true) => {
-      document.body.innerHTML = "<div class='card'></div>";
-      const card = document.querySelector("div")!;
-      card.style.overflow = "clip";
-      const sc = document.createElement("div");
-      // the step-strip text is the scroller's content (ownTextDesc via a child)
-      const label = document.createElement("span");
-      label.textContent = "1 Upload 2 Map columns (upcoming)";
-      sc.appendChild(label);
-      if (scroller) {
-        sc.style.overflowX = "auto";
-        Object.defineProperty(sc, "scrollWidth", { configurable: true, value: 487 });
-        Object.defineProperty(sc, "clientWidth", { configurable: true, value: 356 });
-        if (marked) sc.setAttribute("data-scroll-region", "");
-      } else {
-        // a plain wider NON-scroller: its text is NOT reachable by scrolling
-        Object.defineProperty(sc, "scrollWidth", { configurable: true, value: 487 });
-        Object.defineProperty(sc, "clientWidth", { configurable: true, value: 487 });
-      }
-      card.appendChild(sc);
-      box(card, 0, 0, 356, 120);
-      Object.defineProperty(card, "scrollWidth", { configurable: true, value: 487 });
-      Object.defineProperty(card, "clientWidth", { configurable: true, value: 356 });
-    };
-    fixture(true);
-    let f = await runCheck();
-    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
-    // the same shape without the marker: the text is not reachable by
-    // scrolling, so the card is still the offender
-    fixture(false);
-    f = await runCheck();
-    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textClip: <div .*cut off by overflow/)]));
-    // and with the marker but an inner NON-scroller, the marker proves nothing
-    fixture(true, false);
-    f = await runCheck();
+    // strip scroller (overflow-x:auto, marked data-scroll-region, wider than
+    // its own box). A real browser's geometry is ambiguous here — the
+    // scroller's BORDER box can sit inside the card while the card still
+    // reports the scroller's overflow as its scrollWidth — so `textClip`
+    // reports it and the scroller-vs-clip call is settled per page (a
+    // check:viewports page gap), not by a box-level exemption. This pins the
+    // report so a later accidental exemption or a marker-based skip would
+    // read as a regression here.
+    document.body.innerHTML = "<div class='card'></div>";
+    const card = document.querySelector("div")!;
+    card.style.overflow = "clip";
+    const sc = document.createElement("div");
+    sc.style.overflowX = "auto";
+    sc.setAttribute("data-scroll-region", "");
+    const label = document.createElement("span");
+    label.textContent = "1 Upload 2 Map columns (upcoming)";
+    sc.appendChild(label);
+    card.appendChild(sc);
+    box(card, 0, 0, 356, 120);
+    Object.defineProperty(card, "scrollWidth", { configurable: true, value: 487 });
+    Object.defineProperty(card, "clientWidth", { configurable: true, value: 356 });
+    const f = await runCheck();
     expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textClip: <div .*cut off by overflow/)]));
   });
 
@@ -551,53 +558,65 @@ describe("page invariants", () => {
     expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
   });
 
-  it("textOverlap: a wrapping block holder's LINE frags keep a neighbour inside its border box clear, while a glyph-level collision still fails", async () => {
-    // A real browser reports a BLOCK element's getClientRects as its single
-    // border box — whose multi-line bounds intersect any neighbour inside
-    // them even when the glyph lines do not touch. The check reads the
-    // painted lines per text node instead (Range geometry), so:
-    //   (a) border box 0..400 x 0..100, painted lines at y 0..40 and 60..100,
-    //       neighbour at x 0..120, y 40..58 (the line gap, INSIDE the border
-    //       box — 18px tall so it cannot reach line 2) → the lines do not
-    //       touch: no finding.
-    //   (b) the neighbour moved into the second line's band (y 62..80) → the
-    //       painted glyph rects intersect: still a finding.
+  it("textOverlap: a wrapping block holder's LINE frag (Range path) keeps a neighbour in the line gap clear, while a glyph-level collision still fails", async () => {
+    // The check reads the painted lines per text node (Range geometry), NOT
+    // the element's getClientRects. A real browser reports a BLOCK element's
+    // getClientRects as its single border box (0..400 x 0..100 here) — whose
+    // multi-line bounds intersect any neighbour inside them even when the
+    // glyph lines do not touch. So the fixture stubs BOTH sides: the element
+    // `getClientRects` returns the single border box (correct for a block
+    // element), and `Range.prototype.getClientRects` returns the per-line
+    // painted rects keyed to the text node's parent. Case (a) is the
+    // discriminator: with per-line rects the gap-band neighbour is clear,
+    // while pre-change code (element border box) would report it — a test that
+    // only stubbed the element side would pass without the Range change.
+    const setLines = (el: unknown, lines: number[][]) => {
+      (el as { __rangeLines?: number[][] }).__rangeLines = lines;
+    };
+    const setBox = (el: unknown, r: number[]) => {
+      (el as { __box?: number[] }).__box = r;
+    };
     const fixture = (nbTop: number) => {
       document.body.innerHTML = "<div class='db-content-column'><p></p><span></span></div>";
       const p = document.querySelector("p")!;
       const nb = document.querySelector("span")!;
       p.textContent = "first line second line";
       nb.textContent = "neighbour";
-      box(p, 0, 0, 400, 100); // the border box (also the pre-fix fragment source)
+      box(p, 0, 0, 400, 100);
+      setBox(p, [0, 0, 400, 100]); // element border box (pre-change fragments source)
+      setLines(p, [
+        [0, 0, 400, 40], // painted line 1: y 0..40
+        [0, 60, 400, 40], // painted line 2: y 60..100
+      ]);
       box(nb, 0, nbTop, 120, 18);
-      (p as unknown as { __lines?: number[][] }).__lines = [
-        [0, 0, 400, 40], // painted line 1: 0..40
-        [0, 60, 400, 40], // painted line 2: 60..100
-      ];
+      setBox(nb, [0, nbTop, 120, 18]); // inline span: element box = its painted line (no per-line Range)
     };
-    const restore1 = stubLineRects();
-    fixture(40); // the gap band
-    let f = await runCheck();
-    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
-    fixture(62); // over line 2's band
-    f = await runCheck();
-    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap:.*overlap/)]));
-    restore1();
-    // without the stub the jsdom fallback applies (the element's own
-    // getClientRects is empty → the box): the border-box behaviour stands as
-    // the unit surface, so a finding here is the documented fallback, not the
-    // per-line geometry — the real-browser per-line behaviour is what the
-    // check:viewports (Chrome) path exercises.
-    fixture(40);
-    f = await runCheck();
-    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap:.*overlap/)]));
+    const restore = stubRangeRects();
+    try {
+      fixture(40); // the line-gap band (y 40..58)
+      let f = await runCheck();
+      expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)])); // per-line rects: gap is clear
+      fixture(62); // over line 2's band (y 62..80)
+      f = await runCheck();
+      expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap:.*overlap/)])); // glyph collision
+    } finally {
+      restore();
+    }
   });
 
-  it("textOverlap: the per-line geometry holds for INLINE holders too (span line boxes, not the element box)", async () => {
-    // two spans whose element boxes are disjoint at the box level cannot meet
-    // (boxesMeet short-circuit) — so the inline proof is the reverse: element
-    // boxes that MEET while the painted lines do not. Box level 0..400 x
-    // 0..100 each; line 1 only (y 0..40 vs y 60..100): no glyph intersection.
+  it("textOverlap: the per-line geometry holds for INLINE holders too (Range line boxes, not the element box)", async () => {
+    // Two spans whose element boxes MEET wholesale (0..400 x 0..100 each) so
+    // boxesMeet passes; the discriminator is whether per-line painted rects
+    // (Range path) are used instead of the element boxes. Line 1 only at
+    // y 0..40 vs y 60..100 → clear; then line 2 at y 30..70 over line 1 →
+    // collision. Pre-change code (element boxes) would report overlap in both
+    // cases; per-line rects report only the second.
+    const setBox = (el: unknown, r: number[]) => {
+      (el as { __box?: number[] }).__box = r;
+    };
+    const setLines = (el: unknown, lines: number[][]) => {
+      (el as { __rangeLines?: number[][] }).__rangeLines = lines;
+    };
     document.body.innerHTML = "<div class='db-content-column'><span></span><span></span></div>";
     const a = document.querySelectorAll("span")[0]!;
     const b = document.querySelectorAll("span")[1]!;
@@ -605,17 +624,20 @@ describe("page invariants", () => {
     b.textContent = "b";
     box(a, 0, 0, 400, 100);
     box(b, 0, 0, 400, 100); // element boxes meet wholesale (400x100 ∩ 400x100)
-    const restore = stubLineRects();
-    (a as unknown as { __lines?: number[][] }).__lines = [[0, 0, 400, 40]]; // y 0..40
-    (b as unknown as { __lines?: number[][] }).__lines = [[0, 60, 400, 40]]; // y 60..100
-    let f = await runCheck();
-    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
-    // and the SAME element boxes with painted lines that DO intersect:
-    (a as unknown as { __lines?: number[][] }).__lines = [[0, 0, 400, 40]];
-    (b as unknown as { __lines?: number[][] }).__lines = [[0, 30, 400, 40]]; // y 30..70 over line a
-    f = await runCheck();
-    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap:.*overlap/)]));
-    restore();
+    setBox(a, [0, 0, 400, 100]);
+    setBox(b, [0, 0, 400, 100]);
+    setLines(a, [[0, 0, 400, 40]]); // a line 1: y 0..40
+    const restore = stubRangeRects();
+    try {
+      setLines(b, [[0, 60, 400, 40]]); // b line 1: y 60..100 → clear
+      let f = await runCheck();
+      expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
+      setLines(b, [[0, 30, 400, 40]]); // b line 2: y 30..70 over a line 1 → collision
+      f = await runCheck();
+      expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap:.*overlap/)]));
+    } finally {
+      restore();
+    }
   });
 
   it("textOverlap: text in a position:fixed overlay (e.g. a BottomNav) over page text is exempt", async () => {

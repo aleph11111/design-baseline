@@ -133,10 +133,15 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   // node or an own-text DESCENDANT — `<button class="overflow-hidden"><span>`
   // has no direct text node on the button and the span does not clip itself,
   // so the clipping box is the offender even though its text is nested.
-  // A box holds a designated horizontal scroller (a scroller inside it that
-  // scrolls, marked `data-scroll-region` — the `nestedOverflow` opt-out) is
-  // not cutting off text: the scroller is the horizontal surface and its
-  // overflow is reachable, so the box is exempt as `nestedOverflow` is.
+  // A box that clips text INSIDE a designated horizontal scroller (the
+  // `data-scroll-region` convention, the `nestedOverflow` opt-out) is a
+  // scroller card, not cut-off text — that distinction is settled per page
+  // (donor demos carry it as a `check:viewports` page gap, the code reports
+  // the raw clip), because the DOM geometry is ambiguous: the scroller's own
+  // border box can sit INSIDE the clipping box while the box still reports the
+  // scroller's overflow as its scrollWidth (verified on the import-wizard
+  // phone card in real Chrome), so no box-level test separates the two without
+  // page-specific knowledge.
   // An intentional ellipsis
   // (`text-overflow: ellipsis`, the `truncate` surface) is a design choice, not
   // a bug, so it is exempt; `pre`/`textarea`/`[role=dialog]` are excluded as in
@@ -146,20 +151,6 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   // In a real browser the two always agree, so this only covers the jsdom unit
   // surface — it can't add findings on the `check:viewports` (Chrome) path.
   const ownTextDesc = (el) => [...el.querySelectorAll("*")].some(ownText);
-  // A box that is wider than it is only because it HOLDS a designated
-  // horizontal scroller (`data-scroll-region`, the `nestedOverflow` opt-out on
-  // the scroller or an ancestor inside the box) is not cutting off text: the
-  // scroller is the horizontal surface and its overflow is reachable by
-  // scrolling. ponytail: the marker must reach the box from a scroller that
-  // actually scrolls inside it (scrollWidth > clientWidth) — a box clipping
-  // text AND holding a (unmarked) wider non-scroller still reports.
-  const holdsScrollRegion = (el) =>
-    [...el.querySelectorAll("*")].some((d) => {
-      const ds = getComputedStyle(d);
-      if ((ds.overflowX !== "auto" && ds.overflowX !== "scroll") || d.scrollWidth <= d.clientWidth + 1) return false;
-      for (let a = d; a && a !== el; a = a.parentElement) if (a.hasAttribute("data-scroll-region")) return true;
-      return false;
-    });
   const textClipped = [];
   for (const el of document.body.querySelectorAll("*")) {
     if (!visible(el) || el.closest("[role=dialog],pre,textarea")) continue;
@@ -168,7 +159,6 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
     if (s.overflowX !== "hidden" && s.overflowX !== "clip" && oxTok !== "hidden" && oxTok !== "clip") continue;
     if (el.scrollWidth <= el.clientWidth + 1) continue;
     if (s.textOverflow === "ellipsis") continue;
-    if (holdsScrollRegion(el)) continue;
     if (!ownText(el) && !ownTextDesc(el)) continue;
     // report the outermost offender only, not every child inside it
     if (!textClipped.some((c) => c.contains(el))) textClipped.push(el);

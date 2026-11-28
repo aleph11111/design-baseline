@@ -66,6 +66,15 @@ const PAGE_GAPS = {
   // downgrades the code at the triad for any OTHER page.
   "detail-overview": { duplicateFact: "duplicatefact-reference-demo-duplicates" },
   "print-statement": { duplicateFact: "duplicatefact-reference-demo-duplicates" },
+  // import-wizard's phone demo is a scroller card: its step strip scrolls
+  // inside a `data-scroll-region` while the card itself still reports the
+  // scroller's overflow as its own scrollWidth (487px in a 356px card), so
+  // textClip's widened nested-holder scope (v0.76.0) fires on it. The
+  // scroller-vs-real-clip distinction is settled per page (the donor demos
+  // carry it as a gap here; the code reports the raw clip) because no
+  // box-level test separates the two — see the invariants.mjs textClip
+  // comment. The ticket owns the final settlement.
+  "import-wizard": { textClip: "invariants-textclip-phone-demos" },
 };
 const pageGaps = (slug) => PAGE_GAPS[slug] ?? {};
 const sweepGaps = (slug, w) => {
