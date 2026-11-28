@@ -522,10 +522,33 @@ describe("page invariants", () => {
     // legacy utility: clip rect(0px, 0px, 0px, 0px) — normalized unit form
     srOnly("clip:rect(0px, 0px, 0px, 0px)");
     expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
-    // legacy utility: clip rect(0,0,0,0) — bare zeros (a non-normalizing engine
-    // would keep this raw form; the parse must not require a unit after the 0)
-    srOnly("clip:rect(0,0,0,0)");
-    expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
+    // legacy utility: bare-zero clip — jsdom re-serializes `rect(0,0,0,0)` to
+    // `rect(0px, 0px, 0px, 0px)` in the COMPUTED style, so the raw form a
+    // non-normalizing engine would return is served directly. Without the
+    // stub this case runs the same input as the `0px` case above and would
+    // even pass against the old unit-requiring pattern — the parse under test
+    // is that a unit after the 0 is not required.
+    const srOnlyRaw = (clip: string, raw: string): Promise<string[]> => {
+      const p = srOnly(clip);
+      const real = window.getComputedStyle;
+      window.getComputedStyle = ((el: Element, pseudo?: string | null) => {
+        const s = real(el, pseudo);
+        return el === p
+          ? new Proxy(s, { get: (o, k) => (k === "clip" ? raw : (o as unknown as Record<PropertyKey, unknown>)[k]) })
+          : s;
+      }) as typeof real;
+      try {
+        return runCheck();
+      } finally {
+        window.getComputedStyle = real;
+      }
+    };
+    expect(await srOnlyRaw("clip:rect(0,0,0,0)", "rect(0,0,0,0)")).not.toEqual(
+      expect.arrayContaining([expect.stringMatching(/^textClip/)]),
+    );
+    expect(await srOnlyRaw("clip:rect(0, 0, 0, 0)", "rect(0, 0, 0, 0)")).not.toEqual(
+      expect.arrayContaining([expect.stringMatching(/^textClip/)]),
+    );
     // and a real clipped text (no zero-clip, no ellipsis) still fails the check
     document.body.innerHTML = "<p></p>";
     const p = document.querySelector("p")!;
