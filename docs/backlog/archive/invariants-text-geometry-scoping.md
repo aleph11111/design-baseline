@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-11-24
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "cause established in both halves: textClip gates on ownText(el) only, fragments() falls back to the block border box; fix shape is given and extends existing tests"

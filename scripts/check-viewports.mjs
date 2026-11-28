@@ -50,7 +50,12 @@ const PAGE_GAPS = {
   // transaction-document's contract wraps the long document title in full at
   // every width; headingLines (v0.71.0) caps any h1 at 2 lines. The demo's
   // long title is 3-4 lines everywhere. Which rule wins is decided in the ticket.
-  "transaction-document": { headingLines: "transaction-document-title-vs-heading-lines" },
+  // textClip's widened nested-holder scope (v0.76.0) also catches the phone
+  // next-step panel: its side-effect line paints ~37px past the overflow-hidden
+  // clip edge — genuinely cut-off text, no scroller, no ellipsis. The ticket
+  // fixes the panel and removes the textClip gap so the code re-asserts;
+  // page-scoped, so textClip still fails on every other page.
+  "transaction-document": { headingLines: "transaction-document-title-vs-heading-lines", textClip: "invariants-textclip-phone-demos" },
   // duplicateFact (v0.72.0) fires on the two money-dense reference demos BY
   // DESIGN: detail-overview restates the order's headline figures (gross
   // profit, margin) in the rail summary, the financial breakdown AND the
@@ -61,6 +66,15 @@ const PAGE_GAPS = {
   // downgrades the code at the triad for any OTHER page.
   "detail-overview": { duplicateFact: "duplicatefact-reference-demo-duplicates" },
   "print-statement": { duplicateFact: "duplicatefact-reference-demo-duplicates" },
+  // import-wizard's phone demo is a scroller card: its step strip scrolls
+  // inside a `data-scroll-region` while the card itself still reports the
+  // scroller's overflow as its own scrollWidth (487px in a 356px card), so
+  // textClip's widened nested-holder scope (v0.76.0) fires on it. The
+  // scroller-vs-real-clip distinction is settled per page (the donor demos
+  // carry it as a gap here; the code reports the raw clip) because no
+  // box-level test separates the two — see the invariants.mjs textClip
+  // comment. The ticket owns the final settlement.
+  "import-wizard": { textClip: "invariants-textclip-phone-demos" },
 };
 const pageGaps = (slug) => PAGE_GAPS[slug] ?? {};
 const sweepGaps = (slug, w) => {
