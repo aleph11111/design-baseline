@@ -102,6 +102,32 @@ describe("page invariants", () => {
     };
     el.getBoundingClientRect = rect;
   };
+  // jsdom has no Range geometry API (the per-line text-node rects the check
+  // reads in a real browser), so a browser-style per-line `getClientRects` is
+  // stubbed on the element side: set `el.__lines = [[left, top, w, h], …]` to
+  // make the element report those line rects; other elements keep the
+  // (empty) jsdom default — the implementation's border-box fallback path.
+  const stubLineRects = (): (() => void) => {
+    const proto = Element.prototype.getClientRects;
+    Element.prototype.getClientRects = function (this: Element) {
+      const lines = (this as unknown as { __lines?: [number, number, number, number][] }).__lines;
+      if (Array.isArray(lines)) {
+        const rects = lines.map(([left, top, w, h]) => {
+          const r = { left, top, width: w, height: h, right: left + w, bottom: top + h, x: left, y: top, toJSON() {} };
+          return r as unknown as DOMRect;
+        });
+        // the check spreads its result (`[...rs]`) and reads `.length` — an
+        // array satisfies both; `DOMRectList`'s extra `item` method is a
+        // type-surface cast, not a runtime requirement here
+        return rects as unknown as DOMRectList;
+      }
+      return proto.call(this);
+    };
+    return () => {
+      Element.prototype.getClientRects = proto;
+    };
+  };
+
   // jsdom has no text metrics: the titleSqueeze check's hidden word-probe
   // divs (`visibility:hidden`, created per word) have no rect — stub a natural
   // width per word so the check's measurement path is exercised.
@@ -194,6 +220,99 @@ describe("page invariants", () => {
     Object.defineProperty(p, "clientWidth", { configurable: true, value: 100 });
     f = await runCheck();
     expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textClip:.*cut off by overflow/)]));
+  });
+
+  it("textClip: the clipping box is the offender when the text sits in a nested element — a <button class=overflow-hidden><span> wider than the button fails", async () => {
+    const nested = (wide: boolean) => {
+      // the button has NO direct text node; the label lives in the span — the
+      // pre-fix shape the check missed entirely (ownText(button) === false).
+      // The class names the shape (the tailwind utility); the inline style
+      // carries it, since jsdom has no stylesheet to resolve the class.
+      document.body.innerHTML = "<button class='overflow-hidden'></button>";
+      const btn = document.querySelector("button")!;
+      btn.style.overflow = "hidden";
+      const span = document.createElement("span");
+      span.textContent = "a very long label";
+      btn.appendChild(span);
+      box(btn, 0, 0, 100, 44);
+      Object.defineProperty(btn, "scrollWidth", { configurable: true, value: wide ? 240 : 100 });
+      Object.defineProperty(btn, "clientWidth", { configurable: true, value: 100 });
+      return btn;
+    };
+    nested(true);
+    let f = await runCheck();
+    expect(f).toEqual(
+      expect.arrayContaining([expect.stringMatching(/^textClip: <button "a very long label"> is cut off by overflow/)]),
+    );
+    // a fitting label: the box is as wide as its content — not a clip
+    nested(false);
+    f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
+  });
+
+  it("textClip: a nested textClip offender inside an already-reported clipped container is not listed separately (outermost only)", async () => {
+    // the container clips; the nested button clips its own span — both trip
+    // the new nested-ownText gate, and the contains-dedupe keeps one line
+    document.body.innerHTML = "<div style='overflow:hidden'></div>";
+    const outer = document.querySelector("div")!;
+    const btn = document.createElement("button");
+    btn.style.overflow = "hidden";
+    const span = document.createElement("span");
+    span.textContent = "inner label";
+    btn.appendChild(span);
+    outer.appendChild(btn);
+    box(outer, 0, 0, 100, 60);
+    box(btn, 10, 10, 80, 40);
+    for (const el of [outer, btn]) {
+      Object.defineProperty(el, "scrollWidth", { configurable: true, value: 200 });
+      Object.defineProperty(el, "clientWidth", { configurable: true, value: 100 });
+    }
+    const f = (await runCheck()).filter((s) => s.startsWith("textClip"));
+    expect(f).toHaveLength(1);
+    expect(f[0]).toContain("<div"); // the outermost offender describes, the nested button doesn't
+  });
+
+  it("textClip: a box whose excess width is a designated horizontal scroller (data-scroll-region) is not cut-off text; unmarked it is", async () => {
+    // The import-wizard phone shape: a card (overflow:clip) holds the step
+    // strip scroller (overflow-x:auto, wider than the card, marked
+    // data-scroll-region) — the content is scrollable, not clipped. `nestedOverflow`
+    // exempts the same marker; textClip's widened scope must too.
+    const fixture = (marked: boolean, scroller = true) => {
+      document.body.innerHTML = "<div class='card'></div>";
+      const card = document.querySelector("div")!;
+      card.style.overflow = "clip";
+      const sc = document.createElement("div");
+      // the step-strip text is the scroller's content (ownTextDesc via a child)
+      const label = document.createElement("span");
+      label.textContent = "1 Upload 2 Map columns (upcoming)";
+      sc.appendChild(label);
+      if (scroller) {
+        sc.style.overflowX = "auto";
+        Object.defineProperty(sc, "scrollWidth", { configurable: true, value: 487 });
+        Object.defineProperty(sc, "clientWidth", { configurable: true, value: 356 });
+        if (marked) sc.setAttribute("data-scroll-region", "");
+      } else {
+        // a plain wider NON-scroller: its text is NOT reachable by scrolling
+        Object.defineProperty(sc, "scrollWidth", { configurable: true, value: 487 });
+        Object.defineProperty(sc, "clientWidth", { configurable: true, value: 487 });
+      }
+      card.appendChild(sc);
+      box(card, 0, 0, 356, 120);
+      Object.defineProperty(card, "scrollWidth", { configurable: true, value: 487 });
+      Object.defineProperty(card, "clientWidth", { configurable: true, value: 356 });
+    };
+    fixture(true);
+    let f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
+    // the same shape without the marker: the text is not reachable by
+    // scrolling, so the card is still the offender
+    fixture(false);
+    f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textClip: <div .*cut off by overflow/)]));
+    // and with the marker but an inner NON-scroller, the marker proves nothing
+    fixture(true, false);
+    f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textClip: <div .*cut off by overflow/)]));
   });
 
   it("headingLines: an h1 taller than 2 line-heights fails; a 2-line h1 passes", async () => {
@@ -430,6 +549,73 @@ describe("page invariants", () => {
     box(inner, 10, 10, 80, 40);
     f = await runCheck();
     expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
+  });
+
+  it("textOverlap: a wrapping block holder's LINE frags keep a neighbour inside its border box clear, while a glyph-level collision still fails", async () => {
+    // A real browser reports a BLOCK element's getClientRects as its single
+    // border box — whose multi-line bounds intersect any neighbour inside
+    // them even when the glyph lines do not touch. The check reads the
+    // painted lines per text node instead (Range geometry), so:
+    //   (a) border box 0..400 x 0..100, painted lines at y 0..40 and 60..100,
+    //       neighbour at x 0..120, y 40..58 (the line gap, INSIDE the border
+    //       box — 18px tall so it cannot reach line 2) → the lines do not
+    //       touch: no finding.
+    //   (b) the neighbour moved into the second line's band (y 62..80) → the
+    //       painted glyph rects intersect: still a finding.
+    const fixture = (nbTop: number) => {
+      document.body.innerHTML = "<div class='db-content-column'><p></p><span></span></div>";
+      const p = document.querySelector("p")!;
+      const nb = document.querySelector("span")!;
+      p.textContent = "first line second line";
+      nb.textContent = "neighbour";
+      box(p, 0, 0, 400, 100); // the border box (also the pre-fix fragment source)
+      box(nb, 0, nbTop, 120, 18);
+      (p as unknown as { __lines?: number[][] }).__lines = [
+        [0, 0, 400, 40], // painted line 1: 0..40
+        [0, 60, 400, 40], // painted line 2: 60..100
+      ];
+    };
+    const restore1 = stubLineRects();
+    fixture(40); // the gap band
+    let f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
+    fixture(62); // over line 2's band
+    f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap:.*overlap/)]));
+    restore1();
+    // without the stub the jsdom fallback applies (the element's own
+    // getClientRects is empty → the box): the border-box behaviour stands as
+    // the unit surface, so a finding here is the documented fallback, not the
+    // per-line geometry — the real-browser per-line behaviour is what the
+    // check:viewports (Chrome) path exercises.
+    fixture(40);
+    f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap:.*overlap/)]));
+  });
+
+  it("textOverlap: the per-line geometry holds for INLINE holders too (span line boxes, not the element box)", async () => {
+    // two spans whose element boxes are disjoint at the box level cannot meet
+    // (boxesMeet short-circuit) — so the inline proof is the reverse: element
+    // boxes that MEET while the painted lines do not. Box level 0..400 x
+    // 0..100 each; line 1 only (y 0..40 vs y 60..100): no glyph intersection.
+    document.body.innerHTML = "<div class='db-content-column'><span></span><span></span></div>";
+    const a = document.querySelectorAll("span")[0]!;
+    const b = document.querySelectorAll("span")[1]!;
+    a.textContent = "a";
+    b.textContent = "b";
+    box(a, 0, 0, 400, 100);
+    box(b, 0, 0, 400, 100); // element boxes meet wholesale (400x100 ∩ 400x100)
+    const restore = stubLineRects();
+    (a as unknown as { __lines?: number[][] }).__lines = [[0, 0, 400, 40]]; // y 0..40
+    (b as unknown as { __lines?: number[][] }).__lines = [[0, 60, 400, 40]]; // y 60..100
+    let f = await runCheck();
+    expect(f).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap/)]));
+    // and the SAME element boxes with painted lines that DO intersect:
+    (a as unknown as { __lines?: number[][] }).__lines = [[0, 0, 400, 40]];
+    (b as unknown as { __lines?: number[][] }).__lines = [[0, 30, 400, 40]]; // y 30..70 over line a
+    f = await runCheck();
+    expect(f).toEqual(expect.arrayContaining([expect.stringMatching(/^textOverlap:.*overlap/)]));
+    restore();
   });
 
   it("textOverlap: text in a position:fixed overlay (e.g. a BottomNav) over page text is exempt", async () => {

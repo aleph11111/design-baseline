@@ -2,6 +2,14 @@
 
 One entry per `package.json` version (`## v<version>`), newest first. Each records what changed, what a consumer must do, and whether it is breaking. `scripts/verify-package-version.mjs` fails `npm test` on a version bump without an entry here. Per-archetype removals live in the migration table in `docs/PACKAGE.md`.
 
+## v0.76.0
+
+- **Changed (invariants):** the two text-geometry checks in `checkPageInvariants` (exported `design-baseline/testing/invariants`) get the scoping the gate reviews flagged twice:
+  - `textClip` now reaches the **nested text holder**: a box that clips horizontally (`overflow-x: hidden|clip`, wider than its box, no `text-overflow: ellipsis`) is the offender when its text sits in a nested element that does not clip itself — the common shape `<button class="overflow-hidden"><span>label</span>`: the clipping button has no direct text node and the span does not clip, so the cut-off label was invisible to the check before. A box whose excess width is a designated horizontal scroller inside it (a scrolling element marked `data-scroll-region` — the `nestedOverflow` opt-out) is exempt: the text is reachable by scrolling, not clipped. The outermost-offender dedupe and the five-offender cap are unchanged — a still-clipping nested box inside an already-reported clipped container is not listed separately.
+  - `textOverlap` intersects the text's painted **line fragments per line**, not the element's `getClientRects` box: a `Range` is built per own text node and its `getClientRects()` (the painted line boxes) is used where real layout exists. This corrects the block-holder case — a wrapping `p`/`td`/`div`'s element `getClientRects` is a single BORDER box, whose multi-line bounds intersected any neighbour sitting inside them even when the glyph lines do not touch; a neighbour now clears a wrapping title's own lines (and the gaps between them). The clipping to overflow-hiding/scrolling ancestors is unchanged, the empty-clipped ⇒ empty-fragments invariant (hidden text never overlaps) is unchanged, and the border box still stands in where no layout exists (jsdom unit surface).
+- **Consumer:** none required; bump `design-baseline`. No code or message shape changed. Effect on pages: a nested-clip shape that was missed is now reported, and a wrapping block holder with a neighbour inside its border box but clear of its painted lines is no longer falsely reported. Pages without those two shapes return exactly the same problems as before (same codes, same messages — donor `check:viewports` results unchanged on all triad devices and sweep widths).
+- **Breaking:** no API break.
+
 ## v0.75.0
 
 - **Changed (invariants):** `checkPageInvariants` (exported `design-baseline/testing/invariants`) caps the per-element failure reports in `measure` — every code that reports one line per offender now reports at most **five outermost** offenders, the same pattern `clipped` and `nestedOverflow` already carried:

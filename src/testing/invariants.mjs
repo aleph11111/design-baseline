@@ -128,8 +128,16 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   for (const el of nested.slice(0, 5))
     problems.push(`nestedOverflow: ${describe(el)} scrolls sideways (${Math.round(el.scrollWidth)}px in a ${Math.round(el.clientWidth)}px box, no data-scroll-region)`);
 
-  // Cut-off text: a text-bearing box that clips HORIZONTALLY (the axis
-  // scrollWidth/clientWidth measure) wider than it is. An intentional ellipsis
+  // Cut-off text: a box clipping HORIZONTALLY (the axis scrollWidth/clientWidth
+  // measure) wider than it is. What counts as a text-bearing box: an own text
+  // node or an own-text DESCENDANT — `<button class="overflow-hidden"><span>`
+  // has no direct text node on the button and the span does not clip itself,
+  // so the clipping box is the offender even though its text is nested.
+  // A box holds a designated horizontal scroller (a scroller inside it that
+  // scrolls, marked `data-scroll-region` — the `nestedOverflow` opt-out) is
+  // not cutting off text: the scroller is the horizontal surface and its
+  // overflow is reachable, so the box is exempt as `nestedOverflow` is.
+  // An intentional ellipsis
   // (`text-overflow: ellipsis`, the `truncate` surface) is a design choice, not
   // a bug, so it is exempt; `pre`/`textarea`/`[role=dialog]` are excluded as in
   // `scrollCue`. `overflowX` is the horizontal axis, but jsdom does not expand
@@ -137,14 +145,31 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   // "visible"), so the shorthand's first token (also the x-axis) is read too.
   // In a real browser the two always agree, so this only covers the jsdom unit
   // surface — it can't add findings on the `check:viewports` (Chrome) path.
+  const ownTextDesc = (el) => [...el.querySelectorAll("*")].some(ownText);
+  // A box that is wider than it is only because it HOLDS a designated
+  // horizontal scroller (`data-scroll-region`, the `nestedOverflow` opt-out on
+  // the scroller or an ancestor inside the box) is not cutting off text: the
+  // scroller is the horizontal surface and its overflow is reachable by
+  // scrolling. ponytail: the marker must reach the box from a scroller that
+  // actually scrolls inside it (scrollWidth > clientWidth) — a box clipping
+  // text AND holding a (unmarked) wider non-scroller still reports.
+  const holdsScrollRegion = (el) =>
+    [...el.querySelectorAll("*")].some((d) => {
+      const ds = getComputedStyle(d);
+      if ((ds.overflowX !== "auto" && ds.overflowX !== "scroll") || d.scrollWidth <= d.clientWidth + 1) return false;
+      for (let a = d; a && a !== el; a = a.parentElement) if (a.hasAttribute("data-scroll-region")) return true;
+      return false;
+    });
   const textClipped = [];
   for (const el of document.body.querySelectorAll("*")) {
-    if (!visible(el) || !ownText(el) || el.closest("[role=dialog],pre,textarea")) continue;
+    if (!visible(el) || el.closest("[role=dialog],pre,textarea")) continue;
     const s = getComputedStyle(el);
     const oxTok = s.overflow.trim().split(/\s+/)[0];
     if (s.overflowX !== "hidden" && s.overflowX !== "clip" && oxTok !== "hidden" && oxTok !== "clip") continue;
     if (el.scrollWidth <= el.clientWidth + 1) continue;
     if (s.textOverflow === "ellipsis") continue;
+    if (holdsScrollRegion(el)) continue;
+    if (!ownText(el) && !ownTextDesc(el)) continue;
     // report the outermost offender only, not every child inside it
     if (!textClipped.some((c) => c.contains(el))) textClipped.push(el);
   }
@@ -277,9 +302,48 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
     }
     return r;
   };
+  // Painted line fragments, PER LINE, for the own-text nodes of `el`.
+  // `el.getClientRects()` is the union of an element's boxes in real Chrome:
+  // per-line for INLINE holders (a span's painted line boxes) but a single
+  // BORDER BOX for BLOCK holders (`p`, `td`, `div`) — whose multi-line box
+  // intersects any neighbour sitting inside it even when the glyph lines do
+  // not touch, so the painted lines are read from the text nodes themselves
+  // instead: one `Range` per direct text node, its `getClientRects()` the
+  // painted line boxes. The Range is kept (one per text node): its geometry
+  // is re-read for every OTHER box the pair scan pairs against, and a fresh
+  // Range per pair would re-run the text-node text layout each time. jsdom
+  // has no Range geometry API (`Range.prototype.getClientRects` is absent),
+  // so the fallback chain keeps the old behaviour there: the element's own
+  // `getClientRects`, or the border box when those are empty (no layout).
+  const rangeRects = new WeakMap(); // el → Range[] for its own text nodes, or []
+  const textNodeRange = (el) => {
+    let list = rangeRects.get(el);
+    if (!list) {
+      // jsdom has no Range geometry (no `Range.prototype.getClientRects`):
+      // no Range is built there, and the element-rects fallback below stands
+      // in. `document.createRange` may NOT be detached (it throws
+      // "Illegal invocation" on a bare call — probed in real Chrome), so it
+      // is called on `document`.
+      list =
+        typeof document.createRange === "function" && Range.prototype.getClientRects
+          ? [...el.childNodes].filter((n) => n.nodeType === 3 && n.textContent.trim()).map((n) => { const r = document.createRange(); r.selectNodeContents(n); return r; })
+          : [];
+      rangeRects.set(el, list);
+    }
+    return list;
+  };
   const fragments = (el, other) => {
     const c = clipSide(el, other);
-    const rs = [...el.getClientRects()];
+    let rs = [...el.getClientRects()];
+    // Real layout: per-line rects over the own text nodes (a block holder's
+    // single border box would count as an overlap with any neighbour inside
+    // its bounds, even across the line gaps). `el` passed `ownText`, so a
+    // browser always yields at least one text node; the list stays empty only
+    // where the Range geometry API is absent (jsdom).
+    if (rs.length) {
+      const r = textNodeRange(el);
+      if (r.length) rs = r.flatMap((g) => [...g.getClientRects()]);
+    }
     // `getClientRects` is empty only where there is no layout at all (jsdom):
     // then the box stands in for the fragments, clipped the same way. With
     // real layout an empty clipped result means nothing is painted — it must
