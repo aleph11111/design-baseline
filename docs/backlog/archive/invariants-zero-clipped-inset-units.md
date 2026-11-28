@@ -1,7 +1,7 @@
 ---
 area: tooling
 opened: 2026-11-24
-status: ready
+status: done
 value: normal
 blocked_on_branch: feat/layout-invariants-nested-overflow
 model: sonnet
