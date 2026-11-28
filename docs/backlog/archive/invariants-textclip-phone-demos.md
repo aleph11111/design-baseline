@@ -1,7 +1,7 @@
 ---
 area: archetypes
 opened: 2026-11-28
-status: ready
+status: done
 value: normal
 model: sonnet
 model_reason: "two donor-demo cases, both caused by v0.76.0's widened textClip nested-holder scope; case 1's cause is established by probe and its fix is demo layout; case 2 is a check-semantics decision settled by verified Chrome geometry; both end states remove their PAGE_GAPS textClip keys so the code re-asserts"
