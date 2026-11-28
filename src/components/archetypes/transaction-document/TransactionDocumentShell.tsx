@@ -457,13 +457,24 @@ function SideEffects({ items, toned, inline = false }: { items: SideEffect[]; to
   return (
     <div data-slot="td-side-effects" className={cn("text-xs", inline ? "leading-4" : "leading-5")}>
       <span className={cn("mr-4", !toned && "text-muted-foreground")}>{L.runningAlongside}:</span>
-      <ul className="inline">
+      {/* Phone (below `sm`): the list runs on its own line(s), full width — an
+      inline list starts mid-line after the label, so an item's max-width
+      (100% of the panel) still overruns the card's clip edge by the label's
+      width. At `sm` and up the list stays `inline` — the desktop geometry is
+      unchanged. */}
+      <ul className="block sm:inline">
         {items.map((s) => {
           const Icon = SIDE_EFFECT_ICON[s.state];
           return (
-            <li key={s.label} data-state={s.state} className="mr-4 inline-flex items-baseline gap-1">
+            // max-w-full clamps the item to the panel's width (a phone's ~316px
+            // content box) so it wraps at word boundaries instead of
+            // overflowing the card's overflow-hidden clip; on desktop the box
+            // is far wider than the one-line items, so they stay one line —
+            // their geometry is unchanged there. `min-w-0` on the text span
+            // is the flex idiom that lets it shrink below its widest word.
+            <li key={s.label} data-state={s.state} className="mr-4 inline-flex max-w-full items-baseline gap-1">
               <Icon aria-hidden className={cn("size-3.5 shrink-0 self-center", SIDE_EFFECT_TONE[s.state])} />
-              <span>
+              <span className="min-w-0">
                 {s.label}
                 <span className="sr-only"> ({stateLabel[s.state]})</span>
                 {s.link ? (

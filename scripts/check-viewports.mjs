@@ -50,12 +50,11 @@ const PAGE_GAPS = {
   // transaction-document's contract wraps the long document title in full at
   // every width; headingLines (v0.71.0) caps any h1 at 2 lines. The demo's
   // long title is 3-4 lines everywhere. Which rule wins is decided in the ticket.
-  // textClip's widened nested-holder scope (v0.76.0) also catches the phone
-  // next-step panel: its side-effect line paints ~37px past the overflow-hidden
-  // clip edge — genuinely cut-off text, no scroller, no ellipsis. The ticket
-  // fixes the panel and removes the textClip gap so the code re-asserts;
-  // page-scoped, so textClip still fails on every other page.
-  "transaction-document": { headingLines: "transaction-document-title-vs-heading-lines", textClip: "invariants-textclip-phone-demos" },
+  // (The phone next-step panel's cut-off side-effect line — textClip's widened
+  // nested-holder scope, v0.76.0 — was settled in v0.77.0: the card's side-effect
+  // line now wraps within the panel, so the panel's textClip gap closed and the
+  // code re-asserts. Only the headingLines gap remains here.)
+  "transaction-document": { headingLines: "transaction-document-title-vs-heading-lines" },
   // duplicateFact (v0.72.0) fires on the two money-dense reference demos BY
   // DESIGN: detail-overview restates the order's headline figures (gross
   // profit, margin) in the rail summary, the financial breakdown AND the
@@ -73,7 +72,15 @@ const PAGE_GAPS = {
   // scroller-vs-real-clip distinction is settled per page (the donor demos
   // carry it as a gap here; the code reports the raw clip) because no
   // box-level test separates the two — see the invariants.mjs textClip
-  // comment. The ticket owns the final settlement.
+  // comment. FINAL SETTLEMENT (v0.77.0, invariants-textclip-phone-demos):
+  // case 2(b) — the per-page settlement IS the final home. The box-level
+  // scroller-aware exemption (case 2a) stays rejected: a box clipping its OWN
+  // text while coincidentally holding a wide scroller would be wrongly
+  // exempted, and the verified probe geometry (scroller box r=357 INSIDE card
+  // r=374, card scrollWidth 487) shows the marker/box relationship cannot
+  // discriminate the two at box level. This entry is the recording of that
+  // decision and stays until the geometry is resolved by a real browser
+  // capability change; it is NOT a candidate for a check change.
   "import-wizard": { textClip: "invariants-textclip-phone-demos" },
 };
 const pageGaps = (slug) => PAGE_GAPS[slug] ?? {};
