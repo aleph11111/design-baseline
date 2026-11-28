@@ -489,8 +489,15 @@ describe("page invariants", () => {
     // 60px of a 300x200 box per side leaves a visible middle: the element is still checked
     clippedText("clip-path:inset(60px)", 300, 200);
     expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
+    // 50px top + bottom of a 200px-tall box leaves 100px visible: still checked
+    clippedText("clip-path:inset(50px 0 50px 0)", 300, 200);
+    expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
+    // 120px bottom of a 200px-tall box leaves 80px visible: still checked
     clippedText("clip-path:inset(0 0 120px 0)", 300, 200);
     expect(await runCheck()).toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
+    // 50px top + bottom of a 100px-tall box collapses it: hidden, not checked
+    clippedText("clip-path:inset(50px 0)", 300, 100);
+    expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
     // 100px top + bottom of a 200px-tall box collapses it: hidden, not checked
     clippedText("clip-path:inset(100px 0)", 300, 200);
     expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
@@ -512,7 +519,11 @@ describe("page invariants", () => {
     // modern utility: clip-path inset(50%)
     srOnly("clip-path:inset(50%)");
     expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
-    // legacy utility: clip rect(0,0,0,0)
+    // legacy utility: clip rect(0px, 0px, 0px, 0px) — normalized unit form
+    srOnly("clip:rect(0px, 0px, 0px, 0px)");
+    expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
+    // legacy utility: clip rect(0,0,0,0) — bare zeros (a non-normalizing engine
+    // would keep this raw form; the parse must not require a unit after the 0)
     srOnly("clip:rect(0,0,0,0)");
     expect(await runCheck()).not.toEqual(expect.arrayContaining([expect.stringMatching(/^textClip/)]));
     // and a real clipped text (no zero-clip, no ellipsis) still fails the check

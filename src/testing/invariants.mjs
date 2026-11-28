@@ -38,7 +38,10 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
       const v = [pct(t[0], box.height), pct(t[1], box.width), pct(t[2], box.height), pct(t[3], box.width)];
       if (v[0] + v[2] >= 99.5 || v[1] + v[3] >= 99.5) return true; // a dimension collapses to zero
     }
-    if (/^rect\(\s*0[^,]+,\s*0[^,]+,\s*0[^,]+,\s*0[^,]+\s*\)$/.test(String(s.clip).replace(/\s+/g, ""))) return true;
+    // Legacy `clip: rect(...)`: four zero coordinates, any unit — a non-normalizing
+    // engine may serialize bare `0` where Chrome/jsdom re-emit `0px`.
+    const clip = String(s.clip).match(/^rect\(([^)]+)\)$/i);
+    if (clip && clip[1].split(",").every((tok) => /^0\s*(?:[a-z%]*)\s*$/i.test(tok.trim()))) return true;
     return false;
   };
   const visible = (el) => {
