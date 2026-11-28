@@ -528,17 +528,29 @@ describe("page invariants", () => {
     // stub this case runs the same input as the `0px` case above and would
     // even pass against the old unit-requiring pattern — the parse under test
     // is that a unit after the 0 is not required.
-    const srOnlyRaw = (clip: string, raw: string): Promise<string[]> => {
+    const srOnlyRaw = async (clip: string, raw: string): Promise<string[]> => {
       const p = srOnly(clip);
       const real = window.getComputedStyle;
+      let clipHits = 0;
       window.getComputedStyle = ((el: Element, pseudo?: string | null) => {
         const s = real(el, pseudo);
-        return el === p
-          ? new Proxy(s, { get: (o, k) => (k === "clip" ? raw : (o as unknown as Record<PropertyKey, unknown>)[k]) })
-          : s;
+        if (el !== p) return s;
+        return new Proxy(s, {
+          get: (o, k) => {
+            if (k === "clip") { clipHits++; return raw; }
+            return (o as unknown as Record<PropertyKey, unknown>)[k];
+          },
+        });
       }) as typeof real;
       try {
-        return runCheck();
+        // Await INSIDE the try: the real getComputedStyle is only restored once
+        // the measurement has completed, so the raw form is served no matter
+        // where an await lands in the check's own path.
+        const failures = await runCheck();
+        // The raw stub must have been actually read, or this case runs the
+        // normalized 0px input — a unit-requiring parse would pass both.
+        expect(clipHits).toBeGreaterThan(0);
+        return failures;
       } finally {
         window.getComputedStyle = real;
       }
