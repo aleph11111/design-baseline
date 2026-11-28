@@ -142,6 +142,12 @@ function measure({ mobile, column, fullBleed, tap, vw }) {
   // scroller's overflow as its scrollWidth (verified on the import-wizard
   // phone card in real Chrome), so no box-level test separates the two without
   // page-specific knowledge.
+  // SETTLED per page (v0.77.0, ticket invariants-textclip-phone-demos): the
+  // import-wizard phone card's finding STAYS a `check:viewports` page gap (its
+  // step-strip scroller is an intended `data-scroll-region` scroller), and the
+  // box-level scroller-aware exemption is CLOSED — do not re-try it; the unit
+  // test pins this very report at the probe geometry (card scrollWidth 487 in
+  // a 356px box, scroller box inside the card's edge).
   // An intentional ellipsis
   // (`text-overflow: ellipsis`, the `truncate` surface) is a design choice, not
   // a bug, so it is exempt; `pre`/`textarea`/`[role=dialog]` are excluded as in
